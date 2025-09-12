@@ -16,11 +16,22 @@ const (
 )
 
 type Config struct {
-	Logger        Logger   `envconfig:"LOGGER"`
-	APIServer     Server   `envconfig:"API_SERVER"`
-	TechServer    Server   `envconfig:"TECH_SERVER"`
-	MigrationsDir string   `envconfig:"MIGRATIONS_DIR" default:"./migrations"`
-	Postgres      Postgres `envconfig:"POSTGRES"`
+	Logger           Logger        `envconfig:"LOGGER"`
+	APIServer        Server        `envconfig:"API_SERVER"`
+	TechServer       Server        `envconfig:"TECH_SERVER"`
+	Postgres         Postgres      `envconfig:"POSTGRES"`
+	Mailer           Mailer        `envconfig:"MAILER"`
+	MigrationsDir    string        `envconfig:"MIGRATIONS_DIR" default:"./migrations"`
+	FrontendURL      string        `envconfig:"FRONTEND_URL" required:"true"`
+	SecretKey        string        `envconfig:"SECRET_KEY" required:"true"`
+	JWTSecretKey     string        `envconfig:"JWT_SECRET_KEY" required:"true"`
+	AccessTokenTTL   time.Duration `envconfig:"ACCESS_TOKEN_TTL" default:"3h"`
+	RefreshTokenTTL  time.Duration `envconfig:"REFRESH_TOKEN_TTL" default:"168h"`
+	ResetPasswordTTL time.Duration `envconfig:"RESET_PASSWORD_TTL" default:"8h"`
+
+	// SSO Configuration
+	// Keycloak KeycloakConfig `envconfig:"KEYCLOAK"`
+	SAML SAMLConfig `envconfig:"SAML"`
 }
 
 type Logger struct {
@@ -47,6 +58,28 @@ type Server struct {
 	ReadTimeout  time.Duration `envconfig:"READ_TIMEOUT" default:"15s"`
 	WriteTimeout time.Duration `envconfig:"WRITE_TIMEOUT" default:"30s"`
 	IdleTimeout  time.Duration `envconfig:"IDLE_TIMEOUT" default:"60s"`
+}
+
+// SAMLConfig holds SAML configuration.
+type SAMLConfig struct {
+	Enabled          bool              `default:"false" envconfig:"ENABLED"`
+	EntityID         string            `default:""      envconfig:"ENTITY_ID"`
+	CertificatePath  string            `default:""      envconfig:"CERTIFICATE_PATH"`
+	PrivateKeyPath   string            `default:""      envconfig:"PRIVATE_KEY_PATH"`
+	IDPMetadataURL   string            `default:""      envconfig:"IDP_METADATA_URL"`
+	AttributeMapping map[string]string `default:""      envconfig:"ATTRIBUTE_MAPPING"`
+	SkipTLSVerify    bool              `default:"false" envconfig:"SKIP_TLS_VERIFY"`
+}
+
+type Mailer struct {
+	Addr          string `envconfig:"ADDR"     required:"true"`
+	User          string `envconfig:"USER"     required:"true"`
+	Password      string `envconfig:"PASSWORD" required:"true"`
+	From          string `envconfig:"FROM"     required:"true"`
+	AllowInsecure bool   `default:"false"      envconfig:"ALLOW_INSECURE"`
+	CertFile      string `default:""           envconfig:"CERT_FILE"`
+	KeyFile       string `default:""           envconfig:"KEY_FILE"`
+	UseTLS        bool   `default:"false"      envconfig:"USE_TLS"`
 }
 
 type Postgres struct {

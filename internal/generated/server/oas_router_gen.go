@@ -40,6 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.notFound(w, r)
 		return
 	}
+	args := [1]string{}
 
 	// Static code generated router with unwrapped path search.
 	switch {
@@ -48,24 +49,1009 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/ping"
+		case '/': // Prefix: "/api/v1/"
 
-			if l := len("/ping"); len(elem) >= l && elem[0:l] == "/ping" {
+			if l := len("/api/v1/"); len(elem) >= l && elem[0:l] == "/api/v1/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				// Leaf node.
-				switch r.Method {
-				case "GET":
-					s.handlePingRequest([0]string{}, elemIsEscaped, w, r)
-				default:
-					s.notAllowed(w, r, "GET")
+				break
+			}
+			switch elem[0] {
+			case 'a': // Prefix: "auth/"
+
+				if l := len("auth/"); len(elem) >= l && elem[0:l] == "auth/" {
+					elem = elem[l:]
+				} else {
+					break
 				}
 
-				return
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case '2': // Prefix: "2fa/verify"
+
+					if l := len("2fa/verify"); len(elem) >= l && elem[0:l] == "2fa/verify" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleVerify2FARequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				case 'f': // Prefix: "forgot-password"
+
+					if l := len("forgot-password"); len(elem) >= l && elem[0:l] == "forgot-password" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleForgotPasswordRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				case 'l': // Prefix: "login"
+
+					if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleLoginRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				case 'r': // Prefix: "re"
+
+					if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'f': // Prefix: "fresh"
+
+						if l := len("fresh"); len(elem) >= l && elem[0:l] == "fresh" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleRefreshTokenRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					case 's': // Prefix: "set-password"
+
+						if l := len("set-password"); len(elem) >= l && elem[0:l] == "set-password" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleResetPasswordRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					}
+
+				case 's': // Prefix: "sso/"
+
+					if l := len("sso/"); len(elem) >= l && elem[0:l] == "sso/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'c': // Prefix: "callback"
+
+						if l := len("callback"); len(elem) >= l && elem[0:l] == "callback" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleSSOCallbackRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					case 'i': // Prefix: "initiate"
+
+						if l := len("initiate"); len(elem) >= l && elem[0:l] == "initiate" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleSSOInitiateRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					case 'p': // Prefix: "providers"
+
+						if l := len("providers"); len(elem) >= l && elem[0:l] == "providers" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetSSOProvidersRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					}
+
+				}
+
+			case 'l': // Prefix: "l"
+
+				if l := len("l"); len(elem) >= l && elem[0:l] == "l" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'd': // Prefix: "dap/"
+
+					if l := len("dap/"); len(elem) >= l && elem[0:l] == "dap/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'c': // Prefix: "config"
+
+						if l := len("config"); len(elem) >= l && elem[0:l] == "config" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "DELETE":
+								s.handleDeleteLDAPConfigRequest([0]string{}, elemIsEscaped, w, r)
+							case "GET":
+								s.handleGetLDAPConfigRequest([0]string{}, elemIsEscaped, w, r)
+							case "POST":
+								s.handleUpdateLDAPConfigRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE,GET,POST")
+							}
+
+							return
+						}
+
+					case 's': // Prefix: "s"
+
+						if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 't': // Prefix: "tatistics"
+
+							if l := len("tatistics"); len(elem) >= l && elem[0:l] == "tatistics" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleGetLDAPStatisticsRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+						case 'y': // Prefix: "ync/"
+
+							if l := len("ync/"); len(elem) >= l && elem[0:l] == "ync/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								break
+							}
+							switch elem[0] {
+							case 'c': // Prefix: "cancel"
+
+								if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "DELETE":
+										s.handleCancelLDAPSyncRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "DELETE")
+									}
+
+									return
+								}
+
+							case 'l': // Prefix: "logs"
+
+								if l := len("logs"); len(elem) >= l && elem[0:l] == "logs" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch r.Method {
+									case "GET":
+										s.handleGetLDAPSyncLogsRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[0] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleGetLDAPSyncLogDetailsRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								}
+
+							case 'p': // Prefix: "progress"
+
+								if l := len("progress"); len(elem) >= l && elem[0:l] == "progress" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleGetLDAPSyncProgressRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+
+							case 's': // Prefix: "status"
+
+								if l := len("status"); len(elem) >= l && elem[0:l] == "status" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleGetLDAPSyncStatusRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+
+							case 'u': // Prefix: "users"
+
+								if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleSyncLDAPUsersRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							}
+
+						}
+
+					case 't': // Prefix: "test-connection"
+
+						if l := len("test-connection"); len(elem) >= l && elem[0:l] == "test-connection" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleTestLDAPConnectionRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					}
+
+				case 'i': // Prefix: "icense"
+
+					if l := len("icense"); len(elem) >= l && elem[0:l] == "icense" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "PUT":
+							s.handleUpdateLicenseRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "PUT")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/status"
+
+						if l := len("/status"); len(elem) >= l && elem[0:l] == "/status" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetLicenseStatusRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					}
+
+				}
+
+			case 'p': // Prefix: "pro"
+
+				if l := len("pro"); len(elem) >= l && elem[0:l] == "pro" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'd': // Prefix: "duct/info"
+
+					if l := len("duct/info"); len(elem) >= l && elem[0:l] == "duct/info" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleGetProductInfoRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+				case 'j': // Prefix: "jects"
+
+					if l := len("jects"); len(elem) >= l && elem[0:l] == "jects" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "GET":
+							s.handleListProjectsRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'a': // Prefix: "add"
+							origElem := elem
+							if l := len("add"); len(elem) >= l && elem[0:l] == "add" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleAddProjectRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
+							elem = origElem
+						}
+						// Param: "project_id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "DELETE":
+								s.handleArchiveProjectRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							case "GET":
+								s.handleGetProjectRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							case "PUT":
+								s.handleUpdateProjectRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE,GET,PUT")
+							}
+
+							return
+						}
+
+					}
+
+				}
+
+			case 's': // Prefix: "saml/"
+
+				if l := len("saml/"); len(elem) >= l && elem[0:l] == "saml/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'a': // Prefix: "acs"
+
+					if l := len("acs"); len(elem) >= l && elem[0:l] == "acs" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleConsumeSAMLAssertionRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				case 'm': // Prefix: "metadata"
+
+					if l := len("metadata"); len(elem) >= l && elem[0:l] == "metadata" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "GET":
+							s.handleGetSAMLMetadataRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
+					}
+
+				}
+
+			case 'u': // Prefix: "users"
+
+				if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleListUsersRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateUserRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'm': // Prefix: "me"
+						origElem := elem
+						if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch r.Method {
+							case "GET":
+								s.handleGetCurrentUserRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								break
+							}
+							switch elem[0] {
+							case '2': // Prefix: "2fa/"
+
+								if l := len("2fa/"); len(elem) >= l && elem[0:l] == "2fa/" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'c': // Prefix: "confirm"
+
+									if l := len("confirm"); len(elem) >= l && elem[0:l] == "confirm" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleConfirm2FARequest([0]string{}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
+								case 'd': // Prefix: "disable"
+
+									if l := len("disable"); len(elem) >= l && elem[0:l] == "disable" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleDisable2FARequest([0]string{}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
+								case 'r': // Prefix: "reset"
+
+									if l := len("reset"); len(elem) >= l && elem[0:l] == "reset" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleReset2FARequest([0]string{}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
+								case 's': // Prefix: "se"
+
+									if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										break
+									}
+									switch elem[0] {
+									case 'n': // Prefix: "nd_code"
+
+										if l := len("nd_code"); len(elem) >= l && elem[0:l] == "nd_code" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch r.Method {
+											case "POST":
+												s.handleSend2FACodeRequest([0]string{}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "POST")
+											}
+
+											return
+										}
+
+									case 't': // Prefix: "tup"
+
+										if l := len("tup"); len(elem) >= l && elem[0:l] == "tup" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch r.Method {
+											case "POST":
+												s.handleSetup2FARequest([0]string{}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "POST")
+											}
+
+											return
+										}
+
+									}
+
+								}
+
+							case 'c': // Prefix: "change-password"
+
+								if l := len("change-password"); len(elem) >= l && elem[0:l] == "change-password" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleUserChangeMyPasswordRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 'l': // Prefix: "license-acceptance"
+
+								if l := len("license-acceptance"); len(elem) >= l && elem[0:l] == "license-acceptance" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "PUT":
+										s.handleUpdateLicenseAcceptanceRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "PUT")
+									}
+
+									return
+								}
+
+							}
+
+						}
+
+						elem = origElem
+					}
+					// Param: "user_id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteUserRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'a': // Prefix: "active"
+
+							if l := len("active"); len(elem) >= l && elem[0:l] == "active" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PUT":
+									s.handleSetUserActiveStatusRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+
+						case 's': // Prefix: "superuser"
+
+							if l := len("superuser"); len(elem) >= l && elem[0:l] == "superuser" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PUT":
+									s.handleSetSuperuserStatusRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+
+						}
+
+					}
+
+				}
+
 			}
 
 		}
@@ -80,7 +1066,7 @@ type Route struct {
 	operationID string
 	pathPattern string
 	count       int
-	args        [0]string
+	args        [1]string
 }
 
 // Name returns ogen operation name.
@@ -148,28 +1134,1173 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/ping"
+		case '/': // Prefix: "/api/v1/"
 
-			if l := len("/ping"); len(elem) >= l && elem[0:l] == "/ping" {
+			if l := len("/api/v1/"); len(elem) >= l && elem[0:l] == "/api/v1/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				// Leaf node.
-				switch method {
-				case "GET":
-					r.name = PingOperation
-					r.summary = "Ping-pong endpoint"
-					r.operationID = "ping"
-					r.pathPattern = "/ping"
-					r.args = args
-					r.count = 0
-					return r, true
-				default:
-					return
+				break
+			}
+			switch elem[0] {
+			case 'a': // Prefix: "auth/"
+
+				if l := len("auth/"); len(elem) >= l && elem[0:l] == "auth/" {
+					elem = elem[l:]
+				} else {
+					break
 				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case '2': // Prefix: "2fa/verify"
+
+					if l := len("2fa/verify"); len(elem) >= l && elem[0:l] == "2fa/verify" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = Verify2FAOperation
+							r.summary = "Verify 2FA-code on login"
+							r.operationID = "Verify2FA"
+							r.pathPattern = "/api/v1/auth/2fa/verify"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'f': // Prefix: "forgot-password"
+
+					if l := len("forgot-password"); len(elem) >= l && elem[0:l] == "forgot-password" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = ForgotPasswordOperation
+							r.summary = "Request a password reset"
+							r.operationID = "ForgotPassword"
+							r.pathPattern = "/api/v1/auth/forgot-password"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'l': // Prefix: "login"
+
+					if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = LoginOperation
+							r.summary = "Authenticate user and get access token"
+							r.operationID = "Login"
+							r.pathPattern = "/api/v1/auth/login"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'r': // Prefix: "re"
+
+					if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'f': // Prefix: "fresh"
+
+						if l := len("fresh"); len(elem) >= l && elem[0:l] == "fresh" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = RefreshTokenOperation
+								r.summary = "Refresh access token"
+								r.operationID = "RefreshToken"
+								r.pathPattern = "/api/v1/auth/refresh"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 's': // Prefix: "set-password"
+
+						if l := len("set-password"); len(elem) >= l && elem[0:l] == "set-password" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = ResetPasswordOperation
+								r.summary = "Reset password using token"
+								r.operationID = "ResetPassword"
+								r.pathPattern = "/api/v1/auth/reset-password"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					}
+
+				case 's': // Prefix: "sso/"
+
+					if l := len("sso/"); len(elem) >= l && elem[0:l] == "sso/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'c': // Prefix: "callback"
+
+						if l := len("callback"); len(elem) >= l && elem[0:l] == "callback" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = SSOCallbackOperation
+								r.summary = "Handle SSO callback from Keycloak"
+								r.operationID = "SSOCallback"
+								r.pathPattern = "/api/v1/auth/sso/callback"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'i': // Prefix: "initiate"
+
+						if l := len("initiate"); len(elem) >= l && elem[0:l] == "initiate" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = SSOInitiateOperation
+								r.summary = "Initiate SSO login flow"
+								r.operationID = "SSOInitiate"
+								r.pathPattern = "/api/v1/auth/sso/initiate"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'p': // Prefix: "providers"
+
+						if l := len("providers"); len(elem) >= l && elem[0:l] == "providers" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetSSOProvidersOperation
+								r.summary = "Get available SSO providers"
+								r.operationID = "GetSSOProviders"
+								r.pathPattern = "/api/v1/auth/sso/providers"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					}
+
+				}
+
+			case 'l': // Prefix: "l"
+
+				if l := len("l"); len(elem) >= l && elem[0:l] == "l" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'd': // Prefix: "dap/"
+
+					if l := len("dap/"); len(elem) >= l && elem[0:l] == "dap/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'c': // Prefix: "config"
+
+						if l := len("config"); len(elem) >= l && elem[0:l] == "config" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "DELETE":
+								r.name = DeleteLDAPConfigOperation
+								r.summary = "Delete LDAP configuration"
+								r.operationID = "DeleteLDAPConfig"
+								r.pathPattern = "/api/v1/ldap/config"
+								r.args = args
+								r.count = 0
+								return r, true
+							case "GET":
+								r.name = GetLDAPConfigOperation
+								r.summary = "Get LDAP configuration"
+								r.operationID = "GetLDAPConfig"
+								r.pathPattern = "/api/v1/ldap/config"
+								r.args = args
+								r.count = 0
+								return r, true
+							case "POST":
+								r.name = UpdateLDAPConfigOperation
+								r.summary = "Create or update LDAP configuration"
+								r.operationID = "UpdateLDAPConfig"
+								r.pathPattern = "/api/v1/ldap/config"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 's': // Prefix: "s"
+
+						if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 't': // Prefix: "tatistics"
+
+							if l := len("tatistics"); len(elem) >= l && elem[0:l] == "tatistics" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = GetLDAPStatisticsOperation
+									r.summary = "Get LDAP statistics"
+									r.operationID = "GetLDAPStatistics"
+									r.pathPattern = "/api/v1/ldap/statistics"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 'y': // Prefix: "ync/"
+
+							if l := len("ync/"); len(elem) >= l && elem[0:l] == "ync/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								break
+							}
+							switch elem[0] {
+							case 'c': // Prefix: "cancel"
+
+								if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "DELETE":
+										r.name = CancelLDAPSyncOperation
+										r.summary = "Cancel ongoing synchronization"
+										r.operationID = "CancelLDAPSync"
+										r.pathPattern = "/api/v1/ldap/sync/cancel"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'l': // Prefix: "logs"
+
+								if l := len("logs"); len(elem) >= l && elem[0:l] == "logs" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										r.name = GetLDAPSyncLogsOperation
+										r.summary = "Get synchronization logs"
+										r.operationID = "GetLDAPSyncLogs"
+										r.pathPattern = "/api/v1/ldap/sync/logs"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[0] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = GetLDAPSyncLogDetailsOperation
+											r.summary = "Get synchronization log details"
+											r.operationID = "GetLDAPSyncLogDetails"
+											r.pathPattern = "/api/v1/ldap/sync/logs/{id}"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								}
+
+							case 'p': // Prefix: "progress"
+
+								if l := len("progress"); len(elem) >= l && elem[0:l] == "progress" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = GetLDAPSyncProgressOperation
+										r.summary = "Get synchronization progress"
+										r.operationID = "GetLDAPSyncProgress"
+										r.pathPattern = "/api/v1/ldap/sync/progress"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 's': // Prefix: "status"
+
+								if l := len("status"); len(elem) >= l && elem[0:l] == "status" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = GetLDAPSyncStatusOperation
+										r.summary = "Get synchronization status"
+										r.operationID = "GetLDAPSyncStatus"
+										r.pathPattern = "/api/v1/ldap/sync/status"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'u': // Prefix: "users"
+
+								if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = SyncLDAPUsersOperation
+										r.summary = "Start user synchronization"
+										r.operationID = "SyncLDAPUsers"
+										r.pathPattern = "/api/v1/ldap/sync/users"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							}
+
+						}
+
+					case 't': // Prefix: "test-connection"
+
+						if l := len("test-connection"); len(elem) >= l && elem[0:l] == "test-connection" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = TestLDAPConnectionOperation
+								r.summary = "Test LDAP connection"
+								r.operationID = "TestLDAPConnection"
+								r.pathPattern = "/api/v1/ldap/test-connection"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					}
+
+				case 'i': // Prefix: "icense"
+
+					if l := len("icense"); len(elem) >= l && elem[0:l] == "icense" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "PUT":
+							r.name = UpdateLicenseOperation
+							r.summary = "Update license"
+							r.operationID = "UpdateLicense"
+							r.pathPattern = "/api/v1/license"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/status"
+
+						if l := len("/status"); len(elem) >= l && elem[0:l] == "/status" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetLicenseStatusOperation
+								r.summary = "Get license status"
+								r.operationID = "GetLicenseStatus"
+								r.pathPattern = "/api/v1/license/status"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					}
+
+				}
+
+			case 'p': // Prefix: "pro"
+
+				if l := len("pro"); len(elem) >= l && elem[0:l] == "pro" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'd': // Prefix: "duct/info"
+
+					if l := len("duct/info"); len(elem) >= l && elem[0:l] == "duct/info" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = GetProductInfoOperation
+							r.summary = "Get product information including client ID"
+							r.operationID = "GetProductInfo"
+							r.pathPattern = "/api/v1/product/info"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'j': // Prefix: "jects"
+
+					if l := len("jects"); len(elem) >= l && elem[0:l] == "jects" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							r.name = ListProjectsOperation
+							r.summary = "Get projects list"
+							r.operationID = "ListProjects"
+							r.pathPattern = "/api/v1/projects"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'a': // Prefix: "add"
+							origElem := elem
+							if l := len("add"); len(elem) >= l && elem[0:l] == "add" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = AddProjectOperation
+									r.summary = "Add new project"
+									r.operationID = "addProject"
+									r.pathPattern = "/api/v1/projects/add"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+							elem = origElem
+						}
+						// Param: "project_id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "DELETE":
+								r.name = ArchiveProjectOperation
+								r.summary = "Archive a project"
+								r.operationID = "ArchiveProject"
+								r.pathPattern = "/api/v1/projects/{project_id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "GET":
+								r.name = GetProjectOperation
+								r.summary = "Get project details"
+								r.operationID = "GetProject"
+								r.pathPattern = "/api/v1/projects/{project_id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							case "PUT":
+								r.name = UpdateProjectOperation
+								r.summary = "Update project name and description"
+								r.operationID = "UpdateProject"
+								r.pathPattern = "/api/v1/projects/{project_id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					}
+
+				}
+
+			case 's': // Prefix: "saml/"
+
+				if l := len("saml/"); len(elem) >= l && elem[0:l] == "saml/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case 'a': // Prefix: "acs"
+
+					if l := len("acs"); len(elem) >= l && elem[0:l] == "acs" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = ConsumeSAMLAssertionOperation
+							r.summary = "Assertion Consumer Service (ACS) endpoint"
+							r.operationID = "ConsumeSAMLAssertion"
+							r.pathPattern = "/api/v1/saml/acs"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				case 'm': // Prefix: "metadata"
+
+					if l := len("metadata"); len(elem) >= l && elem[0:l] == "metadata" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "GET":
+							r.name = GetSAMLMetadataOperation
+							r.summary = "Get SAML metadata"
+							r.operationID = "GetSAMLMetadata"
+							r.pathPattern = "/api/v1/saml/metadata"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
+			case 'u': // Prefix: "users"
+
+				if l := len("users"); len(elem) >= l && elem[0:l] == "users" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = ListUsersOperation
+						r.summary = "List all users (superuser only)"
+						r.operationID = "ListUsers"
+						r.pathPattern = "/api/v1/users"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateUserOperation
+						r.summary = "Create a new user (superuser only)"
+						r.operationID = "CreateUser"
+						r.pathPattern = "/api/v1/users"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'm': // Prefix: "me"
+						origElem := elem
+						if l := len("me"); len(elem) >= l && elem[0:l] == "me" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							switch method {
+							case "GET":
+								r.name = GetCurrentUserOperation
+								r.summary = "Get current user information"
+								r.operationID = "GetCurrentUser"
+								r.pathPattern = "/api/v1/users/me"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/"
+
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								break
+							}
+							switch elem[0] {
+							case '2': // Prefix: "2fa/"
+
+								if l := len("2fa/"); len(elem) >= l && elem[0:l] == "2fa/" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									break
+								}
+								switch elem[0] {
+								case 'c': // Prefix: "confirm"
+
+									if l := len("confirm"); len(elem) >= l && elem[0:l] == "confirm" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = Confirm2FAOperation
+											r.summary = "Approve enable 2FA (code from app)"
+											r.operationID = "Confirm2FA"
+											r.pathPattern = "/api/v1/users/me/2fa/confirm"
+											r.args = args
+											r.count = 0
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'd': // Prefix: "disable"
+
+									if l := len("disable"); len(elem) >= l && elem[0:l] == "disable" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = Disable2FAOperation
+											r.summary = "Disable 2FA (using email-confirmation)"
+											r.operationID = "Disable2FA"
+											r.pathPattern = "/api/v1/users/me/2fa/disable"
+											r.args = args
+											r.count = 0
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'r': // Prefix: "reset"
+
+									if l := len("reset"); len(elem) >= l && elem[0:l] == "reset" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = Reset2FAOperation
+											r.summary = "Reset/generate secret 2FA (using email-confirmation)"
+											r.operationID = "Reset2FA"
+											r.pathPattern = "/api/v1/users/me/2fa/reset"
+											r.args = args
+											r.count = 0
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 's': // Prefix: "se"
+
+									if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										break
+									}
+									switch elem[0] {
+									case 'n': // Prefix: "nd_code"
+
+										if l := len("nd_code"); len(elem) >= l && elem[0:l] == "nd_code" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch method {
+											case "POST":
+												r.name = Send2FACodeOperation
+												r.summary = "Send 2FA email code for disable/reset"
+												r.operationID = "send2FACode"
+												r.pathPattern = "/api/v1/users/me/2fa/send_code"
+												r.args = args
+												r.count = 0
+												return r, true
+											default:
+												return
+											}
+										}
+
+									case 't': // Prefix: "tup"
+
+										if l := len("tup"); len(elem) >= l && elem[0:l] == "tup" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch method {
+											case "POST":
+												r.name = Setup2FAOperation
+												r.summary = "Begin setup 2FA (generate secret and QR-code)"
+												r.operationID = "Setup2FA"
+												r.pathPattern = "/api/v1/users/me/2fa/setup"
+												r.args = args
+												r.count = 0
+												return r, true
+											default:
+												return
+											}
+										}
+
+									}
+
+								}
+
+							case 'c': // Prefix: "change-password"
+
+								if l := len("change-password"); len(elem) >= l && elem[0:l] == "change-password" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = UserChangeMyPasswordOperation
+										r.summary = "Change my password"
+										r.operationID = "userChangeMyPassword"
+										r.pathPattern = "/api/v1/users/me/change-password"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'l': // Prefix: "license-acceptance"
+
+								if l := len("license-acceptance"); len(elem) >= l && elem[0:l] == "license-acceptance" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "PUT":
+										r.name = UpdateLicenseAcceptanceOperation
+										r.summary = "Update license acceptance status"
+										r.operationID = "UpdateLicenseAcceptance"
+										r.pathPattern = "/api/v1/users/me/license-acceptance"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							}
+
+						}
+
+						elem = origElem
+					}
+					// Param: "user_id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch method {
+						case "DELETE":
+							r.name = DeleteUserOperation
+							r.summary = "Delete a user (superuser only, cannot delete superusers)"
+							r.operationID = "DeleteUser"
+							r.pathPattern = "/api/v1/users/{user_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'a': // Prefix: "active"
+
+							if l := len("active"); len(elem) >= l && elem[0:l] == "active" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "PUT":
+									r.name = SetUserActiveStatusOperation
+									r.summary = "Set or unset user active status (superuser only)"
+									r.operationID = "SetUserActiveStatus"
+									r.pathPattern = "/api/v1/users/{user_id}/active"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 's': // Prefix: "superuser"
+
+							if l := len("superuser"); len(elem) >= l && elem[0:l] == "superuser" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "PUT":
+									r.name = SetSuperuserStatusOperation
+									r.summary = "Set or unset superuser status (superuser only, cannot modify admin user)"
+									r.operationID = "SetSuperuserStatus"
+									r.pathPattern = "/api/v1/users/{user_id}/superuser"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					}
+
+				}
+
 			}
 
 		}

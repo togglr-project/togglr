@@ -1,0 +1,15 @@
+package email
+
+import (
+	"context"
+
+	"github.com/rom8726/etoggl/internal/domain"
+)
+
+type UsersRepository interface {
+	FetchByIDs(ctx context.Context, ids []domain.UserID) ([]domain.User, error)
+}
+
+type ProjectsRepository interface {
+	GetByID(ctx context.Context, id domain.ProjectID) (domain.Project, error)
+}

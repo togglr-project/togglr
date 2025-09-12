@@ -2,15 +2,2679 @@ openapi: 3.1.0
 info:
   title: Example API
   version: 1.0.0
+
 paths:
-  /ping:
-    get:
-      summary: Ping-pong endpoint
-      operationId: ping
+  # --- Authentication Endpoints ---
+  /api/v1/auth/login:
+    post:
+      summary: Authenticate user and get access token
+      operationId: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: pong
+          description: Successful login
           content:
-            text/plain:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInvalidCredentials'
+        '403':
+          description: 2FA required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error2FARequired'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/refresh:
+    post:
+      summary: Refresh access token
+      operationId: RefreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/forgot-password:
+    post:
+      summary: Request a password reset
+      operationId: ForgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '204':
+          description: Password reset email sent successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '403':
+          description: External user can't change password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/reset-password:
+    post:
+      summary: Reset password using token
+      operationId: ResetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '204':
+          description: Password reset successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/2fa/verify:
+    post:
+      summary: Verify 2FA-code on login
+      operationId: Verify2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFAVerifyRequest'
+      responses:
+        '200':
+          description: Success, returns access/refresh tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFAVerifyResponse'
+        '400':
+          description: Invalid code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorTooManyRequests'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/sso/callback:
+    post:
+      summary: Handle SSO callback from Keycloak
+      operationId: SSOCallback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOCallbackRequest'
+      responses:
+        '200':
+          description: SSO authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid SSO token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: SSO authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/sso/initiate:
+    get:
+      summary: Initiate SSO login flow
+      operationId: SSOInitiate
+      parameters:
+        - name: provider
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Name of the SSO provider to use
+      responses:
+        '200':
+          description: SSO login URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOInitiateResponse'
+        '400':
+          description: Invalid provider
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/auth/sso/providers:
+    get:
+      summary: Get available SSO providers
+      operationId: GetSSOProviders
+      responses:
+        '200':
+          description: List of available SSO providers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SSOProvidersResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/saml/metadata:
+    get:
+      summary: Get SAML metadata
+      operationId: GetSAMLMetadata
+      responses:
+        '200':
+          description: SAML metadata XML
+          content:
+            application/samlmetadata+xml:
               schema:
                 type: string
+                example: |
+                  <?xml version="1.0" encoding="UTF-8"?>
+                  <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="http://localhost:8080/api/v1/auth/sso">
+                    <md:SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+                      <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:8080/api/v1/auth/sso/callback" index="0"/>
+                    </md:SPSSODescriptor>
+                  </md:EntityDescriptor>
+        '404':
+          description: SAML metadata not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/saml/acs:
+    post:
+      summary: Assertion Consumer Service (ACS) endpoint
+      description: |
+        Finishes the SAML authentication flow.  
+        The Identity Provider sends an HTTP-POST request that contains **SAMLResponse** (mandatory,
+        Base64-encoded `<samlp:Response>` XML) and the optional **RelayState** parameter.  
+        On success the service creates a user session (cookie or JWT) and redirects the browser
+        to the application UI.
+      operationId: ConsumeSAMLAssertion
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                SAMLResponse:
+                  type: string
+                  description: Base64-encoded IdP `<samlp:Response>` document
+                RelayState:
+                  type: string
+                  description: Value round-tripped from the initial authentication request
+              required:
+                - SAMLResponse
+                - RelayState
+      responses:
+        '302':
+          description: Successful authentication — browser will be redirected
+          headers:
+            Location:
+              description: Target URL for the redirect (e.g. `/login/success?token=…`)
+              schema:
+                type: string
+            Set-Cookie:
+              description: Session cookie or JWT issued to the client
+              schema:
+                type: string
+        '400':
+          description: Malformed or expired SAML response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Authentication failed (invalid issuer or signature)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/license/status:
+    get:
+      summary: Get license status
+      description: Returns the current license status including validity, expiration date, and type
+      operationId: GetLicenseStatus
+      responses:
+        '200':
+          description: License status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseStatusResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/license:
+    put:
+      summary: Update license
+      description: Updates the system license with a new license key
+      operationId: UpdateLicense
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLicenseRequest'
+      responses:
+        '200':
+          description: License updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseStatusResponse'
+        '400':
+          description: Invalid license key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # --- User Endpoints ---
+  /api/v1/users/me:
+    get:
+      summary: Get current user information
+      operationId: GetCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCurrentUserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/change-password:
+    post:
+      summary: Change my password
+      operationId: userChangeMyPassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeUserPasswordRequest'
+      responses:
+        '204':
+          description: Password changed successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '403':
+          description: External user can't change password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/license-acceptance:
+    put:
+      summary: Update license acceptance status
+      operationId: UpdateLicenseAcceptance
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLicenseAcceptanceRequest'
+      responses:
+        '204':
+          description: License acceptance status updated successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users:
+    get:
+      summary: List all users (superuser only)
+      operationId: ListUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUsersResponse'
+        '400':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new user (superuser only)
+      operationId: CreateUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not a superuser
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/{user_id}:
+    delete:
+      summary: Delete a user (superuser only, cannot delete superusers)
+      operationId: DeleteUser
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: User deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not a superuser or trying to delete a superuser
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/{user_id}/superuser:
+    put:
+      summary: Set or unset superuser status (superuser only, cannot modify admin user)
+      operationId: SetSuperuserStatus
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetSuperuserStatusRequest'
+      responses:
+        '200':
+          description: Superuser status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not a superuser
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/{user_id}/active:
+    put:
+      summary: Set or unset user active status (superuser only)
+      operationId: SetUserActiveStatus
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetUserActiveStatusRequest'
+      responses:
+        '200':
+          description: User active status updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not a superuser
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects:
+    get:
+      summary: Get projects list
+      operationId: ListProjects
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/add:
+    post:
+      summary: Add new project
+      operationId: addProject
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProjectRequest'
+      responses:
+        '201':
+          description: Project created
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/{project_id}:
+    get:
+      summary: Get project details
+      operationId: GetProject
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update project name and description
+      operationId: UpdateProject
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequest'
+      responses:
+        '200':
+          description: Project updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Archive a project
+      operationId: ArchiveProject
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Project archived successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/2fa/setup:
+    post:
+      summary: Begin setup 2FA (generate secret and QR-code)
+      operationId: Setup2FA
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Secret + QR-code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFASetupResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/2fa/confirm:
+    post:
+      summary: Approve enable 2FA (code from app)
+      operationId: Confirm2FA
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFAConfirmRequest'
+      responses:
+        '204':
+          description: 2FA enabled
+        '400':
+          description: Invalid code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorTooManyRequests'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/2fa/disable:
+    post:
+      summary: Disable 2FA (using email-confirmation)
+      operationId: Disable2FA
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFADisableRequest'
+      responses:
+        '204':
+          description: 2FA disabled
+        '400':
+          description: Invalid code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/2fa/reset:
+    post:
+      summary: Reset/generate secret 2FA (using email-confirmation)
+      operationId: Reset2FA
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFAResetRequest'
+      responses:
+        '200':
+          description: Secret + QR
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFASetupResponse'
+        '400':
+          description: Invalid code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/users/me/2fa/send_code:
+    post:
+      summary: Send 2FA email code for disable/reset
+      operationId: send2FACode
+      tags:
+        - users
+      responses:
+        '204':
+          description: Code sent
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ---------------------------------------------------
+  #                LDAP Sync Endpoints
+  # ---------------------------------------------------
+
+  # --- LDAP Configuration Endpoints ---
+  /api/v1/ldap/config:
+    get:
+      summary: Get LDAP configuration
+      operationId: GetLDAPConfig
+      responses:
+        '200':
+          description: LDAP configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPConfig'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: LDAP configuration not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create or update LDAP configuration
+      operationId: UpdateLDAPConfig
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LDAPConfig'
+      responses:
+        '200':
+          description: LDAP configuration updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPConfigResponse'
+        '400':
+          description: Invalid configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete LDAP configuration
+      operationId: DeleteLDAPConfig
+      responses:
+        '200':
+          description: LDAP configuration deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/test-connection:
+    post:
+      summary: Test LDAP connection
+      operationId: TestLDAPConnection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LDAPConnectionTest'
+      responses:
+        '200':
+          description: Connection test result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPConnectionTestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  # --- LDAP Sync Endpoints ---
+  /api/v1/ldap/sync/users:
+    post:
+      summary: Start user synchronization
+      operationId: SyncLDAPUsers
+      responses:
+        '202':
+          description: Synchronization started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSyncStartResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '409':
+          description: Sync already in progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/sync/cancel:
+    delete:
+      summary: Cancel ongoing synchronization
+      operationId: CancelLDAPSync
+      responses:
+        '200':
+          description: Synchronization cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: No active synchronization
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/sync/status:
+    get:
+      summary: Get synchronization status
+      operationId: GetLDAPSyncStatus
+      responses:
+        '200':
+          description: Synchronization status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSyncStatus'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/sync/progress:
+    get:
+      summary: Get synchronization progress
+      operationId: GetLDAPSyncProgress
+      responses:
+        '200':
+          description: Synchronization progress
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSyncProgress'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/sync/logs:
+    get:
+      summary: Get synchronization logs
+      operationId: GetLDAPSyncLogs
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 1000
+        - name: level
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [info, warning, error]
+        - name: sync_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: username
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Synchronization logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSyncLogs'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/sync/logs/{id}:
+    get:
+      summary: Get synchronization log details
+      operationId: GetLDAPSyncLogDetails
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      responses:
+        '200':
+          description: Synchronization log details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPSyncLogDetails'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Log not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/ldap/statistics:
+    get:
+      summary: Get LDAP statistics
+      operationId: GetLDAPStatistics
+      responses:
+        '200':
+          description: LDAP statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LDAPStatistics'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Superuser access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/product/info:
+    get:
+      summary: Get product information including client ID
+      operationId: GetProductInfo
+      responses:
+        '200':
+          description: Product information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductInfoResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ---------------------------------------------------
+#                Components / Schemas
+# ---------------------------------------------------
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    # LDAP Configuration Schemas
+    LDAPConfig:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether LDAP integration is enabled
+        url:
+          type: string
+          description: LDAP server URL
+          example: "ldap://ldap.example.com:389"
+        bind_dn:
+          type: string
+          description: DN for binding to LDAP server
+          example: "cn=admin,dc=example,dc=com"
+        bind_password:
+          type: string
+          description: Password for binding to LDAP server
+          format: password
+        user_base_dn:
+          type: string
+          description: Base DN for user search
+          example: "ou=users,dc=example,dc=com"
+        user_filter:
+          type: string
+          description: Filter for user search
+          example: "(objectClass=person)"
+        user_name_attr:
+          type: string
+          description: Attribute for username
+          example: "uid"
+        user_email_attr:
+          type: string
+          description: Attribute for user email
+          example: "mail"
+        start_tls:
+          type: boolean
+          description: Whether to use StartTLS
+        insecure_tls:
+          type: boolean
+          description: Whether to skip TLS certificate verification
+        timeout:
+          type: string
+          description: Connection timeout
+          example: "30s"
+        sync_interval:
+          type: integer
+          format: uint
+          description: Background synchronization interval
+          example: 3600
+      required:
+        - enabled
+        - url
+        - bind_dn
+        - bind_password
+        - user_base_dn
+        - user_filter
+        - user_name_attr
+        - user_email_attr
+        - start_tls
+        - insecure_tls
+        - timeout
+        - sync_interval
+
+    LDAPConfigResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "LDAP configuration updated successfully"
+        config:
+          $ref: '#/components/schemas/LDAPConfig'
+
+    LDAPConnectionTest:
+      type: object
+      properties:
+        url:
+          type: string
+          description: LDAP server URL
+          example: "ldap://ldap.example.com:389"
+        bind_dn:
+          type: string
+          description: DN for binding to LDAP server
+          example: "cn=admin,dc=example,dc=com"
+        bind_password:
+          type: string
+          description: Password for binding to LDAP server
+          format: password
+        user_base_dn:
+          type: string
+          description: Base DN for user search
+          example: "ou=users,dc=example,dc=com"
+        user_filter:
+          type: string
+          description: Filter for user search
+          example: "(objectClass=person)"
+        user_name_attr:
+          type: string
+          description: Attribute for username
+          example: "uid"
+        start_tls:
+          type: boolean
+          description: Whether to use StartTLS
+        insecure_tls:
+          type: boolean
+          description: Whether to skip TLS certificate verification
+        timeout:
+          type: string
+          description: Connection timeout
+          example: "30s"
+      required:
+        - url
+        - bind_dn
+        - bind_password
+
+    LDAPConnectionTestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Connection test successful"
+        details:
+          type: object
+          properties:
+            server_info:
+              type: string
+              example: "OpenLDAP 2.4.44"
+            user_count:
+              type: integer
+              example: 150
+            test_user:
+              type: string
+              example: "testuser"
+
+    # LDAP Sync Schemas
+    LDAPSyncStartResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Synchronization started"
+        sync_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        estimated_duration:
+          type: string
+          example: "5m"
+
+    LDAPSyncStatus:
+      type: object
+      required:
+        - status
+        - is_running
+        - total_users
+        - synced_users
+        - errors
+        - warnings
+      properties:
+        status:
+          type: string
+          example: completed
+        is_running:
+          type: boolean
+          example: false
+        last_sync_time:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        total_users:
+          type: integer
+          example: 150
+        synced_users:
+          type: integer
+          example: 145
+        errors:
+          type: integer
+          example: 2
+        warnings:
+          type: integer
+          example: 1
+        last_sync_duration:
+          type: string
+          example: "5m30s"
+
+    LDAPSyncProgress:
+      type: object
+      required:
+        - is_running
+        - progress
+        - current_step
+        - processed_items
+        - total_items
+        - estimated_time
+        - start_time
+        - sync_id
+      properties:
+        is_running:
+          type: boolean
+          example: true
+        progress:
+          type: number
+          format: float
+          example: 65.5
+        current_step:
+          type: string
+          example: "Syncing users"
+        processed_items:
+          type: integer
+          example: 98
+        total_items:
+          type: integer
+          example: 150
+        estimated_time:
+          type: string
+          example: "2m15s"
+        start_time:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        sync_id:
+          type: string
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    LDAPSyncLogs:
+      type: object
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/LDAPSyncLogEntry'
+        total:
+          type: integer
+          example: 4
+        has_more:
+          type: boolean
+          example: false
+
+    LDAPSyncLogEntry:
+      type: object
+      required:
+        - id
+        - timestamp
+        - level
+        - message
+        - sync_session_id
+      properties:
+        id:
+          type: integer
+          format: uint
+          example: 1
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:05Z"
+        level:
+          type: string
+          enum: [info, warning, error]
+          example: "info"
+        message:
+          type: string
+          example: "Starting user synchronization"
+        username:
+          type: string
+          nullable: true
+          example: "john.doe"
+        details:
+          type: string
+          nullable: true
+          example: "Created new user account"
+        sync_session_id:
+          type: string
+          example: "550e8400-e29b-41d4-a716-446655440000"
+
+    LDAPSyncLogDetails:
+      type: object
+      required:
+        - id
+        - timestamp
+        - level
+        - message
+        - sync_session_id
+      properties:
+        id:
+          type: integer
+          format: uint
+          example: 4
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:20Z"
+        level:
+          type: string
+          enum: [info, warning, error]
+          example: "error"
+        message:
+          type: string
+          example: "Failed to sync user"
+        username:
+          type: string
+          nullable: true
+          example: "invalid.user"
+        details:
+          type: string
+          nullable: true
+          example: "User not found in LDAP directory"
+        sync_session_id:
+          type: string
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        stack_trace:
+          type: string
+          nullable: true
+          example: "github.com/rom8726/warden/internal/services/ldap.(*Service).syncUser\n\t/warden/internal/services/ldap/ldap.go:161\n..."
+        ldap_error_code:
+          type: integer
+          nullable: true
+          example: 32
+        ldap_error_message:
+          type: string
+          nullable: true
+          example: "No such object"
+
+    LDAPStatistics:
+      type: object
+      properties:
+        ldap_users:
+          type: integer
+          example: 150
+        local_users:
+          type: integer
+          example: 145
+        active_users:
+          type: integer
+          example: 140
+        inactive_users:
+          type: integer
+          example: 5
+        sync_history:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+                example: "2024-01-15"
+              users_synced:
+                type: integer
+                example: 145
+              errors:
+                type: integer
+                example: 2
+              duration_minutes:
+                type: number
+                format: float
+                example: 5.5
+        sync_success_rate:
+          type: number
+          format: float
+          example: 96.7
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Operation completed successfully"
+    # ---- Generic entities ----
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+      required: [error]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint
+          example: 1
+        username:
+          type: string
+          example: "john.doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        is_superuser:
+          type: boolean
+          example: false
+        is_active:
+          type: boolean
+          example: true
+        is_external:
+          type: boolean
+          example: false
+        is_tmp_password:
+          type: boolean
+          example: true
+        two_fa_enabled:
+          type: boolean
+          example: true
+        license_accepted:
+          type: boolean
+          example: false
+          description: Flag indicating whether the user has accepted the license agreement
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        last_login:
+          type: string
+          format: date-time
+          example: "2023-01-02T00:00:00Z"
+      required: [id, username, email, is_superuser, is_active, is_tmp_password, is_external, two_fa_enabled, license_accepted, created_at]
+
+    AddProjectRequest:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 2
+        description:
+          type: string
+          minLength: 10
+
+    UpdateProjectRequest:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 2
+        description:
+          type: string
+          minLength: 10
+
+    # ---- /auth/login ----
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "user@example.com"
+        password:
+          type: string
+          example: "password123"
+      required: [username, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "<JWT_ACCESS_TOKEN>"
+        refresh_token:
+          type: string
+          example: "<JWT_REFRESH_TOKEN>"
+        expires_in:
+          type: integer
+          example: 3600
+        is_tmp_password:
+          type: boolean
+          example: true
+      required: [access_token, refresh_token, expires_in, is_tmp_password]
+
+    ErrorInvalidCredentials:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "invalid_credentials"
+              message: "Invalid username or password"
+
+    # ---- SSO Authentication ----
+    SSOCallbackRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+          description: Name of the SSO provider
+          example: "keycloak"
+        response:
+          type: string
+          description: Response from SSO provider (code for OIDC, SAML response for SAML)
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+        state:
+          type: string
+          description: State parameter for CSRF protection
+          example: "abc123def456"
+      required: [provider, response, state]
+
+    SSOInitiateResponse:
+      type: object
+      properties:
+        redirect_url:
+          type: string
+          description: URL to redirect user for SSO login
+          example: "https://keycloak.example.com/auth/realms/warden/protocol/openid-connect/auth?client_id=warden-client&response_type=code&scope=openid+email+profile&redirect_uri=https://warden.example.com/api/v1/auth/sso/callback&state=abc123def456"
+      required: [redirect_url]
+
+    SSOProvidersResponse:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SSOProvider'
+      required: [providers]
+
+    SSOProvider:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Internal name of the provider
+          example: "ad_saml"
+        display_name:
+          type: string
+          description: Display name for UI
+          example: "Sign in with Active Directory"
+        type:
+          type: string
+          description: Type of SSO provider
+          example: "saml"
+          enum: [saml]
+        icon_url:
+          type: string
+          description: URL to provider icon
+          example: "https://example.com/ad-icon.png"
+        enabled:
+          type: boolean
+          description: Whether the provider is enabled
+          example: true
+      required: [name, display_name, type, enabled]
+
+    # ---- /auth/refresh ----
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          example: "<JWT_REFRESH_TOKEN>"
+      required: [refresh_token]
+
+    RefreshTokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "<JWT_ACCESS_TOKEN>"
+        refresh_token:
+          type: string
+          example: "<JWT_REFRESH_TOKEN>"
+        expires_in:
+          type: integer
+          example: 3600
+      required: [access_token, refresh_token, expires_in]
+
+    ErrorInvalidToken:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "invalid_token"
+              message: "Invalid refresh token"
+
+    # ---- /auth/forgot-password ----
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+      required: [email]
+
+    # ---- /auth/reset-password ----
+    ResetPasswordRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "reset_token_123456"
+        new_password:
+          type: string
+          example: "newpassword123"
+          minLength: 8
+      required: [token, new_password]
+
+    # ---- /users/me ----
+    GetCurrentUserResponse:
+      $ref: '#/components/schemas/User'
+
+    ErrorInternalServerError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "internal"
+              message: "Internal server error"
+
+    ErrorBadRequest:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "bad_request"
+              message: "Bad request"
+
+    ErrorUnauthorized:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "unauthorized"
+              message: "Authentication required"
+
+    ErrorPermissionDenied:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "permission_denied"
+              message: "Permission denied"
+
+    ErrorTooManyRequests:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "too_many_requests"
+              message: "Too many requests"
+
+    # ---- /users ----
+    ListUsersResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        name:
+          type: string
+          example: "My Project"
+        description:
+          type: string
+          example: Mailing system project for developers
+          nullable: false
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+      required: [id, name, description, created_at]
+
+    ListProjectsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Project'
+
+    ProjectResponse:
+      type: object
+      properties:
+        project:
+          $ref: '#/components/schemas/Project'
+      required: [project]
+
+    ErrorNotFound:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "not_found"
+              message: "Resource not found"
+
+    # ---- /users POST (Create User) ----
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "john.doe"
+          minLength: 3
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        password:
+          type: string
+          example: "password123"
+          minLength: 8
+        is_superuser:
+          type: boolean
+          example: false
+      required: [username, email, password]
+
+    CreateUserResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      required: [user]
+
+    SetSuperuserStatusRequest:
+      type: object
+      properties:
+        is_superuser:
+          type: boolean
+          example: true
+      required: [is_superuser]
+
+    SetUserActiveStatusRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          example: true
+      required: [is_active]
+
+    ChangeUserPasswordRequest:
+      type: object
+      required:
+        - old_password
+        - new_password
+      properties:
+        old_password:
+          type: string
+          example: "password123"
+        new_password:
+          type: string
+          example: "password1234"
+          minLength: 8
+
+    UpdateLicenseAcceptanceRequest:
+      type: object
+      required:
+        - accepted
+      properties:
+        accepted:
+          type: boolean
+          example: true
+          description: Flag indicating whether the user accepts the license agreement
+
+    TwoFASetupResponse:
+      type: object
+      properties:
+        secret:
+          type: string
+          example: "JBSWY3DPEHPK3PXP"
+        qr_url:
+          type: string
+          example: "otpauth://totp/Warden:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Warden"
+        qr_image:
+          type: string
+          description: "Base64 PNG QR image"
+      required: [secret, qr_url, qr_image]
+
+    TwoFAConfirmRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "123456"
+      required: [code]
+
+    TwoFADisableRequest:
+      type: object
+      properties:
+        email_code:
+          type: string
+          example: "abcdef"
+      required: [email_code]
+
+    TwoFAResetRequest:
+      type: object
+      properties:
+        email_code:
+          type: string
+          example: "abcdef"
+      required: [email_code]
+
+    TwoFAVerifyRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "123456"
+        session_id:
+          type: string
+          example: "session-uuid"
+      required: [code, session_id]
+
+    TwoFAVerifyResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: "<JWT_ACCESS_TOKEN>"
+        refresh_token:
+          type: string
+          example: "<JWT_REFRESH_TOKEN>"
+        expires_in:
+          type: integer
+          example: 3600
+      required: [access_token, refresh_token, expires_in]
+
+    Error2FARequired:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "2fa_required"
+            session_id:
+              type: string
+              example: ldfkgjjknfsjhsjdhfsjkhdfjk3445
+            message:
+              type: string
+              example: "2FA required"
+          required: [code, session_id, message]
+      required: [error]
+
+    LicenseFeature:
+      type: string
+      enum: [sso, ldap, corp_notif_channels]
+      description: Type of license feature
+      example: "sso"
+
+    LicenseStatusResponse:
+      type: object
+      properties:
+        license:
+          type: object
+          properties:
+            id:
+              type: string
+              description: License ID
+              example: "550e8400-e29b-41d4-a716-446655440000"
+            type:
+              $ref: '#/components/schemas/LicenseType'
+            issued_at:
+              type: string
+              format: date-time
+              description: When the license was issued
+              example: "2024-01-15T10:30:00Z"
+            expires_at:
+              type: string
+              format: date-time
+              description: When the license expires
+              example: "2024-02-15T10:30:00Z"
+            is_valid:
+              type: boolean
+              description: Whether the license is currently valid
+              example: true
+            is_expired:
+              type: boolean
+              description: Whether the license has expired
+              example: false
+            days_until_expiry:
+              type: integer
+              description: Number of days until license expires (negative if expired)
+              example: 15
+            license_text:
+              type: string
+              description: The full license text
+              example: "-----BEGIN LICENSE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
+            features:
+              type: array
+              description: List of features available in this license
+              items:
+                $ref: '#/components/schemas/LicenseFeature'
+              example: ["sso", "ldap", "corp_notif_channels"]
+      required: [license]
+
+    LicenseType:
+      type: string
+      enum: [trial, trial-self-signed, commercial, individual]
+      description: Type of license
+      example: "trial"
+
+    UpdateLicenseRequest:
+      type: object
+      properties:
+        license_text:
+          type: string
+          description: The license key text
+          example: "-----BEGIN LICENSE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
+      required: [license_text]
+
+    ProductInfoResponse:
+      type: object
+      properties:
+        client_id:
+          type: string
+          description: Unique client identifier for this installation
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        created_at:
+          type: string
+          format: date-time
+          description: When the client ID was created
+          example: "2024-01-15T10:30:00Z"
+      required: [client_id, created_at]

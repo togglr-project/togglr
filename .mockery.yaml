@@ -1,0 +1,14 @@
+filename: 'mock_{{.InterfaceName | snakecase }}.go'
+dir: test_mocks/{{.InterfaceDirRelative}}
+structname: 'Mock{{.InterfaceName}}'
+pkgname: 'mock{{.SrcPackageName}}'
+packages:
+  github.com/rom8726/etoggl/internal/contract:
+    config:
+      all: True
+  github.com/rom8726/etoggl/internal/usecases/users:
+    config:
+      all: True
+  github.com/rom8726/etoggl/pkg/db:
+    config:
+      all: True

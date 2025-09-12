@@ -3,19 +3,3517 @@
 package api
 
 import (
+	"fmt"
 	"io"
+	"time"
+
+	"github.com/go-faster/errors"
+	"github.com/google/uuid"
 )
 
-type PingOK struct {
+func (s *ErrorStatusCode) Error() string {
+	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
+}
+
+// AddProjectCreated is response for AddProject operation.
+type AddProjectCreated struct{}
+
+func (*AddProjectCreated) addProjectRes() {}
+
+// Ref: #/components/schemas/AddProjectRequest
+type AddProjectRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+// GetName returns the value of Name.
+func (s *AddProjectRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *AddProjectRequest) GetDescription() string {
+	return s.Description
+}
+
+// SetName sets the value of Name.
+func (s *AddProjectRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *AddProjectRequest) SetDescription(val string) {
+	s.Description = val
+}
+
+// ArchiveProjectNoContent is response for ArchiveProject operation.
+type ArchiveProjectNoContent struct{}
+
+func (*ArchiveProjectNoContent) archiveProjectRes() {}
+
+type BearerAuth struct {
+	Token string
+	Roles []string
+}
+
+// GetToken returns the value of Token.
+func (s *BearerAuth) GetToken() string {
+	return s.Token
+}
+
+// GetRoles returns the value of Roles.
+func (s *BearerAuth) GetRoles() []string {
+	return s.Roles
+}
+
+// SetToken sets the value of Token.
+func (s *BearerAuth) SetToken(val string) {
+	s.Token = val
+}
+
+// SetRoles sets the value of Roles.
+func (s *BearerAuth) SetRoles(val []string) {
+	s.Roles = val
+}
+
+// Ref: #/components/schemas/ChangeUserPasswordRequest
+type ChangeUserPasswordRequest struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
+}
+
+// GetOldPassword returns the value of OldPassword.
+func (s *ChangeUserPasswordRequest) GetOldPassword() string {
+	return s.OldPassword
+}
+
+// GetNewPassword returns the value of NewPassword.
+func (s *ChangeUserPasswordRequest) GetNewPassword() string {
+	return s.NewPassword
+}
+
+// SetOldPassword sets the value of OldPassword.
+func (s *ChangeUserPasswordRequest) SetOldPassword(val string) {
+	s.OldPassword = val
+}
+
+// SetNewPassword sets the value of NewPassword.
+func (s *ChangeUserPasswordRequest) SetNewPassword(val string) {
+	s.NewPassword = val
+}
+
+// Confirm2FANoContent is response for Confirm2FA operation.
+type Confirm2FANoContent struct{}
+
+func (*Confirm2FANoContent) confirm2FARes() {}
+
+// ConsumeSAMLAssertionFound is response for ConsumeSAMLAssertion operation.
+type ConsumeSAMLAssertionFound struct {
+	Location  OptString
+	SetCookie OptString
+}
+
+// GetLocation returns the value of Location.
+func (s *ConsumeSAMLAssertionFound) GetLocation() OptString {
+	return s.Location
+}
+
+// GetSetCookie returns the value of SetCookie.
+func (s *ConsumeSAMLAssertionFound) GetSetCookie() OptString {
+	return s.SetCookie
+}
+
+// SetLocation sets the value of Location.
+func (s *ConsumeSAMLAssertionFound) SetLocation(val OptString) {
+	s.Location = val
+}
+
+// SetSetCookie sets the value of SetCookie.
+func (s *ConsumeSAMLAssertionFound) SetSetCookie(val OptString) {
+	s.SetCookie = val
+}
+
+func (*ConsumeSAMLAssertionFound) consumeSAMLAssertionRes() {}
+
+type ConsumeSAMLAssertionReq struct {
+	// Base64-encoded IdP `<samlp:Response>` document.
+	SAMLResponse string `json:"SAMLResponse"`
+	// Value round-tripped from the initial authentication request.
+	RelayState string `json:"RelayState"`
+}
+
+// GetSAMLResponse returns the value of SAMLResponse.
+func (s *ConsumeSAMLAssertionReq) GetSAMLResponse() string {
+	return s.SAMLResponse
+}
+
+// GetRelayState returns the value of RelayState.
+func (s *ConsumeSAMLAssertionReq) GetRelayState() string {
+	return s.RelayState
+}
+
+// SetSAMLResponse sets the value of SAMLResponse.
+func (s *ConsumeSAMLAssertionReq) SetSAMLResponse(val string) {
+	s.SAMLResponse = val
+}
+
+// SetRelayState sets the value of RelayState.
+func (s *ConsumeSAMLAssertionReq) SetRelayState(val string) {
+	s.RelayState = val
+}
+
+// Ref: #/components/schemas/CreateUserRequest
+type CreateUserRequest struct {
+	Username    string  `json:"username"`
+	Email       string  `json:"email"`
+	Password    string  `json:"password"`
+	IsSuperuser OptBool `json:"is_superuser"`
+}
+
+// GetUsername returns the value of Username.
+func (s *CreateUserRequest) GetUsername() string {
+	return s.Username
+}
+
+// GetEmail returns the value of Email.
+func (s *CreateUserRequest) GetEmail() string {
+	return s.Email
+}
+
+// GetPassword returns the value of Password.
+func (s *CreateUserRequest) GetPassword() string {
+	return s.Password
+}
+
+// GetIsSuperuser returns the value of IsSuperuser.
+func (s *CreateUserRequest) GetIsSuperuser() OptBool {
+	return s.IsSuperuser
+}
+
+// SetUsername sets the value of Username.
+func (s *CreateUserRequest) SetUsername(val string) {
+	s.Username = val
+}
+
+// SetEmail sets the value of Email.
+func (s *CreateUserRequest) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetPassword sets the value of Password.
+func (s *CreateUserRequest) SetPassword(val string) {
+	s.Password = val
+}
+
+// SetIsSuperuser sets the value of IsSuperuser.
+func (s *CreateUserRequest) SetIsSuperuser(val OptBool) {
+	s.IsSuperuser = val
+}
+
+// Ref: #/components/schemas/CreateUserResponse
+type CreateUserResponse struct {
+	User User `json:"user"`
+}
+
+// GetUser returns the value of User.
+func (s *CreateUserResponse) GetUser() User {
+	return s.User
+}
+
+// SetUser sets the value of User.
+func (s *CreateUserResponse) SetUser(val User) {
+	s.User = val
+}
+
+func (*CreateUserResponse) createUserRes() {}
+
+// DeleteUserNoContent is response for DeleteUser operation.
+type DeleteUserNoContent struct{}
+
+func (*DeleteUserNoContent) deleteUserRes() {}
+
+// Disable2FANoContent is response for Disable2FA operation.
+type Disable2FANoContent struct{}
+
+func (*Disable2FANoContent) disable2FARes() {}
+
+// Ref: #/components/schemas/Error
+type Error struct {
+	Error ErrorError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *Error) GetError() ErrorError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *Error) SetError(val ErrorError) {
+	s.Error = val
+}
+
+func (*Error) cancelLDAPSyncRes()        {}
+func (*Error) getLDAPConfigRes()         {}
+func (*Error) getLDAPSyncLogDetailsRes() {}
+func (*Error) syncLDAPUsersRes()         {}
+func (*Error) updateLDAPConfigRes()      {}
+
+// Ref: #/components/schemas/Error2FARequired
+type Error2FARequired struct {
+	Error Error2FARequiredError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *Error2FARequired) GetError() Error2FARequiredError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *Error2FARequired) SetError(val Error2FARequiredError) {
+	s.Error = val
+}
+
+func (*Error2FARequired) loginRes() {}
+
+type Error2FARequiredError struct {
+	Code      string `json:"code"`
+	SessionID string `json:"session_id"`
+	Message   string `json:"message"`
+}
+
+// GetCode returns the value of Code.
+func (s *Error2FARequiredError) GetCode() string {
+	return s.Code
+}
+
+// GetSessionID returns the value of SessionID.
+func (s *Error2FARequiredError) GetSessionID() string {
+	return s.SessionID
+}
+
+// GetMessage returns the value of Message.
+func (s *Error2FARequiredError) GetMessage() string {
+	return s.Message
+}
+
+// SetCode sets the value of Code.
+func (s *Error2FARequiredError) SetCode(val string) {
+	s.Code = val
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *Error2FARequiredError) SetSessionID(val string) {
+	s.SessionID = val
+}
+
+// SetMessage sets the value of Message.
+func (s *Error2FARequiredError) SetMessage(val string) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorBadRequest
+type ErrorBadRequest struct {
+	Error ErrorBadRequestError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorBadRequest) GetError() ErrorBadRequestError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
+	s.Error = val
+}
+
+func (*ErrorBadRequest) addProjectRes()              {}
+func (*ErrorBadRequest) confirm2FARes()              {}
+func (*ErrorBadRequest) consumeSAMLAssertionRes()    {}
+func (*ErrorBadRequest) createUserRes()              {}
+func (*ErrorBadRequest) deleteUserRes()              {}
+func (*ErrorBadRequest) disable2FARes()              {}
+func (*ErrorBadRequest) forgotPasswordRes()          {}
+func (*ErrorBadRequest) reset2FARes()                {}
+func (*ErrorBadRequest) resetPasswordRes()           {}
+func (*ErrorBadRequest) sSOCallbackRes()             {}
+func (*ErrorBadRequest) sSOInitiateRes()             {}
+func (*ErrorBadRequest) send2FACodeRes()             {}
+func (*ErrorBadRequest) setSuperuserStatusRes()      {}
+func (*ErrorBadRequest) setUserActiveStatusRes()     {}
+func (*ErrorBadRequest) updateLicenseAcceptanceRes() {}
+func (*ErrorBadRequest) updateLicenseRes()           {}
+func (*ErrorBadRequest) updateProjectRes()           {}
+func (*ErrorBadRequest) userChangeMyPasswordRes()    {}
+func (*ErrorBadRequest) verify2FARes()               {}
+
+type ErrorBadRequestError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorBadRequestError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorBadRequestError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+type ErrorError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorInternalServerError
+type ErrorInternalServerError struct {
+	Error ErrorInternalServerErrorError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorInternalServerError) GetError() ErrorInternalServerErrorError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
+	s.Error = val
+}
+
+func (*ErrorInternalServerError) addProjectRes()              {}
+func (*ErrorInternalServerError) archiveProjectRes()          {}
+func (*ErrorInternalServerError) consumeSAMLAssertionRes()    {}
+func (*ErrorInternalServerError) createUserRes()              {}
+func (*ErrorInternalServerError) deleteUserRes()              {}
+func (*ErrorInternalServerError) forgotPasswordRes()          {}
+func (*ErrorInternalServerError) getCurrentUserRes()          {}
+func (*ErrorInternalServerError) getLicenseStatusRes()        {}
+func (*ErrorInternalServerError) getProductInfoRes()          {}
+func (*ErrorInternalServerError) getProjectRes()              {}
+func (*ErrorInternalServerError) getSAMLMetadataRes()         {}
+func (*ErrorInternalServerError) getSSOProvidersRes()         {}
+func (*ErrorInternalServerError) listProjectsRes()            {}
+func (*ErrorInternalServerError) listUsersRes()               {}
+func (*ErrorInternalServerError) loginRes()                   {}
+func (*ErrorInternalServerError) refreshTokenRes()            {}
+func (*ErrorInternalServerError) resetPasswordRes()           {}
+func (*ErrorInternalServerError) sSOCallbackRes()             {}
+func (*ErrorInternalServerError) sSOInitiateRes()             {}
+func (*ErrorInternalServerError) setSuperuserStatusRes()      {}
+func (*ErrorInternalServerError) setUserActiveStatusRes()     {}
+func (*ErrorInternalServerError) updateLicenseAcceptanceRes() {}
+func (*ErrorInternalServerError) updateLicenseRes()           {}
+func (*ErrorInternalServerError) updateProjectRes()           {}
+func (*ErrorInternalServerError) userChangeMyPasswordRes()    {}
+
+type ErrorInternalServerErrorError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorInternalServerErrorError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorInternalServerErrorError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorInvalidCredentials
+type ErrorInvalidCredentials struct {
+	Error ErrorInvalidCredentialsError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorInvalidCredentials) GetError() ErrorInvalidCredentialsError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorInvalidCredentials) SetError(val ErrorInvalidCredentialsError) {
+	s.Error = val
+}
+
+func (*ErrorInvalidCredentials) loginRes() {}
+
+type ErrorInvalidCredentialsError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorInvalidCredentialsError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorInvalidCredentialsError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorNotFound
+type ErrorNotFound struct {
+	Error ErrorNotFoundError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorNotFound) GetError() ErrorNotFoundError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
+	s.Error = val
+}
+
+func (*ErrorNotFound) archiveProjectRes()      {}
+func (*ErrorNotFound) deleteUserRes()          {}
+func (*ErrorNotFound) getProjectRes()          {}
+func (*ErrorNotFound) getSAMLMetadataRes()     {}
+func (*ErrorNotFound) listUsersRes()           {}
+func (*ErrorNotFound) setSuperuserStatusRes()  {}
+func (*ErrorNotFound) setUserActiveStatusRes() {}
+func (*ErrorNotFound) updateProjectRes()       {}
+
+type ErrorNotFoundError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorNotFoundError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorNotFoundError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorPermissionDenied
+type ErrorPermissionDenied struct {
+	Error ErrorPermissionDeniedError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorPermissionDenied) GetError() ErrorPermissionDeniedError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
+	s.Error = val
+}
+
+func (*ErrorPermissionDenied) archiveProjectRes()        {}
+func (*ErrorPermissionDenied) cancelLDAPSyncRes()        {}
+func (*ErrorPermissionDenied) createUserRes()            {}
+func (*ErrorPermissionDenied) deleteLDAPConfigRes()      {}
+func (*ErrorPermissionDenied) deleteUserRes()            {}
+func (*ErrorPermissionDenied) forgotPasswordRes()        {}
+func (*ErrorPermissionDenied) getLDAPConfigRes()         {}
+func (*ErrorPermissionDenied) getLDAPStatisticsRes()     {}
+func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes() {}
+func (*ErrorPermissionDenied) getLDAPSyncLogsRes()       {}
+func (*ErrorPermissionDenied) getLDAPSyncProgressRes()   {}
+func (*ErrorPermissionDenied) getLDAPSyncStatusRes()     {}
+func (*ErrorPermissionDenied) getProductInfoRes()        {}
+func (*ErrorPermissionDenied) getProjectRes()            {}
+func (*ErrorPermissionDenied) listUsersRes()             {}
+func (*ErrorPermissionDenied) setSuperuserStatusRes()    {}
+func (*ErrorPermissionDenied) setUserActiveStatusRes()   {}
+func (*ErrorPermissionDenied) syncLDAPUsersRes()         {}
+func (*ErrorPermissionDenied) testLDAPConnectionRes()    {}
+func (*ErrorPermissionDenied) updateLDAPConfigRes()      {}
+func (*ErrorPermissionDenied) updateLicenseRes()         {}
+func (*ErrorPermissionDenied) updateProjectRes()         {}
+func (*ErrorPermissionDenied) userChangeMyPasswordRes()  {}
+
+type ErrorPermissionDeniedError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorPermissionDeniedError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorPermissionDeniedError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// ErrorStatusCode wraps Error with StatusCode.
+type ErrorStatusCode struct {
+	StatusCode int
+	Response   Error
+}
+
+// GetStatusCode returns the value of StatusCode.
+func (s *ErrorStatusCode) GetStatusCode() int {
+	return s.StatusCode
+}
+
+// GetResponse returns the value of Response.
+func (s *ErrorStatusCode) GetResponse() Error {
+	return s.Response
+}
+
+// SetStatusCode sets the value of StatusCode.
+func (s *ErrorStatusCode) SetStatusCode(val int) {
+	s.StatusCode = val
+}
+
+// SetResponse sets the value of Response.
+func (s *ErrorStatusCode) SetResponse(val Error) {
+	s.Response = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorTooManyRequests
+type ErrorTooManyRequests struct {
+	Error ErrorTooManyRequestsError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorTooManyRequests) GetError() ErrorTooManyRequestsError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorTooManyRequests) SetError(val ErrorTooManyRequestsError) {
+	s.Error = val
+}
+
+func (*ErrorTooManyRequests) confirm2FARes() {}
+func (*ErrorTooManyRequests) verify2FARes()  {}
+
+type ErrorTooManyRequestsError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorTooManyRequestsError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorTooManyRequestsError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorUnauthorized
+type ErrorUnauthorized struct {
+	Error ErrorUnauthorizedError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorUnauthorized) GetError() ErrorUnauthorizedError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
+	s.Error = val
+}
+
+func (*ErrorUnauthorized) addProjectRes()              {}
+func (*ErrorUnauthorized) archiveProjectRes()          {}
+func (*ErrorUnauthorized) cancelLDAPSyncRes()          {}
+func (*ErrorUnauthorized) confirm2FARes()              {}
+func (*ErrorUnauthorized) consumeSAMLAssertionRes()    {}
+func (*ErrorUnauthorized) createUserRes()              {}
+func (*ErrorUnauthorized) deleteLDAPConfigRes()        {}
+func (*ErrorUnauthorized) deleteUserRes()              {}
+func (*ErrorUnauthorized) disable2FARes()              {}
+func (*ErrorUnauthorized) getCurrentUserRes()          {}
+func (*ErrorUnauthorized) getLDAPConfigRes()           {}
+func (*ErrorUnauthorized) getLDAPStatisticsRes()       {}
+func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()   {}
+func (*ErrorUnauthorized) getLDAPSyncLogsRes()         {}
+func (*ErrorUnauthorized) getLDAPSyncProgressRes()     {}
+func (*ErrorUnauthorized) getLDAPSyncStatusRes()       {}
+func (*ErrorUnauthorized) getProductInfoRes()          {}
+func (*ErrorUnauthorized) getProjectRes()              {}
+func (*ErrorUnauthorized) listProjectsRes()            {}
+func (*ErrorUnauthorized) listUsersRes()               {}
+func (*ErrorUnauthorized) refreshTokenRes()            {}
+func (*ErrorUnauthorized) reset2FARes()                {}
+func (*ErrorUnauthorized) resetPasswordRes()           {}
+func (*ErrorUnauthorized) sSOCallbackRes()             {}
+func (*ErrorUnauthorized) send2FACodeRes()             {}
+func (*ErrorUnauthorized) setSuperuserStatusRes()      {}
+func (*ErrorUnauthorized) setUserActiveStatusRes()     {}
+func (*ErrorUnauthorized) setup2FARes()                {}
+func (*ErrorUnauthorized) syncLDAPUsersRes()           {}
+func (*ErrorUnauthorized) testLDAPConnectionRes()      {}
+func (*ErrorUnauthorized) updateLDAPConfigRes()        {}
+func (*ErrorUnauthorized) updateLicenseAcceptanceRes() {}
+func (*ErrorUnauthorized) updateLicenseRes()           {}
+func (*ErrorUnauthorized) updateProjectRes()           {}
+func (*ErrorUnauthorized) userChangeMyPasswordRes()    {}
+func (*ErrorUnauthorized) verify2FARes()               {}
+
+type ErrorUnauthorizedError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorUnauthorizedError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorUnauthorizedError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// ForgotPasswordNoContent is response for ForgotPassword operation.
+type ForgotPasswordNoContent struct{}
+
+func (*ForgotPasswordNoContent) forgotPasswordRes() {}
+
+// Ref: #/components/schemas/ForgotPasswordRequest
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+// GetEmail returns the value of Email.
+func (s *ForgotPasswordRequest) GetEmail() string {
+	return s.Email
+}
+
+// SetEmail sets the value of Email.
+func (s *ForgotPasswordRequest) SetEmail(val string) {
+	s.Email = val
+}
+
+type GetLDAPSyncLogsLevel string
+
+const (
+	GetLDAPSyncLogsLevelInfo    GetLDAPSyncLogsLevel = "info"
+	GetLDAPSyncLogsLevelWarning GetLDAPSyncLogsLevel = "warning"
+	GetLDAPSyncLogsLevelError   GetLDAPSyncLogsLevel = "error"
+)
+
+// AllValues returns all GetLDAPSyncLogsLevel values.
+func (GetLDAPSyncLogsLevel) AllValues() []GetLDAPSyncLogsLevel {
+	return []GetLDAPSyncLogsLevel{
+		GetLDAPSyncLogsLevelInfo,
+		GetLDAPSyncLogsLevelWarning,
+		GetLDAPSyncLogsLevelError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s GetLDAPSyncLogsLevel) MarshalText() ([]byte, error) {
+	switch s {
+	case GetLDAPSyncLogsLevelInfo:
+		return []byte(s), nil
+	case GetLDAPSyncLogsLevelWarning:
+		return []byte(s), nil
+	case GetLDAPSyncLogsLevelError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *GetLDAPSyncLogsLevel) UnmarshalText(data []byte) error {
+	switch GetLDAPSyncLogsLevel(data) {
+	case GetLDAPSyncLogsLevelInfo:
+		*s = GetLDAPSyncLogsLevelInfo
+		return nil
+	case GetLDAPSyncLogsLevelWarning:
+		*s = GetLDAPSyncLogsLevelWarning
+		return nil
+	case GetLDAPSyncLogsLevelError:
+		*s = GetLDAPSyncLogsLevelError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type GetSAMLMetadataOK struct {
 	Data io.Reader
 }
 
 // Read reads data from the Data reader.
 //
 // Kept to satisfy the io.Reader interface.
-func (s PingOK) Read(p []byte) (n int, err error) {
+func (s GetSAMLMetadataOK) Read(p []byte) (n int, err error) {
 	if s.Data == nil {
 		return 0, io.EOF
 	}
 	return s.Data.Read(p)
 }
+
+func (*GetSAMLMetadataOK) getSAMLMetadataRes() {}
+
+// Ref: #/components/schemas/LDAPConfig
+type LDAPConfig struct {
+	// Whether LDAP integration is enabled.
+	Enabled bool `json:"enabled"`
+	// LDAP server URL.
+	URL string `json:"url"`
+	// DN for binding to LDAP server.
+	BindDn string `json:"bind_dn"`
+	// Password for binding to LDAP server.
+	BindPassword string `json:"bind_password"`
+	// Base DN for user search.
+	UserBaseDn string `json:"user_base_dn"`
+	// Filter for user search.
+	UserFilter string `json:"user_filter"`
+	// Attribute for username.
+	UserNameAttr string `json:"user_name_attr"`
+	// Attribute for user email.
+	UserEmailAttr string `json:"user_email_attr"`
+	// Whether to use StartTLS.
+	StartTLS bool `json:"start_tls"`
+	// Whether to skip TLS certificate verification.
+	InsecureTLS bool `json:"insecure_tls"`
+	// Connection timeout.
+	Timeout string `json:"timeout"`
+	// Background synchronization interval.
+	SyncInterval uint `json:"sync_interval"`
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *LDAPConfig) GetEnabled() bool {
+	return s.Enabled
+}
+
+// GetURL returns the value of URL.
+func (s *LDAPConfig) GetURL() string {
+	return s.URL
+}
+
+// GetBindDn returns the value of BindDn.
+func (s *LDAPConfig) GetBindDn() string {
+	return s.BindDn
+}
+
+// GetBindPassword returns the value of BindPassword.
+func (s *LDAPConfig) GetBindPassword() string {
+	return s.BindPassword
+}
+
+// GetUserBaseDn returns the value of UserBaseDn.
+func (s *LDAPConfig) GetUserBaseDn() string {
+	return s.UserBaseDn
+}
+
+// GetUserFilter returns the value of UserFilter.
+func (s *LDAPConfig) GetUserFilter() string {
+	return s.UserFilter
+}
+
+// GetUserNameAttr returns the value of UserNameAttr.
+func (s *LDAPConfig) GetUserNameAttr() string {
+	return s.UserNameAttr
+}
+
+// GetUserEmailAttr returns the value of UserEmailAttr.
+func (s *LDAPConfig) GetUserEmailAttr() string {
+	return s.UserEmailAttr
+}
+
+// GetStartTLS returns the value of StartTLS.
+func (s *LDAPConfig) GetStartTLS() bool {
+	return s.StartTLS
+}
+
+// GetInsecureTLS returns the value of InsecureTLS.
+func (s *LDAPConfig) GetInsecureTLS() bool {
+	return s.InsecureTLS
+}
+
+// GetTimeout returns the value of Timeout.
+func (s *LDAPConfig) GetTimeout() string {
+	return s.Timeout
+}
+
+// GetSyncInterval returns the value of SyncInterval.
+func (s *LDAPConfig) GetSyncInterval() uint {
+	return s.SyncInterval
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *LDAPConfig) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// SetURL sets the value of URL.
+func (s *LDAPConfig) SetURL(val string) {
+	s.URL = val
+}
+
+// SetBindDn sets the value of BindDn.
+func (s *LDAPConfig) SetBindDn(val string) {
+	s.BindDn = val
+}
+
+// SetBindPassword sets the value of BindPassword.
+func (s *LDAPConfig) SetBindPassword(val string) {
+	s.BindPassword = val
+}
+
+// SetUserBaseDn sets the value of UserBaseDn.
+func (s *LDAPConfig) SetUserBaseDn(val string) {
+	s.UserBaseDn = val
+}
+
+// SetUserFilter sets the value of UserFilter.
+func (s *LDAPConfig) SetUserFilter(val string) {
+	s.UserFilter = val
+}
+
+// SetUserNameAttr sets the value of UserNameAttr.
+func (s *LDAPConfig) SetUserNameAttr(val string) {
+	s.UserNameAttr = val
+}
+
+// SetUserEmailAttr sets the value of UserEmailAttr.
+func (s *LDAPConfig) SetUserEmailAttr(val string) {
+	s.UserEmailAttr = val
+}
+
+// SetStartTLS sets the value of StartTLS.
+func (s *LDAPConfig) SetStartTLS(val bool) {
+	s.StartTLS = val
+}
+
+// SetInsecureTLS sets the value of InsecureTLS.
+func (s *LDAPConfig) SetInsecureTLS(val bool) {
+	s.InsecureTLS = val
+}
+
+// SetTimeout sets the value of Timeout.
+func (s *LDAPConfig) SetTimeout(val string) {
+	s.Timeout = val
+}
+
+// SetSyncInterval sets the value of SyncInterval.
+func (s *LDAPConfig) SetSyncInterval(val uint) {
+	s.SyncInterval = val
+}
+
+func (*LDAPConfig) getLDAPConfigRes() {}
+
+// Ref: #/components/schemas/LDAPConfigResponse
+type LDAPConfigResponse struct {
+	Message OptString     `json:"message"`
+	Config  OptLDAPConfig `json:"config"`
+}
+
+// GetMessage returns the value of Message.
+func (s *LDAPConfigResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetConfig returns the value of Config.
+func (s *LDAPConfigResponse) GetConfig() OptLDAPConfig {
+	return s.Config
+}
+
+// SetMessage sets the value of Message.
+func (s *LDAPConfigResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetConfig sets the value of Config.
+func (s *LDAPConfigResponse) SetConfig(val OptLDAPConfig) {
+	s.Config = val
+}
+
+func (*LDAPConfigResponse) updateLDAPConfigRes() {}
+
+// Ref: #/components/schemas/LDAPConnectionTest
+type LDAPConnectionTest struct {
+	// LDAP server URL.
+	URL string `json:"url"`
+	// DN for binding to LDAP server.
+	BindDn string `json:"bind_dn"`
+	// Password for binding to LDAP server.
+	BindPassword string `json:"bind_password"`
+	// Base DN for user search.
+	UserBaseDn OptString `json:"user_base_dn"`
+	// Filter for user search.
+	UserFilter OptString `json:"user_filter"`
+	// Attribute for username.
+	UserNameAttr OptString `json:"user_name_attr"`
+	// Whether to use StartTLS.
+	StartTLS OptBool `json:"start_tls"`
+	// Whether to skip TLS certificate verification.
+	InsecureTLS OptBool `json:"insecure_tls"`
+	// Connection timeout.
+	Timeout OptString `json:"timeout"`
+}
+
+// GetURL returns the value of URL.
+func (s *LDAPConnectionTest) GetURL() string {
+	return s.URL
+}
+
+// GetBindDn returns the value of BindDn.
+func (s *LDAPConnectionTest) GetBindDn() string {
+	return s.BindDn
+}
+
+// GetBindPassword returns the value of BindPassword.
+func (s *LDAPConnectionTest) GetBindPassword() string {
+	return s.BindPassword
+}
+
+// GetUserBaseDn returns the value of UserBaseDn.
+func (s *LDAPConnectionTest) GetUserBaseDn() OptString {
+	return s.UserBaseDn
+}
+
+// GetUserFilter returns the value of UserFilter.
+func (s *LDAPConnectionTest) GetUserFilter() OptString {
+	return s.UserFilter
+}
+
+// GetUserNameAttr returns the value of UserNameAttr.
+func (s *LDAPConnectionTest) GetUserNameAttr() OptString {
+	return s.UserNameAttr
+}
+
+// GetStartTLS returns the value of StartTLS.
+func (s *LDAPConnectionTest) GetStartTLS() OptBool {
+	return s.StartTLS
+}
+
+// GetInsecureTLS returns the value of InsecureTLS.
+func (s *LDAPConnectionTest) GetInsecureTLS() OptBool {
+	return s.InsecureTLS
+}
+
+// GetTimeout returns the value of Timeout.
+func (s *LDAPConnectionTest) GetTimeout() OptString {
+	return s.Timeout
+}
+
+// SetURL sets the value of URL.
+func (s *LDAPConnectionTest) SetURL(val string) {
+	s.URL = val
+}
+
+// SetBindDn sets the value of BindDn.
+func (s *LDAPConnectionTest) SetBindDn(val string) {
+	s.BindDn = val
+}
+
+// SetBindPassword sets the value of BindPassword.
+func (s *LDAPConnectionTest) SetBindPassword(val string) {
+	s.BindPassword = val
+}
+
+// SetUserBaseDn sets the value of UserBaseDn.
+func (s *LDAPConnectionTest) SetUserBaseDn(val OptString) {
+	s.UserBaseDn = val
+}
+
+// SetUserFilter sets the value of UserFilter.
+func (s *LDAPConnectionTest) SetUserFilter(val OptString) {
+	s.UserFilter = val
+}
+
+// SetUserNameAttr sets the value of UserNameAttr.
+func (s *LDAPConnectionTest) SetUserNameAttr(val OptString) {
+	s.UserNameAttr = val
+}
+
+// SetStartTLS sets the value of StartTLS.
+func (s *LDAPConnectionTest) SetStartTLS(val OptBool) {
+	s.StartTLS = val
+}
+
+// SetInsecureTLS sets the value of InsecureTLS.
+func (s *LDAPConnectionTest) SetInsecureTLS(val OptBool) {
+	s.InsecureTLS = val
+}
+
+// SetTimeout sets the value of Timeout.
+func (s *LDAPConnectionTest) SetTimeout(val OptString) {
+	s.Timeout = val
+}
+
+// Ref: #/components/schemas/LDAPConnectionTestResponse
+type LDAPConnectionTestResponse struct {
+	Success OptBool                              `json:"success"`
+	Message OptString                            `json:"message"`
+	Details OptLDAPConnectionTestResponseDetails `json:"details"`
+}
+
+// GetSuccess returns the value of Success.
+func (s *LDAPConnectionTestResponse) GetSuccess() OptBool {
+	return s.Success
+}
+
+// GetMessage returns the value of Message.
+func (s *LDAPConnectionTestResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetDetails returns the value of Details.
+func (s *LDAPConnectionTestResponse) GetDetails() OptLDAPConnectionTestResponseDetails {
+	return s.Details
+}
+
+// SetSuccess sets the value of Success.
+func (s *LDAPConnectionTestResponse) SetSuccess(val OptBool) {
+	s.Success = val
+}
+
+// SetMessage sets the value of Message.
+func (s *LDAPConnectionTestResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetDetails sets the value of Details.
+func (s *LDAPConnectionTestResponse) SetDetails(val OptLDAPConnectionTestResponseDetails) {
+	s.Details = val
+}
+
+func (*LDAPConnectionTestResponse) testLDAPConnectionRes() {}
+
+type LDAPConnectionTestResponseDetails struct {
+	ServerInfo OptString `json:"server_info"`
+	UserCount  OptInt    `json:"user_count"`
+	TestUser   OptString `json:"test_user"`
+}
+
+// GetServerInfo returns the value of ServerInfo.
+func (s *LDAPConnectionTestResponseDetails) GetServerInfo() OptString {
+	return s.ServerInfo
+}
+
+// GetUserCount returns the value of UserCount.
+func (s *LDAPConnectionTestResponseDetails) GetUserCount() OptInt {
+	return s.UserCount
+}
+
+// GetTestUser returns the value of TestUser.
+func (s *LDAPConnectionTestResponseDetails) GetTestUser() OptString {
+	return s.TestUser
+}
+
+// SetServerInfo sets the value of ServerInfo.
+func (s *LDAPConnectionTestResponseDetails) SetServerInfo(val OptString) {
+	s.ServerInfo = val
+}
+
+// SetUserCount sets the value of UserCount.
+func (s *LDAPConnectionTestResponseDetails) SetUserCount(val OptInt) {
+	s.UserCount = val
+}
+
+// SetTestUser sets the value of TestUser.
+func (s *LDAPConnectionTestResponseDetails) SetTestUser(val OptString) {
+	s.TestUser = val
+}
+
+// Ref: #/components/schemas/LDAPStatistics
+type LDAPStatistics struct {
+	LdapUsers       OptInt                          `json:"ldap_users"`
+	LocalUsers      OptInt                          `json:"local_users"`
+	ActiveUsers     OptInt                          `json:"active_users"`
+	InactiveUsers   OptInt                          `json:"inactive_users"`
+	SyncHistory     []LDAPStatisticsSyncHistoryItem `json:"sync_history"`
+	SyncSuccessRate OptFloat32                      `json:"sync_success_rate"`
+}
+
+// GetLdapUsers returns the value of LdapUsers.
+func (s *LDAPStatistics) GetLdapUsers() OptInt {
+	return s.LdapUsers
+}
+
+// GetLocalUsers returns the value of LocalUsers.
+func (s *LDAPStatistics) GetLocalUsers() OptInt {
+	return s.LocalUsers
+}
+
+// GetActiveUsers returns the value of ActiveUsers.
+func (s *LDAPStatistics) GetActiveUsers() OptInt {
+	return s.ActiveUsers
+}
+
+// GetInactiveUsers returns the value of InactiveUsers.
+func (s *LDAPStatistics) GetInactiveUsers() OptInt {
+	return s.InactiveUsers
+}
+
+// GetSyncHistory returns the value of SyncHistory.
+func (s *LDAPStatistics) GetSyncHistory() []LDAPStatisticsSyncHistoryItem {
+	return s.SyncHistory
+}
+
+// GetSyncSuccessRate returns the value of SyncSuccessRate.
+func (s *LDAPStatistics) GetSyncSuccessRate() OptFloat32 {
+	return s.SyncSuccessRate
+}
+
+// SetLdapUsers sets the value of LdapUsers.
+func (s *LDAPStatistics) SetLdapUsers(val OptInt) {
+	s.LdapUsers = val
+}
+
+// SetLocalUsers sets the value of LocalUsers.
+func (s *LDAPStatistics) SetLocalUsers(val OptInt) {
+	s.LocalUsers = val
+}
+
+// SetActiveUsers sets the value of ActiveUsers.
+func (s *LDAPStatistics) SetActiveUsers(val OptInt) {
+	s.ActiveUsers = val
+}
+
+// SetInactiveUsers sets the value of InactiveUsers.
+func (s *LDAPStatistics) SetInactiveUsers(val OptInt) {
+	s.InactiveUsers = val
+}
+
+// SetSyncHistory sets the value of SyncHistory.
+func (s *LDAPStatistics) SetSyncHistory(val []LDAPStatisticsSyncHistoryItem) {
+	s.SyncHistory = val
+}
+
+// SetSyncSuccessRate sets the value of SyncSuccessRate.
+func (s *LDAPStatistics) SetSyncSuccessRate(val OptFloat32) {
+	s.SyncSuccessRate = val
+}
+
+func (*LDAPStatistics) getLDAPStatisticsRes() {}
+
+type LDAPStatisticsSyncHistoryItem struct {
+	Date            OptDate    `json:"date"`
+	UsersSynced     OptInt     `json:"users_synced"`
+	Errors          OptInt     `json:"errors"`
+	DurationMinutes OptFloat32 `json:"duration_minutes"`
+}
+
+// GetDate returns the value of Date.
+func (s *LDAPStatisticsSyncHistoryItem) GetDate() OptDate {
+	return s.Date
+}
+
+// GetUsersSynced returns the value of UsersSynced.
+func (s *LDAPStatisticsSyncHistoryItem) GetUsersSynced() OptInt {
+	return s.UsersSynced
+}
+
+// GetErrors returns the value of Errors.
+func (s *LDAPStatisticsSyncHistoryItem) GetErrors() OptInt {
+	return s.Errors
+}
+
+// GetDurationMinutes returns the value of DurationMinutes.
+func (s *LDAPStatisticsSyncHistoryItem) GetDurationMinutes() OptFloat32 {
+	return s.DurationMinutes
+}
+
+// SetDate sets the value of Date.
+func (s *LDAPStatisticsSyncHistoryItem) SetDate(val OptDate) {
+	s.Date = val
+}
+
+// SetUsersSynced sets the value of UsersSynced.
+func (s *LDAPStatisticsSyncHistoryItem) SetUsersSynced(val OptInt) {
+	s.UsersSynced = val
+}
+
+// SetErrors sets the value of Errors.
+func (s *LDAPStatisticsSyncHistoryItem) SetErrors(val OptInt) {
+	s.Errors = val
+}
+
+// SetDurationMinutes sets the value of DurationMinutes.
+func (s *LDAPStatisticsSyncHistoryItem) SetDurationMinutes(val OptFloat32) {
+	s.DurationMinutes = val
+}
+
+// Ref: #/components/schemas/LDAPSyncLogDetails
+type LDAPSyncLogDetails struct {
+	ID               uint                    `json:"id"`
+	Timestamp        time.Time               `json:"timestamp"`
+	Level            LDAPSyncLogDetailsLevel `json:"level"`
+	Message          string                  `json:"message"`
+	Username         OptNilString            `json:"username"`
+	Details          OptNilString            `json:"details"`
+	SyncSessionID    string                  `json:"sync_session_id"`
+	StackTrace       OptNilString            `json:"stack_trace"`
+	LdapErrorCode    OptNilInt               `json:"ldap_error_code"`
+	LdapErrorMessage OptNilString            `json:"ldap_error_message"`
+}
+
+// GetID returns the value of ID.
+func (s *LDAPSyncLogDetails) GetID() uint {
+	return s.ID
+}
+
+// GetTimestamp returns the value of Timestamp.
+func (s *LDAPSyncLogDetails) GetTimestamp() time.Time {
+	return s.Timestamp
+}
+
+// GetLevel returns the value of Level.
+func (s *LDAPSyncLogDetails) GetLevel() LDAPSyncLogDetailsLevel {
+	return s.Level
+}
+
+// GetMessage returns the value of Message.
+func (s *LDAPSyncLogDetails) GetMessage() string {
+	return s.Message
+}
+
+// GetUsername returns the value of Username.
+func (s *LDAPSyncLogDetails) GetUsername() OptNilString {
+	return s.Username
+}
+
+// GetDetails returns the value of Details.
+func (s *LDAPSyncLogDetails) GetDetails() OptNilString {
+	return s.Details
+}
+
+// GetSyncSessionID returns the value of SyncSessionID.
+func (s *LDAPSyncLogDetails) GetSyncSessionID() string {
+	return s.SyncSessionID
+}
+
+// GetStackTrace returns the value of StackTrace.
+func (s *LDAPSyncLogDetails) GetStackTrace() OptNilString {
+	return s.StackTrace
+}
+
+// GetLdapErrorCode returns the value of LdapErrorCode.
+func (s *LDAPSyncLogDetails) GetLdapErrorCode() OptNilInt {
+	return s.LdapErrorCode
+}
+
+// GetLdapErrorMessage returns the value of LdapErrorMessage.
+func (s *LDAPSyncLogDetails) GetLdapErrorMessage() OptNilString {
+	return s.LdapErrorMessage
+}
+
+// SetID sets the value of ID.
+func (s *LDAPSyncLogDetails) SetID(val uint) {
+	s.ID = val
+}
+
+// SetTimestamp sets the value of Timestamp.
+func (s *LDAPSyncLogDetails) SetTimestamp(val time.Time) {
+	s.Timestamp = val
+}
+
+// SetLevel sets the value of Level.
+func (s *LDAPSyncLogDetails) SetLevel(val LDAPSyncLogDetailsLevel) {
+	s.Level = val
+}
+
+// SetMessage sets the value of Message.
+func (s *LDAPSyncLogDetails) SetMessage(val string) {
+	s.Message = val
+}
+
+// SetUsername sets the value of Username.
+func (s *LDAPSyncLogDetails) SetUsername(val OptNilString) {
+	s.Username = val
+}
+
+// SetDetails sets the value of Details.
+func (s *LDAPSyncLogDetails) SetDetails(val OptNilString) {
+	s.Details = val
+}
+
+// SetSyncSessionID sets the value of SyncSessionID.
+func (s *LDAPSyncLogDetails) SetSyncSessionID(val string) {
+	s.SyncSessionID = val
+}
+
+// SetStackTrace sets the value of StackTrace.
+func (s *LDAPSyncLogDetails) SetStackTrace(val OptNilString) {
+	s.StackTrace = val
+}
+
+// SetLdapErrorCode sets the value of LdapErrorCode.
+func (s *LDAPSyncLogDetails) SetLdapErrorCode(val OptNilInt) {
+	s.LdapErrorCode = val
+}
+
+// SetLdapErrorMessage sets the value of LdapErrorMessage.
+func (s *LDAPSyncLogDetails) SetLdapErrorMessage(val OptNilString) {
+	s.LdapErrorMessage = val
+}
+
+func (*LDAPSyncLogDetails) getLDAPSyncLogDetailsRes() {}
+
+type LDAPSyncLogDetailsLevel string
+
+const (
+	LDAPSyncLogDetailsLevelInfo    LDAPSyncLogDetailsLevel = "info"
+	LDAPSyncLogDetailsLevelWarning LDAPSyncLogDetailsLevel = "warning"
+	LDAPSyncLogDetailsLevelError   LDAPSyncLogDetailsLevel = "error"
+)
+
+// AllValues returns all LDAPSyncLogDetailsLevel values.
+func (LDAPSyncLogDetailsLevel) AllValues() []LDAPSyncLogDetailsLevel {
+	return []LDAPSyncLogDetailsLevel{
+		LDAPSyncLogDetailsLevelInfo,
+		LDAPSyncLogDetailsLevelWarning,
+		LDAPSyncLogDetailsLevelError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s LDAPSyncLogDetailsLevel) MarshalText() ([]byte, error) {
+	switch s {
+	case LDAPSyncLogDetailsLevelInfo:
+		return []byte(s), nil
+	case LDAPSyncLogDetailsLevelWarning:
+		return []byte(s), nil
+	case LDAPSyncLogDetailsLevelError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *LDAPSyncLogDetailsLevel) UnmarshalText(data []byte) error {
+	switch LDAPSyncLogDetailsLevel(data) {
+	case LDAPSyncLogDetailsLevelInfo:
+		*s = LDAPSyncLogDetailsLevelInfo
+		return nil
+	case LDAPSyncLogDetailsLevelWarning:
+		*s = LDAPSyncLogDetailsLevelWarning
+		return nil
+	case LDAPSyncLogDetailsLevelError:
+		*s = LDAPSyncLogDetailsLevelError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/LDAPSyncLogEntry
+type LDAPSyncLogEntry struct {
+	ID            uint                  `json:"id"`
+	Timestamp     time.Time             `json:"timestamp"`
+	Level         LDAPSyncLogEntryLevel `json:"level"`
+	Message       string                `json:"message"`
+	Username      OptNilString          `json:"username"`
+	Details       OptNilString          `json:"details"`
+	SyncSessionID string                `json:"sync_session_id"`
+}
+
+// GetID returns the value of ID.
+func (s *LDAPSyncLogEntry) GetID() uint {
+	return s.ID
+}
+
+// GetTimestamp returns the value of Timestamp.
+func (s *LDAPSyncLogEntry) GetTimestamp() time.Time {
+	return s.Timestamp
+}
+
+// GetLevel returns the value of Level.
+func (s *LDAPSyncLogEntry) GetLevel() LDAPSyncLogEntryLevel {
+	return s.Level
+}
+
+// GetMessage returns the value of Message.
+func (s *LDAPSyncLogEntry) GetMessage() string {
+	return s.Message
+}
+
+// GetUsername returns the value of Username.
+func (s *LDAPSyncLogEntry) GetUsername() OptNilString {
+	return s.Username
+}
+
+// GetDetails returns the value of Details.
+func (s *LDAPSyncLogEntry) GetDetails() OptNilString {
+	return s.Details
+}
+
+// GetSyncSessionID returns the value of SyncSessionID.
+func (s *LDAPSyncLogEntry) GetSyncSessionID() string {
+	return s.SyncSessionID
+}
+
+// SetID sets the value of ID.
+func (s *LDAPSyncLogEntry) SetID(val uint) {
+	s.ID = val
+}
+
+// SetTimestamp sets the value of Timestamp.
+func (s *LDAPSyncLogEntry) SetTimestamp(val time.Time) {
+	s.Timestamp = val
+}
+
+// SetLevel sets the value of Level.
+func (s *LDAPSyncLogEntry) SetLevel(val LDAPSyncLogEntryLevel) {
+	s.Level = val
+}
+
+// SetMessage sets the value of Message.
+func (s *LDAPSyncLogEntry) SetMessage(val string) {
+	s.Message = val
+}
+
+// SetUsername sets the value of Username.
+func (s *LDAPSyncLogEntry) SetUsername(val OptNilString) {
+	s.Username = val
+}
+
+// SetDetails sets the value of Details.
+func (s *LDAPSyncLogEntry) SetDetails(val OptNilString) {
+	s.Details = val
+}
+
+// SetSyncSessionID sets the value of SyncSessionID.
+func (s *LDAPSyncLogEntry) SetSyncSessionID(val string) {
+	s.SyncSessionID = val
+}
+
+type LDAPSyncLogEntryLevel string
+
+const (
+	LDAPSyncLogEntryLevelInfo    LDAPSyncLogEntryLevel = "info"
+	LDAPSyncLogEntryLevelWarning LDAPSyncLogEntryLevel = "warning"
+	LDAPSyncLogEntryLevelError   LDAPSyncLogEntryLevel = "error"
+)
+
+// AllValues returns all LDAPSyncLogEntryLevel values.
+func (LDAPSyncLogEntryLevel) AllValues() []LDAPSyncLogEntryLevel {
+	return []LDAPSyncLogEntryLevel{
+		LDAPSyncLogEntryLevelInfo,
+		LDAPSyncLogEntryLevelWarning,
+		LDAPSyncLogEntryLevelError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s LDAPSyncLogEntryLevel) MarshalText() ([]byte, error) {
+	switch s {
+	case LDAPSyncLogEntryLevelInfo:
+		return []byte(s), nil
+	case LDAPSyncLogEntryLevelWarning:
+		return []byte(s), nil
+	case LDAPSyncLogEntryLevelError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *LDAPSyncLogEntryLevel) UnmarshalText(data []byte) error {
+	switch LDAPSyncLogEntryLevel(data) {
+	case LDAPSyncLogEntryLevelInfo:
+		*s = LDAPSyncLogEntryLevelInfo
+		return nil
+	case LDAPSyncLogEntryLevelWarning:
+		*s = LDAPSyncLogEntryLevelWarning
+		return nil
+	case LDAPSyncLogEntryLevelError:
+		*s = LDAPSyncLogEntryLevelError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/LDAPSyncLogs
+type LDAPSyncLogs struct {
+	Logs    []LDAPSyncLogEntry `json:"logs"`
+	Total   OptInt             `json:"total"`
+	HasMore OptBool            `json:"has_more"`
+}
+
+// GetLogs returns the value of Logs.
+func (s *LDAPSyncLogs) GetLogs() []LDAPSyncLogEntry {
+	return s.Logs
+}
+
+// GetTotal returns the value of Total.
+func (s *LDAPSyncLogs) GetTotal() OptInt {
+	return s.Total
+}
+
+// GetHasMore returns the value of HasMore.
+func (s *LDAPSyncLogs) GetHasMore() OptBool {
+	return s.HasMore
+}
+
+// SetLogs sets the value of Logs.
+func (s *LDAPSyncLogs) SetLogs(val []LDAPSyncLogEntry) {
+	s.Logs = val
+}
+
+// SetTotal sets the value of Total.
+func (s *LDAPSyncLogs) SetTotal(val OptInt) {
+	s.Total = val
+}
+
+// SetHasMore sets the value of HasMore.
+func (s *LDAPSyncLogs) SetHasMore(val OptBool) {
+	s.HasMore = val
+}
+
+func (*LDAPSyncLogs) getLDAPSyncLogsRes() {}
+
+// Ref: #/components/schemas/LDAPSyncProgress
+type LDAPSyncProgress struct {
+	IsRunning      bool      `json:"is_running"`
+	Progress       float32   `json:"progress"`
+	CurrentStep    string    `json:"current_step"`
+	ProcessedItems int       `json:"processed_items"`
+	TotalItems     int       `json:"total_items"`
+	EstimatedTime  string    `json:"estimated_time"`
+	StartTime      time.Time `json:"start_time"`
+	SyncID         string    `json:"sync_id"`
+}
+
+// GetIsRunning returns the value of IsRunning.
+func (s *LDAPSyncProgress) GetIsRunning() bool {
+	return s.IsRunning
+}
+
+// GetProgress returns the value of Progress.
+func (s *LDAPSyncProgress) GetProgress() float32 {
+	return s.Progress
+}
+
+// GetCurrentStep returns the value of CurrentStep.
+func (s *LDAPSyncProgress) GetCurrentStep() string {
+	return s.CurrentStep
+}
+
+// GetProcessedItems returns the value of ProcessedItems.
+func (s *LDAPSyncProgress) GetProcessedItems() int {
+	return s.ProcessedItems
+}
+
+// GetTotalItems returns the value of TotalItems.
+func (s *LDAPSyncProgress) GetTotalItems() int {
+	return s.TotalItems
+}
+
+// GetEstimatedTime returns the value of EstimatedTime.
+func (s *LDAPSyncProgress) GetEstimatedTime() string {
+	return s.EstimatedTime
+}
+
+// GetStartTime returns the value of StartTime.
+func (s *LDAPSyncProgress) GetStartTime() time.Time {
+	return s.StartTime
+}
+
+// GetSyncID returns the value of SyncID.
+func (s *LDAPSyncProgress) GetSyncID() string {
+	return s.SyncID
+}
+
+// SetIsRunning sets the value of IsRunning.
+func (s *LDAPSyncProgress) SetIsRunning(val bool) {
+	s.IsRunning = val
+}
+
+// SetProgress sets the value of Progress.
+func (s *LDAPSyncProgress) SetProgress(val float32) {
+	s.Progress = val
+}
+
+// SetCurrentStep sets the value of CurrentStep.
+func (s *LDAPSyncProgress) SetCurrentStep(val string) {
+	s.CurrentStep = val
+}
+
+// SetProcessedItems sets the value of ProcessedItems.
+func (s *LDAPSyncProgress) SetProcessedItems(val int) {
+	s.ProcessedItems = val
+}
+
+// SetTotalItems sets the value of TotalItems.
+func (s *LDAPSyncProgress) SetTotalItems(val int) {
+	s.TotalItems = val
+}
+
+// SetEstimatedTime sets the value of EstimatedTime.
+func (s *LDAPSyncProgress) SetEstimatedTime(val string) {
+	s.EstimatedTime = val
+}
+
+// SetStartTime sets the value of StartTime.
+func (s *LDAPSyncProgress) SetStartTime(val time.Time) {
+	s.StartTime = val
+}
+
+// SetSyncID sets the value of SyncID.
+func (s *LDAPSyncProgress) SetSyncID(val string) {
+	s.SyncID = val
+}
+
+func (*LDAPSyncProgress) getLDAPSyncProgressRes() {}
+
+// Ref: #/components/schemas/LDAPSyncStartResponse
+type LDAPSyncStartResponse struct {
+	Message           OptString `json:"message"`
+	SyncID            OptUUID   `json:"sync_id"`
+	EstimatedDuration OptString `json:"estimated_duration"`
+}
+
+// GetMessage returns the value of Message.
+func (s *LDAPSyncStartResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// GetSyncID returns the value of SyncID.
+func (s *LDAPSyncStartResponse) GetSyncID() OptUUID {
+	return s.SyncID
+}
+
+// GetEstimatedDuration returns the value of EstimatedDuration.
+func (s *LDAPSyncStartResponse) GetEstimatedDuration() OptString {
+	return s.EstimatedDuration
+}
+
+// SetMessage sets the value of Message.
+func (s *LDAPSyncStartResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetSyncID sets the value of SyncID.
+func (s *LDAPSyncStartResponse) SetSyncID(val OptUUID) {
+	s.SyncID = val
+}
+
+// SetEstimatedDuration sets the value of EstimatedDuration.
+func (s *LDAPSyncStartResponse) SetEstimatedDuration(val OptString) {
+	s.EstimatedDuration = val
+}
+
+func (*LDAPSyncStartResponse) syncLDAPUsersRes() {}
+
+// Ref: #/components/schemas/LDAPSyncStatus
+type LDAPSyncStatus struct {
+	Status           string      `json:"status"`
+	IsRunning        bool        `json:"is_running"`
+	LastSyncTime     OptDateTime `json:"last_sync_time"`
+	TotalUsers       int         `json:"total_users"`
+	SyncedUsers      int         `json:"synced_users"`
+	Errors           int         `json:"errors"`
+	Warnings         int         `json:"warnings"`
+	LastSyncDuration OptString   `json:"last_sync_duration"`
+}
+
+// GetStatus returns the value of Status.
+func (s *LDAPSyncStatus) GetStatus() string {
+	return s.Status
+}
+
+// GetIsRunning returns the value of IsRunning.
+func (s *LDAPSyncStatus) GetIsRunning() bool {
+	return s.IsRunning
+}
+
+// GetLastSyncTime returns the value of LastSyncTime.
+func (s *LDAPSyncStatus) GetLastSyncTime() OptDateTime {
+	return s.LastSyncTime
+}
+
+// GetTotalUsers returns the value of TotalUsers.
+func (s *LDAPSyncStatus) GetTotalUsers() int {
+	return s.TotalUsers
+}
+
+// GetSyncedUsers returns the value of SyncedUsers.
+func (s *LDAPSyncStatus) GetSyncedUsers() int {
+	return s.SyncedUsers
+}
+
+// GetErrors returns the value of Errors.
+func (s *LDAPSyncStatus) GetErrors() int {
+	return s.Errors
+}
+
+// GetWarnings returns the value of Warnings.
+func (s *LDAPSyncStatus) GetWarnings() int {
+	return s.Warnings
+}
+
+// GetLastSyncDuration returns the value of LastSyncDuration.
+func (s *LDAPSyncStatus) GetLastSyncDuration() OptString {
+	return s.LastSyncDuration
+}
+
+// SetStatus sets the value of Status.
+func (s *LDAPSyncStatus) SetStatus(val string) {
+	s.Status = val
+}
+
+// SetIsRunning sets the value of IsRunning.
+func (s *LDAPSyncStatus) SetIsRunning(val bool) {
+	s.IsRunning = val
+}
+
+// SetLastSyncTime sets the value of LastSyncTime.
+func (s *LDAPSyncStatus) SetLastSyncTime(val OptDateTime) {
+	s.LastSyncTime = val
+}
+
+// SetTotalUsers sets the value of TotalUsers.
+func (s *LDAPSyncStatus) SetTotalUsers(val int) {
+	s.TotalUsers = val
+}
+
+// SetSyncedUsers sets the value of SyncedUsers.
+func (s *LDAPSyncStatus) SetSyncedUsers(val int) {
+	s.SyncedUsers = val
+}
+
+// SetErrors sets the value of Errors.
+func (s *LDAPSyncStatus) SetErrors(val int) {
+	s.Errors = val
+}
+
+// SetWarnings sets the value of Warnings.
+func (s *LDAPSyncStatus) SetWarnings(val int) {
+	s.Warnings = val
+}
+
+// SetLastSyncDuration sets the value of LastSyncDuration.
+func (s *LDAPSyncStatus) SetLastSyncDuration(val OptString) {
+	s.LastSyncDuration = val
+}
+
+func (*LDAPSyncStatus) getLDAPSyncStatusRes() {}
+
+// Type of license feature.
+// Ref: #/components/schemas/LicenseFeature
+type LicenseFeature string
+
+const (
+	LicenseFeatureSSO               LicenseFeature = "sso"
+	LicenseFeatureLdap              LicenseFeature = "ldap"
+	LicenseFeatureCorpNotifChannels LicenseFeature = "corp_notif_channels"
+)
+
+// AllValues returns all LicenseFeature values.
+func (LicenseFeature) AllValues() []LicenseFeature {
+	return []LicenseFeature{
+		LicenseFeatureSSO,
+		LicenseFeatureLdap,
+		LicenseFeatureCorpNotifChannels,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s LicenseFeature) MarshalText() ([]byte, error) {
+	switch s {
+	case LicenseFeatureSSO:
+		return []byte(s), nil
+	case LicenseFeatureLdap:
+		return []byte(s), nil
+	case LicenseFeatureCorpNotifChannels:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *LicenseFeature) UnmarshalText(data []byte) error {
+	switch LicenseFeature(data) {
+	case LicenseFeatureSSO:
+		*s = LicenseFeatureSSO
+		return nil
+	case LicenseFeatureLdap:
+		*s = LicenseFeatureLdap
+		return nil
+	case LicenseFeatureCorpNotifChannels:
+		*s = LicenseFeatureCorpNotifChannels
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/LicenseStatusResponse
+type LicenseStatusResponse struct {
+	License LicenseStatusResponseLicense `json:"license"`
+}
+
+// GetLicense returns the value of License.
+func (s *LicenseStatusResponse) GetLicense() LicenseStatusResponseLicense {
+	return s.License
+}
+
+// SetLicense sets the value of License.
+func (s *LicenseStatusResponse) SetLicense(val LicenseStatusResponseLicense) {
+	s.License = val
+}
+
+func (*LicenseStatusResponse) getLicenseStatusRes() {}
+func (*LicenseStatusResponse) updateLicenseRes()    {}
+
+type LicenseStatusResponseLicense struct {
+	// License ID.
+	ID   OptString      `json:"id"`
+	Type OptLicenseType `json:"type"`
+	// When the license was issued.
+	IssuedAt OptDateTime `json:"issued_at"`
+	// When the license expires.
+	ExpiresAt OptDateTime `json:"expires_at"`
+	// Whether the license is currently valid.
+	IsValid OptBool `json:"is_valid"`
+	// Whether the license has expired.
+	IsExpired OptBool `json:"is_expired"`
+	// Number of days until license expires (negative if expired).
+	DaysUntilExpiry OptInt `json:"days_until_expiry"`
+	// The full license text.
+	LicenseText OptString `json:"license_text"`
+	// List of features available in this license.
+	Features []LicenseFeature `json:"features"`
+}
+
+// GetID returns the value of ID.
+func (s *LicenseStatusResponseLicense) GetID() OptString {
+	return s.ID
+}
+
+// GetType returns the value of Type.
+func (s *LicenseStatusResponseLicense) GetType() OptLicenseType {
+	return s.Type
+}
+
+// GetIssuedAt returns the value of IssuedAt.
+func (s *LicenseStatusResponseLicense) GetIssuedAt() OptDateTime {
+	return s.IssuedAt
+}
+
+// GetExpiresAt returns the value of ExpiresAt.
+func (s *LicenseStatusResponseLicense) GetExpiresAt() OptDateTime {
+	return s.ExpiresAt
+}
+
+// GetIsValid returns the value of IsValid.
+func (s *LicenseStatusResponseLicense) GetIsValid() OptBool {
+	return s.IsValid
+}
+
+// GetIsExpired returns the value of IsExpired.
+func (s *LicenseStatusResponseLicense) GetIsExpired() OptBool {
+	return s.IsExpired
+}
+
+// GetDaysUntilExpiry returns the value of DaysUntilExpiry.
+func (s *LicenseStatusResponseLicense) GetDaysUntilExpiry() OptInt {
+	return s.DaysUntilExpiry
+}
+
+// GetLicenseText returns the value of LicenseText.
+func (s *LicenseStatusResponseLicense) GetLicenseText() OptString {
+	return s.LicenseText
+}
+
+// GetFeatures returns the value of Features.
+func (s *LicenseStatusResponseLicense) GetFeatures() []LicenseFeature {
+	return s.Features
+}
+
+// SetID sets the value of ID.
+func (s *LicenseStatusResponseLicense) SetID(val OptString) {
+	s.ID = val
+}
+
+// SetType sets the value of Type.
+func (s *LicenseStatusResponseLicense) SetType(val OptLicenseType) {
+	s.Type = val
+}
+
+// SetIssuedAt sets the value of IssuedAt.
+func (s *LicenseStatusResponseLicense) SetIssuedAt(val OptDateTime) {
+	s.IssuedAt = val
+}
+
+// SetExpiresAt sets the value of ExpiresAt.
+func (s *LicenseStatusResponseLicense) SetExpiresAt(val OptDateTime) {
+	s.ExpiresAt = val
+}
+
+// SetIsValid sets the value of IsValid.
+func (s *LicenseStatusResponseLicense) SetIsValid(val OptBool) {
+	s.IsValid = val
+}
+
+// SetIsExpired sets the value of IsExpired.
+func (s *LicenseStatusResponseLicense) SetIsExpired(val OptBool) {
+	s.IsExpired = val
+}
+
+// SetDaysUntilExpiry sets the value of DaysUntilExpiry.
+func (s *LicenseStatusResponseLicense) SetDaysUntilExpiry(val OptInt) {
+	s.DaysUntilExpiry = val
+}
+
+// SetLicenseText sets the value of LicenseText.
+func (s *LicenseStatusResponseLicense) SetLicenseText(val OptString) {
+	s.LicenseText = val
+}
+
+// SetFeatures sets the value of Features.
+func (s *LicenseStatusResponseLicense) SetFeatures(val []LicenseFeature) {
+	s.Features = val
+}
+
+// Type of license.
+// Ref: #/components/schemas/LicenseType
+type LicenseType string
+
+const (
+	LicenseTypeTrial           LicenseType = "trial"
+	LicenseTypeTrialSelfSigned LicenseType = "trial-self-signed"
+	LicenseTypeCommercial      LicenseType = "commercial"
+	LicenseTypeIndividual      LicenseType = "individual"
+)
+
+// AllValues returns all LicenseType values.
+func (LicenseType) AllValues() []LicenseType {
+	return []LicenseType{
+		LicenseTypeTrial,
+		LicenseTypeTrialSelfSigned,
+		LicenseTypeCommercial,
+		LicenseTypeIndividual,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s LicenseType) MarshalText() ([]byte, error) {
+	switch s {
+	case LicenseTypeTrial:
+		return []byte(s), nil
+	case LicenseTypeTrialSelfSigned:
+		return []byte(s), nil
+	case LicenseTypeCommercial:
+		return []byte(s), nil
+	case LicenseTypeIndividual:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *LicenseType) UnmarshalText(data []byte) error {
+	switch LicenseType(data) {
+	case LicenseTypeTrial:
+		*s = LicenseTypeTrial
+		return nil
+	case LicenseTypeTrialSelfSigned:
+		*s = LicenseTypeTrialSelfSigned
+		return nil
+	case LicenseTypeCommercial:
+		*s = LicenseTypeCommercial
+		return nil
+	case LicenseTypeIndividual:
+		*s = LicenseTypeIndividual
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type ListProjectsResponse []Project
+
+func (*ListProjectsResponse) listProjectsRes() {}
+
+type ListUsersResponse []User
+
+func (*ListUsersResponse) listUsersRes() {}
+
+// Ref: #/components/schemas/LoginRequest
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// GetUsername returns the value of Username.
+func (s *LoginRequest) GetUsername() string {
+	return s.Username
+}
+
+// GetPassword returns the value of Password.
+func (s *LoginRequest) GetPassword() string {
+	return s.Password
+}
+
+// SetUsername sets the value of Username.
+func (s *LoginRequest) SetUsername(val string) {
+	s.Username = val
+}
+
+// SetPassword sets the value of Password.
+func (s *LoginRequest) SetPassword(val string) {
+	s.Password = val
+}
+
+// Ref: #/components/schemas/LoginResponse
+type LoginResponse struct {
+	AccessToken   string `json:"access_token"`
+	RefreshToken  string `json:"refresh_token"`
+	ExpiresIn     int    `json:"expires_in"`
+	IsTmpPassword bool   `json:"is_tmp_password"`
+}
+
+// GetAccessToken returns the value of AccessToken.
+func (s *LoginResponse) GetAccessToken() string {
+	return s.AccessToken
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *LoginResponse) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// GetExpiresIn returns the value of ExpiresIn.
+func (s *LoginResponse) GetExpiresIn() int {
+	return s.ExpiresIn
+}
+
+// GetIsTmpPassword returns the value of IsTmpPassword.
+func (s *LoginResponse) GetIsTmpPassword() bool {
+	return s.IsTmpPassword
+}
+
+// SetAccessToken sets the value of AccessToken.
+func (s *LoginResponse) SetAccessToken(val string) {
+	s.AccessToken = val
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *LoginResponse) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// SetExpiresIn sets the value of ExpiresIn.
+func (s *LoginResponse) SetExpiresIn(val int) {
+	s.ExpiresIn = val
+}
+
+// SetIsTmpPassword sets the value of IsTmpPassword.
+func (s *LoginResponse) SetIsTmpPassword(val bool) {
+	s.IsTmpPassword = val
+}
+
+func (*LoginResponse) loginRes()       {}
+func (*LoginResponse) sSOCallbackRes() {}
+
+// NewOptBool returns new OptBool with value set to v.
+func NewOptBool(v bool) OptBool {
+	return OptBool{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptBool is optional bool.
+type OptBool struct {
+	Value bool
+	Set   bool
+}
+
+// IsSet returns true if OptBool was set.
+func (o OptBool) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptBool) Reset() {
+	var v bool
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptBool) SetTo(v bool) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptBool) Get() (v bool, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDate returns new OptDate with value set to v.
+func NewOptDate(v time.Time) OptDate {
+	return OptDate{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDate is optional time.Time.
+type OptDate struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDate was set.
+func (o OptDate) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDate) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDate) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDate) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDate) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDateTime returns new OptDateTime with value set to v.
+func NewOptDateTime(v time.Time) OptDateTime {
+	return OptDateTime{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDateTime is optional time.Time.
+type OptDateTime struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDateTime was set.
+func (o OptDateTime) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDateTime) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDateTime) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDateTime) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptFloat32 returns new OptFloat32 with value set to v.
+func NewOptFloat32(v float32) OptFloat32 {
+	return OptFloat32{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptFloat32 is optional float32.
+type OptFloat32 struct {
+	Value float32
+	Set   bool
+}
+
+// IsSet returns true if OptFloat32 was set.
+func (o OptFloat32) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptFloat32) Reset() {
+	var v float32
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptFloat32) SetTo(v float32) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptFloat32) Get() (v float32, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptFloat32) Or(d float32) float32 {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptGetLDAPSyncLogsLevel returns new OptGetLDAPSyncLogsLevel with value set to v.
+func NewOptGetLDAPSyncLogsLevel(v GetLDAPSyncLogsLevel) OptGetLDAPSyncLogsLevel {
+	return OptGetLDAPSyncLogsLevel{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptGetLDAPSyncLogsLevel is optional GetLDAPSyncLogsLevel.
+type OptGetLDAPSyncLogsLevel struct {
+	Value GetLDAPSyncLogsLevel
+	Set   bool
+}
+
+// IsSet returns true if OptGetLDAPSyncLogsLevel was set.
+func (o OptGetLDAPSyncLogsLevel) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptGetLDAPSyncLogsLevel) Reset() {
+	var v GetLDAPSyncLogsLevel
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptGetLDAPSyncLogsLevel) SetTo(v GetLDAPSyncLogsLevel) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptGetLDAPSyncLogsLevel) Get() (v GetLDAPSyncLogsLevel, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptGetLDAPSyncLogsLevel) Or(d GetLDAPSyncLogsLevel) GetLDAPSyncLogsLevel {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptInt returns new OptInt with value set to v.
+func NewOptInt(v int) OptInt {
+	return OptInt{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt is optional int.
+type OptInt struct {
+	Value int
+	Set   bool
+}
+
+// IsSet returns true if OptInt was set.
+func (o OptInt) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt) Reset() {
+	var v int
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt) SetTo(v int) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt) Get() (v int, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptLDAPConfig returns new OptLDAPConfig with value set to v.
+func NewOptLDAPConfig(v LDAPConfig) OptLDAPConfig {
+	return OptLDAPConfig{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptLDAPConfig is optional LDAPConfig.
+type OptLDAPConfig struct {
+	Value LDAPConfig
+	Set   bool
+}
+
+// IsSet returns true if OptLDAPConfig was set.
+func (o OptLDAPConfig) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptLDAPConfig) Reset() {
+	var v LDAPConfig
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptLDAPConfig) SetTo(v LDAPConfig) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptLDAPConfig) Get() (v LDAPConfig, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptLDAPConfig) Or(d LDAPConfig) LDAPConfig {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptLDAPConnectionTestResponseDetails returns new OptLDAPConnectionTestResponseDetails with value set to v.
+func NewOptLDAPConnectionTestResponseDetails(v LDAPConnectionTestResponseDetails) OptLDAPConnectionTestResponseDetails {
+	return OptLDAPConnectionTestResponseDetails{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptLDAPConnectionTestResponseDetails is optional LDAPConnectionTestResponseDetails.
+type OptLDAPConnectionTestResponseDetails struct {
+	Value LDAPConnectionTestResponseDetails
+	Set   bool
+}
+
+// IsSet returns true if OptLDAPConnectionTestResponseDetails was set.
+func (o OptLDAPConnectionTestResponseDetails) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptLDAPConnectionTestResponseDetails) Reset() {
+	var v LDAPConnectionTestResponseDetails
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptLDAPConnectionTestResponseDetails) SetTo(v LDAPConnectionTestResponseDetails) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptLDAPConnectionTestResponseDetails) Get() (v LDAPConnectionTestResponseDetails, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptLDAPConnectionTestResponseDetails) Or(d LDAPConnectionTestResponseDetails) LDAPConnectionTestResponseDetails {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptLicenseType returns new OptLicenseType with value set to v.
+func NewOptLicenseType(v LicenseType) OptLicenseType {
+	return OptLicenseType{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptLicenseType is optional LicenseType.
+type OptLicenseType struct {
+	Value LicenseType
+	Set   bool
+}
+
+// IsSet returns true if OptLicenseType was set.
+func (o OptLicenseType) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptLicenseType) Reset() {
+	var v LicenseType
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptLicenseType) SetTo(v LicenseType) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptLicenseType) Get() (v LicenseType, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptLicenseType) Or(d LicenseType) LicenseType {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilInt returns new OptNilInt with value set to v.
+func NewOptNilInt(v int) OptNilInt {
+	return OptNilInt{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilInt is optional nullable int.
+type OptNilInt struct {
+	Value int
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilInt was set.
+func (o OptNilInt) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilInt) Reset() {
+	var v int
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilInt) SetTo(v int) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilInt) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilInt) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v int
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilInt) Get() (v int, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilString returns new OptNilString with value set to v.
+func NewOptNilString(v string) OptNilString {
+	return OptNilString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilString is optional nullable string.
+type OptNilString struct {
+	Value string
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilString was set.
+func (o OptNilString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilString) SetTo(v string) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilString) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilString) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v string
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilString) Get() (v string, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptString returns new OptString with value set to v.
+func NewOptString(v string) OptString {
+	return OptString{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptString is optional string.
+type OptString struct {
+	Value string
+	Set   bool
+}
+
+// IsSet returns true if OptString was set.
+func (o OptString) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptString) Reset() {
+	var v string
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptString) SetTo(v string) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptString) Get() (v string, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptString) Or(d string) string {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptUUID returns new OptUUID with value set to v.
+func NewOptUUID(v uuid.UUID) OptUUID {
+	return OptUUID{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUUID is optional uuid.UUID.
+type OptUUID struct {
+	Value uuid.UUID
+	Set   bool
+}
+
+// IsSet returns true if OptUUID was set.
+func (o OptUUID) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUUID) Reset() {
+	var v uuid.UUID
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUUID) SetTo(v uuid.UUID) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUUID) Get() (v uuid.UUID, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// Ref: #/components/schemas/ProductInfoResponse
+type ProductInfoResponse struct {
+	// Unique client identifier for this installation.
+	ClientID string `json:"client_id"`
+	// When the client ID was created.
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// GetClientID returns the value of ClientID.
+func (s *ProductInfoResponse) GetClientID() string {
+	return s.ClientID
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ProductInfoResponse) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetClientID sets the value of ClientID.
+func (s *ProductInfoResponse) SetClientID(val string) {
+	s.ClientID = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ProductInfoResponse) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+func (*ProductInfoResponse) getProductInfoRes() {}
+
+// Ref: #/components/schemas/Project
+type Project struct {
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Project) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *Project) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *Project) GetDescription() string {
+	return s.Description
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Project) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Project) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Project) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Project) SetDescription(val string) {
+	s.Description = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Project) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// Ref: #/components/schemas/ProjectResponse
+type ProjectResponse struct {
+	Project Project `json:"project"`
+}
+
+// GetProject returns the value of Project.
+func (s *ProjectResponse) GetProject() Project {
+	return s.Project
+}
+
+// SetProject sets the value of Project.
+func (s *ProjectResponse) SetProject(val Project) {
+	s.Project = val
+}
+
+func (*ProjectResponse) getProjectRes()    {}
+func (*ProjectResponse) updateProjectRes() {}
+
+// Ref: #/components/schemas/RefreshTokenRequest
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *RefreshTokenRequest) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *RefreshTokenRequest) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// Ref: #/components/schemas/RefreshTokenResponse
+type RefreshTokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
+// GetAccessToken returns the value of AccessToken.
+func (s *RefreshTokenResponse) GetAccessToken() string {
+	return s.AccessToken
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *RefreshTokenResponse) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// GetExpiresIn returns the value of ExpiresIn.
+func (s *RefreshTokenResponse) GetExpiresIn() int {
+	return s.ExpiresIn
+}
+
+// SetAccessToken sets the value of AccessToken.
+func (s *RefreshTokenResponse) SetAccessToken(val string) {
+	s.AccessToken = val
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *RefreshTokenResponse) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// SetExpiresIn sets the value of ExpiresIn.
+func (s *RefreshTokenResponse) SetExpiresIn(val int) {
+	s.ExpiresIn = val
+}
+
+func (*RefreshTokenResponse) refreshTokenRes() {}
+
+// ResetPasswordNoContent is response for ResetPassword operation.
+type ResetPasswordNoContent struct{}
+
+func (*ResetPasswordNoContent) resetPasswordRes() {}
+
+// Ref: #/components/schemas/ResetPasswordRequest
+type ResetPasswordRequest struct {
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}
+
+// GetToken returns the value of Token.
+func (s *ResetPasswordRequest) GetToken() string {
+	return s.Token
+}
+
+// GetNewPassword returns the value of NewPassword.
+func (s *ResetPasswordRequest) GetNewPassword() string {
+	return s.NewPassword
+}
+
+// SetToken sets the value of Token.
+func (s *ResetPasswordRequest) SetToken(val string) {
+	s.Token = val
+}
+
+// SetNewPassword sets the value of NewPassword.
+func (s *ResetPasswordRequest) SetNewPassword(val string) {
+	s.NewPassword = val
+}
+
+// Ref: #/components/schemas/SSOCallbackRequest
+type SSOCallbackRequest struct {
+	// Name of the SSO provider.
+	Provider string `json:"provider"`
+	// Response from SSO provider (code for OIDC, SAML response for SAML).
+	Response string `json:"response"`
+	// State parameter for CSRF protection.
+	State string `json:"state"`
+}
+
+// GetProvider returns the value of Provider.
+func (s *SSOCallbackRequest) GetProvider() string {
+	return s.Provider
+}
+
+// GetResponse returns the value of Response.
+func (s *SSOCallbackRequest) GetResponse() string {
+	return s.Response
+}
+
+// GetState returns the value of State.
+func (s *SSOCallbackRequest) GetState() string {
+	return s.State
+}
+
+// SetProvider sets the value of Provider.
+func (s *SSOCallbackRequest) SetProvider(val string) {
+	s.Provider = val
+}
+
+// SetResponse sets the value of Response.
+func (s *SSOCallbackRequest) SetResponse(val string) {
+	s.Response = val
+}
+
+// SetState sets the value of State.
+func (s *SSOCallbackRequest) SetState(val string) {
+	s.State = val
+}
+
+// Ref: #/components/schemas/SSOInitiateResponse
+type SSOInitiateResponse struct {
+	// URL to redirect user for SSO login.
+	RedirectURL string `json:"redirect_url"`
+}
+
+// GetRedirectURL returns the value of RedirectURL.
+func (s *SSOInitiateResponse) GetRedirectURL() string {
+	return s.RedirectURL
+}
+
+// SetRedirectURL sets the value of RedirectURL.
+func (s *SSOInitiateResponse) SetRedirectURL(val string) {
+	s.RedirectURL = val
+}
+
+func (*SSOInitiateResponse) sSOInitiateRes() {}
+
+// Ref: #/components/schemas/SSOProvider
+type SSOProvider struct {
+	// Internal name of the provider.
+	Name string `json:"name"`
+	// Display name for UI.
+	DisplayName string `json:"display_name"`
+	// Type of SSO provider.
+	Type SSOProviderType `json:"type"`
+	// URL to provider icon.
+	IconURL OptString `json:"icon_url"`
+	// Whether the provider is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// GetName returns the value of Name.
+func (s *SSOProvider) GetName() string {
+	return s.Name
+}
+
+// GetDisplayName returns the value of DisplayName.
+func (s *SSOProvider) GetDisplayName() string {
+	return s.DisplayName
+}
+
+// GetType returns the value of Type.
+func (s *SSOProvider) GetType() SSOProviderType {
+	return s.Type
+}
+
+// GetIconURL returns the value of IconURL.
+func (s *SSOProvider) GetIconURL() OptString {
+	return s.IconURL
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *SSOProvider) GetEnabled() bool {
+	return s.Enabled
+}
+
+// SetName sets the value of Name.
+func (s *SSOProvider) SetName(val string) {
+	s.Name = val
+}
+
+// SetDisplayName sets the value of DisplayName.
+func (s *SSOProvider) SetDisplayName(val string) {
+	s.DisplayName = val
+}
+
+// SetType sets the value of Type.
+func (s *SSOProvider) SetType(val SSOProviderType) {
+	s.Type = val
+}
+
+// SetIconURL sets the value of IconURL.
+func (s *SSOProvider) SetIconURL(val OptString) {
+	s.IconURL = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *SSOProvider) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// Type of SSO provider.
+type SSOProviderType string
+
+const (
+	SSOProviderTypeSaml SSOProviderType = "saml"
+)
+
+// AllValues returns all SSOProviderType values.
+func (SSOProviderType) AllValues() []SSOProviderType {
+	return []SSOProviderType{
+		SSOProviderTypeSaml,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s SSOProviderType) MarshalText() ([]byte, error) {
+	switch s {
+	case SSOProviderTypeSaml:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *SSOProviderType) UnmarshalText(data []byte) error {
+	switch SSOProviderType(data) {
+	case SSOProviderTypeSaml:
+		*s = SSOProviderTypeSaml
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/SSOProvidersResponse
+type SSOProvidersResponse struct {
+	Providers []SSOProvider `json:"providers"`
+}
+
+// GetProviders returns the value of Providers.
+func (s *SSOProvidersResponse) GetProviders() []SSOProvider {
+	return s.Providers
+}
+
+// SetProviders sets the value of Providers.
+func (s *SSOProvidersResponse) SetProviders(val []SSOProvider) {
+	s.Providers = val
+}
+
+func (*SSOProvidersResponse) getSSOProvidersRes() {}
+
+// Send2FACodeNoContent is response for Send2FACode operation.
+type Send2FACodeNoContent struct{}
+
+func (*Send2FACodeNoContent) send2FACodeRes() {}
+
+// Ref: #/components/schemas/SetSuperuserStatusRequest
+type SetSuperuserStatusRequest struct {
+	IsSuperuser bool `json:"is_superuser"`
+}
+
+// GetIsSuperuser returns the value of IsSuperuser.
+func (s *SetSuperuserStatusRequest) GetIsSuperuser() bool {
+	return s.IsSuperuser
+}
+
+// SetIsSuperuser sets the value of IsSuperuser.
+func (s *SetSuperuserStatusRequest) SetIsSuperuser(val bool) {
+	s.IsSuperuser = val
+}
+
+// Ref: #/components/schemas/SetUserActiveStatusRequest
+type SetUserActiveStatusRequest struct {
+	IsActive bool `json:"is_active"`
+}
+
+// GetIsActive returns the value of IsActive.
+func (s *SetUserActiveStatusRequest) GetIsActive() bool {
+	return s.IsActive
+}
+
+// SetIsActive sets the value of IsActive.
+func (s *SetUserActiveStatusRequest) SetIsActive(val bool) {
+	s.IsActive = val
+}
+
+// Ref: #/components/schemas/SuccessResponse
+type SuccessResponse struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *SuccessResponse) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *SuccessResponse) SetMessage(val OptString) {
+	s.Message = val
+}
+
+func (*SuccessResponse) cancelLDAPSyncRes()   {}
+func (*SuccessResponse) deleteLDAPConfigRes() {}
+
+// Ref: #/components/schemas/TwoFAConfirmRequest
+type TwoFAConfirmRequest struct {
+	Code string `json:"code"`
+}
+
+// GetCode returns the value of Code.
+func (s *TwoFAConfirmRequest) GetCode() string {
+	return s.Code
+}
+
+// SetCode sets the value of Code.
+func (s *TwoFAConfirmRequest) SetCode(val string) {
+	s.Code = val
+}
+
+// Ref: #/components/schemas/TwoFADisableRequest
+type TwoFADisableRequest struct {
+	EmailCode string `json:"email_code"`
+}
+
+// GetEmailCode returns the value of EmailCode.
+func (s *TwoFADisableRequest) GetEmailCode() string {
+	return s.EmailCode
+}
+
+// SetEmailCode sets the value of EmailCode.
+func (s *TwoFADisableRequest) SetEmailCode(val string) {
+	s.EmailCode = val
+}
+
+// Ref: #/components/schemas/TwoFAResetRequest
+type TwoFAResetRequest struct {
+	EmailCode string `json:"email_code"`
+}
+
+// GetEmailCode returns the value of EmailCode.
+func (s *TwoFAResetRequest) GetEmailCode() string {
+	return s.EmailCode
+}
+
+// SetEmailCode sets the value of EmailCode.
+func (s *TwoFAResetRequest) SetEmailCode(val string) {
+	s.EmailCode = val
+}
+
+// Ref: #/components/schemas/TwoFASetupResponse
+type TwoFASetupResponse struct {
+	Secret string `json:"secret"`
+	QrURL  string `json:"qr_url"`
+	// Base64 PNG QR image.
+	QrImage string `json:"qr_image"`
+}
+
+// GetSecret returns the value of Secret.
+func (s *TwoFASetupResponse) GetSecret() string {
+	return s.Secret
+}
+
+// GetQrURL returns the value of QrURL.
+func (s *TwoFASetupResponse) GetQrURL() string {
+	return s.QrURL
+}
+
+// GetQrImage returns the value of QrImage.
+func (s *TwoFASetupResponse) GetQrImage() string {
+	return s.QrImage
+}
+
+// SetSecret sets the value of Secret.
+func (s *TwoFASetupResponse) SetSecret(val string) {
+	s.Secret = val
+}
+
+// SetQrURL sets the value of QrURL.
+func (s *TwoFASetupResponse) SetQrURL(val string) {
+	s.QrURL = val
+}
+
+// SetQrImage sets the value of QrImage.
+func (s *TwoFASetupResponse) SetQrImage(val string) {
+	s.QrImage = val
+}
+
+func (*TwoFASetupResponse) reset2FARes() {}
+func (*TwoFASetupResponse) setup2FARes() {}
+
+// Ref: #/components/schemas/TwoFAVerifyRequest
+type TwoFAVerifyRequest struct {
+	Code      string `json:"code"`
+	SessionID string `json:"session_id"`
+}
+
+// GetCode returns the value of Code.
+func (s *TwoFAVerifyRequest) GetCode() string {
+	return s.Code
+}
+
+// GetSessionID returns the value of SessionID.
+func (s *TwoFAVerifyRequest) GetSessionID() string {
+	return s.SessionID
+}
+
+// SetCode sets the value of Code.
+func (s *TwoFAVerifyRequest) SetCode(val string) {
+	s.Code = val
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *TwoFAVerifyRequest) SetSessionID(val string) {
+	s.SessionID = val
+}
+
+// Ref: #/components/schemas/TwoFAVerifyResponse
+type TwoFAVerifyResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
+// GetAccessToken returns the value of AccessToken.
+func (s *TwoFAVerifyResponse) GetAccessToken() string {
+	return s.AccessToken
+}
+
+// GetRefreshToken returns the value of RefreshToken.
+func (s *TwoFAVerifyResponse) GetRefreshToken() string {
+	return s.RefreshToken
+}
+
+// GetExpiresIn returns the value of ExpiresIn.
+func (s *TwoFAVerifyResponse) GetExpiresIn() int {
+	return s.ExpiresIn
+}
+
+// SetAccessToken sets the value of AccessToken.
+func (s *TwoFAVerifyResponse) SetAccessToken(val string) {
+	s.AccessToken = val
+}
+
+// SetRefreshToken sets the value of RefreshToken.
+func (s *TwoFAVerifyResponse) SetRefreshToken(val string) {
+	s.RefreshToken = val
+}
+
+// SetExpiresIn sets the value of ExpiresIn.
+func (s *TwoFAVerifyResponse) SetExpiresIn(val int) {
+	s.ExpiresIn = val
+}
+
+func (*TwoFAVerifyResponse) verify2FARes() {}
+
+// UpdateLicenseAcceptanceNoContent is response for UpdateLicenseAcceptance operation.
+type UpdateLicenseAcceptanceNoContent struct{}
+
+func (*UpdateLicenseAcceptanceNoContent) updateLicenseAcceptanceRes() {}
+
+// Ref: #/components/schemas/UpdateLicenseAcceptanceRequest
+type UpdateLicenseAcceptanceRequest struct {
+	// Flag indicating whether the user accepts the license agreement.
+	Accepted bool `json:"accepted"`
+}
+
+// GetAccepted returns the value of Accepted.
+func (s *UpdateLicenseAcceptanceRequest) GetAccepted() bool {
+	return s.Accepted
+}
+
+// SetAccepted sets the value of Accepted.
+func (s *UpdateLicenseAcceptanceRequest) SetAccepted(val bool) {
+	s.Accepted = val
+}
+
+// Ref: #/components/schemas/UpdateLicenseRequest
+type UpdateLicenseRequest struct {
+	// The license key text.
+	LicenseText string `json:"license_text"`
+}
+
+// GetLicenseText returns the value of LicenseText.
+func (s *UpdateLicenseRequest) GetLicenseText() string {
+	return s.LicenseText
+}
+
+// SetLicenseText sets the value of LicenseText.
+func (s *UpdateLicenseRequest) SetLicenseText(val string) {
+	s.LicenseText = val
+}
+
+// Ref: #/components/schemas/UpdateProjectRequest
+type UpdateProjectRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateProjectRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *UpdateProjectRequest) GetDescription() string {
+	return s.Description
+}
+
+// SetName sets the value of Name.
+func (s *UpdateProjectRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *UpdateProjectRequest) SetDescription(val string) {
+	s.Description = val
+}
+
+// Ref: #/components/schemas/User
+type User struct {
+	ID            uint   `json:"id"`
+	Username      string `json:"username"`
+	Email         string `json:"email"`
+	IsSuperuser   bool   `json:"is_superuser"`
+	IsActive      bool   `json:"is_active"`
+	IsExternal    bool   `json:"is_external"`
+	IsTmpPassword bool   `json:"is_tmp_password"`
+	TwoFaEnabled  bool   `json:"two_fa_enabled"`
+	// Flag indicating whether the user has accepted the license agreement.
+	LicenseAccepted bool        `json:"license_accepted"`
+	CreatedAt       time.Time   `json:"created_at"`
+	LastLogin       OptDateTime `json:"last_login"`
+}
+
+// GetID returns the value of ID.
+func (s *User) GetID() uint {
+	return s.ID
+}
+
+// GetUsername returns the value of Username.
+func (s *User) GetUsername() string {
+	return s.Username
+}
+
+// GetEmail returns the value of Email.
+func (s *User) GetEmail() string {
+	return s.Email
+}
+
+// GetIsSuperuser returns the value of IsSuperuser.
+func (s *User) GetIsSuperuser() bool {
+	return s.IsSuperuser
+}
+
+// GetIsActive returns the value of IsActive.
+func (s *User) GetIsActive() bool {
+	return s.IsActive
+}
+
+// GetIsExternal returns the value of IsExternal.
+func (s *User) GetIsExternal() bool {
+	return s.IsExternal
+}
+
+// GetIsTmpPassword returns the value of IsTmpPassword.
+func (s *User) GetIsTmpPassword() bool {
+	return s.IsTmpPassword
+}
+
+// GetTwoFaEnabled returns the value of TwoFaEnabled.
+func (s *User) GetTwoFaEnabled() bool {
+	return s.TwoFaEnabled
+}
+
+// GetLicenseAccepted returns the value of LicenseAccepted.
+func (s *User) GetLicenseAccepted() bool {
+	return s.LicenseAccepted
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *User) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetLastLogin returns the value of LastLogin.
+func (s *User) GetLastLogin() OptDateTime {
+	return s.LastLogin
+}
+
+// SetID sets the value of ID.
+func (s *User) SetID(val uint) {
+	s.ID = val
+}
+
+// SetUsername sets the value of Username.
+func (s *User) SetUsername(val string) {
+	s.Username = val
+}
+
+// SetEmail sets the value of Email.
+func (s *User) SetEmail(val string) {
+	s.Email = val
+}
+
+// SetIsSuperuser sets the value of IsSuperuser.
+func (s *User) SetIsSuperuser(val bool) {
+	s.IsSuperuser = val
+}
+
+// SetIsActive sets the value of IsActive.
+func (s *User) SetIsActive(val bool) {
+	s.IsActive = val
+}
+
+// SetIsExternal sets the value of IsExternal.
+func (s *User) SetIsExternal(val bool) {
+	s.IsExternal = val
+}
+
+// SetIsTmpPassword sets the value of IsTmpPassword.
+func (s *User) SetIsTmpPassword(val bool) {
+	s.IsTmpPassword = val
+}
+
+// SetTwoFaEnabled sets the value of TwoFaEnabled.
+func (s *User) SetTwoFaEnabled(val bool) {
+	s.TwoFaEnabled = val
+}
+
+// SetLicenseAccepted sets the value of LicenseAccepted.
+func (s *User) SetLicenseAccepted(val bool) {
+	s.LicenseAccepted = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *User) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetLastLogin sets the value of LastLogin.
+func (s *User) SetLastLogin(val OptDateTime) {
+	s.LastLogin = val
+}
+
+func (*User) getCurrentUserRes()      {}
+func (*User) setSuperuserStatusRes()  {}
+func (*User) setUserActiveStatusRes() {}
+
+// UserChangeMyPasswordNoContent is response for UserChangeMyPassword operation.
+type UserChangeMyPasswordNoContent struct{}
+
+func (*UserChangeMyPasswordNoContent) userChangeMyPasswordRes() {}

@@ -1,11 +1,11 @@
 NAMESPACE=etoggl
 GOCI_VERSION=v1.64.8
-MOCKERY_VERSION=v3.2.5
+MOCKERY_VERSION=v3.5.4
 TOOLS_DIR=dev/tools
 TOOLS_DIR_ABS=${PWD}/${TOOLS_DIR}
 BIN_OUTPUT_DIR=bin
-GOLANGCI_LINT=${TOOLS_DIR}/golangci-lint
-MOCKERY=${TOOLS_DIR}/mockery
+GOLANGCI_LINT=${TOOLS_DIR_ABS}/golangci-lint
+MOCKERY=${TOOLS_DIR_ABS}/mockery
 GOCMD=go
 GOBUILD=$(GOCMD) build
 GOPROXY=https://proxy.golang.org,direct
@@ -76,14 +76,16 @@ build: ## Build binary
 
 .PHONY: mocks
 mocks: .install-mockery ## Generate mocks with mockery
-	mockery
+	@rm -rf test_mocks
+	$(MOCKERY)
+	@mv test_mocks/internal test_mocks/internal_
 
 .PHONY: format
 format: ## Format go code
 	go fmt ./...
 
-.PHONY: generate-server
-generate-server: ## Generate server by OpenAPI specification
+.PHONY: generate-backend
+generate-backend: ## Generate backend by OpenAPI specification
 	@docker run --rm \
       --volume ".:/workspace" \
-      ghcr.io/ogen-go/ogen:latest --target /workspace/internal/generated/server --clean specs/server.yml
+      ghcr.io/ogen-go/ogen:latest --target workspace/internal/generated/server --clean workspace/specs/server.yml

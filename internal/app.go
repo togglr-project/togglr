@@ -7,13 +7,39 @@ import (
 	"net"
 	"net/http"
 	"net/http/pprof"
+	"path"
 	"time"
 
 	"github.com/rom8726/etoggl/internal/api/rest"
+	"github.com/rom8726/etoggl/internal/api/rest/middlewares"
 	"github.com/rom8726/etoggl/internal/config"
+	"github.com/rom8726/etoggl/internal/contract"
+	"github.com/rom8726/etoggl/internal/domain"
 	generatedserver "github.com/rom8726/etoggl/internal/generated/server"
+	"github.com/rom8726/etoggl/internal/license"
+	"github.com/rom8726/etoggl/internal/repository/ldapsynclogs"
+	"github.com/rom8726/etoggl/internal/repository/ldapsyncstats"
+	"github.com/rom8726/etoggl/internal/repository/licenses"
+	"github.com/rom8726/etoggl/internal/repository/productinfo"
+	"github.com/rom8726/etoggl/internal/repository/projects"
+	"github.com/rom8726/etoggl/internal/repository/settings"
+	"github.com/rom8726/etoggl/internal/repository/users"
+	ratelimiter2fa "github.com/rom8726/etoggl/internal/services/2fa/ratelimiter"
+	"github.com/rom8726/etoggl/internal/services/ldap"
+	"github.com/rom8726/etoggl/internal/services/notification-channels/email"
+	"github.com/rom8726/etoggl/internal/services/permissions"
+	ssoprovidermanager "github.com/rom8726/etoggl/internal/services/sso/provider-manager"
+	samlprovider "github.com/rom8726/etoggl/internal/services/sso/saml"
+	"github.com/rom8726/etoggl/internal/services/tokenizer"
+	ldapusecase "github.com/rom8726/etoggl/internal/usecases/ldap"
+	licenseusecase "github.com/rom8726/etoggl/internal/usecases/license"
+	productinfousecase "github.com/rom8726/etoggl/internal/usecases/productinfo"
+	projectsusecase "github.com/rom8726/etoggl/internal/usecases/projects"
+	settingsusecase "github.com/rom8726/etoggl/internal/usecases/settings"
+	usersusecase "github.com/rom8726/etoggl/internal/usecases/users"
 	"github.com/rom8726/etoggl/pkg/db"
 	"github.com/rom8726/etoggl/pkg/httpserver"
+	pkgmiddlewares "github.com/rom8726/etoggl/pkg/httpserver/middlewares"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/julienschmidt/httprouter"
@@ -96,11 +122,9 @@ func (app *App) Run(ctx context.Context) error {
 }
 
 func (app *App) Close() {
-
 	if app.PostgresPool != nil {
 		app.PostgresPool.Close()
 	}
-
 }
 
 func (app *App) registerComponent(constructor any) *di.Provider {
@@ -108,10 +132,90 @@ func (app *App) registerComponent(constructor any) *di.Provider {
 }
 
 func (app *App) registerComponents() {
-	app.registerComponent(rest.New)
-
 	app.registerComponent(db.NewTxManager).Arg(app.PostgresPool)
-	// TODO: register service components
+
+	// Register repositories
+	app.registerComponent(projects.New).Arg(app.PostgresPool)
+	app.registerComponent(users.New).Arg(app.PostgresPool)
+	app.registerComponent(ldapsyncstats.New).Arg(app.PostgresPool)
+	app.registerComponent(ldapsynclogs.New).Arg(app.PostgresPool)
+	app.registerComponent(settings.New).Arg(app.PostgresPool)
+	app.registerComponent(licenses.New).Arg(app.PostgresPool)
+	app.registerComponent(productinfo.New).Arg(app.PostgresPool)
+
+	// Register permissions service
+	app.registerComponent(permissions.New)
+
+	// Register licence middleware
+	app.registerComponent(license.NewMiddleware).Arg(license.LicenseServerURL)
+
+	// Register use cases
+	app.registerComponent(projectsusecase.New)
+	app.registerComponent(ldapusecase.New)
+	app.registerComponent(settingsusecase.New).Arg(app.Config.SecretKey)
+	app.registerComponent(licenseusecase.New)
+	app.registerComponent(productinfousecase.New)
+
+	app.registerComponent(email.New).Arg(&email.Config{
+		SMTPHost:      app.Config.Mailer.Addr,
+		Username:      app.Config.Mailer.User,
+		Password:      app.Config.Mailer.Password,
+		CertFile:      app.Config.Mailer.CertFile,
+		KeyFile:       app.Config.Mailer.KeyFile,
+		AllowInsecure: app.Config.Mailer.AllowInsecure,
+		UseTLS:        app.Config.Mailer.UseTLS,
+		BaseURL:       app.Config.FrontendURL,
+		From:          app.Config.Mailer.From,
+	})
+
+	// Register LDAP service
+	app.registerComponent(ldap.New)
+	var ldapService contract.LDAPService
+	if err := app.container.Resolve(&ldapService); err != nil {
+		panic(err)
+	}
+
+	// Initialize SSO provider manager
+	app.registerComponent(ssoprovidermanager.New)
+
+	// Initialize SAML provider
+	app.registerComponent(samlprovider.New).Arg(&samlprovider.SAMLParams{
+		Name:        domain.SSOProviderNameADSaml,
+		DisplayName: "Sign in with Active Directory",
+		IconURL:     "",
+		Config: &domain.SAMLConfig{
+			Enabled:          app.Config.SAML.Enabled,
+			EntityID:         app.Config.SAML.EntityID,
+			CertificatePath:  app.Config.SAML.CertificatePath,
+			PrivateKeyPath:   app.Config.SAML.PrivateKeyPath,
+			IDPMetadataURL:   app.Config.SAML.IDPMetadataURL,
+			AttributeMapping: app.Config.SAML.AttributeMapping,
+			CallbackURL:      path.Join(app.Config.FrontendURL, "/api/v1/auth/sso/callback"),
+			PublicRootURL:    app.Config.FrontendURL,
+			SkipTLSVerify:    app.Config.SAML.SkipTLSVerify,
+		},
+	})
+	var samlProvider *samlprovider.SAMLProvider
+	if err := app.container.Resolve(&samlProvider); err != nil {
+		panic(err)
+	}
+
+	app.registerComponent(usersusecase.New).Arg([]usersusecase.AuthProvider{
+		ldap.NewAuthService(ldapService.(*ldap.Service)),
+	})
+
+	// Register services
+	app.registerComponent(tokenizer.New).Arg(&tokenizer.ServiceParams{
+		SecretKey:        []byte(app.Config.JWTSecretKey),
+		AccessTTL:        app.Config.AccessTokenTTL,
+		RefreshTTL:       app.Config.RefreshTokenTTL,
+		ResetPasswordTTL: app.Config.ResetPasswordTTL,
+	})
+	app.registerComponent(ratelimiter2fa.New)
+
+	// Register API components
+	app.registerComponent(rest.NewSecurityHandler)
+	app.registerComponent(rest.New).Arg(app.Config)
 }
 
 func (app *App) newAPIServer() (*httpserver.Server, error) {
@@ -122,11 +226,44 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 		return nil, fmt.Errorf("resolve REST API service component: %w", err)
 	}
 
-	genServer, err := generatedserver.NewServer(restAPI)
+	var securityHandler generatedserver.SecurityHandler
+	if err := app.container.Resolve(&securityHandler); err != nil {
+		return nil, fmt.Errorf("resolve API security handler component: %w", err)
+	}
 
+	genServer, err := generatedserver.NewServer(restAPI, securityHandler)
 	if err != nil {
 		return nil, fmt.Errorf("create API server: %w", err)
 	}
+
+	var tokenizerSrv contract.Tokenizer
+	if err := app.container.Resolve(&tokenizerSrv); err != nil {
+		return nil, fmt.Errorf("resolve tokenizer service component: %w", err)
+	}
+
+	var usersSrv contract.UsersUseCase
+	if err := app.container.Resolve(&usersSrv); err != nil {
+		return nil, fmt.Errorf("resolve users service component: %w", err)
+	}
+
+	var permService contract.PermissionsService
+	if err := app.container.Resolve(&permService); err != nil {
+		return nil, fmt.Errorf("resolve permissions service component: %w", err)
+	}
+
+	// Middleware chain:
+	// CORS → RAW -> Auth → ProjectAccess → ProjectManagement → API implementation
+	handler := pkgmiddlewares.CORSMdw(
+		middlewares.WithRawRequest(
+			middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(
+				middlewares.ProjectAccess(permService)(
+					middlewares.ProjectManagement(permService)(
+						genServer,
+					),
+				),
+			),
+		),
+	)
 
 	lis, err := net.Listen("tcp", cfg.Addr)
 	if err != nil {
@@ -138,7 +275,7 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 		ReadTimeout:  cfg.ReadTimeout,
 		WriteTimeout: cfg.WriteTimeout,
 		IdleTimeout:  cfg.IdleTimeout,
-		Handler:      genServer,
+		Handler:      handler,
 	}, nil
 }
 

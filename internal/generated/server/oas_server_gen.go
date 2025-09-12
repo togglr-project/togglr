@@ -8,29 +8,285 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// Ping implements ping operation.
+	// AddProject implements addProject operation.
 	//
-	// Ping-pong endpoint.
+	// Add new project.
 	//
-	// GET /ping
-	Ping(ctx context.Context) (PingOK, error)
+	// POST /api/v1/projects/add
+	AddProject(ctx context.Context, req *AddProjectRequest) (AddProjectRes, error)
+	// ArchiveProject implements ArchiveProject operation.
+	//
+	// Archive a project.
+	//
+	// DELETE /api/v1/projects/{project_id}
+	ArchiveProject(ctx context.Context, params ArchiveProjectParams) (ArchiveProjectRes, error)
+	// CancelLDAPSync implements CancelLDAPSync operation.
+	//
+	// Cancel ongoing synchronization.
+	//
+	// DELETE /api/v1/ldap/sync/cancel
+	CancelLDAPSync(ctx context.Context) (CancelLDAPSyncRes, error)
+	// Confirm2FA implements Confirm2FA operation.
+	//
+	// Approve enable 2FA (code from app).
+	//
+	// POST /api/v1/users/me/2fa/confirm
+	Confirm2FA(ctx context.Context, req *TwoFAConfirmRequest) (Confirm2FARes, error)
+	// ConsumeSAMLAssertion implements ConsumeSAMLAssertion operation.
+	//
+	// Finishes the SAML authentication flow.
+	// The Identity Provider sends an HTTP-POST request that contains **SAMLResponse** (mandatory,
+	// Base64-encoded `<samlp:Response>` XML) and the optional **RelayState** parameter.
+	// On success the service creates a user session (cookie or JWT) and redirects the browser
+	// to the application UI.
+	//
+	// POST /api/v1/saml/acs
+	ConsumeSAMLAssertion(ctx context.Context, req *ConsumeSAMLAssertionReq) (ConsumeSAMLAssertionRes, error)
+	// CreateUser implements CreateUser operation.
+	//
+	// Create a new user (superuser only).
+	//
+	// POST /api/v1/users
+	CreateUser(ctx context.Context, req *CreateUserRequest) (CreateUserRes, error)
+	// DeleteLDAPConfig implements DeleteLDAPConfig operation.
+	//
+	// Delete LDAP configuration.
+	//
+	// DELETE /api/v1/ldap/config
+	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteUser implements DeleteUser operation.
+	//
+	// Delete a user (superuser only, cannot delete superusers).
+	//
+	// DELETE /api/v1/users/{user_id}
+	DeleteUser(ctx context.Context, params DeleteUserParams) (DeleteUserRes, error)
+	// Disable2FA implements Disable2FA operation.
+	//
+	// Disable 2FA (using email-confirmation).
+	//
+	// POST /api/v1/users/me/2fa/disable
+	Disable2FA(ctx context.Context, req *TwoFADisableRequest) (Disable2FARes, error)
+	// ForgotPassword implements ForgotPassword operation.
+	//
+	// Request a password reset.
+	//
+	// POST /api/v1/auth/forgot-password
+	ForgotPassword(ctx context.Context, req *ForgotPasswordRequest) (ForgotPasswordRes, error)
+	// GetCurrentUser implements GetCurrentUser operation.
+	//
+	// Get current user information.
+	//
+	// GET /api/v1/users/me
+	GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error)
+	// GetLDAPConfig implements GetLDAPConfig operation.
+	//
+	// Get LDAP configuration.
+	//
+	// GET /api/v1/ldap/config
+	GetLDAPConfig(ctx context.Context) (GetLDAPConfigRes, error)
+	// GetLDAPStatistics implements GetLDAPStatistics operation.
+	//
+	// Get LDAP statistics.
+	//
+	// GET /api/v1/ldap/statistics
+	GetLDAPStatistics(ctx context.Context) (GetLDAPStatisticsRes, error)
+	// GetLDAPSyncLogDetails implements GetLDAPSyncLogDetails operation.
+	//
+	// Get synchronization log details.
+	//
+	// GET /api/v1/ldap/sync/logs/{id}
+	GetLDAPSyncLogDetails(ctx context.Context, params GetLDAPSyncLogDetailsParams) (GetLDAPSyncLogDetailsRes, error)
+	// GetLDAPSyncLogs implements GetLDAPSyncLogs operation.
+	//
+	// Get synchronization logs.
+	//
+	// GET /api/v1/ldap/sync/logs
+	GetLDAPSyncLogs(ctx context.Context, params GetLDAPSyncLogsParams) (GetLDAPSyncLogsRes, error)
+	// GetLDAPSyncProgress implements GetLDAPSyncProgress operation.
+	//
+	// Get synchronization progress.
+	//
+	// GET /api/v1/ldap/sync/progress
+	GetLDAPSyncProgress(ctx context.Context) (GetLDAPSyncProgressRes, error)
+	// GetLDAPSyncStatus implements GetLDAPSyncStatus operation.
+	//
+	// Get synchronization status.
+	//
+	// GET /api/v1/ldap/sync/status
+	GetLDAPSyncStatus(ctx context.Context) (GetLDAPSyncStatusRes, error)
+	// GetLicenseStatus implements GetLicenseStatus operation.
+	//
+	// Returns the current license status including validity, expiration date, and type.
+	//
+	// GET /api/v1/license/status
+	GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error)
+	// GetProductInfo implements GetProductInfo operation.
+	//
+	// Get product information including client ID.
+	//
+	// GET /api/v1/product/info
+	GetProductInfo(ctx context.Context) (GetProductInfoRes, error)
+	// GetProject implements GetProject operation.
+	//
+	// Get project details.
+	//
+	// GET /api/v1/projects/{project_id}
+	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetSAMLMetadata implements GetSAMLMetadata operation.
+	//
+	// Get SAML metadata.
+	//
+	// GET /api/v1/saml/metadata
+	GetSAMLMetadata(ctx context.Context) (GetSAMLMetadataRes, error)
+	// GetSSOProviders implements GetSSOProviders operation.
+	//
+	// Get available SSO providers.
+	//
+	// GET /api/v1/auth/sso/providers
+	GetSSOProviders(ctx context.Context) (GetSSOProvidersRes, error)
+	// ListProjects implements ListProjects operation.
+	//
+	// Get projects list.
+	//
+	// GET /api/v1/projects
+	ListProjects(ctx context.Context) (ListProjectsRes, error)
+	// ListUsers implements ListUsers operation.
+	//
+	// List all users (superuser only).
+	//
+	// GET /api/v1/users
+	ListUsers(ctx context.Context) (ListUsersRes, error)
+	// Login implements Login operation.
+	//
+	// Authenticate user and get access token.
+	//
+	// POST /api/v1/auth/login
+	Login(ctx context.Context, req *LoginRequest) (LoginRes, error)
+	// RefreshToken implements RefreshToken operation.
+	//
+	// Refresh access token.
+	//
+	// POST /api/v1/auth/refresh
+	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (RefreshTokenRes, error)
+	// Reset2FA implements Reset2FA operation.
+	//
+	// Reset/generate secret 2FA (using email-confirmation).
+	//
+	// POST /api/v1/users/me/2fa/reset
+	Reset2FA(ctx context.Context, req *TwoFAResetRequest) (Reset2FARes, error)
+	// ResetPassword implements ResetPassword operation.
+	//
+	// Reset password using token.
+	//
+	// POST /api/v1/auth/reset-password
+	ResetPassword(ctx context.Context, req *ResetPasswordRequest) (ResetPasswordRes, error)
+	// SSOCallback implements SSOCallback operation.
+	//
+	// Handle SSO callback from Keycloak.
+	//
+	// POST /api/v1/auth/sso/callback
+	SSOCallback(ctx context.Context, req *SSOCallbackRequest) (SSOCallbackRes, error)
+	// SSOInitiate implements SSOInitiate operation.
+	//
+	// Initiate SSO login flow.
+	//
+	// GET /api/v1/auth/sso/initiate
+	SSOInitiate(ctx context.Context, params SSOInitiateParams) (SSOInitiateRes, error)
+	// Send2FACode implements send2FACode operation.
+	//
+	// Send 2FA email code for disable/reset.
+	//
+	// POST /api/v1/users/me/2fa/send_code
+	Send2FACode(ctx context.Context) (Send2FACodeRes, error)
+	// SetSuperuserStatus implements SetSuperuserStatus operation.
+	//
+	// Set or unset superuser status (superuser only, cannot modify admin user).
+	//
+	// PUT /api/v1/users/{user_id}/superuser
+	SetSuperuserStatus(ctx context.Context, req *SetSuperuserStatusRequest, params SetSuperuserStatusParams) (SetSuperuserStatusRes, error)
+	// SetUserActiveStatus implements SetUserActiveStatus operation.
+	//
+	// Set or unset user active status (superuser only).
+	//
+	// PUT /api/v1/users/{user_id}/active
+	SetUserActiveStatus(ctx context.Context, req *SetUserActiveStatusRequest, params SetUserActiveStatusParams) (SetUserActiveStatusRes, error)
+	// Setup2FA implements Setup2FA operation.
+	//
+	// Begin setup 2FA (generate secret and QR-code).
+	//
+	// POST /api/v1/users/me/2fa/setup
+	Setup2FA(ctx context.Context) (Setup2FARes, error)
+	// SyncLDAPUsers implements SyncLDAPUsers operation.
+	//
+	// Start user synchronization.
+	//
+	// POST /api/v1/ldap/sync/users
+	SyncLDAPUsers(ctx context.Context) (SyncLDAPUsersRes, error)
+	// TestLDAPConnection implements TestLDAPConnection operation.
+	//
+	// Test LDAP connection.
+	//
+	// POST /api/v1/ldap/test-connection
+	TestLDAPConnection(ctx context.Context, req *LDAPConnectionTest) (TestLDAPConnectionRes, error)
+	// UpdateLDAPConfig implements UpdateLDAPConfig operation.
+	//
+	// Create or update LDAP configuration.
+	//
+	// POST /api/v1/ldap/config
+	UpdateLDAPConfig(ctx context.Context, req *LDAPConfig) (UpdateLDAPConfigRes, error)
+	// UpdateLicense implements UpdateLicense operation.
+	//
+	// Updates the system license with a new license key.
+	//
+	// PUT /api/v1/license
+	UpdateLicense(ctx context.Context, req *UpdateLicenseRequest) (UpdateLicenseRes, error)
+	// UpdateLicenseAcceptance implements UpdateLicenseAcceptance operation.
+	//
+	// Update license acceptance status.
+	//
+	// PUT /api/v1/users/me/license-acceptance
+	UpdateLicenseAcceptance(ctx context.Context, req *UpdateLicenseAcceptanceRequest) (UpdateLicenseAcceptanceRes, error)
+	// UpdateProject implements UpdateProject operation.
+	//
+	// Update project name and description.
+	//
+	// PUT /api/v1/projects/{project_id}
+	UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UserChangeMyPassword implements userChangeMyPassword operation.
+	//
+	// Change my password.
+	//
+	// POST /api/v1/users/me/change-password
+	UserChangeMyPassword(ctx context.Context, req *ChangeUserPasswordRequest) (UserChangeMyPasswordRes, error)
+	// Verify2FA implements Verify2FA operation.
+	//
+	// Verify 2FA-code on login.
+	//
+	// POST /api/v1/auth/2fa/verify
+	Verify2FA(ctx context.Context, req *TwoFAVerifyRequest) (Verify2FARes, error)
+	// NewError creates *ErrorStatusCode from error returned by handler.
+	//
+	// Used for common default response.
+	NewError(ctx context.Context, err error) *ErrorStatusCode
 }
 
 // Server implements http server based on OpenAPI v3 specification and
 // calls Handler to handle requests.
 type Server struct {
-	h Handler
+	h   Handler
+	sec SecurityHandler
 	baseServer
 }
 
 // NewServer creates new Server.
-func NewServer(h Handler, opts ...ServerOption) (*Server, error) {
+func NewServer(h Handler, sec SecurityHandler, opts ...ServerOption) (*Server, error) {
 	s, err := newServerConfig(opts...).baseServer()
 	if err != nil {
 		return nil, err
 	}
 	return &Server{
 		h:          h,
+		sec:        sec,
 		baseServer: s,
 	}, nil
 }

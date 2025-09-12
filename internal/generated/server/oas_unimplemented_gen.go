@@ -13,11 +13,392 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
-// Ping implements ping operation.
+// AddProject implements addProject operation.
 //
-// Ping-pong endpoint.
+// Add new project.
 //
-// GET /ping
-func (UnimplementedHandler) Ping(ctx context.Context) (r PingOK, _ error) {
+// POST /api/v1/projects/add
+func (UnimplementedHandler) AddProject(ctx context.Context, req *AddProjectRequest) (r AddProjectRes, _ error) {
 	return r, ht.ErrNotImplemented
+}
+
+// ArchiveProject implements ArchiveProject operation.
+//
+// Archive a project.
+//
+// DELETE /api/v1/projects/{project_id}
+func (UnimplementedHandler) ArchiveProject(ctx context.Context, params ArchiveProjectParams) (r ArchiveProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CancelLDAPSync implements CancelLDAPSync operation.
+//
+// Cancel ongoing synchronization.
+//
+// DELETE /api/v1/ldap/sync/cancel
+func (UnimplementedHandler) CancelLDAPSync(ctx context.Context) (r CancelLDAPSyncRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Confirm2FA implements Confirm2FA operation.
+//
+// Approve enable 2FA (code from app).
+//
+// POST /api/v1/users/me/2fa/confirm
+func (UnimplementedHandler) Confirm2FA(ctx context.Context, req *TwoFAConfirmRequest) (r Confirm2FARes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ConsumeSAMLAssertion implements ConsumeSAMLAssertion operation.
+//
+// Finishes the SAML authentication flow.
+// The Identity Provider sends an HTTP-POST request that contains **SAMLResponse** (mandatory,
+// Base64-encoded `<samlp:Response>` XML) and the optional **RelayState** parameter.
+// On success the service creates a user session (cookie or JWT) and redirects the browser
+// to the application UI.
+//
+// POST /api/v1/saml/acs
+func (UnimplementedHandler) ConsumeSAMLAssertion(ctx context.Context, req *ConsumeSAMLAssertionReq) (r ConsumeSAMLAssertionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateUser implements CreateUser operation.
+//
+// Create a new user (superuser only).
+//
+// POST /api/v1/users
+func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserRequest) (r CreateUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteLDAPConfig implements DeleteLDAPConfig operation.
+//
+// Delete LDAP configuration.
+//
+// DELETE /api/v1/ldap/config
+func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteUser implements DeleteUser operation.
+//
+// Delete a user (superuser only, cannot delete superusers).
+//
+// DELETE /api/v1/users/{user_id}
+func (UnimplementedHandler) DeleteUser(ctx context.Context, params DeleteUserParams) (r DeleteUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Disable2FA implements Disable2FA operation.
+//
+// Disable 2FA (using email-confirmation).
+//
+// POST /api/v1/users/me/2fa/disable
+func (UnimplementedHandler) Disable2FA(ctx context.Context, req *TwoFADisableRequest) (r Disable2FARes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ForgotPassword implements ForgotPassword operation.
+//
+// Request a password reset.
+//
+// POST /api/v1/auth/forgot-password
+func (UnimplementedHandler) ForgotPassword(ctx context.Context, req *ForgotPasswordRequest) (r ForgotPasswordRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetCurrentUser implements GetCurrentUser operation.
+//
+// Get current user information.
+//
+// GET /api/v1/users/me
+func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLDAPConfig implements GetLDAPConfig operation.
+//
+// Get LDAP configuration.
+//
+// GET /api/v1/ldap/config
+func (UnimplementedHandler) GetLDAPConfig(ctx context.Context) (r GetLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLDAPStatistics implements GetLDAPStatistics operation.
+//
+// Get LDAP statistics.
+//
+// GET /api/v1/ldap/statistics
+func (UnimplementedHandler) GetLDAPStatistics(ctx context.Context) (r GetLDAPStatisticsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLDAPSyncLogDetails implements GetLDAPSyncLogDetails operation.
+//
+// Get synchronization log details.
+//
+// GET /api/v1/ldap/sync/logs/{id}
+func (UnimplementedHandler) GetLDAPSyncLogDetails(ctx context.Context, params GetLDAPSyncLogDetailsParams) (r GetLDAPSyncLogDetailsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLDAPSyncLogs implements GetLDAPSyncLogs operation.
+//
+// Get synchronization logs.
+//
+// GET /api/v1/ldap/sync/logs
+func (UnimplementedHandler) GetLDAPSyncLogs(ctx context.Context, params GetLDAPSyncLogsParams) (r GetLDAPSyncLogsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLDAPSyncProgress implements GetLDAPSyncProgress operation.
+//
+// Get synchronization progress.
+//
+// GET /api/v1/ldap/sync/progress
+func (UnimplementedHandler) GetLDAPSyncProgress(ctx context.Context) (r GetLDAPSyncProgressRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLDAPSyncStatus implements GetLDAPSyncStatus operation.
+//
+// Get synchronization status.
+//
+// GET /api/v1/ldap/sync/status
+func (UnimplementedHandler) GetLDAPSyncStatus(ctx context.Context) (r GetLDAPSyncStatusRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetLicenseStatus implements GetLicenseStatus operation.
+//
+// Returns the current license status including validity, expiration date, and type.
+//
+// GET /api/v1/license/status
+func (UnimplementedHandler) GetLicenseStatus(ctx context.Context) (r GetLicenseStatusRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetProductInfo implements GetProductInfo operation.
+//
+// Get product information including client ID.
+//
+// GET /api/v1/product/info
+func (UnimplementedHandler) GetProductInfo(ctx context.Context) (r GetProductInfoRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetProject implements GetProject operation.
+//
+// Get project details.
+//
+// GET /api/v1/projects/{project_id}
+func (UnimplementedHandler) GetProject(ctx context.Context, params GetProjectParams) (r GetProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetSAMLMetadata implements GetSAMLMetadata operation.
+//
+// Get SAML metadata.
+//
+// GET /api/v1/saml/metadata
+func (UnimplementedHandler) GetSAMLMetadata(ctx context.Context) (r GetSAMLMetadataRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetSSOProviders implements GetSSOProviders operation.
+//
+// Get available SSO providers.
+//
+// GET /api/v1/auth/sso/providers
+func (UnimplementedHandler) GetSSOProviders(ctx context.Context) (r GetSSOProvidersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjects implements ListProjects operation.
+//
+// Get projects list.
+//
+// GET /api/v1/projects
+func (UnimplementedHandler) ListProjects(ctx context.Context) (r ListProjectsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListUsers implements ListUsers operation.
+//
+// List all users (superuser only).
+//
+// GET /api/v1/users
+func (UnimplementedHandler) ListUsers(ctx context.Context) (r ListUsersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Login implements Login operation.
+//
+// Authenticate user and get access token.
+//
+// POST /api/v1/auth/login
+func (UnimplementedHandler) Login(ctx context.Context, req *LoginRequest) (r LoginRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RefreshToken implements RefreshToken operation.
+//
+// Refresh access token.
+//
+// POST /api/v1/auth/refresh
+func (UnimplementedHandler) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (r RefreshTokenRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Reset2FA implements Reset2FA operation.
+//
+// Reset/generate secret 2FA (using email-confirmation).
+//
+// POST /api/v1/users/me/2fa/reset
+func (UnimplementedHandler) Reset2FA(ctx context.Context, req *TwoFAResetRequest) (r Reset2FARes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ResetPassword implements ResetPassword operation.
+//
+// Reset password using token.
+//
+// POST /api/v1/auth/reset-password
+func (UnimplementedHandler) ResetPassword(ctx context.Context, req *ResetPasswordRequest) (r ResetPasswordRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SSOCallback implements SSOCallback operation.
+//
+// Handle SSO callback from Keycloak.
+//
+// POST /api/v1/auth/sso/callback
+func (UnimplementedHandler) SSOCallback(ctx context.Context, req *SSOCallbackRequest) (r SSOCallbackRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SSOInitiate implements SSOInitiate operation.
+//
+// Initiate SSO login flow.
+//
+// GET /api/v1/auth/sso/initiate
+func (UnimplementedHandler) SSOInitiate(ctx context.Context, params SSOInitiateParams) (r SSOInitiateRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Send2FACode implements send2FACode operation.
+//
+// Send 2FA email code for disable/reset.
+//
+// POST /api/v1/users/me/2fa/send_code
+func (UnimplementedHandler) Send2FACode(ctx context.Context) (r Send2FACodeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SetSuperuserStatus implements SetSuperuserStatus operation.
+//
+// Set or unset superuser status (superuser only, cannot modify admin user).
+//
+// PUT /api/v1/users/{user_id}/superuser
+func (UnimplementedHandler) SetSuperuserStatus(ctx context.Context, req *SetSuperuserStatusRequest, params SetSuperuserStatusParams) (r SetSuperuserStatusRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SetUserActiveStatus implements SetUserActiveStatus operation.
+//
+// Set or unset user active status (superuser only).
+//
+// PUT /api/v1/users/{user_id}/active
+func (UnimplementedHandler) SetUserActiveStatus(ctx context.Context, req *SetUserActiveStatusRequest, params SetUserActiveStatusParams) (r SetUserActiveStatusRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Setup2FA implements Setup2FA operation.
+//
+// Begin setup 2FA (generate secret and QR-code).
+//
+// POST /api/v1/users/me/2fa/setup
+func (UnimplementedHandler) Setup2FA(ctx context.Context) (r Setup2FARes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// SyncLDAPUsers implements SyncLDAPUsers operation.
+//
+// Start user synchronization.
+//
+// POST /api/v1/ldap/sync/users
+func (UnimplementedHandler) SyncLDAPUsers(ctx context.Context) (r SyncLDAPUsersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// TestLDAPConnection implements TestLDAPConnection operation.
+//
+// Test LDAP connection.
+//
+// POST /api/v1/ldap/test-connection
+func (UnimplementedHandler) TestLDAPConnection(ctx context.Context, req *LDAPConnectionTest) (r TestLDAPConnectionRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateLDAPConfig implements UpdateLDAPConfig operation.
+//
+// Create or update LDAP configuration.
+//
+// POST /api/v1/ldap/config
+func (UnimplementedHandler) UpdateLDAPConfig(ctx context.Context, req *LDAPConfig) (r UpdateLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateLicense implements UpdateLicense operation.
+//
+// Updates the system license with a new license key.
+//
+// PUT /api/v1/license
+func (UnimplementedHandler) UpdateLicense(ctx context.Context, req *UpdateLicenseRequest) (r UpdateLicenseRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateLicenseAcceptance implements UpdateLicenseAcceptance operation.
+//
+// Update license acceptance status.
+//
+// PUT /api/v1/users/me/license-acceptance
+func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *UpdateLicenseAcceptanceRequest) (r UpdateLicenseAcceptanceRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateProject implements UpdateProject operation.
+//
+// Update project name and description.
+//
+// PUT /api/v1/projects/{project_id}
+func (UnimplementedHandler) UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (r UpdateProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UserChangeMyPassword implements userChangeMyPassword operation.
+//
+// Change my password.
+//
+// POST /api/v1/users/me/change-password
+func (UnimplementedHandler) UserChangeMyPassword(ctx context.Context, req *ChangeUserPasswordRequest) (r UserChangeMyPasswordRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// Verify2FA implements Verify2FA operation.
+//
+// Verify 2FA-code on login.
+//
+// POST /api/v1/auth/2fa/verify
+func (UnimplementedHandler) Verify2FA(ctx context.Context, req *TwoFAVerifyRequest) (r Verify2FARes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// NewError creates *ErrorStatusCode from error returned by handler.
+//
+// Used for common default response.
+func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *ErrorStatusCode) {
+	r = new(ErrorStatusCode)
+	return r
 }

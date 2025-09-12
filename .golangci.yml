@@ -13,7 +13,7 @@ run:
   tests: true
   # List of build tags, all linters use it.
   # Default: [].
-  build-tags: []
+  build-tags: [ ]
   # If set we pass it to "go list -mod={option}". From "go help modules":
   # If invoked with -mod=readonly, the go command is disallowed from the implicit
   # automatic updating of go.mod described above. Instead, it fails when any changes
@@ -32,7 +32,7 @@ run:
   # Define the Go version limit.
   # Mainly related to generics support since go1.18.
   # Default: use Go version from the go.mod file, fallback on the env var `GOVERSION`, fallback on 1.18
-  go: '1.23'
+  go: '1.25'
 linters:
   # Disable all linters.
   # Default: false
@@ -215,8 +215,8 @@ linters-settings:
     sections:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
-#      - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
-#      - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
+      #      - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
+      #      - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
       - prefix(github.com/rom8726/etoggl) # Custom section: groups all imports with the specified Prefix.
     # Skip generated files.
     # Default: true
@@ -274,7 +274,7 @@ linters-settings:
       - name: banned-characters
         severity: warning
         disabled: false
-        arguments: ["Ω", "Σ", "σ"]
+        arguments: [ "Ω", "Σ", "σ" ]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#bare-return
       - name: bare-return
         severity: warning
@@ -334,7 +334,7 @@ linters-settings:
         severity: warning
         disabled: false
         arguments:
-          - ["call-chain", "loop"]
+          - [ "call-chain", "loop" ]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#dot-imports
       - name: dot-imports
         severity: warning
@@ -387,12 +387,12 @@ linters-settings:
       - name: function-result-limit
         severity: warning
         disabled: false
-        arguments: [3]
+        arguments: [ 3 ]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#function-length
       - name: function-length
         severity: warning
         disabled: false
-        arguments: [60, 0]
+        arguments: [ 60, 0 ]
       # https://github.com/mgechev/revive/blob/master/RULES_DESCRIPTIONS.md#get-return
       - name: get-return
         severity: warning
@@ -620,21 +620,21 @@ issues:
   # To list all excluded by default patterns execute `golangci-lint run --help`
   #
   # Default: https://golangci-lint.run/usage/false-positives/#default-exclusions
-  exclude: []
+  exclude: [ ]
   # Excluding configuration per-path, per-linter, per-text and per-source
-#  exclude-rules:
-#    - linters:
-#        - staticcheck
-#      text: "SA4023"
-#    - linters:
-#        - gosec
-#      text: "G104:"
-#    - linters:
-#        - gosec
-#      text: "G304:"
-#    - linters:
-#        - gosec
-#      text: "G404:"
+  #  exclude-rules:
+  #    - linters:
+  #        - staticcheck
+  #      text: "SA4023"
+  #    - linters:
+  #        - gosec
+  #      text: "G104:"
+  #    - linters:
+  #        - gosec
+  #      text: "G304:"
+  #    - linters:
+  #        - gosec
+  #      text: "G404:"
   # Independently of option `exclude` we use default exclude patterns,
   # it can be disabled by this option.
   # To list all excluded by default patterns execute `golangci-lint run --help`.
@@ -646,7 +646,7 @@ issues:
   # The list of ids of default excludes to include or disable.
   # https://golangci-lint.run/usage/false-positives/#default-exclusions
   # Default: []
-  include: []
+  include: [ ]
   # Maximum issues count per one linter.
   # Set to 0 to disable.
   # Default: 50
@@ -665,3 +665,5 @@ issues:
   new: false
   # Fix found issues (if it's supported by the linter).
   fix: false
+
+version: 2
