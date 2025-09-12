@@ -1,11 +1,16 @@
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    is_superuser BOOLEAN NOT NULL DEFAULT FALSE,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+create table users
+(
+    id                  serial primary key,
+    username            varchar(255)                                       not null unique,
+    email               varchar(255)                                       not null unique,
+    password_hash       varchar(255)                                       not null,
+    is_superuser        boolean                  default false             not null,
+    is_active           boolean                  default true              not null,
+    created_at          timestamp with time zone default CURRENT_TIMESTAMP not null,
+    updated_at          timestamp with time zone default CURRENT_TIMESTAMP not null,
+    last_login          timestamp with time zone default CURRENT_TIMESTAMP,
+    is_tmp_password     boolean                  default true,
+    two_fa_enabled      boolean                  default false             not null,
+    two_fa_secret       text,
+    two_fa_confirmed_at timestamp with time zone
 );
