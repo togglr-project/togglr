@@ -1,15 +1,61 @@
 version: '3.8'
 
 services:
-  etoggl-server:
-    container_name: etoggl-server
+  etoggl-reverse-proxy:
+    build:
+      context: ../reverse-proxy
+      dockerfile: Dockerfile
+    container_name: etoggl-reverse-proxy
+    ports:
+      - "443:443"
+      - "8090:8090"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - BACKEND_URL=http://etoggl-backend:8080
+      - FRONTEND_URL=http://etoggl-frontend
+      - SSL_CERT=${SSL_CERT}
+      - SSL_CERT_KEY=${SSL_CERT_KEY}
+      - SECURE_LINK_MD5=${SECURE_LINK_MD5}
+    volumes:
+      - "./nginx/ssl:/etc/nginx/ssl"
+    depends_on:
+      etoggl-frontend:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "netstat", "-tln", "|", "grep", "443 && netstat", "-tln", "|", "grep", "8090"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  etoggl-frontend:
+    build:
+      context: ../webui
+      dockerfile: Dockerfile
+    container_name: etoggl-frontend
+    environment:
+      - etoggl_API_BASE_URL=https://${DOMAIN}
+    restart: always
+    depends_on:
+      etoggl-backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "--silent", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  etoggl-backend:
+    container_name: etoggl-backend
     build:
       context: ../
       target: prod
       dockerfile: Dockerfile
     ports:
-      - "8090:8080"
-      - "8091:8081"
+      - "8080:8080"
+      - "8081:8081"
     env_file:
       - compose.env
     command: ["/bin/app", "server"]
