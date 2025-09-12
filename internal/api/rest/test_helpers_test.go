@@ -14,7 +14,7 @@ func domainUserIDPtr(id uint) *domain.UserID {
 }
 
 // domainProjectIDPtr создает указатель на domain.ProjectID.
-func domainProjectIDPtr(id uint) *domain.ProjectID {
+func domainProjectIDPtr(id string) *domain.ProjectID {
 	domainID := domain.ProjectID(id)
 
 	return &domainID

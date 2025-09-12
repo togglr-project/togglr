@@ -175,7 +175,7 @@ func (r *Repository) GetProjectIDs(ctx context.Context) ([]domain.ProjectID, err
 
 	var projectIDs []domain.ProjectID
 	for rows.Next() {
-		var id uint
+		var id string
 		if err := rows.Scan(&id); err != nil {
 			return nil, fmt.Errorf("scan project ID: %w", err)
 		}

@@ -127,10 +127,9 @@ func TestRestAPI_AddProject(t *testing.T) {
 			CreateProject(mock.Anything, "Existing Project", "A project with existing name").
 			Return(domain.Project{}, domain.ErrEntityNotFound)
 
-		resp, err := api.AddProject(context.Background(), req)
+		_, err := api.AddProject(context.Background(), req)
 
-		require.NoError(t, err)
-		require.NotNil(t, resp)
+		require.Error(t, err)
 	})
 
 	t.Run("permission check failed with unexpected error", func(t *testing.T) {

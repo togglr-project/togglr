@@ -453,16 +453,16 @@ func (_c *MockLDAPSyncUseCase_GetSyncStatus_Call) RunAndReturn(run func(ctx cont
 }
 
 // StartManualSync provides a mock function for the type MockLDAPSyncUseCase
-func (_mock *MockLDAPSyncUseCase) StartManualSync(ctx context.Context, syncType string) error {
-	ret := _mock.Called(ctx, syncType)
+func (_mock *MockLDAPSyncUseCase) StartManualSync(ctx context.Context) error {
+	ret := _mock.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartManualSync")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) error); ok {
-		r0 = returnFunc(ctx, syncType)
+	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = returnFunc(ctx)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -476,24 +476,18 @@ type MockLDAPSyncUseCase_StartManualSync_Call struct {
 
 // StartManualSync is a helper method to define mock.On call
 //   - ctx context.Context
-//   - syncType string
-func (_e *MockLDAPSyncUseCase_Expecter) StartManualSync(ctx interface{}, syncType interface{}) *MockLDAPSyncUseCase_StartManualSync_Call {
-	return &MockLDAPSyncUseCase_StartManualSync_Call{Call: _e.mock.On("StartManualSync", ctx, syncType)}
+func (_e *MockLDAPSyncUseCase_Expecter) StartManualSync(ctx interface{}) *MockLDAPSyncUseCase_StartManualSync_Call {
+	return &MockLDAPSyncUseCase_StartManualSync_Call{Call: _e.mock.On("StartManualSync", ctx)}
 }
 
-func (_c *MockLDAPSyncUseCase_StartManualSync_Call) Run(run func(ctx context.Context, syncType string)) *MockLDAPSyncUseCase_StartManualSync_Call {
+func (_c *MockLDAPSyncUseCase_StartManualSync_Call) Run(run func(ctx context.Context)) *MockLDAPSyncUseCase_StartManualSync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 string
-		if args[1] != nil {
-			arg1 = args[1].(string)
-		}
 		run(
 			arg0,
-			arg1,
 		)
 	})
 	return _c
@@ -504,7 +498,7 @@ func (_c *MockLDAPSyncUseCase_StartManualSync_Call) Return(err error) *MockLDAPS
 	return _c
 }
 
-func (_c *MockLDAPSyncUseCase_StartManualSync_Call) RunAndReturn(run func(ctx context.Context, syncType string) error) *MockLDAPSyncUseCase_StartManualSync_Call {
+func (_c *MockLDAPSyncUseCase_StartManualSync_Call) RunAndReturn(run func(ctx context.Context) error) *MockLDAPSyncUseCase_StartManualSync_Call {
 	_c.Call.Return(run)
 	return _c
 }

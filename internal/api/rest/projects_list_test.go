@@ -27,13 +27,13 @@ func TestRestAPI_ListProjects(t *testing.T) {
 
 		allProjects := []domain.Project{
 			{
-				ID:          domain.ProjectID(1),
+				ID:          domain.ProjectID("1"),
 				Name:        "Project 1",
 				Description: "Description 1",
 				CreatedAt:   time.Now(),
 			},
 			{
-				ID:          domain.ProjectID(2),
+				ID:          domain.ProjectID("2"),
 				Name:        "Project 2",
 				Description: "Description 2",
 				CreatedAt:   time.Now(),
@@ -63,12 +63,12 @@ func TestRestAPI_ListProjects(t *testing.T) {
 		assert.Len(t, *listResp, 2)
 
 		// Check first project (no team)
-		assert.Equal(t, uint(1), (*listResp)[0].ID)
+		assert.Equal(t, "1", (*listResp)[0].ID)
 		assert.Equal(t, "Project 1", (*listResp)[0].Name)
 		assert.Equal(t, "Description 1", (*listResp)[0].Description)
 
 		// Check second project (with team)
-		assert.Equal(t, uint(2), (*listResp)[1].ID)
+		assert.Equal(t, "2", (*listResp)[1].ID)
 		assert.Equal(t, "Project 2", (*listResp)[1].Name)
 		assert.Equal(t, "Description 2", (*listResp)[1].Description)
 	})
@@ -134,7 +134,7 @@ func TestRestAPI_ListProjects(t *testing.T) {
 		allProjects := []domain.Project{
 			{
 
-				ID:        domain.ProjectID(1),
+				ID:        domain.ProjectID("1"),
 				Name:      "Project 1",
 				CreatedAt: time.Now(),
 			},

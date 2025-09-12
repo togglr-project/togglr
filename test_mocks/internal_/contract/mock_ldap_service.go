@@ -229,16 +229,16 @@ func (_c *MockLDAPService_ReloadConfig_Call) RunAndReturn(run func(ctx context.C
 }
 
 // StartManualSync provides a mock function for the type MockLDAPService
-func (_mock *MockLDAPService) StartManualSync(ctx context.Context, syncType string, syncID string, stopped chan struct{}) error {
-	ret := _mock.Called(ctx, syncType, syncID, stopped)
+func (_mock *MockLDAPService) StartManualSync(ctx context.Context, syncID string, stopped chan struct{}) error {
+	ret := _mock.Called(ctx, syncID, stopped)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartManualSync")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, chan struct{}) error); ok {
-		r0 = returnFunc(ctx, syncType, syncID, stopped)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, chan struct{}) error); ok {
+		r0 = returnFunc(ctx, syncID, stopped)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -252,14 +252,13 @@ type MockLDAPService_StartManualSync_Call struct {
 
 // StartManualSync is a helper method to define mock.On call
 //   - ctx context.Context
-//   - syncType string
 //   - syncID string
 //   - stopped chan struct{}
-func (_e *MockLDAPService_Expecter) StartManualSync(ctx interface{}, syncType interface{}, syncID interface{}, stopped interface{}) *MockLDAPService_StartManualSync_Call {
-	return &MockLDAPService_StartManualSync_Call{Call: _e.mock.On("StartManualSync", ctx, syncType, syncID, stopped)}
+func (_e *MockLDAPService_Expecter) StartManualSync(ctx interface{}, syncID interface{}, stopped interface{}) *MockLDAPService_StartManualSync_Call {
+	return &MockLDAPService_StartManualSync_Call{Call: _e.mock.On("StartManualSync", ctx, syncID, stopped)}
 }
 
-func (_c *MockLDAPService_StartManualSync_Call) Run(run func(ctx context.Context, syncType string, syncID string, stopped chan struct{})) *MockLDAPService_StartManualSync_Call {
+func (_c *MockLDAPService_StartManualSync_Call) Run(run func(ctx context.Context, syncID string, stopped chan struct{})) *MockLDAPService_StartManualSync_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -269,19 +268,14 @@ func (_c *MockLDAPService_StartManualSync_Call) Run(run func(ctx context.Context
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 string
+		var arg2 chan struct{}
 		if args[2] != nil {
-			arg2 = args[2].(string)
-		}
-		var arg3 chan struct{}
-		if args[3] != nil {
-			arg3 = args[3].(chan struct{})
+			arg2 = args[2].(chan struct{})
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
-			arg3,
 		)
 	})
 	return _c
@@ -292,7 +286,7 @@ func (_c *MockLDAPService_StartManualSync_Call) Return(err error) *MockLDAPServi
 	return _c
 }
 
-func (_c *MockLDAPService_StartManualSync_Call) RunAndReturn(run func(ctx context.Context, syncType string, syncID string, stopped chan struct{}) error) *MockLDAPService_StartManualSync_Call {
+func (_c *MockLDAPService_StartManualSync_Call) RunAndReturn(run func(ctx context.Context, syncID string, stopped chan struct{}) error) *MockLDAPService_StartManualSync_Call {
 	_c.Call.Return(run)
 	return _c
 }
