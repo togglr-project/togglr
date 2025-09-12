@@ -12,5 +12,7 @@ create table users
     is_tmp_password     boolean                  default true,
     two_fa_enabled      boolean                  default false             not null,
     two_fa_secret       text,
-    two_fa_confirmed_at timestamp with time zone
+    two_fa_confirmed_at timestamp with time zone,
+    is_external         boolean                  default false             not null,
+    license_accepted    boolean                  default false             not null
 );
