@@ -12,13 +12,13 @@ import (
 	"github.com/rom8726/etoggl/internal/api/rest"
 	"github.com/rom8726/etoggl/internal/config"
 	generatedserver "github.com/rom8726/etoggl/internal/generated/server"
+	"github.com/rom8726/etoggl/pkg/db"
 	"github.com/rom8726/etoggl/pkg/httpserver"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/julienschmidt/httprouter"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rom8726/di"
-	"github.com/rom8726/etoggl/pkg/db"
 	"golang.org/x/sync/errgroup"
 )
 

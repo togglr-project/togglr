@@ -16,7 +16,6 @@ services:
     depends_on:
       - etoggl-postgresql
 
-
   etoggl-postgresql:
     image: postgres:16
     container_name: etoggl-postgresql

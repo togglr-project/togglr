@@ -2,7 +2,6 @@ package runner
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net"
 	"net/url"
@@ -98,33 +97,6 @@ func startPostgres(t *testing.T) (*postgres.PostgresContainer, func()) {
 	return container, func() {
 		if err := container.Terminate(context.Background()); err != nil {
 			t.Fatalf("terminate postgres: %v", err)
-		}
-	}
-}
-
-// MySQL --------------------------------------------------------------------
-func startMySQL(t *testing.T) (testcontainers.Container, func()) {
-	t.Helper()
-
-	c, err := testcontainers.GenericContainer(t.Context(), testcontainers.GenericContainerRequest{
-		ContainerRequest: testcontainers.ContainerRequest{
-			Image:        "mysql:8",
-			ExposedPorts: []string{"3306/tcp"},
-			Env: map[string]string{
-				"MYSQL_DATABASE":      "test_db",
-				"MYSQL_USER":          "user",
-				"MYSQL_PASSWORD":      "password",
-				"MYSQL_ROOT_PASSWORD": "root_password",
-			},
-			WaitingFor: wait.ForLog("port: 3306  MySQL Community Server"),
-		},
-		Started: true,
-	})
-	require.NoError(t, err)
-
-	return c, func() {
-		if err := c.Terminate(context.Background()); err != nil {
-			t.Fatalf("terminate mysql: %v", err)
 		}
 	}
 }
