@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  etoggl-server:
+    container_name: etoggl-server
+    build:
+      context: ../
+      target: prod
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    env_file:
+      - compose.env
+    command: ["/bin/app", "server"]
+    depends_on:
+      - etoggl-postgresql
+
+
+  etoggl-postgresql:
+    image: postgres:16
+    container_name: etoggl-postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+      PGDATA: /var/lib/postgresql/data/main
+    volumes:
+      - "postgresql_etoggl:/var/lib/postgresql/data/main"
+    ports:
+      - "5432:5432"
+volumes:
+    postgresql_etoggl:
