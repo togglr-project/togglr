@@ -42,7 +42,7 @@ ldap:
 
 ```go
 import (
-    "github.com/rom8726/warden/internal/services/ldap"
+    "github.com/rom8726/etoggl/internal/services/ldap"
     "go.uber.org/zap"
 )
 

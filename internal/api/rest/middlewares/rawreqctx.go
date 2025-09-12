@@ -3,13 +3,13 @@ package middlewares
 import (
 	"net/http"
 
-	wardencontext "github.com/rom8726/etoggl/internal/context"
+	etogglcontext "github.com/rom8726/etoggl/internal/context"
 )
 
 func WithRawRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fixURL(r)
-		ctx := wardencontext.WithRawRequest(r.Context(), r)
+		ctx := etogglcontext.WithRawRequest(r.Context(), r)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

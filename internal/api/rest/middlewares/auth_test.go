@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	wardencontext "github.com/rom8726/etoggl/internal/context"
+	etogglcontext "github.com/rom8726/etoggl/internal/context"
 	"github.com/rom8726/etoggl/internal/domain"
 	mockcontract "github.com/rom8726/etoggl/test_mocks/internal_/contract"
 )
@@ -111,8 +111,8 @@ func TestAuthMiddleware(t *testing.T) {
 			var isSuperFromContext bool
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if tt.checkContext {
-					userIDFromContext = wardencontext.UserID(r.Context())
-					isSuperFromContext = wardencontext.IsSuper(r.Context())
+					userIDFromContext = etogglcontext.UserID(r.Context())
+					isSuperFromContext = etogglcontext.IsSuper(r.Context())
 				}
 				w.WriteHeader(http.StatusOK)
 			})

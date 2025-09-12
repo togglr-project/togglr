@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	wardencontext "github.com/rom8726/etoggl/internal/context"
+	etogglcontext "github.com/rom8726/etoggl/internal/context"
 	"github.com/rom8726/etoggl/internal/contract"
 	"github.com/rom8726/etoggl/internal/domain"
 )
@@ -44,8 +44,8 @@ func AuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCase
 			}
 
 			// Set the user ID and superuser flag in the context
-			ctx := wardencontext.WithUserID(request.Context(), user.ID)
-			ctx = wardencontext.WithIsSuper(ctx, user.IsSuperuser)
+			ctx := etogglcontext.WithUserID(request.Context(), user.ID)
+			ctx = etogglcontext.WithIsSuper(ctx, user.IsSuperuser)
 
 			// Continue with the modified context
 			next.ServeHTTP(writer, request.WithContext(ctx))

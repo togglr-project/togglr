@@ -251,13 +251,13 @@ func (p *SAMLProvider) collectByMapping(assertion *saml.Assertion) map[string]st
 
 	for _, stmt := range assertion.AttributeStatements {
 		for _, attr := range stmt.Attributes {
-			wardenName, ok := p.config.AttributeMapping[attr.Name]
+			name, ok := p.config.AttributeMapping[attr.Name]
 			if !ok {
 				continue
 			}
 
 			if len(attr.Values) > 0 {
-				collected[wardenName] = attr.Values[0].Value
+				collected[name] = attr.Values[0].Value
 			}
 		}
 	}
@@ -400,13 +400,13 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 			NotAfter:     now.Add(365 * 24 * time.Hour),
 
 			Subject: pkix.Name{
-				CommonName:   "warden",
-				Organization: []string{"Warden"},
+				CommonName:   "etoggl",
+				Organization: []string{"eToggl"},
 				Country:      []string{"US"},
 			},
 			Issuer: pkix.Name{
-				CommonName:   "warden",
-				Organization: []string{"Warden"},
+				CommonName:   "etoggl",
+				Organization: []string{"eToggl"},
 				Country:      []string{"US"},
 			},
 

@@ -38,7 +38,7 @@ type LicenseResponseData struct {
 }
 
 func NewClient(serverURL string) *Client {
-	if os.Getenv("WARDEN_ENVIRONMENT") == "test" {
+	if os.Getenv("ETOGGL_ENVIRONMENT") == "test" {
 		serverURL = "https://example.com"
 	}
 

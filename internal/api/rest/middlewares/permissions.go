@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	wardencontext "github.com/rom8726/etoggl/internal/context"
+	etogglcontext "github.com/rom8726/etoggl/internal/context"
 	"github.com/rom8726/etoggl/internal/contract"
 	"github.com/rom8726/etoggl/internal/domain"
 	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
@@ -89,7 +89,7 @@ func ProjectAccess(permissionsService contract.PermissionsService) func(http.Han
 			}
 
 			// Store project ID in context for later use
-			ctx := wardencontext.WithProjectID(request.Context(), projectID)
+			ctx := etogglcontext.WithProjectID(request.Context(), projectID)
 			next.ServeHTTP(writer, request.WithContext(ctx))
 		})
 	}
@@ -177,7 +177,7 @@ func ProjectManagement(permissionsService contract.PermissionsService) func(http
 			}
 
 			// Store project ID in context for later use
-			ctx := wardencontext.WithProjectID(request.Context(), projectID)
+			ctx := etogglcontext.WithProjectID(request.Context(), projectID)
 			next.ServeHTTP(writer, request.WithContext(ctx))
 		})
 	}
