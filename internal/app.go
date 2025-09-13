@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -86,6 +87,19 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 	}
 
 	app.registerComponents()
+
+	if err := app.checkLicense(ctx); err != nil {
+		if errors.Is(err, license.ErrLicenseInvalid) {
+			return nil, fmt.Errorf("license is invalid: %w", err)
+		} else if errors.Is(err, license.ErrTrialAlreadyIssued) {
+			return nil, fmt.Errorf("trial already issued: %w", err)
+		} else if errors.Is(err, license.ErrNotEmptyDB) {
+			return nil, err
+		}
+
+		slog.Error("validate license failed, strict mode enabled", "error", err)
+	}
+
 	app.APIServer, err = app.newAPIServer()
 	if err != nil {
 		return nil, fmt.Errorf("create API server: %w", err)
@@ -377,6 +391,15 @@ func (app *App) ensureSuperuser(ctx context.Context) error {
 	app.Logger.Info("Created superuser", "id", user.ID, "username", user.Username)
 
 	return nil
+}
+
+func (app *App) checkLicense(ctx context.Context) error {
+	var licenseMdw *license.Middleware
+	if err := app.container.Resolve(&licenseMdw); err != nil {
+		return fmt.Errorf("resolve license middleware component: %w", err)
+	}
+
+	return licenseMdw.ValidateLicense(ctx)
 }
 
 func newPostgresConnPool(ctx context.Context, cfg *config.Postgres) (*pgxpool.Pool, error) {
