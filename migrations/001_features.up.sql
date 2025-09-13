@@ -1,4 +1,4 @@
-create table flags (
+create table features (
     id uuid primary key default gen_random_uuid(),
     key text not null unique,         -- machine name, e.g. "new_ui"
     name text not null,               -- human readable name

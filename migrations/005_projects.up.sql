@@ -7,4 +7,4 @@ create table if not exists projects (
     archived_at timestamptz
 );
 
-alter table flags add column project_id uuid not null references projects(id) on delete cascade;
+alter table features add column project_id uuid not null references projects(id) on delete cascade;
