@@ -48,6 +48,7 @@ setup: .install-linter .install-mockery ## Setup development environment
 	@echo "\nCreate .env files in dev/ directory"
 	@cp dev/config.env.example dev/config.env
 	@cp dev/compose.env.example dev/compose.env
+	@cp dev/platform.env.example dev/platform.env
 
 	@echo
 	@if [ $$? -ne 0 ] ; then \
