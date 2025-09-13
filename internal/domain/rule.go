@@ -11,7 +11,7 @@ type Rule struct {
 	ID             RuleID
 	FeatureID      FeatureID
 	Condition      json.RawMessage
-	Variant        string
+	Variant        string // which variant to assign if the condition matches
 	RolloutPercent uint8
 	Priority       uint8
 	CreatedAt      time.Time
