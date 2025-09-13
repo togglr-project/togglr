@@ -21,11 +21,16 @@ type Feature struct {
 	Description    string      // optional description
 	Kind           FeatureKind // "boolean" | "multivariant"
 	DefaultVariant string      // "on"/"off" for boolean, or variant name
-	FlagVariants   []FlagVariant
-	Rules          []Rule
 	Enabled        bool
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+}
+
+type FeatureExtended struct {
+	Feature
+
+	FlagVariants []FlagVariant
+	Rules        []Rule
 }
 
 func (id FeatureID) String() string {
