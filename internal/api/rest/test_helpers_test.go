@@ -3,7 +3,7 @@ package rest
 import (
 	"time"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 // domainUserIDPtr создает указатель на domain.UserID.

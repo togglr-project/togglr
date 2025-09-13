@@ -7,10 +7,10 @@ import (
 	"log/slog"
 	"time"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
-	"github.com/rom8726/etoggl/pkg/passworder"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/pkg/passworder"
 )
 
 type UsersService struct {

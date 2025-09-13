@@ -18,36 +18,36 @@ docker-build: ## Сборка Docker-образа
 	@docker build \
 		--build-arg TOOL_VERSION=${TOOL_VERSION} \
 		--build-arg TOOL_BUILD_TIME=${TOOL_BUILD_TIME} \
-		-t etoggl-reverse-proxy:latest -f ./Dockerfile .
+		-t etoggle-reverse-proxy:latest -f ./Dockerfile .
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"FAIL"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
-	@echo ${GREEN}"Docker image 'etoggl-reverse-proxy' built successfully!"${NOCOLOR}
+	@echo ${GREEN}"Docker image 'etoggle-reverse-proxy' built successfully!"${NOCOLOR}
 
 .PHONY: docker-push
 docker-push: docker-build ## Тегирование и пуш Docker-образа
 	@echo "\nTagging Docker image..."
-	@docker tag etoggl-reverse-proxy:latest $(DOCKER_REGISTRY)/etoggl-reverse-proxy:latest
+	@docker tag etoggle-reverse-proxy:latest $(DOCKER_REGISTRY)/etoggle-reverse-proxy:latest
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"Tagging FAILED"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
 	@echo "\nPushing Docker image to Docker Registry..."
-	@docker push $(DOCKER_REGISTRY)/etoggl-reverse-proxy:latest
+	@docker push $(DOCKER_REGISTRY)/etoggle-reverse-proxy:latest
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"Push FAILED"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
 	@if [ -n "$(TOOL_VERSION)" ] && [ "$(TOOL_VERSION)" != "latest" ]; then \
 		echo "\nTagging Docker image with version $(TOOL_VERSION)..."; \
-		docker tag etoggl-reverse-proxy:latest $(DOCKER_REGISTRY)/etoggl-reverse-proxy:$(TOOL_VERSION); \
+		docker tag etoggle-reverse-proxy:latest $(DOCKER_REGISTRY)/etoggle-reverse-proxy:$(TOOL_VERSION); \
 		                if [ $$? -ne 0 ] ; then \
                         echo -e ${RED}"Version tagging FAILED"${NOCOLOR} ; \
                         exit 1 ; \
                 fi; \
                 echo "\nPushing Docker image with version $(TOOL_VERSION) to Docker Registry..."; \
-                docker push $(DOCKER_REGISTRY)/etoggl-reverse-proxy:$(TOOL_VERSION); \
+                docker push $(DOCKER_REGISTRY)/etoggle-reverse-proxy:$(TOOL_VERSION); \
                 if [ $$? -ne 0 ] ; then \
                         echo -e ${RED}"Version push FAILED"${NOCOLOR} ; \
 			exit 1 ; \

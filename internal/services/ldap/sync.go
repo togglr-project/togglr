@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 var (

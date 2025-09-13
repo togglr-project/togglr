@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
-	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
 func (r *RestAPI) GetProductInfo(ctx context.Context) (generatedapi.GetProductInfoRes, error) {

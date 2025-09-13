@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rom8726/etoggl/internal/domain"
-	"github.com/rom8726/etoggl/pkg/crypt"
+	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/pkg/crypt"
 )
 
 var (

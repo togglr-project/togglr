@@ -10,36 +10,37 @@ import (
 	"path"
 	"time"
 
-	"github.com/rom8726/etoggl/internal/api/rest"
-	"github.com/rom8726/etoggl/internal/api/rest/middlewares"
-	"github.com/rom8726/etoggl/internal/config"
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
-	generatedserver "github.com/rom8726/etoggl/internal/generated/server"
-	"github.com/rom8726/etoggl/internal/license"
-	"github.com/rom8726/etoggl/internal/repository/ldapsynclogs"
-	"github.com/rom8726/etoggl/internal/repository/ldapsyncstats"
-	"github.com/rom8726/etoggl/internal/repository/licenses"
-	"github.com/rom8726/etoggl/internal/repository/productinfo"
-	"github.com/rom8726/etoggl/internal/repository/projects"
-	"github.com/rom8726/etoggl/internal/repository/settings"
-	"github.com/rom8726/etoggl/internal/repository/users"
-	ratelimiter2fa "github.com/rom8726/etoggl/internal/services/2fa/ratelimiter"
-	"github.com/rom8726/etoggl/internal/services/ldap"
-	"github.com/rom8726/etoggl/internal/services/notification-channels/email"
-	"github.com/rom8726/etoggl/internal/services/permissions"
-	ssoprovidermanager "github.com/rom8726/etoggl/internal/services/sso/provider-manager"
-	samlprovider "github.com/rom8726/etoggl/internal/services/sso/saml"
-	"github.com/rom8726/etoggl/internal/services/tokenizer"
-	ldapusecase "github.com/rom8726/etoggl/internal/usecases/ldap"
-	licenseusecase "github.com/rom8726/etoggl/internal/usecases/license"
-	productinfousecase "github.com/rom8726/etoggl/internal/usecases/productinfo"
-	projectsusecase "github.com/rom8726/etoggl/internal/usecases/projects"
-	settingsusecase "github.com/rom8726/etoggl/internal/usecases/settings"
-	usersusecase "github.com/rom8726/etoggl/internal/usecases/users"
-	"github.com/rom8726/etoggl/pkg/db"
-	"github.com/rom8726/etoggl/pkg/httpserver"
-	pkgmiddlewares "github.com/rom8726/etoggl/pkg/httpserver/middlewares"
+	"github.com/rom8726/etoggle/internal/api/rest"
+	"github.com/rom8726/etoggle/internal/api/rest/middlewares"
+	"github.com/rom8726/etoggle/internal/config"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
+	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
+	"github.com/rom8726/etoggle/internal/license"
+	"github.com/rom8726/etoggle/internal/repository/ldapsynclogs"
+	"github.com/rom8726/etoggle/internal/repository/ldapsyncstats"
+	"github.com/rom8726/etoggle/internal/repository/licenses"
+	"github.com/rom8726/etoggle/internal/repository/productinfo"
+	"github.com/rom8726/etoggle/internal/repository/projects"
+	"github.com/rom8726/etoggle/internal/repository/settings"
+	"github.com/rom8726/etoggle/internal/repository/users"
+	ratelimiter2fa "github.com/rom8726/etoggle/internal/services/2fa/ratelimiter"
+	"github.com/rom8726/etoggle/internal/services/ldap"
+	"github.com/rom8726/etoggle/internal/services/notification-channels/email"
+	"github.com/rom8726/etoggle/internal/services/permissions"
+	ssoprovidermanager "github.com/rom8726/etoggle/internal/services/sso/provider-manager"
+	samlprovider "github.com/rom8726/etoggle/internal/services/sso/saml"
+	"github.com/rom8726/etoggle/internal/services/tokenizer"
+	ldapusecase "github.com/rom8726/etoggle/internal/usecases/ldap"
+	licenseusecase "github.com/rom8726/etoggle/internal/usecases/license"
+	productinfousecase "github.com/rom8726/etoggle/internal/usecases/productinfo"
+	projectsusecase "github.com/rom8726/etoggle/internal/usecases/projects"
+	settingsusecase "github.com/rom8726/etoggle/internal/usecases/settings"
+	usersusecase "github.com/rom8726/etoggle/internal/usecases/users"
+	"github.com/rom8726/etoggle/pkg/db"
+	"github.com/rom8726/etoggle/pkg/httpserver"
+	pkgmiddlewares "github.com/rom8726/etoggle/pkg/httpserver/middlewares"
+	"github.com/rom8726/etoggle/pkg/passworder"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/julienschmidt/httprouter"
@@ -106,6 +107,13 @@ func (app *App) ResolveComponentsToStruct(target any) error {
 }
 
 func (app *App) Run(ctx context.Context) error {
+	// Check and create superuser if needed
+	if app.Config.AdminEmail != "" {
+		if err := app.ensureSuperuser(ctx); err != nil {
+			app.Logger.Error("Failed to ensure superuser exists", "error", err)
+		}
+	}
+
 	techServer, err := app.newTechServer()
 	if err != nil {
 		return fmt.Errorf("create tech server: %w", err)
@@ -315,6 +323,60 @@ func (app *App) newTechServer() (*httpserver.Server, error) {
 		IdleTimeout:  cfg.IdleTimeout,
 		Handler:      router,
 	}, nil
+}
+
+// ensureSuperuser checks if a user with the admin email exists and creates one if not.
+func (app *App) ensureSuperuser(ctx context.Context) error {
+	app.Logger.Info("Checking if superuser exists")
+
+	var usersRepo contract.UsersRepository
+	if err := app.container.Resolve(&usersRepo); err != nil {
+		return fmt.Errorf("resolve users repository: %w", err)
+	}
+
+	// Check if user with admin email already exists
+	_, err := usersRepo.GetByEmail(ctx, app.Config.AdminEmail)
+	if err == nil {
+		// User already exists
+		app.Logger.Info("Superuser already exists")
+
+		return nil
+	}
+
+	// Extract username from email (part before @)
+	username := app.Config.AdminEmail
+	for i, c := range username {
+		if c == '@' {
+			username = username[:i]
+
+			break
+		}
+	}
+
+	// Hash the temporary password
+	passwordHash, err := passworder.PasswordHash(app.Config.AdminTmpPassword)
+	if err != nil {
+		return fmt.Errorf("hash password: %w", err)
+	}
+
+	// Create the superuser
+	userDTO := domain.UserDTO{
+		Username:      username,
+		Email:         app.Config.AdminEmail,
+		PasswordHash:  passwordHash,
+		IsSuperuser:   true,
+		IsTmpPassword: true,
+		IsExternal:    false,
+	}
+
+	user, err := usersRepo.Create(ctx, userDTO)
+	if err != nil {
+		return fmt.Errorf("create superuser: %w", err)
+	}
+
+	app.Logger.Info("Created superuser", "id", user.ID, "username", user.Username)
+
+	return nil
 }
 
 func newPostgresConnPool(ctx context.Context, cfg *config.Postgres) (*pgxpool.Pool, error) {

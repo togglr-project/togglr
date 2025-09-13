@@ -1,4 +1,4 @@
-module github.com/rom8726/etoggl
+module github.com/rom8726/etoggle
 
 go 1.25
 

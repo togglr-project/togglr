@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 // AuthService provides LDAP authentication functionality.

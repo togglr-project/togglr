@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
 func (r *RestAPI) AddProject(

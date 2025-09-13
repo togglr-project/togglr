@@ -3,7 +3,7 @@ package rest
 import (
 	"context"
 
-	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
 func (r *RestAPI) GetSSOProviders(ctx context.Context) (generatedapi.GetSSOProvidersRes, error) {

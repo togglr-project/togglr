@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 type ProjectService struct {

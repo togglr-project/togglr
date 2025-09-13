@@ -1,6 +1,6 @@
-# etoggl
+# eToggle
 
-etoggl is a feature flag and experimentation platform for modern applications.
+eToggle is a feature flag and experimentation platform for modern applications.
 It allows developers and product teams to toggle features on/off, run A/B tests, and roll out changes progressively without redeploying code.
 
 ✨ Features

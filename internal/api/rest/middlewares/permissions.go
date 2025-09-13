@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strings"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
-	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
 // ProjectAccess middleware checks if the user has access to the project.

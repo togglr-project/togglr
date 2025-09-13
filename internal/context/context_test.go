@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 func TestWithProjectID(t *testing.T) {

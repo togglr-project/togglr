@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/rom8726/etoggl/internal/domain"
-	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
+	"github.com/rom8726/etoggle/internal/domain"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
 func (r *RestAPI) Login(ctx context.Context, req *generatedapi.LoginRequest) (generatedapi.LoginRes, error) {

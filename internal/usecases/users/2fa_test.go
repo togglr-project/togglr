@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/rom8726/etoggl/internal/domain"
-	"github.com/rom8726/etoggl/pkg/crypt"
-	"github.com/rom8726/etoggl/test_mocks/internal_/contract"
-	mockusers "github.com/rom8726/etoggl/test_mocks/internal_/usecases/users"
+	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/pkg/crypt"
+	"github.com/rom8726/etoggle/test_mocks/internal_/contract"
+	mockusers "github.com/rom8726/etoggle/test_mocks/internal_/usecases/users"
 )
 
 func TestSetup2FA(t *testing.T) {

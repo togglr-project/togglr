@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
-	"github.com/rom8726/etoggl/pkg/passworder"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/pkg/passworder"
 )
 
 // LocalAuthProvider This is the default authentication provider that checks against the local database.

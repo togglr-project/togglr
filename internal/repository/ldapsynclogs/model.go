@@ -3,7 +3,7 @@ package ldapsynclogs
 import (
 	"time"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 type ldapSyncLogModel struct {

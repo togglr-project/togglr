@@ -43,7 +43,7 @@ export const LogoImg: React.FC<LogoImgProps> = ({
       <Box
         component="img"
         src={logoPath}
-        alt="eToggl Logo"
+        alt="eToggle Logo"
         sx={{
           height: height,
           width: 'auto',
@@ -63,7 +63,7 @@ export const LogoImg: React.FC<LogoImgProps> = ({
     <Box
       component="img"
       src={logoPath}
-      alt="eToggl Logo"
+      alt="eToggle Logo"
       sx={{
         height,
         width: 'auto',

@@ -7,7 +7,7 @@ package mockusers
 import (
 	"context"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 	mock "github.com/stretchr/testify/mock"
 )
 

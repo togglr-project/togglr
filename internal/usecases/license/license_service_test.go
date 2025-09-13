@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/rom8726/etoggl/internal/domain"
-	mockcontract "github.com/rom8726/etoggl/test_mocks/internal_/contract"
+	"github.com/rom8726/etoggle/internal/domain"
+	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
 )
 
 func TestGetLicenseStatus(t *testing.T) {

@@ -1,4 +1,4 @@
-NAMESPACE=etoggl
+NAMESPACE=etoggle
 GOCI_VERSION=v1.64.8
 MOCKERY_VERSION=v3.5.4
 TOOLS_DIR=dev/tools
@@ -13,7 +13,7 @@ TOOL_VERSION ?= $(shell git describe --tags 2>/dev/null || git rev-parse --short
 TOOL_BUILD_TIME=$(shell date '+%Y-%m-%dT%H:%M:%SZ%Z')
 OS=$(shell uname -s)
 
-LD_FLAGS="-w -s -X 'github.com/rom8726/etoggl/internal/version.Version=${TOOL_VERSION}' -X 'github.com/rom8726/etoggl/internal/version.BuildTime=${TOOL_BUILD_TIME}'"
+LD_FLAGS="-w -s -X 'github.com/rom8726/etoggle/internal/version.Version=${TOOL_VERSION}' -X 'github.com/rom8726/etoggle/internal/version.BuildTime=${TOOL_BUILD_TIME}'"
 
 RED="\033[0;31m"
 GREEN="\033[1;32m"

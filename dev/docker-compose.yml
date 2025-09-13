@@ -1,25 +1,25 @@
 version: '3.8'
 
 services:
-  etoggl-reverse-proxy:
+  etoggle-reverse-proxy:
     build:
       context: ../reverse-proxy
       dockerfile: Dockerfile
-    container_name: etoggl-reverse-proxy
+    container_name: etoggle-reverse-proxy
     ports:
       - "443:443"
       - "8090:8090"
     environment:
       - DOMAIN=${DOMAIN}
-      - BACKEND_URL=http://etoggl-backend:8080
-      - FRONTEND_URL=http://etoggl-frontend
+      - BACKEND_URL=http://etoggle-backend:8080
+      - FRONTEND_URL=http://etoggle-frontend
       - SSL_CERT=${SSL_CERT}
       - SSL_CERT_KEY=${SSL_CERT_KEY}
       - SECURE_LINK_MD5=${SECURE_LINK_MD5}
     volumes:
       - "./nginx/ssl:/etc/nginx/ssl"
     depends_on:
-      etoggl-frontend:
+      etoggle-frontend:
         condition: service_healthy
     restart: always
     healthcheck:
@@ -29,16 +29,16 @@ services:
       retries: 3
       start_period: 40s
 
-  etoggl-frontend:
+  etoggle-frontend:
     build:
       context: ../webui
       dockerfile: Dockerfile
-    container_name: etoggl-frontend
+    container_name: etoggle-frontend
     environment:
       - etoggl_API_BASE_URL=https://${DOMAIN}
     restart: always
     depends_on:
-      etoggl-backend:
+      etoggle-backend:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:80/"]
@@ -47,8 +47,8 @@ services:
       retries: 3
       start_period: 30s
 
-  etoggl-backend:
-    container_name: etoggl-backend
+  etoggle-backend:
+    container_name: etoggle-backend
     build:
       context: ../
       target: prod
@@ -60,11 +60,11 @@ services:
       - compose.env
     command: ["/bin/app", "server"]
     depends_on:
-      - etoggl-postgresql
+      - etoggle-postgresql
 
-  etoggl-postgresql:
+  etoggle-postgresql:
     image: postgres:16
-    container_name: etoggl-postgresql
+    container_name: etoggle-postgresql
     restart: always
     environment:
       POSTGRES_USER: user

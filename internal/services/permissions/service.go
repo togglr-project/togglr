@@ -3,9 +3,9 @@ package permissions
 import (
 	"context"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 // Service handles permission checks for various operations.

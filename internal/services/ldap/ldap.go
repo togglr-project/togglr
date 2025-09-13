@@ -14,8 +14,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/rom8726/di"
 
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 var _ di.Servicer = (*Service)(nil)

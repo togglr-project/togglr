@@ -105,7 +105,7 @@ export const Logo: React.FC<LogoProps> = ({
         </Box>
         {showText && (
           <Box component="span" sx={{ fontSize: fontSize * 0.8 }}>
-            eToggl
+            eToggle
           </Box>
         )}
       </Box>
@@ -150,7 +150,7 @@ export const Logo: React.FC<LogoProps> = ({
       </Box>
       {showText && (
         <Box component="span">
-          eToggl
+          eToggle
         </Box>
       )}
     </Box>

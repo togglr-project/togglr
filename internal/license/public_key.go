@@ -3,7 +3,7 @@ package license
 
 var (
 	PublicKey        string = ""
-	LicenseServerURL string = "https://etoggl-project.tech"
+	LicenseServerURL string = "https://etoggle-project.tech"
 )
 
 var (

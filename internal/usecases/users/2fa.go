@@ -16,11 +16,11 @@ import (
 	"github.com/pquerna/otp/totp"
 	"github.com/skip2/go-qrcode"
 
-	"github.com/rom8726/etoggl/internal/domain"
-	"github.com/rom8726/etoggl/pkg/crypt"
+	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/pkg/crypt"
 )
 
-const issuerName = "etoggl"
+const issuerName = "etoggle"
 
 var twoFACodeStore = struct {
 	sync.Mutex

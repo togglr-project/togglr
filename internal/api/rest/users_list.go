@@ -5,9 +5,9 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/rom8726/etoggl/internal/domain"
-	"github.com/rom8726/etoggl/internal/dto"
-	generatedapi "github.com/rom8726/etoggl/internal/generated/server"
+	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/internal/dto"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
 func (r *RestAPI) ListUsers(ctx context.Context) (generatedapi.ListUsersRes, error) {

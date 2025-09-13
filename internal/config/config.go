@@ -29,6 +29,9 @@ type Config struct {
 	RefreshTokenTTL  time.Duration `envconfig:"REFRESH_TOKEN_TTL" default:"168h"`
 	ResetPasswordTTL time.Duration `envconfig:"RESET_PASSWORD_TTL" default:"8h"`
 
+	AdminEmail       string `envconfig:"ADMIN_EMAIL"`
+	AdminTmpPassword string `envconfig:"ADMIN_TMP_PASSWORD"`
+
 	// SSO Configuration
 	// Keycloak KeycloakConfig `envconfig:"KEYCLOAK"`
 	SAML SAMLConfig `envconfig:"SAML"`

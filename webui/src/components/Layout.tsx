@@ -411,7 +411,7 @@ const Layout: React.FC<LayoutProps> = ({
         >
           <Box sx={{ width: '100%' }}>
             <Typography variant="body2" color="text.secondary" align="center">
-              eToggl © {new Date().getFullYear()}
+              eToggle © {new Date().getFullYear()}
             </Typography>
           </Box>
         </Box>

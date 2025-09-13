@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
-	"github.com/rom8726/etoggl/internal/contract"
-	"github.com/rom8726/etoggl/internal/domain"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	"github.com/rom8726/etoggle/internal/contract"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 // AuthMiddleware extracts the user ID from the request and sets it in the context.

@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
-	"github.com/rom8726/etoggl/internal/domain"
-	mockcontract "github.com/rom8726/etoggl/test_mocks/internal_/contract"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	"github.com/rom8726/etoggle/internal/domain"
+	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
 )
 
 func TestAuthMiddleware(t *testing.T) {

@@ -3,7 +3,7 @@ package contract
 import (
 	"context"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 // LDAPService defines the interface for LDAP service operations.

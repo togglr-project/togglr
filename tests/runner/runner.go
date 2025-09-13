@@ -17,8 +17,8 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 
-	"github.com/rom8726/etoggl/internal"
-	"github.com/rom8726/etoggl/internal/config"
+	"github.com/rom8726/etoggle/internal"
+	"github.com/rom8726/etoggle/internal/config"
 )
 
 type Config struct {

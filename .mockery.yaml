@@ -3,12 +3,12 @@ dir: test_mocks/{{.InterfaceDirRelative}}
 structname: 'Mock{{.InterfaceName}}'
 pkgname: 'mock{{.SrcPackageName}}'
 packages:
-  github.com/rom8726/etoggl/internal/contract:
+  github.com/rom8726/etoggle/internal/contract:
     config:
       all: True
-  github.com/rom8726/etoggl/internal/usecases/users:
+  github.com/rom8726/etoggle/internal/usecases/users:
     config:
       all: True
-  github.com/rom8726/etoggl/pkg/db:
+  github.com/rom8726/etoggle/pkg/db:
     config:
       all: True

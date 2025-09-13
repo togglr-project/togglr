@@ -3,7 +3,7 @@ package middlewares
 import (
 	"net/http"
 
-	etogglcontext "github.com/rom8726/etoggl/internal/context"
+	etogglcontext "github.com/rom8726/etoggle/internal/context"
 )
 
 func WithRawRequest(next http.Handler) http.Handler {

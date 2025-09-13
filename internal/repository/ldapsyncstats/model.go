@@ -3,7 +3,7 @@ package ldapsyncstats
 import (
 	"time"
 
-	"github.com/rom8726/etoggl/internal/domain"
+	"github.com/rom8726/etoggle/internal/domain"
 )
 
 type ldapSyncStatsModel struct {
