@@ -26,5 +26,8 @@
   "include": [
     "src",
     "node_modules/vitest/globals.d.ts"
+  ],
+  "exclude": [
+    "src/dev/**/*"
   ]
 }

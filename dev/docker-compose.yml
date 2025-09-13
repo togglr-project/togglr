@@ -60,6 +60,12 @@ services:
     command: ["/bin/app", "server"]
     depends_on:
       - etoggle-postgresql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   etoggle-postgresql:
     image: postgres:16
@@ -74,5 +80,11 @@ services:
       - "postgresql_etoggl:/var/lib/postgresql/data/main"
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "PG_PASSWORD=password pg_isready -U user -d db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 volumes:
     postgresql_etoggl:

@@ -8,3 +8,12 @@ dev-down: ## Down the environment in docker compose
 
 dev-clean: ## Down the environment in docker compose with image cleanup
 	${_COMPOSE} down --remove-orphans -v --rmi all
+
+dev-build-proxy: ## Building etoggle-reverse-proxy
+	${_COMPOSE} build etoggle-reverse-proxy
+
+dev-build-frontend: ## Building etoggle-frontend
+	${_COMPOSE} build etoggle-frontend
+
+dev-build-backend: ## Building etoggle-backend
+	${_COMPOSE} build etoggle-backend

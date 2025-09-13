@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider } from './auth/AuthContext';
@@ -14,6 +14,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import SSOCallbackPage from './pages/SSOCallbackPage';
 import SAMLSuccessHandler from './components/SAMLSuccessHandler';
+import DashboardPage from './pages/DashboardPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -85,6 +86,10 @@ function App() {
                         <Route path="/auth/saml/callback" element={<SSOCallbackPage />} />
                         <Route path="/auth/saml/logout" element={<SSOCallbackPage />} />
                         <Route path="/auth/saml/success" element={<SAMLSuccessHandler />} />
+
+                        <Route path="/dashboard" element={<LicenseGuard><DashboardPage /></LicenseGuard>} />
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
                       </Routes>
                     </Router>
                   </LicenseProvider>
