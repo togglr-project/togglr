@@ -39,9 +39,9 @@ const WardenLogo: React.FC<WardenLogoProps> = ({
           height: Math.round(logoSize * 1.22),
           display: 'block'
         }}
-        alt="eToggle Logo"
+        alt="Toggl Logo"
       />
-      eToggle
+      Toggl
     </Typography>
   );
 

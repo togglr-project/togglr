@@ -34,7 +34,7 @@ services:
       dockerfile: Dockerfile
     container_name: etoggle-frontend
     environment:
-      - etoggl_API_BASE_URL=https://${DOMAIN}
+      - ETOGGL_API_BASE_URL=https://${DOMAIN}
     restart: always
     depends_on:
       etoggle-backend:
