@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Typography,
@@ -9,14 +9,17 @@ import {
   CardActionArea,
   CircularProgress,
   Chip,
+  Button,
 } from '@mui/material';
-import { Dashboard as DashboardIcon } from '@mui/icons-material';
-import { useQuery } from '@tanstack/react-query';
+import { Dashboard as DashboardIcon, Add as AddIcon } from '@mui/icons-material';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, Navigate } from 'react-router-dom';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
+import CreateProjectDialog from '../components/admin/CreateProjectDialog';
+import { userPermissions } from '../hooks/userPermissions';
 
 interface Project {
   'id': string;
@@ -28,11 +31,15 @@ interface Project {
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+  const { canCreateProjects } = userPermissions();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const { data: projects, isLoading, error } = useQuery<Project[]>({
     queryKey: ['projects'],
     queryFn: async () => {
-      // Use listProjects which exists in webui api client
       const res = await apiClient.listProjects();
       return res.data;
     },
@@ -41,6 +48,22 @@ const DashboardPage: React.FC = () => {
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
+  const handleCreateProject = async (name: string, description: string) => {
+    try {
+      setCreating(true);
+      setCreateError(null);
+      await apiClient.addProject({ name, description });
+      setCreateOpen(false);
+      await queryClient.invalidateQueries({ queryKey: ['projects'] });
+    } catch (e: any) {
+      const message = e?.response?.data?.error?.message || 'Failed to create project';
+      setCreateError(message);
+      // Keep dialog open to let user adjust input
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <AuthenticatedLayout>
@@ -63,9 +86,21 @@ const DashboardPage: React.FC = () => {
           boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.05)'
         }}
       >
-        <Typography variant="h6" gutterBottom className="gradient-subtitle">
-          Projects
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h6" className="gradient-subtitle">
+            Projects
+          </Typography>
+          {canCreateProjects() && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateOpen(true)}
+              disabled={creating}
+            >
+              Add Project
+            </Button>
+          )}
+        </Box>
 
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -114,6 +149,19 @@ const DashboardPage: React.FC = () => {
           <Typography variant="body2">No projects to display.</Typography>
         )}
       </Paper>
+
+      {/* Create Project Dialog */}
+      <CreateProjectDialog
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreateProject={handleCreateProject}
+        isLoadingTeams={false}
+      />
+      {createError && (
+        <Box sx={{ mt: 2 }}>
+          <Typography color="error">{createError}</Typography>
+        </Box>
+      )}
     </AuthenticatedLayout>
   );
 };

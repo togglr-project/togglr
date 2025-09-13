@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePermissions } from '../hooks/usePermissions';
+import { userPermissions } from '../hooks/userPermissions.ts';
 
 interface PermissionGuardProps {
   children: React.ReactNode;
@@ -52,7 +52,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
     canCreateTeams,
     canManageUsers,
     isSuperuser,
-  } = usePermissions();
+  } = userPermissions();
 
   // Проверка superuser
   if (requireSuperuser && !isSuperuser()) {

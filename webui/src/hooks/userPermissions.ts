@@ -24,7 +24,7 @@ interface TokenClaims {
   permissions?: UserPermissions;
 }
 
-export const usePermissions = () => {
+export const userPermissions = () => {
   const { user } = useAuth();
 
   const getTokenClaims = (): TokenClaims | null => {

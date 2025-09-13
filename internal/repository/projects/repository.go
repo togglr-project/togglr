@@ -50,8 +50,8 @@ func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (do
 	executor := r.getExecutor(ctx)
 
 	const query = `
-INSERT INTO projects (name, description, created_at)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO projects (name, description, created_at, updated_at)
+VALUES ($1, $2, $3, $3)
 RETURNING id`
 
 	var id string
