@@ -18,6 +18,7 @@ import (
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
 	"github.com/rom8726/etoggle/internal/license"
+	"github.com/rom8726/etoggle/internal/repository/features"
 	"github.com/rom8726/etoggle/internal/repository/ldapsynclogs"
 	"github.com/rom8726/etoggle/internal/repository/ldapsyncstats"
 	"github.com/rom8726/etoggle/internal/repository/licenses"
@@ -32,6 +33,7 @@ import (
 	ssoprovidermanager "github.com/rom8726/etoggle/internal/services/sso/provider-manager"
 	samlprovider "github.com/rom8726/etoggle/internal/services/sso/saml"
 	"github.com/rom8726/etoggle/internal/services/tokenizer"
+	featuresusecase "github.com/rom8726/etoggle/internal/usecases/features"
 	ldapusecase "github.com/rom8726/etoggle/internal/usecases/ldap"
 	licenseusecase "github.com/rom8726/etoggle/internal/usecases/license"
 	productinfousecase "github.com/rom8726/etoggle/internal/usecases/productinfo"
@@ -164,6 +166,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(settings.New).Arg(app.PostgresPool)
 	app.registerComponent(licenses.New).Arg(app.PostgresPool)
 	app.registerComponent(productinfo.New).Arg(app.PostgresPool)
+	app.registerComponent(features.New).Arg(app.PostgresPool)
 
 	// Register permissions service
 	app.registerComponent(permissions.New)
@@ -177,6 +180,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(settingsusecase.New).Arg(app.Config.SecretKey)
 	app.registerComponent(licenseusecase.New)
 	app.registerComponent(productinfousecase.New)
+	app.registerComponent(featuresusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

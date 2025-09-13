@@ -664,6 +664,6 @@ issues:
   # Default: false.
   new: false
   # Fix found issues (if it's supported by the linter).
-  fix: false
+  fix: true
 
 version: 2
