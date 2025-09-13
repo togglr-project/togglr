@@ -19,11 +19,13 @@ import (
 	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
 	"github.com/rom8726/etoggle/internal/license"
 	"github.com/rom8726/etoggle/internal/repository/features"
+	"github.com/rom8726/etoggle/internal/repository/flagvariants"
 	"github.com/rom8726/etoggle/internal/repository/ldapsynclogs"
 	"github.com/rom8726/etoggle/internal/repository/ldapsyncstats"
 	"github.com/rom8726/etoggle/internal/repository/licenses"
 	"github.com/rom8726/etoggle/internal/repository/productinfo"
 	"github.com/rom8726/etoggle/internal/repository/projects"
+	"github.com/rom8726/etoggle/internal/repository/rules"
 	"github.com/rom8726/etoggle/internal/repository/settings"
 	"github.com/rom8726/etoggle/internal/repository/users"
 	ratelimiter2fa "github.com/rom8726/etoggle/internal/services/2fa/ratelimiter"
@@ -34,10 +36,12 @@ import (
 	samlprovider "github.com/rom8726/etoggle/internal/services/sso/saml"
 	"github.com/rom8726/etoggle/internal/services/tokenizer"
 	featuresusecase "github.com/rom8726/etoggle/internal/usecases/features"
+	flagvariantsusecase "github.com/rom8726/etoggle/internal/usecases/flagvariants"
 	ldapusecase "github.com/rom8726/etoggle/internal/usecases/ldap"
 	licenseusecase "github.com/rom8726/etoggle/internal/usecases/license"
 	productinfousecase "github.com/rom8726/etoggle/internal/usecases/productinfo"
 	projectsusecase "github.com/rom8726/etoggle/internal/usecases/projects"
+	rulesusecase "github.com/rom8726/etoggle/internal/usecases/rules"
 	settingsusecase "github.com/rom8726/etoggle/internal/usecases/settings"
 	usersusecase "github.com/rom8726/etoggle/internal/usecases/users"
 	"github.com/rom8726/etoggle/pkg/db"
@@ -167,6 +171,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(licenses.New).Arg(app.PostgresPool)
 	app.registerComponent(productinfo.New).Arg(app.PostgresPool)
 	app.registerComponent(features.New).Arg(app.PostgresPool)
+	app.registerComponent(flagvariants.New).Arg(app.PostgresPool)
+	app.registerComponent(rules.New).Arg(app.PostgresPool)
 
 	// Register permissions service
 	app.registerComponent(permissions.New)
@@ -181,6 +187,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(licenseusecase.New)
 	app.registerComponent(productinfousecase.New)
 	app.registerComponent(featuresusecase.New)
+	app.registerComponent(flagvariantsusecase.New)
+	app.registerComponent(rulesusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,
