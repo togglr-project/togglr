@@ -1739,6 +1739,240 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/projects/{project_id}/features:
+    get:
+      summary: List features for project
+      operationId: ListProjectFeatures
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of features for the project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFeaturesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create feature for project
+      operationId: CreateProjectFeature
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeatureRequest'
+      responses:
+        '201':
+          description: Feature created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/features/{feature_id}/rules:
+    post:
+      summary: Create rule for feature
+      operationId: CreateFeatureRule
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRuleRequest'
+      responses:
+        '201':
+          description: Rule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature or related resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/features/{feature_id}/variants:
+    post:
+      summary: Create flag variant for feature
+      operationId: CreateFeatureFlagVariant
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFlagVariantRequest'
+      responses:
+        '201':
+          description: Flag variant created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlagVariantResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -2439,6 +2673,173 @@ components:
         project:
           $ref: '#/components/schemas/Project'
       required: [project]
+
+    # ---- Feature Flags ----
+    FeatureKind:
+      type: string
+      enum:
+        - boolean
+        - multivariant
+
+    Feature:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        project_id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        key:
+          type: string
+          example: "new_ui"
+        name:
+          type: string
+          example: "New UI"
+        description:
+          type: string
+          nullable: true
+          example: "Optional description"
+        kind:
+          $ref: '#/components/schemas/FeatureKind'
+        default_variant:
+          type: string
+          example: "on"
+        enabled:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T01:00:00Z"
+      required: [id, project_id, key, name, kind, default_variant, enabled, created_at, updated_at]
+
+    CreateFeatureRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 2
+        name:
+          type: string
+          minLength: 2
+        description:
+          type: string
+          nullable: true
+        kind:
+          $ref: '#/components/schemas/FeatureKind'
+        default_variant:
+          type: string
+        enabled:
+          type: boolean
+      required: [key, name, kind, default_variant]
+
+    FeatureResponse:
+      type: object
+      properties:
+        feature:
+          $ref: '#/components/schemas/Feature'
+      required: [feature]
+
+    ListFeaturesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Feature'
+
+    FlagVariant:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        feature_id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        name:
+          type: string
+          example: "A"
+        rollout_percent:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 50
+      required: [id, feature_id, name, rollout_percent]
+
+    CreateFlagVariantRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        rollout_percent:
+          type: integer
+          minimum: 0
+          maximum: 100
+      required: [name, rollout_percent]
+
+    FlagVariantResponse:
+      type: object
+      properties:
+        flag_variant:
+          $ref: '#/components/schemas/FlagVariant'
+      required: [flag_variant]
+
+    Rule:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        feature_id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        condition:
+          type: object
+          additionalProperties: true
+          description: JSON condition
+          example:
+            attribute: country
+            op: '='
+            value: RU
+        flag_variant_id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        priority:
+          type: integer
+          minimum: 0
+          maximum: 255
+          example: 10
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+      required: [id, feature_id, condition, flag_variant_id, priority, created_at]
+
+    CreateRuleRequest:
+      type: object
+      properties:
+        condition:
+          type: object
+          additionalProperties: true
+          description: JSON condition
+        flag_variant_id:
+          type: string
+        priority:
+          type: integer
+          minimum: 0
+          maximum: 255
+      required: [condition, flag_variant_id]
+
+    RuleResponse:
+      type: object
+      properties:
+        rule:
+          $ref: '#/components/schemas/Rule'
+      required: [rule]
 
     ErrorNotFound:
       allOf:

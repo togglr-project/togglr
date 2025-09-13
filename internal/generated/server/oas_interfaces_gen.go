@@ -21,6 +21,18 @@ type ConsumeSAMLAssertionRes interface {
 	consumeSAMLAssertionRes()
 }
 
+type CreateFeatureFlagVariantRes interface {
+	createFeatureFlagVariantRes()
+}
+
+type CreateFeatureRuleRes interface {
+	createFeatureRuleRes()
+}
+
+type CreateProjectFeatureRes interface {
+	createProjectFeatureRes()
+}
+
 type CreateUserRes interface {
 	createUserRes()
 }
@@ -87,6 +99,10 @@ type GetSAMLMetadataRes interface {
 
 type GetSSOProvidersRes interface {
 	getSSOProvidersRes()
+}
+
+type ListProjectFeaturesRes interface {
+	listProjectFeaturesRes()
 }
 
 type ListProjectsRes interface {

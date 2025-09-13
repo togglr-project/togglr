@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-faster/errors"
+	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 )
 
@@ -160,6 +161,152 @@ func (s *ConsumeSAMLAssertionReq) SetSAMLResponse(val string) {
 // SetRelayState sets the value of RelayState.
 func (s *ConsumeSAMLAssertionReq) SetRelayState(val string) {
 	s.RelayState = val
+}
+
+// Ref: #/components/schemas/CreateFeatureRequest
+type CreateFeatureRequest struct {
+	Key            string       `json:"key"`
+	Name           string       `json:"name"`
+	Description    OptNilString `json:"description"`
+	Kind           FeatureKind  `json:"kind"`
+	DefaultVariant string       `json:"default_variant"`
+	Enabled        OptBool      `json:"enabled"`
+}
+
+// GetKey returns the value of Key.
+func (s *CreateFeatureRequest) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *CreateFeatureRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *CreateFeatureRequest) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetKind returns the value of Kind.
+func (s *CreateFeatureRequest) GetKind() FeatureKind {
+	return s.Kind
+}
+
+// GetDefaultVariant returns the value of DefaultVariant.
+func (s *CreateFeatureRequest) GetDefaultVariant() string {
+	return s.DefaultVariant
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *CreateFeatureRequest) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// SetKey sets the value of Key.
+func (s *CreateFeatureRequest) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateFeatureRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *CreateFeatureRequest) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetKind sets the value of Kind.
+func (s *CreateFeatureRequest) SetKind(val FeatureKind) {
+	s.Kind = val
+}
+
+// SetDefaultVariant sets the value of DefaultVariant.
+func (s *CreateFeatureRequest) SetDefaultVariant(val string) {
+	s.DefaultVariant = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *CreateFeatureRequest) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
+// Ref: #/components/schemas/CreateFlagVariantRequest
+type CreateFlagVariantRequest struct {
+	Name           string `json:"name"`
+	RolloutPercent int    `json:"rollout_percent"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateFlagVariantRequest) GetName() string {
+	return s.Name
+}
+
+// GetRolloutPercent returns the value of RolloutPercent.
+func (s *CreateFlagVariantRequest) GetRolloutPercent() int {
+	return s.RolloutPercent
+}
+
+// SetName sets the value of Name.
+func (s *CreateFlagVariantRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetRolloutPercent sets the value of RolloutPercent.
+func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
+	s.RolloutPercent = val
+}
+
+// Ref: #/components/schemas/CreateRuleRequest
+type CreateRuleRequest struct {
+	// JSON condition.
+	Condition     CreateRuleRequestCondition `json:"condition"`
+	FlagVariantID string                     `json:"flag_variant_id"`
+	Priority      OptInt                     `json:"priority"`
+}
+
+// GetCondition returns the value of Condition.
+func (s *CreateRuleRequest) GetCondition() CreateRuleRequestCondition {
+	return s.Condition
+}
+
+// GetFlagVariantID returns the value of FlagVariantID.
+func (s *CreateRuleRequest) GetFlagVariantID() string {
+	return s.FlagVariantID
+}
+
+// GetPriority returns the value of Priority.
+func (s *CreateRuleRequest) GetPriority() OptInt {
+	return s.Priority
+}
+
+// SetCondition sets the value of Condition.
+func (s *CreateRuleRequest) SetCondition(val CreateRuleRequestCondition) {
+	s.Condition = val
+}
+
+// SetFlagVariantID sets the value of FlagVariantID.
+func (s *CreateRuleRequest) SetFlagVariantID(val string) {
+	s.FlagVariantID = val
+}
+
+// SetPriority sets the value of Priority.
+func (s *CreateRuleRequest) SetPriority(val OptInt) {
+	s.Priority = val
+}
+
+// JSON condition.
+type CreateRuleRequestCondition map[string]jx.Raw
+
+func (s *CreateRuleRequestCondition) init() CreateRuleRequestCondition {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
 }
 
 // Ref: #/components/schemas/CreateUserRequest
@@ -327,25 +474,28 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 	s.Error = val
 }
 
-func (*ErrorBadRequest) addProjectRes()              {}
-func (*ErrorBadRequest) confirm2FARes()              {}
-func (*ErrorBadRequest) consumeSAMLAssertionRes()    {}
-func (*ErrorBadRequest) createUserRes()              {}
-func (*ErrorBadRequest) deleteUserRes()              {}
-func (*ErrorBadRequest) disable2FARes()              {}
-func (*ErrorBadRequest) forgotPasswordRes()          {}
-func (*ErrorBadRequest) reset2FARes()                {}
-func (*ErrorBadRequest) resetPasswordRes()           {}
-func (*ErrorBadRequest) sSOCallbackRes()             {}
-func (*ErrorBadRequest) sSOInitiateRes()             {}
-func (*ErrorBadRequest) send2FACodeRes()             {}
-func (*ErrorBadRequest) setSuperuserStatusRes()      {}
-func (*ErrorBadRequest) setUserActiveStatusRes()     {}
-func (*ErrorBadRequest) updateLicenseAcceptanceRes() {}
-func (*ErrorBadRequest) updateLicenseRes()           {}
-func (*ErrorBadRequest) updateProjectRes()           {}
-func (*ErrorBadRequest) userChangeMyPasswordRes()    {}
-func (*ErrorBadRequest) verify2FARes()               {}
+func (*ErrorBadRequest) addProjectRes()               {}
+func (*ErrorBadRequest) confirm2FARes()               {}
+func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
+func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
+func (*ErrorBadRequest) createFeatureRuleRes()        {}
+func (*ErrorBadRequest) createProjectFeatureRes()     {}
+func (*ErrorBadRequest) createUserRes()               {}
+func (*ErrorBadRequest) deleteUserRes()               {}
+func (*ErrorBadRequest) disable2FARes()               {}
+func (*ErrorBadRequest) forgotPasswordRes()           {}
+func (*ErrorBadRequest) reset2FARes()                 {}
+func (*ErrorBadRequest) resetPasswordRes()            {}
+func (*ErrorBadRequest) sSOCallbackRes()              {}
+func (*ErrorBadRequest) sSOInitiateRes()              {}
+func (*ErrorBadRequest) send2FACodeRes()              {}
+func (*ErrorBadRequest) setSuperuserStatusRes()       {}
+func (*ErrorBadRequest) setUserActiveStatusRes()      {}
+func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
+func (*ErrorBadRequest) updateLicenseRes()            {}
+func (*ErrorBadRequest) updateProjectRes()            {}
+func (*ErrorBadRequest) userChangeMyPasswordRes()     {}
+func (*ErrorBadRequest) verify2FARes()                {}
 
 type ErrorBadRequestError struct {
 	Message OptString `json:"message"`
@@ -391,31 +541,35 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 	s.Error = val
 }
 
-func (*ErrorInternalServerError) addProjectRes()              {}
-func (*ErrorInternalServerError) archiveProjectRes()          {}
-func (*ErrorInternalServerError) consumeSAMLAssertionRes()    {}
-func (*ErrorInternalServerError) createUserRes()              {}
-func (*ErrorInternalServerError) deleteUserRes()              {}
-func (*ErrorInternalServerError) forgotPasswordRes()          {}
-func (*ErrorInternalServerError) getCurrentUserRes()          {}
-func (*ErrorInternalServerError) getLicenseStatusRes()        {}
-func (*ErrorInternalServerError) getProductInfoRes()          {}
-func (*ErrorInternalServerError) getProjectRes()              {}
-func (*ErrorInternalServerError) getSAMLMetadataRes()         {}
-func (*ErrorInternalServerError) getSSOProvidersRes()         {}
-func (*ErrorInternalServerError) listProjectsRes()            {}
-func (*ErrorInternalServerError) listUsersRes()               {}
-func (*ErrorInternalServerError) loginRes()                   {}
-func (*ErrorInternalServerError) refreshTokenRes()            {}
-func (*ErrorInternalServerError) resetPasswordRes()           {}
-func (*ErrorInternalServerError) sSOCallbackRes()             {}
-func (*ErrorInternalServerError) sSOInitiateRes()             {}
-func (*ErrorInternalServerError) setSuperuserStatusRes()      {}
-func (*ErrorInternalServerError) setUserActiveStatusRes()     {}
-func (*ErrorInternalServerError) updateLicenseAcceptanceRes() {}
-func (*ErrorInternalServerError) updateLicenseRes()           {}
-func (*ErrorInternalServerError) updateProjectRes()           {}
-func (*ErrorInternalServerError) userChangeMyPasswordRes()    {}
+func (*ErrorInternalServerError) addProjectRes()               {}
+func (*ErrorInternalServerError) archiveProjectRes()           {}
+func (*ErrorInternalServerError) consumeSAMLAssertionRes()     {}
+func (*ErrorInternalServerError) createFeatureFlagVariantRes() {}
+func (*ErrorInternalServerError) createFeatureRuleRes()        {}
+func (*ErrorInternalServerError) createProjectFeatureRes()     {}
+func (*ErrorInternalServerError) createUserRes()               {}
+func (*ErrorInternalServerError) deleteUserRes()               {}
+func (*ErrorInternalServerError) forgotPasswordRes()           {}
+func (*ErrorInternalServerError) getCurrentUserRes()           {}
+func (*ErrorInternalServerError) getLicenseStatusRes()         {}
+func (*ErrorInternalServerError) getProductInfoRes()           {}
+func (*ErrorInternalServerError) getProjectRes()               {}
+func (*ErrorInternalServerError) getSAMLMetadataRes()          {}
+func (*ErrorInternalServerError) getSSOProvidersRes()          {}
+func (*ErrorInternalServerError) listProjectFeaturesRes()      {}
+func (*ErrorInternalServerError) listProjectsRes()             {}
+func (*ErrorInternalServerError) listUsersRes()                {}
+func (*ErrorInternalServerError) loginRes()                    {}
+func (*ErrorInternalServerError) refreshTokenRes()             {}
+func (*ErrorInternalServerError) resetPasswordRes()            {}
+func (*ErrorInternalServerError) sSOCallbackRes()              {}
+func (*ErrorInternalServerError) sSOInitiateRes()              {}
+func (*ErrorInternalServerError) setSuperuserStatusRes()       {}
+func (*ErrorInternalServerError) setUserActiveStatusRes()      {}
+func (*ErrorInternalServerError) updateLicenseAcceptanceRes()  {}
+func (*ErrorInternalServerError) updateLicenseRes()            {}
+func (*ErrorInternalServerError) updateProjectRes()            {}
+func (*ErrorInternalServerError) userChangeMyPasswordRes()     {}
 
 type ErrorInternalServerErrorError struct {
 	Message OptString `json:"message"`
@@ -479,14 +633,18 @@ func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
 	s.Error = val
 }
 
-func (*ErrorNotFound) archiveProjectRes()      {}
-func (*ErrorNotFound) deleteUserRes()          {}
-func (*ErrorNotFound) getProjectRes()          {}
-func (*ErrorNotFound) getSAMLMetadataRes()     {}
-func (*ErrorNotFound) listUsersRes()           {}
-func (*ErrorNotFound) setSuperuserStatusRes()  {}
-func (*ErrorNotFound) setUserActiveStatusRes() {}
-func (*ErrorNotFound) updateProjectRes()       {}
+func (*ErrorNotFound) archiveProjectRes()           {}
+func (*ErrorNotFound) createFeatureFlagVariantRes() {}
+func (*ErrorNotFound) createFeatureRuleRes()        {}
+func (*ErrorNotFound) createProjectFeatureRes()     {}
+func (*ErrorNotFound) deleteUserRes()               {}
+func (*ErrorNotFound) getProjectRes()               {}
+func (*ErrorNotFound) getSAMLMetadataRes()          {}
+func (*ErrorNotFound) listProjectFeaturesRes()      {}
+func (*ErrorNotFound) listUsersRes()                {}
+func (*ErrorNotFound) setSuperuserStatusRes()       {}
+func (*ErrorNotFound) setUserActiveStatusRes()      {}
+func (*ErrorNotFound) updateProjectRes()            {}
 
 type ErrorNotFoundError struct {
 	Message OptString `json:"message"`
@@ -518,29 +676,33 @@ func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
 	s.Error = val
 }
 
-func (*ErrorPermissionDenied) archiveProjectRes()        {}
-func (*ErrorPermissionDenied) cancelLDAPSyncRes()        {}
-func (*ErrorPermissionDenied) createUserRes()            {}
-func (*ErrorPermissionDenied) deleteLDAPConfigRes()      {}
-func (*ErrorPermissionDenied) deleteUserRes()            {}
-func (*ErrorPermissionDenied) forgotPasswordRes()        {}
-func (*ErrorPermissionDenied) getLDAPConfigRes()         {}
-func (*ErrorPermissionDenied) getLDAPStatisticsRes()     {}
-func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes() {}
-func (*ErrorPermissionDenied) getLDAPSyncLogsRes()       {}
-func (*ErrorPermissionDenied) getLDAPSyncProgressRes()   {}
-func (*ErrorPermissionDenied) getLDAPSyncStatusRes()     {}
-func (*ErrorPermissionDenied) getProductInfoRes()        {}
-func (*ErrorPermissionDenied) getProjectRes()            {}
-func (*ErrorPermissionDenied) listUsersRes()             {}
-func (*ErrorPermissionDenied) setSuperuserStatusRes()    {}
-func (*ErrorPermissionDenied) setUserActiveStatusRes()   {}
-func (*ErrorPermissionDenied) syncLDAPUsersRes()         {}
-func (*ErrorPermissionDenied) testLDAPConnectionRes()    {}
-func (*ErrorPermissionDenied) updateLDAPConfigRes()      {}
-func (*ErrorPermissionDenied) updateLicenseRes()         {}
-func (*ErrorPermissionDenied) updateProjectRes()         {}
-func (*ErrorPermissionDenied) userChangeMyPasswordRes()  {}
+func (*ErrorPermissionDenied) archiveProjectRes()           {}
+func (*ErrorPermissionDenied) cancelLDAPSyncRes()           {}
+func (*ErrorPermissionDenied) createFeatureFlagVariantRes() {}
+func (*ErrorPermissionDenied) createFeatureRuleRes()        {}
+func (*ErrorPermissionDenied) createProjectFeatureRes()     {}
+func (*ErrorPermissionDenied) createUserRes()               {}
+func (*ErrorPermissionDenied) deleteLDAPConfigRes()         {}
+func (*ErrorPermissionDenied) deleteUserRes()               {}
+func (*ErrorPermissionDenied) forgotPasswordRes()           {}
+func (*ErrorPermissionDenied) getLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) getLDAPStatisticsRes()        {}
+func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes()    {}
+func (*ErrorPermissionDenied) getLDAPSyncLogsRes()          {}
+func (*ErrorPermissionDenied) getLDAPSyncProgressRes()      {}
+func (*ErrorPermissionDenied) getLDAPSyncStatusRes()        {}
+func (*ErrorPermissionDenied) getProductInfoRes()           {}
+func (*ErrorPermissionDenied) getProjectRes()               {}
+func (*ErrorPermissionDenied) listProjectFeaturesRes()      {}
+func (*ErrorPermissionDenied) listUsersRes()                {}
+func (*ErrorPermissionDenied) setSuperuserStatusRes()       {}
+func (*ErrorPermissionDenied) setUserActiveStatusRes()      {}
+func (*ErrorPermissionDenied) syncLDAPUsersRes()            {}
+func (*ErrorPermissionDenied) testLDAPConnectionRes()       {}
+func (*ErrorPermissionDenied) updateLDAPConfigRes()         {}
+func (*ErrorPermissionDenied) updateLicenseRes()            {}
+func (*ErrorPermissionDenied) updateProjectRes()            {}
+func (*ErrorPermissionDenied) userChangeMyPasswordRes()     {}
 
 type ErrorPermissionDeniedError struct {
 	Message OptString `json:"message"`
@@ -631,42 +793,46 @@ func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
 	s.Error = val
 }
 
-func (*ErrorUnauthorized) addProjectRes()              {}
-func (*ErrorUnauthorized) archiveProjectRes()          {}
-func (*ErrorUnauthorized) cancelLDAPSyncRes()          {}
-func (*ErrorUnauthorized) confirm2FARes()              {}
-func (*ErrorUnauthorized) consumeSAMLAssertionRes()    {}
-func (*ErrorUnauthorized) createUserRes()              {}
-func (*ErrorUnauthorized) deleteLDAPConfigRes()        {}
-func (*ErrorUnauthorized) deleteUserRes()              {}
-func (*ErrorUnauthorized) disable2FARes()              {}
-func (*ErrorUnauthorized) getCurrentUserRes()          {}
-func (*ErrorUnauthorized) getLDAPConfigRes()           {}
-func (*ErrorUnauthorized) getLDAPStatisticsRes()       {}
-func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()   {}
-func (*ErrorUnauthorized) getLDAPSyncLogsRes()         {}
-func (*ErrorUnauthorized) getLDAPSyncProgressRes()     {}
-func (*ErrorUnauthorized) getLDAPSyncStatusRes()       {}
-func (*ErrorUnauthorized) getProductInfoRes()          {}
-func (*ErrorUnauthorized) getProjectRes()              {}
-func (*ErrorUnauthorized) listProjectsRes()            {}
-func (*ErrorUnauthorized) listUsersRes()               {}
-func (*ErrorUnauthorized) refreshTokenRes()            {}
-func (*ErrorUnauthorized) reset2FARes()                {}
-func (*ErrorUnauthorized) resetPasswordRes()           {}
-func (*ErrorUnauthorized) sSOCallbackRes()             {}
-func (*ErrorUnauthorized) send2FACodeRes()             {}
-func (*ErrorUnauthorized) setSuperuserStatusRes()      {}
-func (*ErrorUnauthorized) setUserActiveStatusRes()     {}
-func (*ErrorUnauthorized) setup2FARes()                {}
-func (*ErrorUnauthorized) syncLDAPUsersRes()           {}
-func (*ErrorUnauthorized) testLDAPConnectionRes()      {}
-func (*ErrorUnauthorized) updateLDAPConfigRes()        {}
-func (*ErrorUnauthorized) updateLicenseAcceptanceRes() {}
-func (*ErrorUnauthorized) updateLicenseRes()           {}
-func (*ErrorUnauthorized) updateProjectRes()           {}
-func (*ErrorUnauthorized) userChangeMyPasswordRes()    {}
-func (*ErrorUnauthorized) verify2FARes()               {}
+func (*ErrorUnauthorized) addProjectRes()               {}
+func (*ErrorUnauthorized) archiveProjectRes()           {}
+func (*ErrorUnauthorized) cancelLDAPSyncRes()           {}
+func (*ErrorUnauthorized) confirm2FARes()               {}
+func (*ErrorUnauthorized) consumeSAMLAssertionRes()     {}
+func (*ErrorUnauthorized) createFeatureFlagVariantRes() {}
+func (*ErrorUnauthorized) createFeatureRuleRes()        {}
+func (*ErrorUnauthorized) createProjectFeatureRes()     {}
+func (*ErrorUnauthorized) createUserRes()               {}
+func (*ErrorUnauthorized) deleteLDAPConfigRes()         {}
+func (*ErrorUnauthorized) deleteUserRes()               {}
+func (*ErrorUnauthorized) disable2FARes()               {}
+func (*ErrorUnauthorized) getCurrentUserRes()           {}
+func (*ErrorUnauthorized) getLDAPConfigRes()            {}
+func (*ErrorUnauthorized) getLDAPStatisticsRes()        {}
+func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()    {}
+func (*ErrorUnauthorized) getLDAPSyncLogsRes()          {}
+func (*ErrorUnauthorized) getLDAPSyncProgressRes()      {}
+func (*ErrorUnauthorized) getLDAPSyncStatusRes()        {}
+func (*ErrorUnauthorized) getProductInfoRes()           {}
+func (*ErrorUnauthorized) getProjectRes()               {}
+func (*ErrorUnauthorized) listProjectFeaturesRes()      {}
+func (*ErrorUnauthorized) listProjectsRes()             {}
+func (*ErrorUnauthorized) listUsersRes()                {}
+func (*ErrorUnauthorized) refreshTokenRes()             {}
+func (*ErrorUnauthorized) reset2FARes()                 {}
+func (*ErrorUnauthorized) resetPasswordRes()            {}
+func (*ErrorUnauthorized) sSOCallbackRes()              {}
+func (*ErrorUnauthorized) send2FACodeRes()              {}
+func (*ErrorUnauthorized) setSuperuserStatusRes()       {}
+func (*ErrorUnauthorized) setUserActiveStatusRes()      {}
+func (*ErrorUnauthorized) setup2FARes()                 {}
+func (*ErrorUnauthorized) syncLDAPUsersRes()            {}
+func (*ErrorUnauthorized) testLDAPConnectionRes()       {}
+func (*ErrorUnauthorized) updateLDAPConfigRes()         {}
+func (*ErrorUnauthorized) updateLicenseAcceptanceRes()  {}
+func (*ErrorUnauthorized) updateLicenseRes()            {}
+func (*ErrorUnauthorized) updateProjectRes()            {}
+func (*ErrorUnauthorized) userChangeMyPasswordRes()     {}
+func (*ErrorUnauthorized) verify2FARes()                {}
 
 type ErrorUnauthorizedError struct {
 	Message OptString `json:"message"`
@@ -681,6 +847,244 @@ func (s *ErrorUnauthorizedError) GetMessage() OptString {
 func (s *ErrorUnauthorizedError) SetMessage(val OptString) {
 	s.Message = val
 }
+
+// Ref: #/components/schemas/Feature
+type Feature struct {
+	ID             string       `json:"id"`
+	ProjectID      string       `json:"project_id"`
+	Key            string       `json:"key"`
+	Name           string       `json:"name"`
+	Description    OptNilString `json:"description"`
+	Kind           FeatureKind  `json:"kind"`
+	DefaultVariant string       `json:"default_variant"`
+	Enabled        bool         `json:"enabled"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Feature) GetID() string {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *Feature) GetProjectID() string {
+	return s.ProjectID
+}
+
+// GetKey returns the value of Key.
+func (s *Feature) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *Feature) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *Feature) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetKind returns the value of Kind.
+func (s *Feature) GetKind() FeatureKind {
+	return s.Kind
+}
+
+// GetDefaultVariant returns the value of DefaultVariant.
+func (s *Feature) GetDefaultVariant() string {
+	return s.DefaultVariant
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *Feature) GetEnabled() bool {
+	return s.Enabled
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Feature) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Feature) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Feature) SetID(val string) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *Feature) SetProjectID(val string) {
+	s.ProjectID = val
+}
+
+// SetKey sets the value of Key.
+func (s *Feature) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *Feature) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Feature) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetKind sets the value of Kind.
+func (s *Feature) SetKind(val FeatureKind) {
+	s.Kind = val
+}
+
+// SetDefaultVariant sets the value of DefaultVariant.
+func (s *Feature) SetDefaultVariant(val string) {
+	s.DefaultVariant = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *Feature) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Feature) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Feature) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+// Ref: #/components/schemas/FeatureKind
+type FeatureKind string
+
+const (
+	FeatureKindBoolean      FeatureKind = "boolean"
+	FeatureKindMultivariant FeatureKind = "multivariant"
+)
+
+// AllValues returns all FeatureKind values.
+func (FeatureKind) AllValues() []FeatureKind {
+	return []FeatureKind{
+		FeatureKindBoolean,
+		FeatureKindMultivariant,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s FeatureKind) MarshalText() ([]byte, error) {
+	switch s {
+	case FeatureKindBoolean:
+		return []byte(s), nil
+	case FeatureKindMultivariant:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *FeatureKind) UnmarshalText(data []byte) error {
+	switch FeatureKind(data) {
+	case FeatureKindBoolean:
+		*s = FeatureKindBoolean
+		return nil
+	case FeatureKindMultivariant:
+		*s = FeatureKindMultivariant
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/FeatureResponse
+type FeatureResponse struct {
+	Feature Feature `json:"feature"`
+}
+
+// GetFeature returns the value of Feature.
+func (s *FeatureResponse) GetFeature() Feature {
+	return s.Feature
+}
+
+// SetFeature sets the value of Feature.
+func (s *FeatureResponse) SetFeature(val Feature) {
+	s.Feature = val
+}
+
+func (*FeatureResponse) createProjectFeatureRes() {}
+
+// Ref: #/components/schemas/FlagVariant
+type FlagVariant struct {
+	ID             string `json:"id"`
+	FeatureID      string `json:"feature_id"`
+	Name           string `json:"name"`
+	RolloutPercent int    `json:"rollout_percent"`
+}
+
+// GetID returns the value of ID.
+func (s *FlagVariant) GetID() string {
+	return s.ID
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *FlagVariant) GetFeatureID() string {
+	return s.FeatureID
+}
+
+// GetName returns the value of Name.
+func (s *FlagVariant) GetName() string {
+	return s.Name
+}
+
+// GetRolloutPercent returns the value of RolloutPercent.
+func (s *FlagVariant) GetRolloutPercent() int {
+	return s.RolloutPercent
+}
+
+// SetID sets the value of ID.
+func (s *FlagVariant) SetID(val string) {
+	s.ID = val
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *FlagVariant) SetFeatureID(val string) {
+	s.FeatureID = val
+}
+
+// SetName sets the value of Name.
+func (s *FlagVariant) SetName(val string) {
+	s.Name = val
+}
+
+// SetRolloutPercent sets the value of RolloutPercent.
+func (s *FlagVariant) SetRolloutPercent(val int) {
+	s.RolloutPercent = val
+}
+
+// Ref: #/components/schemas/FlagVariantResponse
+type FlagVariantResponse struct {
+	FlagVariant FlagVariant `json:"flag_variant"`
+}
+
+// GetFlagVariant returns the value of FlagVariant.
+func (s *FlagVariantResponse) GetFlagVariant() FlagVariant {
+	return s.FlagVariant
+}
+
+// SetFlagVariant sets the value of FlagVariant.
+func (s *FlagVariantResponse) SetFlagVariant(val FlagVariant) {
+	s.FlagVariant = val
+}
+
+func (*FlagVariantResponse) createFeatureFlagVariantRes() {}
 
 // ForgotPasswordNoContent is response for ForgotPassword operation.
 type ForgotPasswordNoContent struct{}
@@ -2044,6 +2448,10 @@ func (s *LicenseType) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListFeaturesResponse []Feature
+
+func (*ListFeaturesResponse) listProjectFeaturesRes() {}
+
 type ListProjectsResponse []Project
 
 func (*ListProjectsResponse) listProjectsRes() {}
@@ -2941,6 +3349,106 @@ func (s *ResetPasswordRequest) SetToken(val string) {
 func (s *ResetPasswordRequest) SetNewPassword(val string) {
 	s.NewPassword = val
 }
+
+// Ref: #/components/schemas/Rule
+type Rule struct {
+	ID        string `json:"id"`
+	FeatureID string `json:"feature_id"`
+	// JSON condition.
+	Condition     RuleCondition `json:"condition"`
+	FlagVariantID string        `json:"flag_variant_id"`
+	Priority      int           `json:"priority"`
+	CreatedAt     time.Time     `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Rule) GetID() string {
+	return s.ID
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *Rule) GetFeatureID() string {
+	return s.FeatureID
+}
+
+// GetCondition returns the value of Condition.
+func (s *Rule) GetCondition() RuleCondition {
+	return s.Condition
+}
+
+// GetFlagVariantID returns the value of FlagVariantID.
+func (s *Rule) GetFlagVariantID() string {
+	return s.FlagVariantID
+}
+
+// GetPriority returns the value of Priority.
+func (s *Rule) GetPriority() int {
+	return s.Priority
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Rule) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Rule) SetID(val string) {
+	s.ID = val
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *Rule) SetFeatureID(val string) {
+	s.FeatureID = val
+}
+
+// SetCondition sets the value of Condition.
+func (s *Rule) SetCondition(val RuleCondition) {
+	s.Condition = val
+}
+
+// SetFlagVariantID sets the value of FlagVariantID.
+func (s *Rule) SetFlagVariantID(val string) {
+	s.FlagVariantID = val
+}
+
+// SetPriority sets the value of Priority.
+func (s *Rule) SetPriority(val int) {
+	s.Priority = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Rule) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// JSON condition.
+type RuleCondition map[string]jx.Raw
+
+func (s *RuleCondition) init() RuleCondition {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Ref: #/components/schemas/RuleResponse
+type RuleResponse struct {
+	Rule Rule `json:"rule"`
+}
+
+// GetRule returns the value of Rule.
+func (s *RuleResponse) GetRule() Rule {
+	return s.Rule
+}
+
+// SetRule sets the value of Rule.
+func (s *RuleResponse) SetRule(val Rule) {
+	s.Rule = val
+}
+
+func (*RuleResponse) createFeatureRuleRes() {}
 
 // Ref: #/components/schemas/SSOCallbackRequest
 type SSOCallbackRequest struct {

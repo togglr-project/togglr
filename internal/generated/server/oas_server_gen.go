@@ -42,6 +42,24 @@ type Handler interface {
 	//
 	// POST /api/v1/saml/acs
 	ConsumeSAMLAssertion(ctx context.Context, req *ConsumeSAMLAssertionReq) (ConsumeSAMLAssertionRes, error)
+	// CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
+	//
+	// Create flag variant for feature.
+	//
+	// POST /api/v1/features/{feature_id}/variants
+	CreateFeatureFlagVariant(ctx context.Context, req *CreateFlagVariantRequest, params CreateFeatureFlagVariantParams) (CreateFeatureFlagVariantRes, error)
+	// CreateFeatureRule implements CreateFeatureRule operation.
+	//
+	// Create rule for feature.
+	//
+	// POST /api/v1/features/{feature_id}/rules
+	CreateFeatureRule(ctx context.Context, req *CreateRuleRequest, params CreateFeatureRuleParams) (CreateFeatureRuleRes, error)
+	// CreateProjectFeature implements CreateProjectFeature operation.
+	//
+	// Create feature for project.
+	//
+	// POST /api/v1/projects/{project_id}/features
+	CreateProjectFeature(ctx context.Context, req *CreateFeatureRequest, params CreateProjectFeatureParams) (CreateProjectFeatureRes, error)
 	// CreateUser implements CreateUser operation.
 	//
 	// Create a new user (superuser only).
@@ -144,6 +162,12 @@ type Handler interface {
 	//
 	// GET /api/v1/auth/sso/providers
 	GetSSOProviders(ctx context.Context) (GetSSOProvidersRes, error)
+	// ListProjectFeatures implements ListProjectFeatures operation.
+	//
+	// List features for project.
+	//
+	// GET /api/v1/projects/{project_id}/features
+	ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (ListProjectFeaturesRes, error)
 	// ListProjects implements ListProjects operation.
 	//
 	// Get projects list.

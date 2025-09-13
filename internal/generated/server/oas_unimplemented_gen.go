@@ -62,6 +62,33 @@ func (UnimplementedHandler) ConsumeSAMLAssertion(ctx context.Context, req *Consu
 	return r, ht.ErrNotImplemented
 }
 
+// CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
+//
+// Create flag variant for feature.
+//
+// POST /api/v1/features/{feature_id}/variants
+func (UnimplementedHandler) CreateFeatureFlagVariant(ctx context.Context, req *CreateFlagVariantRequest, params CreateFeatureFlagVariantParams) (r CreateFeatureFlagVariantRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateFeatureRule implements CreateFeatureRule operation.
+//
+// Create rule for feature.
+//
+// POST /api/v1/features/{feature_id}/rules
+func (UnimplementedHandler) CreateFeatureRule(ctx context.Context, req *CreateRuleRequest, params CreateFeatureRuleParams) (r CreateFeatureRuleRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CreateProjectFeature implements CreateProjectFeature operation.
+//
+// Create feature for project.
+//
+// POST /api/v1/projects/{project_id}/features
+func (UnimplementedHandler) CreateProjectFeature(ctx context.Context, req *CreateFeatureRequest, params CreateProjectFeatureParams) (r CreateProjectFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateUser implements CreateUser operation.
 //
 // Create a new user (superuser only).
@@ -212,6 +239,15 @@ func (UnimplementedHandler) GetSAMLMetadata(ctx context.Context) (r GetSAMLMetad
 //
 // GET /api/v1/auth/sso/providers
 func (UnimplementedHandler) GetSSOProviders(ctx context.Context) (r GetSSOProvidersRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectFeatures implements ListProjectFeatures operation.
+//
+// List features for project.
+//
+// GET /api/v1/projects/{project_id}/features
+func (UnimplementedHandler) ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (r ListProjectFeaturesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

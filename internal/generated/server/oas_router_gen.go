@@ -263,6 +263,87 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'f': // Prefix: "features/"
+
+				if l := len("features/"); len(elem) >= l && elem[0:l] == "features/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				// Param: "feature_id"
+				// Match until "/"
+				idx := strings.IndexByte(elem, '/')
+				if idx < 0 {
+					idx = len(elem)
+				}
+				args[0] = elem[:idx]
+				elem = elem[idx:]
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'r': // Prefix: "rules"
+
+						if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleCreateFeatureRuleRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					case 'v': // Prefix: "variants"
+
+						if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleCreateFeatureFlagVariantRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					}
+
+				}
+
 			case 'l': // Prefix: "l"
 
 				if l := len("l"); len(elem) >= l && elem[0:l] == "l" {
@@ -642,16 +723,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							elem = origElem
 						}
 						// Param: "project_id"
-						// Leaf parameter, slashes are prohibited
+						// Match until "/"
 						idx := strings.IndexByte(elem, '/')
-						if idx >= 0 {
-							break
+						if idx < 0 {
+							idx = len(elem)
 						}
-						args[0] = elem
-						elem = ""
+						args[0] = elem[:idx]
+						elem = elem[idx:]
 
 						if len(elem) == 0 {
-							// Leaf node.
 							switch r.Method {
 							case "DELETE":
 								s.handleArchiveProjectRequest([1]string{
@@ -670,6 +750,34 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							}
 
 							return
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/features"
+
+							if l := len("/features"); len(elem) >= l && elem[0:l] == "/features" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleListProjectFeaturesRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								case "POST":
+									s.handleCreateProjectFeatureRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET,POST")
+								}
+
+								return
+							}
+
 						}
 
 					}
@@ -1380,6 +1488,91 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
+			case 'f': // Prefix: "features/"
+
+				if l := len("features/"); len(elem) >= l && elem[0:l] == "features/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				// Param: "feature_id"
+				// Match until "/"
+				idx := strings.IndexByte(elem, '/')
+				if idx < 0 {
+					idx = len(elem)
+				}
+				args[0] = elem[:idx]
+				elem = elem[idx:]
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'r': // Prefix: "rules"
+
+						if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = CreateFeatureRuleOperation
+								r.summary = "Create rule for feature"
+								r.operationID = "CreateFeatureRule"
+								r.pathPattern = "/api/v1/features/{feature_id}/rules"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'v': // Prefix: "variants"
+
+						if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = CreateFeatureFlagVariantOperation
+								r.summary = "Create flag variant for feature"
+								r.operationID = "CreateFeatureFlagVariant"
+								r.pathPattern = "/api/v1/features/{feature_id}/variants"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					}
+
+				}
+
 			case 'l': // Prefix: "l"
 
 				if l := len("l"); len(elem) >= l && elem[0:l] == "l" {
@@ -1825,16 +2018,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							elem = origElem
 						}
 						// Param: "project_id"
-						// Leaf parameter, slashes are prohibited
+						// Match until "/"
 						idx := strings.IndexByte(elem, '/')
-						if idx >= 0 {
-							break
+						if idx < 0 {
+							idx = len(elem)
 						}
-						args[0] = elem
-						elem = ""
+						args[0] = elem[:idx]
+						elem = elem[idx:]
 
 						if len(elem) == 0 {
-							// Leaf node.
 							switch method {
 							case "DELETE":
 								r.name = ArchiveProjectOperation
@@ -1863,6 +2055,40 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							default:
 								return
 							}
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/features"
+
+							if l := len("/features"); len(elem) >= l && elem[0:l] == "/features" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = ListProjectFeaturesOperation
+									r.summary = "List features for project"
+									r.operationID = "ListProjectFeatures"
+									r.pathPattern = "/api/v1/projects/{project_id}/features"
+									r.args = args
+									r.count = 1
+									return r, true
+								case "POST":
+									r.name = CreateProjectFeatureOperation
+									r.summary = "Create feature for project"
+									r.operationID = "CreateProjectFeature"
+									r.pathPattern = "/api/v1/projects/{project_id}/features"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
 						}
 
 					}

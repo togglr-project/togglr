@@ -81,6 +81,201 @@ func decodeArchiveProjectParams(args [1]string, argsEscaped bool, r *http.Reques
 	return params, nil
 }
 
+// CreateFeatureFlagVariantParams is parameters of CreateFeatureFlagVariant operation.
+type CreateFeatureFlagVariantParams struct {
+	FeatureID string
+}
+
+func unpackCreateFeatureFlagVariantParams(packed middleware.Parameters) (params CreateFeatureFlagVariantParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateFeatureFlagVariantParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateFeatureFlagVariantParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// CreateFeatureRuleParams is parameters of CreateFeatureRule operation.
+type CreateFeatureRuleParams struct {
+	FeatureID string
+}
+
+func unpackCreateFeatureRuleParams(packed middleware.Parameters) (params CreateFeatureRuleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateFeatureRuleParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateFeatureRuleParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// CreateProjectFeatureParams is parameters of CreateProjectFeature operation.
+type CreateProjectFeatureParams struct {
+	ProjectID string
+}
+
+func unpackCreateProjectFeatureParams(packed middleware.Parameters) (params CreateProjectFeatureParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateProjectFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateProjectFeatureParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteUserParams is parameters of DeleteUser operation.
 type DeleteUserParams struct {
 	UserID uint
@@ -591,6 +786,71 @@ func unpackGetProjectParams(packed middleware.Parameters) (params GetProjectPara
 }
 
 func decodeGetProjectParams(args [1]string, argsEscaped bool, r *http.Request) (params GetProjectParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListProjectFeaturesParams is parameters of ListProjectFeatures operation.
+type ListProjectFeaturesParams struct {
+	ProjectID string
+}
+
+func unpackListProjectFeaturesParams(packed middleware.Parameters) (params ListProjectFeaturesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeListProjectFeaturesParams(args [1]string, argsEscaped bool, r *http.Request) (params ListProjectFeaturesParams, _ error) {
 	// Decode path: project_id.
 	if err := func() error {
 		param := args[0]

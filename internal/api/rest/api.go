@@ -16,16 +16,19 @@ import (
 var _ generatedapi.Handler = (*RestAPI)(nil)
 
 type RestAPI struct {
-	config             *config.Config
-	tokenizer          contract.Tokenizer
-	usersUseCase       contract.UsersUseCase
-	projectsUseCase    contract.ProjectsUseCase
-	ldapService        contract.LDAPService
-	ldapUseCase        contract.LDAPSyncUseCase
-	settingsUseCase    contract.SettingsUseCase
-	licenseUseCase     contract.LicenseUseCase
-	productInfoUseCase contract.ProductInfoUseCase
-	permissionsService contract.PermissionsService
+	config              *config.Config
+	tokenizer           contract.Tokenizer
+	usersUseCase        contract.UsersUseCase
+	projectsUseCase     contract.ProjectsUseCase
+	ldapService         contract.LDAPService
+	ldapUseCase         contract.LDAPSyncUseCase
+	settingsUseCase     contract.SettingsUseCase
+	licenseUseCase      contract.LicenseUseCase
+	productInfoUseCase  contract.ProductInfoUseCase
+	permissionsService  contract.PermissionsService
+	featuresUseCase     contract.FeaturesUseCase
+	flagVariantsUseCase contract.FlagVariantsUseCase
+	rulesUseCase        contract.RulesUseCase
 }
 
 func New(
@@ -38,19 +41,25 @@ func New(
 	settingsUseCase contract.SettingsUseCase,
 	licenseUseCase contract.LicenseUseCase,
 	productInfoUseCase contract.ProductInfoUseCase,
+	featuresUseCase contract.FeaturesUseCase,
+	flagVariantsUseCase contract.FlagVariantsUseCase,
+	rulesUseCase contract.RulesUseCase,
 	permissionsService contract.PermissionsService,
 ) *RestAPI {
 	return &RestAPI{
-		config:             config,
-		usersUseCase:       usersService,
-		tokenizer:          tokenizer,
-		projectsUseCase:    projectsUseCase,
-		ldapService:        ldapService,
-		ldapUseCase:        ldapUseCase,
-		settingsUseCase:    settingsUseCase,
-		licenseUseCase:     licenseUseCase,
-		productInfoUseCase: productInfoUseCase,
-		permissionsService: permissionsService,
+		config:              config,
+		usersUseCase:        usersService,
+		tokenizer:           tokenizer,
+		projectsUseCase:     projectsUseCase,
+		ldapService:         ldapService,
+		ldapUseCase:         ldapUseCase,
+		settingsUseCase:     settingsUseCase,
+		licenseUseCase:      licenseUseCase,
+		productInfoUseCase:  productInfoUseCase,
+		permissionsService:  permissionsService,
+		featuresUseCase:     featuresUseCase,
+		flagVariantsUseCase: flagVariantsUseCase,
+		rulesUseCase:        rulesUseCase,
 	}
 }
 
