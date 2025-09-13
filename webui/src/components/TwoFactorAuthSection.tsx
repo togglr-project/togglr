@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Paper, Typography, Box, CircularProgress, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, InputAdornment, Alert, Tooltip } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import apiClient from '../api/apiClient';
-import { UsersApi } from '../generated/api/client/api';
+import { UsersApi } from '../generated/api/client';
 import { apiConfiguration, axiosInstance } from '../api/apiClient';
 import OtpInput from 'react-otp-input';
 import { useTheme } from '@mui/material/styles';
