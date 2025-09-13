@@ -3,7 +3,8 @@ create table if not exists projects (
     name text not null unique,
     description text,
     created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
+    updated_at timestamptz not null default now(),
+    archived_at timestamptz
 );
 
 alter table flags add column project_id uuid not null references projects(id) on delete cascade;

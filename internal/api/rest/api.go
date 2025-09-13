@@ -38,6 +38,7 @@ func New(
 	settingsUseCase contract.SettingsUseCase,
 	licenseUseCase contract.LicenseUseCase,
 	productInfoUseCase contract.ProductInfoUseCase,
+	permissionsService contract.PermissionsService,
 ) *RestAPI {
 	return &RestAPI{
 		config:             config,
@@ -49,6 +50,7 @@ func New(
 		settingsUseCase:    settingsUseCase,
 		licenseUseCase:     licenseUseCase,
 		productInfoUseCase: productInfoUseCase,
+		permissionsService: permissionsService,
 	}
 }
 
