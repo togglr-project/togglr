@@ -7176,6 +7176,40 @@ func (s *OptUUID) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes UserProjectPermissions as json.
+func (o OptUserProjectPermissions) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes UserProjectPermissions from json.
+func (o *OptUserProjectPermissions) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUserProjectPermissions to nil")
+	}
+	o.Set = true
+	o.Value = make(UserProjectPermissions)
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUserProjectPermissions) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUserProjectPermissions) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *ProductInfoResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -10186,9 +10220,15 @@ func (s *User) encodeFields(e *jx.Encoder) {
 			s.LastLogin.Encode(e, json.EncodeDateTime)
 		}
 	}
+	{
+		if s.ProjectPermissions.Set {
+			e.FieldStart("project_permissions")
+			s.ProjectPermissions.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfUser = [11]string{
+var jsonFieldsNameOfUser = [12]string{
 	0:  "id",
 	1:  "username",
 	2:  "email",
@@ -10200,6 +10240,7 @@ var jsonFieldsNameOfUser = [11]string{
 	8:  "license_accepted",
 	9:  "created_at",
 	10: "last_login",
+	11: "project_permissions",
 }
 
 // Decode decodes User from json.
@@ -10341,6 +10382,16 @@ func (s *User) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"last_login\"")
 			}
+		case "project_permissions":
+			if err := func() error {
+				s.ProjectPermissions.Reset()
+				if err := s.ProjectPermissions.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_permissions\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -10394,6 +10445,74 @@ func (s *User) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *User) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s UserProjectPermissions) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields implements json.Marshaler.
+func (s UserProjectPermissions) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
+
+		e.ArrStart()
+		for _, elem := range elem {
+			e.Str(elem)
+		}
+		e.ArrEnd()
+	}
+}
+
+// Decode decodes UserProjectPermissions from json.
+func (s *UserProjectPermissions) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UserProjectPermissions to nil")
+	}
+	m := s.init()
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		var elem []string
+		if err := func() error {
+			elem = make([]string, 0)
+			if err := d.Arr(func(d *jx.Decoder) error {
+				var elemElem string
+				v, err := d.Str()
+				elemElem = string(v)
+				if err != nil {
+					return err
+				}
+				elem = append(elem, elemElem)
+				return nil
+			}); err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
+		}
+		m[string(k)] = elem
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UserProjectPermissions")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s UserProjectPermissions) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UserProjectPermissions) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

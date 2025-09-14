@@ -3326,6 +3326,52 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// NewOptUserProjectPermissions returns new OptUserProjectPermissions with value set to v.
+func NewOptUserProjectPermissions(v UserProjectPermissions) OptUserProjectPermissions {
+	return OptUserProjectPermissions{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUserProjectPermissions is optional UserProjectPermissions.
+type OptUserProjectPermissions struct {
+	Value UserProjectPermissions
+	Set   bool
+}
+
+// IsSet returns true if OptUserProjectPermissions was set.
+func (o OptUserProjectPermissions) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUserProjectPermissions) Reset() {
+	var v UserProjectPermissions
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUserProjectPermissions) SetTo(v UserProjectPermissions) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUserProjectPermissions) Get() (v UserProjectPermissions, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUserProjectPermissions) Or(d UserProjectPermissions) UserProjectPermissions {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // Ref: #/components/schemas/ProductInfoResponse
 type ProductInfoResponse struct {
 	// Unique client identifier for this installation.
@@ -4188,6 +4234,9 @@ type User struct {
 	LicenseAccepted bool        `json:"license_accepted"`
 	CreatedAt       time.Time   `json:"created_at"`
 	LastLogin       OptDateTime `json:"last_login"`
+	// Map of project_id to list of permission keys for that project. Contains only projects where user
+	// has membership.
+	ProjectPermissions OptUserProjectPermissions `json:"project_permissions"`
 }
 
 // GetID returns the value of ID.
@@ -4245,6 +4294,11 @@ func (s *User) GetLastLogin() OptDateTime {
 	return s.LastLogin
 }
 
+// GetProjectPermissions returns the value of ProjectPermissions.
+func (s *User) GetProjectPermissions() OptUserProjectPermissions {
+	return s.ProjectPermissions
+}
+
 // SetID sets the value of ID.
 func (s *User) SetID(val uint) {
 	s.ID = val
@@ -4300,6 +4354,11 @@ func (s *User) SetLastLogin(val OptDateTime) {
 	s.LastLogin = val
 }
 
+// SetProjectPermissions sets the value of ProjectPermissions.
+func (s *User) SetProjectPermissions(val OptUserProjectPermissions) {
+	s.ProjectPermissions = val
+}
+
 func (*User) getCurrentUserRes()      {}
 func (*User) setSuperuserStatusRes()  {}
 func (*User) setUserActiveStatusRes() {}
@@ -4308,3 +4367,16 @@ func (*User) setUserActiveStatusRes() {}
 type UserChangeMyPasswordNoContent struct{}
 
 func (*UserChangeMyPasswordNoContent) userChangeMyPasswordRes() {}
+
+// Map of project_id to list of permission keys for that project. Contains only projects where user
+// has membership.
+type UserProjectPermissions map[string][]string
+
+func (s *UserProjectPermissions) init() UserProjectPermissions {
+	m := *s
+	if m == nil {
+		m = map[string][]string{}
+		*s = m
+	}
+	return m
+}

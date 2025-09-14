@@ -111,3 +111,62 @@ func (s *Service) GetAccessibleProjects(
 	}
 	return out, nil
 }
+
+// GetMyProjectPermissions returns permissions for projects where the user has a membership.
+func (s *Service) GetMyProjectPermissions(
+	ctx context.Context,
+) (map[domain.ProjectID][]domain.PermKey, error) {
+	userID := etx.UserID(ctx)
+	if userID == 0 {
+		return nil, domain.ErrUserNotFound
+	}
+
+	all, err := s.projects.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Define the set of permission keys we expose via this endpoint
+	permKeys := []domain.PermKey{
+		domain.PermProjectView,
+		domain.PermProjectManage,
+		domain.PermFeatureView,
+		domain.PermFeatureToggle,
+		domain.PermFeatureManage,
+		domain.PermRuleManage,
+		domain.PermAuditView,
+		domain.PermMembershipManage,
+	}
+
+	result := make(map[domain.ProjectID][]domain.PermKey)
+	for i := range all {
+		p := all[i]
+
+		// Check membership directly, do not use superuser bypass here
+		roleID, mErr := s.member.GetForUserProject(ctx, int(userID), p.ID)
+		if mErr != nil {
+			return nil, mErr
+		}
+		if roleID == "" {
+			continue // no membership — skip this project
+		}
+
+		// Collect granted permissions for the role
+		var granted []domain.PermKey
+		for _, key := range permKeys {
+			has, perr := s.perms.RoleHasPermission(ctx, roleID, key)
+			if perr != nil {
+				return nil, perr
+			}
+			if has {
+				granted = append(granted, key)
+			}
+		}
+
+		if len(granted) > 0 {
+			result[p.ID] = granted
+		}
+	}
+
+	return result, nil
+}
