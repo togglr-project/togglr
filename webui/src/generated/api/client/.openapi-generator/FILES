@@ -1,12 +1,14 @@
 .gitignore
 .npmignore
-.openapi-generator-ignore
 api.ts
 base.ts
 common.ts
 configuration.ts
 docs/AddProjectRequest.md
 docs/ChangeUserPasswordRequest.md
+docs/CreateFeatureRequest.md
+docs/CreateFlagVariantRequest.md
+docs/CreateRuleRequest.md
 docs/CreateUserRequest.md
 docs/CreateUserResponse.md
 docs/DefaultApi.md
@@ -22,6 +24,11 @@ docs/ErrorNotFound.md
 docs/ErrorPermissionDenied.md
 docs/ErrorTooManyRequests.md
 docs/ErrorUnauthorized.md
+docs/Feature.md
+docs/FeatureKind.md
+docs/FeatureResponse.md
+docs/FlagVariant.md
+docs/FlagVariantResponse.md
 docs/ForgotPasswordRequest.md
 docs/LDAPConfig.md
 docs/LDAPConfigResponse.md
@@ -48,6 +55,8 @@ docs/ProjectResponse.md
 docs/RefreshTokenRequest.md
 docs/RefreshTokenResponse.md
 docs/ResetPasswordRequest.md
+docs/Rule.md
+docs/RuleResponse.md
 docs/SSOCallbackRequest.md
 docs/SSOInitiateResponse.md
 docs/SSOProvider.md

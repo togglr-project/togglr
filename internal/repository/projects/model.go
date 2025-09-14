@@ -12,6 +12,7 @@ type projectModel struct {
 	Name        string         `db:"name"`
 	Description sql.NullString `db:"description"`
 	CreatedAt   time.Time      `db:"created_at"`
+	UpdatedAt   time.Time      `db:"updated_at"`
 	ArchivedAt  *time.Time     `db:"archived_at"`
 }
 
@@ -21,6 +22,7 @@ func (m *projectModel) toDomain() domain.Project {
 		Name:        m.Name,
 		Description: m.Description.String,
 		CreatedAt:   m.CreatedAt,
+		UpdatedAt:   m.UpdatedAt,
 		ArchivedAt:  m.ArchivedAt,
 	}
 }

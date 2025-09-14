@@ -71,13 +71,7 @@ func (r *Repository) List(ctx context.Context) ([]domain.Project, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
-SELECT
-    p.id,
-    p.name,
-    p.description,
-    p.created_at,
-    p.archived_at
-FROM projects p
+SELECT * FROM projects p
 WHERE p.archived_at IS NULL
 ORDER BY p.id
 `

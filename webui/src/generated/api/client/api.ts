@@ -31,6 +31,28 @@ export interface ChangeUserPasswordRequest {
     'old_password': string;
     'new_password': string;
 }
+export interface CreateFeatureRequest {
+    'key': string;
+    'name': string;
+    'description'?: string;
+    'kind': FeatureKind;
+    'default_variant': string;
+    'enabled'?: boolean;
+}
+
+
+export interface CreateFlagVariantRequest {
+    'name': string;
+    'rollout_percent': number;
+}
+export interface CreateRuleRequest {
+    /**
+     * JSON condition
+     */
+    'condition': { [key: string]: any; };
+    'flag_variant_id': string;
+    'priority'?: number;
+}
 export interface CreateUserRequest {
     'username': string;
     'email': string;
@@ -74,6 +96,41 @@ export interface ErrorTooManyRequests {
 }
 export interface ErrorUnauthorized {
     'error': ErrorError;
+}
+export interface Feature {
+    'id': string;
+    'project_id': string;
+    'key': string;
+    'name': string;
+    'description'?: string;
+    'kind': FeatureKind;
+    'default_variant': string;
+    'enabled': boolean;
+    'created_at': string;
+    'updated_at': string;
+}
+
+
+
+export const FeatureKind = {
+    Boolean: 'boolean',
+    Multivariant: 'multivariant'
+} as const;
+
+export type FeatureKind = typeof FeatureKind[keyof typeof FeatureKind];
+
+
+export interface FeatureResponse {
+    'feature': Feature;
+}
+export interface FlagVariant {
+    'id': string;
+    'feature_id': string;
+    'name': string;
+    'rollout_percent': number;
+}
+export interface FlagVariantResponse {
+    'flag_variant': FlagVariant;
 }
 export interface ForgotPasswordRequest {
     'email': string;
@@ -373,6 +430,20 @@ export interface RefreshTokenResponse {
 export interface ResetPasswordRequest {
     'token': string;
     'new_password': string;
+}
+export interface Rule {
+    'id': string;
+    'feature_id': string;
+    /**
+     * JSON condition
+     */
+    'condition': { [key: string]: any; };
+    'flag_variant_id': string;
+    'priority': number;
+    'created_at': string;
+}
+export interface RuleResponse {
+    'rule': Rule;
 }
 export interface SSOCallbackRequest {
     /**
@@ -693,6 +764,138 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = localVarFormParams.toString();
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Create flag variant for feature
+         * @param {string} featureId 
+         * @param {CreateFlagVariantRequest} createFlagVariantRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureFlagVariant: async (featureId: string, createFlagVariantRequest: CreateFlagVariantRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('createFeatureFlagVariant', 'featureId', featureId)
+            // verify required parameter 'createFlagVariantRequest' is not null or undefined
+            assertParamExists('createFeatureFlagVariant', 'createFlagVariantRequest', createFlagVariantRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/variants`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createFlagVariantRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Create rule for feature
+         * @param {string} featureId 
+         * @param {CreateRuleRequest} createRuleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureRule: async (featureId: string, createRuleRequest: CreateRuleRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('createFeatureRule', 'featureId', featureId)
+            // verify required parameter 'createRuleRequest' is not null or undefined
+            assertParamExists('createFeatureRule', 'createRuleRequest', createRuleRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/rules`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createRuleRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Create feature for project
+         * @param {string} projectId 
+         * @param {CreateFeatureRequest} createFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createProjectFeature: async (projectId: string, createFeatureRequest: CreateFeatureRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('createProjectFeature', 'projectId', projectId)
+            // verify required parameter 'createFeatureRequest' is not null or undefined
+            assertParamExists('createProjectFeature', 'createFeatureRequest', createFeatureRequest)
+            const localVarPath = `/api/v1/projects/{project_id}/features`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createFeatureRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1313,6 +1516,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List features for project
+         * @param {string} projectId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectFeatures: async (projectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listProjectFeatures', 'projectId', projectId)
+            const localVarPath = `/api/v1/projects/{project_id}/features`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
@@ -2126,6 +2367,48 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create flag variant for feature
+         * @param {string} featureId 
+         * @param {CreateFlagVariantRequest} createFlagVariantRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createFeatureFlagVariant(featureId: string, createFlagVariantRequest: CreateFlagVariantRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FlagVariantResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createFeatureFlagVariant(featureId, createFlagVariantRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createFeatureFlagVariant']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Create rule for feature
+         * @param {string} featureId 
+         * @param {CreateRuleRequest} createRuleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createFeatureRule(featureId: string, createRuleRequest: CreateRuleRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RuleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createFeatureRule(featureId, createRuleRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createFeatureRule']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Create feature for project
+         * @param {string} projectId 
+         * @param {CreateFeatureRequest} createFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createProjectFeature(projectId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createProjectFeature(projectId, createFeatureRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createProjectFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -2338,6 +2621,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getSSOProviders(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getSSOProviders']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List features for project
+         * @param {string} projectId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Feature>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectFeatures(projectId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectFeatures']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2647,6 +2943,39 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create flag variant for feature
+         * @param {string} featureId 
+         * @param {CreateFlagVariantRequest} createFlagVariantRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureFlagVariant(featureId: string, createFlagVariantRequest: CreateFlagVariantRequest, options?: RawAxiosRequestConfig): AxiosPromise<FlagVariantResponse> {
+            return localVarFp.createFeatureFlagVariant(featureId, createFlagVariantRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Create rule for feature
+         * @param {string} featureId 
+         * @param {CreateRuleRequest} createRuleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureRule(featureId: string, createRuleRequest: CreateRuleRequest, options?: RawAxiosRequestConfig): AxiosPromise<RuleResponse> {
+            return localVarFp.createFeatureRule(featureId, createRuleRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Create feature for project
+         * @param {string} projectId 
+         * @param {CreateFeatureRequest} createFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createProjectFeature(projectId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureResponse> {
+            return localVarFp.createProjectFeature(projectId, createFeatureRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -2809,6 +3138,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getSSOProviders(options?: RawAxiosRequestConfig): AxiosPromise<SSOProvidersResponse> {
             return localVarFp.getSSOProviders(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List features for project
+         * @param {string} projectId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Feature>> {
+            return localVarFp.listProjectFeatures(projectId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3063,6 +3402,42 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create flag variant for feature
+     * @param {string} featureId 
+     * @param {CreateFlagVariantRequest} createFlagVariantRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createFeatureFlagVariant(featureId: string, createFlagVariantRequest: CreateFlagVariantRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createFeatureFlagVariant(featureId, createFlagVariantRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Create rule for feature
+     * @param {string} featureId 
+     * @param {CreateRuleRequest} createRuleRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createFeatureRule(featureId: string, createRuleRequest: CreateRuleRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createFeatureRule(featureId, createRuleRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Create feature for project
+     * @param {string} projectId 
+     * @param {CreateFeatureRequest} createFeatureRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createProjectFeature(projectId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createProjectFeature(projectId, createFeatureRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create a new user (superuser only)
      * @param {CreateUserRequest} createUserRequest 
      * @param {*} [options] Override http request option.
@@ -3241,6 +3616,17 @@ export class DefaultApi extends BaseAPI {
      */
     public getSSOProviders(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getSSOProviders(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List features for project
+     * @param {string} projectId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectFeatures(projectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
