@@ -3425,10 +3425,12 @@ func (*ProductInfoResponse) getProductInfoRes() {}
 
 // Ref: #/components/schemas/Project
 type Project struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	// API key for SDK access.
+	APIKey    string    `json:"api_key"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // GetID returns the value of ID.
@@ -3444,6 +3446,11 @@ func (s *Project) GetName() string {
 // GetDescription returns the value of Description.
 func (s *Project) GetDescription() string {
 	return s.Description
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *Project) GetAPIKey() string {
+	return s.APIKey
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -3464,6 +3471,11 @@ func (s *Project) SetName(val string) {
 // SetDescription sets the value of Description.
 func (s *Project) SetDescription(val string) {
 	s.Description = val
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *Project) SetAPIKey(val string) {
+	s.APIKey = val
 }
 
 // SetCreatedAt sets the value of CreatedAt.

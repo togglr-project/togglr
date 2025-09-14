@@ -30,3 +30,8 @@ join p on (
     (r.key = 'project_viewer' and p.key in ('project.view','feature.view'))
 )
 on conflict do nothing;
+
+-- Add global permission key for creating projects
+insert into permissions (key, name)
+values ('project.create', 'Create projects')
+on conflict (key) do nothing;

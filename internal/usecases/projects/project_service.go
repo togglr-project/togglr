@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 )
@@ -33,6 +35,7 @@ func (s *ProjectService) CreateProject(
 	project := domain.ProjectDTO{
 		Name:        name,
 		Description: description,
+		APIKey:      uuid.NewString(),
 	}
 
 	id, err := s.projectRepo.Create(ctx, &project)

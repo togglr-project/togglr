@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Example API
+  title: Backend API
   version: 1.0.0
 
 paths:
@@ -2974,11 +2974,15 @@ components:
           type: string
           example: Mailing system project for developers
           nullable: false
+        api_key:
+          type: string
+          description: API key for SDK access
+          example: "b7c5c0d4-5f9a-4e2a-9f3d-1f2e3d4c5b6a"
         created_at:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, name, description, created_at]
+      required: [id, name, description, api_key, created_at]
 
     ListProjectsResponse:
       type: array

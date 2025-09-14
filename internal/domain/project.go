@@ -10,6 +10,7 @@ type Project struct {
 	ID          ProjectID
 	Name        string
 	Description string
+	APIKey      string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	ArchivedAt  *time.Time
@@ -18,6 +19,7 @@ type Project struct {
 type ProjectDTO struct {
 	Name        string
 	Description string
+	APIKey      string
 }
 
 func (id ProjectID) String() string {

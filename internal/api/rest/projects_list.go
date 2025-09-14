@@ -34,6 +34,7 @@ func (r *RestAPI) ListProjects(ctx context.Context) (generatedapi.ListProjectsRe
 			ID:          project.ID.String(),
 			Name:        project.Name,
 			Description: project.Description,
+			APIKey:      project.APIKey,
 			CreatedAt:   project.CreatedAt,
 		})
 	}

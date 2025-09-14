@@ -50,14 +50,15 @@ func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (do
 	executor := r.getExecutor(ctx)
 
 	const query = `
-INSERT INTO projects (name, description, created_at, updated_at)
-VALUES ($1, $2, $3, $3)
+INSERT INTO projects (name, description, api_key, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $4)
 RETURNING id`
 
 	var id string
 	err := executor.QueryRow(ctx, query,
 		project.Name,
 		project.Description,
+		project.APIKey,
 		time.Now(),
 	).Scan(&id)
 	if err != nil {
