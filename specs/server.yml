@@ -2832,6 +2832,16 @@ components:
           type: string
         enabled:
           type: boolean
+        variants:
+          type: array
+          description: Optional list of flag variants to create along with the feature
+          items:
+            $ref: '#/components/schemas/CreateFlagVariantInline'
+        rules:
+          type: array
+          description: Optional list of rules to create along with the feature
+          items:
+            $ref: '#/components/schemas/CreateRuleInline'
       required: [key, name, kind, default_variant]
 
     FeatureResponse:
@@ -2870,7 +2880,7 @@ components:
           example: "A"
         rollout_percent:
           type: integer
-          minimum: 0
+          minimum: 1
           maximum: 100
           example: 50
       required: [id, feature_id, name, rollout_percent]
@@ -2883,9 +2893,25 @@ components:
           minLength: 1
         rollout_percent:
           type: integer
-          minimum: 0
+          minimum: 1
           maximum: 100
       required: [name, rollout_percent]
+
+    # Inline variant schema used when creating a feature with variants
+    CreateFlagVariantInline:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Client-provided UUID for the variant
+        name:
+          type: string
+          minLength: 1
+        rollout_percent:
+          type: integer
+          minimum: 1
+          maximum: 100
+      required: [id, name, rollout_percent]
 
     FlagVariantResponse:
       type: object
@@ -2955,6 +2981,25 @@ components:
           minimum: 0
           maximum: 255
       required: [conditions, flag_variant_id]
+
+    # Inline rule schema used when creating a feature with rules
+    CreateRuleInline:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Client-provided UUID for the rule
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleCondition'
+        flag_variant_id:
+          type: string
+        priority:
+          type: integer
+          minimum: 0
+          maximum: 255
+      required: [id, conditions, flag_variant_id]
 
     RuleResponse:
       type: object

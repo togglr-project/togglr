@@ -171,6 +171,10 @@ type CreateFeatureRequest struct {
 	Kind           FeatureKind  `json:"kind"`
 	DefaultVariant string       `json:"default_variant"`
 	Enabled        OptBool      `json:"enabled"`
+	// Optional list of flag variants to create along with the feature.
+	Variants []CreateFlagVariantInline `json:"variants"`
+	// Optional list of rules to create along with the feature.
+	Rules []CreateRuleInline `json:"rules"`
 }
 
 // GetKey returns the value of Key.
@@ -203,6 +207,16 @@ func (s *CreateFeatureRequest) GetEnabled() OptBool {
 	return s.Enabled
 }
 
+// GetVariants returns the value of Variants.
+func (s *CreateFeatureRequest) GetVariants() []CreateFlagVariantInline {
+	return s.Variants
+}
+
+// GetRules returns the value of Rules.
+func (s *CreateFeatureRequest) GetRules() []CreateRuleInline {
+	return s.Rules
+}
+
 // SetKey sets the value of Key.
 func (s *CreateFeatureRequest) SetKey(val string) {
 	s.Key = val
@@ -233,6 +247,54 @@ func (s *CreateFeatureRequest) SetEnabled(val OptBool) {
 	s.Enabled = val
 }
 
+// SetVariants sets the value of Variants.
+func (s *CreateFeatureRequest) SetVariants(val []CreateFlagVariantInline) {
+	s.Variants = val
+}
+
+// SetRules sets the value of Rules.
+func (s *CreateFeatureRequest) SetRules(val []CreateRuleInline) {
+	s.Rules = val
+}
+
+// Ref: #/components/schemas/CreateFlagVariantInline
+type CreateFlagVariantInline struct {
+	// Client-provided UUID for the variant.
+	ID             string `json:"id"`
+	Name           string `json:"name"`
+	RolloutPercent int    `json:"rollout_percent"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateFlagVariantInline) GetID() string {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *CreateFlagVariantInline) GetName() string {
+	return s.Name
+}
+
+// GetRolloutPercent returns the value of RolloutPercent.
+func (s *CreateFlagVariantInline) GetRolloutPercent() int {
+	return s.RolloutPercent
+}
+
+// SetID sets the value of ID.
+func (s *CreateFlagVariantInline) SetID(val string) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateFlagVariantInline) SetName(val string) {
+	s.Name = val
+}
+
+// SetRolloutPercent sets the value of RolloutPercent.
+func (s *CreateFlagVariantInline) SetRolloutPercent(val int) {
+	s.RolloutPercent = val
+}
+
 // Ref: #/components/schemas/CreateFlagVariantRequest
 type CreateFlagVariantRequest struct {
 	Name           string `json:"name"`
@@ -257,6 +319,55 @@ func (s *CreateFlagVariantRequest) SetName(val string) {
 // SetRolloutPercent sets the value of RolloutPercent.
 func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 	s.RolloutPercent = val
+}
+
+// Ref: #/components/schemas/CreateRuleInline
+type CreateRuleInline struct {
+	// Client-provided UUID for the rule.
+	ID            string          `json:"id"`
+	Conditions    []RuleCondition `json:"conditions"`
+	FlagVariantID string          `json:"flag_variant_id"`
+	Priority      OptInt          `json:"priority"`
+}
+
+// GetID returns the value of ID.
+func (s *CreateRuleInline) GetID() string {
+	return s.ID
+}
+
+// GetConditions returns the value of Conditions.
+func (s *CreateRuleInline) GetConditions() []RuleCondition {
+	return s.Conditions
+}
+
+// GetFlagVariantID returns the value of FlagVariantID.
+func (s *CreateRuleInline) GetFlagVariantID() string {
+	return s.FlagVariantID
+}
+
+// GetPriority returns the value of Priority.
+func (s *CreateRuleInline) GetPriority() OptInt {
+	return s.Priority
+}
+
+// SetID sets the value of ID.
+func (s *CreateRuleInline) SetID(val string) {
+	s.ID = val
+}
+
+// SetConditions sets the value of Conditions.
+func (s *CreateRuleInline) SetConditions(val []RuleCondition) {
+	s.Conditions = val
+}
+
+// SetFlagVariantID sets the value of FlagVariantID.
+func (s *CreateRuleInline) SetFlagVariantID(val string) {
+	s.FlagVariantID = val
+}
+
+// SetPriority sets the value of Priority.
+func (s *CreateRuleInline) SetPriority(val OptInt) {
+	s.Priority = val
 }
 
 // Ref: #/components/schemas/CreateRuleRequest

@@ -23,13 +23,28 @@ func New(pool *pgxpool.Pool) *Repository {
 func (r *Repository) Create(ctx context.Context, v domain.FlagVariant) (domain.FlagVariant, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `
+	var (
+		query string
+		args  []any
+	)
+
+	if v.ID != "" {
+		// Use client-provided ID
+		query = `
+INSERT INTO flag_variants (id, feature_id, name, rollout_percent)
+VALUES ($1, $2, $3, $4)
+RETURNING id, feature_id, name, rollout_percent`
+		args = []any{v.ID, v.FeatureID, v.Name, int(v.RolloutPercent)}
+	} else {
+		query = `
 INSERT INTO flag_variants (feature_id, name, rollout_percent)
 VALUES ($1, $2, $3)
 RETURNING id, feature_id, name, rollout_percent`
+		args = []any{v.FeatureID, v.Name, int(v.RolloutPercent)}
+	}
 
 	var model flagVariantModel
-	if err := executor.QueryRow(ctx, query, v.FeatureID, v.Name, int(v.RolloutPercent)).Scan(
+	if err := executor.QueryRow(ctx, query, args...).Scan(
 		&model.ID,
 		&model.FeatureID,
 		&model.Name,

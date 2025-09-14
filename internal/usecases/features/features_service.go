@@ -10,17 +10,23 @@ import (
 )
 
 type Service struct {
-	txManager db.TxManager
-	repo      contract.FeaturesRepository
+	txManager       db.TxManager
+	repo            contract.FeaturesRepository
+	flagVariantsRep contract.FlagVariantsRepository
+	rulesRep        contract.RulesRepository
 }
 
 func New(
 	txManager db.TxManager,
 	repo contract.FeaturesRepository,
+	flagVariantsRep contract.FlagVariantsRepository,
+	rulesRep contract.RulesRepository,
 ) *Service {
 	return &Service{
-		txManager: txManager,
-		repo:      repo,
+		txManager:       txManager,
+		repo:            repo,
+		flagVariantsRep: flagVariantsRep,
+		rulesRep:        rulesRep,
 	}
 }
 
@@ -37,6 +43,54 @@ func (s *Service) Create(ctx context.Context, feature domain.Feature) (domain.Fe
 		return domain.Feature{}, fmt.Errorf("tx create feature: %w", err)
 	}
 	return created, nil
+}
+
+func (s *Service) CreateWithChildren(
+	ctx context.Context,
+	feature domain.Feature,
+	variants []domain.FlagVariant,
+	rules []domain.Rule,
+) (domain.FeatureExtended, error) {
+	var result domain.FeatureExtended
+
+	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		// Create feature first
+		createdFeature, err := s.repo.Create(ctx, feature)
+		if err != nil {
+			return fmt.Errorf("create feature: %w", err)
+		}
+		result.Feature = createdFeature
+
+		// Create variants
+		createdVariants := make([]domain.FlagVariant, 0, len(variants))
+		for _, v := range variants {
+			v.FeatureID = createdFeature.ID
+			cv, err := s.flagVariantsRep.Create(ctx, v)
+			if err != nil {
+				return fmt.Errorf("create flag variant: %w", err)
+			}
+			createdVariants = append(createdVariants, cv)
+		}
+		result.FlagVariants = createdVariants
+
+		// Create rules
+		createdRules := make([]domain.Rule, 0, len(rules))
+		for _, r := range rules {
+			r.FeatureID = createdFeature.ID
+			cr, err := s.rulesRep.Create(ctx, r)
+			if err != nil {
+				return fmt.Errorf("create rule: %w", err)
+			}
+			createdRules = append(createdRules, cr)
+		}
+		result.Rules = createdRules
+
+		return nil
+	}); err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("tx create feature with children: %w", err)
+	}
+
+	return result, nil
 }
 
 func (s *Service) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {

@@ -8,6 +8,13 @@ import (
 
 type FeaturesUseCase interface {
 	Create(ctx context.Context, feature domain.Feature) (domain.Feature, error)
+	// CreateWithChildren creates feature and its related variants and rules in a single transaction.
+	CreateWithChildren(
+		ctx context.Context,
+		feature domain.Feature,
+		variants []domain.FlagVariant,
+		rules []domain.Rule,
+	) (domain.FeatureExtended, error)
 	GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error)
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)

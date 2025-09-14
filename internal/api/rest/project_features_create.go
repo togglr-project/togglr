@@ -2,8 +2,11 @@ package rest
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log/slog"
+
+	"github.com/go-faster/jx"
 
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -51,9 +54,46 @@ func (r *RestAPI) CreateProjectFeature(
 		Enabled:        req.Enabled.Or(true),
 	}
 
-	created, err := r.featuresUseCase.Create(ctx, feature)
+	// Build inline flag variants
+	variants := make([]domain.FlagVariant, 0, len(req.Variants))
+	for _, v := range req.Variants {
+		variants = append(variants, domain.FlagVariant{
+			ID:             domain.FlagVariantID(v.ID),
+			Name:           v.Name,
+			RolloutPercent: uint8(v.RolloutPercent),
+		})
+	}
+
+	// Build inline rules with structured conditions
+	rules := make([]domain.Rule, 0, len(req.Rules))
+	for _, rr := range req.Rules {
+		conds := make(domain.Conditions, 0, len(rr.Conditions))
+		for _, c := range rr.Conditions {
+			var val any
+			if len(c.Value) > 0 {
+				if err := json.Unmarshal(jx.Raw(c.Value), &val); err != nil {
+					slog.Error("unmarshal condition value", "error", err)
+					return nil, err
+				}
+			}
+			conds = append(conds, domain.Condition{
+				Attribute: domain.RuleAttribute(c.Attribute),
+				Operator:  domain.RuleOperator(c.Operator),
+				Value:     val,
+			})
+		}
+
+		rules = append(rules, domain.Rule{
+			ID:            domain.RuleID(rr.ID),
+			Conditions:    conds,
+			FlagVariantID: domain.FlagVariantID(rr.FlagVariantID),
+			Priority:      uint8(rr.Priority.Or(0)),
+		})
+	}
+
+	created, err := r.featuresUseCase.CreateWithChildren(ctx, feature, variants, rules)
 	if err != nil {
-		slog.Error("create project feature failed", "error", err)
+		slog.Error("create project feature with children failed", "error", err)
 		return nil, err
 	}
 

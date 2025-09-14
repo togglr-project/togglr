@@ -27,23 +27,32 @@ func New(pool *pgxpool.Pool) *Repository {
 func (r *Repository) Create(ctx context.Context, rule domain.Rule) (domain.Rule, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `
-INSERT INTO rules (feature_id, condition, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4)
-RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
-
 	conditionsData, err := json.Marshal(rule.Conditions)
 	if err != nil {
 		return domain.Rule{}, fmt.Errorf("marshal conditions: %w", err)
 	}
 
+	var (
+		query string
+		args  []any
+	)
+
+	if rule.ID != "" {
+		query = `
+INSERT INTO rules (id, feature_id, condition, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
+		args = []any{rule.ID, rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
+	} else {
+		query = `
+INSERT INTO rules (feature_id, condition, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4)
+RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
+		args = []any{rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
+	}
+
 	var model ruleModel
-	if err := executor.QueryRow(ctx, query,
-		rule.FeatureID,
-		conditionsData,
-		rule.FlagVariantID,
-		int(rule.Priority),
-	).Scan(
+	if err := executor.QueryRow(ctx, query, args...).Scan(
 		&model.ID,
 		&model.FeatureID,
 		&model.Condition,
