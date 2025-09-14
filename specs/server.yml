@@ -2118,6 +2118,68 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/features/{feature_id}/toggle:
+    put:
+      summary: Toggle feature enabled state
+      operationId: ToggleFeature
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ToggleFeatureRequest'
+      responses:
+        '200':
+          description: Feature toggled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -2899,6 +2961,13 @@ components:
           items:
             $ref: '#/components/schemas/CreateRuleInline'
       required: [key, name, kind, default_variant]
+
+    ToggleFeatureRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+      required: [enabled]
 
     FeatureResponse:
       type: object

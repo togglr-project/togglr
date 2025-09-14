@@ -173,6 +173,10 @@ type TestLDAPConnectionRes interface {
 	testLDAPConnectionRes()
 }
 
+type ToggleFeatureRes interface {
+	toggleFeatureRes()
+}
+
 type UpdateLDAPConfigRes interface {
 	updateLDAPConfigRes()
 }

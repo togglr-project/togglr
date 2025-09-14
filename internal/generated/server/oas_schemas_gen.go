@@ -589,6 +589,7 @@ func (*ErrorBadRequest) sSOInitiateRes()              {}
 func (*ErrorBadRequest) send2FACodeRes()              {}
 func (*ErrorBadRequest) setSuperuserStatusRes()       {}
 func (*ErrorBadRequest) setUserActiveStatusRes()      {}
+func (*ErrorBadRequest) toggleFeatureRes()            {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
 func (*ErrorBadRequest) updateLicenseRes()            {}
 func (*ErrorBadRequest) updateProjectRes()            {}
@@ -667,6 +668,7 @@ func (*ErrorInternalServerError) sSOCallbackRes()              {}
 func (*ErrorInternalServerError) sSOInitiateRes()              {}
 func (*ErrorInternalServerError) setSuperuserStatusRes()       {}
 func (*ErrorInternalServerError) setUserActiveStatusRes()      {}
+func (*ErrorInternalServerError) toggleFeatureRes()            {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()  {}
 func (*ErrorInternalServerError) updateLicenseRes()            {}
 func (*ErrorInternalServerError) updateProjectRes()            {}
@@ -748,6 +750,7 @@ func (*ErrorNotFound) listProjectFeaturesRes()      {}
 func (*ErrorNotFound) listUsersRes()                {}
 func (*ErrorNotFound) setSuperuserStatusRes()       {}
 func (*ErrorNotFound) setUserActiveStatusRes()      {}
+func (*ErrorNotFound) toggleFeatureRes()            {}
 func (*ErrorNotFound) updateProjectRes()            {}
 
 type ErrorNotFoundError struct {
@@ -806,6 +809,7 @@ func (*ErrorPermissionDenied) setSuperuserStatusRes()       {}
 func (*ErrorPermissionDenied) setUserActiveStatusRes()      {}
 func (*ErrorPermissionDenied) syncLDAPUsersRes()            {}
 func (*ErrorPermissionDenied) testLDAPConnectionRes()       {}
+func (*ErrorPermissionDenied) toggleFeatureRes()            {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()         {}
 func (*ErrorPermissionDenied) updateLicenseRes()            {}
 func (*ErrorPermissionDenied) updateProjectRes()            {}
@@ -937,6 +941,7 @@ func (*ErrorUnauthorized) setUserActiveStatusRes()      {}
 func (*ErrorUnauthorized) setup2FARes()                 {}
 func (*ErrorUnauthorized) syncLDAPUsersRes()            {}
 func (*ErrorUnauthorized) testLDAPConnectionRes()       {}
+func (*ErrorUnauthorized) toggleFeatureRes()            {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()         {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()  {}
 func (*ErrorUnauthorized) updateLicenseRes()            {}
@@ -1169,6 +1174,7 @@ func (s *FeatureResponse) SetFeature(val Feature) {
 }
 
 func (*FeatureResponse) createProjectFeatureRes() {}
+func (*FeatureResponse) toggleFeatureRes()        {}
 
 // Ref: #/components/schemas/FlagVariant
 type FlagVariant struct {
@@ -4005,6 +4011,21 @@ func (s *SuccessResponse) SetMessage(val OptString) {
 
 func (*SuccessResponse) cancelLDAPSyncRes()   {}
 func (*SuccessResponse) deleteLDAPConfigRes() {}
+
+// Ref: #/components/schemas/ToggleFeatureRequest
+type ToggleFeatureRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *ToggleFeatureRequest) GetEnabled() bool {
+	return s.Enabled
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *ToggleFeatureRequest) SetEnabled(val bool) {
+	s.Enabled = val
+}
 
 // Ref: #/components/schemas/TwoFAConfirmRequest
 type TwoFAConfirmRequest struct {

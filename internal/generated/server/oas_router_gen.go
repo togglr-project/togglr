@@ -331,6 +331,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 
+					case 't': // Prefix: "toggle"
+
+						if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "PUT":
+								s.handleToggleFeatureRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "PUT")
+							}
+
+							return
+						}
+
 					case 'v': // Prefix: "variants"
 
 						if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
@@ -1573,6 +1595,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.summary = "Create rule for feature"
 								r.operationID = "CreateFeatureRule"
 								r.pathPattern = "/api/v1/features/{feature_id}/rules"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 't': // Prefix: "toggle"
+
+						if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "PUT":
+								r.name = ToggleFeatureOperation
+								r.summary = "Toggle feature enabled state"
+								r.operationID = "ToggleFeature"
+								r.pathPattern = "/api/v1/features/{feature_id}/toggle"
 								r.args = args
 								r.count = 1
 								return r, true

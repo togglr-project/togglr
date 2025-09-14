@@ -270,6 +270,12 @@ type Handler interface {
 	//
 	// POST /api/v1/ldap/test-connection
 	TestLDAPConnection(ctx context.Context, req *LDAPConnectionTest) (TestLDAPConnectionRes, error)
+	// ToggleFeature implements ToggleFeature operation.
+	//
+	// Toggle feature enabled state.
+	//
+	// PUT /api/v1/features/{feature_id}/toggle
+	ToggleFeature(ctx context.Context, req *ToggleFeatureRequest, params ToggleFeatureParams) (ToggleFeatureRes, error)
 	// UpdateLDAPConfig implements UpdateLDAPConfig operation.
 	//
 	// Create or update LDAP configuration.

@@ -151,3 +151,25 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID) error {
 	}
 	return nil
 }
+
+func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, error) {
+	var updated domain.Feature
+	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		// Load existing feature to ensure it exists and to keep other fields unchanged
+		existing, err := s.repo.GetByID(ctx, id)
+		if err != nil {
+			return fmt.Errorf("get feature by id: %w", err)
+		}
+
+		existing.Enabled = enabled
+
+		updated, err = s.repo.Update(ctx, existing)
+		if err != nil {
+			return fmt.Errorf("update feature: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return domain.Feature{}, fmt.Errorf("tx toggle feature: %w", err)
+	}
+	return updated, nil
+}

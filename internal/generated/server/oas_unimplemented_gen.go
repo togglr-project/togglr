@@ -404,6 +404,15 @@ func (UnimplementedHandler) TestLDAPConnection(ctx context.Context, req *LDAPCon
 	return r, ht.ErrNotImplemented
 }
 
+// ToggleFeature implements ToggleFeature operation.
+//
+// Toggle feature enabled state.
+//
+// PUT /api/v1/features/{feature_id}/toggle
+func (UnimplementedHandler) ToggleFeature(ctx context.Context, req *ToggleFeatureRequest, params ToggleFeatureParams) (r ToggleFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateLDAPConfig implements UpdateLDAPConfig operation.
 //
 // Create or update LDAP configuration.
