@@ -13,6 +13,7 @@ All URIs are relative to *http://localhost*
 |[**createFeatureRule**](#createfeaturerule) | **POST** /api/v1/features/{feature_id}/rules | Create rule for feature|
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
 |[**createUser**](#createuser) | **POST** /api/v1/users | Create a new user (superuser only)|
+|[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/v1/users/{user_id} | Delete a user (superuser only, cannot delete superusers)|
 |[**disable2FA**](#disable2fa) | **POST** /api/v1/users/me/2fa/disable | Disable 2FA (using email-confirmation)|
@@ -556,6 +557,61 @@ const { status, data } = await apiInstance.createUser(
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Not a superuser |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteFeature**
+> deleteFeature()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteFeature(
+    featureId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Feature deleted successfully |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

@@ -44,8 +44,21 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      if (!featureDetails) return;
+      await apiClient.deleteFeature(featureDetails.feature.id);
+    },
+    onSuccess: () => {
+      if (!featureDetails) return;
+      queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails.feature.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails.feature.project_id] });
+      onClose();
+    },
+  });
+
   const [editOpen, setEditOpen] = useState(false);
-  const canEdit = canToggle || Boolean(user?.is_superuser);
+  const canManage = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.manage')) : false;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -147,8 +160,26 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         ) : null}
       </DialogContent>
       <DialogActions>
-        {canEdit && featureDetails && (
-          <Button onClick={() => setEditOpen(true)} color="secondary">Edit</Button>
+        {featureDetails && (
+          <>
+            {canManage && (
+              <Button
+                onClick={() => {
+                  if (deleteMutation.isPending) return;
+                  if (window.confirm('Are you sure you want to delete this feature? This action cannot be undone.')) {
+                    deleteMutation.mutate();
+                  }
+                }}
+                color="error"
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+              </Button>
+            )}
+            {canManage && (
+              <Button onClick={() => setEditOpen(true)} color="secondary">Edit</Button>
+            )}
+          </>
         )}
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
