@@ -133,6 +133,11 @@ export interface Feature {
 }
 
 
+export interface FeatureDetailsResponse {
+    'feature': Feature;
+    'variants': Array<FlagVariant>;
+    'rules': Array<Rule>;
+}
 
 export const FeatureKind = {
     Boolean: 'boolean',
@@ -1150,6 +1155,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         getCurrentUser: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/users/me`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get feature with rules and variants
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getFeature: async (featureId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('getFeature', 'featureId', featureId)
+            const localVarPath = `/api/v1/features/{feature_id}`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2613,6 +2656,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get feature with rules and variants
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getFeature(featureId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureDetailsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeature(featureId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get LDAP configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3188,6 +3244,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get feature with rules and variants
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getFeature(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureDetailsResponse> {
+            return localVarFp.getFeature(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get LDAP configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3672,6 +3738,17 @@ export class DefaultApi extends BaseAPI {
      */
     public getCurrentUser(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getCurrentUser(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get feature with rules and variants
+     * @param {string} featureId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getFeature(featureId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getFeature(featureId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

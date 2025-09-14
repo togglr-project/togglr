@@ -25,7 +25,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
-import type { Feature, FeatureKind, Project } from '../generated/api/client';
+import type { Feature, FeatureKind, Project, FeatureDetailsResponse } from '../generated/api/client';
 
 interface ProjectResponse { project: Project }
 
@@ -252,6 +252,30 @@ const ProjectPage: React.FC = () => {
 
   const project = projectResp?.project;
 
+  // Feature details dialog state & data
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
+
+  const { data: featureDetails, isLoading: loadingFeatureDetails, error: featureDetailsError } = useQuery<FeatureDetailsResponse>({
+    queryKey: ['feature-details', selectedFeature?.id],
+    queryFn: async () => {
+      const res = await apiClient.getFeature(selectedFeature!.id);
+      return res.data as FeatureDetailsResponse;
+    },
+    enabled: detailsOpen && !!selectedFeature?.id,
+  });
+
+  const openFeatureDetails = (f: Feature) => {
+    setSelectedFeature(f);
+    setDetailsOpen(true);
+  };
+
+  const getVariantName = (id: string) => {
+    const arr = featureDetails?.variants || [];
+    const found = arr.find(v => v.id === id);
+    return found ? (found.name || found.id) : id;
+  };
+
   return (
     <AuthenticatedLayout showBackButton backTo="/dashboard">
       <PageHeader
@@ -283,7 +307,20 @@ const ProjectPage: React.FC = () => {
           <Grid container spacing={2}>
             {features.map((f) => (
               <Grid item xs={12} md={6} key={f.id}>
-                <Paper sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Paper
+                  onClick={() => openFeatureDetails(f)}
+                  sx={{
+                    p: 2,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    transition: 'box-shadow 0.2s, transform 0.1s',
+                    '&:hover': { boxShadow: 4 },
+                    '&:active': { transform: 'scale(0.997)' }
+                  }}
+                  role="button"
+                >
                   <Box>
                     <Typography variant="subtitle1">{f.name}</Typography>
                     <Typography variant="body2" color="text.secondary">{f.key}</Typography>
@@ -301,6 +338,84 @@ const ProjectPage: React.FC = () => {
           <Typography variant="body2">No features yet.</Typography>
         ) : null}
       </Paper>
+
+      {/* Feature Details Dialog */}
+      <Dialog open={detailsOpen} onClose={() => setDetailsOpen(false)} fullWidth maxWidth="md">
+        <DialogTitle className="gradient-text-purple">Feature Details</DialogTitle>
+        <DialogContent>
+          {!selectedFeature || loadingFeatureDetails ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+              <CircularProgress />
+            </Box>
+          ) : featureDetailsError ? (
+            <Typography color="error">Failed to load feature details.</Typography>
+          ) : featureDetails ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+              <Box>
+                <Typography variant="h6">{featureDetails.feature.name}</Typography>
+                <Typography variant="body2" color="text.secondary">Key: {featureDetails.feature.key}</Typography>
+                {featureDetails.feature.description && (
+                  <Typography variant="body2" sx={{ mt: 1 }}>{featureDetails.feature.description}</Typography>
+                )}
+                <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Chip size="small" label={`id: ${featureDetails.feature.id}`} variant="outlined" />
+                  <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
+                  <Chip size="small" label={`default: ${featureDetails.feature.default_variant}`} />
+                  <Chip size="small" label={featureDetails.feature.enabled ? 'enabled' : 'disabled'} color={featureDetails.feature.enabled ? 'success' : 'default'} />
+                </Box>
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>Variants</Typography>
+                {featureDetails.variants && featureDetails.variants.length > 0 ? (
+                  <Box>
+                    {featureDetails.variants.map((v) => (
+                      <Box key={v.id} sx={{ display: 'grid', gridTemplateColumns: { xs: '2fr 1fr' }, gap: 1, mb: 0.5 }}>
+                        <Typography variant="body2">{v.name}</Typography>
+                        <Typography variant="body2" color="text.secondary">{v.rollout_percent}%</Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">No variants</Typography>
+                )}
+              </Box>
+
+              <Box>
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
+                {featureDetails.rules && featureDetails.rules.length > 0 ? (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {featureDetails.rules.sort((a, b) => a.priority - b.priority).map((r) => (
+                      <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <Chip size="small" label={`priority: ${r.priority}`} />
+                          <Chip size="small" label={`target: ${getVariantName(r.flag_variant_id)}`} />
+                          <Chip size="small" label={`id: ${r.id}`} variant="outlined" />
+                        </Box>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
+                        {r.conditions.map((c, idx) => (
+                          <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
+                            <Typography variant="body2">{c.attribute}</Typography>
+                            <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
+                            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{
+                              typeof c.value === 'string' ? c.value : JSON.stringify(c.value)
+                            }</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Typography variant="body2" color="text.secondary">No rules</Typography>
+                )}
+              </Box>
+            </Box>
+          ) : null}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDetailsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Create Feature Dialog */}
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">

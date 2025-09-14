@@ -27,6 +27,7 @@ docs/ErrorPermissionDenied.md
 docs/ErrorTooManyRequests.md
 docs/ErrorUnauthorized.md
 docs/Feature.md
+docs/FeatureDetailsResponse.md
 docs/FeatureKind.md
 docs/FeatureResponse.md
 docs/FlagVariant.md
