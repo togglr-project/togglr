@@ -281,7 +281,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				elem = elem[idx:]
 
 				if len(elem) == 0 {
-					break
+					switch r.Method {
+					case "GET":
+						s.handleGetFeatureRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
 				}
 				switch elem[0] {
 				case '/': // Prefix: "/"
@@ -1514,7 +1523,18 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				elem = elem[idx:]
 
 				if len(elem) == 0 {
-					break
+					switch method {
+					case "GET":
+						r.name = GetFeatureOperation
+						r.summary = "Get feature with rules and variants"
+						r.operationID = "GetFeature"
+						r.pathPattern = "/api/v1/features/{feature_id}"
+						r.args = args
+						r.count = 1
+						return r, true
+					default:
+						return
+					}
 				}
 				switch elem[0] {
 				case '/': // Prefix: "/"

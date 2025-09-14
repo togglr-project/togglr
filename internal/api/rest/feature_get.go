@@ -1,0 +1,123 @@
+package rest
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"log/slog"
+
+	"github.com/go-faster/jx"
+
+	"github.com/rom8726/etoggle/internal/domain"
+	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+)
+
+// GetFeature handles GET /api/v1/features/{feature_id}
+func (r *RestAPI) GetFeature(
+	ctx context.Context,
+	params generatedapi.GetFeatureParams,
+) (generatedapi.GetFeatureRes, error) {
+	featureID := domain.FeatureID(params.FeatureID)
+
+	// Load feature and check access to its project
+	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString("feature not found"),
+			}}, nil
+		}
+		slog.Error("get feature failed", "error", err)
+		return nil, err
+	}
+
+	if err := r.permissionsService.CanAccessProject(ctx, feature.ProjectID); err != nil {
+		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
+
+		if errors.Is(err, domain.ErrPermissionDenied) {
+			return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+				Message: generatedapi.NewOptString("permission denied"),
+			}}, nil
+		}
+
+		if errors.Is(err, domain.ErrUserNotFound) {
+			return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
+				Message: generatedapi.NewOptString("unauthorized"),
+			}}, nil
+		}
+
+		return nil, err
+	}
+
+	variants, err := r.flagVariantsUseCase.ListByFeatureID(ctx, featureID)
+	if err != nil {
+		slog.Error("list flag variants for feature failed", "error", err)
+		return nil, err
+	}
+
+	rules, err := r.rulesUseCase.ListByFeatureID(ctx, featureID)
+	if err != nil {
+		slog.Error("list rules for feature failed", "error", err)
+		return nil, err
+	}
+
+	// Map to API DTOs
+	respVariants := make([]generatedapi.FlagVariant, 0, len(variants))
+	for _, v := range variants {
+		respVariants = append(respVariants, generatedapi.FlagVariant{
+			ID:             v.ID.String(),
+			FeatureID:      v.FeatureID.String(),
+			Name:           v.Name,
+			RolloutPercent: int(v.RolloutPercent),
+		})
+	}
+
+	respRules := make([]generatedapi.Rule, 0, len(rules))
+	for _, it := range rules {
+		conds := make([]generatedapi.RuleCondition, 0, len(it.Conditions))
+		for _, c := range it.Conditions {
+			var raw jx.Raw
+			if c.Value != nil {
+				b, mErr := json.Marshal(c.Value)
+				if mErr != nil {
+					slog.Error("marshal condition value", "error", mErr)
+					return nil, mErr
+				}
+				raw = b
+			}
+			conds = append(conds, generatedapi.RuleCondition{
+				Attribute: generatedapi.RuleAttribute(c.Attribute),
+				Operator:  generatedapi.RuleOperator(c.Operator),
+				Value:     raw,
+			})
+		}
+
+		respRules = append(respRules, generatedapi.Rule{
+			ID:            it.ID.String(),
+			FeatureID:     it.FeatureID.String(),
+			Conditions:    conds,
+			FlagVariantID: it.FlagVariantID.String(),
+			Priority:      int(it.Priority),
+			CreatedAt:     it.CreatedAt,
+		})
+	}
+
+	resp := &generatedapi.FeatureDetailsResponse{
+		Feature: generatedapi.Feature{
+			ID:             feature.ID.String(),
+			ProjectID:      feature.ProjectID.String(),
+			Key:            feature.Key,
+			Name:           feature.Name,
+			Description:    generatedapi.NewOptNilString(feature.Description),
+			Kind:           generatedapi.FeatureKind(feature.Kind),
+			DefaultVariant: feature.DefaultVariant,
+			Enabled:        feature.Enabled,
+			CreatedAt:      feature.CreatedAt,
+			UpdatedAt:      feature.UpdatedAt,
+		},
+		Variants: respVariants,
+		Rules:    respRules,
+	}
+
+	return resp, nil
+}

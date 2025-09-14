@@ -2984,6 +2984,154 @@ func (s *Feature) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *FeatureDetailsResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *FeatureDetailsResponse) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("feature")
+		s.Feature.Encode(e)
+	}
+	{
+		e.FieldStart("variants")
+		e.ArrStart()
+		for _, elem := range s.Variants {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+	{
+		e.FieldStart("rules")
+		e.ArrStart()
+		for _, elem := range s.Rules {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+}
+
+var jsonFieldsNameOfFeatureDetailsResponse = [3]string{
+	0: "feature",
+	1: "variants",
+	2: "rules",
+}
+
+// Decode decodes FeatureDetailsResponse from json.
+func (s *FeatureDetailsResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode FeatureDetailsResponse to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "feature":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Feature.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature\"")
+			}
+		case "variants":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				s.Variants = make([]FlagVariant, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem FlagVariant
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Variants = append(s.Variants, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"variants\"")
+			}
+		case "rules":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				s.Rules = make([]Rule, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem Rule
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Rules = append(s.Rules, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"rules\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode FeatureDetailsResponse")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfFeatureDetailsResponse) {
+					name = jsonFieldsNameOfFeatureDetailsResponse[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *FeatureDetailsResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *FeatureDetailsResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes FeatureKind as json.
 func (s FeatureKind) Encode(e *jx.Encoder) {
 	e.Str(string(s))

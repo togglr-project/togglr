@@ -649,6 +649,7 @@ func (*ErrorInternalServerError) createUserRes()               {}
 func (*ErrorInternalServerError) deleteUserRes()               {}
 func (*ErrorInternalServerError) forgotPasswordRes()           {}
 func (*ErrorInternalServerError) getCurrentUserRes()           {}
+func (*ErrorInternalServerError) getFeatureRes()               {}
 func (*ErrorInternalServerError) getLicenseStatusRes()         {}
 func (*ErrorInternalServerError) getProductInfoRes()           {}
 func (*ErrorInternalServerError) getProjectRes()               {}
@@ -738,6 +739,7 @@ func (*ErrorNotFound) createFeatureFlagVariantRes() {}
 func (*ErrorNotFound) createFeatureRuleRes()        {}
 func (*ErrorNotFound) createProjectFeatureRes()     {}
 func (*ErrorNotFound) deleteUserRes()               {}
+func (*ErrorNotFound) getFeatureRes()               {}
 func (*ErrorNotFound) getProjectRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()          {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()  {}
@@ -787,6 +789,7 @@ func (*ErrorPermissionDenied) createUserRes()               {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()         {}
 func (*ErrorPermissionDenied) deleteUserRes()               {}
 func (*ErrorPermissionDenied) forgotPasswordRes()           {}
+func (*ErrorPermissionDenied) getFeatureRes()               {}
 func (*ErrorPermissionDenied) getLDAPConfigRes()            {}
 func (*ErrorPermissionDenied) getLDAPStatisticsRes()        {}
 func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes()    {}
@@ -910,6 +913,7 @@ func (*ErrorUnauthorized) deleteLDAPConfigRes()         {}
 func (*ErrorUnauthorized) deleteUserRes()               {}
 func (*ErrorUnauthorized) disable2FARes()               {}
 func (*ErrorUnauthorized) getCurrentUserRes()           {}
+func (*ErrorUnauthorized) getFeatureRes()               {}
 func (*ErrorUnauthorized) getLDAPConfigRes()            {}
 func (*ErrorUnauthorized) getLDAPStatisticsRes()        {}
 func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()    {}
@@ -1067,6 +1071,45 @@ func (s *Feature) SetCreatedAt(val time.Time) {
 func (s *Feature) SetUpdatedAt(val time.Time) {
 	s.UpdatedAt = val
 }
+
+// Ref: #/components/schemas/FeatureDetailsResponse
+type FeatureDetailsResponse struct {
+	Feature  Feature       `json:"feature"`
+	Variants []FlagVariant `json:"variants"`
+	Rules    []Rule        `json:"rules"`
+}
+
+// GetFeature returns the value of Feature.
+func (s *FeatureDetailsResponse) GetFeature() Feature {
+	return s.Feature
+}
+
+// GetVariants returns the value of Variants.
+func (s *FeatureDetailsResponse) GetVariants() []FlagVariant {
+	return s.Variants
+}
+
+// GetRules returns the value of Rules.
+func (s *FeatureDetailsResponse) GetRules() []Rule {
+	return s.Rules
+}
+
+// SetFeature sets the value of Feature.
+func (s *FeatureDetailsResponse) SetFeature(val Feature) {
+	s.Feature = val
+}
+
+// SetVariants sets the value of Variants.
+func (s *FeatureDetailsResponse) SetVariants(val []FlagVariant) {
+	s.Variants = val
+}
+
+// SetRules sets the value of Rules.
+func (s *FeatureDetailsResponse) SetRules(val []Rule) {
+	s.Rules = val
+}
+
+func (*FeatureDetailsResponse) getFeatureRes() {}
 
 // Ref: #/components/schemas/FeatureKind
 type FeatureKind string

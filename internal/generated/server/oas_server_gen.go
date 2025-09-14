@@ -96,6 +96,12 @@ type Handler interface {
 	//
 	// GET /api/v1/users/me
 	GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error)
+	// GetFeature implements GetFeature operation.
+	//
+	// Get feature with rules and variants.
+	//
+	// GET /api/v1/features/{feature_id}
+	GetFeature(ctx context.Context, params GetFeatureParams) (GetFeatureRes, error)
 	// GetLDAPConfig implements GetLDAPConfig operation.
 	//
 	// Get LDAP configuration.

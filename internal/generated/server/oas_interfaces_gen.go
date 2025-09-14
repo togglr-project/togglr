@@ -57,6 +57,10 @@ type GetCurrentUserRes interface {
 	getCurrentUserRes()
 }
 
+type GetFeatureRes interface {
+	getFeatureRes()
+}
+
 type GetLDAPConfigRes interface {
 	getLDAPConfigRes()
 }

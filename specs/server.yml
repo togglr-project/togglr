@@ -1849,6 +1849,55 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/features/{feature_id}:
+    get:
+      summary: Get feature with rules and variants
+      operationId: GetFeature
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feature details with rules and variants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureDetailsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
   /api/v1/features/{feature_id}/rules:
     get:
       summary: List rules for feature
@@ -2850,6 +2899,21 @@ components:
         feature:
           $ref: '#/components/schemas/Feature'
       required: [feature]
+
+    FeatureDetailsResponse:
+      type: object
+      properties:
+        feature:
+          $ref: '#/components/schemas/Feature'
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlagVariant'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+      required: [feature, variants, rules]
 
     ListFeaturesResponse:
       type: array

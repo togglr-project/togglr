@@ -20,6 +20,7 @@ const (
 	Disable2FAOperation               OperationName = "Disable2FA"
 	ForgotPasswordOperation           OperationName = "ForgotPassword"
 	GetCurrentUserOperation           OperationName = "GetCurrentUser"
+	GetFeatureOperation               OperationName = "GetFeature"
 	GetLDAPConfigOperation            OperationName = "GetLDAPConfig"
 	GetLDAPStatisticsOperation        OperationName = "GetLDAPStatistics"
 	GetLDAPSyncLogDetailsOperation    OperationName = "GetLDAPSyncLogDetails"

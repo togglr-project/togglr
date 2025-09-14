@@ -143,6 +143,15 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUse
 	return r, ht.ErrNotImplemented
 }
 
+// GetFeature implements GetFeature operation.
+//
+// Get feature with rules and variants.
+//
+// GET /api/v1/features/{feature_id}
+func (UnimplementedHandler) GetFeature(ctx context.Context, params GetFeatureParams) (r GetFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetLDAPConfig implements GetLDAPConfig operation.
 //
 // Get LDAP configuration.
