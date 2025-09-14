@@ -101,7 +101,6 @@ const Layout: React.FC<LayoutProps> = ({
     const items = [
       { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
       { text: 'Projects', icon: <ProjectsIcon />, path: '/projects' },
-      { text: 'Issues', icon: <IssuesIcon />, path: '/issues' },
       { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
       { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
     ];

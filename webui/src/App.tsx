@@ -16,6 +16,7 @@ import SSOCallbackPage from './pages/SSOCallbackPage';
 import SAMLSuccessHandler from './components/SAMLSuccessHandler';
 import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
+import ProjectsPage from './pages/ProjectsPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -90,6 +91,7 @@ function App() {
                         <Route path="/auth/saml/success" element={<SAMLSuccessHandler />} />
 
                         <Route path="/dashboard" element={<LicenseGuard><DashboardPage /></LicenseGuard>} />
+                        <Route path="/projects" element={<LicenseGuard><ProjectsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId" element={<LicenseGuard><ProjectPage /></LicenseGuard>} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
