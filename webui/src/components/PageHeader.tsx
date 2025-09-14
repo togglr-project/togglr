@@ -136,6 +136,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               ml: icon ? 6 : 0,
               fontSize: '1rem',
               lineHeight: 1.5,
+              whiteSpace: 'pre-wrap',
             }}
           >
             {subtitle}

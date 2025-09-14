@@ -21,6 +21,8 @@ import {
   Divider,
   Tooltip,
   Chip,
+  Radio,
+  RadioGroup,
 } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -179,6 +181,8 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const featureKindOptions = Object.values(FeatureKindEnum);
 
   const canDeleteVariant = (id: string) => id !== defaultVariantId && !rules.some(r => r.flag_variant_id === id);
+  const onId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'on')?.id, [variants]);
+  const offId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'off')?.id, [variants]);
 
   return (
     <Dialog open={open} onClose={disabled ? undefined : onClose} fullWidth maxWidth="md">
@@ -210,7 +214,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
               <Grid item xs={12} md={6}>
                 <FormControl fullWidth>
                   <InputLabel id="kind-label">Kind</InputLabel>
-                  <Select labelId="kind-label" label="Kind" value={kind} onChange={(e) => setKind(e.target.value)}>
+                  <Select labelId="kind-label" label="Kind" value={kind} onChange={(e) => setKind(e.target.value)} disabled>
                     {featureKindOptions.map(k => (
                       <MenuItem key={k} value={k}>{k}</MenuItem>
                     ))}
@@ -224,47 +228,56 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
             <Divider />
 
-            {/* Variants */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="subtitle1">Variants</Typography>
-              <Button startIcon={<Add />} onClick={addVariant} size="small">Add variant</Button>
-            </Box>
-            <Grid container spacing={1}>
-              {variants.map((v, idx) => (
-                <React.Fragment key={v.id}>
-                  <Grid item xs={12} md={4}>
-                    <TextField label={`Variant name #${idx + 1}`} value={v.name} onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, name: e.target.value } : x))} fullWidth />
-                  </Grid>
-                  <Grid item xs={12} md={3}>
-                    <TextField type="number" label="Rollout %" inputProps={{ min: 0, max: 100 }} value={v.rollout_percent}
-                      onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, rollout_percent: Number(e.target.value) } : x))} fullWidth />
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <TextField label="ID" value={v.id} fullWidth disabled />
-                  </Grid>
-                  <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Tooltip title={canDeleteVariant(v.id) ? 'Delete variant' : 'Cannot delete: used in default or rules'}>
-                      <span>
-                        <IconButton onClick={() => removeVariant(v.id)} disabled={!canDeleteVariant(v.id)} aria-label="delete variant">
-                          <Delete />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Grid>
-                </React.Fragment>
-              ))}
-            </Grid>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <FormControl sx={{ minWidth: 240 }}>
-                <InputLabel id="default-var-label">Default variant</InputLabel>
-                <Select labelId="default-var-label" label="Default variant" value={defaultVariantId} onChange={(e) => setDefaultVariantId(e.target.value)}>
-                  {variants.map(v => (
-                    <MenuItem key={v.id} value={v.id}>{v.name || v.id}</MenuItem>
+            {/* Variants / Default */}
+            {kind === FeatureKindEnum.Multivariant ? (
+              <>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Typography variant="subtitle1">Variants</Typography>
+                  <Button startIcon={<Add />} onClick={addVariant} size="small">Add variant</Button>
+                </Box>
+                <Grid container spacing={1}>
+                  {variants.map((v, idx) => (
+                    <React.Fragment key={v.id}>
+                      <Grid item xs={12} md={4}>
+                        <TextField label={`Variant name #${idx + 1}`} value={v.name} onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, name: e.target.value } : x))} fullWidth />
+                      </Grid>
+                      <Grid item xs={12} md={3}>
+                        <TextField type="number" label="Rollout %" inputProps={{ min: 0, max: 100 }} value={v.rollout_percent}
+                          onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, rollout_percent: Number(e.target.value) } : x))} fullWidth />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <TextField label="ID" value={v.id} fullWidth disabled />
+                      </Grid>
+                      <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Tooltip title={canDeleteVariant(v.id) ? 'Delete variant' : 'Cannot delete: used in default or rules'}>
+                          <span>
+                            <IconButton onClick={() => removeVariant(v.id)} disabled={!canDeleteVariant(v.id)} aria-label="delete variant">
+                              <Delete />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      </Grid>
+                    </React.Fragment>
                   ))}
-                </Select>
-              </FormControl>
-              <Typography variant="body2" color="text.secondary">Variants total: {variants.length}</Typography>
-            </Box>
+                </Grid>
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                  <FormControl sx={{ minWidth: 240 }}>
+                    <InputLabel id="default-var-label">Default variant</InputLabel>
+                    <Select labelId="default-var-label" label="Default variant" value={defaultVariantId} onChange={(e) => setDefaultVariantId(e.target.value)}>
+                      {variants.map(v => (
+                        <MenuItem key={v.id} value={v.id}>{v.name || v.id}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <Typography variant="body2" color="text.secondary">Variants total: {variants.length}</Typography>
+                </Box>
+              </>
+            ) : (
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <Typography variant="subtitle2">Default</Typography>
+                <Chip label={featureDetails?.feature.default_variant ?? ''} />
+              </Box>
+            )}
 
             <Divider />
 
