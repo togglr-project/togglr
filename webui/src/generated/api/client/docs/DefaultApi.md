@@ -47,6 +47,7 @@ All URIs are relative to *http://localhost*
 |[**syncLDAPUsers**](#syncldapusers) | **POST** /api/v1/ldap/sync/users | Start user synchronization|
 |[**testLDAPConnection**](#testldapconnection) | **POST** /api/v1/ldap/test-connection | Test LDAP connection|
 |[**toggleFeature**](#togglefeature) | **PUT** /api/v1/features/{feature_id}/toggle | Toggle feature enabled state|
+|[**updateFeature**](#updatefeature) | **PUT** /api/v1/features/{feature_id} | Update feature with rules and variants|
 |[**updateLDAPConfig**](#updateldapconfig) | **POST** /api/v1/ldap/config | Create or update LDAP configuration|
 |[**updateLicense**](#updatelicense) | **PUT** /api/v1/license | Update license|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
@@ -2320,6 +2321,66 @@ const { status, data } = await apiInstance.toggleFeature(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Feature toggled successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateFeature**
+> FeatureDetailsResponse updateFeature(createFeatureRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateFeatureRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let createFeatureRequest: CreateFeatureRequest; //
+
+const { status, data } = await apiInstance.updateFeature(
+    featureId,
+    createFeatureRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createFeatureRequest** | **CreateFeatureRequest**|  | |
+| **featureId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**FeatureDetailsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Updated feature details with rules and variants |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |

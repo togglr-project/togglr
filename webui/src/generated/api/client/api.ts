@@ -2275,6 +2275,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update feature with rules and variants
+         * @param {string} featureId 
+         * @param {CreateFeatureRequest} createFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateFeature: async (featureId: string, createFeatureRequest: CreateFeatureRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('updateFeature', 'featureId', featureId)
+            // verify required parameter 'createFeatureRequest' is not null or undefined
+            assertParamExists('updateFeature', 'createFeatureRequest', createFeatureRequest)
+            const localVarPath = `/api/v1/features/{feature_id}`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createFeatureRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -3080,6 +3124,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Update feature with rules and variants
+         * @param {string} featureId 
+         * @param {CreateFeatureRequest} createFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateFeature(featureId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureDetailsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateFeature(featureId, createFeatureRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -3592,6 +3650,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         toggleFeature(featureId: string, toggleFeatureRequest: ToggleFeatureRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureResponse> {
             return localVarFp.toggleFeature(featureId, toggleFeatureRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update feature with rules and variants
+         * @param {string} featureId 
+         * @param {CreateFeatureRequest} createFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateFeature(featureId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureDetailsResponse> {
+            return localVarFp.updateFeature(featureId, createFeatureRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4129,6 +4198,18 @@ export class DefaultApi extends BaseAPI {
      */
     public toggleFeature(featureId: string, toggleFeatureRequest: ToggleFeatureRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).toggleFeature(featureId, toggleFeatureRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update feature with rules and variants
+     * @param {string} featureId 
+     * @param {CreateFeatureRequest} createFeatureRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateFeature(featureId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateFeature(featureId, createFeatureRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,9 +1,10 @@
-import React from 'react';
-import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip, FormControlLabel } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { Feature, FeatureDetailsResponse } from '../../generated/api/client';
 import { useAuth } from '../../auth/AuthContext';
+import EditFeatureDialog from './EditFeatureDialog';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -43,6 +44,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
     },
   });
 
+  const [editOpen, setEditOpen] = useState(false);
+  const canEdit = canToggle || Boolean(user?.is_superuser);
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle className="gradient-text-purple">Feature Details</DialogTitle>
@@ -56,7 +60,33 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         ) : featureDetails ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
             <Box>
-              <Typography variant="h6">{featureDetails.feature.name}</Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h6">{featureDetails.feature.name}</Typography>
+                {canToggle ? (
+                  <Tooltip title={featureDetails.feature.enabled ? 'Disable feature' : 'Enable feature'}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={featureDetails.feature.enabled}
+                          onChange={(e) => toggleMutation.mutate(e.target.checked)}
+                          disabled={toggleMutation.isPending}
+                          inputProps={{ 'aria-label': 'toggle feature in dialog' }}
+                        />
+                      }
+                      label={"Enable\\Disable"}
+                    />
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="You don't have permission to toggle features in this project">
+                    <span>
+                      <FormControlLabel
+                        control={<Switch checked={featureDetails.feature.enabled} disabled />}
+                        label={"Enable\\Disable"}
+                      />
+                    </span>
+                  </Tooltip>
+                )}
+              </Box>
               <Typography variant="body2" color="text.secondary">Key: {featureDetails.feature.key}</Typography>
               {featureDetails.feature.description && (
                 <Typography variant="body2" sx={{ mt: 1 }}>{featureDetails.feature.description}</Typography>
@@ -66,24 +96,6 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                 <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
                 <Chip size="small" label={`default: ${featureDetails.feature.default_variant}`} />
                 <Chip size="small" label={featureDetails.feature.enabled ? 'enabled' : 'disabled'} color={featureDetails.feature.enabled ? 'success' : 'default'} />
-              </Box>
-              <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                {canToggle ? (
-                  <Tooltip title={featureDetails.feature.enabled ? 'Disable feature' : 'Enable feature'}>
-                    <Switch
-                      checked={featureDetails.feature.enabled}
-                      onChange={(e) => toggleMutation.mutate(e.target.checked)}
-                      disabled={toggleMutation.isPending}
-                      inputProps={{ 'aria-label': 'toggle feature in dialog' }}
-                    />
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="You don't have permission to toggle features in this project">
-                    <span>
-                      <Switch checked={featureDetails.feature.enabled} disabled />
-                    </span>
-                  </Tooltip>
-                )}
               </Box>
             </Box>
 
@@ -135,8 +147,13 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         ) : null}
       </DialogContent>
       <DialogActions>
+        {canEdit && featureDetails && (
+          <Button onClick={() => setEditOpen(true)} color="secondary">Edit</Button>
+        )}
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+      {/* Advanced edit dialog */}
+      <EditFeatureDialog open={editOpen} onClose={() => setEditOpen(false)} featureDetails={featureDetails ?? null} />
     </Dialog>
   );
 };
