@@ -66,6 +66,12 @@ type Handler interface {
 	//
 	// POST /api/v1/users
 	CreateUser(ctx context.Context, req *CreateUserRequest) (CreateUserRes, error)
+	// DeleteFeature implements DeleteFeature operation.
+	//
+	// Delete feature.
+	//
+	// DELETE /api/v1/features/{feature_id}
+	DeleteFeature(ctx context.Context, params DeleteFeatureParams) (DeleteFeatureRes, error)
 	// DeleteLDAPConfig implements DeleteLDAPConfig operation.
 	//
 	// Delete LDAP configuration.

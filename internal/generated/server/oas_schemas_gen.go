@@ -472,6 +472,11 @@ func (s *CreateUserResponse) SetUser(val User) {
 
 func (*CreateUserResponse) createUserRes() {}
 
+// DeleteFeatureNoContent is response for DeleteFeature operation.
+type DeleteFeatureNoContent struct{}
+
+func (*DeleteFeatureNoContent) deleteFeatureRes() {}
+
 // DeleteUserNoContent is response for DeleteUser operation.
 type DeleteUserNoContent struct{}
 
@@ -648,6 +653,7 @@ func (*ErrorInternalServerError) createFeatureFlagVariantRes() {}
 func (*ErrorInternalServerError) createFeatureRuleRes()        {}
 func (*ErrorInternalServerError) createProjectFeatureRes()     {}
 func (*ErrorInternalServerError) createUserRes()               {}
+func (*ErrorInternalServerError) deleteFeatureRes()            {}
 func (*ErrorInternalServerError) deleteUserRes()               {}
 func (*ErrorInternalServerError) forgotPasswordRes()           {}
 func (*ErrorInternalServerError) getCurrentUserRes()           {}
@@ -742,6 +748,7 @@ func (*ErrorNotFound) archiveProjectRes()           {}
 func (*ErrorNotFound) createFeatureFlagVariantRes() {}
 func (*ErrorNotFound) createFeatureRuleRes()        {}
 func (*ErrorNotFound) createProjectFeatureRes()     {}
+func (*ErrorNotFound) deleteFeatureRes()            {}
 func (*ErrorNotFound) deleteUserRes()               {}
 func (*ErrorNotFound) getFeatureRes()               {}
 func (*ErrorNotFound) getProjectRes()               {}
@@ -792,6 +799,7 @@ func (*ErrorPermissionDenied) createFeatureFlagVariantRes() {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()        {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()     {}
 func (*ErrorPermissionDenied) createUserRes()               {}
+func (*ErrorPermissionDenied) deleteFeatureRes()            {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()         {}
 func (*ErrorPermissionDenied) deleteUserRes()               {}
 func (*ErrorPermissionDenied) forgotPasswordRes()           {}
@@ -917,6 +925,7 @@ func (*ErrorUnauthorized) createFeatureFlagVariantRes() {}
 func (*ErrorUnauthorized) createFeatureRuleRes()        {}
 func (*ErrorUnauthorized) createProjectFeatureRes()     {}
 func (*ErrorUnauthorized) createUserRes()               {}
+func (*ErrorUnauthorized) deleteFeatureRes()            {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()         {}
 func (*ErrorUnauthorized) deleteUserRes()               {}
 func (*ErrorUnauthorized) disable2FARes()               {}

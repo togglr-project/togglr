@@ -98,6 +98,15 @@ func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserReque
 	return r, ht.ErrNotImplemented
 }
 
+// DeleteFeature implements DeleteFeature operation.
+//
+// Delete feature.
+//
+// DELETE /api/v1/features/{feature_id}
+func (UnimplementedHandler) DeleteFeature(ctx context.Context, params DeleteFeatureParams) (r DeleteFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // DeleteLDAPConfig implements DeleteLDAPConfig operation.
 //
 // Delete LDAP configuration.

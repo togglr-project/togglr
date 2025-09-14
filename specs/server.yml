@@ -1958,6 +1958,50 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - bearerAuth: []
+    delete:
+      summary: Delete feature
+      operationId: DeleteFeature
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Feature deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
   /api/v1/features/{feature_id}/rules:
     get:
       summary: List rules for feature

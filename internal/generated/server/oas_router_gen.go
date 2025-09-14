@@ -282,6 +282,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				if len(elem) == 0 {
 					switch r.Method {
+					case "DELETE":
+						s.handleDeleteFeatureRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
 					case "GET":
 						s.handleGetFeatureRequest([1]string{
 							args[0],
@@ -291,7 +295,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							args[0],
 						}, elemIsEscaped, w, r)
 					default:
-						s.notAllowed(w, r, "GET,PUT")
+						s.notAllowed(w, r, "DELETE,GET,PUT")
 					}
 
 					return
@@ -1550,6 +1554,14 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				if len(elem) == 0 {
 					switch method {
+					case "DELETE":
+						r.name = DeleteFeatureOperation
+						r.summary = "Delete feature"
+						r.operationID = "DeleteFeature"
+						r.pathPattern = "/api/v1/features/{feature_id}"
+						r.args = args
+						r.count = 1
+						return r, true
 					case "GET":
 						r.name = GetFeatureOperation
 						r.summary = "Get feature with rules and variants"

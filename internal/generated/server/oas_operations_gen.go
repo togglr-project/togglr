@@ -15,6 +15,7 @@ const (
 	CreateFeatureRuleOperation        OperationName = "CreateFeatureRule"
 	CreateProjectFeatureOperation     OperationName = "CreateProjectFeature"
 	CreateUserOperation               OperationName = "CreateUser"
+	DeleteFeatureOperation            OperationName = "DeleteFeature"
 	DeleteLDAPConfigOperation         OperationName = "DeleteLDAPConfig"
 	DeleteUserOperation               OperationName = "DeleteUser"
 	Disable2FAOperation               OperationName = "Disable2FA"

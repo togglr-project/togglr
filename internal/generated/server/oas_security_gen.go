@@ -42,6 +42,7 @@ var operationRolesBearerAuth = map[string][]string{
 	CreateFeatureRuleOperation:        []string{},
 	CreateProjectFeatureOperation:     []string{},
 	CreateUserOperation:               []string{},
+	DeleteFeatureOperation:            []string{},
 	DeleteLDAPConfigOperation:         []string{},
 	DeleteUserOperation:               []string{},
 	Disable2FAOperation:               []string{},

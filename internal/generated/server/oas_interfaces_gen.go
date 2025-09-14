@@ -37,6 +37,10 @@ type CreateUserRes interface {
 	createUserRes()
 }
 
+type DeleteFeatureRes interface {
+	deleteFeatureRes()
+}
+
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
 }
