@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip } from '@mui/material';
+import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip } from '@mui/material';
 import { Add as AddIcon, Flag as FlagIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import type { Feature, Project } from '../generated/api/client';
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
+import { useAuth } from '../auth/AuthContext';
 
 interface ProjectResponse { project: Project }
 
 
 const ProjectPage: React.FC = () => {
   const { projectId = '' } = useParams();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const { data: projectResp, isLoading: loadingProject, error: projectError } = useQuery({
     queryKey: ['project', projectId],
@@ -43,6 +46,20 @@ const ProjectPage: React.FC = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
 
+  // Permission to toggle features in this project (superuser can always toggle)
+  const canToggleFeature = Boolean(user?.is_superuser || user?.project_permissions?.[projectId]?.includes('feature.toggle'));
+
+  // Toggle mutation
+  const toggleMutation = useMutation({
+    mutationFn: async ({ featureId, enabled }: { featureId: string; enabled: boolean }) => {
+      await apiClient.toggleFeature(featureId, { enabled });
+    },
+    onSuccess: (_data, variables) => {
+      // Refresh lists and details after toggle
+      queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['feature-details', variables.featureId] });
+    },
+  });
 
   const openFeatureDetails = (f: Feature) => {
     setSelectedFeature(f);
@@ -103,6 +120,27 @@ const ProjectPage: React.FC = () => {
                       <Chip size="small" label={f.enabled ? 'enabled' : 'disabled'} color={f.enabled ? 'success' : 'default'} />
                     </Box>
                   </Box>
+                  {canToggleFeature ? (
+                    <Tooltip title={f.enabled ? 'Disable feature' : 'Enable feature'}>
+                      <Switch
+                        checked={f.enabled}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          const enabled = e.target.checked;
+                          toggleMutation.mutate({ featureId: f.id, enabled });
+                        }}
+                        disabled={toggleMutation.isPending}
+                        inputProps={{ 'aria-label': 'toggle feature' }}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="You don't have permission to toggle features in this project">
+                      <span onClick={(e) => e.stopPropagation()}>
+                        <Switch checked={f.enabled} disabled />
+                      </span>
+                    </Tooltip>
+                  )}
                 </Paper>
               </Grid>
             ))}

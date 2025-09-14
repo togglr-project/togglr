@@ -16,6 +16,7 @@ Name | Type | Description | Notes
 **license_accepted** | **boolean** | Flag indicating whether the user has accepted the license agreement | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **last_login** | **string** |  | [optional] [default to undefined]
+**project_permissions** | **{ [key: string]: Array&lt;string&gt;; }** | Map of project_id to list of permission keys for that project. Contains only projects where user has membership. | [optional] [default to undefined]
 
 ## Example
 
@@ -34,6 +35,7 @@ const instance: User = {
     license_accepted,
     created_at,
     last_login,
+    project_permissions,
 };
 ```
 

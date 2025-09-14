@@ -1,8 +1,9 @@
 import React from 'react';
-import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
+import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip } from '@mui/material';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { Feature, FeatureDetailsResponse } from '../../generated/api/client';
+import { useAuth } from '../../auth/AuthContext';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -11,6 +12,8 @@ export interface FeatureDetailsDialogProps {
 }
 
 const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClose, feature }) => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { data: featureDetails, isLoading, error } = useQuery<FeatureDetailsResponse>({
     queryKey: ['feature-details', feature?.id],
     queryFn: async () => {
@@ -25,6 +28,20 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
     const found = arr.find(v => v.id === id);
     return found ? (found.name || found.id) : id;
     };
+
+  const canToggle = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.toggle')) : false;
+
+  const toggleMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      if (!featureDetails) return;
+      await apiClient.toggleFeature(featureDetails.feature.id, { enabled });
+    },
+    onSuccess: () => {
+      if (!featureDetails) return;
+      queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails.feature.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails.feature.project_id] });
+    },
+  });
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -49,6 +66,24 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                 <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
                 <Chip size="small" label={`default: ${featureDetails.feature.default_variant}`} />
                 <Chip size="small" label={featureDetails.feature.enabled ? 'enabled' : 'disabled'} color={featureDetails.feature.enabled ? 'success' : 'default'} />
+              </Box>
+              <Box sx={{ mt: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                {canToggle ? (
+                  <Tooltip title={featureDetails.feature.enabled ? 'Disable feature' : 'Enable feature'}>
+                    <Switch
+                      checked={featureDetails.feature.enabled}
+                      onChange={(e) => toggleMutation.mutate(e.target.checked)}
+                      disabled={toggleMutation.isPending}
+                      inputProps={{ 'aria-label': 'toggle feature in dialog' }}
+                    />
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="You don't have permission to toggle features in this project">
+                    <span>
+                      <Switch checked={featureDetails.feature.enabled} disabled />
+                    </span>
+                  </Tooltip>
+                )}
               </Box>
             </Box>
 

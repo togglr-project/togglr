@@ -563,6 +563,9 @@ export interface SetUserActiveStatusRequest {
 export interface SuccessResponse {
     'message'?: string;
 }
+export interface ToggleFeatureRequest {
+    'enabled': boolean;
+}
 export interface TwoFAConfirmRequest {
     'code': string;
 }
@@ -620,6 +623,10 @@ export interface User {
     'license_accepted': boolean;
     'created_at': string;
     'last_login'?: string;
+    /**
+     * Map of project_id to list of permission keys for that project. Contains only projects where user has membership.
+     */
+    'project_permissions'?: { [key: string]: Array<string>; };
 }
 
 /**
@@ -2224,6 +2231,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Toggle feature enabled state
+         * @param {string} featureId 
+         * @param {ToggleFeatureRequest} toggleFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        toggleFeature: async (featureId: string, toggleFeatureRequest: ToggleFeatureRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('toggleFeature', 'featureId', featureId)
+            // verify required parameter 'toggleFeatureRequest' is not null or undefined
+            assertParamExists('toggleFeature', 'toggleFeatureRequest', toggleFeatureRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/toggle`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(toggleFeatureRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -3015,6 +3066,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Toggle feature enabled state
+         * @param {string} featureId 
+         * @param {ToggleFeatureRequest} toggleFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async toggleFeature(featureId: string, toggleFeatureRequest: ToggleFeatureRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.toggleFeature(featureId, toggleFeatureRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.toggleFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -3516,6 +3581,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         testLDAPConnection(lDAPConnectionTest: LDAPConnectionTest, options?: RawAxiosRequestConfig): AxiosPromise<LDAPConnectionTestResponse> {
             return localVarFp.testLDAPConnection(lDAPConnectionTest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Toggle feature enabled state
+         * @param {string} featureId 
+         * @param {ToggleFeatureRequest} toggleFeatureRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        toggleFeature(featureId: string, toggleFeatureRequest: ToggleFeatureRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureResponse> {
+            return localVarFp.toggleFeature(featureId, toggleFeatureRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4041,6 +4117,18 @@ export class DefaultApi extends BaseAPI {
      */
     public testLDAPConnection(lDAPConnectionTest: LDAPConnectionTest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).testLDAPConnection(lDAPConnectionTest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Toggle feature enabled state
+     * @param {string} featureId 
+     * @param {ToggleFeatureRequest} toggleFeatureRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public toggleFeature(featureId: string, toggleFeatureRequest: ToggleFeatureRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).toggleFeature(featureId, toggleFeatureRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
