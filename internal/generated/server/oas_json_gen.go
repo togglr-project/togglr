@@ -542,8 +542,12 @@ func (s *CreateRuleRequest) Encode(e *jx.Encoder) {
 // encodeFields encodes fields.
 func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 	{
-		e.FieldStart("condition")
-		s.Condition.Encode(e)
+		e.FieldStart("conditions")
+		e.ArrStart()
+		for _, elem := range s.Conditions {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 	}
 	{
 		e.FieldStart("flag_variant_id")
@@ -558,7 +562,7 @@ func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 }
 
 var jsonFieldsNameOfCreateRuleRequest = [3]string{
-	0: "condition",
+	0: "conditions",
 	1: "flag_variant_id",
 	2: "priority",
 }
@@ -572,15 +576,23 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
-		case "condition":
+		case "conditions":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				if err := s.Condition.Decode(d); err != nil {
+				s.Conditions = make([]RuleCondition, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RuleCondition
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Conditions = append(s.Conditions, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"condition\"")
+				return errors.Wrap(err, "decode field \"conditions\"")
 			}
 		case "flag_variant_id":
 			requiredBitSet[0] |= 1 << 1
@@ -656,64 +668,6 @@ func (s *CreateRuleRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateRuleRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s CreateRuleRequestCondition) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields implements json.Marshaler.
-func (s CreateRuleRequestCondition) encodeFields(e *jx.Encoder) {
-	for k, elem := range s {
-		e.FieldStart(k)
-
-		if len(elem) != 0 {
-			e.Raw(elem)
-		}
-	}
-}
-
-// Decode decodes CreateRuleRequestCondition from json.
-func (s *CreateRuleRequestCondition) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode CreateRuleRequestCondition to nil")
-	}
-	m := s.init()
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		var elem jx.Raw
-		if err := func() error {
-			v, err := d.RawAppend(nil)
-			elem = jx.Raw(v)
-			if err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return errors.Wrapf(err, "decode field %q", k)
-		}
-		m[string(k)] = elem
-		return nil
-	}); err != nil {
-		return errors.Wrap(err, "decode CreateRuleRequestCondition")
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s CreateRuleRequestCondition) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CreateRuleRequestCondition) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -7342,8 +7296,12 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 		e.Str(s.FeatureID)
 	}
 	{
-		e.FieldStart("condition")
-		s.Condition.Encode(e)
+		e.FieldStart("conditions")
+		e.ArrStart()
+		for _, elem := range s.Conditions {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
 	}
 	{
 		e.FieldStart("flag_variant_id")
@@ -7362,7 +7320,7 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 var jsonFieldsNameOfRule = [6]string{
 	0: "id",
 	1: "feature_id",
-	2: "condition",
+	2: "conditions",
 	3: "flag_variant_id",
 	4: "priority",
 	5: "created_at",
@@ -7401,15 +7359,23 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"feature_id\"")
 			}
-		case "condition":
+		case "conditions":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				if err := s.Condition.Decode(d); err != nil {
+				s.Conditions = make([]RuleCondition, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RuleCondition
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Conditions = append(s.Conditions, elem)
+					return nil
+				}); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"condition\"")
+				return errors.Wrap(err, "decode field \"conditions\"")
 			}
 		case "flag_variant_id":
 			requiredBitSet[0] |= 1 << 3
@@ -7503,22 +7469,75 @@ func (s *Rule) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes RuleAttribute as json.
+func (s RuleAttribute) Encode(e *jx.Encoder) {
+	unwrapped := string(s)
+
+	e.Str(unwrapped)
+}
+
+// Decode decodes RuleAttribute from json.
+func (s *RuleAttribute) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RuleAttribute to nil")
+	}
+	var unwrapped string
+	if err := func() error {
+		v, err := d.Str()
+		unwrapped = string(v)
+		if err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = RuleAttribute(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s RuleAttribute) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RuleAttribute) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
-func (s RuleCondition) Encode(e *jx.Encoder) {
+func (s *RuleCondition) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
 	e.ObjEnd()
 }
 
-// encodeFields implements json.Marshaler.
-func (s RuleCondition) encodeFields(e *jx.Encoder) {
-	for k, elem := range s {
-		e.FieldStart(k)
-
-		if len(elem) != 0 {
-			e.Raw(elem)
+// encodeFields encodes fields.
+func (s *RuleCondition) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("attribute")
+		s.Attribute.Encode(e)
+	}
+	{
+		e.FieldStart("operator")
+		s.Operator.Encode(e)
+	}
+	{
+		if len(s.Value) != 0 {
+			e.FieldStart("value")
+			e.Raw(s.Value)
 		}
 	}
+}
+
+var jsonFieldsNameOfRuleCondition = [3]string{
+	0: "attribute",
+	1: "operator",
+	2: "value",
 }
 
 // Decode decodes RuleCondition from json.
@@ -7526,30 +7545,87 @@ func (s *RuleCondition) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode RuleCondition to nil")
 	}
-	m := s.init()
+	var requiredBitSet [1]uint8
+
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		var elem jx.Raw
-		if err := func() error {
-			v, err := d.RawAppend(nil)
-			elem = jx.Raw(v)
-			if err != nil {
-				return err
+		switch string(k) {
+		case "attribute":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Attribute.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"attribute\"")
 			}
-			return nil
-		}(); err != nil {
-			return errors.Wrapf(err, "decode field %q", k)
+		case "operator":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				if err := s.Operator.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"operator\"")
+			}
+		case "value":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.RawAppend(nil)
+				s.Value = jx.Raw(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"value\"")
+			}
+		default:
+			return d.Skip()
 		}
-		m[string(k)] = elem
 		return nil
 	}); err != nil {
 		return errors.Wrap(err, "decode RuleCondition")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfRuleCondition) {
+					name = jsonFieldsNameOfRuleCondition[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
 	}
 
 	return nil
 }
 
 // MarshalJSON implements stdjson.Marshaler.
-func (s RuleCondition) MarshalJSON() ([]byte, error) {
+func (s *RuleCondition) MarshalJSON() ([]byte, error) {
 	e := jx.Encoder{}
 	s.Encode(&e)
 	return e.Bytes(), nil
@@ -7557,6 +7633,62 @@ func (s RuleCondition) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *RuleCondition) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RuleOperator as json.
+func (s RuleOperator) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes RuleOperator from json.
+func (s *RuleOperator) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RuleOperator to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch RuleOperator(v) {
+	case RuleOperatorEq:
+		*s = RuleOperatorEq
+	case RuleOperatorNeq:
+		*s = RuleOperatorNeq
+	case RuleOperatorIn:
+		*s = RuleOperatorIn
+	case RuleOperatorNotIn:
+		*s = RuleOperatorNotIn
+	case RuleOperatorGt:
+		*s = RuleOperatorGt
+	case RuleOperatorGte:
+		*s = RuleOperatorGte
+	case RuleOperatorLt:
+		*s = RuleOperatorLt
+	case RuleOperatorLte:
+		*s = RuleOperatorLte
+	case RuleOperatorRegex:
+		*s = RuleOperatorRegex
+	case RuleOperatorPercentage:
+		*s = RuleOperatorPercentage
+	default:
+		*s = RuleOperator(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s RuleOperator) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RuleOperator) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

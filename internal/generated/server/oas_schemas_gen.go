@@ -261,15 +261,14 @@ func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 
 // Ref: #/components/schemas/CreateRuleRequest
 type CreateRuleRequest struct {
-	// JSON condition.
-	Condition     CreateRuleRequestCondition `json:"condition"`
-	FlagVariantID string                     `json:"flag_variant_id"`
-	Priority      OptInt                     `json:"priority"`
+	Conditions    []RuleCondition `json:"conditions"`
+	FlagVariantID string          `json:"flag_variant_id"`
+	Priority      OptInt          `json:"priority"`
 }
 
-// GetCondition returns the value of Condition.
-func (s *CreateRuleRequest) GetCondition() CreateRuleRequestCondition {
-	return s.Condition
+// GetConditions returns the value of Conditions.
+func (s *CreateRuleRequest) GetConditions() []RuleCondition {
+	return s.Conditions
 }
 
 // GetFlagVariantID returns the value of FlagVariantID.
@@ -282,9 +281,9 @@ func (s *CreateRuleRequest) GetPriority() OptInt {
 	return s.Priority
 }
 
-// SetCondition sets the value of Condition.
-func (s *CreateRuleRequest) SetCondition(val CreateRuleRequestCondition) {
-	s.Condition = val
+// SetConditions sets the value of Conditions.
+func (s *CreateRuleRequest) SetConditions(val []RuleCondition) {
+	s.Conditions = val
 }
 
 // SetFlagVariantID sets the value of FlagVariantID.
@@ -295,18 +294,6 @@ func (s *CreateRuleRequest) SetFlagVariantID(val string) {
 // SetPriority sets the value of Priority.
 func (s *CreateRuleRequest) SetPriority(val OptInt) {
 	s.Priority = val
-}
-
-// JSON condition.
-type CreateRuleRequestCondition map[string]jx.Raw
-
-func (s *CreateRuleRequestCondition) init() CreateRuleRequestCondition {
-	m := *s
-	if m == nil {
-		m = map[string]jx.Raw{}
-		*s = m
-	}
-	return m
 }
 
 // Ref: #/components/schemas/CreateUserRequest
@@ -3352,13 +3339,12 @@ func (s *ResetPasswordRequest) SetNewPassword(val string) {
 
 // Ref: #/components/schemas/Rule
 type Rule struct {
-	ID        string `json:"id"`
-	FeatureID string `json:"feature_id"`
-	// JSON condition.
-	Condition     RuleCondition `json:"condition"`
-	FlagVariantID string        `json:"flag_variant_id"`
-	Priority      int           `json:"priority"`
-	CreatedAt     time.Time     `json:"created_at"`
+	ID            string          `json:"id"`
+	FeatureID     string          `json:"feature_id"`
+	Conditions    []RuleCondition `json:"conditions"`
+	FlagVariantID string          `json:"flag_variant_id"`
+	Priority      int             `json:"priority"`
+	CreatedAt     time.Time       `json:"created_at"`
 }
 
 // GetID returns the value of ID.
@@ -3371,9 +3357,9 @@ func (s *Rule) GetFeatureID() string {
 	return s.FeatureID
 }
 
-// GetCondition returns the value of Condition.
-func (s *Rule) GetCondition() RuleCondition {
-	return s.Condition
+// GetConditions returns the value of Conditions.
+func (s *Rule) GetConditions() []RuleCondition {
+	return s.Conditions
 }
 
 // GetFlagVariantID returns the value of FlagVariantID.
@@ -3401,9 +3387,9 @@ func (s *Rule) SetFeatureID(val string) {
 	s.FeatureID = val
 }
 
-// SetCondition sets the value of Condition.
-func (s *Rule) SetCondition(val RuleCondition) {
-	s.Condition = val
+// SetConditions sets the value of Conditions.
+func (s *Rule) SetConditions(val []RuleCondition) {
+	s.Conditions = val
 }
 
 // SetFlagVariantID sets the value of FlagVariantID.
@@ -3421,16 +3407,143 @@ func (s *Rule) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
 }
 
-// JSON condition.
-type RuleCondition map[string]jx.Raw
+type RuleAttribute string
 
-func (s *RuleCondition) init() RuleCondition {
-	m := *s
-	if m == nil {
-		m = map[string]jx.Raw{}
-		*s = m
+// Single condition item.
+// Ref: #/components/schemas/RuleCondition
+type RuleCondition struct {
+	Attribute RuleAttribute `json:"attribute"`
+	Operator  RuleOperator  `json:"operator"`
+	Value     jx.Raw        `json:"value"`
+}
+
+// GetAttribute returns the value of Attribute.
+func (s *RuleCondition) GetAttribute() RuleAttribute {
+	return s.Attribute
+}
+
+// GetOperator returns the value of Operator.
+func (s *RuleCondition) GetOperator() RuleOperator {
+	return s.Operator
+}
+
+// GetValue returns the value of Value.
+func (s *RuleCondition) GetValue() jx.Raw {
+	return s.Value
+}
+
+// SetAttribute sets the value of Attribute.
+func (s *RuleCondition) SetAttribute(val RuleAttribute) {
+	s.Attribute = val
+}
+
+// SetOperator sets the value of Operator.
+func (s *RuleCondition) SetOperator(val RuleOperator) {
+	s.Operator = val
+}
+
+// SetValue sets the value of Value.
+func (s *RuleCondition) SetValue(val jx.Raw) {
+	s.Value = val
+}
+
+// Operator for condition comparison.
+// Ref: #/components/schemas/RuleOperator
+type RuleOperator string
+
+const (
+	RuleOperatorEq         RuleOperator = "eq"
+	RuleOperatorNeq        RuleOperator = "neq"
+	RuleOperatorIn         RuleOperator = "in"
+	RuleOperatorNotIn      RuleOperator = "not_in"
+	RuleOperatorGt         RuleOperator = "gt"
+	RuleOperatorGte        RuleOperator = "gte"
+	RuleOperatorLt         RuleOperator = "lt"
+	RuleOperatorLte        RuleOperator = "lte"
+	RuleOperatorRegex      RuleOperator = "regex"
+	RuleOperatorPercentage RuleOperator = "percentage"
+)
+
+// AllValues returns all RuleOperator values.
+func (RuleOperator) AllValues() []RuleOperator {
+	return []RuleOperator{
+		RuleOperatorEq,
+		RuleOperatorNeq,
+		RuleOperatorIn,
+		RuleOperatorNotIn,
+		RuleOperatorGt,
+		RuleOperatorGte,
+		RuleOperatorLt,
+		RuleOperatorLte,
+		RuleOperatorRegex,
+		RuleOperatorPercentage,
 	}
-	return m
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s RuleOperator) MarshalText() ([]byte, error) {
+	switch s {
+	case RuleOperatorEq:
+		return []byte(s), nil
+	case RuleOperatorNeq:
+		return []byte(s), nil
+	case RuleOperatorIn:
+		return []byte(s), nil
+	case RuleOperatorNotIn:
+		return []byte(s), nil
+	case RuleOperatorGt:
+		return []byte(s), nil
+	case RuleOperatorGte:
+		return []byte(s), nil
+	case RuleOperatorLt:
+		return []byte(s), nil
+	case RuleOperatorLte:
+		return []byte(s), nil
+	case RuleOperatorRegex:
+		return []byte(s), nil
+	case RuleOperatorPercentage:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *RuleOperator) UnmarshalText(data []byte) error {
+	switch RuleOperator(data) {
+	case RuleOperatorEq:
+		*s = RuleOperatorEq
+		return nil
+	case RuleOperatorNeq:
+		*s = RuleOperatorNeq
+		return nil
+	case RuleOperatorIn:
+		*s = RuleOperatorIn
+		return nil
+	case RuleOperatorNotIn:
+		*s = RuleOperatorNotIn
+		return nil
+	case RuleOperatorGt:
+		*s = RuleOperatorGt
+		return nil
+	case RuleOperatorGte:
+		*s = RuleOperatorGte
+		return nil
+	case RuleOperatorLt:
+		*s = RuleOperatorLt
+		return nil
+	case RuleOperatorLte:
+		*s = RuleOperatorLte
+		return nil
+	case RuleOperatorRegex:
+		*s = RuleOperatorRegex
+		return nil
+	case RuleOperatorPercentage:
+		*s = RuleOperatorPercentage
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/RuleResponse

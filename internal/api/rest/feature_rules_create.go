@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/go-faster/jx"
+
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
@@ -49,11 +50,26 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
-	// Build domain rule
-	condBytes, _ := json.Marshal(req.Condition) // ogen type is map[string]jx.Raw; marshalling back to json
+	// Build domain rule from structured conditions
+	conds := make(domain.Conditions, 0, len(req.Conditions))
+	for _, c := range req.Conditions {
+		var val any
+		if len(c.Value) > 0 {
+			if err := json.Unmarshal(c.Value, &val); err != nil {
+				slog.Error("unmarshal condition value", "error", err)
+				return nil, err
+			}
+		}
+		conds = append(conds, domain.Condition{
+			Attribute: domain.RuleAttribute(c.Attribute),
+			Operator:  domain.RuleOperator(c.Operator),
+			Value:     val,
+		})
+	}
+
 	rule := domain.Rule{
 		FeatureID:     featureID,
-		Condition:     json.RawMessage(condBytes),
+		Conditions:    conds,
 		FlagVariantID: domain.FlagVariantID(req.FlagVariantID),
 		Priority:      uint8(req.Priority.Or(0)),
 	}
@@ -64,21 +80,29 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
-	// Convert created.Condition (json) to generated RuleCondition
-	var tmp map[string]json.RawMessage
-	if err := json.Unmarshal(created.Condition, &tmp); err != nil {
-		slog.Error("unmarshal created rule condition", "error", err)
-		return nil, err
-	}
-	cond := make(generatedapi.RuleCondition, len(tmp))
-	for k, v := range tmp {
-		cond[k] = jx.Raw(v)
+	// Build response Rule with structured conditions
+	respConds := make([]generatedapi.RuleCondition, 0, len(created.Conditions))
+	for _, c := range created.Conditions {
+		var raw jx.Raw
+		if c.Value != nil {
+			bytes, err := json.Marshal(c.Value)
+			if err != nil {
+				slog.Error("marshal condition value", "error", err)
+				return nil, err
+			}
+			raw = bytes
+		}
+		respConds = append(respConds, generatedapi.RuleCondition{
+			Attribute: generatedapi.RuleAttribute(c.Attribute),
+			Operator:  generatedapi.RuleOperator(c.Operator),
+			Value:     raw,
+		})
 	}
 
 	resp := &generatedapi.RuleResponse{Rule: generatedapi.Rule{
 		ID:            created.ID.String(),
 		FeatureID:     created.FeatureID.String(),
-		Condition:     cond,
+		Conditions:    respConds,
 		FlagVariantID: created.FlagVariantID.String(),
 		Priority:      int(created.Priority),
 		CreatedAt:     created.CreatedAt,

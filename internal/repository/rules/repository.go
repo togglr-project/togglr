@@ -2,6 +2,7 @@ package rules
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -31,10 +32,15 @@ INSERT INTO rules (feature_id, condition, flag_variant_id, priority)
 VALUES ($1, $2, $3, $4)
 RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 
+	conditionsData, err := json.Marshal(rule.Conditions)
+	if err != nil {
+		return domain.Rule{}, fmt.Errorf("marshal conditions: %w", err)
+	}
+
 	var model ruleModel
 	if err := executor.QueryRow(ctx, query,
 		rule.FeatureID,
-		[]byte(rule.Condition),
+		conditionsData,
 		rule.FlagVariantID,
 		int(rule.Priority),
 	).Scan(
@@ -133,10 +139,15 @@ SET feature_id = $1, condition = $2, flag_variant_id = $3, priority = $4
 WHERE id = $5
 RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 
+	conditionsData, err := json.Marshal(rule.Conditions)
+	if err != nil {
+		return domain.Rule{}, fmt.Errorf("marshal conditions: %w", err)
+	}
+
 	var model ruleModel
 	if err := executor.QueryRow(ctx, query,
 		rule.FeatureID,
-		[]byte(rule.Condition),
+		conditionsData,
 		rule.FlagVariantID,
 		int(rule.Priority),
 		rule.ID,

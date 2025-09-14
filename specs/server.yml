@@ -2788,6 +2788,26 @@ components:
           $ref: '#/components/schemas/FlagVariant'
       required: [flag_variant]
 
+    RuleAttribute:
+      type: string
+      description: Attribute to match in the rule condition
+
+    RuleOperator:
+      type: string
+      description: Operator for condition comparison
+      enum: [eq, neq, in, not_in, gt, gte, lt, lte, regex, percentage]
+
+    RuleCondition:
+      type: object
+      description: Single condition item
+      properties:
+        attribute:
+          $ref: '#/components/schemas/RuleAttribute'
+        operator:
+          $ref: '#/components/schemas/RuleOperator'
+        value: {}
+      required: [attribute, operator, value]
+
     Rule:
       type: object
       properties:
@@ -2797,14 +2817,10 @@ components:
         feature_id:
           type: string
           example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        condition:
-          type: object
-          additionalProperties: true
-          description: JSON condition
-          example:
-            attribute: country
-            op: '='
-            value: RU
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleCondition'
         flag_variant_id:
           type: string
           example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
@@ -2817,22 +2833,22 @@ components:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, feature_id, condition, flag_variant_id, priority, created_at]
+      required: [id, feature_id, conditions, flag_variant_id, priority, created_at]
 
     CreateRuleRequest:
       type: object
       properties:
-        condition:
-          type: object
-          additionalProperties: true
-          description: JSON condition
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleCondition'
         flag_variant_id:
           type: string
         priority:
           type: integer
           minimum: 0
           maximum: 255
-      required: [condition, flag_variant_id]
+      required: [conditions, flag_variant_id]
 
     RuleResponse:
       type: object

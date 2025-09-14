@@ -1,6 +1,8 @@
 package rules
 
 import (
+	"encoding/json"
+	"log/slog"
 	"time"
 
 	"github.com/rom8726/etoggle/internal/domain"
@@ -16,10 +18,16 @@ type ruleModel struct {
 }
 
 func (m *ruleModel) toDomain() domain.Rule {
+	var conditions domain.Conditions
+	err := json.Unmarshal(m.Condition, &conditions)
+	if err != nil {
+		slog.Error("unmarshal rule condition", "conditions", string(m.Condition), "error", err)
+	}
+
 	return domain.Rule{
 		ID:            domain.RuleID(m.ID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
-		Condition:     m.Condition,
+		Conditions:    conditions,
 		FlagVariantID: domain.FlagVariantID(m.FlagVariantID),
 		Priority:      uint8(m.Priority),
 		CreatedAt:     m.CreatedAt,
