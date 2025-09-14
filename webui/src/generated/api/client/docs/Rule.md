@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
 **feature_id** | **string** |  | [default to undefined]
-**condition** | **{ [key: string]: any; }** | JSON condition | [default to undefined]
+**conditions** | [**Array&lt;RuleCondition&gt;**](RuleCondition.md) |  | [default to undefined]
 **flag_variant_id** | **string** |  | [default to undefined]
 **priority** | **number** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
@@ -20,7 +20,7 @@ import { Rule } from './api';
 const instance: Rule = {
     id,
     feature_id,
-    condition,
+    conditions,
     flag_variant_id,
     priority,
     created_at,

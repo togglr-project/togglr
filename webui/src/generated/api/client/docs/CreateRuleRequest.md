@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**condition** | **{ [key: string]: any; }** | JSON condition | [default to undefined]
+**conditions** | [**Array&lt;RuleCondition&gt;**](RuleCondition.md) |  | [default to undefined]
 **flag_variant_id** | **string** |  | [default to undefined]
 **priority** | **number** |  | [optional] [default to undefined]
 
@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 import { CreateRuleRequest } from './api';
 
 const instance: CreateRuleRequest = {
-    condition,
+    conditions,
     flag_variant_id,
     priority,
 };

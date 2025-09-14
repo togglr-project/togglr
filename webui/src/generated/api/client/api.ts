@@ -46,10 +46,7 @@ export interface CreateFlagVariantRequest {
     'rollout_percent': number;
 }
 export interface CreateRuleRequest {
-    /**
-     * JSON condition
-     */
-    'condition': { [key: string]: any; };
+    'conditions': Array<RuleCondition>;
     'flag_variant_id': string;
     'priority'?: number;
 }
@@ -434,14 +431,44 @@ export interface ResetPasswordRequest {
 export interface Rule {
     'id': string;
     'feature_id': string;
-    /**
-     * JSON condition
-     */
-    'condition': { [key: string]: any; };
+    'conditions': Array<RuleCondition>;
     'flag_variant_id': string;
     'priority': number;
     'created_at': string;
 }
+/**
+ * Single condition item
+ */
+export interface RuleCondition {
+    /**
+     * Attribute to match in the rule condition
+     */
+    'attribute': string;
+    'operator': RuleOperator;
+    'value': any;
+}
+
+
+/**
+ * Operator for condition comparison
+ */
+
+export const RuleOperator = {
+    Eq: 'eq',
+    Neq: 'neq',
+    In: 'in',
+    NotIn: 'not_in',
+    Gt: 'gt',
+    Gte: 'gte',
+    Lt: 'lt',
+    Lte: 'lte',
+    Regex: 'regex',
+    Percentage: 'percentage'
+} as const;
+
+export type RuleOperator = typeof RuleOperator[keyof typeof RuleOperator];
+
+
 export interface RuleResponse {
     'rule': Rule;
 }
