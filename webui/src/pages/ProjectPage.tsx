@@ -213,10 +213,14 @@ const ProjectPage: React.FC = () => {
   // Rules helpers/state for Create Feature dialog
   const ruleOperatorOptions: OperatorOption[] = ['eq','neq','in','not_in','gt','gte','lt','lte','regex','percentage'];
 
-  const addRule = () => setRules((prev) => [
-    ...prev,
-    { id: genId(), flag_variant_id: variants[0]?.id || '', priority: 0, conditions: [{ attribute: '', operator: 'eq', value: '' }] }
-  ]);
+  const addRule = () => setRules((prev) => {
+    const nums = prev.map((r) => (typeof r.priority === 'number' ? r.priority : 0));
+    const next = nums.length ? Math.min(255, Math.max(...nums) + 1) : 0;
+    return [
+      ...prev,
+      { id: genId(), flag_variant_id: variants[0]?.id || '', priority: next, conditions: [{ attribute: '', operator: 'eq', value: '' }] }
+    ];
+  });
   const removeRule = (index: number) => setRules((prev) => prev.filter((_, i) => i !== index));
   const updateRule = (index: number, patch: Partial<RuleFormItem>) => setRules((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
   const addRuleConditionInline = (ruleIndex: number) => setRules((prev) => prev.map((r, i) => (
@@ -231,11 +235,20 @@ const ProjectPage: React.FC = () => {
       : r
   )));
 
+  const priorityCounts = rules.reduce((acc, r) => {
+    const p = r.priority;
+    if (typeof p === 'number') {
+      acc[p] = (acc[p] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<number, number>);
+  const hasDuplicatePriorities = Object.values(priorityCounts).some((c) => c > 1);
   const rulesValid = rules.every((r) =>
     r.flag_variant_id && variants.some((v) => v.id === r.flag_variant_id) &&
     r.conditions.length > 0 &&
-    r.conditions.every((c) => c.attribute.trim().length > 0)
-  );
+    r.conditions.every((c) => c.attribute.trim().length > 0) &&
+    typeof r.priority === 'number' && Number.isInteger(r.priority) && r.priority >= 0 && r.priority <= 255
+  ) && !hasDuplicatePriorities;
 
   const project = projectResp?.project;
 
@@ -394,7 +407,21 @@ const ProjectPage: React.FC = () => {
                         type="number"
                         value={r.priority}
                         onChange={(e) => updateRule(ri, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
-                        helperText="Lower numbers run first"
+                        inputProps={{ min: 0, max: 255, step: 1 }}
+                        error={
+                          r.priority === '' ||
+                          (typeof r.priority === 'number' && (!Number.isInteger(r.priority) || r.priority < 0 || r.priority > 255)) ||
+                          (typeof r.priority === 'number' && priorityCounts[r.priority] > 1)
+                        }
+                        helperText={
+                          r.priority === ''
+                            ? 'Priority is required (0-255)'
+                            : (typeof r.priority === 'number' && (!Number.isInteger(r.priority) || r.priority < 0 || r.priority > 255))
+                              ? 'Priority must be an integer between 0 and 255'
+                              : (typeof r.priority === 'number' && priorityCounts[r.priority] > 1)
+                                ? 'Duplicate priority with another rule'
+                                : 'Lower numbers run first'
+                        }
                       />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -422,7 +449,7 @@ const ProjectPage: React.FC = () => {
                 </Button>
                 {rules.length > 0 && !rulesValid && (
                   <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                    Please fix rules: each must have a target variant and at least one condition with attribute.
+                    Please fix rules: each must have a target variant, at least one condition with attribute, and unique priorities between 0 and 255.
                   </Typography>
                 )}
               </Box>
