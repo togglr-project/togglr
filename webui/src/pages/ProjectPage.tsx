@@ -69,6 +69,7 @@ const ProjectPage: React.FC = () => {
   const [variants, setVariants] = useState<VariantFormItem[]>([{ name: 'control', rollout_percent: 100 }]);
   const [ruleJson, setRuleJson] = useState('');
   const [ruleTargetVariantIndex, setRuleTargetVariantIndex] = useState<number | ''>('');
+  const [rulePriority, setRulePriority] = useState<number | ''>(0);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -82,6 +83,7 @@ const ProjectPage: React.FC = () => {
     setVariants([{ name: 'control', rollout_percent: 100 }]);
     setRuleJson('');
     setRuleTargetVariantIndex('');
+    setRulePriority(0);
     setFormError(null);
   };
 
@@ -137,7 +139,7 @@ const ProjectPage: React.FC = () => {
         await apiClient.createFeatureRule(feature.id, {
           condition: conditionObj,
           flag_variant_id: variantId,
-          priority: 0,
+          priority: rulePriority === '' ? 0 : Number(rulePriority),
         });
       }
 
@@ -268,6 +270,7 @@ const ProjectPage: React.FC = () => {
               <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle1" sx={{ mb: 1 }}>Rule (optional)</Typography>
                 <TextField label="Rule JSON" value={ruleJson} onChange={(e) => setRuleJson(e.target.value)} fullWidth multiline minRows={3} placeholder='{"user_id": 123}' />
+                <TextField label="Rule Priority" type="number" value={rulePriority} onChange={(e) => setRulePriority(e.target.value === '' ? '' : Number(e.target.value))} fullWidth sx={{ mt: 1 }} helperText="Lower numbers run first" />
                 <TextField select fullWidth sx={{ mt: 1 }} label="Rule Target Variant" value={ruleTargetVariantIndex} onChange={(e) => setRuleTargetVariantIndex(e.target.value === '' ? '' : Number(e.target.value))} helperText="Which variant to return when rule matches">
                   <MenuItem value="">None</MenuItem>
                   {variants.map((v, i) => (
