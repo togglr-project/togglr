@@ -2,10 +2,8 @@
 package tokenizer
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -106,29 +104,8 @@ func (s *Service) verifyToken(token string, tokenType domain.TokenType) (*domain
 	return claims, nil
 }
 
-//nolint:gocyclo // need refactor
-func (s *Service) generateUserPermissions(ctx context.Context, user *domain.User) (domain.UserPermissions, error) {
-	permissions := domain.UserPermissions{
-		ProjectPermissions: make(map[domain.ProjectID]domain.ProjectPermission),
-		CanCreateProjects:  user.IsSuperuser,
-		CanManageUsers:     user.IsSuperuser,
-	}
-
-	return permissions, nil
-}
-
 func (s *Service) generateToken(user *domain.User, tokenType domain.TokenType, ttl time.Duration) (string, error) {
 	now := time.Now().UTC()
-
-	var permissions domain.UserPermissions
-	if tokenType == domain.TokenTypeAccess {
-		ctx := context.Background()
-		var err error
-		permissions, err = s.generateUserPermissions(ctx, user)
-		if err != nil {
-			slog.Error("failed to generate user permissions", "user_id", user.ID, "error", err)
-		}
-	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &domain.TokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -140,7 +117,6 @@ func (s *Service) generateToken(user *domain.User, tokenType domain.TokenType, t
 		UserID:      uint(user.ID),
 		Username:    user.Username,
 		IsSuperuser: user.IsSuperuser,
-		Permissions: permissions,
 	})
 
 	return token.SignedString(s.secretKey)
