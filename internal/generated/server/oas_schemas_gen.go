@@ -543,6 +543,8 @@ func (*ErrorInternalServerError) getProductInfoRes()           {}
 func (*ErrorInternalServerError) getProjectRes()               {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()          {}
 func (*ErrorInternalServerError) getSSOProvidersRes()          {}
+func (*ErrorInternalServerError) listFeatureFlagVariantsRes()  {}
+func (*ErrorInternalServerError) listFeatureRulesRes()         {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()      {}
 func (*ErrorInternalServerError) listProjectsRes()             {}
 func (*ErrorInternalServerError) listUsersRes()                {}
@@ -627,6 +629,8 @@ func (*ErrorNotFound) createProjectFeatureRes()     {}
 func (*ErrorNotFound) deleteUserRes()               {}
 func (*ErrorNotFound) getProjectRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()          {}
+func (*ErrorNotFound) listFeatureFlagVariantsRes()  {}
+func (*ErrorNotFound) listFeatureRulesRes()         {}
 func (*ErrorNotFound) listProjectFeaturesRes()      {}
 func (*ErrorNotFound) listUsersRes()                {}
 func (*ErrorNotFound) setSuperuserStatusRes()       {}
@@ -680,6 +684,8 @@ func (*ErrorPermissionDenied) getLDAPSyncProgressRes()      {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()        {}
 func (*ErrorPermissionDenied) getProductInfoRes()           {}
 func (*ErrorPermissionDenied) getProjectRes()               {}
+func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()  {}
+func (*ErrorPermissionDenied) listFeatureRulesRes()         {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()      {}
 func (*ErrorPermissionDenied) listUsersRes()                {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()       {}
@@ -801,6 +807,8 @@ func (*ErrorUnauthorized) getLDAPSyncProgressRes()      {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()        {}
 func (*ErrorUnauthorized) getProductInfoRes()           {}
 func (*ErrorUnauthorized) getProjectRes()               {}
+func (*ErrorUnauthorized) listFeatureFlagVariantsRes()  {}
+func (*ErrorUnauthorized) listFeatureRulesRes()         {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()      {}
 func (*ErrorUnauthorized) listProjectsRes()             {}
 func (*ErrorUnauthorized) listUsersRes()                {}
@@ -2439,9 +2447,17 @@ type ListFeaturesResponse []Feature
 
 func (*ListFeaturesResponse) listProjectFeaturesRes() {}
 
+type ListFlagVariantsResponse []FlagVariant
+
+func (*ListFlagVariantsResponse) listFeatureFlagVariantsRes() {}
+
 type ListProjectsResponse []Project
 
 func (*ListProjectsResponse) listProjectsRes() {}
+
+type ListRulesResponse []Rule
+
+func (*ListRulesResponse) listFeatureRulesRes() {}
 
 type ListUsersResponse []User
 

@@ -242,6 +242,24 @@ func (UnimplementedHandler) GetSSOProviders(ctx context.Context) (r GetSSOProvid
 	return r, ht.ErrNotImplemented
 }
 
+// ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
+//
+// List flag variants for feature.
+//
+// GET /api/v1/features/{feature_id}/variants
+func (UnimplementedHandler) ListFeatureFlagVariants(ctx context.Context, params ListFeatureFlagVariantsParams) (r ListFeatureFlagVariantsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListFeatureRules implements ListFeatureRules operation.
+//
+// List rules for feature.
+//
+// GET /api/v1/features/{feature_id}/rules
+func (UnimplementedHandler) ListFeatureRules(ctx context.Context, params ListFeatureRulesParams) (r ListFeatureRulesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectFeatures implements ListProjectFeatures operation.
 //
 // List features for project.

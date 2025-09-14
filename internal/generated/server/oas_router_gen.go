@@ -307,12 +307,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						if len(elem) == 0 {
 							// Leaf node.
 							switch r.Method {
+							case "GET":
+								s.handleListFeatureRulesRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
 							case "POST":
 								s.handleCreateFeatureRuleRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "POST")
+								s.notAllowed(w, r, "GET,POST")
 							}
 
 							return
@@ -329,12 +333,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						if len(elem) == 0 {
 							// Leaf node.
 							switch r.Method {
+							case "GET":
+								s.handleListFeatureFlagVariantsRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
 							case "POST":
 								s.handleCreateFeatureFlagVariantRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "POST")
+								s.notAllowed(w, r, "GET,POST")
 							}
 
 							return
@@ -1532,6 +1540,14 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						if len(elem) == 0 {
 							// Leaf node.
 							switch method {
+							case "GET":
+								r.name = ListFeatureRulesOperation
+								r.summary = "List rules for feature"
+								r.operationID = "ListFeatureRules"
+								r.pathPattern = "/api/v1/features/{feature_id}/rules"
+								r.args = args
+								r.count = 1
+								return r, true
 							case "POST":
 								r.name = CreateFeatureRuleOperation
 								r.summary = "Create rule for feature"
@@ -1556,6 +1572,14 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						if len(elem) == 0 {
 							// Leaf node.
 							switch method {
+							case "GET":
+								r.name = ListFeatureFlagVariantsOperation
+								r.summary = "List flag variants for feature"
+								r.operationID = "ListFeatureFlagVariants"
+								r.pathPattern = "/api/v1/features/{feature_id}/variants"
+								r.args = args
+								r.count = 1
+								return r, true
 							case "POST":
 								r.name = CreateFeatureFlagVariantOperation
 								r.summary = "Create flag variant for feature"

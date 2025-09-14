@@ -1850,6 +1850,54 @@ paths:
         - bearerAuth: []
 
   /api/v1/features/{feature_id}/rules:
+    get:
+      summary: List rules for feature
+      operationId: ListFeatureRules
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of rules for the feature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRulesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
     post:
       summary: Create rule for feature
       operationId: CreateFeatureRule
@@ -1912,6 +1960,54 @@ paths:
         - bearerAuth: []
 
   /api/v1/features/{feature_id}/variants:
+    get:
+      summary: List flag variants for feature
+      operationId: ListFeatureFlagVariants
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of flag variants for the feature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFlagVariantsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
     post:
       summary: Create flag variant for feature
       operationId: CreateFeatureFlagVariant
@@ -2749,6 +2845,16 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Feature'
+
+    ListFlagVariantsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/FlagVariant'
+
+    ListRulesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Rule'
 
     FlagVariant:
       type: object

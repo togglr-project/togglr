@@ -31,6 +31,8 @@ const (
 	GetProjectOperation               OperationName = "GetProject"
 	GetSAMLMetadataOperation          OperationName = "GetSAMLMetadata"
 	GetSSOProvidersOperation          OperationName = "GetSSOProviders"
+	ListFeatureFlagVariantsOperation  OperationName = "ListFeatureFlagVariants"
+	ListFeatureRulesOperation         OperationName = "ListFeatureRules"
 	ListProjectFeaturesOperation      OperationName = "ListProjectFeatures"
 	ListProjectsOperation             OperationName = "ListProjects"
 	ListUsersOperation                OperationName = "ListUsers"

@@ -101,6 +101,14 @@ type GetSSOProvidersRes interface {
 	getSSOProvidersRes()
 }
 
+type ListFeatureFlagVariantsRes interface {
+	listFeatureFlagVariantsRes()
+}
+
+type ListFeatureRulesRes interface {
+	listFeatureRulesRes()
+}
+
 type ListProjectFeaturesRes interface {
 	listProjectFeaturesRes()
 }

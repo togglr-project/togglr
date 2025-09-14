@@ -162,6 +162,18 @@ type Handler interface {
 	//
 	// GET /api/v1/auth/sso/providers
 	GetSSOProviders(ctx context.Context) (GetSSOProvidersRes, error)
+	// ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
+	//
+	// List flag variants for feature.
+	//
+	// GET /api/v1/features/{feature_id}/variants
+	ListFeatureFlagVariants(ctx context.Context, params ListFeatureFlagVariantsParams) (ListFeatureFlagVariantsRes, error)
+	// ListFeatureRules implements ListFeatureRules operation.
+	//
+	// List rules for feature.
+	//
+	// GET /api/v1/features/{feature_id}/rules
+	ListFeatureRules(ctx context.Context, params ListFeatureRulesParams) (ListFeatureRulesRes, error)
 	// ListProjectFeatures implements ListProjectFeatures operation.
 	//
 	// List features for project.
