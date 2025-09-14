@@ -7,7 +7,9 @@ configuration.ts
 docs/AddProjectRequest.md
 docs/ChangeUserPasswordRequest.md
 docs/CreateFeatureRequest.md
+docs/CreateFlagVariantInline.md
 docs/CreateFlagVariantRequest.md
+docs/CreateRuleInline.md
 docs/CreateRuleRequest.md
 docs/CreateUserRequest.md
 docs/CreateUserResponse.md

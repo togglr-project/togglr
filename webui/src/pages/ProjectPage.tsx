@@ -26,13 +26,29 @@ import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import type { Feature, FeatureKind, Project } from '../generated/api/client';
-import { useNotification } from '../App';
 
 interface ProjectResponse { project: Project }
 
 const kindOptions: FeatureKind[] = ['boolean', 'multivariant'];
 
+// UUID generator (uses crypto.randomUUID when available)
+const genId = (): string => {
+  const g = (typeof crypto !== 'undefined' && typeof (crypto as any).randomUUID === 'function')
+    ? (crypto as any).randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+  return g;
+};
+
+type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
+interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
+interface RuleFormItem { id: string; flag_variant_id: string; priority: number | ''; conditions: RuleConditionItem[] }
+
 interface VariantFormItem {
+  id: string;
   name: string;
   rollout_percent: number;
 }
@@ -68,7 +84,8 @@ const ProjectPage: React.FC = () => {
   const [kind, setKind] = useState<FeatureKind>('boolean');
   const [defaultVariant, setDefaultVariant] = useState('off');
   const [enabled, setEnabled] = useState(true);
-  const [variants, setVariants] = useState<VariantFormItem[]>([{ name: 'control', rollout_percent: 100 }]);
+  const [variants, setVariants] = useState<VariantFormItem[]>([{ id: genId(), name: 'control', rollout_percent: 100 }]);
+  const [rules, setRules] = useState<RuleFormItem[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -90,6 +107,15 @@ const ProjectPage: React.FC = () => {
     }
   }, [kind, variants]);
 
+  // Ensure rules reference existing variants when variants change
+  useEffect(() => {
+    setRules((prev) => prev.map((r) => (
+      variants.some((v) => v.id === r.flag_variant_id)
+        ? r
+        : { ...r, flag_variant_id: variants[0]?.id || '' }
+    )));
+  }, [variants]);
+
   const resetForm = () => {
     setKeyValue('');
     setName('');
@@ -97,7 +123,8 @@ const ProjectPage: React.FC = () => {
     setKind('boolean');
     setDefaultVariant('off');
     setEnabled(true);
-    setVariants([{ name: 'control', rollout_percent: 100 }]);
+    setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
+    setRules([]);
     setFormError(null);
   };
 
@@ -117,8 +144,37 @@ const ProjectPage: React.FC = () => {
         if (!names.includes(defaultVariant.trim())) throw new Error('Default Variant must be one of the variants');
       }
 
-      // Create feature
+      // Create feature with inline variants and rules (if multivariant)
       const dv = kind === 'boolean' ? (defaultVariant === 'on' ? 'on' : 'off') : defaultVariant.trim();
+
+      let inlineVariants: { id: string; name: string; rollout_percent: number }[] | undefined;
+      let inlineRules: { id: string; conditions: any[]; flag_variant_id: string; priority?: number }[] | undefined;
+
+      if (kind === 'multivariant') {
+        // Validate rules if present
+        if (rules.length > 0 && !rulesValid) {
+          throw new Error('Please fix rules: select a target variant and add at least one condition with attribute');
+        }
+        inlineVariants = variants.map((v) => ({ id: v.id, name: v.name.trim(), rollout_percent: Number(v.rollout_percent) || 0 }));
+        if (rules.length > 0) {
+          inlineRules = rules.map((r) => ({
+            id: r.id,
+            flag_variant_id: r.flag_variant_id,
+            priority: r.priority === '' ? 0 : Number(r.priority),
+            conditions: r.conditions.filter((c) => c.attribute.trim()).map((c) => {
+              let val: any = c.value;
+              const trimmed = (c.value || '').trim();
+              if (trimmed.length > 0) {
+                try { val = JSON.parse(trimmed); } catch { val = c.value; }
+              } else {
+                val = '';
+              }
+              return { attribute: c.attribute.trim(), operator: c.operator, value: val };
+            }),
+          }));
+        }
+      }
+
       const featureRes = await apiClient.createProjectFeature(projectId, {
         key: keyValue.trim(),
         name: name.trim(),
@@ -126,19 +182,10 @@ const ProjectPage: React.FC = () => {
         kind,
         default_variant: dv,
         enabled,
-      });
+        variants: inlineVariants,
+        rules: inlineRules,
+      } as any);
       const feature = (featureRes.data as { feature: Feature }).feature;
-
-      // Create variants for multivariant
-      if (kind === 'multivariant') {
-        for (const v of variants) {
-          await apiClient.createFeatureFlagVariant(feature.id, {
-            name: v.name,
-            rollout_percent: Number(v.rollout_percent) || 0,
-          });
-        }
-      }
-
       return feature;
     },
     onSuccess: async () => {
@@ -157,78 +204,38 @@ const ProjectPage: React.FC = () => {
     onSettled: () => setSubmitting(false),
   });
 
-  const handleAddVariant = () => setVariants((prev) => [...prev, { name: '', rollout_percent: 1 }]);
+  const handleAddVariant = () => setVariants((prev) => [...prev, { id: genId(), name: '', rollout_percent: 1 }]);
   const handleRemoveVariant = (index: number) => setVariants((prev) => prev.filter((_, i) => i !== index));
   const handleVariantChange = (index: number, field: keyof VariantFormItem, value: string) => {
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, [field]: field === 'rollout_percent' ? Number(value) : value } : v)));
   };
 
-  // Notifications
-  const { showNotification } = useNotification();
-
-  // Rule dialog state
-  type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
+  // Rules helpers/state for Create Feature dialog
   const ruleOperatorOptions: OperatorOption[] = ['eq','neq','in','not_in','gt','gte','lt','lte','regex','percentage'];
-  interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
-  const [ruleDialogOpen, setRuleDialogOpen] = useState(false);
-  const [ruleFeature, setRuleFeature] = useState<Feature | null>(null);
-  const [ruleConditions, setRuleConditions] = useState<RuleConditionItem[]>([]);
-  const [flagVariantId, setFlagVariantId] = useState<string>('');
-  const [rulePriorityValue, setRulePriorityValue] = useState<number | ''>(0);
-  const [ruleError, setRuleError] = useState<string | null>(null);
-  const [ruleSaving, setRuleSaving] = useState(false);
 
-  const openRuleDialog = (feature: Feature) => {
-    setRuleFeature(feature);
-    setRuleConditions([]);
-    setFlagVariantId('');
-    setRulePriorityValue(0);
-    setRuleError(null);
-    setRuleDialogOpen(true);
-  };
-  const closeRuleDialog = () => {
-    setRuleDialogOpen(false);
-    setRuleFeature(null);
-  };
-  const addRuleCondition = () => setRuleConditions((prev) => [...prev, { attribute: '', operator: 'eq', value: '' }]);
-  const removeRuleCondition = (idx: number) => setRuleConditions((prev) => prev.filter((_, i) => i !== idx));
-  const changeRuleCondition = (idx: number, field: keyof RuleConditionItem, value: string) => {
-    setRuleConditions((prev) => prev.map((c, i) => (i === idx ? { ...c, [field]: value as any } : c)));
-  };
-  const submitRule = async () => {
-    try {
-      setRuleError(null);
-      setRuleSaving(true);
-      if (!ruleFeature) throw new Error('No feature selected');
-      if (!flagVariantId.trim()) throw new Error('Flag Variant ID is required');
-      const parsed = ruleConditions
-        .filter((c) => c.attribute.trim())
-        .map((c) => {
-          let val: any = c.value;
-          const trimmed = (c.value || '').trim();
-          if (trimmed.length > 0) {
-            try { val = JSON.parse(trimmed); } catch { val = c.value; }
-          } else {
-            val = '';
-          }
-          return { attribute: c.attribute.trim(), operator: c.operator, value: val };
-        });
-      if (parsed.length === 0) throw new Error('Please add at least one condition');
-      await apiClient.createFeatureRule(ruleFeature.id, {
-        conditions: parsed as any,
-        flag_variant_id: flagVariantId.trim(),
-        priority: rulePriorityValue === '' ? 0 : Number(rulePriorityValue),
-      });
-      showNotification('Rule created', 'success');
-      closeRuleDialog();
-    } catch (e: any) {
-      const msg = e?.response?.data?.error?.message || e?.message || 'Failed to create rule';
-      setRuleError(msg);
-      showNotification(msg, 'error');
-    } finally {
-      setRuleSaving(false);
-    }
-  };
+  const addRule = () => setRules((prev) => [
+    ...prev,
+    { id: genId(), flag_variant_id: variants[0]?.id || '', priority: 0, conditions: [{ attribute: '', operator: 'eq', value: '' }] }
+  ]);
+  const removeRule = (index: number) => setRules((prev) => prev.filter((_, i) => i !== index));
+  const updateRule = (index: number, patch: Partial<RuleFormItem>) => setRules((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  const addRuleConditionInline = (ruleIndex: number) => setRules((prev) => prev.map((r, i) => (
+    i === ruleIndex ? { ...r, conditions: [...r.conditions, { attribute: '', operator: 'eq', value: '' }] } : r
+  )));
+  const removeRuleConditionInline = (ruleIndex: number, condIndex: number) => setRules((prev) => prev.map((r, i) => (
+    i === ruleIndex ? { ...r, conditions: r.conditions.filter((_, ci) => ci !== condIndex) } : r
+  )));
+  const changeRuleConditionInline = (ruleIndex: number, condIndex: number, field: keyof RuleConditionItem, value: string) => setRules((prev) => prev.map((r, i) => (
+    i === ruleIndex
+      ? { ...r, conditions: r.conditions.map((c, ci) => (ci === condIndex ? { ...c, [field]: value as any } : c)) }
+      : r
+  )));
+
+  const rulesValid = rules.every((r) =>
+    r.flag_variant_id && variants.some((v) => v.id === r.flag_variant_id) &&
+    r.conditions.length > 0 &&
+    r.conditions.every((c) => c.attribute.trim().length > 0)
+  );
 
   const project = projectResp?.project;
 
@@ -273,11 +280,6 @@ const ProjectPage: React.FC = () => {
                       <Chip size="small" label={f.enabled ? 'enabled' : 'disabled'} color={f.enabled ? 'success' : 'default'} />
                     </Box>
                   </Box>
-                  {f.kind === 'multivariant' && (
-                    <Box>
-                      <Button size="small" variant="outlined" onClick={() => openRuleDialog(f)}>Add Rule</Button>
-                    </Box>
-                  )}
                 </Paper>
               </Grid>
             ))}
@@ -364,9 +366,65 @@ const ProjectPage: React.FC = () => {
                   </Typography>
                 )}
                 <Typography variant="subtitle1" sx={{ mt: 2 }}>Rules</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Rules are created in a separate dialog after the feature is created. You can add them from the feature card on the project page.
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Define optional rules that map conditions to a target variant.
                 </Typography>
+                {rules.map((r, ri) => (
+                  <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5, mb: 1.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Typography variant="subtitle2">Rule #{ri + 1}</Typography>
+                      <IconButton aria-label="delete" onClick={() => removeRule(ri)} size="small"><DeleteIcon /></IconButton>
+                    </Box>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1, mb: 1 }}>
+                      <TextField
+                        select
+                        label="Target Variant"
+                        value={r.flag_variant_id}
+                        onChange={(e) => updateRule(ri, { flag_variant_id: e.target.value })}
+                        required
+                        error={!!r && (!r.flag_variant_id || !variants.some(v => v.id === r.flag_variant_id))}
+                        helperText="Select which variant this rule serves"
+                      >
+                        {variants.map(v => (
+                          <MenuItem key={v.id} value={v.id}>{v.name || '(unnamed)'}</MenuItem>
+                        ))}
+                      </TextField>
+                      <TextField
+                        label="Rule Priority"
+                        type="number"
+                        value={r.priority}
+                        onChange={(e) => updateRule(ri, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
+                        helperText="Lower numbers run first"
+                      />
+                    </Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      Conditions
+                    </Typography>
+                    {r.conditions.map((c, ci) => (
+                      <Box key={ci} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.5fr 1fr 1.5fr auto' }, gap: 1, alignItems: 'center', mb: 1 }}>
+                        <TextField label="Attribute" value={c.attribute} onChange={(e) => changeRuleConditionInline(ri, ci, 'attribute', e.target.value)} />
+                        <TextField select label="Operator" value={c.operator} onChange={(e) => changeRuleConditionInline(ri, ci, 'operator', e.target.value)}>
+                          {ruleOperatorOptions.map(op => (
+                            <MenuItem key={op} value={op}>{op}</MenuItem>
+                          ))}
+                        </TextField>
+                        <TextField label="Value" value={c.value} onChange={(e) => changeRuleConditionInline(ri, ci, 'value', e.target.value)} helperText="JSON or text" />
+                        <IconButton aria-label="delete" onClick={() => removeRuleConditionInline(ri, ci)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                    ))}
+                    <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleConditionInline(ri)}>Add Condition</Button>
+                  </Box>
+                ))}
+                <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={addRule} disabled={variants.length === 0}>
+                  Add Rule
+                </Button>
+                {rules.length > 0 && !rulesValid && (
+                  <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                    Please fix rules: each must have a target variant and at least one condition with attribute.
+                  </Typography>
+                )}
               </Box>
             </Box>
           )}
@@ -379,55 +437,12 @@ const ProjectPage: React.FC = () => {
           <Button onClick={() => { setOpen(false); resetForm(); }}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={() => { setSubmitting(true); createFeatureMutation.mutate(); }} disabled={submitting || !keyValue.trim() || !name.trim() || (kind === 'multivariant' && (!hasAtLeastTwoVariants || !variantsValid || !variantNames.includes(defaultVariant)))}>
+          <Button variant="contained" onClick={() => { setSubmitting(true); createFeatureMutation.mutate(); }} disabled={submitting || !keyValue.trim() || !name.trim() || (kind === 'multivariant' && (!hasAtLeastTwoVariants || !variantsValid || !variantNames.includes(defaultVariant) || (rules.length > 0 && !rulesValid)))}>
             {submitting ? 'Creating...' : 'Create'}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Add Rule Dialog */}
-      <Dialog open={ruleDialogOpen} onClose={closeRuleDialog} fullWidth maxWidth="md">
-        <DialogTitle className="gradient-text-purple">Add Rule {ruleFeature ? `— ${ruleFeature.name}` : ''}</DialogTitle>
-        <DialogContent>
-          {ruleFeature ? (
-            <>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                Enter one or more conditions. Value can be plain text or JSON (e.g., 123, ["a","b"], true).
-              </Typography>
-              {ruleConditions.map((c, i) => (
-                <Box key={i} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1.5fr 1fr 1.5fr auto' }, gap: 1, alignItems: 'center', mb: 1 }}>
-                  <TextField label="Attribute" value={c.attribute} onChange={(e) => changeRuleCondition(i, 'attribute', e.target.value)} fullWidth />
-                  <TextField select label="Operator" value={c.operator} onChange={(e) => changeRuleCondition(i, 'operator', e.target.value)} fullWidth>
-                    {ruleOperatorOptions.map(op => (
-                      <MenuItem key={op} value={op}>{op}</MenuItem>
-                    ))}
-                  </TextField>
-                  <TextField label="Value" value={c.value} onChange={(e) => changeRuleCondition(i, 'value', e.target.value)} fullWidth helperText="JSON or text" />
-                  <IconButton aria-label="delete" onClick={() => removeRuleCondition(i)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Box>
-              ))}
-              <Button size="small" startIcon={<AddIcon />} onClick={addRuleCondition}>Add Condition</Button>
-
-              <TextField label="Rule Priority" type="number" value={rulePriorityValue} onChange={(e) => setRulePriorityValue(e.target.value === '' ? '' : Number(e.target.value))} fullWidth sx={{ mt: 2 }} helperText="Lower numbers run first" />
-              <TextField label="Flag Variant ID" value={flagVariantId} onChange={(e) => setFlagVariantId(e.target.value)} fullWidth sx={{ mt: 2 }} required helperText="Enter the ID of the target variant for this rule" />
-
-              {ruleError && (
-                <Typography color="error" sx={{ mt: 2 }}>{ruleError}</Typography>
-              )}
-            </>
-          ) : (
-            <Typography>Loading...</Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeRuleDialog} disabled={ruleSaving}>Cancel</Button>
-          <Button variant="contained" onClick={submitRule} disabled={ruleSaving || !flagVariantId.trim() || ruleConditions.length === 0}>
-            {ruleSaving ? 'Creating...' : 'Create Rule'}
-          </Button>
-        </DialogActions>
-      </Dialog>
     </AuthenticatedLayout>
   );
 };

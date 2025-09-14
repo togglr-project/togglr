@@ -11,6 +11,8 @@ Name | Type | Description | Notes
 **kind** | [**FeatureKind**](FeatureKind.md) |  | [default to undefined]
 **default_variant** | **string** |  | [default to undefined]
 **enabled** | **boolean** |  | [optional] [default to undefined]
+**variants** | [**Array&lt;CreateFlagVariantInline&gt;**](CreateFlagVariantInline.md) | Optional list of flag variants to create along with the feature | [optional] [default to undefined]
+**rules** | [**Array&lt;CreateRuleInline&gt;**](CreateRuleInline.md) | Optional list of rules to create along with the feature | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +26,8 @@ const instance: CreateFeatureRequest = {
     kind,
     default_variant,
     enabled,
+    variants,
+    rules,
 };
 ```
 
