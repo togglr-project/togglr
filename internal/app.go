@@ -25,6 +25,7 @@ import (
 	"github.com/rom8726/etoggle/internal/repository/licenses"
 	"github.com/rom8726/etoggle/internal/repository/productinfo"
 	"github.com/rom8726/etoggle/internal/repository/projects"
+	"github.com/rom8726/etoggle/internal/repository/rbac"
 	"github.com/rom8726/etoggle/internal/repository/rules"
 	"github.com/rom8726/etoggle/internal/repository/settings"
 	"github.com/rom8726/etoggle/internal/repository/users"
@@ -174,6 +175,11 @@ func (app *App) registerComponents() {
 	app.registerComponent(flagvariants.New).Arg(app.PostgresPool)
 	app.registerComponent(rules.New).Arg(app.PostgresPool)
 
+	// Register RBAC repositories
+	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
+	app.registerComponent(rbac.NewPermissions).Arg(app.PostgresPool)
+	app.registerComponent(rbac.NewMemberships).Arg(app.PostgresPool)
+
 	// Register permissions service
 	app.registerComponent(permissions.New)
 
@@ -286,15 +292,11 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 	}
 
 	// Middleware chain:
-	// CORS → RAW -> Auth → ProjectAccess → ProjectManagement → API implementation
+	// CORS → RAW -> Auth → API implementation
 	handler := pkgmiddlewares.CORSMdw(
 		middlewares.WithRawRequest(
 			middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(
-				middlewares.ProjectAccess(permService)(
-					middlewares.ProjectManagement(permService)(
-						genServer,
-					),
-				),
+				genServer,
 			),
 		),
 	)

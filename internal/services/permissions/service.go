@@ -3,64 +3,90 @@ package permissions
 import (
 	"context"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	etx "github.com/rom8726/etoggle/internal/context"
 	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 )
 
 // Service handles permission checks for various operations.
 type Service struct {
-	projectRepo contract.ProjectsRepository
+	projects contract.ProjectsRepository
+	roles    contract.RolesRepository
+	perms    contract.PermissionsRepository
+	member   contract.MembershipsRepository
 }
 
 // New creates a new permissions service.
 func New(
-	projectRepo contract.ProjectsRepository,
+	projects contract.ProjectsRepository,
+	roles contract.RolesRepository,
+	perms contract.PermissionsRepository,
+	member contract.MembershipsRepository,
 ) *Service {
-	return &Service{
-		projectRepo: projectRepo,
+	return &Service{projects: projects, roles: roles, perms: perms, member: member}
+}
+
+func (s *Service) isSuper(ctx context.Context) bool { return etx.IsSuper(ctx) }
+
+// HasGlobalPermission checks global (non-project) permissions.
+// For now, only superuser has global permissions.
+func (s *Service) HasGlobalPermission(
+	ctx context.Context,
+	permKey domain.PermKey,
+) (bool, error) {
+	_ = permKey // reserved for future global-permissions storage
+	return s.isSuper(ctx), nil
+}
+
+// HasProjectPermission checks if the user has a specific permission in the scope of the project.
+func (s *Service) HasProjectPermission(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	permKey domain.PermKey,
+) (bool, error) {
+	if s.isSuper(ctx) {
+		return true, nil
 	}
+
+	// Verify project exists (preserve current behavior and error mapping)
+	if _, err := s.projects.GetByID(ctx, projectID); err != nil {
+		return false, err
+	}
+
+	userID := etx.UserID(ctx)
+	if userID == 0 {
+		return false, domain.ErrUserNotFound
+	}
+
+	roleID, err := s.member.GetForUserProject(ctx, int(userID), projectID)
+	if err != nil || roleID == "" {
+		return false, err
+	}
+
+	return s.perms.RoleHasPermission(ctx, roleID, permKey)
 }
 
 // CanAccessProject checks if a user can access a project.
 func (s *Service) CanAccessProject(ctx context.Context, projectID domain.ProjectID) error {
-	// Get the project to check its team
-	_, err := s.projectRepo.GetByID(ctx, projectID)
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermProjectView)
 	if err != nil {
 		return err
 	}
-
-	isSuper := etogglcontext.IsSuper(ctx)
-	if isSuper {
-		return nil
+	if !ok {
+		return domain.ErrPermissionDenied
 	}
-
-	userID := etogglcontext.UserID(ctx)
-	if userID == 0 {
-		return domain.ErrUserNotFound
-	}
-
 	return nil
 }
 
 // CanManageProject checks if a user can manage a project (create, update, delete).
 func (s *Service) CanManageProject(ctx context.Context, projectID domain.ProjectID) error {
-	// Get the project to check its team
-	_, err := s.projectRepo.GetByID(ctx, projectID)
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermProjectManage)
 	if err != nil {
 		return err
 	}
-
-	isSuper := etogglcontext.IsSuper(ctx)
-	if isSuper {
-		return nil
+	if !ok {
+		return domain.ErrPermissionDenied
 	}
-
-	userID := etogglcontext.UserID(ctx)
-	if userID == 0 {
-		return domain.ErrUserNotFound
-	}
-
 	return nil
 }
 
@@ -69,5 +95,19 @@ func (s *Service) GetAccessibleProjects(
 	ctx context.Context,
 	projects []domain.Project,
 ) ([]domain.Project, error) {
-	return projects, nil
+	if s.isSuper(ctx) {
+		return projects, nil
+	}
+	out := make([]domain.Project, 0, len(projects))
+	for i := range projects {
+		project := projects[i]
+		ok, err := s.HasProjectPermission(ctx, project.ID, domain.PermProjectView)
+		if err != nil {
+			return nil, err
+		}
+		if ok {
+			out = append(out, project)
+		}
+	}
+	return out, nil
 }

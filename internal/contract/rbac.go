@@ -13,4 +13,6 @@ type PermissionsService interface {
 		ctx context.Context,
 		projects []domain.Project,
 	) ([]domain.Project, error)
+	HasProjectPermission(ctx context.Context, projectID domain.ProjectID, permKey domain.PermKey) (bool, error)
+	HasGlobalPermission(ctx context.Context, permKey domain.PermKey) (bool, error)
 }
