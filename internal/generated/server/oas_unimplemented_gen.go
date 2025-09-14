@@ -413,6 +413,15 @@ func (UnimplementedHandler) ToggleFeature(ctx context.Context, req *ToggleFeatur
 	return r, ht.ErrNotImplemented
 }
 
+// UpdateFeature implements UpdateFeature operation.
+//
+// Update feature with rules and variants.
+//
+// PUT /api/v1/features/{feature_id}
+func (UnimplementedHandler) UpdateFeature(ctx context.Context, req *CreateFeatureRequest, params UpdateFeatureParams) (r UpdateFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateLDAPConfig implements UpdateLDAPConfig operation.
 //
 // Create or update LDAP configuration.

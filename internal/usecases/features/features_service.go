@@ -173,3 +173,130 @@ func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool)
 	}
 	return updated, nil
 }
+
+// UpdateWithChildren updates feature and reconciles its child entities (variants and rules).
+func (s *Service) UpdateWithChildren(
+	ctx context.Context,
+	feature domain.Feature,
+	variants []domain.FlagVariant,
+	rules []domain.Rule,
+) (domain.FeatureExtended, error) {
+	var result domain.FeatureExtended
+
+	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		// Load to preserve immutable fields like ProjectID
+		existing, err := s.repo.GetByID(ctx, feature.ID)
+		if err != nil {
+			return fmt.Errorf("get feature by id: %w", err)
+		}
+
+		feature.ProjectID = existing.ProjectID
+
+		updated, err := s.repo.Update(ctx, feature)
+		if err != nil {
+			return fmt.Errorf("update feature: %w", err)
+		}
+		result.Feature = updated
+
+		// Reconcile variants
+		existingVariants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+		if err != nil {
+			return fmt.Errorf("list flag variants: %w", err)
+		}
+
+		existingVMap := make(map[domain.FlagVariantID]domain.FlagVariant, len(existingVariants))
+		for _, v := range existingVariants {
+			existingVMap[v.ID] = v
+		}
+
+		requestedVMap := make(map[domain.FlagVariantID]domain.FlagVariant, len(variants))
+		updatedVariants := make([]domain.FlagVariant, 0, len(variants))
+		for _, v := range variants {
+			v.FeatureID = feature.ID
+			if v.ID != "" {
+				requestedVMap[v.ID] = v
+			}
+
+			if v.ID != "" {
+				if _, ok := existingVMap[v.ID]; ok {
+					uv, uErr := s.flagVariantsRep.Update(ctx, v)
+					if uErr != nil {
+						return fmt.Errorf("update flag variant: %w", uErr)
+					}
+					updatedVariants = append(updatedVariants, uv)
+					continue
+				}
+			}
+
+			cv, cErr := s.flagVariantsRep.Create(ctx, v)
+			if cErr != nil {
+				return fmt.Errorf("create flag variant: %w", cErr)
+			}
+			updatedVariants = append(updatedVariants, cv)
+		}
+
+		// Delete variants not present in request
+		for id := range existingVMap {
+			if _, ok := requestedVMap[id]; !ok {
+				if dErr := s.flagVariantsRep.Delete(ctx, id); dErr != nil {
+					return fmt.Errorf("delete flag variant: %w", dErr)
+				}
+			}
+		}
+
+		result.FlagVariants = updatedVariants
+
+		// Reconcile rules
+		existingRules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+		if err != nil {
+			return fmt.Errorf("list rules: %w", err)
+		}
+
+		existingRMap := make(map[domain.RuleID]domain.Rule, len(existingRules))
+		for _, r := range existingRules {
+			existingRMap[r.ID] = r
+		}
+
+		requestedRMap := make(map[domain.RuleID]domain.Rule, len(rules))
+		updatedRules := make([]domain.Rule, 0, len(rules))
+		for _, r := range rules {
+			r.FeatureID = feature.ID
+			if r.ID != "" {
+				requestedRMap[r.ID] = r
+			}
+
+			if r.ID != "" {
+				if _, ok := existingRMap[r.ID]; ok {
+					ur, uErr := s.rulesRep.Update(ctx, r)
+					if uErr != nil {
+						return fmt.Errorf("update rule: %w", uErr)
+					}
+					updatedRules = append(updatedRules, ur)
+					continue
+				}
+			}
+
+			cr, cErr := s.rulesRep.Create(ctx, r)
+			if cErr != nil {
+				return fmt.Errorf("create rule: %w", cErr)
+			}
+			updatedRules = append(updatedRules, cr)
+		}
+
+		for id := range existingRMap {
+			if _, ok := requestedRMap[id]; !ok {
+				if dErr := s.rulesRep.Delete(ctx, id); dErr != nil {
+					return fmt.Errorf("delete rule: %w", dErr)
+				}
+			}
+		}
+
+		result.Rules = updatedRules
+
+		return nil
+	}); err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("tx update feature with children: %w", err)
+	}
+
+	return result, nil
+}

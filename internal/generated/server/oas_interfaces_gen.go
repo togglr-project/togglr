@@ -177,6 +177,10 @@ type ToggleFeatureRes interface {
 	toggleFeatureRes()
 }
 
+type UpdateFeatureRes interface {
+	updateFeatureRes()
+}
+
 type UpdateLDAPConfigRes interface {
 	updateLDAPConfigRes()
 }

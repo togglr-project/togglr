@@ -67,6 +67,7 @@ var operationRolesBearerAuth = map[string][]string{
 	SyncLDAPUsersOperation:            []string{},
 	TestLDAPConnectionOperation:       []string{},
 	ToggleFeatureOperation:            []string{},
+	UpdateFeatureOperation:            []string{},
 	UpdateLDAPConfigOperation:         []string{},
 	UpdateLicenseOperation:            []string{},
 	UpdateLicenseAcceptanceOperation:  []string{},

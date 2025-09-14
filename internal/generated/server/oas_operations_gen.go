@@ -50,6 +50,7 @@ const (
 	SyncLDAPUsersOperation            OperationName = "SyncLDAPUsers"
 	TestLDAPConnectionOperation       OperationName = "TestLDAPConnection"
 	ToggleFeatureOperation            OperationName = "ToggleFeature"
+	UpdateFeatureOperation            OperationName = "UpdateFeature"
 	UpdateLDAPConfigOperation         OperationName = "UpdateLDAPConfig"
 	UpdateLicenseOperation            OperationName = "UpdateLicense"
 	UpdateLicenseAcceptanceOperation  OperationName = "UpdateLicenseAcceptance"

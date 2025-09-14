@@ -276,6 +276,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/features/{feature_id}/toggle
 	ToggleFeature(ctx context.Context, req *ToggleFeatureRequest, params ToggleFeatureParams) (ToggleFeatureRes, error)
+	// UpdateFeature implements UpdateFeature operation.
+	//
+	// Update feature with rules and variants.
+	//
+	// PUT /api/v1/features/{feature_id}
+	UpdateFeature(ctx context.Context, req *CreateFeatureRequest, params UpdateFeatureParams) (UpdateFeatureRes, error)
 	// UpdateLDAPConfig implements UpdateLDAPConfig operation.
 	//
 	// Create or update LDAP configuration.

@@ -15,6 +15,13 @@ type FeaturesUseCase interface {
 		variants []domain.FlagVariant,
 		rules []domain.Rule,
 	) (domain.FeatureExtended, error)
+	// UpdateWithChildren updates feature and reconciles its variants and rules in a single transaction.
+	UpdateWithChildren(
+		ctx context.Context,
+		feature domain.Feature,
+		variants []domain.FlagVariant,
+		rules []domain.Rule,
+	) (domain.FeatureExtended, error)
 	GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error)
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
