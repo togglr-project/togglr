@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/internal/repository/auditlog"
 	"github.com/rom8726/etoggle/pkg/db"
 )
 
@@ -63,7 +64,20 @@ RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 		return domain.Rule{}, fmt.Errorf("insert rule: %w", err)
 	}
 
-	return model.toDomain(), nil
+	newRule := model.toDomain()
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		newRule.FeatureID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionCreate,
+		nil,
+		newRule,
+	); err != nil {
+		return domain.Rule{}, fmt.Errorf("audit rule create: %w", err)
+	}
+
+	return newRule, nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id domain.RuleID) (domain.Rule, error) {
@@ -142,6 +156,15 @@ func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.Featu
 func (r *Repository) Update(ctx context.Context, rule domain.Rule) (domain.Rule, error) {
 	executor := r.getExecutor(ctx)
 
+	// Read old state for audit within the same transaction.
+	oldRule, err := r.GetByID(ctx, rule.ID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return domain.Rule{}, err
+		}
+		return domain.Rule{}, fmt.Errorf("get rule before update: %w", err)
+	}
+
 	const query = `
 UPDATE rules
 SET feature_id = $1, condition = $2, flag_variant_id = $3, priority = $4
@@ -174,11 +197,41 @@ RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 		return domain.Rule{}, fmt.Errorf("update rule: %w", err)
 	}
 
-	return model.toDomain(), nil
+	newRule := model.toDomain()
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		newRule.FeatureID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionUpdate,
+		oldRule,
+		newRule,
+	); err != nil {
+		return domain.Rule{}, fmt.Errorf("audit rule update: %w", err)
+	}
+
+	return newRule, nil
 }
 
 func (r *Repository) Delete(ctx context.Context, id domain.RuleID) error {
 	executor := r.getExecutor(ctx)
+
+	oldRule, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		oldRule.FeatureID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionDelete,
+		oldRule,
+		nil,
+	); err != nil {
+		return fmt.Errorf("audit rule delete: %w", err)
+	}
 
 	const query = `DELETE FROM rules WHERE id = $1`
 

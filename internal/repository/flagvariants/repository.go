@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/internal/repository/auditlog"
 	"github.com/rom8726/etoggle/pkg/db"
 )
 
@@ -53,7 +54,20 @@ RETURNING id, feature_id, name, rollout_percent`
 		return domain.FlagVariant{}, fmt.Errorf("insert flag_variant: %w", err)
 	}
 
-	return model.toDomain(), nil
+	newVariant := model.toDomain()
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		newVariant.FeatureID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionCreate,
+		nil,
+		newVariant,
+	); err != nil {
+		return domain.FlagVariant{}, fmt.Errorf("audit flag_variant create: %w", err)
+	}
+
+	return newVariant, nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id domain.FlagVariantID) (domain.FlagVariant, error) {
@@ -129,6 +143,15 @@ func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.Featu
 func (r *Repository) Update(ctx context.Context, v domain.FlagVariant) (domain.FlagVariant, error) {
 	executor := r.getExecutor(ctx)
 
+	// Read old state for audit within the same transaction.
+	oldVariant, err := r.GetByID(ctx, v.ID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return domain.FlagVariant{}, err
+		}
+		return domain.FlagVariant{}, fmt.Errorf("get flag_variant before update: %w", err)
+	}
+
 	const query = `
 UPDATE flag_variants
 SET feature_id = $1, name = $2, rollout_percent = $3
@@ -148,11 +171,41 @@ RETURNING id, feature_id, name, rollout_percent`
 		return domain.FlagVariant{}, fmt.Errorf("update flag_variant: %w", err)
 	}
 
-	return model.toDomain(), nil
+	newVariant := model.toDomain()
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		newVariant.FeatureID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionUpdate,
+		oldVariant,
+		newVariant,
+	); err != nil {
+		return domain.FlagVariant{}, fmt.Errorf("audit flag_variant update: %w", err)
+	}
+
+	return newVariant, nil
 }
 
 func (r *Repository) Delete(ctx context.Context, id domain.FlagVariantID) error {
 	executor := r.getExecutor(ctx)
+
+	oldVariant, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		oldVariant.FeatureID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionDelete,
+		oldVariant,
+		nil,
+	); err != nil {
+		return fmt.Errorf("audit flag_variant delete: %w", err)
+	}
 
 	const query = `DELETE FROM flag_variants WHERE id = $1`
 

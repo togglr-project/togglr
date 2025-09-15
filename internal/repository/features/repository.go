@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/rom8726/etoggle/internal/repository/auditlog"
 	"github.com/rom8726/etoggle/pkg/db"
 )
 
@@ -67,7 +68,20 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		return domain.Feature{}, fmt.Errorf("insert feature: %w", err)
 	}
 
-	return model.toDomain(), nil
+	newFeature := model.toDomain()
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		newFeature.ID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionCreate,
+		nil,
+		newFeature,
+	); err != nil {
+		return domain.Feature{}, fmt.Errorf("audit feature create: %w", err)
+	}
+
+	return newFeature, nil
 }
 
 func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {
@@ -170,6 +184,15 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 func (r *Repository) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
+	// Read old state for audit purposes within the same transaction.
+	oldFeature, err := r.GetByID(ctx, feature.ID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return domain.Feature{}, err
+		}
+		return domain.Feature{}, fmt.Errorf("get feature before update: %w", err)
+	}
+
 	const query = `
 UPDATE features
 SET project_id = $1, key = $2, name = $3, description = $4, kind = $5, default_variant = $6, enabled = $7, updated_at = now()
@@ -185,7 +208,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		desc = sql.NullString{}
 	}
 
-	err := executor.QueryRow(ctx, query,
+	err = executor.QueryRow(ctx, query,
 		feature.ProjectID,
 		feature.Key,
 		feature.Name,
@@ -214,11 +237,43 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		return domain.Feature{}, fmt.Errorf("update feature: %w", err)
 	}
 
-	return model.toDomain(), nil
+	newFeature := model.toDomain()
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		newFeature.ID,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionUpdate,
+		oldFeature,
+		newFeature,
+	); err != nil {
+		return domain.Feature{}, fmt.Errorf("audit feature update: %w", err)
+	}
+
+	return newFeature, nil
 }
 
 func (r *Repository) Delete(ctx context.Context, id domain.FeatureID) error {
 	executor := r.getExecutor(ctx)
+
+	// Read old state and write audit log before deletion. Note: due to FK cascade, this audit row
+	// will also be deleted together with the feature, but we still log the action transactionally.
+	oldFeature, err := r.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		id,
+		auditlog.ActorFromContext(ctx),
+		auditlog.ActionDelete,
+		oldFeature,
+		nil,
+	); err != nil {
+		return fmt.Errorf("audit feature delete: %w", err)
+	}
 
 	const query = `DELETE FROM features WHERE id = $1`
 
