@@ -90,3 +90,9 @@ generate-backend: ## Generate backend by OpenAPI specification
 	@docker run --rm \
       --volume ".:/workspace" \
       ghcr.io/ogen-go/ogen:latest --target workspace/internal/generated/server --clean workspace/specs/server.yml
+
+.PHONY: generate-sdk-backend
+generate-sdk-backend: ## Generate SDK backend by OpenAPI specification
+	@docker run --rm \
+      --volume ".:/workspace" \
+      ghcr.io/ogen-go/ogen:latest --target workspace/internal/generated/sdkserver --clean workspace/specs/sdk.yml

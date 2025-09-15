@@ -11,11 +11,13 @@ import (
 	"path"
 	"time"
 
-	"github.com/rom8726/etoggle/internal/api/rest"
-	"github.com/rom8726/etoggle/internal/api/rest/middlewares"
+	"github.com/rom8726/etoggle/internal/api/backend"
+	"github.com/rom8726/etoggle/internal/api/backend/middlewares"
+	apisdk "github.com/rom8726/etoggle/internal/api/sdk"
 	"github.com/rom8726/etoggle/internal/config"
 	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
+	generatedsdk "github.com/rom8726/etoggle/internal/generated/sdkserver"
 	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
 	"github.com/rom8726/etoggle/internal/license"
 	"github.com/rom8726/etoggle/internal/repository/features"
@@ -68,6 +70,7 @@ type App struct {
 	PostgresPool *pgxpool.Pool
 
 	APIServer *httpserver.Server
+	SDKServer *httpserver.Server
 
 	container *di.Container
 	diApp     *di.App
@@ -112,6 +115,11 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 		return nil, fmt.Errorf("create API server: %w", err)
 	}
 
+	app.SDKServer, err = app.newSDKServer()
+	if err != nil {
+		return nil, fmt.Errorf("create SDK server: %w", err)
+	}
+
 	return app, nil
 }
 
@@ -144,6 +152,7 @@ func (app *App) Run(ctx context.Context) error {
 
 	group, groupCtx := errgroup.WithContext(ctx)
 	group.Go(func() error { return app.APIServer.ListenAndServe(groupCtx) })
+	group.Go(func() error { return app.SDKServer.ListenAndServe(groupCtx) })
 	group.Go(func() error { return techServer.ListenAndServe(groupCtx) })
 	group.Go(func() error { return app.diApp.Run(groupCtx) })
 
@@ -254,8 +263,12 @@ func (app *App) registerComponents() {
 	app.registerComponent(ratelimiter2fa.New)
 
 	// Register API components
-	app.registerComponent(rest.NewSecurityHandler)
-	app.registerComponent(rest.New).Arg(app.Config)
+	app.registerComponent(apibackend.NewSecurityHandler)
+	app.registerComponent(apibackend.New).Arg(app.Config)
+
+	// Register SDK API components
+	app.registerComponent(apisdk.NewSecurityHandler)
+	app.registerComponent(apisdk.New)
 }
 
 func (app *App) newAPIServer() (*httpserver.Server, error) {
@@ -299,6 +312,44 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 				genServer,
 			),
 		),
+	)
+
+	lis, err := net.Listen("tcp", cfg.Addr)
+	if err != nil {
+		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
+	}
+
+	return &httpserver.Server{
+		Listener:     lis,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.IdleTimeout,
+		Handler:      handler,
+	}, nil
+}
+
+func (app *App) newSDKServer() (*httpserver.Server, error) {
+	cfg := app.Config.SDKServer
+
+	var restAPI generatedsdk.Handler
+	if err := app.container.Resolve(&restAPI); err != nil {
+		return nil, fmt.Errorf("resolve SDK API service component: %w", err)
+	}
+
+	var securityHandler generatedsdk.SecurityHandler
+	if err := app.container.Resolve(&securityHandler); err != nil {
+		return nil, fmt.Errorf("resolve SDK API security handler component: %w", err)
+	}
+
+	genServer, err := generatedsdk.NewServer(restAPI, securityHandler)
+	if err != nil {
+		return nil, fmt.Errorf("create SDK API server: %w", err)
+	}
+
+	// Middleware chain:
+	// CORS → API implementation
+	handler := pkgmiddlewares.CORSMdw(
+		genServer,
 	)
 
 	lis, err := net.Listen("tcp", cfg.Addr)

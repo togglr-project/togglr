@@ -46,6 +46,29 @@ func (r *Repository) GetByID(ctx context.Context, id domain.ProjectID) (domain.P
 	return project.toDomain(), nil
 }
 
+func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM projects WHERE api_key = $1 LIMIT 1`
+
+	rows, err := executor.Query(ctx, query, apiKey)
+	if err != nil {
+		return domain.Project{}, fmt.Errorf("query project by API key: %w", err)
+	}
+	defer rows.Close()
+
+	project, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[projectModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Project{}, domain.ErrEntityNotFound
+		}
+
+		return domain.Project{}, fmt.Errorf("collect project: %w", err)
+	}
+
+	return project.toDomain(), nil
+}
+
 func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (domain.ProjectID, error) {
 	executor := r.getExecutor(ctx)
 

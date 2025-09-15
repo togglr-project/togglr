@@ -125,6 +125,37 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 	return items, nil
 }
 
+func (s *Service) ListExtendedByProjectID(
+	ctx context.Context,
+	projectID domain.ProjectID,
+) ([]domain.FeatureExtended, error) {
+	items, err := s.repo.ListByProjectID(ctx, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("list features by projectID: %w", err)
+	}
+
+	result := make([]domain.FeatureExtended, 0, len(items))
+	for _, item := range items {
+		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, item.ID)
+		if err != nil {
+			return nil, fmt.Errorf("list flag variants: %w", err)
+		}
+
+		rules, err := s.rulesRep.ListByFeatureID(ctx, item.ID)
+		if err != nil {
+			return nil, fmt.Errorf("list rules: %w", err)
+		}
+
+		result = append(result, domain.FeatureExtended{
+			Feature:      item,
+			FlagVariants: variants,
+			Rules:        rules,
+		})
+	}
+
+	return result, nil
+}
+
 func (s *Service) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
 	var updated domain.Feature
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {

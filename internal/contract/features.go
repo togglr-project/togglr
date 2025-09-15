@@ -26,6 +26,10 @@ type FeaturesUseCase interface {
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)
+	ListExtendedByProjectID(
+		ctx context.Context,
+		projectID domain.ProjectID,
+	) ([]domain.FeatureExtended, error)
 	Update(ctx context.Context, feature domain.Feature) (domain.Feature, error)
 	// Toggle enables or disables a feature flag by its ID and returns updated entity.
 	Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, error)

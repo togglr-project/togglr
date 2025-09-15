@@ -4,18 +4,12 @@ info:
   version: 1.0.0
 
 paths:
-  /sdk/v1/projects/{project_id}/features:
+  /sdk/v1/features:
     get:
       security:
         - apiKeyAuth: [ ]
       summary: List of features for project
       operationId: ListProjectFeatures
-      parameters:
-        - name: project_id
-          in: path
-          required: true
-          schema:
-            type: string
       responses:
         '200':
           description: List of features for the project
@@ -23,13 +17,101 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListFeaturesResponse'
-
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   securitySchemes:
     apiKeyAuth:
-      type: http
-      scheme: api_key
+      type: apiKey
+      in: header
+      name: Authorization
   schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+      required: [error]
+
+    ErrorInternalServerError:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "internal"
+              message: "Internal server error"
+
+    ErrorBadRequest:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "bad_request"
+              message: "Bad request"
+
+    ErrorUnauthorized:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "unauthorized"
+              message: "Authentication required"
+
+    ErrorPermissionDenied:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "permission_denied"
+              message: "Permission denied"
+
+    ErrorTooManyRequests:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "too_many_requests"
+              message: "Too many requests"
+
+    ErrorNotFound:
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
+          example:
+            error:
+              code: "not_found"
+              message: "Resource not found"
+
     ListFeaturesResponse:
       type: array
       items:
@@ -64,6 +146,7 @@ components:
           example: "A"
         rollout_percent:
           type: integer
+          format: uint
           minimum: 1
           maximum: 100
           example: 50
@@ -107,6 +190,7 @@ components:
           example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
         priority:
           type: integer
+          format: uint
           minimum: 0
           maximum: 255
           example: 10
