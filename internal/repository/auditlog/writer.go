@@ -10,16 +10,6 @@ import (
 	"github.com/rom8726/etoggle/pkg/db"
 )
 
-const (
-	ActionCreate = "create"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
-
-	EntityFeature     = "feature"
-	EntityRule        = "rule"
-	EntityFlagVariant = "flag_variant"
-)
-
 // ActorFromContext returns audit actor string. If a user is present in context, returns "user:<id>", else "system".
 func ActorFromContext(ctx context.Context) string {
 	if uid := appctx.UserID(ctx); uid != 0 {
@@ -35,9 +25,9 @@ func Write(
 	ctx context.Context,
 	exec db.Tx,
 	featureID domain.FeatureID,
-	entity string,
+	entity domain.EntityType,
 	actor string,
-	action string,
+	action domain.AuditAction,
 	oldVal any,
 	newVal any,
 ) error {

@@ -5,14 +5,30 @@ import (
 	"time"
 )
 
+type AuditAction string
+
+const (
+	AuditActionCreate AuditAction = "create"
+	AuditActionUpdate AuditAction = "update"
+	AuditActionDelete AuditAction = "delete"
+)
+
+type EntityType string
+
+const (
+	EntityFeature     EntityType = "feature"
+	EntityRule        EntityType = "rule"
+	EntityFlagVariant EntityType = "flag_variant"
+)
+
 type AuditLogID uint64
 
 type AuditLog struct {
 	ID        AuditLogID
 	FeatureID FeatureID
-	Entity    string
+	Entity    EntityType
 	Actor     string
-	Action    string
+	Action    AuditAction
 	OldValue  json.RawMessage
 	NewValue  json.RawMessage
 	CreatedAt time.Time
