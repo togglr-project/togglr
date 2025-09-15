@@ -10,6 +10,7 @@ type AuditLogID uint64
 type AuditLog struct {
 	ID        AuditLogID
 	FeatureID FeatureID
+	Entity    string
 	Actor     string
 	Action    string
 	OldValue  json.RawMessage

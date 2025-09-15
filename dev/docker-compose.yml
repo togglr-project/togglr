@@ -59,7 +59,8 @@ services:
       - compose.env
     command: ["/bin/app", "server"]
     depends_on:
-      - etoggle-postgresql
+      etoggle-postgresql:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
       interval: 30s

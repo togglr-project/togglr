@@ -14,6 +14,10 @@ const (
 	ActionCreate = "create"
 	ActionUpdate = "update"
 	ActionDelete = "delete"
+
+	EntityFeature     = "feature"
+	EntityRule        = "rule"
+	EntityFlagVariant = "flag_variant"
 )
 
 // ActorFromContext returns audit actor string. If a user is present in context, returns "user:<id>", else "system".
@@ -31,6 +35,7 @@ func Write(
 	ctx context.Context,
 	exec db.Tx,
 	featureID domain.FeatureID,
+	entity string,
 	actor string,
 	action string,
 	oldVal any,
@@ -57,11 +62,11 @@ func Write(
 	}
 
 	const query = `
-		INSERT INTO audit_log (feature_id, actor, action, old_value, new_value)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO audit_log (feature_id, entity, actor, action, old_value, new_value)
+		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	if _, err := exec.Exec(ctx, query, featureID, actor, action, oldJSON, newJSON); err != nil {
+	if _, err := exec.Exec(ctx, query, featureID, entity, actor, action, oldJSON, newJSON); err != nil {
 		return fmt.Errorf("insert audit_log: %w", err)
 	}
 
