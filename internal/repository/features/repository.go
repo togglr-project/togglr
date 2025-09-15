@@ -72,6 +72,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		newFeature.ProjectID,
 		newFeature.ID,
 		domain.EntityFeature,
 		auditlog.ActorFromContext(ctx),
@@ -242,6 +243,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		newFeature.ProjectID,
 		newFeature.ID,
 		domain.EntityFeature,
 		auditlog.ActorFromContext(ctx),
@@ -268,6 +270,7 @@ func (r *Repository) Delete(ctx context.Context, id domain.FeatureID) error {
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		oldFeature.ProjectID,
 		id,
 		domain.EntityFeature,
 		auditlog.ActorFromContext(ctx),

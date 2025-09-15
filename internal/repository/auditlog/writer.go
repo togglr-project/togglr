@@ -24,6 +24,7 @@ func ActorFromContext(ctx context.Context) string {
 func Write(
 	ctx context.Context,
 	exec db.Tx,
+	projectID domain.ProjectID,
 	featureID domain.FeatureID,
 	entity domain.EntityType,
 	actor string,
@@ -52,11 +53,11 @@ func Write(
 	}
 
 	const query = `
-		INSERT INTO audit_log (feature_id, entity, actor, action, old_value, new_value)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO audit_log (project_id, feature_id, entity, actor, action, old_value, new_value)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
-	if _, err := exec.Exec(ctx, query, featureID, entity, actor, action, oldJSON, newJSON); err != nil {
+	if _, err := exec.Exec(ctx, query, projectID, featureID, entity, actor, action, oldJSON, newJSON); err != nil {
 		return fmt.Errorf("insert audit_log: %w", err)
 	}
 

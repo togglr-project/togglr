@@ -25,6 +25,7 @@ type AuditLogID uint64
 
 type AuditLog struct {
 	ID        AuditLogID
+	ProjectID ProjectID
 	FeatureID FeatureID
 	Entity    EntityType
 	Actor     string

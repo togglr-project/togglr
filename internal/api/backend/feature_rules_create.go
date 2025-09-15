@@ -68,6 +68,7 @@ func (r *RestAPI) CreateFeatureRule(
 	}
 
 	rule := domain.Rule{
+		ProjectID:     feature.ProjectID,
 		FeatureID:     featureID,
 		Conditions:    conds,
 		FlagVariantID: domain.FlagVariantID(req.FlagVariantID),

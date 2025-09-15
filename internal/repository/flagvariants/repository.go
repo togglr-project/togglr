@@ -32,21 +32,22 @@ func (r *Repository) Create(ctx context.Context, v domain.FlagVariant) (domain.F
 	if v.ID != "" {
 		// Use client-provided ID
 		query = `
-INSERT INTO flag_variants (id, feature_id, name, rollout_percent)
-VALUES ($1, $2, $3, $4)
-RETURNING id, feature_id, name, rollout_percent`
-		args = []any{v.ID, v.FeatureID, v.Name, int(v.RolloutPercent)}
+INSERT INTO flag_variants (id, project_id, feature_id, name, rollout_percent)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, project_id, feature_id, name, rollout_percent`
+		args = []any{v.ID, v.ProjectID, v.FeatureID, v.Name, int(v.RolloutPercent)}
 	} else {
 		query = `
-INSERT INTO flag_variants (feature_id, name, rollout_percent)
-VALUES ($1, $2, $3)
-RETURNING id, feature_id, name, rollout_percent`
-		args = []any{v.FeatureID, v.Name, int(v.RolloutPercent)}
+INSERT INTO flag_variants (project_id, feature_id, name, rollout_percent)
+VALUES ($1, $2, $3, $4)
+RETURNING id, project_id, feature_id, name, rollout_percent`
+		args = []any{v.ProjectID, v.FeatureID, v.Name, int(v.RolloutPercent)}
 	}
 
 	var model flagVariantModel
 	if err := executor.QueryRow(ctx, query, args...).Scan(
 		&model.ID,
+		&model.ProjectID,
 		&model.FeatureID,
 		&model.Name,
 		&model.RolloutPercent,
@@ -58,6 +59,7 @@ RETURNING id, feature_id, name, rollout_percent`
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		newVariant.ProjectID,
 		newVariant.FeatureID,
 		domain.EntityFlagVariant,
 		auditlog.ActorFromContext(ctx),
@@ -155,13 +157,14 @@ func (r *Repository) Update(ctx context.Context, v domain.FlagVariant) (domain.F
 
 	const query = `
 UPDATE flag_variants
-SET feature_id = $1, name = $2, rollout_percent = $3
-WHERE id = $4
-RETURNING id, feature_id, name, rollout_percent`
+SET project_id = $1, feature_id = $2, name = $3, rollout_percent = $4
+WHERE id = $5
+RETURNING id, project_id, feature_id, name, rollout_percent`
 
 	var model flagVariantModel
-	if err := executor.QueryRow(ctx, query, v.FeatureID, v.Name, int(v.RolloutPercent), v.ID).Scan(
+	if err := executor.QueryRow(ctx, query, v.ProjectID, v.FeatureID, v.Name, int(v.RolloutPercent), v.ID).Scan(
 		&model.ID,
+		&model.ProjectID,
 		&model.FeatureID,
 		&model.Name,
 		&model.RolloutPercent,
@@ -176,6 +179,7 @@ RETURNING id, feature_id, name, rollout_percent`
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		newVariant.ProjectID,
 		newVariant.FeatureID,
 		domain.EntityFlagVariant,
 		auditlog.ActorFromContext(ctx),
@@ -200,6 +204,7 @@ func (r *Repository) Delete(ctx context.Context, id domain.FlagVariantID) error 
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		oldVariant.ProjectID,
 		oldVariant.FeatureID,
 		domain.EntityFlagVariant,
 		auditlog.ActorFromContext(ctx),

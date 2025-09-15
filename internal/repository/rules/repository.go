@@ -40,21 +40,22 @@ func (r *Repository) Create(ctx context.Context, rule domain.Rule) (domain.Rule,
 
 	if rule.ID != "" {
 		query = `
-INSERT INTO rules (id, feature_id, condition, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
-		args = []any{rule.ID, rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
+INSERT INTO rules (id, project_id, feature_id, condition, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, project_id, feature_id, condition, flag_variant_id, priority, created_at`
+		args = []any{rule.ID, rule.ProjectID, rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
 	} else {
 		query = `
-INSERT INTO rules (feature_id, condition, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4)
-RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
-		args = []any{rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
+INSERT INTO rules (project_id, feature_id, condition, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, project_id, feature_id, condition, flag_variant_id, priority, created_at`
+		args = []any{rule.ProjectID, rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
 	}
 
 	var model ruleModel
 	if err := executor.QueryRow(ctx, query, args...).Scan(
 		&model.ID,
+		&model.ProjectID,
 		&model.FeatureID,
 		&model.Condition,
 		&model.FlagVariantID,
@@ -68,6 +69,7 @@ RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		newRule.ProjectID,
 		newRule.FeatureID,
 		domain.EntityRule,
 		auditlog.ActorFromContext(ctx),
@@ -202,6 +204,7 @@ RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		newRule.ProjectID,
 		newRule.FeatureID,
 		domain.EntityRule,
 		auditlog.ActorFromContext(ctx),
@@ -226,6 +229,7 @@ func (r *Repository) Delete(ctx context.Context, id domain.RuleID) error {
 	if err := auditlog.Write(
 		ctx,
 		executor,
+		oldRule.ProjectID,
 		oldRule.FeatureID,
 		domain.EntityRule,
 		auditlog.ActorFromContext(ctx),

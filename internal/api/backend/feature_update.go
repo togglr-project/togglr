@@ -66,6 +66,7 @@ func (r *RestAPI) UpdateFeature(
 	for _, variant := range req.Variants {
 		variants = append(variants, domain.FlagVariant{
 			ID:             domain.FlagVariantID(variant.ID),
+			ProjectID:      existing.ProjectID,
 			FeatureID:      featureID,
 			Name:           variant.Name,
 			RolloutPercent: uint8(variant.RolloutPercent),
@@ -93,6 +94,7 @@ func (r *RestAPI) UpdateFeature(
 
 		rules = append(rules, domain.Rule{
 			ID:            domain.RuleID(rr.ID),
+			ProjectID:     existing.ProjectID,
 			FeatureID:     featureID,
 			Conditions:    conds,
 			FlagVariantID: domain.FlagVariantID(rr.FlagVariantID),

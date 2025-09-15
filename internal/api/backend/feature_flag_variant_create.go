@@ -48,6 +48,7 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 	}
 
 	variant := domain.FlagVariant{
+		ProjectID:      feature.ProjectID,
 		FeatureID:      featureID,
 		Name:           req.Name,
 		RolloutPercent: uint8(req.RolloutPercent),

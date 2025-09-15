@@ -8,6 +8,7 @@ type RuleID string
 
 type Rule struct {
 	ID            RuleID
+	ProjectID     ProjectID
 	FeatureID     FeatureID
 	Conditions    Conditions
 	FlagVariantID FlagVariantID // which variant to assign if the condition matches

@@ -59,6 +59,7 @@ func (r *RestAPI) CreateProjectFeature(
 	for _, v := range req.Variants {
 		variants = append(variants, domain.FlagVariant{
 			ID:             domain.FlagVariantID(v.ID),
+			ProjectID:      projectID,
 			Name:           v.Name,
 			RolloutPercent: uint8(v.RolloutPercent),
 		})
@@ -85,6 +86,7 @@ func (r *RestAPI) CreateProjectFeature(
 
 		rules = append(rules, domain.Rule{
 			ID:            domain.RuleID(rr.ID),
+			ProjectID:     projectID,
 			Conditions:    conds,
 			FlagVariantID: domain.FlagVariantID(rr.FlagVariantID),
 			Priority:      uint8(rr.Priority.Or(0)),

@@ -8,6 +8,7 @@ import (
 
 type flagVariantModel struct {
 	ID             string `db:"id"`
+	ProjectID      string `db:"project_id"`
 	FeatureID      string `db:"feature_id"`
 	Name           string `db:"name"`
 	RolloutPercent int    `db:"rollout_percent"`
@@ -18,6 +19,7 @@ type flagVariantModel struct {
 func (m *flagVariantModel) toDomain() domain.FlagVariant {
 	return domain.FlagVariant{
 		ID:             domain.FlagVariantID(m.ID),
+		ProjectID:      domain.ProjectID(m.ProjectID),
 		FeatureID:      domain.FeatureID(m.FeatureID),
 		Name:           m.Name,
 		RolloutPercent: uint8(m.RolloutPercent),

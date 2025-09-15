@@ -63,9 +63,10 @@ func (s *Service) CreateWithChildren(
 
 		// Create variants
 		createdVariants := make([]domain.FlagVariant, 0, len(variants))
-		for _, v := range variants {
-			v.FeatureID = createdFeature.ID
-			cv, err := s.flagVariantsRep.Create(ctx, v)
+		for _, variant := range variants {
+			variant.ProjectID = createdFeature.ProjectID
+			variant.FeatureID = createdFeature.ID
+			cv, err := s.flagVariantsRep.Create(ctx, variant)
 			if err != nil {
 				return fmt.Errorf("create flag variant: %w", err)
 			}
@@ -75,9 +76,10 @@ func (s *Service) CreateWithChildren(
 
 		// Create rules
 		createdRules := make([]domain.Rule, 0, len(rules))
-		for _, r := range rules {
-			r.FeatureID = createdFeature.ID
-			cr, err := s.rulesRep.Create(ctx, r)
+		for _, rule := range rules {
+			rule.FeatureID = createdFeature.ID
+			rule.ProjectID = createdFeature.ProjectID
+			cr, err := s.rulesRep.Create(ctx, rule)
 			if err != nil {
 				return fmt.Errorf("create rule: %w", err)
 			}
@@ -242,15 +244,16 @@ func (s *Service) UpdateWithChildren(
 
 		requestedVMap := make(map[domain.FlagVariantID]domain.FlagVariant, len(variants))
 		updatedVariants := make([]domain.FlagVariant, 0, len(variants))
-		for _, v := range variants {
-			v.FeatureID = feature.ID
-			if v.ID != "" {
-				requestedVMap[v.ID] = v
+		for _, variant := range variants {
+			variant.ProjectID = feature.ProjectID
+			variant.FeatureID = feature.ID
+			if variant.ID != "" {
+				requestedVMap[variant.ID] = variant
 			}
 
-			if v.ID != "" {
-				if _, ok := existingVMap[v.ID]; ok {
-					uv, uErr := s.flagVariantsRep.Update(ctx, v)
+			if variant.ID != "" {
+				if _, ok := existingVMap[variant.ID]; ok {
+					uv, uErr := s.flagVariantsRep.Update(ctx, variant)
 					if uErr != nil {
 						return fmt.Errorf("update flag variant: %w", uErr)
 					}
@@ -259,7 +262,7 @@ func (s *Service) UpdateWithChildren(
 				}
 			}
 
-			cv, cErr := s.flagVariantsRep.Create(ctx, v)
+			cv, cErr := s.flagVariantsRep.Create(ctx, variant)
 			if cErr != nil {
 				return fmt.Errorf("create flag variant: %w", cErr)
 			}
@@ -290,15 +293,16 @@ func (s *Service) UpdateWithChildren(
 
 		requestedRMap := make(map[domain.RuleID]domain.Rule, len(rules))
 		updatedRules := make([]domain.Rule, 0, len(rules))
-		for _, r := range rules {
-			r.FeatureID = feature.ID
-			if r.ID != "" {
-				requestedRMap[r.ID] = r
+		for _, rule := range rules {
+			rule.ProjectID = feature.ProjectID
+			rule.FeatureID = feature.ID
+			if rule.ID != "" {
+				requestedRMap[rule.ID] = rule
 			}
 
-			if r.ID != "" {
-				if _, ok := existingRMap[r.ID]; ok {
-					ur, uErr := s.rulesRep.Update(ctx, r)
+			if rule.ID != "" {
+				if _, ok := existingRMap[rule.ID]; ok {
+					ur, uErr := s.rulesRep.Update(ctx, rule)
 					if uErr != nil {
 						return fmt.Errorf("update rule: %w", uErr)
 					}
@@ -307,7 +311,7 @@ func (s *Service) UpdateWithChildren(
 				}
 			}
 
-			cr, cErr := s.rulesRep.Create(ctx, r)
+			cr, cErr := s.rulesRep.Create(ctx, rule)
 			if cErr != nil {
 				return fmt.Errorf("create rule: %w", cErr)
 			}

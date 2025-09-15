@@ -10,6 +10,7 @@ import (
 
 type ruleModel struct {
 	ID            string    `db:"id"`
+	ProjectID     string    `db:"project_id"`
 	FeatureID     string    `db:"feature_id"`
 	Condition     []byte    `db:"condition"`
 	FlagVariantID string    `db:"flag_variant_id"`
@@ -26,6 +27,7 @@ func (m *ruleModel) toDomain() domain.Rule {
 
 	return domain.Rule{
 		ID:            domain.RuleID(m.ID),
+		ProjectID:     domain.ProjectID(m.ProjectID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
 		Conditions:    conditions,
 		FlagVariantID: domain.FlagVariantID(m.FlagVariantID),
