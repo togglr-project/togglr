@@ -23,12 +23,7 @@ func (id RuleID) String() string {
 type RuleAttribute string
 
 const (
-	AttrUserID    RuleAttribute = "user.id"
-	AttrUserEmail RuleAttribute = "user.email"
-	AttrCountry   RuleAttribute = "user.country"
-	AttrAppVer    RuleAttribute = "app.version"
-	AttrEnv       RuleAttribute = "env"
-	AttrIP        RuleAttribute = "request.ip"
+	RuleAttributeUserID RuleAttribute = "user.id"
 )
 
 type RuleOperator string
