@@ -21,14 +21,12 @@ import {
   Divider,
   Tooltip,
   Chip,
-  Radio,
-  RadioGroup,
 } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { CreateFeatureRequest, FeatureDetailsResponse, RuleCondition } from '../../generated/api/client';
-import { FeatureKind as FeatureKindEnum, RuleOperator as RuleOperatorEnum } from '../../generated/api/client';
+import type { CreateFeatureRequest, FeatureDetailsResponse, RuleCondition, RuleAction as RuleActionType } from '../../generated/api/client';
+import { FeatureKind as FeatureKindEnum, RuleOperator as RuleOperatorEnum, RuleAction as RuleActionEnum } from '../../generated/api/client';
 
 export interface EditFeatureDialogProps {
   open: boolean;
@@ -42,7 +40,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const queryClient = useQueryClient();
 
   type VariantForm = { id: string; name: string; rollout_percent: number };
-  type RuleForm = { id: string; priority: number; flag_variant_id: string; conditions: RuleCondition[] };
+  type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; conditions: RuleCondition[] };
 
   const [keyVal, setKeyVal] = useState('');
   const [name, setName] = useState('');
@@ -50,7 +48,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [kind, setKind] = useState<string>(FeatureKindEnum.Boolean);
   const [enabled, setEnabled] = useState<boolean>(false);
   const [variants, setVariants] = useState<VariantForm[]>([]);
-  const [defaultVariantId, setDefaultVariantId] = useState<string>('');
+  const [defaultVariant, setDefaultVariant] = useState<string>('');
   const [rules, setRules] = useState<RuleForm[]>([]);
 
   const [error, setError] = useState<string | null>(null);
@@ -66,9 +64,8 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     setEnabled(f.enabled);
     const vars = (featureDetails.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
-    const defId = vars.find(v => v.id === f.default_variant || v.name === f.default_variant)?.id || vars[0]?.id || '';
-    setDefaultVariantId(defId);
-    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, flag_variant_id: r.flag_variant_id, conditions: r.conditions }));
+    setDefaultVariant(f.default_variant || '');
+    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, conditions: r.conditions }));
     setRules(rls);
     setError(null);
   }, [open, featureDetails]);
@@ -98,20 +95,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const addVariant = () => {
     const id = uuid();
     setVariants(prev => [...prev, { id, name: `variant_${prev.length + 1}`, rollout_percent: 0 }]);
-    if (!defaultVariantId) setDefaultVariantId(id);
   };
   const removeVariant = (id: string) => {
-    // prevent removing default or used by rules
-    if (id === defaultVariantId) return;
-    if (rules.some(r => r.flag_variant_id === id)) return;
+    // prevent removing variants referenced by assign rules
+    if (rules.some(r => r.action === RuleActionEnum.Assign && r.flag_variant_id === id)) return;
     setVariants(prev => prev.filter(v => v.id !== id));
   };
 
-  const addRule = () => {
+  const addRule = (action: RuleActionType) => {
     const id = uuid();
     const priority = (rules.length ? Math.max(...rules.map(r => r.priority)) + 1 : 1);
-    const firstVariant = variants[0]?.id || '';
-    setRules(prev => [...prev, { id, priority, flag_variant_id: firstVariant, conditions: [] }]);
+    const firstVariant = variants[0]?.id;
+    setRules(prev => [...prev, { id, priority, action, flag_variant_id: action === RuleActionEnum.Assign ? firstVariant : undefined, conditions: [] }]);
   };
   const removeRule = (id: string) => setRules(prev => prev.filter(r => r.id !== id));
 
@@ -135,14 +130,15 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     if (!keyVal.trim()) return 'Key is required';
     if (!name.trim()) return 'Name is required';
     if (!kind) return 'Kind is required';
-    if (!defaultVariantId) return 'Default variant is required';
-    if (!variants.find(v => v.id === defaultVariantId)) return 'Default variant must be one of the variants';
+    // default_variant can be any string (including empty) by new API; no validation here
     for (const v of variants) {
       if (!v.name.trim()) return 'Variant name cannot be empty';
       if (v.rollout_percent < 0 || v.rollout_percent > 100) return 'Variant rollout percent must be between 0 and 100';
     }
     for (const r of rules) {
-      if (!variants.find(v => v.id === r.flag_variant_id)) return 'Each rule must target an existing variant';
+      if (r.action === RuleActionEnum.Assign) {
+        if (!r.flag_variant_id || !variants.find(v => v.id === r.flag_variant_id)) return 'Assign rules must target an existing variant';
+      }
       for (const c of r.conditions) {
         if (!c.attribute.trim()) return 'Condition attribute cannot be empty';
         if (!c.operator) return 'Condition operator is required';
@@ -161,13 +157,14 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       name,
       description: description || undefined,
       kind: kind as any,
-      default_variant: (variants.find(v => v.id === defaultVariantId)?.name ?? defaultVariantId),
+      default_variant: defaultVariant,
       enabled,
       variants: variants.map(v => ({ id: v.id, name: v.name, rollout_percent: Number(v.rollout_percent) })),
       rules: rules.map(r => ({
         id: r.id,
         priority: r.priority,
-        flag_variant_id: r.flag_variant_id,
+        action: r.action as any,
+        flag_variant_id: r.action === RuleActionEnum.Assign ? r.flag_variant_id : undefined,
         conditions: r.conditions.map(c => ({ attribute: c.attribute, operator: c.operator, value: c.value })),
       })),
     };
@@ -180,7 +177,8 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const ruleOperatorOptions = Object.values(RuleOperatorEnum);
   const featureKindOptions = Object.values(FeatureKindEnum);
 
-  const canDeleteVariant = (id: string) => id !== defaultVariantId && !rules.some(r => r.flag_variant_id === id);
+  // Default variant is free text now; allow deletion unless referenced by an Assign rule
+  const canDeleteVariant = (id: string) => !rules.some(r => r.action === RuleActionEnum.Assign && r.flag_variant_id === id);
   const onId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'on')?.id, [variants]);
   const offId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'off')?.id, [variants]);
 
@@ -249,7 +247,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                         <TextField label="ID" value={v.id} fullWidth disabled />
                       </Grid>
                       <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Tooltip title={canDeleteVariant(v.id) ? 'Delete variant' : 'Cannot delete: used in default or rules'}>
+                        <Tooltip title={canDeleteVariant(v.id) ? 'Delete variant' : 'Cannot delete: used in assign rules'}>
                           <span>
                             <IconButton onClick={() => removeVariant(v.id)} disabled={!canDeleteVariant(v.id)} aria-label="delete variant">
                               <Delete />
@@ -261,84 +259,208 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                   ))}
                 </Grid>
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                  <FormControl sx={{ minWidth: 240 }}>
-                    <InputLabel id="default-var-label">Default variant</InputLabel>
-                    <Select labelId="default-var-label" label="Default variant" value={defaultVariantId} onChange={(e) => setDefaultVariantId(e.target.value)}>
-                      {variants.map(v => (
-                        <MenuItem key={v.id} value={v.id}>{v.name || v.id}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <TextField
+                    label="Default variant (free text)"
+                    value={defaultVariant}
+                    onChange={(e) => setDefaultVariant(e.target.value)}
+                    fullWidth
+                    helperText="May be any string; not required to match defined variants"
+                  />
                   <Typography variant="body2" color="text.secondary">Variants total: {variants.length}</Typography>
                 </Box>
               </>
             ) : (
               <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Typography variant="subtitle2">Default</Typography>
-                <Chip label={featureDetails?.feature.default_variant ?? ''} />
+                <TextField
+                  label="Default value (returned when enabled)"
+                  value={defaultVariant}
+                  onChange={(e) => setDefaultVariant(e.target.value)}
+                  fullWidth
+                  helperText="Any value; when feature is enabled, this exact value is returned"
+                />
               </Box>
             )}
 
             <Divider />
 
             {/* Rules */}
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="subtitle1">Rules</Typography>
-              <Button startIcon={<Add />} onClick={addRule} size="small">Add rule</Button>
-            </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {rules.sort((a,b) => a.priority - b.priority).map((r, rIndex) => (
-                <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                    <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
-                      onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
-                    <FormControl sx={{ minWidth: 240 }}>
-                      <InputLabel id={`rule-var-${r.id}`}>Target variant</InputLabel>
-                      <Select labelId={`rule-var-${r.id}`} label="Target variant" value={r.flag_variant_id}
-                        onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, flag_variant_id: e.target.value } : x))}>
-                        {variants.map(v => (
-                          <MenuItem key={v.id} value={v.id}>{variantNameById[v.id]}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                    <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
-                  </Box>
+            <Box>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
 
-                  <Box sx={{ mt: 1 }}>
-                    <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                      {r.conditions.map((c, cIdx) => (
-                        <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
-                          <Grid item xs={12} md={4}>
-                            <TextField label="Attribute" value={c.attribute}
-                              onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
-                          </Grid>
-                          <Grid item xs={12} md={3}>
-                            <FormControl fullWidth>
-                              <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
-                              <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
-                                onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
-                                {ruleOperatorOptions.map(op => (
-                                  <MenuItem key={op} value={op}>{op}</MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </Grid>
-                          <Grid item xs={12} md={4}>
-                            <TextField label="Value" value={String(c.value ?? '')}
-                              onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
-                          </Grid>
-                          <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
-                          </Grid>
-                        </Grid>
-                      ))}
-                      <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
-                    </Box>
-                  </Box>
+              {/* Assign section */}
+              <Box sx={{ border: '2px solid', borderColor: 'success.light', borderRadius: 1, p: 1.5, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="subtitle2">Assign request to variant rules</Typography>
+                  <Button startIcon={<Add />} onClick={() => addRule(RuleActionEnum.Assign)} size="small" disabled={variants.length === 0}>Add Rule</Button>
                 </Box>
-              ))}
-              {rules.length === 0 && <Typography variant="body2" color="text.secondary">No rules</Typography>}
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Route matching requests directly to a specific variant.</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {rules.filter(r => r.action === RuleActionEnum.Assign).sort((a,b) => a.priority - b.priority).map((r) => (
+                    <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                        <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
+                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
+                        <FormControl sx={{ minWidth: 240 }}>
+                          <InputLabel id={`rule-var-${r.id}`}>Target variant</InputLabel>
+                          <Select labelId={`rule-var-${r.id}`} label="Target variant" value={r.flag_variant_id || ''}
+                            onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, flag_variant_id: String(e.target.value) } : x))}>
+                            {variants.map(v => (
+                              <MenuItem key={v.id} value={v.id}>{variantNameById[v.id]}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
+                      </Box>
+
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="body2" color="text.secondary">Conditions</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {r.conditions.map((c, cIdx) => (
+                            <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
+                              <Grid item xs={12} md={4}>
+                                <TextField label="Attribute" value={c.attribute}
+                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
+                              </Grid>
+                              <Grid item xs={12} md={3}>
+                                <FormControl fullWidth>
+                                  <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
+                                  <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
+                                    onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
+                                    {ruleOperatorOptions.map(op => (
+                                      <MenuItem key={op} value={op}>{op}</MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                              </Grid>
+                              <Grid item xs={12} md={4}>
+                                <TextField label="Value" value={String(c.value ?? '')}
+                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
+                              </Grid>
+                              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                                <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
+                              </Grid>
+                            </Grid>
+                          ))}
+                          <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
+                  {rules.filter(r => r.action === RuleActionEnum.Assign).length === 0 && (
+                    <Typography variant="body2" color="text.secondary">No assign rules</Typography>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Include section */}
+              <Box sx={{ border: '2px solid', borderColor: 'info.light', borderRadius: 1, p: 1.5, mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="subtitle2">Include rules</Typography>
+                  <Button startIcon={<Add />} onClick={() => addRule(RuleActionEnum.Include)} size="small">Add Rule</Button>
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Define experiment segment. Matching requests participate in rollout between variants (for multivariant) or are subjected to flag action (for boolean).</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {rules.filter(r => r.action === RuleActionEnum.Include).sort((a,b) => a.priority - b.priority).map((r) => (
+                    <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                        <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
+                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
+                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
+                      </Box>
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="body2" color="text.secondary">Conditions</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {r.conditions.map((c, cIdx) => (
+                            <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
+                              <Grid item xs={12} md={4}>
+                                <TextField label="Attribute" value={c.attribute}
+                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
+                              </Grid>
+                              <Grid item xs={12} md={3}>
+                                <FormControl fullWidth>
+                                  <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
+                                  <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
+                                    onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
+                                    {ruleOperatorOptions.map(op => (
+                                      <MenuItem key={op} value={op}>{op}</MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                              </Grid>
+                              <Grid item xs={12} md={4}>
+                                <TextField label="Value" value={String(c.value ?? '')}
+                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
+                              </Grid>
+                              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                                <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
+                              </Grid>
+                            </Grid>
+                          ))}
+                          <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
+                  {rules.filter(r => r.action === RuleActionEnum.Include).length === 0 && (
+                    <Typography variant="body2" color="text.secondary">No include rules</Typography>
+                  )}
+                </Box>
+              </Box>
+
+              {/* Exclude section */}
+              <Box sx={{ border: '2px solid', borderColor: 'error.light', borderRadius: 1, p: 1.5 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Typography variant="subtitle2">Exclude rules</Typography>
+                  <Button startIcon={<Add />} onClick={() => addRule(RuleActionEnum.Exclude)} size="small">Add Rule</Button>
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Matching requests are excluded from experiment and do not participate in variant rollout.</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {rules.filter(r => r.action === RuleActionEnum.Exclude).sort((a,b) => a.priority - b.priority).map((r) => (
+                    <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                        <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
+                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
+                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
+                      </Box>
+                      <Box sx={{ mt: 1 }}>
+                        <Typography variant="body2" color="text.secondary">Conditions</Typography>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {r.conditions.map((c, cIdx) => (
+                            <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
+                              <Grid item xs={12} md={4}>
+                                <TextField label="Attribute" value={c.attribute}
+                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
+                              </Grid>
+                              <Grid item xs={12} md={3}>
+                                <FormControl fullWidth>
+                                  <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
+                                  <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
+                                    onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
+                                    {ruleOperatorOptions.map(op => (
+                                      <MenuItem key={op} value={op}>{op}</MenuItem>
+                                    ))}
+                                  </Select>
+                                </FormControl>
+                              </Grid>
+                              <Grid item xs={12} md={4}>
+                                <TextField label="Value" value={String(c.value ?? '')}
+                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
+                              </Grid>
+                              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                                <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
+                              </Grid>
+                            </Grid>
+                          ))}
+                          <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
+                        </Box>
+                      </Box>
+                    </Box>
+                  ))}
+                  {rules.filter(r => r.action === RuleActionEnum.Exclude).length === 0 && (
+                    <Typography variant="body2" color="text.secondary">No exclude rules</Typography>
+                  )}
+                </Box>
+              </Box>
             </Box>
           </Box>
         )}

@@ -86,7 +86,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                           inputProps={{ 'aria-label': 'toggle feature in dialog' }}
                         />
                       }
-                      label={"Enable\\Disable"}
+                      label={"Enable"}
                     />
                   </Tooltip>
                 ) : (
@@ -94,7 +94,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                     <span>
                       <FormControlLabel
                         control={<Switch checked={featureDetails.feature.enabled} disabled />}
-                        label={"Enable\\Disable"}
+                        label={"Enable"}
                       />
                     </span>
                   </Tooltip>
@@ -105,7 +105,6 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                 <Typography variant="body2" sx={{ mt: 1 }}>{featureDetails.feature.description}</Typography>
               )}
               <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip size="small" label={`id: ${featureDetails.feature.id}`} variant="outlined" />
                 <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
                 <Chip size="small" label={`default: ${featureDetails.feature.default_variant}`} />
                 <Chip size="small" label={featureDetails.feature.enabled ? 'enabled' : 'disabled'} color={featureDetails.feature.enabled ? 'success' : 'default'} />
@@ -130,30 +129,98 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
 
             <Box>
               <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
-              {featureDetails.rules && featureDetails.rules.length > 0 ? (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  {featureDetails.rules.sort((a, b) => a.priority - b.priority).map((r) => (
-                    <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <Chip size="small" label={`priority: ${r.priority}`} />
-                        <Chip size="small" label={`target: ${getVariantName(r.flag_variant_id)}`} />
-                        <Chip size="small" label={`id: ${r.id}`} variant="outlined" />
-                      </Box>
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
-                      {r.conditions.map((c, idx) => (
-                        <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
-                          <Typography variant="body2">{c.attribute}</Typography>
-                          <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
-                          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                            {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  ))}
-                </Box>
-              ) : (
+              {!featureDetails.rules || featureDetails.rules.length === 0 ? (
                 <Typography variant="body2" color="text.secondary">No rules</Typography>
+              ) : (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box sx={{ border: '2px solid', borderColor: 'success.light', borderRadius: 1, p: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Assign request to variant rules</Typography>
+                    {featureDetails.rules.filter(r => r.action === 'assign').sort((a,b) => a.priority - b.priority).length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">No assign rules</Typography>
+                    ) : (
+                      featureDetails.rules.filter(r => r.action === 'assign').sort((a,b) => a.priority - b.priority).map(r => (
+                        <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                            <Chip size="small" label={`priority: ${r.priority}`} />
+                            {r.flag_variant_id && <Chip size="small" label={`target: ${getVariantName(r.flag_variant_id)}`} />}
+                          </Box>
+                          {r.conditions.length > 0 && (
+                            <>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
+                              {r.conditions.map((c, idx) => (
+                                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
+                                  <Typography variant="body2">{c.attribute}</Typography>
+                                  <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
+                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                                    {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </>
+                          )}
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+
+                  <Box sx={{ border: '2px solid', borderColor: 'info.light', borderRadius: 1, p: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Include rules</Typography>
+                    {featureDetails.rules.filter(r => r.action === 'include').sort((a,b) => a.priority - b.priority).length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">No include rules</Typography>
+                    ) : (
+                      featureDetails.rules.filter(r => r.action === 'include').sort((a,b) => a.priority - b.priority).map(r => (
+                        <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                            <Chip size="small" label={`priority: ${r.priority}`} />
+                          </Box>
+                          {r.conditions.length > 0 && (
+                            <>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
+                              {r.conditions.map((c, idx) => (
+                                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
+                                  <Typography variant="body2">{c.attribute}</Typography>
+                                  <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
+                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                                    {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </>
+                          )}
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+
+                  <Box sx={{ border: '2px solid', borderColor: 'error.light', borderRadius: 1, p: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Exclude rules</Typography>
+                    {featureDetails.rules.filter(r => r.action === 'exclude').sort((a,b) => a.priority - b.priority).length === 0 ? (
+                      <Typography variant="body2" color="text.secondary">No exclude rules</Typography>
+                    ) : (
+                      featureDetails.rules.filter(r => r.action === 'exclude').sort((a,b) => a.priority - b.priority).map(r => (
+                        <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                            <Chip size="small" label={`priority: ${r.priority}`} />
+                          </Box>
+                          {r.conditions.length > 0 && (
+                            <>
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
+                              {r.conditions.map((c, idx) => (
+                                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
+                                  <Typography variant="body2">{c.attribute}</Typography>
+                                  <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
+                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                                    {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </>
+                          )}
+                        </Box>
+                      ))
+                    )}
+                  </Box>
+                </Box>
               )}
             </Box>
           </Box>

@@ -6,7 +6,8 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **conditions** | [**Array&lt;RuleCondition&gt;**](RuleCondition.md) |  | [default to undefined]
-**flag_variant_id** | **string** |  | [default to undefined]
+**action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
+**flag_variant_id** | **string** |  | [optional] [default to undefined]
 **priority** | **number** |  | [optional] [default to undefined]
 
 ## Example
@@ -16,6 +17,7 @@ import { CreateRuleRequest } from './api';
 
 const instance: CreateRuleRequest = {
     conditions,
+    action,
     flag_variant_id,
     priority,
 };

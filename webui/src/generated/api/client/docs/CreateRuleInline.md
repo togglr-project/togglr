@@ -7,7 +7,8 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | Client-provided UUID for the rule | [default to undefined]
 **conditions** | [**Array&lt;RuleCondition&gt;**](RuleCondition.md) |  | [default to undefined]
-**flag_variant_id** | **string** |  | [default to undefined]
+**action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
+**flag_variant_id** | **string** |  | [optional] [default to undefined]
 **priority** | **number** |  | [optional] [default to undefined]
 
 ## Example
@@ -18,6 +19,7 @@ import { CreateRuleInline } from './api';
 const instance: CreateRuleInline = {
     id,
     conditions,
+    action,
     flag_variant_id,
     priority,
 };

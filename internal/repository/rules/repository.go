@@ -111,7 +111,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.RuleID) (domain.Rule
 func (r *Repository) List(ctx context.Context) ([]domain.Rule, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM rules ORDER BY priority DESC, created_at DESC`
+	const query = `SELECT * FROM rules ORDER BY feature_id, priority`
 
 	rows, err := executor.Query(ctx, query)
 	if err != nil {
@@ -135,7 +135,7 @@ func (r *Repository) List(ctx context.Context) ([]domain.Rule, error) {
 func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.Rule, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM rules WHERE feature_id = $1 ORDER BY priority DESC, created_at DESC`
+	const query = `SELECT * FROM rules WHERE feature_id = $1 ORDER BY priority`
 
 	rows, err := executor.Query(ctx, query, featureID)
 	if err != nil {

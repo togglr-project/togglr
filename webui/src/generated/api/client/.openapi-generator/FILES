@@ -59,6 +59,7 @@ docs/RefreshTokenRequest.md
 docs/RefreshTokenResponse.md
 docs/ResetPasswordRequest.md
 docs/Rule.md
+docs/RuleAction.md
 docs/RuleCondition.md
 docs/RuleOperator.md
 docs/RuleResponse.md

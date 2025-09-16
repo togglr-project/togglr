@@ -67,14 +67,20 @@ export interface CreateRuleInline {
      */
     'id': string;
     'conditions': Array<RuleCondition>;
-    'flag_variant_id': string;
+    'action': RuleAction;
+    'flag_variant_id'?: string;
     'priority'?: number;
 }
+
+
 export interface CreateRuleRequest {
     'conditions': Array<RuleCondition>;
-    'flag_variant_id': string;
+    'action': RuleAction;
+    'flag_variant_id'?: string;
     'priority'?: number;
 }
+
+
 export interface CreateUserRequest {
     'username': string;
     'email': string;
@@ -466,10 +472,26 @@ export interface Rule {
     'id': string;
     'feature_id': string;
     'conditions': Array<RuleCondition>;
-    'flag_variant_id': string;
+    'action': RuleAction;
+    'flag_variant_id'?: string;
     'priority': number;
     'created_at': string;
 }
+
+
+/**
+ * Type of rule action
+ */
+
+export const RuleAction = {
+    Assign: 'assign',
+    Include: 'include',
+    Exclude: 'exclude'
+} as const;
+
+export type RuleAction = typeof RuleAction[keyof typeof RuleAction];
+
+
 /**
  * Single condition item
  */

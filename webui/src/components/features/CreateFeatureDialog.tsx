@@ -11,8 +11,6 @@ import {
   Grid,
   IconButton,
   MenuItem,
-  Radio,
-  RadioGroup,
   Switch,
   TextField,
   Typography,
@@ -20,7 +18,8 @@ import {
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { Feature, FeatureKind } from '../../generated/api/client';
+import type { Feature, FeatureKind, RuleAction as RuleActionType } from '../../generated/api/client';
+import { RuleAction as RuleActionEnum } from '../../generated/api/client';
 
 // UUID generator (uses crypto.randomUUID when available)
 const genId = (): string => {
@@ -38,7 +37,7 @@ const kindOptions: FeatureKind[] = ['boolean', 'multivariant'];
 
 type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
 interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
-interface RuleFormItem { id: string; flag_variant_id: string; priority: number | ''; conditions: RuleConditionItem[] }
+interface RuleFormItem { id: string; action: RuleActionType; flag_variant_id?: string; priority: number | ''; conditions: RuleConditionItem[] }
 interface VariantFormItem { id: string; name: string; rollout_percent: number }
 
 export interface CreateFeatureDialogProps {
@@ -55,7 +54,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [kind, setKind] = useState<FeatureKind>('boolean');
-  const [defaultVariant, setDefaultVariant] = useState('off');
+  const [defaultVariant, setDefaultVariant] = useState('');
   const [enabled, setEnabled] = useState(true);
   const [variants, setVariants] = useState<VariantFormItem[]>([{ id: genId(), name: 'control', rollout_percent: 100 }]);
   const [rules, setRules] = useState<RuleFormItem[]>([]);
@@ -80,36 +79,36 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const hasDuplicatePriorities = Object.values(priorityCounts).some((c) => c > 1);
 
   const rulesValid = rules.every((r) =>
-    r.flag_variant_id && variants.some((v) => v.id === r.flag_variant_id) &&
+    (r.action === RuleActionEnum.Assign ? (r.flag_variant_id && variants.some((v) => v.id === r.flag_variant_id)) : true) &&
     r.conditions.length > 0 &&
     r.conditions.every((c) => c.attribute.trim().length > 0) &&
     typeof r.priority === 'number' && Number.isInteger(r.priority) && r.priority >= 0 && r.priority <= 255
   ) && !hasDuplicatePriorities;
 
-  useEffect(() => {
-    if (kind === 'multivariant') {
-      const names = variantNames;
-      if (!names.includes(defaultVariant)) {
-        setDefaultVariant(names[0] || '');
-      }
-    }
-  }, [kind, variants]);
 
-  // Ensure rules reference existing variants when variants change
+  // Ensure assign rules reference existing variants when variants change
   useEffect(() => {
-    setRules((prev) => prev.map((r) => (
-      variants.some((v) => v.id === r.flag_variant_id)
-        ? r
-        : { ...r, flag_variant_id: variants[0]?.id || '' }
-    )));
+    setRules((prev) => prev.map((r) => {
+      if (r.action !== RuleActionEnum.Assign) return r;
+      if (r.flag_variant_id && variants.some((v) => v.id === r.flag_variant_id)) return r;
+      const next = variants[0]?.id;
+      return { ...r, flag_variant_id: next };
+    }));
   }, [variants]);
+
+  // When switching to boolean, drop any assign rules (not allowed for boolean)
+  useEffect(() => {
+    if (kind === 'boolean') {
+      setRules((prev) => prev.filter((r) => r.action !== RuleActionEnum.Assign));
+    }
+  }, [kind]);
 
   const resetForm = () => {
     setKeyValue('');
     setName('');
     setDescription('');
     setKind('boolean');
-    setDefaultVariant('off');
+    setDefaultVariant('');
     setEnabled(true);
     setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
     setRules([]);
@@ -126,37 +125,37 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
       if (kind === 'multivariant') {
         if (!hasAtLeastTwoVariants) throw new Error('At least two variants are required for multivariant features');
         if (!variantsValid) throw new Error('Variants must have names, rollout between 1 and 100, and total rollout must equal 100');
-        const names = variants.map((v) => v.name.trim()).filter((n) => n.length > 0);
-        if (!names.includes(defaultVariant.trim())) throw new Error('Default Variant must be one of the variants');
       }
 
-      const dv = kind === 'boolean' ? (defaultVariant === 'on' ? 'on' : 'off') : defaultVariant.trim();
+      const dv = defaultVariant.trim();
 
       let inlineVariants: { id: string; name: string; rollout_percent: number }[] | undefined;
-      let inlineRules: { id: string; conditions: any[]; flag_variant_id: string; priority?: number }[] | undefined;
+      let inlineRules: { id: string; conditions: any[]; action: RuleActionType; flag_variant_id?: string; priority?: number }[] | undefined;
 
       if (kind === 'multivariant') {
-        if (rules.length > 0 && !rulesValid) {
-          throw new Error('Please fix rules: select a target variant and add at least one condition with attribute');
-        }
         inlineVariants = variants.map((v) => ({ id: v.id, name: v.name.trim(), rollout_percent: Number(v.rollout_percent) || 0 }));
-        if (rules.length > 0) {
-          inlineRules = rules.map((r) => ({
-            id: r.id,
-            flag_variant_id: r.flag_variant_id,
-            priority: r.priority === '' ? 0 : Number(r.priority),
-            conditions: r.conditions.filter((c) => c.attribute.trim()).map((c) => {
-              let val: any = c.value;
-              const trimmed = (c.value || '').trim();
-              if (trimmed.length > 0) {
-                try { val = JSON.parse(trimmed); } catch { val = c.value; }
-              } else {
-                val = '';
-              }
-              return { attribute: c.attribute.trim(), operator: c.operator, value: val };
-            }),
-          }));
+      }
+
+      if (rules.length > 0) {
+        if (!rulesValid) {
+          throw new Error('Please fix rules');
         }
+        inlineRules = rules.map((r) => ({
+          id: r.id,
+          action: r.action,
+          flag_variant_id: r.action === RuleActionEnum.Assign ? r.flag_variant_id : undefined,
+          priority: r.priority === '' ? 0 : Number(r.priority),
+          conditions: r.conditions.filter((c) => c.attribute.trim()).map((c) => {
+            let val: any = c.value;
+            const trimmed = (c.value || '').trim();
+            if (trimmed.length > 0) {
+              try { val = JSON.parse(trimmed); } catch { val = c.value; }
+            } else {
+              val = '';
+            }
+            return { attribute: c.attribute.trim(), operator: c.operator, value: val };
+          }),
+        }));
       }
 
       const featureRes = await apiClient.createProjectFeature(projectId, {
@@ -196,45 +195,38 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
 
   const ruleOperatorOptions: OperatorOption[] = ['eq','neq','in','not_in','gt','gte','lt','lte','regex','percentage'];
 
-  const addRule = () => setRules((prev) => {
+  const addRule = (action: RuleActionType) => setRules((prev) => {
     const nums = prev.map((r) => (typeof r.priority === 'number' ? r.priority : 0));
     const next = nums.length ? Math.min(255, Math.max(...nums) + 1) : 0;
     return [
       ...prev,
-      { id: genId(), flag_variant_id: variants[0]?.id || '', priority: next, conditions: [{ attribute: '', operator: 'eq', value: '' }] }
+      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, conditions: [{ attribute: '', operator: 'eq', value: '' }] }
     ];
   });
-  const removeRule = (index: number) => setRules((prev) => prev.filter((_, i) => i !== index));
-  const updateRule = (index: number, patch: Partial<RuleFormItem>) => setRules((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
-  const addRuleConditionInline = (ruleIndex: number) => setRules((prev) => prev.map((r, i) => (
-    i === ruleIndex ? { ...r, conditions: [...r.conditions, { attribute: '', operator: 'eq', value: '' }] } : r
+  const removeRuleById = (id: string) => setRules((prev) => prev.filter((r) => r.id !== id));
+  const updateRuleById = (id: string, patch: Partial<RuleFormItem>) => setRules((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const addRuleCondition = (ruleId: string) => setRules((prev) => prev.map((r) => (
+    r.id === ruleId ? { ...r, conditions: [...r.conditions, { attribute: '', operator: 'eq', value: '' }] } : r
   )));
-  const removeRuleConditionInline = (ruleIndex: number, condIndex: number) => setRules((prev) => prev.map((r, i) => (
-    i === ruleIndex ? { ...r, conditions: r.conditions.filter((_, ci) => ci !== condIndex) } : r
+  const removeRuleCondition = (ruleId: string, condIndex: number) => setRules((prev) => prev.map((r) => (
+    r.id === ruleId ? { ...r, conditions: r.conditions.filter((_, ci) => ci !== condIndex) } : r
   )));
-  const changeRuleConditionInline = (ruleIndex: number, condIndex: number, field: keyof RuleConditionItem, value: string) => setRules((prev) => prev.map((r, i) => (
-    i === ruleIndex
+  const changeRuleCondition = (ruleId: string, condIndex: number, field: keyof RuleConditionItem, value: string) => setRules((prev) => prev.map((r) => (
+    r.id === ruleId
       ? { ...r, conditions: r.conditions.map((c, ci) => (ci === condIndex ? { ...c, [field]: value as any } : c)) }
       : r
   )));
 
-  const defaultVariantErrorText = useMemo(() => {
-    if (kind !== 'multivariant') return '';
-    if (!hasAtLeastTwoVariants) return 'Add at least two variants first';
-    if (variantNames.length > 0 && !variantNames.includes(defaultVariant)) return 'Select one of the defined variants';
-    return '';
-  }, [kind, hasAtLeastTwoVariants, variantNames, defaultVariant]);
 
   const canCreate = useMemo(() => {
     if (!keyValue.trim() || !name.trim()) return false;
     if (kind === 'multivariant') {
       if (!hasAtLeastTwoVariants) return false;
       if (!variantsValid) return false;
-      if (!variantNames.includes(defaultVariant)) return false;
-      if (!rulesValid && rules.length > 0) return false;
     }
+    if (rules.length > 0 && !rulesValid) return false;
     return !submitting;
-  }, [keyValue, name, kind, hasAtLeastTwoVariants, variantsValid, variantNames, defaultVariant, rulesValid, rules.length, submitting]);
+  }, [keyValue, name, kind, hasAtLeastTwoVariants, variantsValid, rulesValid, rules.length, submitting]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -244,39 +236,27 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           <TextField label="Key" value={keyValue} onChange={(e) => setKeyValue(e.target.value)} required fullWidth />
           <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth />
           <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline minRows={2} />
-          <TextField select label="Kind" value={kind} onChange={(e) => { const v = e.target.value as FeatureKind; setKind(v); if (v === 'boolean') { setDefaultVariant(defaultVariant === 'on' ? 'on' : 'off'); } else { const names = variants.map(vv => vv.name.trim()).filter(n => n.length > 0); setDefaultVariant(names[0] || ''); } }} fullWidth>
+          <TextField select label="Kind" value={kind} onChange={(e) => { const v = e.target.value as FeatureKind; setKind(v); }} fullWidth>
             {kindOptions.map(k => (
               <MenuItem key={k} value={k}>{k}</MenuItem>
             ))}
           </TextField>
           {kind === 'boolean' ? (
-            <Box>
-              <Typography variant="caption">Default Value</Typography>
-              <RadioGroup
-                row
-                value={defaultVariant === 'on' ? 'on' : 'off'}
-                onChange={(e) => setDefaultVariant(e.target.value)}
-              >
-                <FormControlLabel value="on" control={<Radio />} label="on" />
-                <FormControlLabel value="off" control={<Radio />} label="off" />
-              </RadioGroup>
-            </Box>
-          ) : (
             <TextField
-              select
-              label="Default Variant"
+              label="Default value (returned when enabled)"
               value={defaultVariant}
               onChange={(e) => setDefaultVariant(e.target.value)}
               fullWidth
-              required
-              disabled={variantNames.length === 0}
-              error={!!defaultVariantErrorText}
-              helperText={defaultVariantErrorText}
-            >
-              {variantNames.map((n) => (
-                <MenuItem key={n} value={n}>{n}</MenuItem>
-              ))}
-            </TextField>
+              helperText="Any value; when feature is enabled, this exact value is returned"
+            />
+          ) : (
+            <TextField
+              label="Default variant (free text)"
+              value={defaultVariant}
+              onChange={(e) => setDefaultVariant(e.target.value)}
+              fullWidth
+              helperText="May be any string; not required to match defined variants"
+            />
           )}
           <FormControlLabel
             control={<Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />}
@@ -323,40 +303,43 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                 <Typography variant="body2" color="error">At least two variants are required</Typography>
               )}
             </Box>
+          </Box>
+        )}
 
-            <Box sx={{ mt: 3 }}>
-              <Typography variant="subtitle1">Rules</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Define rules to route users to specific variants. Priorities must be unique (0-255).
-              </Typography>
-              {rules.map((r, ri) => {
-                const priorityError = !(typeof r.priority === 'number' && Number.isInteger(r.priority) && r.priority >= 0 && r.priority <= 255);
-                const isDup = typeof r.priority === 'number' && (priorityCounts[r.priority] || 0) > 1;
-                return (
-                  <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5, mb: 1 }}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 200px 120px 40px' }, gap: 1, alignItems: 'center' }}>
+        {/* Rules (shown for both boolean and multivariant) */}
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
+
+          {/* Assign section (multivariant only) */}
+          {kind === 'multivariant' && (
+            <Box sx={{ border: '2px solid', borderColor: 'success.light', borderRadius: 1, p: 1.5, mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2">Assign request to variant rules</Typography>
+                <Button startIcon={<AddIcon />} onClick={() => addRule(RuleActionEnum.Assign)} size="small" disabled={variants.length === 0}>Add Rule</Button>
+              </Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Route matching requests directly to a specific variant.</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                {rules.filter(r => r.action === RuleActionEnum.Assign).sort((a,b) => (Number(a.priority || 0) - Number(b.priority || 0))).map((r) => (
+                  <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '140px 1fr 40px' }, gap: 1, alignItems: 'center' }}>
                       <TextField
                         label="Priority"
                         type="number"
                         inputProps={{ min: 0, max: 255, step: 1 }}
                         value={r.priority}
-                        onChange={(e) => updateRule(ri, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
-                        error={priorityError || isDup}
-                        helperText={priorityError ? '0..255 integer' : (isDup ? 'Priority must be unique' : '')}
+                        onChange={(e) => updateRuleById(r.id, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
                       />
                       <TextField
                         select
-                        label="Target Variant"
-                        value={r.flag_variant_id}
-                        onChange={(e) => updateRule(ri, { flag_variant_id: e.target.value })}
-                        required
+                        label="Target variant"
+                        value={r.flag_variant_id || ''}
+                        onChange={(e) => updateRuleById(r.id, { flag_variant_id: String(e.target.value) })}
                       >
                         {variants.map(v => (
                           <MenuItem key={v.id} value={v.id}>{v.name || v.id}</MenuItem>
                         ))}
                       </TextField>
-                      <Box />
-                      <IconButton aria-label="delete-rule" onClick={() => removeRule(ri)}>
+                      <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
                         <DeleteIcon />
                       </IconButton>
                     </Box>
@@ -369,7 +352,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                             <TextField
                               label="Attribute"
                               value={c.attribute}
-                              onChange={(e) => changeRuleConditionInline(ri, ci, 'attribute', e.target.value)}
+                              onChange={(e) => changeRuleCondition(r.id, ci, 'attribute', e.target.value)}
                               required
                               fullWidth
                             />
@@ -379,7 +362,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                               select
                               label="Operator"
                               value={c.operator}
-                              onChange={(e) => changeRuleConditionInline(ri, ci, 'operator', e.target.value)}
+                              onChange={(e) => changeRuleCondition(r.id, ci, 'operator', e.target.value)}
                               fullWidth
                             >
                               {ruleOperatorOptions.map(op => (
@@ -391,33 +374,186 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                             <TextField
                               label="Value (JSON or plain)"
                               value={c.value}
-                              onChange={(e) => changeRuleConditionInline(ri, ci, 'value', e.target.value)}
+                              onChange={(e) => changeRuleCondition(r.id, ci, 'value', e.target.value)}
                               fullWidth
                             />
                           </Grid>
                           <Grid item xs={12} md={1}>
-                            <IconButton aria-label="delete-condition" onClick={() => removeRuleConditionInline(ri, ci)}>
+                            <IconButton aria-label="delete-condition" onClick={() => removeRuleCondition(r.id, ci)}>
                               <DeleteIcon />
                             </IconButton>
                           </Grid>
                         </Grid>
                       ))}
                       <Box sx={{ mt: 1 }}>
-                        <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleConditionInline(ri)}>Add Condition</Button>
+                        <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleCondition(r.id)}>Add Condition</Button>
                       </Box>
                     </Box>
                   </Box>
-                );
-              })}
-              <Button variant="outlined" startIcon={<AddIcon />} onClick={addRule}>Add Rule</Button>
-              {hasDuplicatePriorities && (
-                <Box sx={{ mt: 1 }}>
-                  <Chip size="small" color="warning" label="Duplicate priorities detected" />
+                ))}
+                {rules.filter(r => r.action === RuleActionEnum.Assign).length === 0 && (
+                  <Typography variant="body2" color="text.secondary">No assign rules</Typography>
+                )}
+              </Box>
+            </Box>
+          )}
+
+          {/* Include section */}
+          <Box sx={{ border: '2px solid', borderColor: 'info.light', borderRadius: 1, p: 1.5, mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="subtitle2">Include rules</Typography>
+              <Button startIcon={<AddIcon />} onClick={() => addRule(RuleActionEnum.Include)} size="small">Add Rule</Button>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Define experiment segment. Matching requests participate in rollout between variants (for multivariant) or are subjected to flag action (for boolean).</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {rules.filter(r => r.action === RuleActionEnum.Include).sort((a,b) => (Number(a.priority || 0) - Number(b.priority || 0))).map((r) => (
+                <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '140px 40px' }, gap: 1, alignItems: 'center' }}>
+                    <TextField
+                      label="Priority"
+                      type="number"
+                      inputProps={{ min: 0, max: 255, step: 1 }}
+                      value={r.priority}
+                      onChange={(e) => updateRuleById(r.id, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
+                    />
+                    <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Conditions</Typography>
+                    {r.conditions.map((c, ci) => (
+                      <Grid container spacing={1} alignItems="center" key={ci} sx={{ mt: 0.5 }}>
+                        <Grid item xs={12} md={4}>
+                          <TextField
+                            label="Attribute"
+                            value={c.attribute}
+                            onChange={(e) => changeRuleCondition(r.id, ci, 'attribute', e.target.value)}
+                            required
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                          <TextField
+                            select
+                            label="Operator"
+                            value={c.operator}
+                            onChange={(e) => changeRuleCondition(r.id, ci, 'operator', e.target.value)}
+                            fullWidth
+                          >
+                            {ruleOperatorOptions.map(op => (
+                              <MenuItem key={op} value={op}>{op}</MenuItem>
+                            ))}
+                          </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                          <TextField
+                            label="Value (JSON or plain)"
+                            value={c.value}
+                            onChange={(e) => changeRuleCondition(r.id, ci, 'value', e.target.value)}
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={1}>
+                          <IconButton aria-label="delete-condition" onClick={() => removeRuleCondition(r.id, ci)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
+                    <Box sx={{ mt: 1 }}>
+                      <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleCondition(r.id)}>Add Condition</Button>
+                    </Box>
+                  </Box>
                 </Box>
+              ))}
+              {rules.filter(r => r.action === RuleActionEnum.Include).length === 0 && (
+                <Typography variant="body2" color="text.secondary">No include rules</Typography>
               )}
             </Box>
           </Box>
-        )}
+
+          {/* Exclude section */}
+          <Box sx={{ border: '2px solid', borderColor: 'error.light', borderRadius: 1, p: 1.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="subtitle2">Exclude rules</Typography>
+              <Button startIcon={<AddIcon />} onClick={() => addRule(RuleActionEnum.Exclude)} size="small">Add Rule</Button>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Matching requests are excluded from experiment and do not participate in variant rollout.</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {rules.filter(r => r.action === RuleActionEnum.Exclude).sort((a,b) => (Number(a.priority || 0) - Number(b.priority || 0))).map((r) => (
+                <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '140px 40px' }, gap: 1, alignItems: 'center' }}>
+                    <TextField
+                      label="Priority"
+                      type="number"
+                      inputProps={{ min: 0, max: 255, step: 1 }}
+                      value={r.priority}
+                      onChange={(e) => updateRuleById(r.id, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
+                    />
+                    <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">Conditions</Typography>
+                    {r.conditions.map((c, ci) => (
+                      <Grid container spacing={1} alignItems="center" key={ci} sx={{ mt: 0.5 }}>
+                        <Grid item xs={12} md={4}>
+                          <TextField
+                            label="Attribute"
+                            value={c.attribute}
+                            onChange={(e) => changeRuleCondition(r.id, ci, 'attribute', e.target.value)}
+                            required
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                          <TextField
+                            select
+                            label="Operator"
+                            value={c.operator}
+                            onChange={(e) => changeRuleCondition(r.id, ci, 'operator', e.target.value)}
+                            fullWidth
+                          >
+                            {ruleOperatorOptions.map(op => (
+                              <MenuItem key={op} value={op}>{op}</MenuItem>
+                            ))}
+                          </TextField>
+                        </Grid>
+                        <Grid item xs={12} md={4}>
+                          <TextField
+                            label="Value (JSON or plain)"
+                            value={c.value}
+                            onChange={(e) => changeRuleCondition(r.id, ci, 'value', e.target.value)}
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={1}>
+                          <IconButton aria-label="delete-condition" onClick={() => removeRuleCondition(r.id, ci)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    ))}
+                    <Box sx={{ mt: 1 }}>
+                      <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleCondition(r.id)}>Add Condition</Button>
+                    </Box>
+                  </Box>
+                </Box>
+              ))}
+              {rules.filter(r => r.action === RuleActionEnum.Exclude).length === 0 && (
+                <Typography variant="body2" color="text.secondary">No exclude rules</Typography>
+              )}
+            </Box>
+          </Box>
+
+          {hasDuplicatePriorities && (
+            <Box sx={{ mt: 1 }}>
+              <Chip size="small" color="warning" label="Duplicate priorities detected" />
+            </Box>
+          )}
+        </Box>
 
         {formError && (
           <Typography color="error" sx={{ mt: 2 }}>{formError}</Typography>

@@ -8,7 +8,8 @@ Name | Type | Description | Notes
 **id** | **string** |  | [default to undefined]
 **feature_id** | **string** |  | [default to undefined]
 **conditions** | [**Array&lt;RuleCondition&gt;**](RuleCondition.md) |  | [default to undefined]
-**flag_variant_id** | **string** |  | [default to undefined]
+**action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
+**flag_variant_id** | **string** |  | [optional] [default to undefined]
 **priority** | **number** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 
@@ -21,6 +22,7 @@ const instance: Rule = {
     id,
     feature_id,
     conditions,
+    action,
     flag_variant_id,
     priority,
     created_at,
