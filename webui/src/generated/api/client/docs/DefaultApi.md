@@ -11,15 +11,18 @@ All URIs are relative to *http://localhost*
 |[**consumeSAMLAssertion**](#consumesamlassertion) | **POST** /api/v1/saml/acs | Assertion Consumer Service (ACS) endpoint|
 |[**createFeatureFlagVariant**](#createfeatureflagvariant) | **POST** /api/v1/features/{feature_id}/variants | Create flag variant for feature|
 |[**createFeatureRule**](#createfeaturerule) | **POST** /api/v1/features/{feature_id}/rules | Create rule for feature|
+|[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
 |[**createUser**](#createuser) | **POST** /api/v1/users | Create a new user (superuser only)|
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
+|[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/v1/users/{user_id} | Delete a user (superuser only, cannot delete superusers)|
 |[**disable2FA**](#disable2fa) | **POST** /api/v1/users/me/2fa/disable | Disable 2FA (using email-confirmation)|
 |[**forgotPassword**](#forgotpassword) | **POST** /api/v1/auth/forgot-password | Request a password reset|
 |[**getCurrentUser**](#getcurrentuser) | **GET** /api/v1/users/me | Get current user information|
 |[**getFeature**](#getfeature) | **GET** /api/v1/features/{feature_id} | Get feature with rules and variants|
+|[**getFeatureSchedule**](#getfeatureschedule) | **GET** /api/v1/feature-schedules/{schedule_id} | Get feature schedule by ID|
 |[**getLDAPConfig**](#getldapconfig) | **GET** /api/v1/ldap/config | Get LDAP configuration|
 |[**getLDAPStatistics**](#getldapstatistics) | **GET** /api/v1/ldap/statistics | Get LDAP statistics|
 |[**getLDAPSyncLogDetails**](#getldapsynclogdetails) | **GET** /api/v1/ldap/sync/logs/{id} | Get synchronization log details|
@@ -31,8 +34,10 @@ All URIs are relative to *http://localhost*
 |[**getProject**](#getproject) | **GET** /api/v1/projects/{project_id} | Get project details|
 |[**getSAMLMetadata**](#getsamlmetadata) | **GET** /api/v1/saml/metadata | Get SAML metadata|
 |[**getSSOProviders**](#getssoproviders) | **GET** /api/v1/auth/sso/providers | Get available SSO providers|
+|[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/feature-schedules | List all feature schedules|
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
 |[**listFeatureRules**](#listfeaturerules) | **GET** /api/v1/features/{feature_id}/rules | List rules for feature|
+|[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
 |[**listProjects**](#listprojects) | **GET** /api/v1/projects | Get projects list|
 |[**listUsers**](#listusers) | **GET** /api/v1/users | List all users (superuser only)|
@@ -49,6 +54,7 @@ All URIs are relative to *http://localhost*
 |[**testLDAPConnection**](#testldapconnection) | **POST** /api/v1/ldap/test-connection | Test LDAP connection|
 |[**toggleFeature**](#togglefeature) | **PUT** /api/v1/features/{feature_id}/toggle | Toggle feature enabled state|
 |[**updateFeature**](#updatefeature) | **PUT** /api/v1/features/{feature_id} | Update feature with rules and variants|
+|[**updateFeatureSchedule**](#updatefeatureschedule) | **PUT** /api/v1/feature-schedules/{schedule_id} | Update feature schedule by ID|
 |[**updateLDAPConfig**](#updateldapconfig) | **POST** /api/v1/ldap/config | Create or update LDAP configuration|
 |[**updateLicense**](#updatelicense) | **PUT** /api/v1/license | Update license|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
@@ -446,6 +452,66 @@ const { status, data } = await apiInstance.createFeatureRule(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **createFeatureSchedule**
+> FeatureScheduleResponse createFeatureSchedule(createFeatureScheduleRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateFeatureScheduleRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let createFeatureScheduleRequest: CreateFeatureScheduleRequest; //
+
+const { status, data } = await apiInstance.createFeatureSchedule(
+    featureId,
+    createFeatureScheduleRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createFeatureScheduleRequest** | **CreateFeatureScheduleRequest**|  | |
+| **featureId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**FeatureScheduleResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Schedule created |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature or related resource not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createProjectFeature**
 > FeatureResponse createProjectFeature(createFeatureRequest)
 
@@ -612,6 +678,61 @@ void (empty response body)
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteFeatureSchedule**
+> deleteFeatureSchedule()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let scheduleId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteFeatureSchedule(
+    scheduleId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **scheduleId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Feature schedule deleted |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Schedule not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -924,6 +1045,61 @@ const { status, data } = await apiInstance.getFeature(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getFeatureSchedule**
+> FeatureScheduleResponse getFeatureSchedule()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let scheduleId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getFeatureSchedule(
+    scheduleId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **scheduleId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**FeatureScheduleResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Feature schedule details |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Schedule not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -1475,6 +1651,53 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **listAllFeatureSchedules**
+> Array<FeatureSchedule> listAllFeatureSchedules()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.listAllFeatureSchedules();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<FeatureSchedule>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of feature schedules |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **listFeatureFlagVariants**
 > Array<FlagVariant> listFeatureFlagVariants()
 
@@ -1577,6 +1800,61 @@ const { status, data } = await apiInstance.listFeatureRules(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | List of rules for the feature |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listFeatureSchedules**
+> Array<FeatureSchedule> listFeatureSchedules()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.listFeatureSchedules(
+    featureId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<FeatureSchedule>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of schedules for the feature |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
@@ -2441,6 +2719,66 @@ const { status, data } = await apiInstance.updateFeature(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateFeatureSchedule**
+> FeatureScheduleResponse updateFeatureSchedule(updateFeatureScheduleRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    UpdateFeatureScheduleRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let scheduleId: string; // (default to undefined)
+let updateFeatureScheduleRequest: UpdateFeatureScheduleRequest; //
+
+const { status, data } = await apiInstance.updateFeatureSchedule(
+    scheduleId,
+    updateFeatureScheduleRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateFeatureScheduleRequest** | **UpdateFeatureScheduleRequest**|  | |
+| **scheduleId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**FeatureScheduleResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Feature schedule updated |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Schedule not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

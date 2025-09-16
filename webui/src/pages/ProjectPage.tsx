@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip, IconButton } from '@mui/material';
-import { Add as AddIcon, Flag as FlagIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon, ContentCopy as ContentCopyIcon } from '@mui/icons-material';
+import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip } from '@mui/material';
+import { Add as AddIcon, Flag as FlagIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
@@ -39,8 +39,6 @@ const ProjectPage: React.FC = () => {
 
   // Create Feature Dialog state
   const [open, setOpen] = useState(false);
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const project = projectResp?.project;
 
@@ -71,48 +69,13 @@ const ProjectPage: React.FC = () => {
   return (
     <AuthenticatedLayout showBackButton backTo="/dashboard">
       <PageHeader
-        title={project ? project.name : 'Project'}
-        subtitle={project ? `ID: ${project.id}${project.description ? '\n' + project.description : ''}` : 'Project details'}
+        title={project ? `${project.name} - Features` : 'Project'}
+        subtitle={project ? `Manage features in project ${project.name}` : 'Features'}
         icon={<FlagIcon />}
         gradientVariant="default"
         subtitleGradientVariant="default"
       />
 
-      {project && (
-        <Box sx={{ mb: 2, ml: 0 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', ml: 0 }}>
-            <Typography variant="body2" color="text.secondary">API Key:</Typography>
-            <Typography
-              variant="body2"
-              sx={{ fontFamily: 'monospace', userSelect: 'text', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}
-            >
-              {showApiKey ? project.api_key : '*'.repeat(project.api_key?.length || 8)}
-            </Typography>
-            <IconButton aria-label={showApiKey ? 'hide api key' : 'show api key'} size="small" onClick={() => setShowApiKey(v => !v)}>
-              {showApiKey ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-            </IconButton>
-            <Tooltip title={copied ? 'Copied!' : 'Copy API Key'} placement="top" onClose={() => setCopied(false)}>
-              <IconButton
-                aria-label="copy api key"
-                size="small"
-                onClick={async () => {
-                  try {
-                    if (project.api_key) {
-                      await navigator.clipboard.writeText(project.api_key);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 1200);
-                    }
-                  } catch (e) {
-                    // ignore
-                  }
-                }}
-              >
-                <ContentCopyIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </Box>
-      )}
 
       <Paper id="features" sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

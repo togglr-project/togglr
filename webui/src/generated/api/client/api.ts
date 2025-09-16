@@ -50,6 +50,15 @@ export interface CreateFeatureRequest {
 }
 
 
+export interface CreateFeatureScheduleRequest {
+    'starts_at'?: string;
+    'ends_at'?: string;
+    'cron_expr'?: string;
+    'timezone': string;
+    'action': FeatureScheduleAction;
+}
+
+
 export interface CreateFlagVariantInline {
     /**
      * Client-provided UUID for the variant
@@ -157,6 +166,34 @@ export type FeatureKind = typeof FeatureKind[keyof typeof FeatureKind];
 
 export interface FeatureResponse {
     'feature': Feature;
+}
+export interface FeatureSchedule {
+    'id': string;
+    'project_id': string;
+    'feature_id': string;
+    'starts_at'?: string;
+    'ends_at'?: string;
+    'cron_expr'?: string;
+    'timezone': string;
+    'action': FeatureScheduleAction;
+    'created_at': string;
+}
+
+
+/**
+ * Action to apply on schedule
+ */
+
+export const FeatureScheduleAction = {
+    Enable: 'enable',
+    Disable: 'disable'
+} as const;
+
+export type FeatureScheduleAction = typeof FeatureScheduleAction[keyof typeof FeatureScheduleAction];
+
+
+export interface FeatureScheduleResponse {
+    'schedule': FeatureSchedule;
 }
 export interface FlagVariant {
     'id': string;
@@ -620,6 +657,15 @@ export interface TwoFAVerifyResponse {
     'refresh_token': string;
     'expires_in': number;
 }
+export interface UpdateFeatureScheduleRequest {
+    'starts_at'?: string;
+    'ends_at'?: string;
+    'cron_expr'?: string;
+    'timezone': string;
+    'action': FeatureScheduleAction;
+}
+
+
 export interface UpdateLicenseAcceptanceRequest {
     /**
      * Flag indicating whether the user accepts the license agreement
@@ -952,6 +998,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Create schedule for feature
+         * @param {string} featureId 
+         * @param {CreateFeatureScheduleRequest} createFeatureScheduleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureSchedule: async (featureId: string, createFeatureScheduleRequest: CreateFeatureScheduleRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('createFeatureSchedule', 'featureId', featureId)
+            // verify required parameter 'createFeatureScheduleRequest' is not null or undefined
+            assertParamExists('createFeatureSchedule', 'createFeatureScheduleRequest', createFeatureScheduleRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/schedules`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createFeatureScheduleRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create feature for project
          * @param {string} projectId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -1046,6 +1136,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('deleteFeature', 'featureId', featureId)
             const localVarPath = `/api/v1/features/{feature_id}`
                 .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteFeatureSchedule: async (scheduleId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'scheduleId' is not null or undefined
+            assertParamExists('deleteFeatureSchedule', 'scheduleId', scheduleId)
+            const localVarPath = `/api/v1/feature-schedules/{schedule_id}`
+                .replace(`{${"schedule_id"}}`, encodeURIComponent(String(scheduleId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1266,6 +1394,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('getFeature', 'featureId', featureId)
             const localVarPath = `/api/v1/features/{feature_id}`
                 .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getFeatureSchedule: async (scheduleId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'scheduleId' is not null or undefined
+            assertParamExists('getFeatureSchedule', 'scheduleId', scheduleId)
+            const localVarPath = `/api/v1/feature-schedules/{schedule_id}`
+                .replace(`{${"schedule_id"}}`, encodeURIComponent(String(scheduleId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1698,6 +1864,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary List all feature schedules
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAllFeatureSchedules: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/feature-schedules`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List flag variants for feature
          * @param {string} featureId 
          * @param {*} [options] Override http request option.
@@ -1745,6 +1945,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'featureId' is not null or undefined
             assertParamExists('listFeatureRules', 'featureId', featureId)
             const localVarPath = `/api/v1/features/{feature_id}/rules`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List schedules for feature
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listFeatureSchedules: async (featureId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('listFeatureSchedules', 'featureId', featureId)
+            const localVarPath = `/api/v1/features/{feature_id}/schedules`
                 .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2385,6 +2623,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateFeatureSchedule: async (scheduleId: string, updateFeatureScheduleRequest: UpdateFeatureScheduleRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'scheduleId' is not null or undefined
+            assertParamExists('updateFeatureSchedule', 'scheduleId', scheduleId)
+            // verify required parameter 'updateFeatureScheduleRequest' is not null or undefined
+            assertParamExists('updateFeatureSchedule', 'updateFeatureScheduleRequest', updateFeatureScheduleRequest)
+            const localVarPath = `/api/v1/feature-schedules/{schedule_id}`
+                .replace(`{${"schedule_id"}}`, encodeURIComponent(String(scheduleId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateFeatureScheduleRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -2727,6 +3009,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create schedule for feature
+         * @param {string} featureId 
+         * @param {CreateFeatureScheduleRequest} createFeatureScheduleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createFeatureSchedule(featureId: string, createFeatureScheduleRequest: CreateFeatureScheduleRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureScheduleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createFeatureSchedule(featureId, createFeatureScheduleRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createFeatureSchedule']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create feature for project
          * @param {string} projectId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -2763,6 +3059,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeature(featureId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeatureSchedule(scheduleId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeatureSchedule']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2839,6 +3148,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getFeature(featureId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureScheduleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeatureSchedule(scheduleId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeatureSchedule']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -2983,6 +3305,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary List all feature schedules
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listAllFeatureSchedules(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FeatureSchedule>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAllFeatureSchedules(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listAllFeatureSchedules']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List flag variants for feature
          * @param {string} featureId 
          * @param {*} [options] Override http request option.
@@ -3005,6 +3339,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listFeatureRules(featureId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listFeatureRules']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List schedules for feature
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listFeatureSchedules(featureId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FeatureSchedule>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listFeatureSchedules(featureId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listFeatureSchedules']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3217,6 +3564,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Update feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateFeatureSchedule(scheduleId: string, updateFeatureScheduleRequest: UpdateFeatureScheduleRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureScheduleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateFeatureSchedule(scheduleId, updateFeatureScheduleRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateFeatureSchedule']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -3377,6 +3738,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create schedule for feature
+         * @param {string} featureId 
+         * @param {CreateFeatureScheduleRequest} createFeatureScheduleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureSchedule(featureId: string, createFeatureScheduleRequest: CreateFeatureScheduleRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureScheduleResponse> {
+            return localVarFp.createFeatureSchedule(featureId, createFeatureScheduleRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create feature for project
          * @param {string} projectId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -3405,6 +3777,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteFeature(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.deleteFeature(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteFeatureSchedule(scheduleId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3463,6 +3845,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getFeature(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureDetailsResponse> {
             return localVarFp.getFeature(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureScheduleResponse> {
+            return localVarFp.getFeatureSchedule(scheduleId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3573,6 +3965,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary List all feature schedules
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAllFeatureSchedules(options?: RawAxiosRequestConfig): AxiosPromise<Array<FeatureSchedule>> {
+            return localVarFp.listAllFeatureSchedules(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary List flag variants for feature
          * @param {string} featureId 
          * @param {*} [options] Override http request option.
@@ -3590,6 +3991,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listFeatureRules(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Rule>> {
             return localVarFp.listFeatureRules(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List schedules for feature
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listFeatureSchedules(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<FeatureSchedule>> {
+            return localVarFp.listFeatureSchedules(featureId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3753,6 +4164,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Update feature schedule by ID
+         * @param {string} scheduleId 
+         * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateFeatureSchedule(scheduleId: string, updateFeatureScheduleRequest: UpdateFeatureScheduleRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureScheduleResponse> {
+            return localVarFp.updateFeatureSchedule(scheduleId, updateFeatureScheduleRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create or update LDAP configuration
          * @param {LDAPConfig} lDAPConfig 
          * @param {*} [options] Override http request option.
@@ -3900,6 +4322,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create schedule for feature
+     * @param {string} featureId 
+     * @param {CreateFeatureScheduleRequest} createFeatureScheduleRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createFeatureSchedule(featureId: string, createFeatureScheduleRequest: CreateFeatureScheduleRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createFeatureSchedule(featureId, createFeatureScheduleRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create feature for project
      * @param {string} projectId 
      * @param {CreateFeatureRequest} createFeatureRequest 
@@ -3930,6 +4364,17 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteFeature(featureId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteFeature(featureId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete feature schedule by ID
+     * @param {string} scheduleId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteFeatureSchedule(scheduleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -3994,6 +4439,17 @@ export class DefaultApi extends BaseAPI {
      */
     public getFeature(featureId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getFeature(featureId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get feature schedule by ID
+     * @param {string} scheduleId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getFeatureSchedule(scheduleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4116,6 +4572,16 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary List all feature schedules
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listAllFeatureSchedules(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listAllFeatureSchedules(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary List flag variants for feature
      * @param {string} featureId 
      * @param {*} [options] Override http request option.
@@ -4134,6 +4600,17 @@ export class DefaultApi extends BaseAPI {
      */
     public listFeatureRules(featureId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listFeatureRules(featureId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List schedules for feature
+     * @param {string} featureId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listFeatureSchedules(featureId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listFeatureSchedules(featureId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4310,6 +4787,18 @@ export class DefaultApi extends BaseAPI {
      */
     public updateFeature(featureId: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).updateFeature(featureId, createFeatureRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update feature schedule by ID
+     * @param {string} scheduleId 
+     * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateFeatureSchedule(scheduleId: string, updateFeatureScheduleRequest: UpdateFeatureScheduleRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateFeatureSchedule(scheduleId, updateFeatureScheduleRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
