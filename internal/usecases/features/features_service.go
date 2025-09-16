@@ -14,6 +14,7 @@ type Service struct {
 	repo            contract.FeaturesRepository
 	flagVariantsRep contract.FlagVariantsRepository
 	rulesRep        contract.RulesRepository
+	schedulesRep    contract.FeatureSchedulesRepository
 }
 
 func New(
@@ -21,12 +22,14 @@ func New(
 	repo contract.FeaturesRepository,
 	flagVariantsRep contract.FlagVariantsRepository,
 	rulesRep contract.RulesRepository,
+	schedulesRep contract.FeatureSchedulesRepository,
 ) *Service {
 	return &Service{
 		txManager:       txManager,
 		repo:            repo,
 		flagVariantsRep: flagVariantsRep,
 		rulesRep:        rulesRep,
+		schedulesRep:    schedulesRep,
 	}
 }
 
@@ -148,10 +151,16 @@ func (s *Service) ListExtendedByProjectID(
 			return nil, fmt.Errorf("list rules: %w", err)
 		}
 
+		schedules, err := s.schedulesRep.ListByFeatureID(ctx, item.ID)
+		if err != nil {
+			return nil, fmt.Errorf("list schedules: %w", err)
+		}
+
 		result = append(result, domain.FeatureExtended{
 			Feature:      item,
 			FlagVariants: variants,
 			Rules:        rules,
+			Schedules:    schedules,
 		})
 	}
 

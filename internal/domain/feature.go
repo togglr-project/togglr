@@ -32,6 +32,7 @@ type FeatureExtended struct {
 
 	FlagVariants []FlagVariant
 	Rules        []Rule
+	Schedules    []FeatureSchedule
 }
 
 func (id FeatureID) String() string {
