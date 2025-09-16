@@ -201,5 +201,201 @@ func TestIsScheduleActive(t *testing.T) {
 	}
 }
 
+func TestMatchCondition(t *testing.T) {
+	tests := []struct {
+		name     string
+		reqCtx   map[domain.RuleAttribute]any
+		cond     domain.Condition
+		expected bool
+	}{
+		{
+			name:     "eq operator matches",
+			reqCtx:   map[domain.RuleAttribute]any{"country": "US"},
+			cond:     domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "US"},
+			expected: true,
+		},
+		{
+			name:     "eq operator does not match",
+			reqCtx:   map[domain.RuleAttribute]any{"country": "CA"},
+			cond:     domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "US"},
+			expected: false,
+		},
+		{
+			name:     "neq operator matches",
+			reqCtx:   map[domain.RuleAttribute]any{"age": 30},
+			cond:     domain.Condition{Attribute: "age", Operator: domain.OpNotEq, Value: 40},
+			expected: true,
+		},
+		{
+			name:     "in operator matches",
+			reqCtx:   map[domain.RuleAttribute]any{"role": "admin"},
+			cond:     domain.Condition{Attribute: "role", Operator: domain.OpIn, Value: []string{"user", "admin"}},
+			expected: true,
+		},
+		{
+			name:     "not_in operator matches",
+			reqCtx:   map[domain.RuleAttribute]any{"role": "guest"},
+			cond:     domain.Condition{Attribute: "role", Operator: domain.OpNotIn, Value: []string{"user", "admin"}},
+			expected: true,
+		},
+		{
+			name:     "gt operator matches",
+			reqCtx:   map[domain.RuleAttribute]any{"age": 25},
+			cond:     domain.Condition{Attribute: "age", Operator: domain.OpGt, Value: 20},
+			expected: true,
+		},
+		{
+			name:     "gte operator matches equal",
+			reqCtx:   map[domain.RuleAttribute]any{"age": 20},
+			cond:     domain.Condition{Attribute: "age", Operator: domain.OpGte, Value: 20},
+			expected: true,
+		},
+		{
+			name:     "lt operator does not match",
+			reqCtx:   map[domain.RuleAttribute]any{"age": 25},
+			cond:     domain.Condition{Attribute: "age", Operator: domain.OpLt, Value: 20},
+			expected: false,
+		},
+		{
+			name:     "regex matches",
+			reqCtx:   map[domain.RuleAttribute]any{"email": "test@example.com"},
+			cond:     domain.Condition{Attribute: "email", Operator: domain.OpRegex, Value: `.+@example\.com`},
+			expected: true,
+		},
+		{
+			name:     "regex invalid pattern",
+			reqCtx:   map[domain.RuleAttribute]any{"email": "test@example.com"},
+			cond:     domain.Condition{Attribute: "email", Operator: domain.OpRegex, Value: `([a-z`}, // некорректный regex
+			expected: false,
+		},
+		{
+			name:     "percentage rollout 100% always matches",
+			reqCtx:   map[domain.RuleAttribute]any{"user": "alice"},
+			cond:     domain.Condition{Attribute: "user", Operator: domain.OpPercentage, Value: 100},
+			expected: true,
+		},
+		{
+			name:     "percentage rollout 0% never matches",
+			reqCtx:   map[domain.RuleAttribute]any{"user": "bob"},
+			cond:     domain.Condition{Attribute: "user", Operator: domain.OpPercentage, Value: 0},
+			expected: false,
+		},
+		{
+			name:     "attribute not in reqCtx returns false",
+			reqCtx:   map[domain.RuleAttribute]any{},
+			cond:     domain.Condition{Attribute: "missing", Operator: domain.OpEq, Value: "x"},
+			expected: false,
+		},
+		{
+			name:     "unknown operator returns false",
+			reqCtx:   map[domain.RuleAttribute]any{"foo": "bar"},
+			cond:     domain.Condition{Attribute: "foo", Operator: "unknown", Value: "bar"},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := MatchCondition(tt.reqCtx, tt.cond)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestStableHash(t *testing.T) {
+	tests := []struct {
+		str      string
+		expected int
+	}{
+		{"", 0},
+		{"a", StableHash("a")},       // должно быть детерминированно
+		{"abc", StableHash("abc")},   // стабильное значение
+		{"abc", StableHash("abc")},   // одинаковые входы → одинаковый результат
+		{"abcd", StableHash("abcd")}, // другое значение, чем у "abc"
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.str, func(t *testing.T) {
+			got := StableHash(tt.str)
+			assert.Equal(t, tt.expected, got)
+			assert.GreaterOrEqual(t, got, 0, "StableHash must be non-negative")
+		})
+	}
+
+	t.Run("different strings produce different hashes (usually)", func(t *testing.T) {
+		h1 := StableHash("abc")
+		h2 := StableHash("xyz")
+		assert.NotEqual(t, h1, h2)
+	})
+}
+
+func TestInList(t *testing.T) {
+	tests := []struct {
+		name            string
+		actual          any
+		value           any
+		caseInsensitive bool
+		expected        bool
+	}{
+		{
+			name:     "match in []string, case sensitive",
+			actual:   "foo",
+			value:    []string{"bar", "foo"},
+			expected: true,
+		},
+		{
+			name:     "no match in []string, case sensitive",
+			actual:   "FOO",
+			value:    []string{"bar", "foo"},
+			expected: false,
+		},
+		{
+			name:            "match in []string, case insensitive",
+			actual:          "FOO",
+			value:           []string{"bar", "foo"},
+			caseInsensitive: true,
+			expected:        true,
+		},
+		{
+			name:     "match in []any, case sensitive",
+			actual:   "123",
+			value:    []any{"456", "123"},
+			expected: true,
+		},
+		{
+			name:     "no match in []any, case sensitive",
+			actual:   "123",
+			value:    []any{"456", "789"},
+			expected: false,
+		},
+		{
+			name:            "match in []any, case insensitive",
+			actual:          "FOO",
+			value:           []any{"bar", "foo"},
+			caseInsensitive: true,
+			expected:        true,
+		},
+		{
+			name:     "unsupported value type returns false",
+			actual:   "foo",
+			value:    123, // не []any и не []string
+			expected: false,
+		},
+		{
+			name:     "numbers compared as strings",
+			actual:   42,
+			value:    []any{1, 2, 42},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := InList(tt.actual, tt.value, tt.caseInsensitive)
+			assert.Equal(t, tt.expected, got)
+		})
+	}
+}
+
 func ptrTime(t time.Time) *time.Time { return &t }
 func ptrString(s string) *string     { return &s }
