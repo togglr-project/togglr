@@ -80,6 +80,15 @@ func (UnimplementedHandler) CreateFeatureRule(ctx context.Context, req *CreateRu
 	return r, ht.ErrNotImplemented
 }
 
+// CreateFeatureSchedule implements CreateFeatureSchedule operation.
+//
+// Create schedule for feature.
+//
+// POST /api/v1/features/{feature_id}/schedules
+func (UnimplementedHandler) CreateFeatureSchedule(ctx context.Context, req *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (r CreateFeatureScheduleRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateProjectFeature implements CreateProjectFeature operation.
 //
 // Create feature for project.
@@ -104,6 +113,15 @@ func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserReque
 //
 // DELETE /api/v1/features/{feature_id}
 func (UnimplementedHandler) DeleteFeature(ctx context.Context, params DeleteFeatureParams) (r DeleteFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteFeatureSchedule implements DeleteFeatureSchedule operation.
+//
+// Delete feature schedule by ID.
+//
+// DELETE /api/v1/feature-schedules/{schedule_id}
+func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params DeleteFeatureScheduleParams) (r DeleteFeatureScheduleRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -158,6 +176,15 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUse
 //
 // GET /api/v1/features/{feature_id}
 func (UnimplementedHandler) GetFeature(ctx context.Context, params GetFeatureParams) (r GetFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetFeatureSchedule implements GetFeatureSchedule operation.
+//
+// Get feature schedule by ID.
+//
+// GET /api/v1/feature-schedules/{schedule_id}
+func (UnimplementedHandler) GetFeatureSchedule(ctx context.Context, params GetFeatureScheduleParams) (r GetFeatureScheduleRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -260,6 +287,15 @@ func (UnimplementedHandler) GetSSOProviders(ctx context.Context) (r GetSSOProvid
 	return r, ht.ErrNotImplemented
 }
 
+// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
+//
+// List all feature schedules.
+//
+// GET /api/v1/feature-schedules
+func (UnimplementedHandler) ListAllFeatureSchedules(ctx context.Context) (r ListAllFeatureSchedulesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
 //
 // List flag variants for feature.
@@ -275,6 +311,15 @@ func (UnimplementedHandler) ListFeatureFlagVariants(ctx context.Context, params 
 //
 // GET /api/v1/features/{feature_id}/rules
 func (UnimplementedHandler) ListFeatureRules(ctx context.Context, params ListFeatureRulesParams) (r ListFeatureRulesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListFeatureSchedules implements ListFeatureSchedules operation.
+//
+// List schedules for feature.
+//
+// GET /api/v1/features/{feature_id}/schedules
+func (UnimplementedHandler) ListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (r ListFeatureSchedulesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -428,6 +473,15 @@ func (UnimplementedHandler) ToggleFeature(ctx context.Context, req *ToggleFeatur
 //
 // PUT /api/v1/features/{feature_id}
 func (UnimplementedHandler) UpdateFeature(ctx context.Context, req *CreateFeatureRequest, params UpdateFeatureParams) (r UpdateFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateFeatureSchedule implements UpdateFeatureSchedule operation.
+//
+// Update feature schedule by ID.
+//
+// PUT /api/v1/feature-schedules/{schedule_id}
+func (UnimplementedHandler) UpdateFeatureSchedule(ctx context.Context, req *UpdateFeatureScheduleRequest, params UpdateFeatureScheduleParams) (r UpdateFeatureScheduleRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

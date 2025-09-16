@@ -2112,6 +2112,308 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/features/{feature_id}/schedules:
+    get:
+      summary: List schedules for feature
+      operationId: ListFeatureSchedules
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of schedules for the feature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFeatureSchedulesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create schedule for feature
+      operationId: CreateFeatureSchedule
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeatureScheduleRequest'
+      responses:
+        '201':
+          description: Schedule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureScheduleResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature or related resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/feature-schedules:
+    get:
+      summary: List all feature schedules
+      operationId: ListAllFeatureSchedules
+      responses:
+        '200':
+          description: List of feature schedules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFeatureSchedulesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/feature-schedules/{schedule_id}:
+    get:
+      summary: Get feature schedule by ID
+      operationId: GetFeatureSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feature schedule details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureScheduleResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    put:
+      summary: Update feature schedule by ID
+      operationId: UpdateFeatureSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeatureScheduleRequest'
+      responses:
+        '200':
+          description: Feature schedule updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureScheduleResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete feature schedule by ID
+      operationId: DeleteFeatureSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Feature schedule deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Schedule not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
   /api/v1/features/{feature_id}/variants:
     get:
       summary: List flag variants for feature
@@ -3271,6 +3573,93 @@ components:
         rule:
           $ref: '#/components/schemas/Rule'
       required: [rule]
+
+    FeatureScheduleAction:
+      type: string
+      description: Action to apply on schedule
+      enum: [enable, disable]
+
+    FeatureSchedule:
+      type: object
+      properties:
+        id:
+          type: string
+        project_id:
+          type: string
+        feature_id:
+          type: string
+        starts_at:
+          type: string
+          format: date-time
+          nullable: true
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        cron_expr:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+        action:
+          $ref: '#/components/schemas/FeatureScheduleAction'
+        created_at:
+          type: string
+          format: date-time
+      required: [id, project_id, feature_id, timezone, action, created_at]
+
+    ListFeatureSchedulesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/FeatureSchedule'
+
+    CreateFeatureScheduleRequest:
+      type: object
+      properties:
+        starts_at:
+          type: string
+          format: date-time
+          nullable: true
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        cron_expr:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+          default: UTC
+        action:
+          $ref: '#/components/schemas/FeatureScheduleAction'
+      required: [timezone, action]
+
+    UpdateFeatureScheduleRequest:
+      type: object
+      properties:
+        starts_at:
+          type: string
+          format: date-time
+          nullable: true
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        cron_expr:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+        action:
+          $ref: '#/components/schemas/FeatureScheduleAction'
+      required: [timezone, action]
+
+    FeatureScheduleResponse:
+      type: object
+      properties:
+        schedule:
+          $ref: '#/components/schemas/FeatureSchedule'
+      required: [schedule]
 
     ErrorNotFound:
       allOf:

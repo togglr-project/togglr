@@ -75,6 +75,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/features/{feature_id}/rules
 	CreateFeatureRule(ctx context.Context, request *CreateRuleRequest, params CreateFeatureRuleParams) (CreateFeatureRuleRes, error)
+	// CreateFeatureSchedule invokes CreateFeatureSchedule operation.
+	//
+	// Create schedule for feature.
+	//
+	// POST /api/v1/features/{feature_id}/schedules
+	CreateFeatureSchedule(ctx context.Context, request *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (CreateFeatureScheduleRes, error)
 	// CreateProjectFeature invokes CreateProjectFeature operation.
 	//
 	// Create feature for project.
@@ -93,6 +99,12 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/features/{feature_id}
 	DeleteFeature(ctx context.Context, params DeleteFeatureParams) (DeleteFeatureRes, error)
+	// DeleteFeatureSchedule invokes DeleteFeatureSchedule operation.
+	//
+	// Delete feature schedule by ID.
+	//
+	// DELETE /api/v1/feature-schedules/{schedule_id}
+	DeleteFeatureSchedule(ctx context.Context, params DeleteFeatureScheduleParams) (DeleteFeatureScheduleRes, error)
 	// DeleteLDAPConfig invokes DeleteLDAPConfig operation.
 	//
 	// Delete LDAP configuration.
@@ -129,6 +141,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/features/{feature_id}
 	GetFeature(ctx context.Context, params GetFeatureParams) (GetFeatureRes, error)
+	// GetFeatureSchedule invokes GetFeatureSchedule operation.
+	//
+	// Get feature schedule by ID.
+	//
+	// GET /api/v1/feature-schedules/{schedule_id}
+	GetFeatureSchedule(ctx context.Context, params GetFeatureScheduleParams) (GetFeatureScheduleRes, error)
 	// GetLDAPConfig invokes GetLDAPConfig operation.
 	//
 	// Get LDAP configuration.
@@ -195,6 +213,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/auth/sso/providers
 	GetSSOProviders(ctx context.Context) (GetSSOProvidersRes, error)
+	// ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
+	//
+	// List all feature schedules.
+	//
+	// GET /api/v1/feature-schedules
+	ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error)
 	// ListFeatureFlagVariants invokes ListFeatureFlagVariants operation.
 	//
 	// List flag variants for feature.
@@ -207,6 +231,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/features/{feature_id}/rules
 	ListFeatureRules(ctx context.Context, params ListFeatureRulesParams) (ListFeatureRulesRes, error)
+	// ListFeatureSchedules invokes ListFeatureSchedules operation.
+	//
+	// List schedules for feature.
+	//
+	// GET /api/v1/features/{feature_id}/schedules
+	ListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (ListFeatureSchedulesRes, error)
 	// ListProjectFeatures invokes ListProjectFeatures operation.
 	//
 	// List features for project.
@@ -309,6 +339,12 @@ type Invoker interface {
 	//
 	// PUT /api/v1/features/{feature_id}
 	UpdateFeature(ctx context.Context, request *CreateFeatureRequest, params UpdateFeatureParams) (UpdateFeatureRes, error)
+	// UpdateFeatureSchedule invokes UpdateFeatureSchedule operation.
+	//
+	// Update feature schedule by ID.
+	//
+	// PUT /api/v1/feature-schedules/{schedule_id}
+	UpdateFeatureSchedule(ctx context.Context, request *UpdateFeatureScheduleRequest, params UpdateFeatureScheduleParams) (UpdateFeatureScheduleRes, error)
 	// UpdateLDAPConfig invokes UpdateLDAPConfig operation.
 	//
 	// Create or update LDAP configuration.
@@ -1173,6 +1209,133 @@ func (c *Client) sendCreateFeatureRule(ctx context.Context, request *CreateRuleR
 	return result, nil
 }
 
+// CreateFeatureSchedule invokes CreateFeatureSchedule operation.
+//
+// Create schedule for feature.
+//
+// POST /api/v1/features/{feature_id}/schedules
+func (c *Client) CreateFeatureSchedule(ctx context.Context, request *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (CreateFeatureScheduleRes, error) {
+	res, err := c.sendCreateFeatureSchedule(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateFeatureSchedule(ctx context.Context, request *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (res CreateFeatureScheduleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CreateFeatureSchedule"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/schedules"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateFeatureScheduleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/features/"
+	{
+		// Encode "feature_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/schedules"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateFeatureScheduleRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, CreateFeatureScheduleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateFeatureScheduleResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateProjectFeature invokes CreateProjectFeature operation.
 //
 // Create feature for project.
@@ -1524,6 +1687,129 @@ func (c *Client) sendDeleteFeature(ctx context.Context, params DeleteFeaturePara
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteFeatureResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteFeatureSchedule invokes DeleteFeatureSchedule operation.
+//
+// Delete feature schedule by ID.
+//
+// DELETE /api/v1/feature-schedules/{schedule_id}
+func (c *Client) DeleteFeatureSchedule(ctx context.Context, params DeleteFeatureScheduleParams) (DeleteFeatureScheduleRes, error) {
+	res, err := c.sendDeleteFeatureSchedule(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteFeatureSchedule(ctx context.Context, params DeleteFeatureScheduleParams) (res DeleteFeatureScheduleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("DeleteFeatureSchedule"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/feature-schedules/{schedule_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteFeatureScheduleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/feature-schedules/"
+	{
+		// Encode "schedule_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "schedule_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ScheduleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, DeleteFeatureScheduleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteFeatureScheduleResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -2163,6 +2449,129 @@ func (c *Client) sendGetFeature(ctx context.Context, params GetFeatureParams) (r
 
 	stage = "DecodeResponse"
 	result, err := decodeGetFeatureResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetFeatureSchedule invokes GetFeatureSchedule operation.
+//
+// Get feature schedule by ID.
+//
+// GET /api/v1/feature-schedules/{schedule_id}
+func (c *Client) GetFeatureSchedule(ctx context.Context, params GetFeatureScheduleParams) (GetFeatureScheduleRes, error) {
+	res, err := c.sendGetFeatureSchedule(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetFeatureSchedule(ctx context.Context, params GetFeatureScheduleParams) (res GetFeatureScheduleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetFeatureSchedule"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/feature-schedules/{schedule_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetFeatureScheduleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/feature-schedules/"
+	{
+		// Encode "schedule_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "schedule_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ScheduleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetFeatureScheduleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetFeatureScheduleResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -3368,6 +3777,111 @@ func (c *Client) sendGetSSOProviders(ctx context.Context) (res GetSSOProvidersRe
 	return result, nil
 }
 
+// ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
+//
+// List all feature schedules.
+//
+// GET /api/v1/feature-schedules
+func (c *Client) ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error) {
+	res, err := c.sendListAllFeatureSchedules(ctx)
+	return res, err
+}
+
+func (c *Client) sendListAllFeatureSchedules(ctx context.Context) (res ListAllFeatureSchedulesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListAllFeatureSchedules"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/feature-schedules"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListAllFeatureSchedulesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/feature-schedules"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListAllFeatureSchedulesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListAllFeatureSchedulesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListFeatureFlagVariants invokes ListFeatureFlagVariants operation.
 //
 // List flag variants for feature.
@@ -3609,6 +4123,130 @@ func (c *Client) sendListFeatureRules(ctx context.Context, params ListFeatureRul
 
 	stage = "DecodeResponse"
 	result, err := decodeListFeatureRulesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ListFeatureSchedules invokes ListFeatureSchedules operation.
+//
+// List schedules for feature.
+//
+// GET /api/v1/features/{feature_id}/schedules
+func (c *Client) ListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (ListFeatureSchedulesRes, error) {
+	res, err := c.sendListFeatureSchedules(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (res ListFeatureSchedulesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListFeatureSchedules"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/schedules"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListFeatureSchedulesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/features/"
+	{
+		// Encode "feature_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/schedules"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListFeatureSchedulesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListFeatureSchedulesResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -5338,6 +5976,132 @@ func (c *Client) sendUpdateFeature(ctx context.Context, request *CreateFeatureRe
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateFeatureResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateFeatureSchedule invokes UpdateFeatureSchedule operation.
+//
+// Update feature schedule by ID.
+//
+// PUT /api/v1/feature-schedules/{schedule_id}
+func (c *Client) UpdateFeatureSchedule(ctx context.Context, request *UpdateFeatureScheduleRequest, params UpdateFeatureScheduleParams) (UpdateFeatureScheduleRes, error) {
+	res, err := c.sendUpdateFeatureSchedule(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateFeatureSchedule(ctx context.Context, request *UpdateFeatureScheduleRequest, params UpdateFeatureScheduleParams) (res UpdateFeatureScheduleRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateFeatureSchedule"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/api/v1/feature-schedules/{schedule_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateFeatureScheduleOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/feature-schedules/"
+	{
+		// Encode "schedule_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "schedule_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ScheduleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateFeatureScheduleRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, UpdateFeatureScheduleOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateFeatureScheduleResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

@@ -211,6 +211,71 @@ func decodeCreateFeatureRuleParams(args [1]string, argsEscaped bool, r *http.Req
 	return params, nil
 }
 
+// CreateFeatureScheduleParams is parameters of CreateFeatureSchedule operation.
+type CreateFeatureScheduleParams struct {
+	FeatureID string
+}
+
+func unpackCreateFeatureScheduleParams(packed middleware.Parameters) (params CreateFeatureScheduleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateFeatureScheduleParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CreateProjectFeatureParams is parameters of CreateProjectFeature operation.
 type CreateProjectFeatureParams struct {
 	ProjectID string
@@ -341,6 +406,71 @@ func decodeDeleteFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 	return params, nil
 }
 
+// DeleteFeatureScheduleParams is parameters of DeleteFeatureSchedule operation.
+type DeleteFeatureScheduleParams struct {
+	ScheduleID string
+}
+
+func unpackDeleteFeatureScheduleParams(packed middleware.Parameters) (params DeleteFeatureScheduleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "schedule_id",
+			In:   "path",
+		}
+		params.ScheduleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeDeleteFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteFeatureScheduleParams, _ error) {
+	// Decode path: schedule_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "schedule_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ScheduleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "schedule_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteUserParams is parameters of DeleteUser operation.
 type DeleteUserParams struct {
 	UserID uint
@@ -464,6 +594,71 @@ func decodeGetFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetFeatureScheduleParams is parameters of GetFeatureSchedule operation.
+type GetFeatureScheduleParams struct {
+	ScheduleID string
+}
+
+func unpackGetFeatureScheduleParams(packed middleware.Parameters) (params GetFeatureScheduleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "schedule_id",
+			In:   "path",
+		}
+		params.ScheduleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Request) (params GetFeatureScheduleParams, _ error) {
+	// Decode path: schedule_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "schedule_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ScheduleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "schedule_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -1094,6 +1289,71 @@ func decodeListFeatureRulesParams(args [1]string, argsEscaped bool, r *http.Requ
 	return params, nil
 }
 
+// ListFeatureSchedulesParams is parameters of ListFeatureSchedules operation.
+type ListFeatureSchedulesParams struct {
+	FeatureID string
+}
+
+func unpackListFeatureSchedulesParams(packed middleware.Parameters) (params ListFeatureSchedulesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeListFeatureSchedulesParams(args [1]string, argsEscaped bool, r *http.Request) (params ListFeatureSchedulesParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListProjectFeaturesParams is parameters of ListProjectFeatures operation.
 type ListProjectFeaturesParams struct {
 	ProjectID string
@@ -1470,6 +1730,71 @@ func decodeUpdateFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateFeatureScheduleParams is parameters of UpdateFeatureSchedule operation.
+type UpdateFeatureScheduleParams struct {
+	ScheduleID string
+}
+
+func unpackUpdateFeatureScheduleParams(packed middleware.Parameters) (params UpdateFeatureScheduleParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "schedule_id",
+			In:   "path",
+		}
+		params.ScheduleID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeUpdateFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateFeatureScheduleParams, _ error) {
+	// Decode path: schedule_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "schedule_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ScheduleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "schedule_id",
 			In:   "path",
 			Err:  err,
 		}

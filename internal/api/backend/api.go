@@ -16,19 +16,20 @@ import (
 var _ generatedapi.Handler = (*RestAPI)(nil)
 
 type RestAPI struct {
-	config              *config.Config
-	tokenizer           contract.Tokenizer
-	usersUseCase        contract.UsersUseCase
-	projectsUseCase     contract.ProjectsUseCase
-	ldapService         contract.LDAPService
-	ldapUseCase         contract.LDAPSyncUseCase
-	settingsUseCase     contract.SettingsUseCase
-	licenseUseCase      contract.LicenseUseCase
-	productInfoUseCase  contract.ProductInfoUseCase
-	permissionsService  contract.PermissionsService
-	featuresUseCase     contract.FeaturesUseCase
-	flagVariantsUseCase contract.FlagVariantsUseCase
-	rulesUseCase        contract.RulesUseCase
+	config                  *config.Config
+	tokenizer               contract.Tokenizer
+	usersUseCase            contract.UsersUseCase
+	projectsUseCase         contract.ProjectsUseCase
+	ldapService             contract.LDAPService
+	ldapUseCase             contract.LDAPSyncUseCase
+	settingsUseCase         contract.SettingsUseCase
+	licenseUseCase          contract.LicenseUseCase
+	productInfoUseCase      contract.ProductInfoUseCase
+	permissionsService      contract.PermissionsService
+	featuresUseCase         contract.FeaturesUseCase
+	flagVariantsUseCase     contract.FlagVariantsUseCase
+	rulesUseCase            contract.RulesUseCase
+	featureSchedulesUseCase contract.FeatureSchedulesUseCase
 }
 
 func New(
@@ -44,22 +45,24 @@ func New(
 	featuresUseCase contract.FeaturesUseCase,
 	flagVariantsUseCase contract.FlagVariantsUseCase,
 	rulesUseCase contract.RulesUseCase,
+	featureSchedulesUseCase contract.FeatureSchedulesUseCase,
 	permissionsService contract.PermissionsService,
 ) *RestAPI {
 	return &RestAPI{
-		config:              config,
-		usersUseCase:        usersService,
-		tokenizer:           tokenizer,
-		projectsUseCase:     projectsUseCase,
-		ldapService:         ldapService,
-		ldapUseCase:         ldapUseCase,
-		settingsUseCase:     settingsUseCase,
-		licenseUseCase:      licenseUseCase,
-		productInfoUseCase:  productInfoUseCase,
-		permissionsService:  permissionsService,
-		featuresUseCase:     featuresUseCase,
-		flagVariantsUseCase: flagVariantsUseCase,
-		rulesUseCase:        rulesUseCase,
+		config:                  config,
+		usersUseCase:            usersService,
+		tokenizer:               tokenizer,
+		projectsUseCase:         projectsUseCase,
+		ldapService:             ldapService,
+		ldapUseCase:             ldapUseCase,
+		settingsUseCase:         settingsUseCase,
+		licenseUseCase:          licenseUseCase,
+		productInfoUseCase:      productInfoUseCase,
+		permissionsService:      permissionsService,
+		featuresUseCase:         featuresUseCase,
+		flagVariantsUseCase:     flagVariantsUseCase,
+		rulesUseCase:            rulesUseCase,
+		featureSchedulesUseCase: featureSchedulesUseCase,
 	}
 }
 

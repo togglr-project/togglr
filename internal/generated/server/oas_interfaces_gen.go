@@ -29,6 +29,10 @@ type CreateFeatureRuleRes interface {
 	createFeatureRuleRes()
 }
 
+type CreateFeatureScheduleRes interface {
+	createFeatureScheduleRes()
+}
+
 type CreateProjectFeatureRes interface {
 	createProjectFeatureRes()
 }
@@ -39,6 +43,10 @@ type CreateUserRes interface {
 
 type DeleteFeatureRes interface {
 	deleteFeatureRes()
+}
+
+type DeleteFeatureScheduleRes interface {
+	deleteFeatureScheduleRes()
 }
 
 type DeleteLDAPConfigRes interface {
@@ -63,6 +71,10 @@ type GetCurrentUserRes interface {
 
 type GetFeatureRes interface {
 	getFeatureRes()
+}
+
+type GetFeatureScheduleRes interface {
+	getFeatureScheduleRes()
 }
 
 type GetLDAPConfigRes interface {
@@ -109,12 +121,20 @@ type GetSSOProvidersRes interface {
 	getSSOProvidersRes()
 }
 
+type ListAllFeatureSchedulesRes interface {
+	listAllFeatureSchedulesRes()
+}
+
 type ListFeatureFlagVariantsRes interface {
 	listFeatureFlagVariantsRes()
 }
 
 type ListFeatureRulesRes interface {
 	listFeatureRulesRes()
+}
+
+type ListFeatureSchedulesRes interface {
+	listFeatureSchedulesRes()
 }
 
 type ListProjectFeaturesRes interface {
@@ -183,6 +203,10 @@ type ToggleFeatureRes interface {
 
 type UpdateFeatureRes interface {
 	updateFeatureRes()
+}
+
+type UpdateFeatureScheduleRes interface {
+	updateFeatureScheduleRes()
 }
 
 type UpdateLDAPConfigRes interface {

@@ -268,6 +268,65 @@ func (s *CreateFeatureRequest) SetRules(val []CreateRuleInline) {
 	s.Rules = val
 }
 
+// Ref: #/components/schemas/CreateFeatureScheduleRequest
+type CreateFeatureScheduleRequest struct {
+	StartsAt OptNilDateTime        `json:"starts_at"`
+	EndsAt   OptNilDateTime        `json:"ends_at"`
+	CronExpr OptNilString          `json:"cron_expr"`
+	Timezone string                `json:"timezone"`
+	Action   FeatureScheduleAction `json:"action"`
+}
+
+// GetStartsAt returns the value of StartsAt.
+func (s *CreateFeatureScheduleRequest) GetStartsAt() OptNilDateTime {
+	return s.StartsAt
+}
+
+// GetEndsAt returns the value of EndsAt.
+func (s *CreateFeatureScheduleRequest) GetEndsAt() OptNilDateTime {
+	return s.EndsAt
+}
+
+// GetCronExpr returns the value of CronExpr.
+func (s *CreateFeatureScheduleRequest) GetCronExpr() OptNilString {
+	return s.CronExpr
+}
+
+// GetTimezone returns the value of Timezone.
+func (s *CreateFeatureScheduleRequest) GetTimezone() string {
+	return s.Timezone
+}
+
+// GetAction returns the value of Action.
+func (s *CreateFeatureScheduleRequest) GetAction() FeatureScheduleAction {
+	return s.Action
+}
+
+// SetStartsAt sets the value of StartsAt.
+func (s *CreateFeatureScheduleRequest) SetStartsAt(val OptNilDateTime) {
+	s.StartsAt = val
+}
+
+// SetEndsAt sets the value of EndsAt.
+func (s *CreateFeatureScheduleRequest) SetEndsAt(val OptNilDateTime) {
+	s.EndsAt = val
+}
+
+// SetCronExpr sets the value of CronExpr.
+func (s *CreateFeatureScheduleRequest) SetCronExpr(val OptNilString) {
+	s.CronExpr = val
+}
+
+// SetTimezone sets the value of Timezone.
+func (s *CreateFeatureScheduleRequest) SetTimezone(val string) {
+	s.Timezone = val
+}
+
+// SetAction sets the value of Action.
+func (s *CreateFeatureScheduleRequest) SetAction(val FeatureScheduleAction) {
+	s.Action = val
+}
+
 // Ref: #/components/schemas/CreateFlagVariantInline
 type CreateFlagVariantInline struct {
 	// Client-provided UUID for the variant.
@@ -510,6 +569,11 @@ type DeleteFeatureNoContent struct{}
 
 func (*DeleteFeatureNoContent) deleteFeatureRes() {}
 
+// DeleteFeatureScheduleNoContent is response for DeleteFeatureSchedule operation.
+type DeleteFeatureScheduleNoContent struct{}
+
+func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
+
 // DeleteUserNoContent is response for DeleteUser operation.
 type DeleteUserNoContent struct{}
 
@@ -615,6 +679,7 @@ func (*ErrorBadRequest) confirm2FARes()               {}
 func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
 func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
 func (*ErrorBadRequest) createFeatureRuleRes()        {}
+func (*ErrorBadRequest) createFeatureScheduleRes()    {}
 func (*ErrorBadRequest) createProjectFeatureRes()     {}
 func (*ErrorBadRequest) createUserRes()               {}
 func (*ErrorBadRequest) deleteUserRes()               {}
@@ -629,6 +694,7 @@ func (*ErrorBadRequest) setSuperuserStatusRes()       {}
 func (*ErrorBadRequest) setUserActiveStatusRes()      {}
 func (*ErrorBadRequest) toggleFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureRes()            {}
+func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
 func (*ErrorBadRequest) updateLicenseRes()            {}
 func (*ErrorBadRequest) updateProjectRes()            {}
@@ -684,20 +750,25 @@ func (*ErrorInternalServerError) archiveProjectRes()           {}
 func (*ErrorInternalServerError) consumeSAMLAssertionRes()     {}
 func (*ErrorInternalServerError) createFeatureFlagVariantRes() {}
 func (*ErrorInternalServerError) createFeatureRuleRes()        {}
+func (*ErrorInternalServerError) createFeatureScheduleRes()    {}
 func (*ErrorInternalServerError) createProjectFeatureRes()     {}
 func (*ErrorInternalServerError) createUserRes()               {}
 func (*ErrorInternalServerError) deleteFeatureRes()            {}
+func (*ErrorInternalServerError) deleteFeatureScheduleRes()    {}
 func (*ErrorInternalServerError) deleteUserRes()               {}
 func (*ErrorInternalServerError) forgotPasswordRes()           {}
 func (*ErrorInternalServerError) getCurrentUserRes()           {}
 func (*ErrorInternalServerError) getFeatureRes()               {}
+func (*ErrorInternalServerError) getFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) getLicenseStatusRes()         {}
 func (*ErrorInternalServerError) getProductInfoRes()           {}
 func (*ErrorInternalServerError) getProjectRes()               {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()          {}
 func (*ErrorInternalServerError) getSSOProvidersRes()          {}
+func (*ErrorInternalServerError) listAllFeatureSchedulesRes()  {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()  {}
 func (*ErrorInternalServerError) listFeatureRulesRes()         {}
+func (*ErrorInternalServerError) listFeatureSchedulesRes()     {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()      {}
 func (*ErrorInternalServerError) listProjectsRes()             {}
 func (*ErrorInternalServerError) listUsersRes()                {}
@@ -710,6 +781,7 @@ func (*ErrorInternalServerError) setSuperuserStatusRes()       {}
 func (*ErrorInternalServerError) setUserActiveStatusRes()      {}
 func (*ErrorInternalServerError) toggleFeatureRes()            {}
 func (*ErrorInternalServerError) updateFeatureRes()            {}
+func (*ErrorInternalServerError) updateFeatureScheduleRes()    {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()  {}
 func (*ErrorInternalServerError) updateLicenseRes()            {}
 func (*ErrorInternalServerError) updateProjectRes()            {}
@@ -780,20 +852,25 @@ func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
 func (*ErrorNotFound) archiveProjectRes()           {}
 func (*ErrorNotFound) createFeatureFlagVariantRes() {}
 func (*ErrorNotFound) createFeatureRuleRes()        {}
+func (*ErrorNotFound) createFeatureScheduleRes()    {}
 func (*ErrorNotFound) createProjectFeatureRes()     {}
 func (*ErrorNotFound) deleteFeatureRes()            {}
+func (*ErrorNotFound) deleteFeatureScheduleRes()    {}
 func (*ErrorNotFound) deleteUserRes()               {}
 func (*ErrorNotFound) getFeatureRes()               {}
+func (*ErrorNotFound) getFeatureScheduleRes()       {}
 func (*ErrorNotFound) getProjectRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()          {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()  {}
 func (*ErrorNotFound) listFeatureRulesRes()         {}
+func (*ErrorNotFound) listFeatureSchedulesRes()     {}
 func (*ErrorNotFound) listProjectFeaturesRes()      {}
 func (*ErrorNotFound) listUsersRes()                {}
 func (*ErrorNotFound) setSuperuserStatusRes()       {}
 func (*ErrorNotFound) setUserActiveStatusRes()      {}
 func (*ErrorNotFound) toggleFeatureRes()            {}
 func (*ErrorNotFound) updateFeatureRes()            {}
+func (*ErrorNotFound) updateFeatureScheduleRes()    {}
 func (*ErrorNotFound) updateProjectRes()            {}
 
 type ErrorNotFoundError struct {
@@ -830,13 +907,16 @@ func (*ErrorPermissionDenied) archiveProjectRes()           {}
 func (*ErrorPermissionDenied) cancelLDAPSyncRes()           {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes() {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()        {}
+func (*ErrorPermissionDenied) createFeatureScheduleRes()    {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()     {}
 func (*ErrorPermissionDenied) createUserRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureRes()            {}
+func (*ErrorPermissionDenied) deleteFeatureScheduleRes()    {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()         {}
 func (*ErrorPermissionDenied) deleteUserRes()               {}
 func (*ErrorPermissionDenied) forgotPasswordRes()           {}
 func (*ErrorPermissionDenied) getFeatureRes()               {}
+func (*ErrorPermissionDenied) getFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) getLDAPConfigRes()            {}
 func (*ErrorPermissionDenied) getLDAPStatisticsRes()        {}
 func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes()    {}
@@ -845,8 +925,10 @@ func (*ErrorPermissionDenied) getLDAPSyncProgressRes()      {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()        {}
 func (*ErrorPermissionDenied) getProductInfoRes()           {}
 func (*ErrorPermissionDenied) getProjectRes()               {}
+func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()  {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()  {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()         {}
+func (*ErrorPermissionDenied) listFeatureSchedulesRes()     {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()      {}
 func (*ErrorPermissionDenied) listUsersRes()                {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()       {}
@@ -855,6 +937,7 @@ func (*ErrorPermissionDenied) syncLDAPUsersRes()            {}
 func (*ErrorPermissionDenied) testLDAPConnectionRes()       {}
 func (*ErrorPermissionDenied) toggleFeatureRes()            {}
 func (*ErrorPermissionDenied) updateFeatureRes()            {}
+func (*ErrorPermissionDenied) updateFeatureScheduleRes()    {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()         {}
 func (*ErrorPermissionDenied) updateLicenseRes()            {}
 func (*ErrorPermissionDenied) updateProjectRes()            {}
@@ -956,14 +1039,17 @@ func (*ErrorUnauthorized) confirm2FARes()               {}
 func (*ErrorUnauthorized) consumeSAMLAssertionRes()     {}
 func (*ErrorUnauthorized) createFeatureFlagVariantRes() {}
 func (*ErrorUnauthorized) createFeatureRuleRes()        {}
+func (*ErrorUnauthorized) createFeatureScheduleRes()    {}
 func (*ErrorUnauthorized) createProjectFeatureRes()     {}
 func (*ErrorUnauthorized) createUserRes()               {}
 func (*ErrorUnauthorized) deleteFeatureRes()            {}
+func (*ErrorUnauthorized) deleteFeatureScheduleRes()    {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()         {}
 func (*ErrorUnauthorized) deleteUserRes()               {}
 func (*ErrorUnauthorized) disable2FARes()               {}
 func (*ErrorUnauthorized) getCurrentUserRes()           {}
 func (*ErrorUnauthorized) getFeatureRes()               {}
+func (*ErrorUnauthorized) getFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) getLDAPConfigRes()            {}
 func (*ErrorUnauthorized) getLDAPStatisticsRes()        {}
 func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()    {}
@@ -972,8 +1058,10 @@ func (*ErrorUnauthorized) getLDAPSyncProgressRes()      {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()        {}
 func (*ErrorUnauthorized) getProductInfoRes()           {}
 func (*ErrorUnauthorized) getProjectRes()               {}
+func (*ErrorUnauthorized) listAllFeatureSchedulesRes()  {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()  {}
 func (*ErrorUnauthorized) listFeatureRulesRes()         {}
+func (*ErrorUnauthorized) listFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()      {}
 func (*ErrorUnauthorized) listProjectsRes()             {}
 func (*ErrorUnauthorized) listUsersRes()                {}
@@ -989,6 +1077,7 @@ func (*ErrorUnauthorized) syncLDAPUsersRes()            {}
 func (*ErrorUnauthorized) testLDAPConnectionRes()       {}
 func (*ErrorUnauthorized) toggleFeatureRes()            {}
 func (*ErrorUnauthorized) updateFeatureRes()            {}
+func (*ErrorUnauthorized) updateFeatureScheduleRes()    {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()         {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()  {}
 func (*ErrorUnauthorized) updateLicenseRes()            {}
@@ -1234,6 +1323,171 @@ func (s *FeatureResponse) SetFeature(val Feature) {
 
 func (*FeatureResponse) createProjectFeatureRes() {}
 func (*FeatureResponse) toggleFeatureRes()        {}
+
+// Ref: #/components/schemas/FeatureSchedule
+type FeatureSchedule struct {
+	ID        string                `json:"id"`
+	ProjectID string                `json:"project_id"`
+	FeatureID string                `json:"feature_id"`
+	StartsAt  OptNilDateTime        `json:"starts_at"`
+	EndsAt    OptNilDateTime        `json:"ends_at"`
+	CronExpr  OptNilString          `json:"cron_expr"`
+	Timezone  string                `json:"timezone"`
+	Action    FeatureScheduleAction `json:"action"`
+	CreatedAt time.Time             `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *FeatureSchedule) GetID() string {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *FeatureSchedule) GetProjectID() string {
+	return s.ProjectID
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *FeatureSchedule) GetFeatureID() string {
+	return s.FeatureID
+}
+
+// GetStartsAt returns the value of StartsAt.
+func (s *FeatureSchedule) GetStartsAt() OptNilDateTime {
+	return s.StartsAt
+}
+
+// GetEndsAt returns the value of EndsAt.
+func (s *FeatureSchedule) GetEndsAt() OptNilDateTime {
+	return s.EndsAt
+}
+
+// GetCronExpr returns the value of CronExpr.
+func (s *FeatureSchedule) GetCronExpr() OptNilString {
+	return s.CronExpr
+}
+
+// GetTimezone returns the value of Timezone.
+func (s *FeatureSchedule) GetTimezone() string {
+	return s.Timezone
+}
+
+// GetAction returns the value of Action.
+func (s *FeatureSchedule) GetAction() FeatureScheduleAction {
+	return s.Action
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *FeatureSchedule) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *FeatureSchedule) SetID(val string) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *FeatureSchedule) SetProjectID(val string) {
+	s.ProjectID = val
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *FeatureSchedule) SetFeatureID(val string) {
+	s.FeatureID = val
+}
+
+// SetStartsAt sets the value of StartsAt.
+func (s *FeatureSchedule) SetStartsAt(val OptNilDateTime) {
+	s.StartsAt = val
+}
+
+// SetEndsAt sets the value of EndsAt.
+func (s *FeatureSchedule) SetEndsAt(val OptNilDateTime) {
+	s.EndsAt = val
+}
+
+// SetCronExpr sets the value of CronExpr.
+func (s *FeatureSchedule) SetCronExpr(val OptNilString) {
+	s.CronExpr = val
+}
+
+// SetTimezone sets the value of Timezone.
+func (s *FeatureSchedule) SetTimezone(val string) {
+	s.Timezone = val
+}
+
+// SetAction sets the value of Action.
+func (s *FeatureSchedule) SetAction(val FeatureScheduleAction) {
+	s.Action = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *FeatureSchedule) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// Action to apply on schedule.
+// Ref: #/components/schemas/FeatureScheduleAction
+type FeatureScheduleAction string
+
+const (
+	FeatureScheduleActionEnable  FeatureScheduleAction = "enable"
+	FeatureScheduleActionDisable FeatureScheduleAction = "disable"
+)
+
+// AllValues returns all FeatureScheduleAction values.
+func (FeatureScheduleAction) AllValues() []FeatureScheduleAction {
+	return []FeatureScheduleAction{
+		FeatureScheduleActionEnable,
+		FeatureScheduleActionDisable,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s FeatureScheduleAction) MarshalText() ([]byte, error) {
+	switch s {
+	case FeatureScheduleActionEnable:
+		return []byte(s), nil
+	case FeatureScheduleActionDisable:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *FeatureScheduleAction) UnmarshalText(data []byte) error {
+	switch FeatureScheduleAction(data) {
+	case FeatureScheduleActionEnable:
+		*s = FeatureScheduleActionEnable
+		return nil
+	case FeatureScheduleActionDisable:
+		*s = FeatureScheduleActionDisable
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/FeatureScheduleResponse
+type FeatureScheduleResponse struct {
+	Schedule FeatureSchedule `json:"schedule"`
+}
+
+// GetSchedule returns the value of Schedule.
+func (s *FeatureScheduleResponse) GetSchedule() FeatureSchedule {
+	return s.Schedule
+}
+
+// SetSchedule sets the value of Schedule.
+func (s *FeatureScheduleResponse) SetSchedule(val FeatureSchedule) {
+	s.Schedule = val
+}
+
+func (*FeatureScheduleResponse) createFeatureScheduleRes() {}
+func (*FeatureScheduleResponse) getFeatureScheduleRes()    {}
+func (*FeatureScheduleResponse) updateFeatureScheduleRes() {}
 
 // Ref: #/components/schemas/FlagVariant
 type FlagVariant struct {
@@ -2662,6 +2916,11 @@ func (s *LicenseType) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListFeatureSchedulesResponse []FeatureSchedule
+
+func (*ListFeatureSchedulesResponse) listAllFeatureSchedulesRes() {}
+func (*ListFeatureSchedulesResponse) listFeatureSchedulesRes()    {}
+
 type ListFeaturesResponse []Feature
 
 func (*ListFeaturesResponse) listProjectFeaturesRes() {}
@@ -3167,6 +3426,69 @@ func (o OptLicenseType) Get() (v LicenseType, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptLicenseType) Or(d LicenseType) LicenseType {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilDateTime returns new OptNilDateTime with value set to v.
+func NewOptNilDateTime(v time.Time) OptNilDateTime {
+	return OptNilDateTime{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilDateTime is optional nullable time.Time.
+type OptNilDateTime struct {
+	Value time.Time
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilDateTime was set.
+func (o OptNilDateTime) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilDateTime) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilDateTime) SetTo(v time.Time) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilDateTime) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilDateTime) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v time.Time
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilDateTime) Get() (v time.Time, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilDateTime) Or(d time.Time) time.Time {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -4309,6 +4631,65 @@ func (s *TwoFAVerifyResponse) SetExpiresIn(val int) {
 }
 
 func (*TwoFAVerifyResponse) verify2FARes() {}
+
+// Ref: #/components/schemas/UpdateFeatureScheduleRequest
+type UpdateFeatureScheduleRequest struct {
+	StartsAt OptNilDateTime        `json:"starts_at"`
+	EndsAt   OptNilDateTime        `json:"ends_at"`
+	CronExpr OptNilString          `json:"cron_expr"`
+	Timezone string                `json:"timezone"`
+	Action   FeatureScheduleAction `json:"action"`
+}
+
+// GetStartsAt returns the value of StartsAt.
+func (s *UpdateFeatureScheduleRequest) GetStartsAt() OptNilDateTime {
+	return s.StartsAt
+}
+
+// GetEndsAt returns the value of EndsAt.
+func (s *UpdateFeatureScheduleRequest) GetEndsAt() OptNilDateTime {
+	return s.EndsAt
+}
+
+// GetCronExpr returns the value of CronExpr.
+func (s *UpdateFeatureScheduleRequest) GetCronExpr() OptNilString {
+	return s.CronExpr
+}
+
+// GetTimezone returns the value of Timezone.
+func (s *UpdateFeatureScheduleRequest) GetTimezone() string {
+	return s.Timezone
+}
+
+// GetAction returns the value of Action.
+func (s *UpdateFeatureScheduleRequest) GetAction() FeatureScheduleAction {
+	return s.Action
+}
+
+// SetStartsAt sets the value of StartsAt.
+func (s *UpdateFeatureScheduleRequest) SetStartsAt(val OptNilDateTime) {
+	s.StartsAt = val
+}
+
+// SetEndsAt sets the value of EndsAt.
+func (s *UpdateFeatureScheduleRequest) SetEndsAt(val OptNilDateTime) {
+	s.EndsAt = val
+}
+
+// SetCronExpr sets the value of CronExpr.
+func (s *UpdateFeatureScheduleRequest) SetCronExpr(val OptNilString) {
+	s.CronExpr = val
+}
+
+// SetTimezone sets the value of Timezone.
+func (s *UpdateFeatureScheduleRequest) SetTimezone(val string) {
+	s.Timezone = val
+}
+
+// SetAction sets the value of Action.
+func (s *UpdateFeatureScheduleRequest) SetAction(val FeatureScheduleAction) {
+	s.Action = val
+}
 
 // UpdateLicenseAcceptanceNoContent is response for UpdateLicenseAcceptance operation.
 type UpdateLicenseAcceptanceNoContent struct{}

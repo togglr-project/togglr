@@ -54,6 +54,12 @@ type Handler interface {
 	//
 	// POST /api/v1/features/{feature_id}/rules
 	CreateFeatureRule(ctx context.Context, req *CreateRuleRequest, params CreateFeatureRuleParams) (CreateFeatureRuleRes, error)
+	// CreateFeatureSchedule implements CreateFeatureSchedule operation.
+	//
+	// Create schedule for feature.
+	//
+	// POST /api/v1/features/{feature_id}/schedules
+	CreateFeatureSchedule(ctx context.Context, req *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (CreateFeatureScheduleRes, error)
 	// CreateProjectFeature implements CreateProjectFeature operation.
 	//
 	// Create feature for project.
@@ -72,6 +78,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/features/{feature_id}
 	DeleteFeature(ctx context.Context, params DeleteFeatureParams) (DeleteFeatureRes, error)
+	// DeleteFeatureSchedule implements DeleteFeatureSchedule operation.
+	//
+	// Delete feature schedule by ID.
+	//
+	// DELETE /api/v1/feature-schedules/{schedule_id}
+	DeleteFeatureSchedule(ctx context.Context, params DeleteFeatureScheduleParams) (DeleteFeatureScheduleRes, error)
 	// DeleteLDAPConfig implements DeleteLDAPConfig operation.
 	//
 	// Delete LDAP configuration.
@@ -108,6 +120,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}
 	GetFeature(ctx context.Context, params GetFeatureParams) (GetFeatureRes, error)
+	// GetFeatureSchedule implements GetFeatureSchedule operation.
+	//
+	// Get feature schedule by ID.
+	//
+	// GET /api/v1/feature-schedules/{schedule_id}
+	GetFeatureSchedule(ctx context.Context, params GetFeatureScheduleParams) (GetFeatureScheduleRes, error)
 	// GetLDAPConfig implements GetLDAPConfig operation.
 	//
 	// Get LDAP configuration.
@@ -174,6 +192,12 @@ type Handler interface {
 	//
 	// GET /api/v1/auth/sso/providers
 	GetSSOProviders(ctx context.Context) (GetSSOProvidersRes, error)
+	// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
+	//
+	// List all feature schedules.
+	//
+	// GET /api/v1/feature-schedules
+	ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error)
 	// ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
 	//
 	// List flag variants for feature.
@@ -186,6 +210,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}/rules
 	ListFeatureRules(ctx context.Context, params ListFeatureRulesParams) (ListFeatureRulesRes, error)
+	// ListFeatureSchedules implements ListFeatureSchedules operation.
+	//
+	// List schedules for feature.
+	//
+	// GET /api/v1/features/{feature_id}/schedules
+	ListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (ListFeatureSchedulesRes, error)
 	// ListProjectFeatures implements ListProjectFeatures operation.
 	//
 	// List features for project.
@@ -288,6 +318,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/features/{feature_id}
 	UpdateFeature(ctx context.Context, req *CreateFeatureRequest, params UpdateFeatureParams) (UpdateFeatureRes, error)
+	// UpdateFeatureSchedule implements UpdateFeatureSchedule operation.
+	//
+	// Update feature schedule by ID.
+	//
+	// PUT /api/v1/feature-schedules/{schedule_id}
+	UpdateFeatureSchedule(ctx context.Context, req *UpdateFeatureScheduleRequest, params UpdateFeatureScheduleParams) (UpdateFeatureScheduleRes, error)
 	// UpdateLDAPConfig implements UpdateLDAPConfig operation.
 	//
 	// Create or update LDAP configuration.

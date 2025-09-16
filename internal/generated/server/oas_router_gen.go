@@ -263,128 +263,228 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 'f': // Prefix: "features/"
+			case 'f': // Prefix: "feature"
 
-				if l := len("features/"); len(elem) >= l && elem[0:l] == "features/" {
+				if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
-				// Param: "feature_id"
-				// Match until "/"
-				idx := strings.IndexByte(elem, '/')
-				if idx < 0 {
-					idx = len(elem)
-				}
-				args[0] = elem[:idx]
-				elem = elem[idx:]
-
 				if len(elem) == 0 {
-					switch r.Method {
-					case "DELETE":
-						s.handleDeleteFeatureRequest([1]string{
-							args[0],
-						}, elemIsEscaped, w, r)
-					case "GET":
-						s.handleGetFeatureRequest([1]string{
-							args[0],
-						}, elemIsEscaped, w, r)
-					case "PUT":
-						s.handleUpdateFeatureRequest([1]string{
-							args[0],
-						}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "DELETE,GET,PUT")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case '-': // Prefix: "-schedules"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("-schedules"); len(elem) >= l && elem[0:l] == "-schedules" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						break
+						switch r.Method {
+						case "GET":
+							s.handleListAllFeatureSchedulesRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET")
+						}
+
+						return
 					}
 					switch elem[0] {
-					case 'r': // Prefix: "rules"
+					case '/': // Prefix: "/"
 
-						if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "schedule_id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
 						if len(elem) == 0 {
 							// Leaf node.
 							switch r.Method {
+							case "DELETE":
+								s.handleDeleteFeatureScheduleRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
 							case "GET":
-								s.handleListFeatureRulesRequest([1]string{
+								s.handleGetFeatureScheduleRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
-							case "POST":
-								s.handleCreateFeatureRuleRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "GET,POST")
-							}
-
-							return
-						}
-
-					case 't': // Prefix: "toggle"
-
-						if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
 							case "PUT":
-								s.handleToggleFeatureRequest([1]string{
+								s.handleUpdateFeatureScheduleRequest([1]string{
 									args[0],
 								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "PUT")
+								s.notAllowed(w, r, "DELETE,GET,PUT")
 							}
 
 							return
 						}
 
-					case 'v': // Prefix: "variants"
+					}
 
-						if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+				case 's': // Prefix: "s/"
+
+					if l := len("s/"); len(elem) >= l && elem[0:l] == "s/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "feature_id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteFeatureRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetFeatureRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateFeatureRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PUT")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "GET":
-								s.handleListFeatureFlagVariantsRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							case "POST":
-								s.handleCreateFeatureFlagVariantRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "GET,POST")
+							break
+						}
+						switch elem[0] {
+						case 'r': // Prefix: "rules"
+
+							if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
+								elem = elem[l:]
+							} else {
+								break
 							}
 
-							return
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleListFeatureRulesRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								case "POST":
+									s.handleCreateFeatureRuleRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET,POST")
+								}
+
+								return
+							}
+
+						case 's': // Prefix: "schedules"
+
+							if l := len("schedules"); len(elem) >= l && elem[0:l] == "schedules" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleListFeatureSchedulesRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								case "POST":
+									s.handleCreateFeatureScheduleRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET,POST")
+								}
+
+								return
+							}
+
+						case 't': // Prefix: "toggle"
+
+							if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "PUT":
+									s.handleToggleFeatureRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "PUT")
+								}
+
+								return
+							}
+
+						case 'v': // Prefix: "variants"
+
+							if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleListFeatureFlagVariantsRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								case "POST":
+									s.handleCreateFeatureFlagVariantRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET,POST")
+								}
+
+								return
+							}
+
 						}
 
 					}
@@ -1535,114 +1635,82 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 'f': // Prefix: "features/"
+			case 'f': // Prefix: "feature"
 
-				if l := len("features/"); len(elem) >= l && elem[0:l] == "features/" {
+				if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
-				// Param: "feature_id"
-				// Match until "/"
-				idx := strings.IndexByte(elem, '/')
-				if idx < 0 {
-					idx = len(elem)
-				}
-				args[0] = elem[:idx]
-				elem = elem[idx:]
-
 				if len(elem) == 0 {
-					switch method {
-					case "DELETE":
-						r.name = DeleteFeatureOperation
-						r.summary = "Delete feature"
-						r.operationID = "DeleteFeature"
-						r.pathPattern = "/api/v1/features/{feature_id}"
-						r.args = args
-						r.count = 1
-						return r, true
-					case "GET":
-						r.name = GetFeatureOperation
-						r.summary = "Get feature with rules and variants"
-						r.operationID = "GetFeature"
-						r.pathPattern = "/api/v1/features/{feature_id}"
-						r.args = args
-						r.count = 1
-						return r, true
-					case "PUT":
-						r.name = UpdateFeatureOperation
-						r.summary = "Update feature with rules and variants"
-						r.operationID = "UpdateFeature"
-						r.pathPattern = "/api/v1/features/{feature_id}"
-						r.args = args
-						r.count = 1
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case '-': // Prefix: "-schedules"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("-schedules"); len(elem) >= l && elem[0:l] == "-schedules" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						break
+						switch method {
+						case "GET":
+							r.name = ListAllFeatureSchedulesOperation
+							r.summary = "List all feature schedules"
+							r.operationID = "ListAllFeatureSchedules"
+							r.pathPattern = "/api/v1/feature-schedules"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
 					}
 					switch elem[0] {
-					case 'r': // Prefix: "rules"
+					case '/': // Prefix: "/"
 
-						if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "schedule_id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
 						if len(elem) == 0 {
 							// Leaf node.
 							switch method {
+							case "DELETE":
+								r.name = DeleteFeatureScheduleOperation
+								r.summary = "Delete feature schedule by ID"
+								r.operationID = "DeleteFeatureSchedule"
+								r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
+								r.args = args
+								r.count = 1
+								return r, true
 							case "GET":
-								r.name = ListFeatureRulesOperation
-								r.summary = "List rules for feature"
-								r.operationID = "ListFeatureRules"
-								r.pathPattern = "/api/v1/features/{feature_id}/rules"
+								r.name = GetFeatureScheduleOperation
+								r.summary = "Get feature schedule by ID"
+								r.operationID = "GetFeatureSchedule"
+								r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
 								r.args = args
 								r.count = 1
 								return r, true
-							case "POST":
-								r.name = CreateFeatureRuleOperation
-								r.summary = "Create rule for feature"
-								r.operationID = "CreateFeatureRule"
-								r.pathPattern = "/api/v1/features/{feature_id}/rules"
-								r.args = args
-								r.count = 1
-								return r, true
-							default:
-								return
-							}
-						}
-
-					case 't': // Prefix: "toggle"
-
-						if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
 							case "PUT":
-								r.name = ToggleFeatureOperation
-								r.summary = "Toggle feature enabled state"
-								r.operationID = "ToggleFeature"
-								r.pathPattern = "/api/v1/features/{feature_id}/toggle"
+								r.name = UpdateFeatureScheduleOperation
+								r.summary = "Update feature schedule by ID"
+								r.operationID = "UpdateFeatureSchedule"
+								r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
 								r.args = args
 								r.count = 1
 								return r, true
@@ -1651,36 +1719,188 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 
-					case 'v': // Prefix: "variants"
+					}
 
-						if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+				case 's': // Prefix: "s/"
+
+					if l := len("s/"); len(elem) >= l && elem[0:l] == "s/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "feature_id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						switch method {
+						case "DELETE":
+							r.name = DeleteFeatureOperation
+							r.summary = "Delete feature"
+							r.operationID = "DeleteFeature"
+							r.pathPattern = "/api/v1/features/{feature_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetFeatureOperation
+							r.summary = "Get feature with rules and variants"
+							r.operationID = "GetFeature"
+							r.pathPattern = "/api/v1/features/{feature_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateFeatureOperation
+							r.summary = "Update feature with rules and variants"
+							r.operationID = "UpdateFeature"
+							r.pathPattern = "/api/v1/features/{feature_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "GET":
-								r.name = ListFeatureFlagVariantsOperation
-								r.summary = "List flag variants for feature"
-								r.operationID = "ListFeatureFlagVariants"
-								r.pathPattern = "/api/v1/features/{feature_id}/variants"
-								r.args = args
-								r.count = 1
-								return r, true
-							case "POST":
-								r.name = CreateFeatureFlagVariantOperation
-								r.summary = "Create flag variant for feature"
-								r.operationID = "CreateFeatureFlagVariant"
-								r.pathPattern = "/api/v1/features/{feature_id}/variants"
-								r.args = args
-								r.count = 1
-								return r, true
-							default:
-								return
+							break
+						}
+						switch elem[0] {
+						case 'r': // Prefix: "rules"
+
+							if l := len("rules"); len(elem) >= l && elem[0:l] == "rules" {
+								elem = elem[l:]
+							} else {
+								break
 							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = ListFeatureRulesOperation
+									r.summary = "List rules for feature"
+									r.operationID = "ListFeatureRules"
+									r.pathPattern = "/api/v1/features/{feature_id}/rules"
+									r.args = args
+									r.count = 1
+									return r, true
+								case "POST":
+									r.name = CreateFeatureRuleOperation
+									r.summary = "Create rule for feature"
+									r.operationID = "CreateFeatureRule"
+									r.pathPattern = "/api/v1/features/{feature_id}/rules"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 's': // Prefix: "schedules"
+
+							if l := len("schedules"); len(elem) >= l && elem[0:l] == "schedules" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = ListFeatureSchedulesOperation
+									r.summary = "List schedules for feature"
+									r.operationID = "ListFeatureSchedules"
+									r.pathPattern = "/api/v1/features/{feature_id}/schedules"
+									r.args = args
+									r.count = 1
+									return r, true
+								case "POST":
+									r.name = CreateFeatureScheduleOperation
+									r.summary = "Create schedule for feature"
+									r.operationID = "CreateFeatureSchedule"
+									r.pathPattern = "/api/v1/features/{feature_id}/schedules"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 't': // Prefix: "toggle"
+
+							if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "PUT":
+									r.name = ToggleFeatureOperation
+									r.summary = "Toggle feature enabled state"
+									r.operationID = "ToggleFeature"
+									r.pathPattern = "/api/v1/features/{feature_id}/toggle"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 'v': // Prefix: "variants"
+
+							if l := len("variants"); len(elem) >= l && elem[0:l] == "variants" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = ListFeatureFlagVariantsOperation
+									r.summary = "List flag variants for feature"
+									r.operationID = "ListFeatureFlagVariants"
+									r.pathPattern = "/api/v1/features/{feature_id}/variants"
+									r.args = args
+									r.count = 1
+									return r, true
+								case "POST":
+									r.name = CreateFeatureFlagVariantOperation
+									r.summary = "Create flag variant for feature"
+									r.operationID = "CreateFeatureFlagVariant"
+									r.pathPattern = "/api/v1/features/{feature_id}/variants"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
 						}
 
 					}

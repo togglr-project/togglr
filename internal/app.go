@@ -21,6 +21,7 @@ import (
 	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
 	"github.com/rom8726/etoggle/internal/license"
 	"github.com/rom8726/etoggle/internal/repository/features"
+	"github.com/rom8726/etoggle/internal/repository/featureschedules"
 	"github.com/rom8726/etoggle/internal/repository/flagvariants"
 	"github.com/rom8726/etoggle/internal/repository/ldapsynclogs"
 	"github.com/rom8726/etoggle/internal/repository/ldapsyncstats"
@@ -39,6 +40,7 @@ import (
 	samlprovider "github.com/rom8726/etoggle/internal/services/sso/saml"
 	"github.com/rom8726/etoggle/internal/services/tokenizer"
 	featuresusecase "github.com/rom8726/etoggle/internal/usecases/features"
+	featureschedulesusecase "github.com/rom8726/etoggle/internal/usecases/featureschedules"
 	flagvariantsusecase "github.com/rom8726/etoggle/internal/usecases/flagvariants"
 	ldapusecase "github.com/rom8726/etoggle/internal/usecases/ldap"
 	licenseusecase "github.com/rom8726/etoggle/internal/usecases/license"
@@ -183,6 +185,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(features.New).Arg(app.PostgresPool)
 	app.registerComponent(flagvariants.New).Arg(app.PostgresPool)
 	app.registerComponent(rules.New).Arg(app.PostgresPool)
+	app.registerComponent(featureschedules.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -204,6 +207,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(featuresusecase.New)
 	app.registerComponent(flagvariantsusecase.New)
 	app.registerComponent(rulesusecase.New)
+	app.registerComponent(featureschedulesusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,
