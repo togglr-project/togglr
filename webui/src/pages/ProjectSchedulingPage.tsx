@@ -33,6 +33,7 @@ import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import type { Feature, FeatureSchedule, FeatureScheduleAction, Project } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
+import cronstrue from 'cronstrue';
 
 interface ProjectResponse { project: Project }
 
@@ -69,16 +70,19 @@ const ScheduleDialog: React.FC<{
 }> = ({ open, onClose, onSubmit, initial, title }) => {
   const [values, setValues] = useState<ScheduleFormValues>(() => ({ ...emptyForm(), ...initial } as ScheduleFormValues));
   const [cronError, setCronError] = useState<string>('');
+  const [cronDesc, setCronDesc] = useState<string>('');
 
   React.useEffect(() => {
-    setValues({ ...emptyForm(), ...initial } as ScheduleFormValues);
     // Re-validate cron when dialog opens with initial values
+    setValues({ ...emptyForm(), ...initial } as ScheduleFormValues);
     const expr = (initial?.cron_expr || '').trim();
     if (expr) {
       const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
       setCronError(ok ? '' : 'Invalid cron expression');
+      setCronDesc(ok ? cronstrue.toString(expr) : '');
     } else {
       setCronError('');
+      setCronDesc('');
     }
   }, [initial, open]);
 
@@ -142,13 +146,20 @@ const ScheduleDialog: React.FC<{
                   if (expr) {
                     const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
                     setCronError(ok ? '' : 'Invalid cron expression');
+                    setCronDesc(ok ? cronstrue.toString(expr) : '');
                   } else {
                     setCronError('');
+                    setCronDesc('');
                   }
                 }}
                 error={Boolean(cronError)}
                 helperText={cronError || 'If set, schedule will follow this cron (timezone above).'}
               />
+              {cronDesc && (
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                  {cronDesc}
+                </Typography>
+              )}
             </Grid>
           </Grid>
         </Box>
