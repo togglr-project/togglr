@@ -7,6 +7,9 @@ import (
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
+
+	"github.com/robfig/cron/v3"
 
 	"github.com/rom8726/etoggle/internal/domain"
 )
@@ -35,7 +38,7 @@ func (s *Service) Evaluate(
 		return "", false, false
 	}
 
-	if !feature.Enabled {
+	if !IsFeatureActiveNow(feature) {
 		return "", false, true
 	}
 
@@ -92,6 +95,66 @@ func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (d
 	feature, ok := features[featureKey]
 
 	return feature, ok
+}
+
+func IsFeatureActiveNow(feature domain.FeatureExtended) bool {
+	active := feature.Enabled
+
+	now := time.Now().UTC()
+	var chosen *domain.FeatureSchedule
+
+	for _, schedule := range feature.Schedules {
+		if IsScheduleActive(schedule, now) {
+			if chosen == nil {
+				chosen = &schedule
+			} else if schedule.CreatedAt.After(chosen.CreatedAt) {
+				chosen = &schedule
+			} else if schedule.CreatedAt.Equal(chosen.CreatedAt) &&
+				schedule.Action == domain.FeatureScheduleActionDisable &&
+				chosen.Action == domain.FeatureScheduleActionEnable {
+				chosen = &schedule
+			}
+		}
+	}
+
+	if chosen != nil {
+		return chosen.Action == domain.FeatureScheduleActionEnable
+	}
+
+	return active
+}
+
+func IsScheduleActive(schedule domain.FeatureSchedule, now time.Time) bool {
+	loc, err := time.LoadLocation(schedule.Timezone)
+	if err != nil {
+		slog.Error("error loading timezone", "timezone", schedule.Timezone)
+		loc = time.UTC
+	}
+	now = now.In(loc)
+
+	if schedule.StartsAt != nil && now.Before(*schedule.StartsAt) {
+		return false
+	}
+	if schedule.EndsAt != nil && now.After(*schedule.EndsAt) {
+		return false
+	}
+
+	if schedule.CronExpr != nil && *schedule.CronExpr != "" {
+		parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+		sched, err := parser.Parse(*schedule.CronExpr)
+		if err != nil {
+			slog.Error("invalid cron expr", "expr", *schedule.CronExpr, "err", err)
+
+			return false
+		}
+
+		prev := sched.Next(now.Add(-time.Minute))
+		next := sched.Next(prev)
+
+		return now.After(prev) && now.Before(next)
+	}
+
+	return true
 }
 
 func MatchCondition(reqCtx map[domain.RuleAttribute]any, condition domain.Condition) bool {
