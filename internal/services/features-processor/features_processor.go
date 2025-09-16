@@ -38,7 +38,7 @@ func (s *Service) Evaluate(
 		return "", false, false
 	}
 
-	if !IsFeatureActiveNow(feature) {
+	if !IsFeatureActiveNow(feature, time.Now().UTC()) {
 		return "", false, true
 	}
 
@@ -97,22 +97,24 @@ func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (d
 	return feature, ok
 }
 
-func IsFeatureActiveNow(feature domain.FeatureExtended) bool {
-	active := feature.Enabled
-
-	now := time.Now().UTC()
+func IsFeatureActiveNow(feature domain.FeatureExtended, now time.Time) bool {
 	var chosen *domain.FeatureSchedule
-
-	for _, schedule := range feature.Schedules {
+	for i := range feature.Schedules {
+		schedule := feature.Schedules[i]
 		if IsScheduleActive(schedule, now) {
 			if chosen == nil {
 				chosen = &schedule
-			} else if schedule.CreatedAt.After(chosen.CreatedAt) {
+
+				continue
+			}
+			if schedule.CreatedAt.After(chosen.CreatedAt) {
 				chosen = &schedule
-			} else if schedule.CreatedAt.Equal(chosen.CreatedAt) &&
-				schedule.Action == domain.FeatureScheduleActionDisable &&
-				chosen.Action == domain.FeatureScheduleActionEnable {
-				chosen = &schedule
+			} else if schedule.CreatedAt.Equal(chosen.CreatedAt) {
+				// disable важнее enable
+				if schedule.Action == domain.FeatureScheduleActionDisable &&
+					chosen.Action == domain.FeatureScheduleActionEnable {
+					chosen = &schedule
+				}
 			}
 		}
 	}
@@ -121,7 +123,7 @@ func IsFeatureActiveNow(feature domain.FeatureExtended) bool {
 		return chosen.Action == domain.FeatureScheduleActionEnable
 	}
 
-	return active
+	return feature.Enabled
 }
 
 func IsScheduleActive(schedule domain.FeatureSchedule, now time.Time) bool {
@@ -139,22 +141,22 @@ func IsScheduleActive(schedule domain.FeatureSchedule, now time.Time) bool {
 		return false
 	}
 
-	if schedule.CronExpr != nil && *schedule.CronExpr != "" {
-		parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
-		sched, err := parser.Parse(*schedule.CronExpr)
-		if err != nil {
-			slog.Error("invalid cron expr", "expr", *schedule.CronExpr, "err", err)
-
-			return false
-		}
-
-		prev := sched.Next(now.Add(-time.Minute))
-		next := sched.Next(prev)
-
-		return !now.Before(prev) && now.Before(next)
+	if schedule.CronExpr == nil || *schedule.CronExpr == "" {
+		return true
 	}
 
-	return true
+	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	sched, err := parser.Parse(*schedule.CronExpr)
+	if err != nil {
+		slog.Error("invalid cron expr", "expr", *schedule.CronExpr, "err", err)
+
+		return false
+	}
+
+	prev := sched.Next(now.Add(-time.Minute))
+	next := sched.Next(prev)
+
+	return !now.Before(prev) && now.Before(next)
 }
 
 func MatchCondition(reqCtx map[domain.RuleAttribute]any, condition domain.Condition) bool {
