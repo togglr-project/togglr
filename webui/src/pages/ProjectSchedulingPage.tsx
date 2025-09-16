@@ -24,8 +24,7 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Schedule as ScheduleIcon,
-  Flag as FlagIcon
+  Schedule as ScheduleIcon
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -33,6 +32,7 @@ import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import type { Feature, FeatureSchedule, FeatureScheduleAction, Project } from '../generated/api/client';
+import { isValidCron } from 'cron-validator';
 
 interface ProjectResponse { project: Project }
 
@@ -68,9 +68,18 @@ const ScheduleDialog: React.FC<{
   title: string;
 }> = ({ open, onClose, onSubmit, initial, title }) => {
   const [values, setValues] = useState<ScheduleFormValues>(() => ({ ...emptyForm(), ...initial } as ScheduleFormValues));
+  const [cronError, setCronError] = useState<string>('');
 
   React.useEffect(() => {
     setValues({ ...emptyForm(), ...initial } as ScheduleFormValues);
+    // Re-validate cron when dialog opens with initial values
+    const expr = (initial?.cron_expr || '').trim();
+    if (expr) {
+      const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
+      setCronError(ok ? '' : 'Invalid cron expression');
+    } else {
+      setCronError('');
+    }
   }, [initial, open]);
 
   return (
@@ -126,8 +135,19 @@ const ScheduleDialog: React.FC<{
                 label="Cron expression"
                 placeholder="Optional, e.g., 0 8 * * 1-5"
                 value={values.cron_expr || ''}
-                onChange={(e) => setValues(v => ({ ...v, cron_expr: e.target.value }))}
-                helperText="If set, schedule will follow this cron (timezone above)."
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setValues(v => ({ ...v, cron_expr: val }));
+                  const expr = val.trim();
+                  if (expr) {
+                    const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
+                    setCronError(ok ? '' : 'Invalid cron expression');
+                  } else {
+                    setCronError('');
+                  }
+                }}
+                error={Boolean(cronError)}
+                helperText={cronError || 'If set, schedule will follow this cron (timezone above).'}
               />
             </Grid>
           </Grid>
@@ -135,7 +155,15 @@ const ScheduleDialog: React.FC<{
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={() => {
+        <Button variant="contained" disabled={Boolean(cronError)} onClick={() => {
+          const expr = (values.cron_expr || '').trim();
+          if (expr) {
+            const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
+            if (!ok) {
+              setCronError('Invalid cron expression');
+              return;
+            }
+          }
           const payload: ScheduleFormValues = {
             ...values,
             starts_at: normalizeDateTimeLocalToISO(values.starts_at),
