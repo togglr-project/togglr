@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log/slog"
 	"time"
@@ -9,13 +10,14 @@ import (
 )
 
 type ruleModel struct {
-	ID            string    `db:"id"`
-	ProjectID     string    `db:"project_id"`
-	FeatureID     string    `db:"feature_id"`
-	Condition     []byte    `db:"condition"`
-	FlagVariantID string    `db:"flag_variant_id"`
-	Priority      int       `db:"priority"`
-	CreatedAt     time.Time `db:"created_at"`
+	ID            string         `db:"id"`
+	ProjectID     string         `db:"project_id"`
+	FeatureID     string         `db:"feature_id"`
+	Condition     []byte         `db:"condition"`
+	Action        string         `db:"action"`
+	FlagVariantID sql.NullString `db:"flag_variant_id"`
+	Priority      int            `db:"priority"`
+	CreatedAt     time.Time      `db:"created_at"`
 }
 
 func (m *ruleModel) toDomain() domain.Rule {
@@ -25,12 +27,19 @@ func (m *ruleModel) toDomain() domain.Rule {
 		slog.Error("unmarshal rule condition", "conditions", string(m.Condition), "error", err)
 	}
 
+	var flagVariantID *domain.FlagVariantID
+	if m.FlagVariantID.Valid {
+		variantID := domain.FlagVariantID(m.FlagVariantID.String)
+		flagVariantID = &variantID
+	}
+
 	return domain.Rule{
 		ID:            domain.RuleID(m.ID),
 		ProjectID:     domain.ProjectID(m.ProjectID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
 		Conditions:    conditions,
-		FlagVariantID: domain.FlagVariantID(m.FlagVariantID),
+		Action:        domain.RuleAction(m.Action),
+		FlagVariantID: flagVariantID,
 		Priority:      uint8(m.Priority),
 		CreatedAt:     m.CreatedAt,
 	}

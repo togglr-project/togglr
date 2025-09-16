@@ -339,6 +339,17 @@ func (s *CreateRuleInline) Validate() error {
 		})
 	}
 	if err := func() error {
+		if err := s.Action.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "action",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if value, ok := s.Priority.Get(); ok {
 			if err := func() error {
 				if err := (validate.Int{
@@ -402,6 +413,17 @@ func (s *CreateRuleRequest) Validate() error {
 	}(); err != nil {
 		failures = append(failures, validate.FieldError{
 			Name:  "conditions",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Action.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "action",
 			Error: err,
 		})
 	}
@@ -1262,6 +1284,17 @@ func (s *Rule) Validate() error {
 		})
 	}
 	if err := func() error {
+		if err := s.Action.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "action",
+			Error: err,
+		})
+	}
+	if err := func() error {
 		if err := (validate.Int{
 			MinSet:        true,
 			Min:           0,
@@ -1285,6 +1318,19 @@ func (s *Rule) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s RuleAction) Validate() error {
+	switch s {
+	case "assign":
+		return nil
+	case "include":
+		return nil
+	case "exclude":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *RuleCondition) Validate() error {

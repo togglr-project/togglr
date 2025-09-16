@@ -326,7 +326,8 @@ type CreateRuleInline struct {
 	// Client-provided UUID for the rule.
 	ID            string          `json:"id"`
 	Conditions    []RuleCondition `json:"conditions"`
-	FlagVariantID string          `json:"flag_variant_id"`
+	Action        RuleAction      `json:"action"`
+	FlagVariantID OptString       `json:"flag_variant_id"`
 	Priority      OptInt          `json:"priority"`
 }
 
@@ -340,8 +341,13 @@ func (s *CreateRuleInline) GetConditions() []RuleCondition {
 	return s.Conditions
 }
 
+// GetAction returns the value of Action.
+func (s *CreateRuleInline) GetAction() RuleAction {
+	return s.Action
+}
+
 // GetFlagVariantID returns the value of FlagVariantID.
-func (s *CreateRuleInline) GetFlagVariantID() string {
+func (s *CreateRuleInline) GetFlagVariantID() OptString {
 	return s.FlagVariantID
 }
 
@@ -360,8 +366,13 @@ func (s *CreateRuleInline) SetConditions(val []RuleCondition) {
 	s.Conditions = val
 }
 
+// SetAction sets the value of Action.
+func (s *CreateRuleInline) SetAction(val RuleAction) {
+	s.Action = val
+}
+
 // SetFlagVariantID sets the value of FlagVariantID.
-func (s *CreateRuleInline) SetFlagVariantID(val string) {
+func (s *CreateRuleInline) SetFlagVariantID(val OptString) {
 	s.FlagVariantID = val
 }
 
@@ -373,7 +384,8 @@ func (s *CreateRuleInline) SetPriority(val OptInt) {
 // Ref: #/components/schemas/CreateRuleRequest
 type CreateRuleRequest struct {
 	Conditions    []RuleCondition `json:"conditions"`
-	FlagVariantID string          `json:"flag_variant_id"`
+	Action        RuleAction      `json:"action"`
+	FlagVariantID OptString       `json:"flag_variant_id"`
 	Priority      OptInt          `json:"priority"`
 }
 
@@ -382,8 +394,13 @@ func (s *CreateRuleRequest) GetConditions() []RuleCondition {
 	return s.Conditions
 }
 
+// GetAction returns the value of Action.
+func (s *CreateRuleRequest) GetAction() RuleAction {
+	return s.Action
+}
+
 // GetFlagVariantID returns the value of FlagVariantID.
-func (s *CreateRuleRequest) GetFlagVariantID() string {
+func (s *CreateRuleRequest) GetFlagVariantID() OptString {
 	return s.FlagVariantID
 }
 
@@ -397,8 +414,13 @@ func (s *CreateRuleRequest) SetConditions(val []RuleCondition) {
 	s.Conditions = val
 }
 
+// SetAction sets the value of Action.
+func (s *CreateRuleRequest) SetAction(val RuleAction) {
+	s.Action = val
+}
+
 // SetFlagVariantID sets the value of FlagVariantID.
-func (s *CreateRuleRequest) SetFlagVariantID(val string) {
+func (s *CreateRuleRequest) SetFlagVariantID(val OptString) {
 	s.FlagVariantID = val
 }
 
@@ -3591,7 +3613,8 @@ type Rule struct {
 	ID            string          `json:"id"`
 	FeatureID     string          `json:"feature_id"`
 	Conditions    []RuleCondition `json:"conditions"`
-	FlagVariantID string          `json:"flag_variant_id"`
+	Action        RuleAction      `json:"action"`
+	FlagVariantID OptString       `json:"flag_variant_id"`
 	Priority      int             `json:"priority"`
 	CreatedAt     time.Time       `json:"created_at"`
 }
@@ -3611,8 +3634,13 @@ func (s *Rule) GetConditions() []RuleCondition {
 	return s.Conditions
 }
 
+// GetAction returns the value of Action.
+func (s *Rule) GetAction() RuleAction {
+	return s.Action
+}
+
 // GetFlagVariantID returns the value of FlagVariantID.
-func (s *Rule) GetFlagVariantID() string {
+func (s *Rule) GetFlagVariantID() OptString {
 	return s.FlagVariantID
 }
 
@@ -3641,8 +3669,13 @@ func (s *Rule) SetConditions(val []RuleCondition) {
 	s.Conditions = val
 }
 
+// SetAction sets the value of Action.
+func (s *Rule) SetAction(val RuleAction) {
+	s.Action = val
+}
+
 // SetFlagVariantID sets the value of FlagVariantID.
-func (s *Rule) SetFlagVariantID(val string) {
+func (s *Rule) SetFlagVariantID(val OptString) {
 	s.FlagVariantID = val
 }
 
@@ -3654,6 +3687,56 @@ func (s *Rule) SetPriority(val int) {
 // SetCreatedAt sets the value of CreatedAt.
 func (s *Rule) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
+}
+
+// Type of rule action.
+// Ref: #/components/schemas/RuleAction
+type RuleAction string
+
+const (
+	RuleActionAssign  RuleAction = "assign"
+	RuleActionInclude RuleAction = "include"
+	RuleActionExclude RuleAction = "exclude"
+)
+
+// AllValues returns all RuleAction values.
+func (RuleAction) AllValues() []RuleAction {
+	return []RuleAction{
+		RuleActionAssign,
+		RuleActionInclude,
+		RuleActionExclude,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s RuleAction) MarshalText() ([]byte, error) {
+	switch s {
+	case RuleActionAssign:
+		return []byte(s), nil
+	case RuleActionInclude:
+		return []byte(s), nil
+	case RuleActionExclude:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *RuleAction) UnmarshalText(data []byte) error {
+	switch RuleAction(data) {
+	case RuleActionAssign:
+		*s = RuleActionAssign
+		return nil
+	case RuleActionInclude:
+		*s = RuleActionInclude
+		return nil
+	case RuleActionExclude:
+		*s = RuleActionExclude
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type RuleAttribute string

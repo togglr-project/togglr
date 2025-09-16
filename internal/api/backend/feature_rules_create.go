@@ -71,7 +71,8 @@ func (r *RestAPI) CreateFeatureRule(
 		ProjectID:     feature.ProjectID,
 		FeatureID:     featureID,
 		Conditions:    conds,
-		FlagVariantID: domain.FlagVariantID(req.FlagVariantID),
+		Action:        domain.RuleAction(req.Action),
+		FlagVariantID: optString2FlagVariantIDRef(req.FlagVariantID),
 		Priority:      uint8(req.Priority.Or(0)),
 	}
 
@@ -104,7 +105,8 @@ func (r *RestAPI) CreateFeatureRule(
 		ID:            created.ID.String(),
 		FeatureID:     created.FeatureID.String(),
 		Conditions:    respConds,
-		FlagVariantID: created.FlagVariantID.String(),
+		Action:        generatedapi.RuleAction(created.Action),
+		FlagVariantID: flagVariantRef2OptString(created.FlagVariantID),
 		Priority:      int(created.Priority),
 		CreatedAt:     created.CreatedAt,
 	}}

@@ -4,20 +4,33 @@ import (
 	"time"
 )
 
-type RuleID string
-
 type Rule struct {
 	ID            RuleID
 	ProjectID     ProjectID
 	FeatureID     FeatureID
 	Conditions    Conditions
-	FlagVariantID FlagVariantID // which variant to assign if the condition matches
+	Action        RuleAction
+	FlagVariantID *FlagVariantID // which variant to assign if the condition matches
 	Priority      uint8
 	CreatedAt     time.Time
 }
 
+type RuleID string
+
 func (id RuleID) String() string {
 	return string(id)
+}
+
+type RuleAction string
+
+const (
+	RuleActionAssign  RuleAction = "assign"
+	RuleActionInclude RuleAction = "include"
+	RuleActionExclude RuleAction = "exclude"
+)
+
+func (action RuleAction) String() string {
+	return string(action)
 }
 
 type RuleAttribute string

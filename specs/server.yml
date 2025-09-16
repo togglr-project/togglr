@@ -3188,6 +3188,11 @@ components:
         value: {}
       required: [attribute, operator, value]
 
+    RuleAction:
+      type: string
+      description: Type of rule action
+      enum: [assign, include, exclude]
+
     Rule:
       type: object
       properties:
@@ -3201,6 +3206,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RuleCondition'
+        action:
+          $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
           type: string
           example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
@@ -3213,7 +3220,7 @@ components:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, feature_id, conditions, flag_variant_id, priority, created_at]
+      required: [id, feature_id, conditions, action, priority, created_at]
 
     CreateRuleRequest:
       type: object
@@ -3222,13 +3229,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RuleCondition'
+        action:
+          $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
           type: string
         priority:
           type: integer
           minimum: 0
           maximum: 255
-      required: [conditions, flag_variant_id]
+      required: [conditions, action]
 
     # Inline rule schema used when creating a feature with rules
     CreateRuleInline:
@@ -3241,13 +3250,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RuleCondition'
+        action:
+          $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
           type: string
         priority:
           type: integer
           minimum: 0
           maximum: 255
-      required: [id, conditions, flag_variant_id]
+      required: [id, conditions, action]
 
     RuleResponse:
       type: object

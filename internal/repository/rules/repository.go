@@ -40,16 +40,18 @@ func (r *Repository) Create(ctx context.Context, rule domain.Rule) (domain.Rule,
 
 	if rule.ID != "" {
 		query = `
-INSERT INTO rules (id, project_id, feature_id, condition, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, project_id, feature_id, condition, flag_variant_id, priority, created_at`
-		args = []any{rule.ID, rule.ProjectID, rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
+INSERT INTO rules (id, project_id, feature_id, condition, action, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priority, created_at`
+		args = []any{rule.ID, rule.ProjectID, rule.FeatureID,
+			conditionsData, rule.Action, rule.FlagVariantID, int(rule.Priority)}
 	} else {
 		query = `
-INSERT INTO rules (project_id, feature_id, condition, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, project_id, feature_id, condition, flag_variant_id, priority, created_at`
-		args = []any{rule.ProjectID, rule.FeatureID, conditionsData, rule.FlagVariantID, int(rule.Priority)}
+INSERT INTO rules (project_id, feature_id, condition, action, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priority, created_at`
+		args = []any{rule.ProjectID, rule.FeatureID, conditionsData,
+			rule.Action, rule.FlagVariantID, int(rule.Priority)}
 	}
 
 	var model ruleModel
@@ -58,6 +60,7 @@ RETURNING id, project_id, feature_id, condition, flag_variant_id, priority, crea
 		&model.ProjectID,
 		&model.FeatureID,
 		&model.Condition,
+		&model.Action,
 		&model.FlagVariantID,
 		&model.Priority,
 		&model.CreatedAt,
@@ -170,9 +173,9 @@ func (r *Repository) Update(ctx context.Context, rule domain.Rule) (domain.Rule,
 
 	const query = `
 UPDATE rules
-SET feature_id = $1, condition = $2, flag_variant_id = $3, priority = $4
-WHERE id = $5
-RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
+SET feature_id = $1, condition = $2, flag_variant_id = $3, priority = $4, action = $5
+WHERE id = $6
+RETURNING id, feature_id, condition, action, flag_variant_id, priority, created_at`
 
 	conditionsData, err := json.Marshal(rule.Conditions)
 	if err != nil {
@@ -185,11 +188,13 @@ RETURNING id, feature_id, condition, flag_variant_id, priority, created_at`
 		conditionsData,
 		rule.FlagVariantID,
 		int(rule.Priority),
+		rule.Action,
 		rule.ID,
 	).Scan(
 		&model.ID,
 		&model.FeatureID,
 		&model.Condition,
+		&model.Action,
 		&model.FlagVariantID,
 		&model.Priority,
 		&model.CreatedAt,

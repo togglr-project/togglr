@@ -96,7 +96,8 @@ func (r *RestAPI) GetFeature(
 			ID:            it.ID.String(),
 			FeatureID:     it.FeatureID.String(),
 			Conditions:    conds,
-			FlagVariantID: it.FlagVariantID.String(),
+			Action:        generatedapi.RuleAction(it.Action),
+			FlagVariantID: flagVariantRef2OptString(it.FlagVariantID),
 			Priority:      int(it.Priority),
 			CreatedAt:     it.CreatedAt,
 		})

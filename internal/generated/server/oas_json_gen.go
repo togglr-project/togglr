@@ -740,8 +740,14 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
-		e.FieldStart("flag_variant_id")
-		e.Str(s.FlagVariantID)
+		e.FieldStart("action")
+		s.Action.Encode(e)
+	}
+	{
+		if s.FlagVariantID.Set {
+			e.FieldStart("flag_variant_id")
+			s.FlagVariantID.Encode(e)
+		}
 	}
 	{
 		if s.Priority.Set {
@@ -751,11 +757,12 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateRuleInline = [4]string{
+var jsonFieldsNameOfCreateRuleInline = [5]string{
 	0: "id",
 	1: "conditions",
-	2: "flag_variant_id",
-	3: "priority",
+	2: "action",
+	3: "flag_variant_id",
+	4: "priority",
 }
 
 // Decode decodes CreateRuleInline from json.
@@ -797,12 +804,20 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
-		case "flag_variant_id":
+		case "action":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				v, err := d.Str()
-				s.FlagVariantID = string(v)
-				if err != nil {
+				if err := s.Action.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"action\"")
+			}
+		case "flag_variant_id":
+			if err := func() error {
+				s.FlagVariantID.Reset()
+				if err := s.FlagVariantID.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -893,8 +908,14 @@ func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
-		e.FieldStart("flag_variant_id")
-		e.Str(s.FlagVariantID)
+		e.FieldStart("action")
+		s.Action.Encode(e)
+	}
+	{
+		if s.FlagVariantID.Set {
+			e.FieldStart("flag_variant_id")
+			s.FlagVariantID.Encode(e)
+		}
 	}
 	{
 		if s.Priority.Set {
@@ -904,10 +925,11 @@ func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateRuleRequest = [3]string{
+var jsonFieldsNameOfCreateRuleRequest = [4]string{
 	0: "conditions",
-	1: "flag_variant_id",
-	2: "priority",
+	1: "action",
+	2: "flag_variant_id",
+	3: "priority",
 }
 
 // Decode decodes CreateRuleRequest from json.
@@ -937,12 +959,20 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
-		case "flag_variant_id":
+		case "action":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := d.Str()
-				s.FlagVariantID = string(v)
-				if err != nil {
+				if err := s.Action.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"action\"")
+			}
+		case "flag_variant_id":
+			if err := func() error {
+				s.FlagVariantID.Reset()
+				if err := s.FlagVariantID.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -7946,8 +7976,14 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 		e.ArrEnd()
 	}
 	{
-		e.FieldStart("flag_variant_id")
-		e.Str(s.FlagVariantID)
+		e.FieldStart("action")
+		s.Action.Encode(e)
+	}
+	{
+		if s.FlagVariantID.Set {
+			e.FieldStart("flag_variant_id")
+			s.FlagVariantID.Encode(e)
+		}
 	}
 	{
 		e.FieldStart("priority")
@@ -7959,13 +7995,14 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRule = [6]string{
+var jsonFieldsNameOfRule = [7]string{
 	0: "id",
 	1: "feature_id",
 	2: "conditions",
-	3: "flag_variant_id",
-	4: "priority",
-	5: "created_at",
+	3: "action",
+	4: "flag_variant_id",
+	5: "priority",
+	6: "created_at",
 }
 
 // Decode decodes Rule from json.
@@ -8019,12 +8056,20 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
-		case "flag_variant_id":
+		case "action":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				v, err := d.Str()
-				s.FlagVariantID = string(v)
-				if err != nil {
+				if err := s.Action.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"action\"")
+			}
+		case "flag_variant_id":
+			if err := func() error {
+				s.FlagVariantID.Reset()
+				if err := s.FlagVariantID.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -8032,7 +8077,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flag_variant_id\"")
 			}
 		case "priority":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				v, err := d.Int()
 				s.Priority = int(v)
@@ -8044,7 +8089,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"priority\"")
 			}
 		case "created_at":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -8065,7 +8110,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00111111,
+		0b01101111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8107,6 +8152,48 @@ func (s *Rule) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *Rule) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RuleAction as json.
+func (s RuleAction) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes RuleAction from json.
+func (s *RuleAction) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RuleAction to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch RuleAction(v) {
+	case RuleActionAssign:
+		*s = RuleActionAssign
+	case RuleActionInclude:
+		*s = RuleActionInclude
+	case RuleActionExclude:
+		*s = RuleActionExclude
+	default:
+		*s = RuleAction(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s RuleAction) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RuleAction) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

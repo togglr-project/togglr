@@ -51,22 +51,39 @@ func (s *Service) Evaluate(
 					break
 				}
 			}
+			if !matched {
+				continue
+			}
 
-			if matched {
-				if variant, ok := findVariantByID(feature.FlagVariants, rule.FlagVariantID); ok {
-					return variant.Name, true, true
+			switch rule.Action {
+			case domain.RuleActionAssign:
+				if rule.FlagVariantID != nil {
+					if variant, ok := findVariantByID(feature.FlagVariants, *rule.FlagVariantID); ok {
+						return variant.Name, true, true
+					}
 				}
+			case domain.RuleActionInclude:
+				if userKey, ok := reqCtx[domain.RuleAttributeUserID]; ok {
+					variant := PickVariant(feature.FlagVariants, fmt.Sprint(userKey), feature.DefaultVariant)
+
+					return variant, true, true
+				}
+
+				return feature.DefaultVariant, true, true
+			case domain.RuleActionExclude:
+				return feature.DefaultVariant, true, true
 			}
 		}
 
-		userID := fmt.Sprint(reqCtx[domain.RuleAttributeUserID])
-		if userID == "" {
-			return feature.DefaultVariant, true, true
+		if userKey, ok := reqCtx[domain.RuleAttributeUserID]; ok {
+			variant := PickVariant(feature.FlagVariants, fmt.Sprint(userKey), feature.DefaultVariant)
+
+			return variant, true, true
 		}
 
-		return PickVariant(feature.FlagVariants, userID, feature.DefaultVariant), true, true
+		return feature.DefaultVariant, true, true
 	default:
-		return "", false, false
+		return feature.DefaultVariant, true, true
 	}
 }
 

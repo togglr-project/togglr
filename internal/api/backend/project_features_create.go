@@ -6,8 +6,6 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/go-faster/jx"
-
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
@@ -69,17 +67,17 @@ func (r *RestAPI) CreateProjectFeature(
 	rules := make([]domain.Rule, 0, len(req.Rules))
 	for _, rr := range req.Rules {
 		conds := make(domain.Conditions, 0, len(rr.Conditions))
-		for _, c := range rr.Conditions {
+		for _, condition := range rr.Conditions {
 			var val any
-			if len(c.Value) > 0 {
-				if err := json.Unmarshal(jx.Raw(c.Value), &val); err != nil {
+			if len(condition.Value) > 0 {
+				if err := json.Unmarshal(condition.Value, &val); err != nil {
 					slog.Error("unmarshal condition value", "error", err)
 					return nil, err
 				}
 			}
 			conds = append(conds, domain.Condition{
-				Attribute: domain.RuleAttribute(c.Attribute),
-				Operator:  domain.RuleOperator(c.Operator),
+				Attribute: domain.RuleAttribute(condition.Attribute),
+				Operator:  domain.RuleOperator(condition.Operator),
 				Value:     val,
 			})
 		}
@@ -88,7 +86,8 @@ func (r *RestAPI) CreateProjectFeature(
 			ID:            domain.RuleID(rr.ID),
 			ProjectID:     projectID,
 			Conditions:    conds,
-			FlagVariantID: domain.FlagVariantID(rr.FlagVariantID),
+			Action:        domain.RuleAction(rr.Action),
+			FlagVariantID: optString2FlagVariantIDRef(rr.FlagVariantID),
 			Priority:      uint8(rr.Priority.Or(0)),
 		})
 	}

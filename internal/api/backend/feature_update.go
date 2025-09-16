@@ -97,7 +97,8 @@ func (r *RestAPI) UpdateFeature(
 			ProjectID:     existing.ProjectID,
 			FeatureID:     featureID,
 			Conditions:    conds,
-			FlagVariantID: domain.FlagVariantID(rr.FlagVariantID),
+			Action:        domain.RuleAction(rr.Action),
+			FlagVariantID: optString2FlagVariantIDRef(rr.FlagVariantID),
 			Priority:      uint8(rr.Priority.Or(0)),
 		})
 	}
@@ -143,7 +144,8 @@ func (r *RestAPI) UpdateFeature(
 			ID:            it.ID.String(),
 			FeatureID:     it.FeatureID.String(),
 			Conditions:    conds,
-			FlagVariantID: it.FlagVariantID.String(),
+			Action:        generatedapi.RuleAction(it.Action),
+			FlagVariantID: flagVariantRef2OptString(it.FlagVariantID),
 			Priority:      int(it.Priority),
 			CreatedAt:     it.CreatedAt,
 		})
