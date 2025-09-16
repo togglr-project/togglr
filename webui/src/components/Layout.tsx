@@ -41,7 +41,6 @@ import { useAuth } from '../auth/AuthContext';
 import ThemeToggle from './ThemeToggle';
 import Breadcrumbs from './Breadcrumbs';
 import SkipLink from './SkipLink';
-import AccessibilityMenu from './AccessibilityMenu';
 import WardenLogo from "./WardenLogo.tsx";
 
 interface LayoutProps {
@@ -216,7 +215,6 @@ const Layout: React.FC<LayoutProps> = ({
               </IconButton>
             </Tooltip>
 
-            <AccessibilityMenu />
 
             <ThemeToggle />
 
