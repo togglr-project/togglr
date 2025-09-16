@@ -39,6 +39,10 @@ const (
 	RuleAttributeUserID RuleAttribute = "user.id"
 )
 
+func (attr RuleAttribute) String() string {
+	return string(attr)
+}
+
 type RuleOperator string
 
 const (

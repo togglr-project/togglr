@@ -1,0 +1,1 @@
+alter table features drop column rollout_key;

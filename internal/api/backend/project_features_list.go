@@ -52,6 +52,7 @@ func (r *RestAPI) ListProjectFeatures(
 			Kind:           generatedapi.FeatureKind(it.Kind),
 			DefaultVariant: it.DefaultVariant,
 			Enabled:        it.Enabled,
+			RolloutKey:     ruleAttribute2OptString(it.RolloutKey),
 			CreatedAt:      it.CreatedAt,
 			UpdatedAt:      it.UpdatedAt,
 		})

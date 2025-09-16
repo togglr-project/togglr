@@ -113,6 +113,7 @@ func (r *RestAPI) GetFeature(
 			Kind:           generatedapi.FeatureKind(feature.Kind),
 			DefaultVariant: feature.DefaultVariant,
 			Enabled:        feature.Enabled,
+			RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
 			CreatedAt:      feature.CreatedAt,
 			UpdatedAt:      feature.UpdatedAt,
 		},

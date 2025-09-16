@@ -171,6 +171,7 @@ type CreateFeatureRequest struct {
 	Kind           FeatureKind  `json:"kind"`
 	DefaultVariant string       `json:"default_variant"`
 	Enabled        OptBool      `json:"enabled"`
+	RolloutKey     OptString    `json:"rollout_key"`
 	// Optional list of flag variants to create along with the feature.
 	Variants []CreateFlagVariantInline `json:"variants"`
 	// Optional list of rules to create along with the feature.
@@ -205,6 +206,11 @@ func (s *CreateFeatureRequest) GetDefaultVariant() string {
 // GetEnabled returns the value of Enabled.
 func (s *CreateFeatureRequest) GetEnabled() OptBool {
 	return s.Enabled
+}
+
+// GetRolloutKey returns the value of RolloutKey.
+func (s *CreateFeatureRequest) GetRolloutKey() OptString {
+	return s.RolloutKey
 }
 
 // GetVariants returns the value of Variants.
@@ -245,6 +251,11 @@ func (s *CreateFeatureRequest) SetDefaultVariant(val string) {
 // SetEnabled sets the value of Enabled.
 func (s *CreateFeatureRequest) SetEnabled(val OptBool) {
 	s.Enabled = val
+}
+
+// SetRolloutKey sets the value of RolloutKey.
+func (s *CreateFeatureRequest) SetRolloutKey(val OptString) {
+	s.RolloutKey = val
 }
 
 // SetVariants sets the value of Variants.
@@ -1009,6 +1020,7 @@ type Feature struct {
 	Kind           FeatureKind  `json:"kind"`
 	DefaultVariant string       `json:"default_variant"`
 	Enabled        bool         `json:"enabled"`
+	RolloutKey     OptString    `json:"rollout_key"`
 	CreatedAt      time.Time    `json:"created_at"`
 	UpdatedAt      time.Time    `json:"updated_at"`
 }
@@ -1051,6 +1063,11 @@ func (s *Feature) GetDefaultVariant() string {
 // GetEnabled returns the value of Enabled.
 func (s *Feature) GetEnabled() bool {
 	return s.Enabled
+}
+
+// GetRolloutKey returns the value of RolloutKey.
+func (s *Feature) GetRolloutKey() OptString {
+	return s.RolloutKey
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -1101,6 +1118,11 @@ func (s *Feature) SetDefaultVariant(val string) {
 // SetEnabled sets the value of Enabled.
 func (s *Feature) SetEnabled(val bool) {
 	s.Enabled = val
+}
+
+// SetRolloutKey sets the value of RolloutKey.
+func (s *Feature) SetRolloutKey(val OptString) {
+	s.RolloutKey = val
 }
 
 // SetCreatedAt sets the value of CreatedAt.

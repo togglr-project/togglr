@@ -63,7 +63,7 @@ func (s *Service) Evaluate(
 					}
 				}
 			case domain.RuleActionInclude:
-				if userKey, ok := reqCtx[domain.RuleAttributeUserID]; ok {
+				if userKey, ok := reqCtx[feature.RolloutKey]; ok {
 					variant := PickVariant(feature.FlagVariants, fmt.Sprint(userKey), feature.DefaultVariant)
 
 					return variant, true, true
@@ -75,7 +75,7 @@ func (s *Service) Evaluate(
 			}
 		}
 
-		if userKey, ok := reqCtx[domain.RuleAttributeUserID]; ok {
+		if userKey, ok := reqCtx[feature.RolloutKey]; ok {
 			variant := PickVariant(feature.FlagVariants, fmt.Sprint(userKey), feature.DefaultVariant)
 
 			return variant, true, true

@@ -3030,6 +3030,9 @@ components:
         enabled:
           type: boolean
           example: true
+        rollout_key:
+          type: string
+          example: "user.id"
         created_at:
           type: string
           format: date-time
@@ -3058,6 +3061,8 @@ components:
           type: string
         enabled:
           type: boolean
+        rollout_key:
+          type: string
         variants:
           type: array
           description: Optional list of flag variants to create along with the feature

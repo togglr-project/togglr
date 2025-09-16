@@ -31,9 +31,9 @@ func (r *Repository) Create(ctx context.Context, feature domain.Feature) (domain
 	executor := r.getExecutor(ctx)
 
 	const query = `
-INSERT INTO features (project_id, key, name, description, kind, default_variant, enabled)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, project_id, key, name, description, kind, default_variant, enabled, created_at, updated_at`
+INSERT INTO features (project_id, key, name, description, kind, default_variant, enabled, rollout_key)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, project_id, key, name, description, kind, default_variant, enabled, rollout_key, created_at, updated_at`
 
 	var model featureModel
 
@@ -44,6 +44,11 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		desc = sql.NullString{}
 	}
 
+	var rolloutKey sql.NullString
+	if feature.RolloutKey != "" {
+		rolloutKey = sql.NullString{Valid: true, String: feature.RolloutKey.String()}
+	}
+
 	err := executor.QueryRow(ctx, query,
 		feature.ProjectID,
 		feature.Key,
@@ -52,6 +57,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		feature.Kind,
 		feature.DefaultVariant,
 		feature.Enabled,
+		rolloutKey,
 	).Scan(
 		&model.ID,
 		&model.ProjectID,
@@ -61,6 +67,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		&model.Kind,
 		&model.DefaultVariant,
 		&model.Enabled,
+		&model.RolloutKey,
 		&model.CreatedAt,
 		&model.UpdatedAt,
 	)
@@ -197,9 +204,9 @@ func (r *Repository) Update(ctx context.Context, feature domain.Feature) (domain
 
 	const query = `
 UPDATE features
-SET project_id = $1, key = $2, name = $3, description = $4, kind = $5, default_variant = $6, enabled = $7, updated_at = now()
-WHERE id = $8
-RETURNING id, project_id, key, name, description, kind, default_variant, enabled, created_at, updated_at`
+SET project_id = $1, key = $2, name = $3, description = $4, kind = $5, default_variant = $6, enabled = $7, rollout_key = $8, updated_at = now()
+WHERE id = $9
+RETURNING id, project_id, key, name, description, kind, default_variant, enabled, rollout_key, created_at, updated_at`
 
 	var model featureModel
 
@@ -210,6 +217,11 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		desc = sql.NullString{}
 	}
 
+	var rolloutKey sql.NullString
+	if feature.RolloutKey != "" {
+		rolloutKey = sql.NullString{Valid: true, String: feature.RolloutKey.String()}
+	}
+
 	err = executor.QueryRow(ctx, query,
 		feature.ProjectID,
 		feature.Key,
@@ -218,6 +230,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		feature.Kind,
 		feature.DefaultVariant,
 		feature.Enabled,
+		rolloutKey,
 		feature.ID,
 	).Scan(
 		&model.ID,
@@ -228,6 +241,7 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		&model.Kind,
 		&model.DefaultVariant,
 		&model.Enabled,
+		&model.RolloutKey,
 		&model.CreatedAt,
 		&model.UpdatedAt,
 	)

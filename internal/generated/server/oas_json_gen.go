@@ -278,6 +278,12 @@ func (s *CreateFeatureRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.RolloutKey.Set {
+			e.FieldStart("rollout_key")
+			s.RolloutKey.Encode(e)
+		}
+	}
+	{
 		if s.Variants != nil {
 			e.FieldStart("variants")
 			e.ArrStart()
@@ -299,15 +305,16 @@ func (s *CreateFeatureRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateFeatureRequest = [8]string{
+var jsonFieldsNameOfCreateFeatureRequest = [9]string{
 	0: "key",
 	1: "name",
 	2: "description",
 	3: "kind",
 	4: "default_variant",
 	5: "enabled",
-	6: "variants",
-	7: "rules",
+	6: "rollout_key",
+	7: "variants",
+	8: "rules",
 }
 
 // Decode decodes CreateFeatureRequest from json.
@@ -315,7 +322,7 @@ func (s *CreateFeatureRequest) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode CreateFeatureRequest to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -385,6 +392,16 @@ func (s *CreateFeatureRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"enabled\"")
 			}
+		case "rollout_key":
+			if err := func() error {
+				s.RolloutKey.Reset()
+				if err := s.RolloutKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"rollout_key\"")
+			}
 		case "variants":
 			if err := func() error {
 				s.Variants = make([]CreateFlagVariantInline, 0)
@@ -428,8 +445,9 @@ func (s *CreateFeatureRequest) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b00011011,
+		0b00000000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -2810,6 +2828,12 @@ func (s *Feature) encodeFields(e *jx.Encoder) {
 		e.Bool(s.Enabled)
 	}
 	{
+		if s.RolloutKey.Set {
+			e.FieldStart("rollout_key")
+			s.RolloutKey.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("created_at")
 		json.EncodeDateTime(e, s.CreatedAt)
 	}
@@ -2819,17 +2843,18 @@ func (s *Feature) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfFeature = [10]string{
-	0: "id",
-	1: "project_id",
-	2: "key",
-	3: "name",
-	4: "description",
-	5: "kind",
-	6: "default_variant",
-	7: "enabled",
-	8: "created_at",
-	9: "updated_at",
+var jsonFieldsNameOfFeature = [11]string{
+	0:  "id",
+	1:  "project_id",
+	2:  "key",
+	3:  "name",
+	4:  "description",
+	5:  "kind",
+	6:  "default_variant",
+	7:  "enabled",
+	8:  "rollout_key",
+	9:  "created_at",
+	10: "updated_at",
 }
 
 // Decode decodes Feature from json.
@@ -2933,8 +2958,18 @@ func (s *Feature) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"enabled\"")
 			}
+		case "rollout_key":
+			if err := func() error {
+				s.RolloutKey.Reset()
+				if err := s.RolloutKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"rollout_key\"")
+			}
 		case "created_at":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -2946,7 +2981,7 @@ func (s *Feature) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"created_at\"")
 			}
 		case "updated_at":
-			requiredBitSet[1] |= 1 << 1
+			requiredBitSet[1] |= 1 << 2
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.UpdatedAt = v
@@ -2968,7 +3003,7 @@ func (s *Feature) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b11101111,
-		0b00000011,
+		0b00000110,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

@@ -21,6 +21,7 @@ type Feature struct {
 	Description    string      // optional description
 	Kind           FeatureKind // "boolean" | "multivariant"
 	DefaultVariant string      // "on"/"off" for boolean, or variant name
+	RolloutKey     RuleAttribute
 	Enabled        bool
 	CreatedAt      time.Time
 	UpdatedAt      time.Time

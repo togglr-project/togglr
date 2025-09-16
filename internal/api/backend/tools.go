@@ -22,3 +22,11 @@ func flagVariantRef2OptString(flagVariantID *domain.FlagVariantID) generatedapi.
 
 	return generatedapi.NewOptString(flagVariantID.String())
 }
+
+func ruleAttribute2OptString(attr domain.RuleAttribute) generatedapi.OptString {
+	if attr == "" {
+		return generatedapi.OptString{}
+	}
+
+	return generatedapi.NewOptString(attr.String())
+}

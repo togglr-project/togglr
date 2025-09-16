@@ -50,6 +50,7 @@ func (r *RestAPI) CreateProjectFeature(
 		Kind:           domain.FeatureKind(req.Kind),
 		DefaultVariant: req.DefaultVariant,
 		Enabled:        req.Enabled.Or(true),
+		RolloutKey:     domain.RuleAttribute(req.RolloutKey.Or("")),
 	}
 
 	// Build inline flag variants

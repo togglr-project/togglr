@@ -1,0 +1,1 @@
+alter table features add column rollout_key text;
