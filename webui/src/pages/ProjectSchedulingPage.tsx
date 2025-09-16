@@ -34,6 +34,7 @@ import apiClient from '../api/apiClient';
 import type { Feature, FeatureSchedule, FeatureScheduleAction, Project } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
+import { listTimeZones } from 'timezone-support';
 
 interface ProjectResponse { project: Project }
 
@@ -61,6 +62,9 @@ const normalizeDateTimeLocalToISO = (val?: string): string | undefined => {
   return d.toISOString();
 };
 
+
+const allTimezones = listTimeZones();
+
 const ScheduleDialog: React.FC<{
   open: boolean;
   onClose: () => void;
@@ -71,6 +75,7 @@ const ScheduleDialog: React.FC<{
   const [values, setValues] = useState<ScheduleFormValues>(() => ({ ...emptyForm(), ...initial } as ScheduleFormValues));
   const [cronError, setCronError] = useState<string>('');
   const [cronDesc, setCronDesc] = useState<string>('');
+  const [tzError, setTzError] = useState<string>('');
 
   React.useEffect(() => {
     // Re-validate cron when dialog opens with initial values
@@ -106,12 +111,22 @@ const ScheduleDialog: React.FC<{
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
+                select
                 fullWidth
                 label="Timezone"
                 value={values.timezone}
-                onChange={(e) => setValues(v => ({ ...v, timezone: e.target.value }))}
-                helperText="IANA timezone, e.g., UTC, Europe/Moscow"
-              />
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setValues(v => ({ ...v, timezone: val }));
+                  setTzError(allTimezones.includes(val) ? '' : 'Invalid timezone');
+                }}
+                error={Boolean(tzError)}
+                helperText={tzError || 'Choose IANA timezone'}
+              >
+                {allTimezones.map(tz => (
+                  <MenuItem key={tz} value={tz}>{tz}</MenuItem>
+                ))}
+              </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
               <TextField
@@ -166,7 +181,9 @@ const ScheduleDialog: React.FC<{
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" disabled={Boolean(cronError)} onClick={() => {
+        <Button variant="contained"
+              disabled={Boolean(cronError || tzError)}
+          onClick={() => {
           const expr = (values.cron_expr || '').trim();
           if (expr) {
             const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
