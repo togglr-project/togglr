@@ -151,7 +151,7 @@ func IsScheduleActive(schedule domain.FeatureSchedule, now time.Time) bool {
 		prev := sched.Next(now.Add(-time.Minute))
 		next := sched.Next(prev)
 
-		return now.After(prev) && now.Before(next)
+		return !now.Before(prev) && now.Before(next)
 	}
 
 	return true
