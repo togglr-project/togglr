@@ -1,4 +1,4 @@
-package featuresholder
+package featuresprocessor
 
 import (
 	"fmt"
