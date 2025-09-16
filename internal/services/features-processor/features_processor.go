@@ -2,6 +2,7 @@ package featuresprocessor
 
 import (
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strconv"
 	"strings"
@@ -61,27 +62,21 @@ func (s *Service) Evaluate(
 					if variant, ok := findVariantByID(feature.FlagVariants, *rule.FlagVariantID); ok {
 						return variant.Name, true, true
 					}
+				} else {
+					slog.Error("nil flag variant ID", "rule", rule.ID)
 				}
 			case domain.RuleActionInclude:
-				if userKey, ok := reqCtx[feature.RolloutKey]; ok {
-					variant := PickVariant(feature.FlagVariants, fmt.Sprint(userKey), feature.DefaultVariant)
+				value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
 
-					return variant, true, true
-				}
-
-				return feature.DefaultVariant, true, true
+				return value, true, true
 			case domain.RuleActionExclude:
 				return feature.DefaultVariant, true, true
 			}
 		}
 
-		if userKey, ok := reqCtx[feature.RolloutKey]; ok {
-			variant := PickVariant(feature.FlagVariants, fmt.Sprint(userKey), feature.DefaultVariant)
+		value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
 
-			return variant, true, true
-		}
-
-		return feature.DefaultVariant, true, true
+		return value, true, true
 	default:
 		return feature.DefaultVariant, true, true
 	}
@@ -263,4 +258,17 @@ func findVariantByID(variants []domain.FlagVariant, id domain.FlagVariantID) (do
 	}
 
 	return domain.FlagVariant{}, false
+}
+
+func rolloutOrDefault(
+	variants []domain.FlagVariant,
+	rolloutKey domain.RuleAttribute,
+	reqCtx map[domain.RuleAttribute]any,
+	defaultVariant string,
+) string {
+	if rolloutValue, ok := reqCtx[rolloutKey]; ok {
+		return PickVariant(variants, fmt.Sprint(rolloutValue), defaultVariant)
+	}
+
+	return defaultVariant
 }

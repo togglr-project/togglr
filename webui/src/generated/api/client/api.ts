@@ -38,6 +38,7 @@ export interface CreateFeatureRequest {
     'kind': FeatureKind;
     'default_variant': string;
     'enabled'?: boolean;
+    'rollout_key'?: string;
     /**
      * Optional list of flag variants to create along with the feature
      */
@@ -134,6 +135,7 @@ export interface Feature {
     'kind': FeatureKind;
     'default_variant': string;
     'enabled': boolean;
+    'rollout_key'?: string;
     'created_at': string;
     'updated_at': string;
 }

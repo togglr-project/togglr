@@ -22,6 +22,7 @@ import {
   Tooltip,
   Chip,
 } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import { Add, Delete } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
@@ -45,6 +46,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [keyVal, setKeyVal] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [rolloutKey, setRolloutKey] = useState('');
   const [kind, setKind] = useState<string>(FeatureKindEnum.Boolean);
   const [enabled, setEnabled] = useState<boolean>(false);
   const [variants, setVariants] = useState<VariantForm[]>([]);
@@ -61,6 +63,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     setName(f.name);
     setDescription(f.description || '');
     setKind(f.kind);
+    setRolloutKey(f.rollout_key || '');
     setEnabled(f.enabled);
     const vars = (featureDetails.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
@@ -130,6 +133,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     if (!keyVal.trim()) return 'Key is required';
     if (!name.trim()) return 'Name is required';
     if (!kind) return 'Kind is required';
+    if (kind === FeatureKindEnum.Multivariant && !rolloutKey.trim()) return 'Rollout Key is required for multivariant features';
     // default_variant can be any string (including empty) by new API; no validation here
     for (const v of variants) {
       if (!v.name.trim()) return 'Variant name cannot be empty';
@@ -159,6 +163,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       kind: kind as any,
       default_variant: defaultVariant,
       enabled,
+      rollout_key: kind === FeatureKindEnum.Multivariant ? (rolloutKey.trim() || undefined) : undefined,
       variants: variants.map(v => ({ id: v.id, name: v.name, rollout_percent: Number(v.rollout_percent) })),
       rules: rules.map(r => ({
         id: r.id,
@@ -176,6 +181,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   const ruleOperatorOptions = Object.values(RuleOperatorEnum);
   const featureKindOptions = Object.values(FeatureKindEnum);
+  const rolloutKeyOptions = ['user.id', 'user.email'];
 
   // Default variant is free text now; allow deletion unless referenced by an Assign rule
   const canDeleteVariant = (id: string) => !rules.some(r => r.action === RuleActionEnum.Assign && r.flag_variant_id === id);
@@ -222,6 +228,20 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
               <Grid item xs={12} md={6} sx={{ display: 'flex', alignItems: 'center' }}>
                 <FormControlLabel control={<Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />} label="Enabled" />
               </Grid>
+              {kind === FeatureKindEnum.Multivariant && (
+                <Grid item xs={12} md={6}>
+                  <Autocomplete
+                    freeSolo
+                    options={rolloutKeyOptions}
+                    value={rolloutKey}
+                    onChange={(_, val) => setRolloutKey(val || '')}
+                    onInputChange={(_, val) => setRolloutKey(val)}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Rollout Key" required fullWidth helperText="Select from suggestions or type any attribute name" />
+                    )}
+                  />
+                </Grid>
+              )}
             </Grid>
 
             <Divider />

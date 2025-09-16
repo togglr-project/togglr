@@ -13,6 +13,7 @@ Name | Type | Description | Notes
 **kind** | [**FeatureKind**](FeatureKind.md) |  | [default to undefined]
 **default_variant** | **string** |  | [default to undefined]
 **enabled** | **boolean** |  | [default to undefined]
+**rollout_key** | **string** |  | [optional] [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 
@@ -30,6 +31,7 @@ const instance: Feature = {
     kind,
     default_variant,
     enabled,
+    rollout_key,
     created_at,
     updated_at,
 };

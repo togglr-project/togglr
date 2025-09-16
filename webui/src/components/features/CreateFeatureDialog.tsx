@@ -15,6 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
@@ -34,6 +35,7 @@ const genId = (): string => {
 };
 
 const kindOptions: FeatureKind[] = ['boolean', 'multivariant'];
+const rolloutKeyOptions = ['user.id', 'user.email'];
 
 type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
 interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
@@ -53,6 +55,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [keyValue, setKeyValue] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [rolloutKey, setRolloutKey] = useState('');
   const [kind, setKind] = useState<FeatureKind>('boolean');
   const [defaultVariant, setDefaultVariant] = useState('');
   const [enabled, setEnabled] = useState(true);
@@ -107,6 +110,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     setKeyValue('');
     setName('');
     setDescription('');
+    setRolloutKey('');
     setKind('boolean');
     setDefaultVariant('');
     setEnabled(true);
@@ -123,6 +127,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         throw new Error('Key and Name are required');
       }
       if (kind === 'multivariant') {
+        if (!rolloutKey.trim()) throw new Error('Rollout Key is required for multivariant features');
         if (!hasAtLeastTwoVariants) throw new Error('At least two variants are required for multivariant features');
         if (!variantsValid) throw new Error('Variants must have names, rollout between 1 and 100, and total rollout must equal 100');
       }
@@ -165,6 +170,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         kind,
         default_variant: dv,
         enabled,
+        rollout_key: kind === 'multivariant' ? (rolloutKey.trim() || undefined) : undefined,
         variants: inlineVariants,
         rules: inlineRules,
       } as any);
@@ -221,12 +227,13 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const canCreate = useMemo(() => {
     if (!keyValue.trim() || !name.trim()) return false;
     if (kind === 'multivariant') {
+      if (!rolloutKey.trim()) return false;
       if (!hasAtLeastTwoVariants) return false;
       if (!variantsValid) return false;
     }
     if (rules.length > 0 && !rulesValid) return false;
     return !submitting;
-  }, [keyValue, name, kind, hasAtLeastTwoVariants, variantsValid, rulesValid, rules.length, submitting]);
+  }, [keyValue, name, kind, rolloutKey, hasAtLeastTwoVariants, variantsValid, rulesValid, rules.length, submitting]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -241,6 +248,18 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               <MenuItem key={k} value={k}>{k}</MenuItem>
             ))}
           </TextField>
+          {kind === 'multivariant' && (
+            <Autocomplete
+              freeSolo
+              options={rolloutKeyOptions}
+              value={rolloutKey}
+              onChange={(_, val) => setRolloutKey(val || '')}
+              onInputChange={(_, val) => setRolloutKey(val)}
+              renderInput={(params) => (
+                <TextField {...params} label="Rollout Key" required fullWidth helperText="Select from suggestions or type any attribute name" />
+              )}
+            />
+          )}
           {kind === 'boolean' ? (
             <TextField
               label="Default value (returned when enabled)"

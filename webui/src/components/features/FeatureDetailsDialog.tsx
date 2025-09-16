@@ -107,6 +107,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
               <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
                 <Chip size="small" label={`default: ${featureDetails.feature.default_variant}`} />
+                {featureDetails.feature.kind === 'multivariant' && (
+                  <Chip size="small" label={`rollout key: ${featureDetails.feature.rollout_key || '-'}`} />
+                )}
                 <Chip size="small" label={featureDetails.feature.enabled ? 'enabled' : 'disabled'} color={featureDetails.feature.enabled ? 'success' : 'default'} />
               </Box>
             </Box>
