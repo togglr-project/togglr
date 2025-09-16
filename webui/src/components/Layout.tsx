@@ -16,7 +16,9 @@ import {
   useTheme,
   Avatar,
   Tooltip,
-  Badge
+  Badge,
+  Tabs,
+  Tab
 } from '@mui/material';
 import { 
   ArrowBack as ArrowBackIcon,
@@ -30,7 +32,8 @@ import {
   Dashboard as DashboardIcon,
   NotificationsNone as NotificationsIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
-  InsightsOutlined as AnalyticsIcon
+  InsightsOutlined as AnalyticsIcon,
+  FlagOutlined as FlagOutlinedIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -49,6 +52,10 @@ interface LayoutProps {
 // Drawer width constants
 const DRAWER_WIDTH = 260;
 const DRAWER_COLLAPSED_WIDTH = 72;
+
+// AppBar heights
+const APPBAR_MAIN_HEIGHT = 70;
+const TABBAR_HEIGHT = 48;
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
@@ -115,6 +122,11 @@ const Layout: React.FC<LayoutProps> = ({
 
   const menuItems = getMenuItems();
 
+    // Detect if we are on a project details page and extract projectId
+    const projectMatch = location.pathname.match(/^\/projects\/([^/]+)/);
+    const currentProjectId = projectMatch ? projectMatch[1] : null;
+    const showProjectSidebar = Boolean(currentProjectId);
+
   // Check if the current path matches the menu item path
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -149,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({
             onClick={handleDrawerToggle}
             sx={{ 
               mr: 2, 
-              display: { xs: 'none', sm: 'flex' },
+              display: showProjectSidebar ? { xs: 'none', sm: 'flex' } : 'none',
               '&:hover': {
                 backgroundColor: theme.palette.mode === 'dark' 
                   ? 'rgba(255, 255, 255, 0.08)' 
@@ -179,6 +191,7 @@ const Layout: React.FC<LayoutProps> = ({
           )}
 
           <WardenLogo logoSize={32} />
+
 
           <Box sx={{ flexGrow: 1 }} />
 
@@ -258,107 +271,153 @@ const Layout: React.FC<LayoutProps> = ({
             </Box>
           </Box>
         </Toolbar>
+
+        {/* Secondary navigation tabs (below main toolbar) */}
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Divider sx={{ opacity: theme.palette.mode === 'dark' ? 0.12 : 0.08 }} />
+          <Toolbar variant="dense" sx={{ minHeight: TABBAR_HEIGHT, px: { xs: 2, sm: 3 } }}>
+            <Tabs
+              value={menuItems.find((it) => isActive(it.path))?.path ?? false}
+              onChange={(_e, val) => { if (typeof val === 'string') navigate(val); }}
+              textColor="inherit"
+              indicatorColor="primary"
+              aria-label="Primary navigation tabs"
+              sx={{
+                minHeight: TABBAR_HEIGHT,
+                '& .MuiTab-root': {
+                  minHeight: TABBAR_HEIGHT,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  mr: 0,
+                  px: 2,
+                  borderRadius: 0,
+                  backgroundColor: 'transparent',
+                  color: theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.primary.main,
+                  opacity: 1,
+                  transition: 'color 0.2s',
+                  '&:hover': {
+                    color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.primary.dark,
+                    backgroundColor: 'transparent',
+                  },
+                },
+                '& .MuiTab-root.Mui-selected': {
+                  color: theme.palette.mode === 'dark' ? theme.palette.common.white : theme.palette.primary.main,
+                  fontWeight: 700,
+                },
+              }}
+            >
+              {menuItems.map((item) => (
+                <Tab
+                  key={item.text}
+                  value={item.path}
+                  icon={item.icon}
+                  iconPosition="start"
+                  label={item.text}
+                />
+              ))}
+            </Tabs>
+          </Toolbar>
+        </Box>
       </AppBar>
 
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: open ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
+      {showProjectSidebar && (
+        <Drawer
+          variant="permanent"
+          sx={{
             width: open ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH,
-            boxSizing: 'border-box',
-            transition: theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-            overflowX: 'hidden',
-            marginTop: '70px', // Height of the AppBar
-            borderRight: 'none',
-            boxShadow: theme.palette.mode === 'dark'
-              ? '2px 0 10px rgba(0, 0, 0, 0.2)'
-              : '2px 0 10px rgba(0, 0, 0, 0.05)',
-          },
-        }}
-      >
-        <Box sx={{ py: 2 }}>
-          <List sx={{ px: 1.5 }}>
-            {menuItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <ListItem key={item.text} disablePadding sx={{ display: 'block', mb: 0.8 }}>
-                  <ListItemButton
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? 'initial' : 'center',
-                      px: 2.5,
-                      py: 1.2,
-                      borderRadius: 2,
-                      backgroundColor: active 
-                        ? theme.palette.mode === 'dark' 
-                          ? 'rgba(130, 82, 255, 0.15)' 
-                          : 'rgba(130, 82, 255, 0.1)'
-                        : 'transparent',
-                      '&:hover': {
-                        backgroundColor: active
-                          ? theme.palette.mode === 'dark' 
-                            ? 'rgba(130, 82, 255, 0.2)' 
-                            : 'rgba(130, 82, 255, 0.15)'
-                          : theme.palette.mode === 'dark' 
-                            ? 'rgba(255, 255, 255, 0.08)' 
-                            : 'rgba(130, 82, 255, 0.05)',
-                      },
-                    }}
-                    onClick={() => navigate(item.path)}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : 'auto',
-                        justifyContent: 'center',
-                        color: active ? 'primary.main' : 'inherit',
-                      }}
-                    >
-                      {item.icon}
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={item.text} 
-                      primaryTypographyProps={{
-                        fontWeight: active ? 600 : 400,
-                        color: active ? 'primary.main' : 'inherit',
-                      }}
-                      sx={{ 
-                        opacity: open ? 1 : 0,
-                        ml: 0.5,
-                      }} 
-                    />
-                  </ListItemButton>
-                </ListItem>
-              );
-            })}
-          </List>
-          <Divider sx={{ my: 2, mx: 2 }} />
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-            <Tooltip title={open ? "Collapse sidebar" : "Expand sidebar"}>
-              <IconButton 
-                onClick={handleDrawerToggle}
-                sx={{
-                  backgroundColor: theme.palette.mode === 'dark' 
-                    ? 'rgba(255, 255, 255, 0.05)' 
-                    : 'rgba(130, 82, 255, 0.05)',
-                  '&:hover': {
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: open ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH,
+              boxSizing: 'border-box',
+              transition: theme.transitions.create('width', {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.enteringScreen,
+              }),
+              overflowX: 'hidden',
+              marginTop: { xs: `${APPBAR_MAIN_HEIGHT}px`, md: `${APPBAR_MAIN_HEIGHT + TABBAR_HEIGHT}px` },
+              borderRight: 'none',
+              boxShadow: theme.palette.mode === 'dark'
+                ? '2px 0 10px rgba(0, 0, 0, 0.2)'
+                : '2px 0 10px rgba(0, 0, 0, 0.05)',
+            },
+          }}
+        >
+          <Box sx={{ py: 2 }}>
+            <List sx={{ px: 1.5 }}>
+              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    py: 1.2,
+                    borderRadius: 2,
                     backgroundColor: theme.palette.mode === 'dark' 
-                      ? 'rgba(255, 255, 255, 0.1)' 
+                      ? 'rgba(130, 82, 255, 0.15)'
                       : 'rgba(130, 82, 255, 0.1)',
-                  },
-                }}
-              >
-                {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-              </IconButton>
-            </Tooltip>
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(130, 82, 255, 0.2)'
+                        : 'rgba(130, 82, 255, 0.15)',
+                    },
+                  }}
+                  onClick={() => {
+                    const el = document.getElementById('features');
+                    if (el) {
+                      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                      window.scrollTo({ top: y, behavior: 'smooth' });
+                    } else if (currentProjectId) {
+                      navigate(`/projects/${currentProjectId}#features`);
+                    }
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: 'primary.main',
+                    }}
+                  >
+                    <FlagOutlinedIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={'Features'} 
+                    primaryTypographyProps={{
+                      fontWeight: 600,
+                      color: 'primary.main',
+                    }}
+                    sx={{ 
+                      opacity: open ? 1 : 0,
+                      ml: 0.5,
+                    }} 
+                  />
+                </ListItemButton>
+              </ListItem>
+            </List>
+            <Divider sx={{ my: 2, mx: 2 }} />
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+              <Tooltip title={open ? "Collapse sidebar" : "Expand sidebar"}>
+                <IconButton 
+                  onClick={handleDrawerToggle}
+                  sx={{
+                    backgroundColor: theme.palette.mode === 'dark' 
+                      ? 'rgba(255, 255, 255, 0.05)' 
+                      : 'rgba(130, 82, 255, 0.05)',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.1)' 
+                        : 'rgba(130, 82, 255, 0.1)',
+                    },
+                  }}
+                >
+                  {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
-        </Box>
-      </Drawer>
+        </Drawer>
+      )}
 
       <Box
         component="main"
@@ -368,7 +427,7 @@ const Layout: React.FC<LayoutProps> = ({
           ml: 0,
           mr: '0 !important',
           right: 0,
-          width: { xs: '100%', sm: `calc(100% - ${open ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH}px)` },
+          width: showProjectSidebar ? { xs: '100%', sm: `calc(100% - ${open ? DRAWER_WIDTH : DRAWER_COLLAPSED_WIDTH}px)` } : '100%',
           boxSizing: 'border-box',
           transition: theme.transitions.create(['width'], {
             easing: theme.transitions.easing.sharp,
@@ -380,7 +439,7 @@ const Layout: React.FC<LayoutProps> = ({
         }}
       >
         <SkipLink href="#main-content">Skip to main content</SkipLink>
-        <Box sx={{ height: '40px' }} />
+        <Box sx={{ height: { xs: `${APPBAR_MAIN_HEIGHT}px`, md: `${APPBAR_MAIN_HEIGHT + TABBAR_HEIGHT}px` } }} />
         <Box 
           id="main-content"
           sx={{ 
