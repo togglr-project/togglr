@@ -252,6 +252,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects
 	ListProjects(ctx context.Context) (ListProjectsRes, error)
+	// ListSegmentDesyncFeatureIDs implements ListSegmentDesyncFeatureIDs operation.
+	//
+	// Get desync feature IDs by segment ID.
+	//
+	// GET /api/v1/segments/{segment_id}/desync-features
+	ListSegmentDesyncFeatureIDs(ctx context.Context, params ListSegmentDesyncFeatureIDsParams) (ListSegmentDesyncFeatureIDsRes, error)
 	// ListUsers implements ListUsers operation.
 	//
 	// List all users (superuser only).

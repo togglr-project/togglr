@@ -1046,16 +1046,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					}
 
 					// Param: "segment_id"
-					// Leaf parameter, slashes are prohibited
+					// Match until "/"
 					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
+					if idx < 0 {
+						idx = len(elem)
 					}
-					args[0] = elem
-					elem = ""
+					args[0] = elem[:idx]
+					elem = elem[idx:]
 
 					if len(elem) == 0 {
-						// Leaf node.
 						switch r.Method {
 						case "DELETE":
 							s.handleDeleteSegmentRequest([1]string{
@@ -1074,6 +1073,30 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 
 						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/desync-features"
+
+						if l := len("/desync-features"); len(elem) >= l && elem[0:l] == "/desync-features" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleListSegmentDesyncFeatureIDsRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -2651,16 +2674,15 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					}
 
 					// Param: "segment_id"
-					// Leaf parameter, slashes are prohibited
+					// Match until "/"
 					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
+					if idx < 0 {
+						idx = len(elem)
 					}
-					args[0] = elem
-					elem = ""
+					args[0] = elem[:idx]
+					elem = elem[idx:]
 
 					if len(elem) == 0 {
-						// Leaf node.
 						switch method {
 						case "DELETE":
 							r.name = DeleteSegmentOperation
@@ -2689,6 +2711,32 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						default:
 							return
 						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/desync-features"
+
+						if l := len("/desync-features"); len(elem) >= l && elem[0:l] == "/desync-features" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = ListSegmentDesyncFeatureIDsOperation
+								r.summary = "Get desync feature IDs by segment ID"
+								r.operationID = "ListSegmentDesyncFeatureIDs"
+								r.pathPattern = "/api/v1/segments/{segment_id}/desync-features"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

@@ -1198,6 +1198,14 @@ func (s LicenseType) Validate() error {
 	}
 }
 
+func (s ListFeatureIDsResponse) Validate() error {
+	alias := ([]string)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
 func (s ListFeatureSchedulesResponse) Validate() error {
 	alias := ([]FeatureSchedule)(s)
 	if alias == nil {

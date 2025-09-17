@@ -161,6 +161,10 @@ type ListProjectsRes interface {
 	listProjectsRes()
 }
 
+type ListSegmentDesyncFeatureIDsRes interface {
+	listSegmentDesyncFeatureIDsRes()
+}
+
 type ListUsersRes interface {
 	listUsersRes()
 }

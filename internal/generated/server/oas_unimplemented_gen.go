@@ -377,6 +377,15 @@ func (UnimplementedHandler) ListProjects(ctx context.Context) (r ListProjectsRes
 	return r, ht.ErrNotImplemented
 }
 
+// ListSegmentDesyncFeatureIDs implements ListSegmentDesyncFeatureIDs operation.
+//
+// Get desync feature IDs by segment ID.
+//
+// GET /api/v1/segments/{segment_id}/desync-features
+func (UnimplementedHandler) ListSegmentDesyncFeatureIDs(ctx context.Context, params ListSegmentDesyncFeatureIDsParams) (r ListSegmentDesyncFeatureIDsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListUsers implements ListUsers operation.
 //
 // List all users (superuser only).

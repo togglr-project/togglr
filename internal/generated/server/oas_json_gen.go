@@ -6985,6 +6985,58 @@ func (s *LicenseType) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ListFeatureIDsResponse as json.
+func (s ListFeatureIDsResponse) Encode(e *jx.Encoder) {
+	unwrapped := []string(s)
+
+	e.ArrStart()
+	for _, elem := range unwrapped {
+		e.Str(elem)
+	}
+	e.ArrEnd()
+}
+
+// Decode decodes ListFeatureIDsResponse from json.
+func (s *ListFeatureIDsResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ListFeatureIDsResponse to nil")
+	}
+	var unwrapped []string
+	if err := func() error {
+		unwrapped = make([]string, 0)
+		if err := d.Arr(func(d *jx.Decoder) error {
+			var elem string
+			v, err := d.Str()
+			elem = string(v)
+			if err != nil {
+				return err
+			}
+			unwrapped = append(unwrapped, elem)
+			return nil
+		}); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return errors.Wrap(err, "alias")
+	}
+	*s = ListFeatureIDsResponse(unwrapped)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ListFeatureIDsResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ListFeatureIDsResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes ListFeatureSchedulesResponse as json.
 func (s ListFeatureSchedulesResponse) Encode(e *jx.Encoder) {
 	unwrapped := []FeatureSchedule(s)

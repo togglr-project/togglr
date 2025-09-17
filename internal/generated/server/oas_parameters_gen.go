@@ -1679,6 +1679,71 @@ func decodeListProjectSegmentsParams(args [1]string, argsEscaped bool, r *http.R
 	return params, nil
 }
 
+// ListSegmentDesyncFeatureIDsParams is parameters of ListSegmentDesyncFeatureIDs operation.
+type ListSegmentDesyncFeatureIDsParams struct {
+	SegmentID string
+}
+
+func unpackListSegmentDesyncFeatureIDsParams(packed middleware.Parameters) (params ListSegmentDesyncFeatureIDsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "segment_id",
+			In:   "path",
+		}
+		params.SegmentID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeListSegmentDesyncFeatureIDsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListSegmentDesyncFeatureIDsParams, _ error) {
+	// Decode path: segment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "segment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SegmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "segment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // SSOInitiateParams is parameters of SSOInitiate operation.
 type SSOInitiateParams struct {
 	// Name of the SSO provider to use.

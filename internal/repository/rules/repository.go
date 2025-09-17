@@ -158,6 +158,35 @@ func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.Featu
 	return items, nil
 }
 
+func (r *Repository) ListCustomizedFeatureIDsBySegment(
+	ctx context.Context,
+	segmentID domain.SegmentID,
+) ([]domain.FeatureID, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT DISTINCT feature_id FROM rules WHERE segment_id = $1 AND is_customized = TRUE`
+
+	rows, err := executor.Query(ctx, query, segmentID)
+	if err != nil {
+		return nil, fmt.Errorf("query distinct feature_ids by segment_id: %w", err)
+	}
+	defer rows.Close()
+
+	ids := make([]domain.FeatureID, 0)
+	for rows.Next() {
+		var id string
+		if err := rows.Scan(&id); err != nil {
+			return nil, fmt.Errorf("scan feature_id: %w", err)
+		}
+		ids = append(ids, domain.FeatureID(id))
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate feature_ids: %w", err)
+	}
+
+	return ids, nil
+}
+
 // Update updates existing rule by ID and returns the updated entity.
 //
 //nolint:lll // long query string is acceptable

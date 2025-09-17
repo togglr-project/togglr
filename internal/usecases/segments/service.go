@@ -12,13 +12,15 @@ import (
 type Service struct {
 	txManager db.TxManager
 	repo      contract.SegmentsRepository
+	rulesRepo contract.RulesRepository
 }
 
 func New(
 	txManager db.TxManager,
 	repo contract.SegmentsRepository,
+	rulesRepo contract.RulesRepository,
 ) *Service {
-	return &Service{txManager: txManager, repo: repo}
+	return &Service{txManager: txManager, repo: repo, rulesRepo: rulesRepo}
 }
 
 func (s *Service) Create(ctx context.Context, segment domain.Segment) (domain.Segment, error) {
@@ -77,4 +79,15 @@ func (s *Service) Delete(ctx context.Context, id domain.SegmentID) error {
 		return fmt.Errorf("tx delete segment: %w", err)
 	}
 	return nil
+}
+
+func (s *Service) ListDesyncFeatureIDs(
+	ctx context.Context,
+	segmentID domain.SegmentID,
+) ([]domain.FeatureID, error) {
+	ids, err := s.rulesRepo.ListCustomizedFeatureIDsBySegment(ctx, segmentID)
+	if err != nil {
+		return nil, fmt.Errorf("list desync feature ids: %w", err)
+	}
+	return ids, nil
 }
