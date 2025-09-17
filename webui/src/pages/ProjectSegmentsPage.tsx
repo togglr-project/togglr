@@ -54,6 +54,26 @@ const operatorOptions: OperatorOption[] = ['eq','neq','in','not_in','gt','gte','
 
 const emptyCondition = (): ConditionFormItem => ({ attribute: '', operator: 'eq', value: '' });
 
+const SegmentDesyncCount: React.FC<{ segmentId: string }> = ({ segmentId }) => {
+  const { data, isLoading, isError } = useQuery<string[]>({
+    queryKey: ['segment-desync-ids', segmentId],
+    queryFn: async () => {
+      const res = await apiClient.listSegmentDesyncFeatureIDs(segmentId);
+      return res.data as unknown as string[];
+    },
+    enabled: !!segmentId,
+  });
+
+  if (isLoading) {
+    return <Chip size="small" label="customized: …" />;
+  }
+  if (isError) {
+    return <Chip size="small" label="customized: error" color="error" />;
+  }
+  const count = Array.isArray(data) ? data.length : 0;
+  return <Chip size="small" label={`customized: ${count}`} color={count > 0 ? 'warning' as any : undefined} />;
+};
+
 const CreateEditSegmentDialog: React.FC<{
   open: boolean;
   onClose: () => void;
@@ -61,7 +81,8 @@ const CreateEditSegmentDialog: React.FC<{
   initial?: Partial<{ name: string; description?: string; conditions: RuleConditionExpression }>;
   title: string;
   submitting?: boolean;
-}> = ({ open, onClose, onSubmit, initial, title, submitting }) => {
+  isEdit?: boolean;
+}> = ({ open, onClose, onSubmit, initial, title, submitting, isEdit }) => {
   const [name, setName] = useState<string>(initial?.name || '');
   const [description, setDescription] = useState<string>(initial?.description || '');
   const [expr, setExpr] = useState<RuleConditionExpression>(initial?.conditions || { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any });
@@ -121,6 +142,11 @@ const CreateEditSegmentDialog: React.FC<{
         )}
       </DialogContent>
       <DialogActions>
+        {isEdit && (
+          <Button variant="outlined" color="secondary" onClick={() => alert('Sync of customized features is not implemented yet')}>
+            Sync customized features
+          </Button>
+        )}
         <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleSubmit} disabled={!canSubmit} variant="contained">Save</Button>
       </DialogActions>
@@ -226,6 +252,7 @@ const ProjectSegmentsPage: React.FC = () => {
                   )}
                   <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                     <Chip size="small" label={`conditions: ${countLeaves(s.conditions)}`} />
+                    <SegmentDesyncCount segmentId={s.id} />
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1 }}>
@@ -258,6 +285,7 @@ const ProjectSegmentsPage: React.FC = () => {
         onClose={() => setOpenCreate(false)}
         title="Create Segment"
         submitting={createMutation.isPending}
+        isEdit={false}
         onSubmit={(values) => createMutation.mutate(values)}
       />
 
@@ -267,6 +295,7 @@ const ProjectSegmentsPage: React.FC = () => {
         onClose={() => setEditData(null)}
         title="Edit Segment"
         submitting={updateMutation.isPending}
+        isEdit={true}
         initial={editData ? { name: editData.name, description: editData.description, conditions: editData.conditions as any } : undefined}
         onSubmit={(values) => editData && updateMutation.mutate({ id: editData.id, payload: values })}
       />
