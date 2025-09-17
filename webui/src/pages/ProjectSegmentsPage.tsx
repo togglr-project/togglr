@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Paper,
@@ -15,6 +15,7 @@ import {
   Grid,
   Chip,
   MenuItem,
+  Checkbox,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -74,6 +75,115 @@ const SegmentDesyncCount: React.FC<{ segmentId: string }> = ({ segmentId }) => {
   return <Chip size="small" label={`customized: ${count}`} color={count > 0 ? 'warning' as any : undefined} />;
 };
 
+// Dialog to batch sync customized features for a segment
+const SyncCustomizedFeaturesDialog: React.FC<{ open: boolean; onClose: () => void; segmentId: string; }> = ({ open, onClose, segmentId }) => {
+  const queryClient = useQueryClient();
+  const { data: idsData, isLoading: loadingIds, isError: idsError } = useQuery<string[]>({
+    queryKey: ['segment-desync-ids', segmentId],
+    queryFn: async () => {
+      const res = await apiClient.listSegmentDesyncFeatureIDs(segmentId);
+      return res.data as unknown as string[];
+    },
+    enabled: Boolean(open && segmentId),
+  });
+  const ids = Array.isArray(idsData) ? idsData : [];
+
+  const { data: featuresData, isLoading: loadingFeatures } = useQuery<any[]>({
+    queryKey: ['segment-desync-features', segmentId, ids],
+    queryFn: async () => {
+      const arr = await Promise.all(ids.map(async (fid) => {
+        const r = await apiClient.getFeature(fid);
+        return r.data as any;
+      }));
+      return arr;
+    },
+    enabled: Boolean(open && segmentId && ids.length > 0),
+  });
+
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    if (!open) return;
+    const next: Record<string, boolean> = {};
+    (featuresData || []).forEach((fd: any) => { next[fd.feature.id] = true; });
+    setSelected(next);
+  }, [open, featuresData]);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const toggle = (fid: string) => setSelected(prev => ({ ...prev, [fid]: !prev[fid] }));
+
+  const findRuleId = (fd: any): string | null => {
+    const rules = fd?.rules || [];
+    const preferred = rules.find((r: any) => r.segment_id === segmentId && r.is_customized);
+    const anyMatch = preferred || rules.find((r: any) => r.segment_id === segmentId);
+    return anyMatch ? anyMatch.id : null;
+  };
+
+  const handleSync = async () => {
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const items = (featuresData || []) as any[];
+      await Promise.allSettled(items.map(async (fd: any) => {
+        const fid = fd.feature.id as string;
+        if (!selected[fid]) return;
+        const ruleId = findRuleId(fd);
+        if (!ruleId) return;
+        await apiClient.syncCustomizedFeatureRule(fid, ruleId);
+        // refresh specific feature cache if used elsewhere
+        await queryClient.invalidateQueries({ queryKey: ['feature-details', fid] });
+      }));
+      await queryClient.invalidateQueries({ queryKey: ['segment-desync-ids', segmentId] });
+      onClose();
+    } catch (e: any) {
+      setSubmitError(e?.message || 'Failed to synchronize');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>Sync customized features</DialogTitle>
+      <DialogContent dividers>
+        {loadingIds || loadingFeatures ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+            <CircularProgress />
+          </Box>
+        ) : idsError ? (
+          <Typography color="error">Failed to load customized features.</Typography>
+        ) : ids.length === 0 ? (
+          <Typography variant="body2">No customized features for this segment.</Typography>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {(featuresData || []).map((fd: any) => {
+              const fid = fd.feature.id as string;
+              const name = fd.feature.name || fd.feature.key || fid;
+              const rid = findRuleId(fd);
+              const disabled = !rid;
+              return (
+                <Box key={fid} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Checkbox checked={!!selected[fid]} onChange={() => toggle(fid)} disabled={disabled} />
+                  <Typography variant="body2" sx={{ flex: 1 }}>{name}</Typography>
+                  {!rid && <Chip size="small" color="default" label="No rule for this segment" />}
+                </Box>
+              );
+            })}
+          </Box>
+        )}
+        {submitError && <Typography color="error" sx={{ mt: 1 }}>{submitError}</Typography>}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} disabled={submitting}>Cancel</Button>
+        <Button onClick={handleSync} variant="contained" disabled={submitting || (ids?.length || 0) === 0}>
+          {submitting ? 'Synchronizing…' : 'Synchronize'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
 const CreateEditSegmentDialog: React.FC<{
   open: boolean;
   onClose: () => void;
@@ -82,11 +192,25 @@ const CreateEditSegmentDialog: React.FC<{
   title: string;
   submitting?: boolean;
   isEdit?: boolean;
-}> = ({ open, onClose, onSubmit, initial, title, submitting, isEdit }) => {
+  segmentId?: string;
+}> = ({ open, onClose, onSubmit, initial, title, submitting, isEdit, segmentId }) => {
   const [name, setName] = useState<string>(initial?.name || '');
   const [description, setDescription] = useState<string>(initial?.description || '');
   const [expr, setExpr] = useState<RuleConditionExpression>(initial?.conditions || { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any });
   const [error, setError] = useState<string>('');
+
+  // Desync features for this segment (to show sync button conditionally)
+  const { data: desyncIds } = useQuery<string[]>({
+    queryKey: ['segment-desync-ids', segmentId],
+    queryFn: async () => {
+      if (!segmentId) return [] as string[];
+      const res = await apiClient.listSegmentDesyncFeatureIDs(segmentId);
+      return res.data as unknown as string[];
+    },
+    enabled: Boolean(open && isEdit && segmentId),
+  });
+  const desyncCount = Array.isArray(desyncIds) ? desyncIds.length : 0;
+  const [syncOpen, setSyncOpen] = useState(false);
 
   React.useEffect(() => {
     setName(initial?.name || '');
@@ -124,6 +248,7 @@ const CreateEditSegmentDialog: React.FC<{
   };
 
   return (
+    <>
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle className="gradient-text-purple">{title}</DialogTitle>
       <DialogContent dividers>
@@ -142,8 +267,8 @@ const CreateEditSegmentDialog: React.FC<{
         )}
       </DialogContent>
       <DialogActions>
-        {isEdit && (
-          <Button variant="outlined" color="secondary" onClick={() => alert('Sync of customized features is not implemented yet')}>
+        {isEdit && desyncCount > 0 && (
+          <Button variant="outlined" color="secondary" onClick={() => setSyncOpen(true)}>
             Sync customized features
           </Button>
         )}
@@ -151,6 +276,8 @@ const CreateEditSegmentDialog: React.FC<{
         <Button onClick={handleSubmit} disabled={!canSubmit} variant="contained">Save</Button>
       </DialogActions>
     </Dialog>
+    <SyncCustomizedFeaturesDialog open={syncOpen} onClose={() => setSyncOpen(false)} segmentId={segmentId || ''} />
+  </>
   );
 };
 
@@ -296,6 +423,7 @@ const ProjectSegmentsPage: React.FC = () => {
         title="Edit Segment"
         submitting={updateMutation.isPending}
         isEdit={true}
+        segmentId={editData?.id}
         initial={editData ? { name: editData.name, description: editData.description, conditions: editData.conditions as any } : undefined}
         onSubmit={(values) => editData && updateMutation.mutate({ id: editData.id, payload: values })}
       />

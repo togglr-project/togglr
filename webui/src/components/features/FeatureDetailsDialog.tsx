@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip, FormControlLabel } from '@mui/material';
+import { WarningAmber } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { Feature, FeatureDetailsResponse } from '../../generated/api/client';
@@ -132,6 +133,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
 
             <Box>
               <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
+              {featureDetails.rules && featureDetails.rules.some((r: any) => r.is_customized) && (
+                <Box sx={{ mb: 1 }}>
+                  <Typography variant="body2" color="warning.main" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <WarningAmber fontSize="small" />
+                    Some rules are customized. These rules differs from segment templates.
+                  </Typography>
+                </Box>
+              )}
               {!featureDetails.rules || featureDetails.rules.length === 0 ? (
                 <Typography variant="body2" color="text.secondary">No rules</Typography>
               ) : (

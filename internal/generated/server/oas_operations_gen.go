@@ -58,6 +58,7 @@ const (
 	SetSuperuserStatusOperation          OperationName = "SetSuperuserStatus"
 	SetUserActiveStatusOperation         OperationName = "SetUserActiveStatus"
 	Setup2FAOperation                    OperationName = "Setup2FA"
+	SyncCustomizedFeatureRuleOperation   OperationName = "SyncCustomizedFeatureRule"
 	SyncLDAPUsersOperation               OperationName = "SyncLDAPUsers"
 	TestLDAPConnectionOperation          OperationName = "TestLDAPConnection"
 	ToggleFeatureOperation               OperationName = "ToggleFeature"

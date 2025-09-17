@@ -24,7 +24,7 @@ import {
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder';
-import { Add, Delete } from '@mui/icons-material';
+import { Add, Delete, Sync } from '@mui/icons-material';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType, Segment } from '../../generated/api/client';
@@ -53,6 +53,9 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [variants, setVariants] = useState<VariantForm[]>([]);
   const [defaultVariant, setDefaultVariant] = useState<string>('');
   const [rules, setRules] = useState<RuleForm[]>([]);
+
+  const [syncing, setSyncing] = useState<Record<string, boolean>>({});
+  const [syncErrors, setSyncErrors] = useState<Record<string, string | undefined>>({});
 
   const [error, setError] = useState<string | null>(null);
 
@@ -154,6 +157,41 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     }));
   };
 
+  const handleSyncRule = async (ruleId: string) => {
+    if (!featureId) return;
+    setSyncErrors(prev => ({ ...prev, [ruleId]: undefined }));
+    setSyncing(prev => ({ ...prev, [ruleId]: true }));
+    try {
+      const res = await apiClient.syncCustomizedFeatureRule(featureId, ruleId);
+      const ru: any = res.data as any;
+      setRules(prev => prev.map(r => {
+        if (r.id !== ruleId) return r;
+        const updatedExpr = (ru && ru.conditions) ? (ru.conditions as any) : r.expression;
+        const updated: RuleForm = {
+          ...r,
+          priority: ru?.priority ?? r.priority,
+          action: ru?.action ?? r.action,
+          flag_variant_id: ru?.flag_variant_id ?? r.flag_variant_id,
+          expression: updatedExpr,
+          segment_id: ru?.segment_id ?? r.segment_id,
+          is_customized: Boolean(ru?.is_customized),
+          baseExpressionJson: updatedExpr ? JSON.stringify(updatedExpr) : r.baseExpressionJson,
+        };
+        return updated;
+      }));
+      // refresh caches
+      if (featureId) {
+        await queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
+      }
+      if (projectId) {
+        await queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+      }
+    } catch (e: any) {
+      setSyncErrors(prev => ({ ...prev, [ruleId]: e?.message || 'Failed to sync rule' }));
+    } finally {
+      setSyncing(prev => ({ ...prev, [ruleId]: false }));
+    }
+  };
 
   const parseValueSmart = (input: string): any => {
     const t = input.trim();
@@ -392,7 +430,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           ))}
                         </TextField>
                         {r.segment_id && (
-                          <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                          <>
+                            <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                            {r.is_customized && (
+                              <Tooltip title="Sync with segment">
+                                <span>
+                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule">
+                                    <Sync />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                            )}
+                          </>
                         )}
                       </Box>
 
@@ -438,7 +487,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           ))}
                         </TextField>
                         {r.segment_id && (
-                          <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                          <>
+                            <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                            {r.is_customized && (
+                              <Tooltip title="Sync with segment">
+                                <span>
+                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule">
+                                    <Sync />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                            )}
+                          </>
                         )}
                       </Box>
 
@@ -484,7 +544,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           ))}
                         </TextField>
                         {r.segment_id && (
-                          <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                          <>
+                            <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                            {r.is_customized && (
+                              <Tooltip title="Sync with segment">
+                                <span>
+                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule">
+                                    <Sync />
+                                  </IconButton>
+                                </span>
+                              </Tooltip>
+                            )}
+                          </>
                         )}
                       </Box>
 

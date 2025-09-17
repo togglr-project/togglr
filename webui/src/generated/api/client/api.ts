@@ -2708,6 +2708,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Synchronize customized feature rule
+         * @param {string} featureId 
+         * @param {string} ruleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        syncCustomizedFeatureRule: async (featureId: string, ruleId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('syncCustomizedFeatureRule', 'featureId', featureId)
+            // verify required parameter 'ruleId' is not null or undefined
+            assertParamExists('syncCustomizedFeatureRule', 'ruleId', ruleId)
+            const localVarPath = `/api/v1/features/{feature_id}/rules/{rule_id}/sync`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)))
+                .replace(`{${"rule_id"}}`, encodeURIComponent(String(ruleId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Start user synchronization
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3868,6 +3910,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Synchronize customized feature rule
+         * @param {string} featureId 
+         * @param {string} ruleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async syncCustomizedFeatureRule(featureId: string, ruleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RuleResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.syncCustomizedFeatureRule(featureId, ruleId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.syncCustomizedFeatureRule']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Start user synchronization
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4542,6 +4598,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         setup2FA(options?: RawAxiosRequestConfig): AxiosPromise<TwoFASetupResponse> {
             return localVarFp.setup2FA(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Synchronize customized feature rule
+         * @param {string} featureId 
+         * @param {string} ruleId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        syncCustomizedFeatureRule(featureId: string, ruleId: string, options?: RawAxiosRequestConfig): AxiosPromise<RuleResponse> {
+            return localVarFp.syncCustomizedFeatureRule(featureId, ruleId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5231,6 +5298,18 @@ export class DefaultApi extends BaseAPI {
      */
     public setup2FA(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).setup2FA(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Synchronize customized feature rule
+     * @param {string} featureId 
+     * @param {string} ruleId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public syncCustomizedFeatureRule(featureId: string, ruleId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).syncCustomizedFeatureRule(featureId, ruleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

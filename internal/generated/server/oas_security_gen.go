@@ -75,6 +75,7 @@ var operationRolesBearerAuth = map[string][]string{
 	SetSuperuserStatusOperation:          []string{},
 	SetUserActiveStatusOperation:         []string{},
 	Setup2FAOperation:                    []string{},
+	SyncCustomizedFeatureRuleOperation:   []string{},
 	SyncLDAPUsersOperation:               []string{},
 	TestLDAPConnectionOperation:          []string{},
 	ToggleFeatureOperation:               []string{},

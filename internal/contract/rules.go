@@ -13,6 +13,7 @@ type RulesUseCase interface {
 	ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.Rule, error)
 	Update(ctx context.Context, rule domain.Rule) (domain.Rule, error)
 	Delete(ctx context.Context, id domain.RuleID) error
+	SyncCustomized(ctx context.Context, id domain.RuleID) (domain.Rule, error)
 }
 
 type RulesRepository interface {

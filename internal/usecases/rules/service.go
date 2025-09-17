@@ -10,15 +10,21 @@ import (
 )
 
 type Service struct {
-	txManager db.TxManager
-	repo      contract.RulesRepository
+	txManager    db.TxManager
+	repo         contract.RulesRepository
+	segmentsRepo contract.SegmentsRepository
 }
 
 func New(
 	txManager db.TxManager,
 	repo contract.RulesRepository,
+	segmentsRepo contract.SegmentsRepository,
 ) *Service {
-	return &Service{txManager: txManager, repo: repo}
+	return &Service{
+		txManager:    txManager,
+		repo:         repo,
+		segmentsRepo: segmentsRepo,
+	}
 }
 
 func (s *Service) Create(ctx context.Context, rule domain.Rule) (domain.Rule, error) {
@@ -85,4 +91,29 @@ func (s *Service) Delete(ctx context.Context, id domain.RuleID) error {
 		return fmt.Errorf("tx delete rule: %w", err)
 	}
 	return nil
+}
+
+func (s *Service) SyncCustomized(ctx context.Context, id domain.RuleID) (domain.Rule, error) {
+	rule, err := s.GetByID(ctx, id)
+	if err != nil {
+		return domain.Rule{}, fmt.Errorf("get rule: %w", err)
+	}
+
+	if rule.SegmentID == nil {
+		return domain.Rule{}, fmt.Errorf("rule does not have a segment ID")
+	}
+
+	if !rule.IsCustomized {
+		return domain.Rule{}, fmt.Errorf("rule is not customized")
+	}
+
+	segment, err := s.segmentsRepo.GetByID(ctx, *rule.SegmentID)
+	if err != nil {
+		return domain.Rule{}, fmt.Errorf("get segment: %w", err)
+	}
+
+	rule.Conditions = segment.Conditions
+	rule.IsCustomized = false
+
+	return s.repo.Update(ctx, rule)
 }

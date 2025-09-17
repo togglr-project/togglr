@@ -872,6 +872,7 @@ func (*ErrorInternalServerError) sSOCallbackRes()                 {}
 func (*ErrorInternalServerError) sSOInitiateRes()                 {}
 func (*ErrorInternalServerError) setSuperuserStatusRes()          {}
 func (*ErrorInternalServerError) setUserActiveStatusRes()         {}
+func (*ErrorInternalServerError) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorInternalServerError) toggleFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
@@ -967,6 +968,7 @@ func (*ErrorNotFound) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorNotFound) listUsersRes()                   {}
 func (*ErrorNotFound) setSuperuserStatusRes()          {}
 func (*ErrorNotFound) setUserActiveStatusRes()         {}
+func (*ErrorNotFound) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorNotFound) toggleFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
@@ -1038,6 +1040,7 @@ func (*ErrorPermissionDenied) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorPermissionDenied) listUsersRes()                   {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()          {}
 func (*ErrorPermissionDenied) setUserActiveStatusRes()         {}
+func (*ErrorPermissionDenied) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorPermissionDenied) syncLDAPUsersRes()               {}
 func (*ErrorPermissionDenied) testLDAPConnectionRes()          {}
 func (*ErrorPermissionDenied) toggleFeatureRes()               {}
@@ -1184,6 +1187,7 @@ func (*ErrorUnauthorized) send2FACodeRes()                 {}
 func (*ErrorUnauthorized) setSuperuserStatusRes()          {}
 func (*ErrorUnauthorized) setUserActiveStatusRes()         {}
 func (*ErrorUnauthorized) setup2FARes()                    {}
+func (*ErrorUnauthorized) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorUnauthorized) syncLDAPUsersRes()               {}
 func (*ErrorUnauthorized) testLDAPConnectionRes()          {}
 func (*ErrorUnauthorized) toggleFeatureRes()               {}
@@ -4573,7 +4577,8 @@ func (s *RuleResponse) SetRule(val Rule) {
 	s.Rule = val
 }
 
-func (*RuleResponse) createFeatureRuleRes() {}
+func (*RuleResponse) createFeatureRuleRes()         {}
+func (*RuleResponse) syncCustomizedFeatureRuleRes() {}
 
 // Ref: #/components/schemas/SSOCallbackRequest
 type SSOCallbackRequest struct {

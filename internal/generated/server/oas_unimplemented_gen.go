@@ -485,6 +485,15 @@ func (UnimplementedHandler) Setup2FA(ctx context.Context) (r Setup2FARes, _ erro
 	return r, ht.ErrNotImplemented
 }
 
+// SyncCustomizedFeatureRule implements SyncCustomizedFeatureRule operation.
+//
+// Synchronize customized feature rule.
+//
+// PUT /api/v1/features/{feature_id}/rules/{rule_id}/sync
+func (UnimplementedHandler) SyncCustomizedFeatureRule(ctx context.Context, params SyncCustomizedFeatureRuleParams) (r SyncCustomizedFeatureRuleRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // SyncLDAPUsers implements SyncLDAPUsers operation.
 //
 // Start user synchronization.

@@ -55,6 +55,7 @@ All URIs are relative to *http://localhost*
 |[**setSuperuserStatus**](#setsuperuserstatus) | **PUT** /api/v1/users/{user_id}/superuser | Set or unset superuser status (superuser only, cannot modify admin user)|
 |[**setUserActiveStatus**](#setuseractivestatus) | **PUT** /api/v1/users/{user_id}/active | Set or unset user active status (superuser only)|
 |[**setup2FA**](#setup2fa) | **POST** /api/v1/users/me/2fa/setup | Begin setup 2FA (generate secret and QR-code)|
+|[**syncCustomizedFeatureRule**](#synccustomizedfeaturerule) | **PUT** /api/v1/features/{feature_id}/rules/{rule_id}/sync | Synchronize customized feature rule|
 |[**syncLDAPUsers**](#syncldapusers) | **POST** /api/v1/ldap/sync/users | Start user synchronization|
 |[**testLDAPConnection**](#testldapconnection) | **POST** /api/v1/ldap/test-connection | Test LDAP connection|
 |[**toggleFeature**](#togglefeature) | **PUT** /api/v1/features/{feature_id}/toggle | Toggle feature enabled state|
@@ -2785,6 +2786,64 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | Secret + QR-code |  -  |
 |**401** | Unauthorized |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **syncCustomizedFeatureRule**
+> RuleResponse syncCustomizedFeatureRule()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let ruleId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.syncCustomizedFeatureRule(
+    featureId,
+    ruleId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+| **ruleId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**RuleResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Feature rule synchronized |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature or related resource not found |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -324,6 +324,12 @@ type Handler interface {
 	//
 	// POST /api/v1/users/me/2fa/setup
 	Setup2FA(ctx context.Context) (Setup2FARes, error)
+	// SyncCustomizedFeatureRule implements SyncCustomizedFeatureRule operation.
+	//
+	// Synchronize customized feature rule.
+	//
+	// PUT /api/v1/features/{feature_id}/rules/{rule_id}/sync
+	SyncCustomizedFeatureRule(ctx context.Context, params SyncCustomizedFeatureRuleParams) (SyncCustomizedFeatureRuleRes, error)
 	// SyncLDAPUsers implements SyncLDAPUsers operation.
 	//
 	// Start user synchronization.

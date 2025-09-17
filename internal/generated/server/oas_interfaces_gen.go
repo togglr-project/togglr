@@ -209,6 +209,10 @@ type Setup2FARes interface {
 	setup2FARes()
 }
 
+type SyncCustomizedFeatureRuleRes interface {
+	syncCustomizedFeatureRuleRes()
+}
+
 type SyncLDAPUsersRes interface {
 	syncLDAPUsersRes()
 }
