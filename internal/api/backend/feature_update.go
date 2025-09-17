@@ -79,11 +79,18 @@ func (r *RestAPI) UpdateFeature(
 			return nil, err
 		}
 
+		var segmentIDRef *domain.SegmentID
+		if rr.SegmentID.IsSet() {
+			segmentID := domain.SegmentID(rr.SegmentID.Value)
+			segmentIDRef = &segmentID
+		}
+
 		rules = append(rules, domain.Rule{
 			ID:            domain.RuleID(rr.ID),
 			ProjectID:     existing.ProjectID,
 			FeatureID:     featureID,
 			Conditions:    expr,
+			SegmentID:     segmentIDRef,
 			IsCustomized:  rr.IsCustomized,
 			Action:        domain.RuleAction(rr.Action),
 			FlagVariantID: optString2FlagVariantIDRef(rr.FlagVariantID),
@@ -116,10 +123,16 @@ func (r *RestAPI) UpdateFeature(
 			return nil, err
 		}
 
+		var segmentID generatedapi.OptString
+		if it.SegmentID != nil {
+			segmentID = generatedapi.NewOptString(it.SegmentID.String())
+		}
+
 		respRules = append(respRules, generatedapi.Rule{
 			ID:            it.ID.String(),
 			FeatureID:     it.FeatureID.String(),
 			Conditions:    expr,
+			SegmentID:     segmentID,
 			IsCustomized:  it.IsCustomized,
 			Action:        generatedapi.RuleAction(it.Action),
 			FlagVariantID: flagVariantRef2OptString(it.FlagVariantID),

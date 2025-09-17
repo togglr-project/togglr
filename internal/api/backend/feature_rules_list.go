@@ -61,10 +61,16 @@ func (r *RestAPI) ListFeatureRules(
 			return nil, err
 		}
 
+		var segmentID generatedapi.OptString
+		if it.SegmentID != nil {
+			segmentID = generatedapi.NewOptString(it.SegmentID.String())
+		}
+
 		resp = append(resp, generatedapi.Rule{
 			ID:            it.ID.String(),
 			FeatureID:     it.FeatureID.String(),
 			Conditions:    expr,
+			SegmentID:     segmentID,
 			IsCustomized:  it.IsCustomized,
 			Action:        generatedapi.RuleAction(it.Action),
 			FlagVariantID: flagVariantRef2OptString(it.FlagVariantID),

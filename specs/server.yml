@@ -3866,6 +3866,8 @@ components:
           example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
         conditions:
           $ref: '#/components/schemas/RuleConditionExpression'
+        segment_id:
+          type: string
         is_customized:
           type: boolean
         action:
@@ -3889,6 +3891,8 @@ components:
       properties:
         conditions:
           $ref: '#/components/schemas/RuleConditionExpression'
+        segment_id:
+          type: string
         is_customized:
           type: boolean
         action:
@@ -3910,6 +3914,8 @@ components:
           description: Client-provided UUID for the rule
         conditions:
           $ref: '#/components/schemas/RuleConditionExpression'
+        segment_id:
+          type: string
         is_customized:
           type: boolean
         action:

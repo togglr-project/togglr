@@ -917,6 +917,12 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 		s.Conditions.Encode(e)
 	}
 	{
+		if s.SegmentID.Set {
+			e.FieldStart("segment_id")
+			s.SegmentID.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("is_customized")
 		e.Bool(s.IsCustomized)
 	}
@@ -938,13 +944,14 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateRuleInline = [6]string{
+var jsonFieldsNameOfCreateRuleInline = [7]string{
 	0: "id",
 	1: "conditions",
-	2: "is_customized",
-	3: "action",
-	4: "flag_variant_id",
-	5: "priority",
+	2: "segment_id",
+	3: "is_customized",
+	4: "action",
+	5: "flag_variant_id",
+	6: "priority",
 }
 
 // Decode decodes CreateRuleInline from json.
@@ -978,8 +985,18 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
+		case "segment_id":
+			if err := func() error {
+				s.SegmentID.Reset()
+				if err := s.SegmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"segment_id\"")
+			}
 		case "is_customized":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Bool()
 				s.IsCustomized = bool(v)
@@ -991,7 +1008,7 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"is_customized\"")
 			}
 		case "action":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -1030,7 +1047,7 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00001111,
+		0b00011011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1090,6 +1107,12 @@ func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 		s.Conditions.Encode(e)
 	}
 	{
+		if s.SegmentID.Set {
+			e.FieldStart("segment_id")
+			s.SegmentID.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("is_customized")
 		e.Bool(s.IsCustomized)
 	}
@@ -1111,12 +1134,13 @@ func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateRuleRequest = [5]string{
+var jsonFieldsNameOfCreateRuleRequest = [6]string{
 	0: "conditions",
-	1: "is_customized",
-	2: "action",
-	3: "flag_variant_id",
-	4: "priority",
+	1: "segment_id",
+	2: "is_customized",
+	3: "action",
+	4: "flag_variant_id",
+	5: "priority",
 }
 
 // Decode decodes CreateRuleRequest from json.
@@ -1138,8 +1162,18 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
+		case "segment_id":
+			if err := func() error {
+				s.SegmentID.Reset()
+				if err := s.SegmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"segment_id\"")
+			}
 		case "is_customized":
-			requiredBitSet[0] |= 1 << 1
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := d.Bool()
 				s.IsCustomized = bool(v)
@@ -1151,7 +1185,7 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"is_customized\"")
 			}
 		case "action":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -1190,7 +1224,7 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001101,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8932,6 +8966,12 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 		s.Conditions.Encode(e)
 	}
 	{
+		if s.SegmentID.Set {
+			e.FieldStart("segment_id")
+			s.SegmentID.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("is_customized")
 		e.Bool(s.IsCustomized)
 	}
@@ -8955,15 +8995,16 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRule = [8]string{
+var jsonFieldsNameOfRule = [9]string{
 	0: "id",
 	1: "feature_id",
 	2: "conditions",
-	3: "is_customized",
-	4: "action",
-	5: "flag_variant_id",
-	6: "priority",
-	7: "created_at",
+	3: "segment_id",
+	4: "is_customized",
+	5: "action",
+	6: "flag_variant_id",
+	7: "priority",
+	8: "created_at",
 }
 
 // Decode decodes Rule from json.
@@ -8971,7 +9012,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode Rule to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -9009,8 +9050,18 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
+		case "segment_id":
+			if err := func() error {
+				s.SegmentID.Reset()
+				if err := s.SegmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"segment_id\"")
+			}
 		case "is_customized":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Bool()
 				s.IsCustomized = bool(v)
@@ -9022,7 +9073,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"is_customized\"")
 			}
 		case "action":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -9042,7 +9093,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flag_variant_id\"")
 			}
 		case "priority":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Int()
 				s.Priority = int(v)
@@ -9054,7 +9105,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"priority\"")
 			}
 		case "created_at":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -9074,8 +9125,9 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
-		0b11011111,
+	for i, mask := range [2]uint8{
+		0b10110111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

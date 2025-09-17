@@ -54,10 +54,17 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
+	var segmentIDRef *domain.SegmentID
+	if req.SegmentID.IsSet() {
+		segmentID := domain.SegmentID(req.SegmentID.Value)
+		segmentIDRef = &segmentID
+	}
+
 	rule := domain.Rule{
 		ProjectID:     feature.ProjectID,
 		FeatureID:     featureID,
 		Conditions:    expr,
+		SegmentID:     segmentIDRef,
 		IsCustomized:  req.IsCustomized,
 		Action:        domain.RuleAction(req.Action),
 		FlagVariantID: optString2FlagVariantIDRef(req.FlagVariantID),
@@ -77,10 +84,16 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
+	var segmentID generatedapi.OptString
+	if rule.SegmentID != nil {
+		segmentID = generatedapi.NewOptString(rule.SegmentID.String())
+	}
+
 	resp := &generatedapi.RuleResponse{Rule: generatedapi.Rule{
 		ID:            created.ID.String(),
 		FeatureID:     created.FeatureID.String(),
 		Conditions:    respExpr,
+		SegmentID:     segmentID,
 		IsCustomized:  created.IsCustomized,
 		Action:        generatedapi.RuleAction(created.Action),
 		FlagVariantID: flagVariantRef2OptString(created.FlagVariantID),

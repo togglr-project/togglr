@@ -396,6 +396,7 @@ type CreateRuleInline struct {
 	// Client-provided UUID for the rule.
 	ID            string                  `json:"id"`
 	Conditions    RuleConditionExpression `json:"conditions"`
+	SegmentID     OptString               `json:"segment_id"`
 	IsCustomized  bool                    `json:"is_customized"`
 	Action        RuleAction              `json:"action"`
 	FlagVariantID OptString               `json:"flag_variant_id"`
@@ -410,6 +411,11 @@ func (s *CreateRuleInline) GetID() string {
 // GetConditions returns the value of Conditions.
 func (s *CreateRuleInline) GetConditions() RuleConditionExpression {
 	return s.Conditions
+}
+
+// GetSegmentID returns the value of SegmentID.
+func (s *CreateRuleInline) GetSegmentID() OptString {
+	return s.SegmentID
 }
 
 // GetIsCustomized returns the value of IsCustomized.
@@ -442,6 +448,11 @@ func (s *CreateRuleInline) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
 }
 
+// SetSegmentID sets the value of SegmentID.
+func (s *CreateRuleInline) SetSegmentID(val OptString) {
+	s.SegmentID = val
+}
+
 // SetIsCustomized sets the value of IsCustomized.
 func (s *CreateRuleInline) SetIsCustomized(val bool) {
 	s.IsCustomized = val
@@ -465,6 +476,7 @@ func (s *CreateRuleInline) SetPriority(val OptInt) {
 // Ref: #/components/schemas/CreateRuleRequest
 type CreateRuleRequest struct {
 	Conditions    RuleConditionExpression `json:"conditions"`
+	SegmentID     OptString               `json:"segment_id"`
 	IsCustomized  bool                    `json:"is_customized"`
 	Action        RuleAction              `json:"action"`
 	FlagVariantID OptString               `json:"flag_variant_id"`
@@ -474,6 +486,11 @@ type CreateRuleRequest struct {
 // GetConditions returns the value of Conditions.
 func (s *CreateRuleRequest) GetConditions() RuleConditionExpression {
 	return s.Conditions
+}
+
+// GetSegmentID returns the value of SegmentID.
+func (s *CreateRuleRequest) GetSegmentID() OptString {
+	return s.SegmentID
 }
 
 // GetIsCustomized returns the value of IsCustomized.
@@ -499,6 +516,11 @@ func (s *CreateRuleRequest) GetPriority() OptInt {
 // SetConditions sets the value of Conditions.
 func (s *CreateRuleRequest) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
+}
+
+// SetSegmentID sets the value of SegmentID.
+func (s *CreateRuleRequest) SetSegmentID(val OptString) {
+	s.SegmentID = val
 }
 
 // SetIsCustomized sets the value of IsCustomized.
@@ -4188,6 +4210,7 @@ type Rule struct {
 	ID            string                  `json:"id"`
 	FeatureID     string                  `json:"feature_id"`
 	Conditions    RuleConditionExpression `json:"conditions"`
+	SegmentID     OptString               `json:"segment_id"`
 	IsCustomized  bool                    `json:"is_customized"`
 	Action        RuleAction              `json:"action"`
 	FlagVariantID OptString               `json:"flag_variant_id"`
@@ -4208,6 +4231,11 @@ func (s *Rule) GetFeatureID() string {
 // GetConditions returns the value of Conditions.
 func (s *Rule) GetConditions() RuleConditionExpression {
 	return s.Conditions
+}
+
+// GetSegmentID returns the value of SegmentID.
+func (s *Rule) GetSegmentID() OptString {
+	return s.SegmentID
 }
 
 // GetIsCustomized returns the value of IsCustomized.
@@ -4248,6 +4276,11 @@ func (s *Rule) SetFeatureID(val string) {
 // SetConditions sets the value of Conditions.
 func (s *Rule) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
+}
+
+// SetSegmentID sets the value of SegmentID.
+func (s *Rule) SetSegmentID(val OptString) {
+	s.SegmentID = val
 }
 
 // SetIsCustomized sets the value of IsCustomized.
