@@ -7,12 +7,17 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync/atomic"
+	"sync"
 	"time"
 
 	"github.com/robfig/cron/v3"
 
+	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
+)
+
+const (
+	defaultPollInterval = time.Second * 5
 )
 
 type FeaturePrepared struct {
@@ -23,26 +28,200 @@ type FeaturePrepared struct {
 
 type CronsMap map[domain.FeatureScheduleID]cron.Schedule
 
-type ProjectFeatures map[string]FeaturePrepared
+type ProjectFeatures map[string]FeaturePrepared // key of map is feature.key
 
 type Holder map[domain.ProjectID]ProjectFeatures
 
 type Service struct {
-	holder atomic.Pointer[Holder]
+	holder Holder
+	mu     sync.RWMutex
+
+	featuresUC   contract.FeaturesUseCase
+	projectsUC   contract.ProjectsUseCase
+	auditRepo    contract.AuditLogRepository
+	pollInterval time.Duration
+	lastSeen     time.Time
 }
 
-func New() *Service {
+func New(
+	featuresUC contract.FeaturesUseCase,
+	projectsUC contract.ProjectsUseCase,
+	auditRepo contract.AuditLogRepository,
+	pollInterval time.Duration,
+) *Service {
+	if pollInterval <= 0 {
+		pollInterval = defaultPollInterval
+	}
+
 	return &Service{
-		holder: atomic.Pointer[Holder]{},
+		holder:       Holder{},
+		featuresUC:   featuresUC,
+		projectsUC:   projectsUC,
+		auditRepo:    auditRepo,
+		pollInterval: pollInterval,
 	}
 }
 
 func (s *Service) LoadAllFeatures(ctx context.Context) error {
+	if s.featuresUC == nil || s.projectsUC == nil {
+		return fmt.Errorf("features processor: dependencies not set")
+	}
+
+	lastSeen := time.Now()
+
+	projects, err := s.projectsUC.List(ctx)
+	if err != nil {
+		return fmt.Errorf("list projects: %w", err)
+	}
+
+	newHolder := make(Holder, len(projects))
+	for _, project := range projects {
+		items, err := s.featuresUC.ListExtendedByProjectID(ctx, project.ID)
+		if err != nil {
+			return fmt.Errorf("list features for project %s: %w", project.ID, err)
+		}
+
+		features := make(ProjectFeatures, len(items))
+		for _, it := range items {
+			features[it.Key] = MakeFeaturePrepared(it)
+		}
+
+		newHolder[project.ID] = features
+	}
+
+	s.mu.Lock()
+	s.holder = newHolder
+	s.lastSeen = lastSeen
+	s.mu.Unlock()
+
 	return nil
 }
 
 func (s *Service) Watch(ctx context.Context) error {
+	if s.auditRepo == nil || s.featuresUC == nil {
+		return fmt.Errorf("features processor: dependencies not set")
+	}
+
+	if s.pollInterval <= 0 {
+		s.pollInterval = defaultPollInterval
+	}
+
+	ticker := time.NewTicker(s.pollInterval)
+	defer ticker.Stop()
+
+	last := s.lastSeen
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-ticker.C:
+			windowEnd := time.Now().UTC()
+
+			logs, err := s.auditRepo.ListSince(ctx, last)
+			if err != nil {
+				slog.Error("audit log list since failed", "err", err)
+				last = windowEnd
+
+				continue
+			}
+
+			// Deduplicate by project+feature; keep delete if any delete for feature entity appears.
+			type changeKey struct {
+				projectID domain.ProjectID
+				featureID domain.FeatureID
+			}
+
+			changes := make(map[changeKey]domain.AuditAction)
+			for _, row := range logs {
+				if row.FeatureID == "" {
+					continue
+				}
+
+				key := changeKey{projectID: row.ProjectID, featureID: row.FeatureID}
+				if row.Entity == domain.EntityFeature && row.Action == domain.AuditActionDelete {
+					changes[key] = domain.AuditActionDelete
+
+					continue
+				}
+
+				if _, ok := changes[key]; !ok {
+					changes[key] = domain.AuditActionUpdate
+				}
+			}
+
+			for key, action := range changes {
+				if action == domain.AuditActionDelete {
+					ctxRm, cancel := context.WithTimeout(ctx, time.Second*5)
+					defer cancel() // TODO: refactor
+
+					s.removeFeatureFromHolder(ctxRm, key.projectID, key.featureID)
+
+					continue
+				}
+
+				// refresh feature by loading from repo
+				if err := s.refreshFeature(ctx, key.projectID, key.featureID); err != nil {
+					slog.Error("refresh feature failed",
+						"project", key.projectID, "feature", key.featureID, "err", err)
+				}
+			}
+
+			last = windowEnd
+		}
+	}
+}
+
+func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
+	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID)
+	if err != nil {
+		return fmt.Errorf("get feature extended by id %s: %w", featureID, err)
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	featuresMap, ok := s.holder[projectID]
+	if !ok {
+		featuresMap = ProjectFeatures{}
+		s.holder[projectID] = featuresMap
+	}
+
+	featuresMap[featureExtended.Key] = MakeFeaturePrepared(featureExtended)
+
 	return nil
+}
+
+func (s *Service) removeFeatureFromHolder(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	featureID domain.FeatureID,
+) {
+	feature, err := s.featuresUC.GetByID(ctx, featureID)
+	if err != nil {
+		slog.Error("get feature by id failed", "err", err)
+
+		// fallback algorithm
+		s.mu.Lock()
+		defer s.mu.Unlock()
+
+		if featuresMap, ok := s.holder[projectID]; ok {
+			for key, feat := range featuresMap {
+				if feat.ID == featureID {
+					delete(featuresMap, key)
+				}
+			}
+		}
+
+		return
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if featuresMap, ok := s.holder[projectID]; ok {
+		delete(featuresMap, feature.Key)
+	}
 }
 
 func (s *Service) Evaluate(
@@ -95,8 +274,10 @@ func (s *Service) Evaluate(
 }
 
 func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (FeaturePrepared, bool) {
-	holder := s.holder.Load()
-	features, ok := (*holder)[projectID]
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	features, ok := s.holder[projectID]
 	if !ok {
 		return FeaturePrepared{}, false
 	}

@@ -106,6 +106,35 @@ func (s *Service) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feat
 	return f, nil
 }
 
+func (s *Service) GetExtendedByID(ctx context.Context, id domain.FeatureID) (domain.FeatureExtended, error) {
+	feature, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("get feature by id: %w", err)
+	}
+
+	variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("list flag variants: %w", err)
+	}
+
+	rules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("list rules: %w", err)
+	}
+
+	schedules, err := s.schedulesRep.ListByFeatureID(ctx, feature.ID)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("list schedules: %w", err)
+	}
+
+	return domain.FeatureExtended{
+		Feature:      feature,
+		FlagVariants: variants,
+		Rules:        rules,
+		Schedules:    schedules,
+	}, nil
+}
+
 func (s *Service) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
 	f, err := s.repo.GetByKey(ctx, key)
 	if err != nil {
@@ -134,30 +163,30 @@ func (s *Service) ListExtendedByProjectID(
 	ctx context.Context,
 	projectID domain.ProjectID,
 ) ([]domain.FeatureExtended, error) {
-	items, err := s.repo.ListByProjectID(ctx, projectID)
+	features, err := s.repo.ListByProjectID(ctx, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
 
-	result := make([]domain.FeatureExtended, 0, len(items))
-	for _, item := range items {
-		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, item.ID)
+	result := make([]domain.FeatureExtended, 0, len(features))
+	for _, feature := range features {
+		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list flag variants: %w", err)
 		}
 
-		rules, err := s.rulesRep.ListByFeatureID(ctx, item.ID)
+		rules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list rules: %w", err)
 		}
 
-		schedules, err := s.schedulesRep.ListByFeatureID(ctx, item.ID)
+		schedules, err := s.schedulesRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list schedules: %w", err)
 		}
 
 		result = append(result, domain.FeatureExtended{
-			Feature:      item,
+			Feature:      feature,
 			FlagVariants: variants,
 			Rules:        rules,
 			Schedules:    schedules,

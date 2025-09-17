@@ -23,6 +23,7 @@ type FeaturesUseCase interface {
 		rules []domain.Rule,
 	) (domain.FeatureExtended, error)
 	GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error)
+	GetExtendedByID(ctx context.Context, id domain.FeatureID) (domain.FeatureExtended, error)
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)

@@ -52,8 +52,8 @@ func TestService_Evaluate(t *testing.T) {
 		},
 	}
 
-	svc := New()
-	svc.holder.Store(&holder)
+	svc := New(nil, nil, nil, 0)
+	svc.holder = holder
 
 	reqCtx := map[domain.RuleAttribute]any{"country": "RU"}
 	value, enabled, found := svc.Evaluate(projectID, featureKey, reqCtx)
@@ -156,8 +156,8 @@ func TestService_Evaluate_TableDriven(t *testing.T) {
 				}
 			}
 
-			svc := New()
-			svc.holder.Store(&holder)
+			svc := New(nil, nil, nil, 0)
+			svc.holder = holder
 
 			value, enabled, found := svc.Evaluate(projectID, featureKey, tt.reqCtx)
 
