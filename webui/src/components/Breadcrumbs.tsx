@@ -26,7 +26,7 @@ const Breadcrumbs: React.FC = () => {
   const theme = useTheme();
 
   // Get project data for breadcrumbs
-  const { data: projects } = useQuery({
+  const { data: projects, isLoading: projectsLoading } = useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
       const response = await apiClient.listProjects();
@@ -35,12 +35,23 @@ const Breadcrumbs: React.FC = () => {
   });
 
   // Get current project data
-  const projectId = location.pathname.match(/\/projects\/(\d+)/)?.[1];
+  const projectId = location.pathname.match(/\/projects\/([^\/]+)/)?.[1];
   const currentProject = projects?.find(p => p.id === projectId);
 
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
+    
+    // Debug logging
+    console.log('Breadcrumbs debug:', {
+      pathname: location.pathname,
+      pathSegments,
+      currentProject: currentProject?.name,
+      projectId,
+      projectsLoading,
+      projects: projects?.map(p => ({ id: p.id, name: p.name })),
+      projectsCount: projects?.length
+    });
 
     // Always add home
     breadcrumbs.push({
@@ -49,48 +60,74 @@ const Breadcrumbs: React.FC = () => {
       icon: <HomeIcon fontSize="small" />
     });
 
-    let currentPath = '';
-    
-    for (let i = 0; i < pathSegments.length; i++) {
-      const segment = pathSegments[i];
-      currentPath += `/${segment}`;
+    // Handle different route patterns
+    if (pathSegments[0] === 'projects') {
+      // Add Projects
+      breadcrumbs.push({
+        label: 'Projects',
+        path: '/projects'
+      });
 
-      switch (segment) {
-        case 'projects':
-          breadcrumbs.push({
-            label: 'Projects',
-            path: '/projects'
-          });
-          break;
-        case 'issues':
-          breadcrumbs.push({
-            label: 'Issues',
-            path: '/issues'
-          });
-          break;
-        case 'settings':
-          breadcrumbs.push({
-            label: 'Settings',
-            path: currentPath
-          });
-          break;
-        case 'admin':
-          breadcrumbs.push({
-            label: 'Admin',
-            path: '/admin'
-          });
-          break;
-        default:
-          // Handle dynamic segments (project IDs, issue IDs)
-          if (i === 1 && pathSegments[0] === 'projects' && currentProject) {
-            // Project page
-            breadcrumbs.push({
-              label: currentProject.name,
-              path: currentPath
-            });
+      // If we have a project ID
+      if (pathSegments[1]) {
+        const projectPath = `/projects/${pathSegments[1]}`;
+        
+        // Add project name (or fallback if project not found)
+        breadcrumbs.push({
+          label: currentProject?.name || (projectsLoading ? 'Loading...' : `Project ${pathSegments[1]}`),
+          path: projectPath
+        });
+
+        // Add subpage if exists
+        if (pathSegments[2]) {
+          const subpage = pathSegments[2];
+          const subpagePath = `${projectPath}/${subpage}`;
+          
+          switch (subpage) {
+            case 'scheduling':
+              breadcrumbs.push({
+                label: 'Scheduling',
+                path: subpagePath
+              });
+              break;
+            case 'segments':
+              breadcrumbs.push({
+                label: 'Segments',
+                path: subpagePath
+              });
+              break;
+            case 'settings':
+              breadcrumbs.push({
+                label: 'Settings',
+                path: subpagePath
+              });
+              break;
+            default:
+              // Unknown subpage
+              breadcrumbs.push({
+                label: subpage.charAt(0).toUpperCase() + subpage.slice(1),
+                path: subpagePath
+              });
+              break;
           }
-          break;
+        } else {
+          // Main project page - add Features
+          breadcrumbs.push({
+            label: 'Features',
+            path: projectPath
+          });
+        }
       }
+    } else if (pathSegments[0] === 'issues') {
+      breadcrumbs.push({
+        label: 'Issues',
+        path: '/issues'
+      });
+    } else if (pathSegments[0] === 'admin') {
+      breadcrumbs.push({
+        label: 'Admin',
+        path: '/admin'
+      });
     }
 
     return breadcrumbs;
