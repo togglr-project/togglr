@@ -187,6 +187,33 @@ func (r *Repository) ListCustomizedFeatureIDsBySegment(
 	return ids, nil
 }
 
+func (r *Repository) ListNotCustomizedRulesBySegment(
+	ctx context.Context,
+	segmentID domain.SegmentID,
+) ([]domain.Rule, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM rules WHERE segment_id = $1 AND is_customized = FALSE`
+
+	rows, err := executor.Query(ctx, query, segmentID)
+	if err != nil {
+		return nil, fmt.Errorf("query rules by segment_id: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[ruleModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect rule rows: %w", err)
+	}
+
+	items := make([]domain.Rule, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	return items, nil
+}
+
 // Update updates existing rule by ID and returns the updated entity.
 //
 //nolint:lll // long query string is acceptable

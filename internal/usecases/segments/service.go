@@ -62,6 +62,19 @@ func (s *Service) Update(ctx context.Context, segment domain.Segment) (domain.Se
 		if err != nil {
 			return fmt.Errorf("update segment: %w", err)
 		}
+
+		rules, err := s.rulesRepo.ListNotCustomizedRulesBySegment(ctx, segment.ID)
+		if err != nil {
+			return fmt.Errorf("list rules by segment: %w", err)
+		}
+
+		for _, rule := range rules {
+			rule.Conditions = updated.Conditions
+			if _, err := s.rulesRepo.Update(ctx, rule); err != nil {
+				return fmt.Errorf("update rule: %w", err)
+			}
+		}
+
 		return nil
 	}); err != nil {
 		return domain.Segment{}, fmt.Errorf("tx update segment: %w", err)

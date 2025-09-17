@@ -74,6 +74,7 @@ func (s *Service) Update(ctx context.Context, rule domain.Rule) (domain.Rule, er
 		if err != nil {
 			return fmt.Errorf("update rule: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.Rule{}, fmt.Errorf("tx update rule: %w", err)
