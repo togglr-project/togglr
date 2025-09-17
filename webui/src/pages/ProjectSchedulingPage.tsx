@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -17,7 +17,9 @@ import {
   DialogActions,
   TextField,
   MenuItem,
-  Grid
+  Grid,
+  Tabs,
+  Tab
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -248,10 +250,42 @@ const ProjectSchedulingPage: React.FC = () => {
     return map;
   }, [allSchedules]);
 
+  // Separate features into two groups
+  const { featuresWithSchedules, featuresWithoutSchedules } = useMemo(() => {
+    if (!features) return { featuresWithSchedules: [], featuresWithoutSchedules: [] };
+    
+    const withSchedules: Feature[] = [];
+    const withoutSchedules: Feature[] = [];
+    
+    features.forEach(feature => {
+      if (schedulesByFeature[feature.id] && schedulesByFeature[feature.id].length > 0) {
+        withSchedules.push(feature);
+      } else {
+        withoutSchedules.push(feature);
+      }
+    });
+    
+    return { featuresWithSchedules: withSchedules, featuresWithoutSchedules: withoutSchedules };
+  }, [features, schedulesByFeature]);
+
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogFeature, setDialogFeature] = useState<Feature | null>(null);
   const [editSchedule, setEditSchedule] = useState<FeatureSchedule | null>(null);
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Auto-switch tabs based on data changes
+  useEffect(() => {
+    if (featuresWithSchedules.length > 0 && activeTab === 1) {
+      // If we're on "without schedules" tab but there are features with schedules,
+      // and the current feature list is empty, switch to "with schedules" tab
+      if (featuresWithoutSchedules.length === 0) {
+        setActiveTab(0);
+      }
+    }
+  }, [featuresWithSchedules.length, featuresWithoutSchedules.length, activeTab]);
 
   const openCreate = (feature: Feature) => {
     setDialogFeature(feature);
@@ -273,6 +307,8 @@ const ProjectSchedulingPage: React.FC = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+      // Switch to "with schedules" tab after creating a schedule
+      setActiveTab(0);
     }
   });
 
@@ -291,10 +327,67 @@ const ProjectSchedulingPage: React.FC = () => {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+      // After deleting, check if we need to switch tabs
+      // This will be handled by the useMemo that recalculates the feature lists
     }
   });
 
   const project = projectResp?.project;
+
+  // Component to render feature list
+  const renderFeatureList = (featureList: Feature[]) => (
+    <Box>
+      {featureList.map((f) => (
+        <Accordion key={f.id} defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', justifyContent: 'space-between' }}>
+              <Box>
+                <Typography variant="subtitle1">{f.name}</Typography>
+                <Typography variant="body2" color="text.secondary">{f.key}</Typography>
+                <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Chip size="small" label={`kind: ${f.kind}`} />
+                  <Chip size="small" label={`default: ${f.default_variant}`} />
+                  <Chip size="small" label={f.enabled ? 'enabled' : 'disabled'} color={f.enabled ? 'success' : 'default'} />
+                </Box>
+              </Box>
+              <Button variant="contained" startIcon={<AddIcon />} onClick={(e) => { e.stopPropagation(); openCreate(f); }}>
+                Add schedule
+              </Button>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box>
+              {(schedulesByFeature[f.id] && schedulesByFeature[f.id].length > 0) ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  {schedulesByFeature[f.id].map((s) => (
+                    <Paper key={s.id} sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box>
+                        <Typography variant="body1" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{s.action}</Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {s.cron_expr ? `Cron: ${s.cron_expr}` : `From ${s.starts_at || '—'} to ${s.ends_at || '—'}`}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">Timezone: {s.timezone}</Typography>
+                      </Box>
+                      <Box>
+                        <Tooltip title="Edit schedule">
+                          <IconButton onClick={() => openEdit(f, s)}><EditIcon /></IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete schedule">
+                          <IconButton color="error" onClick={() => deleteMut.mutate({ scheduleId: s.id })}><DeleteIcon /></IconButton>
+                        </Tooltip>
+                      </Box>
+                    </Paper>
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">No schedules for this feature yet.</Typography>
+              )}
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      ))}
+    </Box>
+  );
 
   return (
     <AuthenticatedLayout showBackButton backTo={`/projects/${projectId}`}>
@@ -314,55 +407,40 @@ const ProjectSchedulingPage: React.FC = () => {
 
       {!loadingFeatures && features && features.length > 0 ? (
         <Box>
-          {features.map((f) => (
-            <Accordion key={f.id} defaultExpanded sx={{ mb: 2 }}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', justifyContent: 'space-between' }}>
-                  <Box>
-                    <Typography variant="subtitle1">{f.name}</Typography>
-                    <Typography variant="body2" color="text.secondary">{f.key}</Typography>
-                    <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip size="small" label={`kind: ${f.kind}`} />
-                      <Chip size="small" label={`default: ${f.default_variant}`} />
-                      <Chip size="small" label={f.enabled ? 'enabled' : 'disabled'} color={f.enabled ? 'success' : 'default'} />
-                    </Box>
-                  </Box>
-                  <Button variant="contained" startIcon={<AddIcon />} onClick={(e) => { e.stopPropagation(); openCreate(f); }}>
-                    Add schedule
-                  </Button>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Box>
-                  {(schedulesByFeature[f.id] && schedulesByFeature[f.id].length > 0) ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      {schedulesByFeature[f.id].map((s) => (
-                        <Paper key={s.id} sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <Box>
-                            <Typography variant="body1" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{s.action}</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                              {s.cron_expr ? `Cron: ${s.cron_expr}` : `From ${s.starts_at || '—'} to ${s.ends_at || '—'}`}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">Timezone: {s.timezone}</Typography>
-                          </Box>
-                          <Box>
-                            <Tooltip title="Edit schedule">
-                              <IconButton onClick={() => openEdit(f, s)}><EditIcon /></IconButton>
-                            </Tooltip>
-                            <Tooltip title="Delete schedule">
-                              <IconButton color="error" onClick={() => deleteMut.mutate({ scheduleId: s.id })}><DeleteIcon /></IconButton>
-                            </Tooltip>
-                          </Box>
-                        </Paper>
-                      ))}
-                    </Box>
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">No schedules for this feature yet.</Typography>
-                  )}
-                </Box>
-              </AccordionDetails>
-            </Accordion>
-          ))}
+          <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
+            <Tab 
+              label={`Features with schedules (${featuresWithSchedules.length})`} 
+              sx={{ textTransform: 'none' }}
+            />
+            <Tab 
+              label={`Features without schedules (${featuresWithoutSchedules.length})`} 
+              sx={{ textTransform: 'none' }}
+            />
+          </Tabs>
+          
+          {activeTab === 0 && (
+            <Box>
+              {featuresWithSchedules.length > 0 ? (
+                renderFeatureList(featuresWithSchedules)
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No features with schedules yet. Add schedules to features in the second tab.
+                </Typography>
+              )}
+            </Box>
+          )}
+          
+          {activeTab === 1 && (
+            <Box>
+              {featuresWithoutSchedules.length > 0 ? (
+                renderFeatureList(featuresWithoutSchedules)
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  All features have schedules! Great job organizing your feature schedules.
+                </Typography>
+              )}
+            </Box>
+          )}
         </Box>
       ) : !loadingFeatures ? (
         <Typography variant="body2">No features yet.</Typography>

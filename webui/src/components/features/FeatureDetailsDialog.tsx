@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip, FormControlLabel } from '@mui/material';
-import { WarningAmber } from '@mui/icons-material';
+import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip, FormControlLabel, Collapse, IconButton } from '@mui/material';
+import { WarningAmber, ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { Feature, FeatureDetailsResponse, Segment } from '../../generated/api/client';
@@ -137,7 +137,19 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   });
 
   const [editOpen, setEditOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    assign: false,
+    include: false,
+    exclude: false
+  });
   const canManage = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.manage')) : false;
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
@@ -224,11 +236,17 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   <Box sx={{ border: '2px solid', borderColor: 'success.light', borderRadius: 1, p: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Assign request to variant rules</Typography>
-                    {featureDetails.rules.filter(r => r.action === 'assign').sort((a,b) => a.priority - b.priority).length === 0 ? (
-                      <Typography variant="body2" color="text.secondary">No assign rules</Typography>
-                    ) : (
-                      featureDetails.rules.filter(r => r.action === 'assign').sort((a,b) => a.priority - b.priority).map(r => (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="subtitle2">Assign request to variant rules</Typography>
+                      <IconButton size="small" onClick={() => toggleSection('assign')}>
+                        {expandedSections.assign ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    </Box>
+                    <Collapse in={expandedSections.assign}>
+                      {featureDetails.rules.filter(r => r.action === 'assign').sort((a,b) => a.priority - b.priority).length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">No assign rules</Typography>
+                      ) : (
+                        featureDetails.rules.filter(r => r.action === 'assign').sort((a,b) => a.priority - b.priority).map(r => (
                         <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Chip size="small" label={`priority: ${r.priority}`} />
@@ -245,14 +263,21 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                         </Box>
                       ))
                     )}
+                    </Collapse>
                   </Box>
 
                   <Box sx={{ border: '2px solid', borderColor: 'info.light', borderRadius: 1, p: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Include rules</Typography>
-                    {featureDetails.rules.filter(r => r.action === 'include').sort((a,b) => a.priority - b.priority).length === 0 ? (
-                      <Typography variant="body2" color="text.secondary">No include rules</Typography>
-                    ) : (
-                      featureDetails.rules.filter(r => r.action === 'include').sort((a,b) => a.priority - b.priority).map(r => (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="subtitle2">Include rules</Typography>
+                      <IconButton size="small" onClick={() => toggleSection('include')}>
+                        {expandedSections.include ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    </Box>
+                    <Collapse in={expandedSections.include}>
+                      {featureDetails.rules.filter(r => r.action === 'include').sort((a,b) => a.priority - b.priority).length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">No include rules</Typography>
+                      ) : (
+                        featureDetails.rules.filter(r => r.action === 'include').sort((a,b) => a.priority - b.priority).map(r => (
                         <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Chip size="small" label={`priority: ${r.priority}`} />
@@ -268,14 +293,21 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                         </Box>
                       ))
                     )}
+                    </Collapse>
                   </Box>
 
                   <Box sx={{ border: '2px solid', borderColor: 'error.light', borderRadius: 1, p: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Exclude rules</Typography>
-                    {featureDetails.rules.filter(r => r.action === 'exclude').sort((a,b) => a.priority - b.priority).length === 0 ? (
-                      <Typography variant="body2" color="text.secondary">No exclude rules</Typography>
-                    ) : (
-                      featureDetails.rules.filter(r => r.action === 'exclude').sort((a,b) => a.priority - b.priority).map(r => (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Typography variant="subtitle2">Exclude rules</Typography>
+                      <IconButton size="small" onClick={() => toggleSection('exclude')}>
+                        {expandedSections.exclude ? <ExpandLess /> : <ExpandMore />}
+                      </IconButton>
+                    </Box>
+                    <Collapse in={expandedSections.exclude}>
+                      {featureDetails.rules.filter(r => r.action === 'exclude').sort((a,b) => a.priority - b.priority).length === 0 ? (
+                        <Typography variant="body2" color="text.secondary">No exclude rules</Typography>
+                      ) : (
+                        featureDetails.rules.filter(r => r.action === 'exclude').sort((a,b) => a.priority - b.priority).map(r => (
                         <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Chip size="small" label={`priority: ${r.priority}`} />
@@ -291,6 +323,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                         </Box>
                       ))
                     )}
+                    </Collapse>
                   </Box>
                 </Box>
               )}
