@@ -3,7 +3,7 @@ import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, Dial
 import { WarningAmber } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { Feature, FeatureDetailsResponse } from '../../generated/api/client';
+import type { Feature, FeatureDetailsResponse, Segment } from '../../generated/api/client';
 import { useAuth } from '../../auth/AuthContext';
 import EditFeatureDialog from './EditFeatureDialog';
 
@@ -25,11 +25,89 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
     enabled: open && !!feature?.id,
   });
 
+  const projectId = featureDetails?.feature.project_id;
+  const { data: segments } = useQuery<Segment[]>({
+    queryKey: ['project-segments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectSegments(projectId!);
+      return res.data as Segment[];
+    },
+    enabled: Boolean(projectId),
+  });
+
   const getVariantName = (id: string) => {
     const arr = featureDetails?.variants || [];
     const found = arr.find(v => v.id === id);
     return found ? (found.name || found.id) : id;
-    };
+  };
+
+  const getSegmentName = (segmentId: string | undefined) => {
+    if (!segmentId) return 'user defined rule';
+    const found = segments?.find(s => s.id === segmentId);
+    return found ? found.name : 'user defined rule';
+  };
+
+  const renderConditionExpression = (expression: any, depth: number = 0): React.ReactNode => {
+    if (!expression) return null;
+
+    // Handle legacy array format
+    if (Array.isArray(expression)) {
+      return (
+        <Box sx={{ ml: depth * 2 }}>
+          {expression.map((c: any, idx: number) => (
+            <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
+              <Typography variant="body2">{c.attribute}</Typography>
+              <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
+              <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      );
+    }
+
+    // Handle single condition
+    if (expression.condition) {
+      const c = expression.condition;
+      return (
+        <Box sx={{ ml: depth * 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
+            <Typography variant="body2">{c.attribute}</Typography>
+            <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
+            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+              {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    // Handle group with logical operator
+    if (expression.group) {
+      const group = expression.group;
+      const operatorText = group.operator === 'and' ? 'AND' : group.operator === 'or' ? 'OR' : 'AND NOT';
+      const operatorColor = group.operator === 'and' ? 'success' : group.operator === 'or' ? 'info' : 'error';
+      
+      return (
+        <Box sx={{ ml: depth * 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <Typography variant="body2" color="text.secondary">Group:</Typography>
+            <Chip size="small" label={operatorText} color={operatorColor} />
+          </Box>
+          <Box sx={{ borderLeft: '2px solid', borderColor: 'divider', pl: 2 }}>
+            {group.children?.map((child: any, idx: number) => (
+              <Box key={idx} sx={{ mb: 1 }}>
+                {renderConditionExpression(child, depth + 1)}
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      );
+    }
+
+    return null;
+  };
 
   const canToggle = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.toggle')) : false;
 
@@ -154,20 +232,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                         <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Chip size="small" label={`priority: ${r.priority}`} />
+                            <Chip size="small" label={getSegmentName((r as any).segment_id)} color={(r as any).segment_id ? 'primary' : 'default'} />
+                            {(r as any).segment_id && (r as any).is_customized && <Chip size="small" label="customized" color="warning" />}
                             {r.flag_variant_id && <Chip size="small" label={`target: ${getVariantName(r.flag_variant_id)}`} />}
                           </Box>
-                          {r.conditions.length > 0 && (
+                          {r.conditions && (
                             <>
                               <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
-                              {r.conditions.map((c, idx) => (
-                                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
-                                  <Typography variant="body2">{c.attribute}</Typography>
-                                  <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
-                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                    {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
-                                  </Typography>
-                                </Box>
-                              ))}
+                              {renderConditionExpression(r.conditions)}
                             </>
                           )}
                         </Box>
@@ -184,19 +256,13 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                         <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Chip size="small" label={`priority: ${r.priority}`} />
+                            <Chip size="small" label={getSegmentName((r as any).segment_id)} color={(r as any).segment_id ? 'primary' : 'default'} />
+                            {(r as any).segment_id && (r as any).is_customized && <Chip size="small" label="customized" color="warning" />}
                           </Box>
-                          {r.conditions.length > 0 && (
+                          {r.conditions && (
                             <>
                               <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
-                              {r.conditions.map((c, idx) => (
-                                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
-                                  <Typography variant="body2">{c.attribute}</Typography>
-                                  <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
-                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                    {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
-                                  </Typography>
-                                </Box>
-                              ))}
+                              {renderConditionExpression(r.conditions)}
                             </>
                           )}
                         </Box>
@@ -213,19 +279,13 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                         <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1, mb: 1 }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
                             <Chip size="small" label={`priority: ${r.priority}`} />
+                            <Chip size="small" label={getSegmentName((r as any).segment_id)} color={(r as any).segment_id ? 'primary' : 'default'} />
+                            {(r as any).segment_id && (r as any).is_customized && <Chip size="small" label="customized" color="warning" />}
                           </Box>
-                          {r.conditions.length > 0 && (
+                          {r.conditions && (
                             <>
                               <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>Conditions:</Typography>
-                              {r.conditions.map((c, idx) => (
-                                <Box key={idx} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr' , md: '1.2fr 0.8fr 1.5fr' }, gap: 1, mb: 0.5, alignItems: 'center' }}>
-                                  <Typography variant="body2">{c.attribute}</Typography>
-                                  <Typography variant="body2" color="text.secondary">{c.operator}</Typography>
-                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                    {typeof c.value === 'string' ? c.value : JSON.stringify(c.value)}
-                                  </Typography>
-                                </Box>
-                              ))}
+                              {renderConditionExpression(r.conditions)}
                             </>
                           )}
                         </Box>

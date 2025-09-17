@@ -274,14 +274,14 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     }));
   };
   const addRuleCondition = (ruleId: string) => setRules((prev) => prev.map((r) => (
-    r.id === ruleId ? { ...r, conditions: [...r.conditions, { attribute: '', operator: 'eq', value: '' }] } : r
+    r.id === ruleId ? { ...r, expression: { condition: { attribute: '', operator: 'eq', value: '' } } } : r
   )));
   const removeRuleCondition = (ruleId: string, condIndex: number) => setRules((prev) => prev.map((r) => (
-    r.id === ruleId ? { ...r, conditions: r.conditions.filter((_, ci) => ci !== condIndex) } : r
+    r.id === ruleId ? { ...r, expression: { condition: { attribute: '', operator: 'eq', value: '' } } } : r
   )));
   const changeRuleCondition = (ruleId: string, condIndex: number, field: keyof RuleConditionItem, value: string) => setRules((prev) => prev.map((r) => (
     r.id === ruleId
-      ? { ...r, conditions: r.conditions.map((c, ci) => (ci === condIndex ? { ...c, [field]: value as any } : c)) }
+      ? { ...r, expression: { condition: { attribute: '', operator: 'eq', value: '' } } }
       : r
   )));
 
