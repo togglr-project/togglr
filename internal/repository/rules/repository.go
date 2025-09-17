@@ -177,7 +177,7 @@ func (r *Repository) Update(ctx context.Context, rule domain.Rule) (domain.Rule,
 UPDATE rules
 SET feature_id = $1, condition = $2, flag_variant_id = $3, priority = $4, action = $5, segment_id = $6, is_customized = $7
 WHERE id = $8
-RETURNING id, feature_id, condition, action, flag_variant_id, priority, segment_id, is_customized, created_at`
+RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priority, segment_id, is_customized, created_at`
 
 	conditionsData, err := json.Marshal(rule.Conditions)
 	if err != nil {
@@ -196,6 +196,7 @@ RETURNING id, feature_id, condition, action, flag_variant_id, priority, segment_
 		rule.ID,
 	).Scan(
 		&model.ID,
+		&model.ProjectID,
 		&model.FeatureID,
 		&model.Condition,
 		&model.Action,

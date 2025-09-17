@@ -25,9 +25,9 @@ import {
 import Autocomplete from '@mui/material/Autocomplete';
 import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder';
 import { Add, Delete } from '@mui/icons-material';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType } from '../../generated/api/client';
+import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType, Segment } from '../../generated/api/client';
 import { FeatureKind as FeatureKindEnum, RuleAction as RuleActionEnum } from '../../generated/api/client';
 
 export interface EditFeatureDialogProps {
@@ -42,7 +42,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const queryClient = useQueryClient();
 
   type VariantForm = { id: string; name: string; rollout_percent: number };
-  type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; expression: RuleConditionExpression };
+  type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; expression: RuleConditionExpression; segment_id?: string; is_customized?: boolean; baseExpressionJson?: string };
 
   const [keyVal, setKeyVal] = useState('');
   const [name, setName] = useState('');
@@ -69,13 +69,23 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     const vars = (featureDetails.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
     setDefaultVariant(f.default_variant || '');
-    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any }));
+    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any, segment_id: (r as any).segment_id, is_customized: (r as any).is_customized }));
     setRules(rls);
     setError(null);
   }, [open, featureDetails]);
 
   const featureId = featureDetails?.feature.id;
   const projectId = featureDetails?.feature.project_id;
+
+  // Load project segments for segment templates
+  const { data: segments } = useQuery<Segment[]>({
+    queryKey: ['project-segments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectSegments(projectId!);
+      return res.data as Segment[];
+    },
+    enabled: Boolean(projectId),
+  });
 
   const updateMutation = useMutation({
     mutationFn: async (body: CreateFeatureRequest) => {
@@ -114,12 +124,36 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   };
   const removeRule = (id: string) => setRules(prev => prev.filter(r => r.id !== id));
 
-  const addCondition = (ruleId: string) => {
-    setRules(prev => prev.map(r => r.id === ruleId ? { ...r, conditions: [...r.conditions, { attribute: '', operator: RuleOperatorEnum.Eq, value: '' }] } : r));
+  // Update rule expression and mark customized when segment is attached
+  const setRuleExpression = (id: string, expr: RuleConditionExpression) => {
+    setRules(prev => prev.map(r => {
+      if (r.id !== id) return r;
+      const next: RuleForm = { ...r, expression: expr };
+      if (next.segment_id) {
+        try {
+          const exprJson = JSON.stringify(expr || {});
+          next.is_customized = !next.baseExpressionJson || next.baseExpressionJson !== exprJson;
+        } catch {
+          next.is_customized = true;
+        }
+      }
+      return next;
+    }));
   };
-  const removeCondition = (ruleId: string, idx: number) => {
-    setRules(prev => prev.map(r => r.id === ruleId ? { ...r, conditions: r.conditions.filter((_, i) => i !== idx) } : r));
+
+  // Attach/detach a segment to a rule and copy its conditions
+  const handleSelectSegment = (id: string, segId: string) => {
+    const seg = (segments || []).find(s => s.id === segId);
+    setRules(prev => prev.map(r => {
+      if (r.id !== id) return r;
+      if (!seg) {
+        return { ...r, segment_id: undefined, is_customized: true, baseExpressionJson: undefined } as RuleForm;
+      }
+      const baseJson = JSON.stringify(seg.conditions || {});
+      return { ...r, segment_id: seg.id, expression: seg.conditions as any, is_customized: false, baseExpressionJson: baseJson } as RuleForm;
+    }));
   };
+
 
   const parseValueSmart = (input: string): any => {
     const t = input.trim();
@@ -181,6 +215,8 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         action: r.action as any,
         flag_variant_id: r.action === RuleActionEnum.Assign ? r.flag_variant_id : undefined,
         conditions: r.expression,
+        segment_id: r.segment_id || undefined,
+        is_customized: r.segment_id ? Boolean(r.is_customized) : true,
       })),
     };
 
@@ -342,9 +378,27 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                         <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
                       </Box>
 
+                      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TextField
+                          select
+                          label="Segment template"
+                          value={r.segment_id || ''}
+                          onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
+                          sx={{ minWidth: 240 }}
+                        >
+                          <MenuItem value="">Custom (no segment)</MenuItem>
+                          {(segments || []).map((s) => (
+                            <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                          ))}
+                        </TextField>
+                        {r.segment_id && (
+                          <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                        )}
+                      </Box>
+
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, expression: expr } : x))} />
+                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRuleExpression(r.id, expr)} />
                       </Box>
                     </Box>
                   ))}
@@ -369,9 +423,28 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
                         <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
                       </Box>
+
+                      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TextField
+                          select
+                          label="Segment template"
+                          value={r.segment_id || ''}
+                          onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
+                          sx={{ minWidth: 240 }}
+                        >
+                          <MenuItem value="">Custom (no segment)</MenuItem>
+                          {(segments || []).map((s) => (
+                            <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                          ))}
+                        </TextField>
+                        {r.segment_id && (
+                          <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                        )}
+                      </Box>
+
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, expression: expr } : x))} />
+                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRuleExpression(r.id, expr)} />
                       </Box>
                     </Box>
                   ))}
@@ -396,9 +469,28 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
                         <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
                       </Box>
+
+                      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TextField
+                          select
+                          label="Segment template"
+                          value={r.segment_id || ''}
+                          onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
+                          sx={{ minWidth: 240 }}
+                        >
+                          <MenuItem value="">Custom (no segment)</MenuItem>
+                          {(segments || []).map((s) => (
+                            <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                          ))}
+                        </TextField>
+                        {r.segment_id && (
+                          <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                        )}
+                      </Box>
+
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, expression: expr } : x))} />
+                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRuleExpression(r.id, expr)} />
                       </Box>
                     </Box>
                   ))}

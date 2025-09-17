@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **id** | **string** |  | [default to undefined]
 **feature_id** | **string** |  | [default to undefined]
 **conditions** | [**RuleConditionExpression**](RuleConditionExpression.md) |  | [default to undefined]
+**segment_id** | **string** |  | [optional] [default to undefined]
 **is_customized** | **boolean** |  | [default to undefined]
 **action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
 **flag_variant_id** | **string** |  | [optional] [default to undefined]
@@ -23,6 +24,7 @@ const instance: Rule = {
     id,
     feature_id,
     conditions,
+    segment_id,
     is_customized,
     action,
     flag_variant_id,

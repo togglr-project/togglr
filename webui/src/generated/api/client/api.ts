@@ -77,6 +77,7 @@ export interface CreateRuleInline {
      */
     'id': string;
     'conditions': RuleConditionExpression;
+    'segment_id'?: string;
     'is_customized': boolean;
     'action': RuleAction;
     'flag_variant_id'?: string;
@@ -86,6 +87,7 @@ export interface CreateRuleInline {
 
 export interface CreateRuleRequest {
     'conditions': RuleConditionExpression;
+    'segment_id'?: string;
     'is_customized': boolean;
     'action': RuleAction;
     'flag_variant_id'?: string;
@@ -528,6 +530,7 @@ export interface Rule {
     'id': string;
     'feature_id': string;
     'conditions': RuleConditionExpression;
+    'segment_id'?: string;
     'is_customized': boolean;
     'action': RuleAction;
     'flag_variant_id'?: string;

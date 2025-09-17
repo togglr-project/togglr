@@ -18,9 +18,9 @@ import {
 import Autocomplete from '@mui/material/Autocomplete';
 import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { Feature, FeatureKind, RuleAction as RuleActionType, RuleConditionExpression } from '../../generated/api/client';
+import type { Feature, FeatureKind, RuleAction as RuleActionType, RuleConditionExpression, Segment } from '../../generated/api/client';
 import { RuleAction as RuleActionEnum } from '../../generated/api/client';
 
 // UUID generator (uses crypto.randomUUID when available)
@@ -40,7 +40,7 @@ const rolloutKeyOptions = ['user.id', 'user.email'];
 
 type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
 interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
-interface RuleFormItem { id: string; action: RuleActionType; flag_variant_id?: string; priority: number | ''; expression: RuleConditionExpression }
+interface RuleFormItem { id: string; action: RuleActionType; flag_variant_id?: string; priority: number | ''; expression: RuleConditionExpression; segment_id?: string; is_customized: boolean; baseExpressionJson?: string }
 interface VariantFormItem { id: string; name: string; rollout_percent: number }
 
 export interface CreateFeatureDialogProps {
@@ -62,6 +62,16 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [enabled, setEnabled] = useState(true);
   const [variants, setVariants] = useState<VariantFormItem[]>([{ id: genId(), name: 'control', rollout_percent: 100 }]);
   const [rules, setRules] = useState<RuleFormItem[]>([]);
+
+  // Load project segments for reuse in rules
+  const { data: segments } = useQuery<Segment[]>({
+    queryKey: ['project-segments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectSegments(projectId);
+      return res.data as Segment[];
+    },
+    enabled: !!projectId,
+  });
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -164,6 +174,8 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           flag_variant_id: r.action === RuleActionEnum.Assign ? r.flag_variant_id : undefined,
           priority: r.priority === '' ? 0 : Number(r.priority),
           conditions: r.expression,
+          segment_id: r.segment_id || undefined,
+          is_customized: r.segment_id ? Boolean(r.is_customized) : true,
         }));
       }
 
@@ -210,11 +222,57 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     const next = nums.length ? Math.min(255, Math.max(...nums) + 1) : 0;
     return [
       ...prev,
-      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, expression: { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any } }
+      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, expression: { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any }, segment_id: undefined, is_customized: true, baseExpressionJson: undefined }
     ];
   });
   const removeRuleById = (id: string) => setRules((prev) => prev.filter((r) => r.id !== id));
-  const updateRuleById = (id: string, patch: Partial<RuleFormItem>) => setRules((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const updateRuleById = (id: string, patch: Partial<RuleFormItem>) => setRules((prev) => prev.map((r) => {
+    if (r.id !== id) return r;
+    const next: RuleFormItem = { ...r, ...patch } as RuleFormItem;
+    if (Object.prototype.hasOwnProperty.call(patch, 'expression')) {
+      if (next.segment_id) {
+        const base = next.baseExpressionJson;
+        try {
+          const exprJson = JSON.stringify(next.expression || {});
+          next.is_customized = !base || base !== exprJson;
+        } catch {
+          next.is_customized = true;
+        }
+      } else {
+        next.is_customized = true;
+      }
+    }
+    return next;
+  }));
+  const setRuleExpression = (id: string, expr: RuleConditionExpression) => {
+    setRules(prev => prev.map(r => {
+      if (r.id !== id) return r;
+      const next: RuleFormItem = { ...r, expression: expr };
+      if (next.segment_id) {
+        const base = next.baseExpressionJson;
+        try {
+          const exprJson = JSON.stringify(expr || {});
+          next.is_customized = !base || base !== exprJson;
+        } catch {
+          next.is_customized = true;
+        }
+      } else {
+        next.is_customized = true;
+      }
+      return next;
+    }));
+  };
+  const handleSelectSegment = (id: string, segId: string) => {
+    const seg = (segments || []).find(s => s.id === segId);
+    setRules(prev => prev.map(r => {
+      if (r.id !== id) return r;
+      if (!seg) {
+        return { ...r, segment_id: undefined, baseExpressionJson: undefined, is_customized: true };
+      }
+      const baseJson = JSON.stringify(seg.conditions || {});
+      return { ...r, segment_id: seg.id, expression: seg.conditions as any, baseExpressionJson: baseJson, is_customized: false };
+    }));
+  };
   const addRuleCondition = (ruleId: string) => setRules((prev) => prev.map((r) => (
     r.id === ruleId ? { ...r, conditions: [...r.conditions, { attribute: '', operator: 'eq', value: '' }] } : r
   )));
@@ -367,6 +425,24 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       </IconButton>
                     </Box>
 
+                    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <TextField
+                        select
+                        label="Segment template"
+                        value={r.segment_id || ''}
+                        onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
+                        sx={{ minWidth: 240 }}
+                     >
+                        <MenuItem value="">Custom (no segment)</MenuItem>
+                        {(segments || []).map((s) => (
+                          <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                        ))}
+                      </TextField>
+                      {r.segment_id && (
+                        <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                      )}
+                    </Box>
+
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="body2" color="text.secondary">Conditions</Typography>
                       <ConditionExpressionBuilder value={r.expression} onChange={(expr) => updateRuleById(r.id, { expression: expr })} />
@@ -402,6 +478,23 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       <DeleteIcon />
                     </IconButton>
                   </Box>
+                  <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TextField
+                      select
+                      label="Segment template"
+                      value={r.segment_id || ''}
+                      onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
+                      sx={{ minWidth: 240 }}
+                    >
+                      <MenuItem value="">Custom (no segment)</MenuItem>
+                      {(segments || []).map((s) => (
+                        <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                      ))}
+                    </TextField>
+                    {r.segment_id && (
+                      <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                    )}
+                  </Box>
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="body2" color="text.secondary">Conditions</Typography>
                     <ConditionExpressionBuilder value={r.expression} onChange={(expr) => updateRuleById(r.id, { expression: expr })} />
@@ -435,6 +528,23 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                     <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
                       <DeleteIcon />
                     </IconButton>
+                  </Box>
+                  <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <TextField
+                      select
+                      label="Segment template"
+                      value={r.segment_id || ''}
+                      onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
+                      sx={{ minWidth: 240 }}
+                    >
+                      <MenuItem value="">Custom (no segment)</MenuItem>
+                      {(segments || []).map((s) => (
+                        <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
+                      ))}
+                    </TextField>
+                    {r.segment_id && (
+                      <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
+                    )}
                   </Box>
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="body2" color="text.secondary">Conditions</Typography>

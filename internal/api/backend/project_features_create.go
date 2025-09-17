@@ -72,10 +72,17 @@ func (r *RestAPI) CreateProjectFeature(
 			return nil, err
 		}
 
+		var segmentIDRef *domain.SegmentID
+		if rr.SegmentID.IsSet() {
+			segmentID := domain.SegmentID(rr.SegmentID.Value)
+			segmentIDRef = &segmentID
+		}
+
 		rules = append(rules, domain.Rule{
 			ID:            domain.RuleID(rr.ID),
 			ProjectID:     projectID,
 			Conditions:    expr,
+			SegmentID:     segmentIDRef,
 			IsCustomized:  rr.IsCustomized,
 			Action:        domain.RuleAction(rr.Action),
 			FlagVariantID: optString2FlagVariantIDRef(rr.FlagVariantID),

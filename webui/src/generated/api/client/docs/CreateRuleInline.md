@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** | Client-provided UUID for the rule | [default to undefined]
 **conditions** | [**RuleConditionExpression**](RuleConditionExpression.md) |  | [default to undefined]
+**segment_id** | **string** |  | [optional] [default to undefined]
 **is_customized** | **boolean** |  | [default to undefined]
 **action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
 **flag_variant_id** | **string** |  | [optional] [default to undefined]
@@ -20,6 +21,7 @@ import { CreateRuleInline } from './api';
 const instance: CreateRuleInline = {
     id,
     conditions,
+    segment_id,
     is_customized,
     action,
     flag_variant_id,
