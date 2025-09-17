@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/rom8726/etoggle/internal/domain"
 )
@@ -47,7 +48,7 @@ func TestService_Evaluate(t *testing.T) {
 
 	holder := Holder{
 		projectID: ProjectFeatures{
-			featureKey: feature,
+			featureKey: MakeFeaturePrepared(feature),
 		},
 	}
 
@@ -150,7 +151,7 @@ func TestService_Evaluate_TableDriven(t *testing.T) {
 			if tt.expectedFound {
 				holder = Holder{
 					projectID: ProjectFeatures{
-						featureKey: tt.feature,
+						featureKey: MakeFeaturePrepared(tt.feature),
 					},
 				}
 			}
@@ -279,7 +280,7 @@ func TestIsFeatureActiveNow(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ok := IsFeatureActiveNow(tt.feature, tt.now)
+			ok := IsFeatureActiveNow(MakeFeaturePrepared(tt.feature), tt.now)
 			assert.Equal(t, tt.expected, ok)
 		})
 	}
@@ -353,7 +354,14 @@ func TestIsScheduleActive(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ok := IsScheduleActive(tt.schedule, tt.now)
+			crons := CronsMap{}
+			if tt.schedule.CronExpr != nil {
+				cronSched, err := ParseSchedule(*tt.schedule.CronExpr)
+				require.NoError(t, err)
+
+				crons[tt.schedule.ID] = cronSched
+			}
+			ok := IsScheduleActive(tt.schedule, crons, tt.now)
 			assert.Equal(t, tt.expected, ok)
 		})
 	}

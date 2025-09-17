@@ -1,6 +1,7 @@
 package featuresprocessor
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"regexp"
@@ -14,7 +15,15 @@ import (
 	"github.com/rom8726/etoggle/internal/domain"
 )
 
-type ProjectFeatures map[string]domain.FeatureExtended
+type FeaturePrepared struct {
+	domain.FeatureExtended
+
+	crons CronsMap
+}
+
+type CronsMap map[domain.FeatureScheduleID]cron.Schedule
+
+type ProjectFeatures map[string]FeaturePrepared
 
 type Holder map[domain.ProjectID]ProjectFeatures
 
@@ -26,6 +35,14 @@ func New() *Service {
 	return &Service{
 		holder: atomic.Pointer[Holder]{},
 	}
+}
+
+func (s *Service) LoadAllFeatures(ctx context.Context) error {
+	return nil
+}
+
+func (s *Service) Watch(ctx context.Context) error {
+	return nil
 }
 
 func (s *Service) Evaluate(
@@ -77,11 +94,11 @@ func (s *Service) Evaluate(
 	}
 }
 
-func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (domain.FeatureExtended, bool) {
+func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (FeaturePrepared, bool) {
 	holder := s.holder.Load()
 	features, ok := (*holder)[projectID]
 	if !ok {
-		return domain.FeatureExtended{}, false
+		return FeaturePrepared{}, false
 	}
 
 	feature, ok := features[featureKey]
@@ -127,11 +144,11 @@ func EvaluateExpression(expr domain.BooleanExpression, reqCtx map[domain.RuleAtt
 	return false
 }
 
-func IsFeatureActiveNow(feature domain.FeatureExtended, now time.Time) bool {
+func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 	var chosen *domain.FeatureSchedule
 	for i := range feature.Schedules {
 		schedule := feature.Schedules[i]
-		if IsScheduleActive(schedule, now) {
+		if IsScheduleActive(schedule, feature.crons, now) {
 			if chosen == nil {
 				chosen = &schedule
 
@@ -156,7 +173,7 @@ func IsFeatureActiveNow(feature domain.FeatureExtended, now time.Time) bool {
 	return feature.Enabled
 }
 
-func IsScheduleActive(schedule domain.FeatureSchedule, now time.Time) bool {
+func IsScheduleActive(schedule domain.FeatureSchedule, crons CronsMap, now time.Time) bool {
 	loc, err := time.LoadLocation(schedule.Timezone)
 	if err != nil {
 		slog.Error("error loading timezone", "timezone", schedule.Timezone)
@@ -175,10 +192,9 @@ func IsScheduleActive(schedule domain.FeatureSchedule, now time.Time) bool {
 		return true
 	}
 
-	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
-	sched, err := parser.Parse(*schedule.CronExpr)
-	if err != nil {
-		slog.Error("invalid cron expr", "expr", *schedule.CronExpr, "err", err)
+	sched, ok := crons[schedule.ID]
+	if !ok {
+		slog.Error("error parsing cron expression", "cron expression", *schedule.CronExpr)
 
 		return false
 	}
@@ -366,4 +382,32 @@ func rolloutOrDefault(
 	}
 
 	return defaultVariant
+}
+
+func MakeFeaturePrepared(feature domain.FeatureExtended) FeaturePrepared {
+	result := FeaturePrepared{
+		FeatureExtended: feature,
+		crons:           CronsMap{},
+	}
+
+	for _, sched := range feature.Schedules {
+		if sched.CronExpr != nil && *sched.CronExpr != "" {
+			cronSched, err := ParseSchedule(*sched.CronExpr)
+			if err != nil {
+				slog.Error("invalid cron expr", "expr", *sched.CronExpr, "err", err)
+
+				continue
+			}
+
+			result.crons[sched.ID] = cronSched
+		}
+	}
+
+	return result
+}
+
+func ParseSchedule(expr string) (cron.Schedule, error) {
+	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+
+	return parser.Parse(expr)
 }
