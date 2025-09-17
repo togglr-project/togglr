@@ -47,15 +47,7 @@ func (s *Service) Evaluate(
 		return feature.DefaultVariant, true, true
 	case domain.FeatureKindMultivariant:
 		for _, rule := range feature.Rules {
-			matched := true
-			for _, condition := range rule.Conditions {
-				if !MatchCondition(reqCtx, condition) {
-					matched = false
-
-					break
-				}
-			}
-			if !matched {
+			if !EvaluateExpression(rule.Conditions, reqCtx) {
 				continue
 			}
 
@@ -95,6 +87,44 @@ func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (d
 	feature, ok := features[featureKey]
 
 	return feature, ok
+}
+
+func EvaluateExpression(expr domain.BooleanExpression, reqCtx map[domain.RuleAttribute]any) bool {
+	if expr.Condition != nil {
+		return MatchCondition(reqCtx, *expr.Condition)
+	}
+
+	if expr.Group != nil {
+		switch expr.Group.Operator {
+		case domain.LogicalOpAND:
+			for _, child := range expr.Group.Children {
+				if !EvaluateExpression(child, reqCtx) {
+					return false
+				}
+			}
+
+			return true
+		case domain.LogicalOpOR:
+			for _, child := range expr.Group.Children {
+				if EvaluateExpression(child, reqCtx) {
+					return true
+				}
+			}
+
+			return false
+		case domain.LogicalOpANDNot:
+			if len(expr.Group.Children) != 2 {
+				return false
+			}
+
+			left := EvaluateExpression(expr.Group.Children[0], reqCtx)
+			right := EvaluateExpression(expr.Group.Children[1], reqCtx)
+
+			return left && !right
+		}
+	}
+
+	return false
 }
 
 func IsFeatureActiveNow(feature domain.FeatureExtended, now time.Time) bool {

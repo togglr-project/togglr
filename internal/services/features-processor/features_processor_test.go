@@ -9,6 +9,164 @@ import (
 	"github.com/rom8726/etoggle/internal/domain"
 )
 
+func TestService_Evaluate(t *testing.T) {
+	projectID := domain.ProjectID("proj1")
+	featureKey := "my_feature"
+
+	variantA := domain.FlagVariant{ID: "v1", Name: "A", RolloutPercent: 100}
+	rule := domain.Rule{
+		ID:        "r1",
+		ProjectID: projectID,
+		FeatureID: "f1",
+		Conditions: domain.BooleanExpression{
+			Condition: &domain.Condition{
+				Attribute: "country",
+				Operator:  domain.OpEq,
+				Value:     "RU",
+			},
+		},
+		Action:        domain.RuleActionAssign,
+		FlagVariantID: &variantA.ID,
+		CreatedAt:     time.Now(),
+	}
+
+	feature := domain.FeatureExtended{
+		Feature: domain.Feature{
+			ID:             "f1",
+			ProjectID:      projectID,
+			Key:            featureKey,
+			Name:           "Test Feature",
+			Kind:           domain.FeatureKindMultivariant,
+			DefaultVariant: "default",
+			Enabled:        true,
+			CreatedAt:      time.Now(),
+		},
+		FlagVariants: []domain.FlagVariant{variantA},
+		Rules:        []domain.Rule{rule},
+	}
+
+	holder := Holder{
+		projectID: ProjectFeatures{
+			featureKey: feature,
+		},
+	}
+
+	svc := New()
+	svc.holder.Store(&holder)
+
+	reqCtx := map[domain.RuleAttribute]any{"country": "RU"}
+	value, enabled, found := svc.Evaluate(projectID, featureKey, reqCtx)
+
+	assert.True(t, found)
+	assert.True(t, enabled)
+	assert.Equal(t, "A", value)
+}
+
+func TestService_Evaluate_TableDriven(t *testing.T) {
+	projectID := domain.ProjectID("proj1")
+	featureKey := "my_feature"
+
+	variantA := domain.FlagVariant{ID: "v1", Name: "A", RolloutPercent: 100}
+	rule := domain.Rule{
+		ID:        "r1",
+		ProjectID: projectID,
+		FeatureID: "f1",
+		Conditions: domain.BooleanExpression{
+			Condition: &domain.Condition{
+				Attribute: "country",
+				Operator:  domain.OpEq,
+				Value:     "RU",
+			},
+		},
+		Action:        domain.RuleActionAssign,
+		FlagVariantID: &variantA.ID,
+		CreatedAt:     time.Now(),
+	}
+
+	baseFeature := domain.FeatureExtended{
+		Feature: domain.Feature{
+			ID:             "f1",
+			ProjectID:      projectID,
+			Key:            featureKey,
+			Name:           "Test Feature",
+			Kind:           domain.FeatureKindMultivariant,
+			DefaultVariant: "default",
+			Enabled:        true,
+			CreatedAt:      time.Now(),
+		},
+		FlagVariants: []domain.FlagVariant{variantA},
+		Rules:        []domain.Rule{rule},
+	}
+
+	tests := []struct {
+		name          string
+		feature       domain.FeatureExtended
+		reqCtx        map[domain.RuleAttribute]any
+		expectedValue string
+		expectedEn    bool
+		expectedFound bool
+	}{
+		{
+			name:          "condition matches → variant A",
+			feature:       baseFeature,
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "A",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:          "condition does not match → default",
+			feature:       baseFeature,
+			reqCtx:        map[domain.RuleAttribute]any{"country": "US"},
+			expectedValue: "default",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name: "feature disabled",
+			feature: func() domain.FeatureExtended {
+				f := baseFeature
+				f.Enabled = false
+				return f
+			}(),
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "",
+			expectedEn:    false,
+			expectedFound: true,
+		},
+		{
+			name:          "feature not found",
+			feature:       domain.FeatureExtended{},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "",
+			expectedEn:    false,
+			expectedFound: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			holder := Holder{}
+			if tt.expectedFound {
+				holder = Holder{
+					projectID: ProjectFeatures{
+						featureKey: tt.feature,
+					},
+				}
+			}
+
+			svc := New()
+			svc.holder.Store(&holder)
+
+			value, enabled, found := svc.Evaluate(projectID, featureKey, tt.reqCtx)
+
+			assert.Equal(t, tt.expectedValue, value)
+			assert.Equal(t, tt.expectedEn, enabled)
+			assert.Equal(t, tt.expectedFound, found)
+		})
+	}
+}
+
 func TestIsFeatureActiveNow(t *testing.T) {
 	loc, _ := time.LoadLocation("UTC")
 	now := time.Date(2025, 9, 16, 12, 0, 0, 0, loc)
@@ -393,6 +551,153 @@ func TestInList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := InList(tt.actual, tt.value, tt.caseInsensitive)
 			assert.Equal(t, tt.expected, got)
+		})
+	}
+}
+
+func TestEvaluateExpression(t *testing.T) {
+	tests := []struct {
+		name     string
+		expr     domain.BooleanExpression
+		reqCtx   map[domain.RuleAttribute]any
+		expected bool
+	}{
+		{
+			name: "single condition true",
+			expr: domain.BooleanExpression{
+				Condition: &domain.Condition{
+					Attribute: "country",
+					Operator:  domain.OpEq,
+					Value:     "RU",
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"country": "RU"},
+			expected: true,
+		},
+		{
+			name: "single condition false",
+			expr: domain.BooleanExpression{
+				Condition: &domain.Condition{
+					Attribute: "country",
+					Operator:  domain.OpEq,
+					Value:     "RU",
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"country": "US"},
+			expected: false,
+		},
+		{
+			name: "AND group all true",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpAND,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "age", Operator: domain.OpGt, Value: 18}},
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "RU"}},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"age": 25, "country": "RU"},
+			expected: true,
+		},
+		{
+			name: "AND group one false",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpAND,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "age", Operator: domain.OpGt, Value: 18}},
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "RU"}},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"age": 25, "country": "US"},
+			expected: false,
+		},
+		{
+			name: "OR group one true",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpOR,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "RU"}},
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "BY"}},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"country": "BY"},
+			expected: true,
+		},
+		{
+			name: "OR group all false",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpOR,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "RU"}},
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "BY"}},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"country": "US"},
+			expected: false,
+		},
+		{
+			name: "AND NOT group left true right false",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpANDNot,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "age", Operator: domain.OpGt, Value: 18}},
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "US"}},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"age": 25, "country": "RU"},
+			expected: true, // left true && !right
+		},
+		{
+			name: "AND NOT group left true right true",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpANDNot,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "age", Operator: domain.OpGt, Value: 18}},
+						{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "RU"}},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"age": 25, "country": "RU"},
+			expected: false, // left true && !right → false
+		},
+		{
+			name: "nested OR inside AND",
+			expr: domain.BooleanExpression{
+				Group: &domain.ConditionGroup{
+					Operator: domain.LogicalOpAND,
+					Children: []domain.BooleanExpression{
+						{Condition: &domain.Condition{Attribute: "age", Operator: domain.OpGt, Value: 18}},
+						{
+							Group: &domain.ConditionGroup{
+								Operator: domain.LogicalOpOR,
+								Children: []domain.BooleanExpression{
+									{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "RU"}},
+									{Condition: &domain.Condition{Attribute: "country", Operator: domain.OpEq, Value: "BY"}},
+								},
+							},
+						},
+					},
+				},
+			},
+			reqCtx:   map[domain.RuleAttribute]any{"age": 30, "country": "BY"},
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ok := EvaluateExpression(tt.expr, tt.reqCtx)
+			assert.Equal(t, tt.expected, ok)
 		})
 	}
 }
