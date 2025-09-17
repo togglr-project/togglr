@@ -2,11 +2,8 @@ package apibackend
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
-
-	"github.com/go-faster/jx"
 
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -45,28 +42,18 @@ func (r *RestAPI) CreateProjectSegment(
 		return nil, err
 	}
 
-	// Build domain conditions
-	conds := make(domain.Conditions, 0, len(req.Conditions))
-	for _, c := range req.Conditions {
-		var val any
-		if len(c.Value) > 0 {
-			if err := json.Unmarshal(c.Value, &val); err != nil {
-				slog.Error("unmarshal condition value", "error", err)
-				return nil, err
-			}
-		}
-		conds = append(conds, domain.Condition{
-			Attribute: domain.RuleAttribute(c.Attribute),
-			Operator:  domain.RuleOperator(c.Operator),
-			Value:     val,
-		})
+	// Convert API expression tree to domain
+	expr, err := exprFromAPI(req.Conditions)
+	if err != nil {
+		slog.Error("parse segment conditions", "error", err)
+		return nil, err
 	}
 
 	segment := domain.Segment{
 		ProjectID:   projectID,
 		Name:        req.Name,
 		Description: req.Description.Or(""),
-		Conditions:  conds,
+		Conditions:  expr,
 	}
 
 	created, err := r.segmentsUseCase.Create(ctx, segment)
@@ -76,22 +63,10 @@ func (r *RestAPI) CreateProjectSegment(
 	}
 
 	// Build response
-	respConds := make([]generatedapi.RuleCondition, 0, len(created.Conditions))
-	for _, c := range created.Conditions {
-		var raw jx.Raw
-		if c.Value != nil {
-			b, mErr := json.Marshal(c.Value)
-			if mErr != nil {
-				slog.Error("marshal condition value", "error", mErr)
-				return nil, mErr
-			}
-			raw = b
-		}
-		respConds = append(respConds, generatedapi.RuleCondition{
-			Attribute: generatedapi.RuleAttribute(c.Attribute),
-			Operator:  generatedapi.RuleOperator(c.Operator),
-			Value:     raw,
-		})
+	exprOut, err := exprToAPI(created.Conditions)
+	if err != nil {
+		slog.Error("build segment conditions response", "error", err)
+		return nil, err
 	}
 
 	resp := &generatedapi.SegmentResponse{Segment: generatedapi.Segment{
@@ -99,7 +74,7 @@ func (r *RestAPI) CreateProjectSegment(
 		ProjectID:   created.ProjectID.String(),
 		Name:        created.Name,
 		Description: generatedapi.NewOptNilString(created.Description),
-		Conditions:  respConds,
+		Conditions:  exprOut,
 		CreatedAt:   created.CreatedAt,
 		UpdatedAt:   created.UpdatedAt,
 	}}

@@ -2,11 +2,8 @@ package apibackend
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
-
-	"github.com/go-faster/jx"
 
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -50,27 +47,18 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
-	// Build domain rule from structured conditions
-	conds := make(domain.Conditions, 0, len(req.Conditions))
-	for _, c := range req.Conditions {
-		var val any
-		if len(c.Value) > 0 {
-			if err := json.Unmarshal(c.Value, &val); err != nil {
-				slog.Error("unmarshal condition value", "error", err)
-				return nil, err
-			}
-		}
-		conds = append(conds, domain.Condition{
-			Attribute: domain.RuleAttribute(c.Attribute),
-			Operator:  domain.RuleOperator(c.Operator),
-			Value:     val,
-		})
+	// Convert API expression tree to domain
+	expr, err := exprFromAPI(req.Conditions)
+	if err != nil {
+		slog.Error("parse rule conditions", "error", err)
+		return nil, err
 	}
 
 	rule := domain.Rule{
 		ProjectID:     feature.ProjectID,
 		FeatureID:     featureID,
-		Conditions:    conds,
+		Conditions:    expr,
+		IsCustomized:  req.IsCustomized,
 		Action:        domain.RuleAction(req.Action),
 		FlagVariantID: optString2FlagVariantIDRef(req.FlagVariantID),
 		Priority:      uint8(req.Priority.Or(0)),
@@ -82,29 +70,18 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
-	// Build response Rule with structured conditions
-	respConds := make([]generatedapi.RuleCondition, 0, len(created.Conditions))
-	for _, c := range created.Conditions {
-		var raw jx.Raw
-		if c.Value != nil {
-			bytes, err := json.Marshal(c.Value)
-			if err != nil {
-				slog.Error("marshal condition value", "error", err)
-				return nil, err
-			}
-			raw = bytes
-		}
-		respConds = append(respConds, generatedapi.RuleCondition{
-			Attribute: generatedapi.RuleAttribute(c.Attribute),
-			Operator:  generatedapi.RuleOperator(c.Operator),
-			Value:     raw,
-		})
+	// Build response Rule with expression tree
+	respExpr, err := exprToAPI(created.Conditions)
+	if err != nil {
+		slog.Error("build rule conditions response", "error", err)
+		return nil, err
 	}
 
 	resp := &generatedapi.RuleResponse{Rule: generatedapi.Rule{
 		ID:            created.ID.String(),
 		FeatureID:     created.FeatureID.String(),
-		Conditions:    respConds,
+		Conditions:    respExpr,
+		IsCustomized:  created.IsCustomized,
 		Action:        generatedapi.RuleAction(created.Action),
 		FlagVariantID: flagVariantRef2OptString(created.FlagVariantID),
 		Priority:      int(created.Priority),

@@ -16,10 +16,11 @@ import {
   Typography,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
+import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { Feature, FeatureKind, RuleAction as RuleActionType } from '../../generated/api/client';
+import type { Feature, FeatureKind, RuleAction as RuleActionType, RuleConditionExpression } from '../../generated/api/client';
 import { RuleAction as RuleActionEnum } from '../../generated/api/client';
 
 // UUID generator (uses crypto.randomUUID when available)
@@ -39,7 +40,7 @@ const rolloutKeyOptions = ['user.id', 'user.email'];
 
 type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
 interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
-interface RuleFormItem { id: string; action: RuleActionType; flag_variant_id?: string; priority: number | ''; conditions: RuleConditionItem[] }
+interface RuleFormItem { id: string; action: RuleActionType; flag_variant_id?: string; priority: number | ''; expression: RuleConditionExpression }
 interface VariantFormItem { id: string; name: string; rollout_percent: number }
 
 export interface CreateFeatureDialogProps {
@@ -81,10 +82,22 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   }, {} as Record<number, number>);
   const hasDuplicatePriorities = Object.values(priorityCounts).some((c) => c > 1);
 
+  const hasValidLeaf = (e?: RuleConditionExpression): boolean => {
+    if (!e) return false;
+    if ((e as any).condition) {
+      const c = (e as any).condition as { attribute?: string };
+      return Boolean(c.attribute && c.attribute.trim().length > 0);
+    }
+    if ((e as any).group) {
+      const g = (e as any).group as { children?: RuleConditionExpression[] };
+      return Array.isArray(g.children) && g.children.some(ch => hasValidLeaf(ch));
+    }
+    return false;
+  };
+
   const rulesValid = rules.every((r) =>
     (r.action === RuleActionEnum.Assign ? (r.flag_variant_id && variants.some((v) => v.id === r.flag_variant_id)) : true) &&
-    r.conditions.length > 0 &&
-    r.conditions.every((c) => c.attribute.trim().length > 0) &&
+    hasValidLeaf(r.expression) &&
     typeof r.priority === 'number' && Number.isInteger(r.priority) && r.priority >= 0 && r.priority <= 255
   ) && !hasDuplicatePriorities;
 
@@ -135,7 +148,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
       const dv = defaultVariant.trim();
 
       let inlineVariants: { id: string; name: string; rollout_percent: number }[] | undefined;
-      let inlineRules: { id: string; conditions: any[]; action: RuleActionType; flag_variant_id?: string; priority?: number }[] | undefined;
+      let inlineRules: { id: string; conditions: RuleConditionExpression; action: RuleActionType; flag_variant_id?: string; priority?: number }[] | undefined;
 
       if (kind === 'multivariant') {
         inlineVariants = variants.map((v) => ({ id: v.id, name: v.name.trim(), rollout_percent: Number(v.rollout_percent) || 0 }));
@@ -150,16 +163,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           action: r.action,
           flag_variant_id: r.action === RuleActionEnum.Assign ? r.flag_variant_id : undefined,
           priority: r.priority === '' ? 0 : Number(r.priority),
-          conditions: r.conditions.filter((c) => c.attribute.trim()).map((c) => {
-            let val: any = c.value;
-            const trimmed = (c.value || '').trim();
-            if (trimmed.length > 0) {
-              try { val = JSON.parse(trimmed); } catch { val = c.value; }
-            } else {
-              val = '';
-            }
-            return { attribute: c.attribute.trim(), operator: c.operator, value: val };
-          }),
+          conditions: r.expression,
         }));
       }
 
@@ -206,7 +210,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     const next = nums.length ? Math.min(255, Math.max(...nums) + 1) : 0;
     return [
       ...prev,
-      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, conditions: [{ attribute: '', operator: 'eq', value: '' }] }
+      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, expression: { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any } }
     ];
   });
   const removeRuleById = (id: string) => setRules((prev) => prev.filter((r) => r.id !== id));
@@ -365,48 +369,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
 
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                      {r.conditions.map((c, ci) => (
-                        <Grid container spacing={1} alignItems="center" key={ci} sx={{ mt: 0.5 }}>
-                          <Grid item xs={12} md={4}>
-                            <TextField
-                              label="Attribute"
-                              value={c.attribute}
-                              onChange={(e) => changeRuleCondition(r.id, ci, 'attribute', e.target.value)}
-                              required
-                              fullWidth
-                            />
-                          </Grid>
-                          <Grid item xs={12} md={3}>
-                            <TextField
-                              select
-                              label="Operator"
-                              value={c.operator}
-                              onChange={(e) => changeRuleCondition(r.id, ci, 'operator', e.target.value)}
-                              fullWidth
-                            >
-                              {ruleOperatorOptions.map(op => (
-                                <MenuItem key={op} value={op}>{op}</MenuItem>
-                              ))}
-                            </TextField>
-                          </Grid>
-                          <Grid item xs={12} md={4}>
-                            <TextField
-                              label="Value (JSON or plain)"
-                              value={c.value}
-                              onChange={(e) => changeRuleCondition(r.id, ci, 'value', e.target.value)}
-                              fullWidth
-                            />
-                          </Grid>
-                          <Grid item xs={12} md={1}>
-                            <IconButton aria-label="delete-condition" onClick={() => removeRuleCondition(r.id, ci)}>
-                              <DeleteIcon />
-                            </IconButton>
-                          </Grid>
-                        </Grid>
-                      ))}
-                      <Box sx={{ mt: 1 }}>
-                        <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleCondition(r.id)}>Add Condition</Button>
-                      </Box>
+                      <ConditionExpressionBuilder value={r.expression} onChange={(expr) => updateRuleById(r.id, { expression: expr })} />
                     </Box>
                   </Box>
                 ))}
@@ -441,48 +404,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                   </Box>
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                    {r.conditions.map((c, ci) => (
-                      <Grid container spacing={1} alignItems="center" key={ci} sx={{ mt: 0.5 }}>
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            label="Attribute"
-                            value={c.attribute}
-                            onChange={(e) => changeRuleCondition(r.id, ci, 'attribute', e.target.value)}
-                            required
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                          <TextField
-                            select
-                            label="Operator"
-                            value={c.operator}
-                            onChange={(e) => changeRuleCondition(r.id, ci, 'operator', e.target.value)}
-                            fullWidth
-                          >
-                            {ruleOperatorOptions.map(op => (
-                              <MenuItem key={op} value={op}>{op}</MenuItem>
-                            ))}
-                          </TextField>
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            label="Value (JSON or plain)"
-                            value={c.value}
-                            onChange={(e) => changeRuleCondition(r.id, ci, 'value', e.target.value)}
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={1}>
-                          <IconButton aria-label="delete-condition" onClick={() => removeRuleCondition(r.id, ci)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
-                    ))}
-                    <Box sx={{ mt: 1 }}>
-                      <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleCondition(r.id)}>Add Condition</Button>
-                    </Box>
+                    <ConditionExpressionBuilder value={r.expression} onChange={(expr) => updateRuleById(r.id, { expression: expr })} />
                   </Box>
                 </Box>
               ))}
@@ -516,48 +438,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                   </Box>
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                    {r.conditions.map((c, ci) => (
-                      <Grid container spacing={1} alignItems="center" key={ci} sx={{ mt: 0.5 }}>
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            label="Attribute"
-                            value={c.attribute}
-                            onChange={(e) => changeRuleCondition(r.id, ci, 'attribute', e.target.value)}
-                            required
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                          <TextField
-                            select
-                            label="Operator"
-                            value={c.operator}
-                            onChange={(e) => changeRuleCondition(r.id, ci, 'operator', e.target.value)}
-                            fullWidth
-                          >
-                            {ruleOperatorOptions.map(op => (
-                              <MenuItem key={op} value={op}>{op}</MenuItem>
-                            ))}
-                          </TextField>
-                        </Grid>
-                        <Grid item xs={12} md={4}>
-                          <TextField
-                            label="Value (JSON or plain)"
-                            value={c.value}
-                            onChange={(e) => changeRuleCondition(r.id, ci, 'value', e.target.value)}
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={12} md={1}>
-                          <IconButton aria-label="delete-condition" onClick={() => removeRuleCondition(r.id, ci)}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
-                    ))}
-                    <Box sx={{ mt: 1 }}>
-                      <Button size="small" startIcon={<AddIcon />} onClick={() => addRuleCondition(r.id)}>Add Condition</Button>
-                    </Box>
+                    <ConditionExpressionBuilder value={r.expression} onChange={(expr) => updateRuleById(r.id, { expression: expr })} />
                   </Box>
                 </Box>
               ))}

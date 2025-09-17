@@ -914,11 +914,11 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("conditions")
-		e.ArrStart()
-		for _, elem := range s.Conditions {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Conditions.Encode(e)
+	}
+	{
+		e.FieldStart("is_customized")
+		e.Bool(s.IsCustomized)
 	}
 	{
 		e.FieldStart("action")
@@ -938,12 +938,13 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateRuleInline = [5]string{
+var jsonFieldsNameOfCreateRuleInline = [6]string{
 	0: "id",
 	1: "conditions",
-	2: "action",
-	3: "flag_variant_id",
-	4: "priority",
+	2: "is_customized",
+	3: "action",
+	4: "flag_variant_id",
+	5: "priority",
 }
 
 // Decode decodes CreateRuleInline from json.
@@ -970,23 +971,27 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 		case "conditions":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				s.Conditions = make([]RuleCondition, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RuleCondition
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Conditions = append(s.Conditions, elem)
-					return nil
-				}); err != nil {
+				if err := s.Conditions.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
-		case "action":
+		case "is_customized":
 			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Bool()
+				s.IsCustomized = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_customized\"")
+			}
+		case "action":
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -1025,7 +1030,7 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1082,11 +1087,11 @@ func (s *CreateRuleRequest) Encode(e *jx.Encoder) {
 func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("conditions")
-		e.ArrStart()
-		for _, elem := range s.Conditions {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Conditions.Encode(e)
+	}
+	{
+		e.FieldStart("is_customized")
+		e.Bool(s.IsCustomized)
 	}
 	{
 		e.FieldStart("action")
@@ -1106,11 +1111,12 @@ func (s *CreateRuleRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateRuleRequest = [4]string{
+var jsonFieldsNameOfCreateRuleRequest = [5]string{
 	0: "conditions",
-	1: "action",
-	2: "flag_variant_id",
-	3: "priority",
+	1: "is_customized",
+	2: "action",
+	3: "flag_variant_id",
+	4: "priority",
 }
 
 // Decode decodes CreateRuleRequest from json.
@@ -1125,23 +1131,27 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 		case "conditions":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				s.Conditions = make([]RuleCondition, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RuleCondition
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Conditions = append(s.Conditions, elem)
-					return nil
-				}); err != nil {
+				if err := s.Conditions.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
-		case "action":
+		case "is_customized":
 			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Bool()
+				s.IsCustomized = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_customized\"")
+			}
+		case "action":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -1180,7 +1190,7 @@ func (s *CreateRuleRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1247,11 +1257,7 @@ func (s *CreateSegmentRequest) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("conditions")
-		e.ArrStart()
-		for _, elem := range s.Conditions {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Conditions.Encode(e)
 	}
 }
 
@@ -1295,15 +1301,7 @@ func (s *CreateSegmentRequest) Decode(d *jx.Decoder) error {
 		case "conditions":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Conditions = make([]RuleCondition, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RuleCondition
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Conditions = append(s.Conditions, elem)
-					return nil
-				}); err != nil {
+				if err := s.Conditions.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -7303,6 +7301,48 @@ func (s *ListUsersResponse) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes LogicalOperator as json.
+func (s LogicalOperator) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes LogicalOperator from json.
+func (s *LogicalOperator) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode LogicalOperator to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch LogicalOperator(v) {
+	case LogicalOperatorAnd:
+		*s = LogicalOperatorAnd
+	case LogicalOperatorOr:
+		*s = LogicalOperatorOr
+	case LogicalOperatorAndNot:
+		*s = LogicalOperatorAndNot
+	default:
+		*s = LogicalOperator(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s LogicalOperator) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *LogicalOperator) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode implements json.Marshaler.
 func (s *LoginRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -7986,6 +8026,72 @@ func (s OptNilString) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptNilString) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RuleCondition as json.
+func (o OptRuleCondition) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes RuleCondition from json.
+func (o *OptRuleCondition) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptRuleCondition to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptRuleCondition) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptRuleCondition) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RuleConditionGroup as json.
+func (o OptRuleConditionGroup) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes RuleConditionGroup from json.
+func (o *OptRuleConditionGroup) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptRuleConditionGroup to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptRuleConditionGroup) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptRuleConditionGroup) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -8823,11 +8929,11 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("conditions")
-		e.ArrStart()
-		for _, elem := range s.Conditions {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Conditions.Encode(e)
+	}
+	{
+		e.FieldStart("is_customized")
+		e.Bool(s.IsCustomized)
 	}
 	{
 		e.FieldStart("action")
@@ -8849,14 +8955,15 @@ func (s *Rule) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRule = [7]string{
+var jsonFieldsNameOfRule = [8]string{
 	0: "id",
 	1: "feature_id",
 	2: "conditions",
-	3: "action",
-	4: "flag_variant_id",
-	5: "priority",
-	6: "created_at",
+	3: "is_customized",
+	4: "action",
+	5: "flag_variant_id",
+	6: "priority",
+	7: "created_at",
 }
 
 // Decode decodes Rule from json.
@@ -8895,23 +9002,27 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 		case "conditions":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Conditions = make([]RuleCondition, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RuleCondition
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Conditions = append(s.Conditions, elem)
-					return nil
-				}); err != nil {
+				if err := s.Conditions.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"conditions\"")
 			}
-		case "action":
+		case "is_customized":
 			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Bool()
+				s.IsCustomized = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"is_customized\"")
+			}
+		case "action":
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -8931,7 +9042,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"flag_variant_id\"")
 			}
 		case "priority":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				v, err := d.Int()
 				s.Priority = int(v)
@@ -8943,7 +9054,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"priority\"")
 			}
 		case "created_at":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -8964,7 +9075,7 @@ func (s *Rule) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b01101111,
+		0b11011111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -9216,6 +9327,207 @@ func (s *RuleCondition) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *RuleCondition) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *RuleConditionExpression) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RuleConditionExpression) encodeFields(e *jx.Encoder) {
+	{
+		if s.Condition.Set {
+			e.FieldStart("condition")
+			s.Condition.Encode(e)
+		}
+	}
+	{
+		if s.Group.Set {
+			e.FieldStart("group")
+			s.Group.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfRuleConditionExpression = [2]string{
+	0: "condition",
+	1: "group",
+}
+
+// Decode decodes RuleConditionExpression from json.
+func (s *RuleConditionExpression) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RuleConditionExpression to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "condition":
+			if err := func() error {
+				s.Condition.Reset()
+				if err := s.Condition.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"condition\"")
+			}
+		case "group":
+			if err := func() error {
+				s.Group.Reset()
+				if err := s.Group.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"group\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RuleConditionExpression")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RuleConditionExpression) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RuleConditionExpression) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *RuleConditionGroup) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RuleConditionGroup) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("operator")
+		s.Operator.Encode(e)
+	}
+	{
+		e.FieldStart("children")
+		e.ArrStart()
+		for _, elem := range s.Children {
+			elem.Encode(e)
+		}
+		e.ArrEnd()
+	}
+}
+
+var jsonFieldsNameOfRuleConditionGroup = [2]string{
+	0: "operator",
+	1: "children",
+}
+
+// Decode decodes RuleConditionGroup from json.
+func (s *RuleConditionGroup) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RuleConditionGroup to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "operator":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				if err := s.Operator.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"operator\"")
+			}
+		case "children":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				s.Children = make([]RuleConditionExpression, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RuleConditionExpression
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Children = append(s.Children, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"children\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RuleConditionGroup")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfRuleConditionGroup) {
+					name = jsonFieldsNameOfRuleConditionGroup[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RuleConditionGroup) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RuleConditionGroup) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -9931,11 +10243,7 @@ func (s *Segment) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("conditions")
-		e.ArrStart()
-		for _, elem := range s.Conditions {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Conditions.Encode(e)
 	}
 	{
 		e.FieldStart("created_at")
@@ -10015,15 +10323,7 @@ func (s *Segment) Decode(d *jx.Decoder) error {
 		case "conditions":
 			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
-				s.Conditions = make([]RuleCondition, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RuleCondition
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Conditions = append(s.Conditions, elem)
-					return nil
-				}); err != nil {
+				if err := s.Conditions.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -11704,11 +12004,7 @@ func (s *UpdateSegmentRequest) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("conditions")
-		e.ArrStart()
-		for _, elem := range s.Conditions {
-			elem.Encode(e)
-		}
-		e.ArrEnd()
+		s.Conditions.Encode(e)
 	}
 }
 
@@ -11752,15 +12048,7 @@ func (s *UpdateSegmentRequest) Decode(d *jx.Decoder) error {
 		case "conditions":
 			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
-				s.Conditions = make([]RuleCondition, 0)
-				if err := d.Arr(func(d *jx.Decoder) error {
-					var elem RuleCondition
-					if err := elem.Decode(d); err != nil {
-						return err
-					}
-					s.Conditions = append(s.Conditions, elem)
-					return nil
-				}); err != nil {
+				if err := s.Conditions.Decode(d); err != nil {
 					return err
 				}
 				return nil

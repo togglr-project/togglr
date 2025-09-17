@@ -20,7 +20,7 @@ type segmentModel struct {
 }
 
 func (m *segmentModel) toDomain() domain.Segment {
-	var conditions []domain.Condition
+	var conditions domain.BooleanExpression
 	if err := json.Unmarshal(m.Conditions, &conditions); err != nil {
 		slog.Error("unmarshal segment conditions", "conditions", string(m.Conditions), "error", err)
 	}

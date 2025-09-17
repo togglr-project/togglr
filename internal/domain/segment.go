@@ -11,7 +11,7 @@ type Segment struct {
 	ProjectID   ProjectID
 	Name        string
 	Description string
-	Conditions  []Condition
+	Conditions  BooleanExpression
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

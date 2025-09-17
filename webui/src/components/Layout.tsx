@@ -34,7 +34,8 @@ import {
   AdminPanelSettings as AdminPanelSettingsIcon,
   InsightsOutlined as AnalyticsIcon,
   FlagOutlined as FlagOutlinedIcon,
-  Schedule as ScheduleIcon
+  Schedule as ScheduleIcon,
+  PeopleOutline as PeopleIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -385,6 +386,52 @@ const Layout: React.FC<LayoutProps> = ({
                     primaryTypographyProps={{
                       fontWeight: location.pathname === `/projects/${currentProjectId}` ? 600 : 500,
                       color: location.pathname === `/projects/${currentProjectId}` ? 'primary.main' : 'inherit',
+                    }}
+                    sx={{ 
+                      opacity: open ? 1 : 0,
+                      ml: 0.5,
+                    }} 
+                  />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Segments menu item */}
+              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    py: 1.2,
+                    borderRadius: 2,
+                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? (
+                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                    ) : 'transparent',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.06)' 
+                        : 'rgba(130, 82, 255, 0.06)',
+                    },
+                  }}
+                  onClick={() => {
+                    if (currentProjectId) navigate(`/projects/${currentProjectId}/segments`);
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 'primary.main' : 'inherit',
+                    }}
+                  >
+                    <PeopleIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={'Segments'} 
+                    primaryTypographyProps={{
+                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 600 : 500,
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 'primary.main' : 'inherit',
                     }}
                     sx={{ 
                       opacity: open ? 1 : 0,

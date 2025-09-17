@@ -2,11 +2,8 @@ package apibackend
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
-
-	"github.com/go-faster/jx"
 
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -49,22 +46,10 @@ func (r *RestAPI) GetSegment(
 		return nil, err
 	}
 
-	conds := make([]generatedapi.RuleCondition, 0, len(seg.Conditions))
-	for _, c := range seg.Conditions {
-		var raw jx.Raw
-		if c.Value != nil {
-			b, mErr := json.Marshal(c.Value)
-			if mErr != nil {
-				slog.Error("marshal condition value", "error", mErr)
-				return nil, mErr
-			}
-			raw = b
-		}
-		conds = append(conds, generatedapi.RuleCondition{
-			Attribute: generatedapi.RuleAttribute(c.Attribute),
-			Operator:  generatedapi.RuleOperator(c.Operator),
-			Value:     raw,
-		})
+	respExpr, err := exprToAPI(seg.Conditions)
+	if err != nil {
+		slog.Error("build segment conditions response", "error", err)
+		return nil, err
 	}
 
 	resp := &generatedapi.SegmentResponse{Segment: generatedapi.Segment{
@@ -72,7 +57,7 @@ func (r *RestAPI) GetSegment(
 		ProjectID:   seg.ProjectID.String(),
 		Name:        seg.Name,
 		Description: generatedapi.NewOptNilString(seg.Description),
-		Conditions:  conds,
+		Conditions:  respExpr,
 		CreatedAt:   seg.CreatedAt,
 		UpdatedAt:   seg.UpdatedAt,
 	}}

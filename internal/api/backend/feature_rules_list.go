@@ -2,11 +2,8 @@ package apibackend
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
-
-	"github.com/go-faster/jx"
 
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -58,28 +55,17 @@ func (r *RestAPI) ListFeatureRules(
 
 	resp := make(generatedapi.ListRulesResponse, 0, len(items))
 	for _, it := range items {
-		conds := make([]generatedapi.RuleCondition, 0, len(it.Conditions))
-		for _, condition := range it.Conditions {
-			var raw jx.Raw
-			if condition.Value != nil {
-				bytes, mErr := json.Marshal(condition.Value)
-				if mErr != nil {
-					slog.Error("marshal condition value", "error", mErr)
-					return nil, mErr
-				}
-				raw = bytes
-			}
-			conds = append(conds, generatedapi.RuleCondition{
-				Attribute: generatedapi.RuleAttribute(condition.Attribute),
-				Operator:  generatedapi.RuleOperator(condition.Operator),
-				Value:     raw,
-			})
+		expr, err := exprToAPI(it.Conditions)
+		if err != nil {
+			slog.Error("build rule conditions response", "error", err)
+			return nil, err
 		}
 
 		resp = append(resp, generatedapi.Rule{
 			ID:            it.ID.String(),
 			FeatureID:     it.FeatureID.String(),
-			Conditions:    conds,
+			Conditions:    expr,
+			IsCustomized:  it.IsCustomized,
 			Action:        generatedapi.RuleAction(it.Action),
 			FlagVariantID: flagVariantRef2OptString(it.FlagVariantID),
 			Priority:      int(it.Priority),

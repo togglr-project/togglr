@@ -12,6 +12,7 @@ docs/CreateFlagVariantInline.md
 docs/CreateFlagVariantRequest.md
 docs/CreateRuleInline.md
 docs/CreateRuleRequest.md
+docs/CreateSegmentRequest.md
 docs/CreateUserRequest.md
 docs/CreateUserResponse.md
 docs/DefaultApi.md
@@ -54,6 +55,7 @@ docs/LicenseFeature.md
 docs/LicenseStatusResponse.md
 docs/LicenseStatusResponseLicense.md
 docs/LicenseType.md
+docs/LogicalOperator.md
 docs/LoginRequest.md
 docs/LoginResponse.md
 docs/ProductInfoResponse.md
@@ -65,12 +67,16 @@ docs/ResetPasswordRequest.md
 docs/Rule.md
 docs/RuleAction.md
 docs/RuleCondition.md
+docs/RuleConditionExpression.md
+docs/RuleConditionGroup.md
 docs/RuleOperator.md
 docs/RuleResponse.md
 docs/SSOCallbackRequest.md
 docs/SSOInitiateResponse.md
 docs/SSOProvider.md
 docs/SSOProvidersResponse.md
+docs/Segment.md
+docs/SegmentResponse.md
 docs/SetSuperuserStatusRequest.md
 docs/SetUserActiveStatusRequest.md
 docs/SuccessResponse.md
@@ -85,6 +91,7 @@ docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
 docs/UpdateLicenseRequest.md
 docs/UpdateProjectRequest.md
+docs/UpdateSegmentRequest.md
 docs/User.md
 docs/UsersApi.md
 git_push.sh

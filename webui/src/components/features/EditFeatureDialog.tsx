@@ -23,11 +23,12 @@ import {
   Chip,
 } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
+import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder';
 import { Add, Delete } from '@mui/icons-material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { CreateFeatureRequest, FeatureDetailsResponse, RuleCondition, RuleAction as RuleActionType } from '../../generated/api/client';
-import { FeatureKind as FeatureKindEnum, RuleOperator as RuleOperatorEnum, RuleAction as RuleActionEnum } from '../../generated/api/client';
+import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType } from '../../generated/api/client';
+import { FeatureKind as FeatureKindEnum, RuleAction as RuleActionEnum } from '../../generated/api/client';
 
 export interface EditFeatureDialogProps {
   open: boolean;
@@ -41,7 +42,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const queryClient = useQueryClient();
 
   type VariantForm = { id: string; name: string; rollout_percent: number };
-  type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; conditions: RuleCondition[] };
+  type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; expression: RuleConditionExpression };
 
   const [keyVal, setKeyVal] = useState('');
   const [name, setName] = useState('');
@@ -68,7 +69,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     const vars = (featureDetails.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
     setDefaultVariant(f.default_variant || '');
-    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, conditions: r.conditions }));
+    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any }));
     setRules(rls);
     setError(null);
   }, [open, featureDetails]);
@@ -109,7 +110,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     const id = uuid();
     const priority = (rules.length ? Math.max(...rules.map(r => r.priority)) + 1 : 1);
     const firstVariant = variants[0]?.id;
-    setRules(prev => [...prev, { id, priority, action, flag_variant_id: action === RuleActionEnum.Assign ? firstVariant : undefined, conditions: [] }]);
+    setRules(prev => [...prev, { id, priority, action, flag_variant_id: action === RuleActionEnum.Assign ? firstVariant : undefined, expression: { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any } }]);
   };
   const removeRule = (id: string) => setRules(prev => prev.filter(r => r.id !== id));
 
@@ -129,12 +130,24 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     try { return JSON.parse(t); } catch { return input; }
   };
 
+  const hasValidLeaf = (e?: RuleConditionExpression): boolean => {
+    if (!e) return false;
+    if ((e as any).condition) {
+      const c = (e as any).condition as { attribute?: string };
+      return Boolean(c.attribute && c.attribute.trim().length > 0);
+    }
+    if ((e as any).group) {
+      const g = (e as any).group as { children?: RuleConditionExpression[] };
+      return Array.isArray(g.children) && g.children.some(ch => hasValidLeaf(ch));
+    }
+    return false;
+  };
+
   const validate = (): string | null => {
     if (!keyVal.trim()) return 'Key is required';
     if (!name.trim()) return 'Name is required';
     if (!kind) return 'Kind is required';
     if (kind === FeatureKindEnum.Multivariant && !rolloutKey.trim()) return 'Rollout Key is required for multivariant features';
-    // default_variant can be any string (including empty) by new API; no validation here
     for (const v of variants) {
       if (!v.name.trim()) return 'Variant name cannot be empty';
       if (v.rollout_percent < 0 || v.rollout_percent > 100) return 'Variant rollout percent must be between 0 and 100';
@@ -143,10 +156,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       if (r.action === RuleActionEnum.Assign) {
         if (!r.flag_variant_id || !variants.find(v => v.id === r.flag_variant_id)) return 'Assign rules must target an existing variant';
       }
-      for (const c of r.conditions) {
-        if (!c.attribute.trim()) return 'Condition attribute cannot be empty';
-        if (!c.operator) return 'Condition operator is required';
-      }
+      if (!hasValidLeaf(r.expression)) return 'Each rule must have at least one valid condition';
     }
     return null;
   };
@@ -170,7 +180,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         priority: r.priority,
         action: r.action as any,
         flag_variant_id: r.action === RuleActionEnum.Assign ? r.flag_variant_id : undefined,
-        conditions: r.conditions.map(c => ({ attribute: c.attribute, operator: c.operator, value: c.value })),
+        conditions: r.expression,
       })),
     };
 
@@ -179,7 +189,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   const disabled = !featureDetails || updateMutation.isPending;
 
-  const ruleOperatorOptions = Object.values(RuleOperatorEnum);
+  const ruleOperatorOptions: any[] = [];
   const featureKindOptions = Object.values(FeatureKindEnum);
   const rolloutKeyOptions = ['user.id', 'user.email'];
 
@@ -334,35 +344,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                          {r.conditions.map((c, cIdx) => (
-                            <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
-                              <Grid item xs={12} md={4}>
-                                <TextField label="Attribute" value={c.attribute}
-                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
-                              </Grid>
-                              <Grid item xs={12} md={3}>
-                                <FormControl fullWidth>
-                                  <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
-                                  <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
-                                    onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
-                                    {ruleOperatorOptions.map(op => (
-                                      <MenuItem key={op} value={op}>{op}</MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              </Grid>
-                              <Grid item xs={12} md={4}>
-                                <TextField label="Value" value={String(c.value ?? '')}
-                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
-                              </Grid>
-                              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                                <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
-                              </Grid>
-                            </Grid>
-                          ))}
-                          <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
-                        </Box>
+                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, expression: expr } : x))} />
                       </Box>
                     </Box>
                   ))}
@@ -389,35 +371,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                       </Box>
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                          {r.conditions.map((c, cIdx) => (
-                            <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
-                              <Grid item xs={12} md={4}>
-                                <TextField label="Attribute" value={c.attribute}
-                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
-                              </Grid>
-                              <Grid item xs={12} md={3}>
-                                <FormControl fullWidth>
-                                  <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
-                                  <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
-                                    onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
-                                    {ruleOperatorOptions.map(op => (
-                                      <MenuItem key={op} value={op}>{op}</MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              </Grid>
-                              <Grid item xs={12} md={4}>
-                                <TextField label="Value" value={String(c.value ?? '')}
-                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
-                              </Grid>
-                              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                                <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
-                              </Grid>
-                            </Grid>
-                          ))}
-                          <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
-                        </Box>
+                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, expression: expr } : x))} />
                       </Box>
                     </Box>
                   ))}
@@ -444,35 +398,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                       </Box>
                       <Box sx={{ mt: 1 }}>
                         <Typography variant="body2" color="text.secondary">Conditions</Typography>
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                          {r.conditions.map((c, cIdx) => (
-                            <Grid key={`${r.id}-${cIdx}`} container spacing={1} alignItems="center">
-                              <Grid item xs={12} md={4}>
-                                <TextField label="Attribute" value={c.attribute}
-                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, attribute: e.target.value } : cc) } : x))} fullWidth />
-                              </Grid>
-                              <Grid item xs={12} md={3}>
-                                <FormControl fullWidth>
-                                  <InputLabel id={`op-${r.id}-${cIdx}`}>Operator</InputLabel>
-                                  <Select labelId={`op-${r.id}-${cIdx}`} label="Operator" value={c.operator}
-                                    onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, operator: e.target.value as any } : cc) } : x))}>
-                                    {ruleOperatorOptions.map(op => (
-                                      <MenuItem key={op} value={op}>{op}</MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              </Grid>
-                              <Grid item xs={12} md={4}>
-                                <TextField label="Value" value={String(c.value ?? '')}
-                                  onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, conditions: x.conditions.map((cc, i) => i === cIdx ? { ...cc, value: parseValueSmart(e.target.value) } : cc) } : x))} fullWidth />
-                              </Grid>
-                              <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
-                                <IconButton onClick={() => removeCondition(r.id, cIdx)} aria-label="delete condition"><Delete /></IconButton>
-                              </Grid>
-                            </Grid>
-                          ))}
-                          <Button startIcon={<Add />} onClick={() => addCondition(r.id)} size="small" sx={{ alignSelf: 'flex-start' }}>Add condition</Button>
-                        </Box>
+                        <ConditionExpressionBuilder value={r.expression} onChange={(expr) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, expression: expr } : x))} />
                       </Box>
                     </Box>
                   ))}

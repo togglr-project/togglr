@@ -3703,9 +3703,7 @@ components:
           nullable: true
           example: "Users included in VIP campaign"
         conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
+          $ref: '#/components/schemas/RuleConditionExpression'
         created_at:
           type: string
           format: date-time
@@ -3726,9 +3724,7 @@ components:
           type: string
           nullable: true
         conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
+          $ref: '#/components/schemas/RuleConditionExpression'
       required: [name, conditions]
 
     UpdateSegmentRequest:
@@ -3741,9 +3737,7 @@ components:
           type: string
           nullable: true
         conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
+          $ref: '#/components/schemas/RuleConditionExpression'
       required: [name, conditions]
 
     SegmentResponse:
@@ -3812,6 +3806,30 @@ components:
           $ref: '#/components/schemas/FlagVariant'
       required: [flag_variant]
 
+    RuleConditionExpression:
+      description: Boolean expression tree for conditions
+      type: object
+      properties:
+        condition:
+          $ref: '#/components/schemas/RuleCondition'
+        group:
+          $ref: '#/components/schemas/RuleConditionGroup'
+
+    RuleConditionGroup:
+      type: object
+      properties:
+        operator:
+          $ref: '#/components/schemas/LogicalOperator'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleConditionExpression'
+      required: [operator, children]
+
+    LogicalOperator:
+      type: string
+      enum: [and, or, and_not]
+
     RuleAttribute:
       type: string
       description: Attribute to match in the rule condition
@@ -3847,9 +3865,9 @@ components:
           type: string
           example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
         conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
+          $ref: '#/components/schemas/RuleConditionExpression'
+        is_customized:
+          type: boolean
         action:
           $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
@@ -3864,15 +3882,15 @@ components:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, feature_id, conditions, action, priority, created_at]
+      required: [id, feature_id, conditions, is_customized, action, priority, created_at]
 
     CreateRuleRequest:
       type: object
       properties:
         conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
+          $ref: '#/components/schemas/RuleConditionExpression'
+        is_customized:
+          type: boolean
         action:
           $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
@@ -3881,7 +3899,7 @@ components:
           type: integer
           minimum: 0
           maximum: 255
-      required: [conditions, action]
+      required: [conditions, is_customized, action]
 
     # Inline rule schema used when creating a feature with rules
     CreateRuleInline:
@@ -3891,9 +3909,9 @@ components:
           type: string
           description: Client-provided UUID for the rule
         conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
+          $ref: '#/components/schemas/RuleConditionExpression'
+        is_customized:
+          type: boolean
         action:
           $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
@@ -3902,7 +3920,7 @@ components:
           type: integer
           minimum: 0
           maximum: 255
-      required: [id, conditions, action]
+      required: [id, conditions, is_customized, action]
 
     RuleResponse:
       type: object

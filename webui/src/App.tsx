@@ -17,6 +17,7 @@ import SAMLSuccessHandler from './components/SAMLSuccessHandler';
 import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
 import ProjectSchedulingPage from './pages/ProjectSchedulingPage';
+import ProjectSegmentsPage from './pages/ProjectSegmentsPage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -96,6 +97,7 @@ function App() {
                         <Route path="/projects" element={<LicenseGuard><ProjectsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId" element={<LicenseGuard><ProjectPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/scheduling" element={<LicenseGuard><ProjectSchedulingPage /></LicenseGuard>} />
+                        <Route path="/projects/:projectId/segments" element={<LicenseGuard><ProjectSegmentsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />

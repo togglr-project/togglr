@@ -76,7 +76,8 @@ export interface CreateRuleInline {
      * Client-provided UUID for the rule
      */
     'id': string;
-    'conditions': Array<RuleCondition>;
+    'conditions': RuleConditionExpression;
+    'is_customized': boolean;
     'action': RuleAction;
     'flag_variant_id'?: string;
     'priority'?: number;
@@ -84,13 +85,19 @@ export interface CreateRuleInline {
 
 
 export interface CreateRuleRequest {
-    'conditions': Array<RuleCondition>;
+    'conditions': RuleConditionExpression;
+    'is_customized': boolean;
     'action': RuleAction;
     'flag_variant_id'?: string;
     'priority'?: number;
 }
 
 
+export interface CreateSegmentRequest {
+    'name': string;
+    'description'?: string;
+    'conditions': RuleConditionExpression;
+}
 export interface CreateUserRequest {
     'username': string;
     'email': string;
@@ -459,6 +466,16 @@ export const LicenseType = {
 export type LicenseType = typeof LicenseType[keyof typeof LicenseType];
 
 
+
+export const LogicalOperator = {
+    And: 'and',
+    Or: 'or',
+    AndNot: 'and_not'
+} as const;
+
+export type LogicalOperator = typeof LogicalOperator[keyof typeof LogicalOperator];
+
+
 export interface LoginRequest {
     'username': string;
     'password': string;
@@ -510,7 +527,8 @@ export interface ResetPasswordRequest {
 export interface Rule {
     'id': string;
     'feature_id': string;
-    'conditions': Array<RuleCondition>;
+    'conditions': RuleConditionExpression;
+    'is_customized': boolean;
     'action': RuleAction;
     'flag_variant_id'?: string;
     'priority': number;
@@ -541,6 +559,19 @@ export interface RuleCondition {
     'attribute': string;
     'operator': RuleOperator;
     'value': any;
+}
+
+
+/**
+ * Boolean expression tree for conditions
+ */
+export interface RuleConditionExpression {
+    'condition'?: RuleCondition;
+    'group'?: RuleConditionGroup;
+}
+export interface RuleConditionGroup {
+    'operator': LogicalOperator;
+    'children': Array<RuleConditionExpression>;
 }
 
 
@@ -619,6 +650,18 @@ export type SSOProviderTypeEnum = typeof SSOProviderTypeEnum[keyof typeof SSOPro
 export interface SSOProvidersResponse {
     'providers': Array<SSOProvider>;
 }
+export interface Segment {
+    'id': string;
+    'project_id': string;
+    'name': string;
+    'description'?: string;
+    'conditions': RuleConditionExpression;
+    'created_at': string;
+    'updated_at': string;
+}
+export interface SegmentResponse {
+    'segment': Segment;
+}
 export interface SetSuperuserStatusRequest {
     'is_superuser': boolean;
 }
@@ -681,6 +724,11 @@ export interface UpdateLicenseRequest {
 export interface UpdateProjectRequest {
     'name': string;
     'description': string;
+}
+export interface UpdateSegmentRequest {
+    'name': string;
+    'description'?: string;
+    'conditions': RuleConditionExpression;
 }
 export interface User {
     'id': number;
@@ -1086,6 +1134,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Create segment for project
+         * @param {string} projectId 
+         * @param {CreateSegmentRequest} createSegmentRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createProjectSegment: async (projectId: string, createSegmentRequest: CreateSegmentRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('createProjectSegment', 'projectId', projectId)
+            // verify required parameter 'createSegmentRequest' is not null or undefined
+            assertParamExists('createProjectSegment', 'createSegmentRequest', createSegmentRequest)
+            const localVarPath = `/api/v1/projects/{project_id}/segments`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createSegmentRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -1208,6 +1300,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         deleteLDAPConfig: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/ldap/config`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete segment
+         * @param {string} segmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteSegment: async (segmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'segmentId' is not null or undefined
+            assertParamExists('deleteSegment', 'segmentId', segmentId)
+            const localVarPath = `/api/v1/segments/{segment_id}`
+                .replace(`{${"segment_id"}}`, encodeURIComponent(String(segmentId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1864,6 +1994,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Get segment by ID
+         * @param {string} segmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSegment: async (segmentId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'segmentId' is not null or undefined
+            assertParamExists('getSegment', 'segmentId', segmentId)
+            const localVarPath = `/api/v1/segments/{segment_id}`
+                .replace(`{${"segment_id"}}`, encodeURIComponent(String(segmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2021,6 +2189,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'projectId' is not null or undefined
             assertParamExists('listProjectFeatures', 'projectId', projectId)
             const localVarPath = `/api/v1/projects/{project_id}/features`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List segments for project
+         * @param {string} projectId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectSegments: async (projectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listProjectSegments', 'projectId', projectId)
+            const localVarPath = `/api/v1/projects/{project_id}/segments`
                 .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -2831,6 +3037,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update segment
+         * @param {string} segmentId 
+         * @param {UpdateSegmentRequest} updateSegmentRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateSegment: async (segmentId: string, updateSegmentRequest: UpdateSegmentRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'segmentId' is not null or undefined
+            assertParamExists('updateSegment', 'segmentId', segmentId)
+            // verify required parameter 'updateSegmentRequest' is not null or undefined
+            assertParamExists('updateSegment', 'updateSegmentRequest', updateSegmentRequest)
+            const localVarPath = `/api/v1/segments/{segment_id}`
+                .replace(`{${"segment_id"}}`, encodeURIComponent(String(segmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateSegmentRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Change my password
          * @param {ChangeUserPasswordRequest} changeUserPasswordRequest 
          * @param {*} [options] Override http request option.
@@ -3037,6 +3287,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create segment for project
+         * @param {string} projectId 
+         * @param {CreateSegmentRequest} createSegmentRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createProjectSegment(projectId: string, createSegmentRequest: CreateSegmentRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SegmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createProjectSegment(projectId, createSegmentRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createProjectSegment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -3084,6 +3348,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteLDAPConfig(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteLDAPConfig']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete segment
+         * @param {string} segmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteSegment(segmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteSegment(segmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteSegment']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3305,6 +3582,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get segment by ID
+         * @param {string} segmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getSegment(segmentId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SegmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSegment(segmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getSegment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -3365,6 +3655,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectFeatures(projectId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectFeatures']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List segments for project
+         * @param {string} projectId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listProjectSegments(projectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Segment>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectSegments(projectId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectSegments']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3631,6 +3934,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Update segment
+         * @param {string} segmentId 
+         * @param {UpdateSegmentRequest} updateSegmentRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateSegment(segmentId: string, updateSegmentRequest: UpdateSegmentRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SegmentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateSegment(segmentId, updateSegmentRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateSegment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Change my password
          * @param {ChangeUserPasswordRequest} changeUserPasswordRequest 
          * @param {*} [options] Override http request option.
@@ -3760,6 +4077,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create segment for project
+         * @param {string} projectId 
+         * @param {CreateSegmentRequest} createSegmentRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createProjectSegment(projectId: string, createSegmentRequest: CreateSegmentRequest, options?: RawAxiosRequestConfig): AxiosPromise<SegmentResponse> {
+            return localVarFp.createProjectSegment(projectId, createSegmentRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -3796,6 +4124,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteLDAPConfig(options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
             return localVarFp.deleteLDAPConfig(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete segment
+         * @param {string} segmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteSegment(segmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteSegment(segmentId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -3965,6 +4303,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get segment by ID
+         * @param {string} segmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getSegment(segmentId: string, options?: RawAxiosRequestConfig): AxiosPromise<SegmentResponse> {
+            return localVarFp.getSegment(segmentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4011,6 +4359,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Feature>> {
             return localVarFp.listProjectFeatures(projectId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List segments for project
+         * @param {string} projectId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectSegments(projectId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Segment>> {
+            return localVarFp.listProjectSegments(projectId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4216,6 +4574,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Update segment
+         * @param {string} segmentId 
+         * @param {UpdateSegmentRequest} updateSegmentRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateSegment(segmentId: string, updateSegmentRequest: UpdateSegmentRequest, options?: RawAxiosRequestConfig): AxiosPromise<SegmentResponse> {
+            return localVarFp.updateSegment(segmentId, updateSegmentRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Change my password
          * @param {ChangeUserPasswordRequest} changeUserPasswordRequest 
          * @param {*} [options] Override http request option.
@@ -4346,6 +4715,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create segment for project
+     * @param {string} projectId 
+     * @param {CreateSegmentRequest} createSegmentRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createProjectSegment(projectId: string, createSegmentRequest: CreateSegmentRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createProjectSegment(projectId, createSegmentRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create a new user (superuser only)
      * @param {CreateUserRequest} createUserRequest 
      * @param {*} [options] Override http request option.
@@ -4385,6 +4766,17 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteLDAPConfig(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteLDAPConfig(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete segment
+     * @param {string} segmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteSegment(segmentId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteSegment(segmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4572,6 +4964,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get segment by ID
+     * @param {string} segmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getSegment(segmentId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getSegment(segmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary List all feature schedules
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -4622,6 +5025,17 @@ export class DefaultApi extends BaseAPI {
      */
     public listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listProjectFeatures(projectId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List segments for project
+     * @param {string} projectId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listProjectSegments(projectId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectSegments(projectId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4844,6 +5258,18 @@ export class DefaultApi extends BaseAPI {
      */
     public updateProject(projectId: string, updateProjectRequest: UpdateProjectRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).updateProject(projectId, updateProjectRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update segment
+     * @param {string} segmentId 
+     * @param {UpdateSegmentRequest} updateSegmentRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateSegment(segmentId: string, updateSegmentRequest: UpdateSegmentRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateSegment(segmentId, updateSegmentRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -1,4 +1,4 @@
-# Rule
+# Segment
 
 
 ## Properties
@@ -6,28 +6,26 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
-**feature_id** | **string** |  | [default to undefined]
+**project_id** | **string** |  | [default to undefined]
+**name** | **string** |  | [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
 **conditions** | [**RuleConditionExpression**](RuleConditionExpression.md) |  | [default to undefined]
-**is_customized** | **boolean** |  | [default to undefined]
-**action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
-**flag_variant_id** | **string** |  | [optional] [default to undefined]
-**priority** | **number** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
+**updated_at** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { Rule } from './api';
+import { Segment } from './api';
 
-const instance: Rule = {
+const instance: Segment = {
     id,
-    feature_id,
+    project_id,
+    name,
+    description,
     conditions,
-    is_customized,
-    action,
-    flag_variant_id,
-    priority,
     created_at,
+    updated_at,
 };
 ```
 

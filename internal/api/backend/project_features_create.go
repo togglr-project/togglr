@@ -2,7 +2,6 @@ package apibackend
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
 
@@ -67,26 +66,17 @@ func (r *RestAPI) CreateProjectFeature(
 	// Build inline rules with structured conditions
 	rules := make([]domain.Rule, 0, len(req.Rules))
 	for _, rr := range req.Rules {
-		conds := make(domain.Conditions, 0, len(rr.Conditions))
-		for _, condition := range rr.Conditions {
-			var val any
-			if len(condition.Value) > 0 {
-				if err := json.Unmarshal(condition.Value, &val); err != nil {
-					slog.Error("unmarshal condition value", "error", err)
-					return nil, err
-				}
-			}
-			conds = append(conds, domain.Condition{
-				Attribute: domain.RuleAttribute(condition.Attribute),
-				Operator:  domain.RuleOperator(condition.Operator),
-				Value:     val,
-			})
+		expr, err := exprFromAPI(rr.Conditions)
+		if err != nil {
+			slog.Error("build rule conditions response", "error", err)
+			return nil, err
 		}
 
 		rules = append(rules, domain.Rule{
 			ID:            domain.RuleID(rr.ID),
 			ProjectID:     projectID,
-			Conditions:    conds,
+			Conditions:    expr,
+			IsCustomized:  rr.IsCustomized,
 			Action:        domain.RuleAction(rr.Action),
 			FlagVariantID: optString2FlagVariantIDRef(rr.FlagVariantID),
 			Priority:      uint8(rr.Priority.Or(0)),

@@ -394,11 +394,12 @@ func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 // Ref: #/components/schemas/CreateRuleInline
 type CreateRuleInline struct {
 	// Client-provided UUID for the rule.
-	ID            string          `json:"id"`
-	Conditions    []RuleCondition `json:"conditions"`
-	Action        RuleAction      `json:"action"`
-	FlagVariantID OptString       `json:"flag_variant_id"`
-	Priority      OptInt          `json:"priority"`
+	ID            string                  `json:"id"`
+	Conditions    RuleConditionExpression `json:"conditions"`
+	IsCustomized  bool                    `json:"is_customized"`
+	Action        RuleAction              `json:"action"`
+	FlagVariantID OptString               `json:"flag_variant_id"`
+	Priority      OptInt                  `json:"priority"`
 }
 
 // GetID returns the value of ID.
@@ -407,8 +408,13 @@ func (s *CreateRuleInline) GetID() string {
 }
 
 // GetConditions returns the value of Conditions.
-func (s *CreateRuleInline) GetConditions() []RuleCondition {
+func (s *CreateRuleInline) GetConditions() RuleConditionExpression {
 	return s.Conditions
+}
+
+// GetIsCustomized returns the value of IsCustomized.
+func (s *CreateRuleInline) GetIsCustomized() bool {
+	return s.IsCustomized
 }
 
 // GetAction returns the value of Action.
@@ -432,8 +438,13 @@ func (s *CreateRuleInline) SetID(val string) {
 }
 
 // SetConditions sets the value of Conditions.
-func (s *CreateRuleInline) SetConditions(val []RuleCondition) {
+func (s *CreateRuleInline) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
+}
+
+// SetIsCustomized sets the value of IsCustomized.
+func (s *CreateRuleInline) SetIsCustomized(val bool) {
+	s.IsCustomized = val
 }
 
 // SetAction sets the value of Action.
@@ -453,15 +464,21 @@ func (s *CreateRuleInline) SetPriority(val OptInt) {
 
 // Ref: #/components/schemas/CreateRuleRequest
 type CreateRuleRequest struct {
-	Conditions    []RuleCondition `json:"conditions"`
-	Action        RuleAction      `json:"action"`
-	FlagVariantID OptString       `json:"flag_variant_id"`
-	Priority      OptInt          `json:"priority"`
+	Conditions    RuleConditionExpression `json:"conditions"`
+	IsCustomized  bool                    `json:"is_customized"`
+	Action        RuleAction              `json:"action"`
+	FlagVariantID OptString               `json:"flag_variant_id"`
+	Priority      OptInt                  `json:"priority"`
 }
 
 // GetConditions returns the value of Conditions.
-func (s *CreateRuleRequest) GetConditions() []RuleCondition {
+func (s *CreateRuleRequest) GetConditions() RuleConditionExpression {
 	return s.Conditions
+}
+
+// GetIsCustomized returns the value of IsCustomized.
+func (s *CreateRuleRequest) GetIsCustomized() bool {
+	return s.IsCustomized
 }
 
 // GetAction returns the value of Action.
@@ -480,8 +497,13 @@ func (s *CreateRuleRequest) GetPriority() OptInt {
 }
 
 // SetConditions sets the value of Conditions.
-func (s *CreateRuleRequest) SetConditions(val []RuleCondition) {
+func (s *CreateRuleRequest) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
+}
+
+// SetIsCustomized sets the value of IsCustomized.
+func (s *CreateRuleRequest) SetIsCustomized(val bool) {
+	s.IsCustomized = val
 }
 
 // SetAction sets the value of Action.
@@ -501,9 +523,9 @@ func (s *CreateRuleRequest) SetPriority(val OptInt) {
 
 // Ref: #/components/schemas/CreateSegmentRequest
 type CreateSegmentRequest struct {
-	Name        string          `json:"name"`
-	Description OptNilString    `json:"description"`
-	Conditions  []RuleCondition `json:"conditions"`
+	Name        string                  `json:"name"`
+	Description OptNilString            `json:"description"`
+	Conditions  RuleConditionExpression `json:"conditions"`
 }
 
 // GetName returns the value of Name.
@@ -517,7 +539,7 @@ func (s *CreateSegmentRequest) GetDescription() OptNilString {
 }
 
 // GetConditions returns the value of Conditions.
-func (s *CreateSegmentRequest) GetConditions() []RuleCondition {
+func (s *CreateSegmentRequest) GetConditions() RuleConditionExpression {
 	return s.Conditions
 }
 
@@ -532,7 +554,7 @@ func (s *CreateSegmentRequest) SetDescription(val OptNilString) {
 }
 
 // SetConditions sets the value of Conditions.
-func (s *CreateSegmentRequest) SetConditions(val []RuleCondition) {
+func (s *CreateSegmentRequest) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
 }
 
@@ -3009,6 +3031,55 @@ type ListUsersResponse []User
 
 func (*ListUsersResponse) listUsersRes() {}
 
+// Ref: #/components/schemas/LogicalOperator
+type LogicalOperator string
+
+const (
+	LogicalOperatorAnd    LogicalOperator = "and"
+	LogicalOperatorOr     LogicalOperator = "or"
+	LogicalOperatorAndNot LogicalOperator = "and_not"
+)
+
+// AllValues returns all LogicalOperator values.
+func (LogicalOperator) AllValues() []LogicalOperator {
+	return []LogicalOperator{
+		LogicalOperatorAnd,
+		LogicalOperatorOr,
+		LogicalOperatorAndNot,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s LogicalOperator) MarshalText() ([]byte, error) {
+	switch s {
+	case LogicalOperatorAnd:
+		return []byte(s), nil
+	case LogicalOperatorOr:
+		return []byte(s), nil
+	case LogicalOperatorAndNot:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *LogicalOperator) UnmarshalText(data []byte) error {
+	switch LogicalOperator(data) {
+	case LogicalOperatorAnd:
+		*s = LogicalOperatorAnd
+		return nil
+	case LogicalOperatorOr:
+		*s = LogicalOperatorOr
+		return nil
+	case LogicalOperatorAndNot:
+		*s = LogicalOperatorAndNot
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/LoginRequest
 type LoginRequest struct {
 	Username string `json:"username"`
@@ -3689,6 +3760,98 @@ func (o OptNilString) Or(d string) string {
 	return d
 }
 
+// NewOptRuleCondition returns new OptRuleCondition with value set to v.
+func NewOptRuleCondition(v RuleCondition) OptRuleCondition {
+	return OptRuleCondition{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRuleCondition is optional RuleCondition.
+type OptRuleCondition struct {
+	Value RuleCondition
+	Set   bool
+}
+
+// IsSet returns true if OptRuleCondition was set.
+func (o OptRuleCondition) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRuleCondition) Reset() {
+	var v RuleCondition
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRuleCondition) SetTo(v RuleCondition) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRuleCondition) Get() (v RuleCondition, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRuleCondition) Or(d RuleCondition) RuleCondition {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptRuleConditionGroup returns new OptRuleConditionGroup with value set to v.
+func NewOptRuleConditionGroup(v RuleConditionGroup) OptRuleConditionGroup {
+	return OptRuleConditionGroup{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRuleConditionGroup is optional RuleConditionGroup.
+type OptRuleConditionGroup struct {
+	Value RuleConditionGroup
+	Set   bool
+}
+
+// IsSet returns true if OptRuleConditionGroup was set.
+func (o OptRuleConditionGroup) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRuleConditionGroup) Reset() {
+	var v RuleConditionGroup
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRuleConditionGroup) SetTo(v RuleConditionGroup) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRuleConditionGroup) Get() (v RuleConditionGroup, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRuleConditionGroup) Or(d RuleConditionGroup) RuleConditionGroup {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -4022,13 +4185,14 @@ func (s *ResetPasswordRequest) SetNewPassword(val string) {
 
 // Ref: #/components/schemas/Rule
 type Rule struct {
-	ID            string          `json:"id"`
-	FeatureID     string          `json:"feature_id"`
-	Conditions    []RuleCondition `json:"conditions"`
-	Action        RuleAction      `json:"action"`
-	FlagVariantID OptString       `json:"flag_variant_id"`
-	Priority      int             `json:"priority"`
-	CreatedAt     time.Time       `json:"created_at"`
+	ID            string                  `json:"id"`
+	FeatureID     string                  `json:"feature_id"`
+	Conditions    RuleConditionExpression `json:"conditions"`
+	IsCustomized  bool                    `json:"is_customized"`
+	Action        RuleAction              `json:"action"`
+	FlagVariantID OptString               `json:"flag_variant_id"`
+	Priority      int                     `json:"priority"`
+	CreatedAt     time.Time               `json:"created_at"`
 }
 
 // GetID returns the value of ID.
@@ -4042,8 +4206,13 @@ func (s *Rule) GetFeatureID() string {
 }
 
 // GetConditions returns the value of Conditions.
-func (s *Rule) GetConditions() []RuleCondition {
+func (s *Rule) GetConditions() RuleConditionExpression {
 	return s.Conditions
+}
+
+// GetIsCustomized returns the value of IsCustomized.
+func (s *Rule) GetIsCustomized() bool {
+	return s.IsCustomized
 }
 
 // GetAction returns the value of Action.
@@ -4077,8 +4246,13 @@ func (s *Rule) SetFeatureID(val string) {
 }
 
 // SetConditions sets the value of Conditions.
-func (s *Rule) SetConditions(val []RuleCondition) {
+func (s *Rule) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
+}
+
+// SetIsCustomized sets the value of IsCustomized.
+func (s *Rule) SetIsCustomized(val bool) {
+	s.IsCustomized = val
 }
 
 // SetAction sets the value of Action.
@@ -4189,6 +4363,59 @@ func (s *RuleCondition) SetOperator(val RuleOperator) {
 // SetValue sets the value of Value.
 func (s *RuleCondition) SetValue(val jx.Raw) {
 	s.Value = val
+}
+
+// Boolean expression tree for conditions.
+// Ref: #/components/schemas/RuleConditionExpression
+type RuleConditionExpression struct {
+	Condition OptRuleCondition      `json:"condition"`
+	Group     OptRuleConditionGroup `json:"group"`
+}
+
+// GetCondition returns the value of Condition.
+func (s *RuleConditionExpression) GetCondition() OptRuleCondition {
+	return s.Condition
+}
+
+// GetGroup returns the value of Group.
+func (s *RuleConditionExpression) GetGroup() OptRuleConditionGroup {
+	return s.Group
+}
+
+// SetCondition sets the value of Condition.
+func (s *RuleConditionExpression) SetCondition(val OptRuleCondition) {
+	s.Condition = val
+}
+
+// SetGroup sets the value of Group.
+func (s *RuleConditionExpression) SetGroup(val OptRuleConditionGroup) {
+	s.Group = val
+}
+
+// Ref: #/components/schemas/RuleConditionGroup
+type RuleConditionGroup struct {
+	Operator LogicalOperator           `json:"operator"`
+	Children []RuleConditionExpression `json:"children"`
+}
+
+// GetOperator returns the value of Operator.
+func (s *RuleConditionGroup) GetOperator() LogicalOperator {
+	return s.Operator
+}
+
+// GetChildren returns the value of Children.
+func (s *RuleConditionGroup) GetChildren() []RuleConditionExpression {
+	return s.Children
+}
+
+// SetOperator sets the value of Operator.
+func (s *RuleConditionGroup) SetOperator(val LogicalOperator) {
+	s.Operator = val
+}
+
+// SetChildren sets the value of Children.
+func (s *RuleConditionGroup) SetChildren(val []RuleConditionExpression) {
+	s.Children = val
 }
 
 // Operator for condition comparison.
@@ -4483,13 +4710,13 @@ func (*SSOProvidersResponse) getSSOProvidersRes() {}
 
 // Ref: #/components/schemas/Segment
 type Segment struct {
-	ID          string          `json:"id"`
-	ProjectID   string          `json:"project_id"`
-	Name        string          `json:"name"`
-	Description OptNilString    `json:"description"`
-	Conditions  []RuleCondition `json:"conditions"`
-	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	ID          string                  `json:"id"`
+	ProjectID   string                  `json:"project_id"`
+	Name        string                  `json:"name"`
+	Description OptNilString            `json:"description"`
+	Conditions  RuleConditionExpression `json:"conditions"`
+	CreatedAt   time.Time               `json:"created_at"`
+	UpdatedAt   time.Time               `json:"updated_at"`
 }
 
 // GetID returns the value of ID.
@@ -4513,7 +4740,7 @@ func (s *Segment) GetDescription() OptNilString {
 }
 
 // GetConditions returns the value of Conditions.
-func (s *Segment) GetConditions() []RuleCondition {
+func (s *Segment) GetConditions() RuleConditionExpression {
 	return s.Conditions
 }
 
@@ -4548,7 +4775,7 @@ func (s *Segment) SetDescription(val OptNilString) {
 }
 
 // SetConditions sets the value of Conditions.
-func (s *Segment) SetConditions(val []RuleCondition) {
+func (s *Segment) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
 }
 
@@ -4924,9 +5151,9 @@ func (s *UpdateProjectRequest) SetDescription(val string) {
 
 // Ref: #/components/schemas/UpdateSegmentRequest
 type UpdateSegmentRequest struct {
-	Name        string          `json:"name"`
-	Description OptNilString    `json:"description"`
-	Conditions  []RuleCondition `json:"conditions"`
+	Name        string                  `json:"name"`
+	Description OptNilString            `json:"description"`
+	Conditions  RuleConditionExpression `json:"conditions"`
 }
 
 // GetName returns the value of Name.
@@ -4940,7 +5167,7 @@ func (s *UpdateSegmentRequest) GetDescription() OptNilString {
 }
 
 // GetConditions returns the value of Conditions.
-func (s *UpdateSegmentRequest) GetConditions() []RuleCondition {
+func (s *UpdateSegmentRequest) GetConditions() RuleConditionExpression {
 	return s.Conditions
 }
 
@@ -4955,7 +5182,7 @@ func (s *UpdateSegmentRequest) SetDescription(val OptNilString) {
 }
 
 // SetConditions sets the value of Conditions.
-func (s *UpdateSegmentRequest) SetConditions(val []RuleCondition) {
+func (s *UpdateSegmentRequest) SetConditions(val RuleConditionExpression) {
 	s.Conditions = val
 }
 

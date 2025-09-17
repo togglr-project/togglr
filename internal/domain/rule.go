@@ -8,7 +8,7 @@ type Rule struct {
 	ID            RuleID
 	ProjectID     ProjectID
 	FeatureID     FeatureID
-	Conditions    Conditions
+	Conditions    BooleanExpression
 	SegmentID     *SegmentID
 	IsCustomized  bool
 	Action        RuleAction
@@ -59,11 +59,3 @@ const (
 	OpRegex      RuleOperator = "regex"      // regex match
 	OpPercentage RuleOperator = "percentage" // percentage rollout
 )
-
-type Condition struct {
-	Attribute RuleAttribute `json:"attribute"`
-	Operator  RuleOperator  `json:"operator"`
-	Value     any           `json:"value"`
-}
-
-type Conditions []Condition
