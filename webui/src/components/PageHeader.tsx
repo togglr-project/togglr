@@ -67,7 +67,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       <Box sx={{ mb: 4, width: '100%' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
           <Skeleton variant="circular" width={32} height={32} />
-          <Skeleton variant="text" width={200} height={32} />
+          <Skeleton variant="text" width={200} height={24} />
           {badge && <Skeleton variant="rectangular" width={80} height={24} sx={{ borderRadius: 1 }} />}
         </Box>
         {subtitle && <Skeleton variant="text" width={300} height={20} />}
@@ -110,6 +110,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             sx={{ 
               fontWeight: 700,
               lineHeight: 1.2,
+              fontSize: '1.55rem',
             }}
           >
             {title}
