@@ -37,6 +37,10 @@ type CreateProjectFeatureRes interface {
 	createProjectFeatureRes()
 }
 
+type CreateProjectSegmentRes interface {
+	createProjectSegmentRes()
+}
+
 type CreateUserRes interface {
 	createUserRes()
 }
@@ -51,6 +55,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteSegmentRes interface {
+	deleteSegmentRes()
 }
 
 type DeleteUserRes interface {
@@ -121,6 +129,10 @@ type GetSSOProvidersRes interface {
 	getSSOProvidersRes()
 }
 
+type GetSegmentRes interface {
+	getSegmentRes()
+}
+
 type ListAllFeatureSchedulesRes interface {
 	listAllFeatureSchedulesRes()
 }
@@ -139,6 +151,10 @@ type ListFeatureSchedulesRes interface {
 
 type ListProjectFeaturesRes interface {
 	listProjectFeaturesRes()
+}
+
+type ListProjectSegmentsRes interface {
+	listProjectSegmentsRes()
 }
 
 type ListProjectsRes interface {
@@ -223,6 +239,10 @@ type UpdateLicenseRes interface {
 
 type UpdateProjectRes interface {
 	updateProjectRes()
+}
+
+type UpdateSegmentRes interface {
+	updateSegmentRes()
 }
 
 type UserChangeMyPasswordRes interface {

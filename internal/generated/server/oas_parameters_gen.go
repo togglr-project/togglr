@@ -341,6 +341,71 @@ func decodeCreateProjectFeatureParams(args [1]string, argsEscaped bool, r *http.
 	return params, nil
 }
 
+// CreateProjectSegmentParams is parameters of CreateProjectSegment operation.
+type CreateProjectSegmentParams struct {
+	ProjectID string
+}
+
+func unpackCreateProjectSegmentParams(packed middleware.Parameters) (params CreateProjectSegmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeCreateProjectSegmentParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateProjectSegmentParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteFeatureParams is parameters of DeleteFeature operation.
 type DeleteFeatureParams struct {
 	FeatureID string
@@ -464,6 +529,71 @@ func decodeDeleteFeatureScheduleParams(args [1]string, argsEscaped bool, r *http
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "schedule_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteSegmentParams is parameters of DeleteSegment operation.
+type DeleteSegmentParams struct {
+	SegmentID string
+}
+
+func unpackDeleteSegmentParams(packed middleware.Parameters) (params DeleteSegmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "segment_id",
+			In:   "path",
+		}
+		params.SegmentID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeDeleteSegmentParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteSegmentParams, _ error) {
+	// Decode path: segment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "segment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SegmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "segment_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -1159,6 +1289,71 @@ func decodeGetProjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 	return params, nil
 }
 
+// GetSegmentParams is parameters of GetSegment operation.
+type GetSegmentParams struct {
+	SegmentID string
+}
+
+func unpackGetSegmentParams(packed middleware.Parameters) (params GetSegmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "segment_id",
+			In:   "path",
+		}
+		params.SegmentID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetSegmentParams(args [1]string, argsEscaped bool, r *http.Request) (params GetSegmentParams, _ error) {
+	// Decode path: segment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "segment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SegmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "segment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListFeatureFlagVariantsParams is parameters of ListFeatureFlagVariants operation.
 type ListFeatureFlagVariantsParams struct {
 	FeatureID string
@@ -1371,6 +1566,71 @@ func unpackListProjectFeaturesParams(packed middleware.Parameters) (params ListP
 }
 
 func decodeListProjectFeaturesParams(args [1]string, argsEscaped bool, r *http.Request) (params ListProjectFeaturesParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListProjectSegmentsParams is parameters of ListProjectSegments operation.
+type ListProjectSegmentsParams struct {
+	ProjectID string
+}
+
+func unpackListProjectSegmentsParams(packed middleware.Parameters) (params ListProjectSegmentsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeListProjectSegmentsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListProjectSegmentsParams, _ error) {
 	// Decode path: project_id.
 	if err := func() error {
 		param := args[0]
@@ -1860,6 +2120,71 @@ func decodeUpdateProjectParams(args [1]string, argsEscaped bool, r *http.Request
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateSegmentParams is parameters of UpdateSegment operation.
+type UpdateSegmentParams struct {
+	SegmentID string
+}
+
+func unpackUpdateSegmentParams(packed middleware.Parameters) (params UpdateSegmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "segment_id",
+			In:   "path",
+		}
+		params.SegmentID = packed[key].(string)
+	}
+	return params
+}
+
+func decodeUpdateSegmentParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateSegmentParams, _ error) {
+	// Decode path: segment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "segment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.SegmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "segment_id",
 			In:   "path",
 			Err:  err,
 		}

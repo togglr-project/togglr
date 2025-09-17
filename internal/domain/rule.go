@@ -9,6 +9,8 @@ type Rule struct {
 	ProjectID     ProjectID
 	FeatureID     FeatureID
 	Conditions    Conditions
+	SegmentID     *SegmentID
+	IsCustomized  bool
 	Action        RuleAction
 	FlagVariantID *FlagVariantID // which variant to assign if the condition matches
 	Priority      uint8

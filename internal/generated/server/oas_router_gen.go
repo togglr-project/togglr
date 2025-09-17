@@ -899,30 +899,70 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 						switch elem[0] {
-						case '/': // Prefix: "/features"
+						case '/': // Prefix: "/"
 
-							if l := len("/features"); len(elem) >= l && elem[0:l] == "/features" {
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleListProjectFeaturesRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								case "POST":
-									s.handleCreateProjectFeatureRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET,POST")
+								break
+							}
+							switch elem[0] {
+							case 'f': // Prefix: "features"
+
+								if l := len("features"); len(elem) >= l && elem[0:l] == "features" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListProjectFeaturesRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "POST":
+										s.handleCreateProjectFeatureRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET,POST")
+									}
+
+									return
+								}
+
+							case 's': // Prefix: "segments"
+
+								if l := len("segments"); len(elem) >= l && elem[0:l] == "segments" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListProjectSegmentsRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "POST":
+										s.handleCreateProjectSegmentRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET,POST")
+									}
+
+									return
+								}
+
 							}
 
 						}
@@ -931,9 +971,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 's': // Prefix: "saml/"
+			case 's': // Prefix: "s"
 
-				if l := len("saml/"); len(elem) >= l && elem[0:l] == "saml/" {
+				if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
 					elem = elem[l:]
 				} else {
 					break
@@ -943,41 +983,94 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case 'a': // Prefix: "acs"
+				case 'a': // Prefix: "aml/"
 
-					if l := len("acs"); len(elem) >= l && elem[0:l] == "acs" {
+					if l := len("aml/"); len(elem) >= l && elem[0:l] == "aml/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "POST":
-							s.handleConsumeSAMLAssertionRequest([0]string{}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "POST")
+						break
+					}
+					switch elem[0] {
+					case 'a': // Prefix: "acs"
+
+						if l := len("acs"); len(elem) >= l && elem[0:l] == "acs" {
+							elem = elem[l:]
+						} else {
+							break
 						}
 
-						return
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleConsumeSAMLAssertionRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					case 'm': // Prefix: "metadata"
+
+						if l := len("metadata"); len(elem) >= l && elem[0:l] == "metadata" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetSAMLMetadataRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
 					}
 
-				case 'm': // Prefix: "metadata"
+				case 'e': // Prefix: "egments/"
 
-					if l := len("metadata"); len(elem) >= l && elem[0:l] == "metadata" {
+					if l := len("egments/"); len(elem) >= l && elem[0:l] == "egments/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
+					// Param: "segment_id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
 					if len(elem) == 0 {
 						// Leaf node.
 						switch r.Method {
+						case "DELETE":
+							s.handleDeleteSegmentRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						case "GET":
-							s.handleGetSAMLMetadataRequest([0]string{}, elemIsEscaped, w, r)
+							s.handleGetSegmentRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateSegmentRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET")
+							s.notAllowed(w, r, "DELETE,GET,PUT")
 						}
 
 						return
@@ -2391,36 +2484,82 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 						switch elem[0] {
-						case '/': // Prefix: "/features"
+						case '/': // Prefix: "/"
 
-							if l := len("/features"); len(elem) >= l && elem[0:l] == "/features" {
+							if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = ListProjectFeaturesOperation
-									r.summary = "List features for project"
-									r.operationID = "ListProjectFeatures"
-									r.pathPattern = "/api/v1/projects/{project_id}/features"
-									r.args = args
-									r.count = 1
-									return r, true
-								case "POST":
-									r.name = CreateProjectFeatureOperation
-									r.summary = "Create feature for project"
-									r.operationID = "CreateProjectFeature"
-									r.pathPattern = "/api/v1/projects/{project_id}/features"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'f': // Prefix: "features"
+
+								if l := len("features"); len(elem) >= l && elem[0:l] == "features" {
+									elem = elem[l:]
+								} else {
+									break
 								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = ListProjectFeaturesOperation
+										r.summary = "List features for project"
+										r.operationID = "ListProjectFeatures"
+										r.pathPattern = "/api/v1/projects/{project_id}/features"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "POST":
+										r.name = CreateProjectFeatureOperation
+										r.summary = "Create feature for project"
+										r.operationID = "CreateProjectFeature"
+										r.pathPattern = "/api/v1/projects/{project_id}/features"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 's': // Prefix: "segments"
+
+								if l := len("segments"); len(elem) >= l && elem[0:l] == "segments" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = ListProjectSegmentsOperation
+										r.summary = "List segments for project"
+										r.operationID = "ListProjectSegments"
+										r.pathPattern = "/api/v1/projects/{project_id}/segments"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "POST":
+										r.name = CreateProjectSegmentOperation
+										r.summary = "Create segment for project"
+										r.operationID = "CreateProjectSegment"
+										r.pathPattern = "/api/v1/projects/{project_id}/segments"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
 							}
 
 						}
@@ -2429,9 +2568,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 's': // Prefix: "saml/"
+			case 's': // Prefix: "s"
 
-				if l := len("saml/"); len(elem) >= l && elem[0:l] == "saml/" {
+				if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
 					elem = elem[l:]
 				} else {
 					break
@@ -2441,48 +2580,111 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case 'a': // Prefix: "acs"
+				case 'a': // Prefix: "aml/"
 
-					if l := len("acs"); len(elem) >= l && elem[0:l] == "acs" {
+					if l := len("aml/"); len(elem) >= l && elem[0:l] == "aml/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "POST":
-							r.name = ConsumeSAMLAssertionOperation
-							r.summary = "Assertion Consumer Service (ACS) endpoint"
-							r.operationID = "ConsumeSAMLAssertion"
-							r.pathPattern = "/api/v1/saml/acs"
-							r.args = args
-							r.count = 0
-							return r, true
-						default:
-							return
+						break
+					}
+					switch elem[0] {
+					case 'a': // Prefix: "acs"
+
+						if l := len("acs"); len(elem) >= l && elem[0:l] == "acs" {
+							elem = elem[l:]
+						} else {
+							break
 						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = ConsumeSAMLAssertionOperation
+								r.summary = "Assertion Consumer Service (ACS) endpoint"
+								r.operationID = "ConsumeSAMLAssertion"
+								r.pathPattern = "/api/v1/saml/acs"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'm': // Prefix: "metadata"
+
+						if l := len("metadata"); len(elem) >= l && elem[0:l] == "metadata" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetSAMLMetadataOperation
+								r.summary = "Get SAML metadata"
+								r.operationID = "GetSAMLMetadata"
+								r.pathPattern = "/api/v1/saml/metadata"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
-				case 'm': // Prefix: "metadata"
+				case 'e': // Prefix: "egments/"
 
-					if l := len("metadata"); len(elem) >= l && elem[0:l] == "metadata" {
+					if l := len("egments/"); len(elem) >= l && elem[0:l] == "egments/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
+					// Param: "segment_id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
 					if len(elem) == 0 {
 						// Leaf node.
 						switch method {
-						case "GET":
-							r.name = GetSAMLMetadataOperation
-							r.summary = "Get SAML metadata"
-							r.operationID = "GetSAMLMetadata"
-							r.pathPattern = "/api/v1/saml/metadata"
+						case "DELETE":
+							r.name = DeleteSegmentOperation
+							r.summary = "Delete segment"
+							r.operationID = "DeleteSegment"
+							r.pathPattern = "/api/v1/segments/{segment_id}"
 							r.args = args
-							r.count = 0
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetSegmentOperation
+							r.summary = "Get segment by ID"
+							r.operationID = "GetSegment"
+							r.pathPattern = "/api/v1/segments/{segment_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateSegmentOperation
+							r.summary = "Update segment"
+							r.operationID = "UpdateSegment"
+							r.pathPattern = "/api/v1/segments/{segment_id}"
+							r.args = args
+							r.count = 1
 							return r, true
 						default:
 							return

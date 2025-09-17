@@ -98,6 +98,15 @@ func (UnimplementedHandler) CreateProjectFeature(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
+// CreateProjectSegment implements CreateProjectSegment operation.
+//
+// Create segment for project.
+//
+// POST /api/v1/projects/{project_id}/segments
+func (UnimplementedHandler) CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (r CreateProjectSegmentRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateUser implements CreateUser operation.
 //
 // Create a new user (superuser only).
@@ -131,6 +140,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteSegment implements DeleteSegment operation.
+//
+// Delete segment.
+//
+// DELETE /api/v1/segments/{segment_id}
+func (UnimplementedHandler) DeleteSegment(ctx context.Context, params DeleteSegmentParams) (r DeleteSegmentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -287,6 +305,15 @@ func (UnimplementedHandler) GetSSOProviders(ctx context.Context) (r GetSSOProvid
 	return r, ht.ErrNotImplemented
 }
 
+// GetSegment implements GetSegment operation.
+//
+// Get segment by ID.
+//
+// GET /api/v1/segments/{segment_id}
+func (UnimplementedHandler) GetSegment(ctx context.Context, params GetSegmentParams) (r GetSegmentRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 //
 // List all feature schedules.
@@ -329,6 +356,15 @@ func (UnimplementedHandler) ListFeatureSchedules(ctx context.Context, params Lis
 //
 // GET /api/v1/projects/{project_id}/features
 func (UnimplementedHandler) ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (r ListProjectFeaturesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectSegments implements ListProjectSegments operation.
+//
+// List segments for project.
+//
+// GET /api/v1/projects/{project_id}/segments
+func (UnimplementedHandler) ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (r ListProjectSegmentsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -518,6 +554,15 @@ func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *Up
 //
 // PUT /api/v1/projects/{project_id}
 func (UnimplementedHandler) UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (r UpdateProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateSegment implements UpdateSegment operation.
+//
+// Update segment.
+//
+// PUT /api/v1/segments/{segment_id}
+func (UnimplementedHandler) UpdateSegment(ctx context.Context, req *UpdateSegmentRequest, params UpdateSegmentParams) (r UpdateSegmentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

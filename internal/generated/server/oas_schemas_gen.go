@@ -499,6 +499,43 @@ func (s *CreateRuleRequest) SetPriority(val OptInt) {
 	s.Priority = val
 }
 
+// Ref: #/components/schemas/CreateSegmentRequest
+type CreateSegmentRequest struct {
+	Name        string          `json:"name"`
+	Description OptNilString    `json:"description"`
+	Conditions  []RuleCondition `json:"conditions"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateSegmentRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *CreateSegmentRequest) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetConditions returns the value of Conditions.
+func (s *CreateSegmentRequest) GetConditions() []RuleCondition {
+	return s.Conditions
+}
+
+// SetName sets the value of Name.
+func (s *CreateSegmentRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *CreateSegmentRequest) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetConditions sets the value of Conditions.
+func (s *CreateSegmentRequest) SetConditions(val []RuleCondition) {
+	s.Conditions = val
+}
+
 // Ref: #/components/schemas/CreateUserRequest
 type CreateUserRequest struct {
 	Username    string  `json:"username"`
@@ -573,6 +610,11 @@ func (*DeleteFeatureNoContent) deleteFeatureRes() {}
 type DeleteFeatureScheduleNoContent struct{}
 
 func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
+
+// DeleteSegmentNoContent is response for DeleteSegment operation.
+type DeleteSegmentNoContent struct{}
+
+func (*DeleteSegmentNoContent) deleteSegmentRes() {}
 
 // DeleteUserNoContent is response for DeleteUser operation.
 type DeleteUserNoContent struct{}
@@ -681,6 +723,7 @@ func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
 func (*ErrorBadRequest) createFeatureRuleRes()        {}
 func (*ErrorBadRequest) createFeatureScheduleRes()    {}
 func (*ErrorBadRequest) createProjectFeatureRes()     {}
+func (*ErrorBadRequest) createProjectSegmentRes()     {}
 func (*ErrorBadRequest) createUserRes()               {}
 func (*ErrorBadRequest) deleteUserRes()               {}
 func (*ErrorBadRequest) disable2FARes()               {}
@@ -698,6 +741,7 @@ func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
 func (*ErrorBadRequest) updateLicenseRes()            {}
 func (*ErrorBadRequest) updateProjectRes()            {}
+func (*ErrorBadRequest) updateSegmentRes()            {}
 func (*ErrorBadRequest) userChangeMyPasswordRes()     {}
 func (*ErrorBadRequest) verify2FARes()                {}
 
@@ -752,9 +796,11 @@ func (*ErrorInternalServerError) createFeatureFlagVariantRes() {}
 func (*ErrorInternalServerError) createFeatureRuleRes()        {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()    {}
 func (*ErrorInternalServerError) createProjectFeatureRes()     {}
+func (*ErrorInternalServerError) createProjectSegmentRes()     {}
 func (*ErrorInternalServerError) createUserRes()               {}
 func (*ErrorInternalServerError) deleteFeatureRes()            {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()    {}
+func (*ErrorInternalServerError) deleteSegmentRes()            {}
 func (*ErrorInternalServerError) deleteUserRes()               {}
 func (*ErrorInternalServerError) forgotPasswordRes()           {}
 func (*ErrorInternalServerError) getCurrentUserRes()           {}
@@ -765,11 +811,13 @@ func (*ErrorInternalServerError) getProductInfoRes()           {}
 func (*ErrorInternalServerError) getProjectRes()               {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()          {}
 func (*ErrorInternalServerError) getSSOProvidersRes()          {}
+func (*ErrorInternalServerError) getSegmentRes()               {}
 func (*ErrorInternalServerError) listAllFeatureSchedulesRes()  {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()  {}
 func (*ErrorInternalServerError) listFeatureRulesRes()         {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()     {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()      {}
+func (*ErrorInternalServerError) listProjectSegmentsRes()      {}
 func (*ErrorInternalServerError) listProjectsRes()             {}
 func (*ErrorInternalServerError) listUsersRes()                {}
 func (*ErrorInternalServerError) loginRes()                    {}
@@ -785,6 +833,7 @@ func (*ErrorInternalServerError) updateFeatureScheduleRes()    {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()  {}
 func (*ErrorInternalServerError) updateLicenseRes()            {}
 func (*ErrorInternalServerError) updateProjectRes()            {}
+func (*ErrorInternalServerError) updateSegmentRes()            {}
 func (*ErrorInternalServerError) userChangeMyPasswordRes()     {}
 
 type ErrorInternalServerErrorError struct {
@@ -854,17 +903,21 @@ func (*ErrorNotFound) createFeatureFlagVariantRes() {}
 func (*ErrorNotFound) createFeatureRuleRes()        {}
 func (*ErrorNotFound) createFeatureScheduleRes()    {}
 func (*ErrorNotFound) createProjectFeatureRes()     {}
+func (*ErrorNotFound) createProjectSegmentRes()     {}
 func (*ErrorNotFound) deleteFeatureRes()            {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()    {}
+func (*ErrorNotFound) deleteSegmentRes()            {}
 func (*ErrorNotFound) deleteUserRes()               {}
 func (*ErrorNotFound) getFeatureRes()               {}
 func (*ErrorNotFound) getFeatureScheduleRes()       {}
 func (*ErrorNotFound) getProjectRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()          {}
+func (*ErrorNotFound) getSegmentRes()               {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()  {}
 func (*ErrorNotFound) listFeatureRulesRes()         {}
 func (*ErrorNotFound) listFeatureSchedulesRes()     {}
 func (*ErrorNotFound) listProjectFeaturesRes()      {}
+func (*ErrorNotFound) listProjectSegmentsRes()      {}
 func (*ErrorNotFound) listUsersRes()                {}
 func (*ErrorNotFound) setSuperuserStatusRes()       {}
 func (*ErrorNotFound) setUserActiveStatusRes()      {}
@@ -872,6 +925,7 @@ func (*ErrorNotFound) toggleFeatureRes()            {}
 func (*ErrorNotFound) updateFeatureRes()            {}
 func (*ErrorNotFound) updateFeatureScheduleRes()    {}
 func (*ErrorNotFound) updateProjectRes()            {}
+func (*ErrorNotFound) updateSegmentRes()            {}
 
 type ErrorNotFoundError struct {
 	Message OptString `json:"message"`
@@ -909,10 +963,12 @@ func (*ErrorPermissionDenied) createFeatureFlagVariantRes() {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()        {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()    {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()     {}
+func (*ErrorPermissionDenied) createProjectSegmentRes()     {}
 func (*ErrorPermissionDenied) createUserRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureRes()            {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()    {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()         {}
+func (*ErrorPermissionDenied) deleteSegmentRes()            {}
 func (*ErrorPermissionDenied) deleteUserRes()               {}
 func (*ErrorPermissionDenied) forgotPasswordRes()           {}
 func (*ErrorPermissionDenied) getFeatureRes()               {}
@@ -925,11 +981,13 @@ func (*ErrorPermissionDenied) getLDAPSyncProgressRes()      {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()        {}
 func (*ErrorPermissionDenied) getProductInfoRes()           {}
 func (*ErrorPermissionDenied) getProjectRes()               {}
+func (*ErrorPermissionDenied) getSegmentRes()               {}
 func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()  {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()  {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()         {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()     {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()      {}
+func (*ErrorPermissionDenied) listProjectSegmentsRes()      {}
 func (*ErrorPermissionDenied) listUsersRes()                {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()       {}
 func (*ErrorPermissionDenied) setUserActiveStatusRes()      {}
@@ -941,6 +999,7 @@ func (*ErrorPermissionDenied) updateFeatureScheduleRes()    {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()         {}
 func (*ErrorPermissionDenied) updateLicenseRes()            {}
 func (*ErrorPermissionDenied) updateProjectRes()            {}
+func (*ErrorPermissionDenied) updateSegmentRes()            {}
 func (*ErrorPermissionDenied) userChangeMyPasswordRes()     {}
 
 type ErrorPermissionDeniedError struct {
@@ -1041,10 +1100,12 @@ func (*ErrorUnauthorized) createFeatureFlagVariantRes() {}
 func (*ErrorUnauthorized) createFeatureRuleRes()        {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()    {}
 func (*ErrorUnauthorized) createProjectFeatureRes()     {}
+func (*ErrorUnauthorized) createProjectSegmentRes()     {}
 func (*ErrorUnauthorized) createUserRes()               {}
 func (*ErrorUnauthorized) deleteFeatureRes()            {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()    {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()         {}
+func (*ErrorUnauthorized) deleteSegmentRes()            {}
 func (*ErrorUnauthorized) deleteUserRes()               {}
 func (*ErrorUnauthorized) disable2FARes()               {}
 func (*ErrorUnauthorized) getCurrentUserRes()           {}
@@ -1058,11 +1119,13 @@ func (*ErrorUnauthorized) getLDAPSyncProgressRes()      {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()        {}
 func (*ErrorUnauthorized) getProductInfoRes()           {}
 func (*ErrorUnauthorized) getProjectRes()               {}
+func (*ErrorUnauthorized) getSegmentRes()               {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()  {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()  {}
 func (*ErrorUnauthorized) listFeatureRulesRes()         {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()      {}
+func (*ErrorUnauthorized) listProjectSegmentsRes()      {}
 func (*ErrorUnauthorized) listProjectsRes()             {}
 func (*ErrorUnauthorized) listUsersRes()                {}
 func (*ErrorUnauthorized) refreshTokenRes()             {}
@@ -1082,6 +1145,7 @@ func (*ErrorUnauthorized) updateLDAPConfigRes()         {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()  {}
 func (*ErrorUnauthorized) updateLicenseRes()            {}
 func (*ErrorUnauthorized) updateProjectRes()            {}
+func (*ErrorUnauthorized) updateSegmentRes()            {}
 func (*ErrorUnauthorized) userChangeMyPasswordRes()     {}
 func (*ErrorUnauthorized) verify2FARes()                {}
 
@@ -2937,6 +3001,10 @@ type ListRulesResponse []Rule
 
 func (*ListRulesResponse) listFeatureRulesRes() {}
 
+type ListSegmentsResponse []Segment
+
+func (*ListSegmentsResponse) listProjectSegmentsRes() {}
+
 type ListUsersResponse []User
 
 func (*ListUsersResponse) listUsersRes() {}
@@ -4413,6 +4481,106 @@ func (s *SSOProvidersResponse) SetProviders(val []SSOProvider) {
 
 func (*SSOProvidersResponse) getSSOProvidersRes() {}
 
+// Ref: #/components/schemas/Segment
+type Segment struct {
+	ID          string          `json:"id"`
+	ProjectID   string          `json:"project_id"`
+	Name        string          `json:"name"`
+	Description OptNilString    `json:"description"`
+	Conditions  []RuleCondition `json:"conditions"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Segment) GetID() string {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *Segment) GetProjectID() string {
+	return s.ProjectID
+}
+
+// GetName returns the value of Name.
+func (s *Segment) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *Segment) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetConditions returns the value of Conditions.
+func (s *Segment) GetConditions() []RuleCondition {
+	return s.Conditions
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Segment) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Segment) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Segment) SetID(val string) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *Segment) SetProjectID(val string) {
+	s.ProjectID = val
+}
+
+// SetName sets the value of Name.
+func (s *Segment) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Segment) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetConditions sets the value of Conditions.
+func (s *Segment) SetConditions(val []RuleCondition) {
+	s.Conditions = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Segment) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Segment) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+// Ref: #/components/schemas/SegmentResponse
+type SegmentResponse struct {
+	Segment Segment `json:"segment"`
+}
+
+// GetSegment returns the value of Segment.
+func (s *SegmentResponse) GetSegment() Segment {
+	return s.Segment
+}
+
+// SetSegment sets the value of Segment.
+func (s *SegmentResponse) SetSegment(val Segment) {
+	s.Segment = val
+}
+
+func (*SegmentResponse) createProjectSegmentRes() {}
+func (*SegmentResponse) getSegmentRes()           {}
+func (*SegmentResponse) updateSegmentRes()        {}
+
 // Send2FACodeNoContent is response for Send2FACode operation.
 type Send2FACodeNoContent struct{}
 
@@ -4752,6 +4920,43 @@ func (s *UpdateProjectRequest) SetName(val string) {
 // SetDescription sets the value of Description.
 func (s *UpdateProjectRequest) SetDescription(val string) {
 	s.Description = val
+}
+
+// Ref: #/components/schemas/UpdateSegmentRequest
+type UpdateSegmentRequest struct {
+	Name        string          `json:"name"`
+	Description OptNilString    `json:"description"`
+	Conditions  []RuleCondition `json:"conditions"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateSegmentRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *UpdateSegmentRequest) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetConditions returns the value of Conditions.
+func (s *UpdateSegmentRequest) GetConditions() []RuleCondition {
+	return s.Conditions
+}
+
+// SetName sets the value of Name.
+func (s *UpdateSegmentRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *UpdateSegmentRequest) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetConditions sets the value of Conditions.
+func (s *UpdateSegmentRequest) SetConditions(val []RuleCondition) {
+	s.Conditions = val
 }
 
 // Ref: #/components/schemas/User

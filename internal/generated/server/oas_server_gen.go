@@ -66,6 +66,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/features
 	CreateProjectFeature(ctx context.Context, req *CreateFeatureRequest, params CreateProjectFeatureParams) (CreateProjectFeatureRes, error)
+	// CreateProjectSegment implements CreateProjectSegment operation.
+	//
+	// Create segment for project.
+	//
+	// POST /api/v1/projects/{project_id}/segments
+	CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
 	// CreateUser implements CreateUser operation.
 	//
 	// Create a new user (superuser only).
@@ -90,6 +96,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteSegment implements DeleteSegment operation.
+	//
+	// Delete segment.
+	//
+	// DELETE /api/v1/segments/{segment_id}
+	DeleteSegment(ctx context.Context, params DeleteSegmentParams) (DeleteSegmentRes, error)
 	// DeleteUser implements DeleteUser operation.
 	//
 	// Delete a user (superuser only, cannot delete superusers).
@@ -192,6 +204,12 @@ type Handler interface {
 	//
 	// GET /api/v1/auth/sso/providers
 	GetSSOProviders(ctx context.Context) (GetSSOProvidersRes, error)
+	// GetSegment implements GetSegment operation.
+	//
+	// Get segment by ID.
+	//
+	// GET /api/v1/segments/{segment_id}
+	GetSegment(ctx context.Context, params GetSegmentParams) (GetSegmentRes, error)
 	// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 	//
 	// List all feature schedules.
@@ -222,6 +240,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/features
 	ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (ListProjectFeaturesRes, error)
+	// ListProjectSegments implements ListProjectSegments operation.
+	//
+	// List segments for project.
+	//
+	// GET /api/v1/projects/{project_id}/segments
+	ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (ListProjectSegmentsRes, error)
 	// ListProjects implements ListProjects operation.
 	//
 	// Get projects list.
@@ -348,6 +372,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateSegment implements UpdateSegment operation.
+	//
+	// Update segment.
+	//
+	// PUT /api/v1/segments/{segment_id}
+	UpdateSegment(ctx context.Context, req *UpdateSegmentRequest, params UpdateSegmentParams) (UpdateSegmentRes, error)
 	// UserChangeMyPassword implements userChangeMyPassword operation.
 	//
 	// Change my password.
