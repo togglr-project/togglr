@@ -687,7 +687,7 @@ func (s *FeatureDetailsResponse) Validate() error {
 
 func (s FeatureKind) Validate() error {
 	switch s {
-	case "boolean":
+	case "simple":
 		return nil
 	case "multivariant":
 		return nil

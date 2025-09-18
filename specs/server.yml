@@ -3695,7 +3695,7 @@ components:
     FeatureKind:
       type: string
       enum:
-        - boolean
+        - simple
         - multivariant
 
     Feature:

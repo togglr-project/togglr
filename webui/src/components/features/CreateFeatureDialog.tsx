@@ -35,7 +35,7 @@ const genId = (): string => {
   return g;
 };
 
-const kindOptions: FeatureKind[] = ['boolean', 'multivariant'];
+const kindOptions: FeatureKind[] = ['simple', 'multivariant'];
 const rolloutKeyOptions = ['user.id', 'user.email'];
 
 type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
@@ -57,7 +57,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [rolloutKey, setRolloutKey] = useState('');
-  const [kind, setKind] = useState<FeatureKind>('boolean');
+  const [kind, setKind] = useState<FeatureKind>('simple');
   const [defaultVariant, setDefaultVariant] = useState('');
   const [enabled, setEnabled] = useState(true);
   const [variants, setVariants] = useState<VariantFormItem[]>([{ id: genId(), name: 'control', rollout_percent: 100 }]);
@@ -122,9 +122,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     }));
   }, [variants]);
 
-  // When switching to boolean, drop any assign rules (not allowed for boolean)
+  // When switching to simple, drop any assign rules (not allowed for simple)
   useEffect(() => {
-    if (kind === 'boolean') {
+    if (kind === 'simple') {
       setRules((prev) => prev.filter((r) => r.action !== RuleActionEnum.Assign));
     }
   }, [kind]);
@@ -134,7 +134,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     setName('');
     setDescription('');
     setRolloutKey('');
-    setKind('boolean');
+    setKind('simple');
     setDefaultVariant('');
     setEnabled(true);
     setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
@@ -322,7 +322,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               )}
             />
           )}
-          {kind === 'boolean' ? (
+          {kind === 'simple' ? (
             <TextField
               label="Default value (returned when enabled)"
               value={defaultVariant}
@@ -462,7 +462,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               <Typography variant="subtitle2">Include rules</Typography>
               <Button startIcon={<AddIcon />} onClick={() => addRule(RuleActionEnum.Include)} size="small">Add Rule</Button>
             </Box>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Define experiment segment. Matching requests participate in rollout between variants (for multivariant) or are subjected to flag action (for boolean).</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Define experiment segment. Matching requests participate in rollout between variants (for multivariant) or are subjected to flag action (for simple).</Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               {rules.filter(r => r.action === RuleActionEnum.Include).sort((a,b) => (Number(a.priority || 0) - Number(b.priority || 0))).map((r) => (
                 <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>

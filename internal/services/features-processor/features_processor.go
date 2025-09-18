@@ -630,7 +630,7 @@ func rolloutOrDefault(
 	reqCtx map[domain.RuleAttribute]any,
 	defaultVariant string,
 ) string {
-	if kind == domain.FeatureKindBoolean {
+	if kind == domain.FeatureKindSimple {
 		return defaultVariant
 	}
 

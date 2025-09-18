@@ -58,6 +58,7 @@ docs/LicenseType.md
 docs/LogicalOperator.md
 docs/LoginRequest.md
 docs/LoginResponse.md
+docs/Pagination.md
 docs/ProductInfoResponse.md
 docs/Project.md
 docs/ProjectResponse.md
@@ -79,6 +80,7 @@ docs/Segment.md
 docs/SegmentResponse.md
 docs/SetSuperuserStatusRequest.md
 docs/SetUserActiveStatusRequest.md
+docs/SortOrder.md
 docs/SuccessResponse.md
 docs/ToggleFeatureRequest.md
 docs/TwoFAConfirmRequest.md

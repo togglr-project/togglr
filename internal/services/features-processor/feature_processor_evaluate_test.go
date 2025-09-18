@@ -38,7 +38,7 @@ func TestService_Evaluate_Table2(t *testing.T) {
 					},
 					Priority: 0,
 				},
-			}, nil, domain.FeatureKindBoolean, "default"),
+			}, nil, domain.FeatureKindSimple, "default"),
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
 			wantValue:     "",
 			wantEn:        false,

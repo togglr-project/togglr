@@ -48,7 +48,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [rolloutKey, setRolloutKey] = useState('');
-  const [kind, setKind] = useState<string>(FeatureKindEnum.Boolean);
+  const [kind, setKind] = useState<string>(FeatureKindEnum.Simple);
   const [enabled, setEnabled] = useState<boolean>(false);
   const [variants, setVariants] = useState<VariantForm[]>([]);
   const [defaultVariant, setDefaultVariant] = useState<string>('');
@@ -463,7 +463,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                   <Typography variant="subtitle2">Include rules</Typography>
                   <Button startIcon={<Add />} onClick={() => addRule(RuleActionEnum.Include)} size="small">Add Rule</Button>
                 </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Define experiment segment. Matching requests participate in rollout between variants (for multivariant) or are subjected to flag action (for boolean).</Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>Define experiment segment. Matching requests participate in rollout between variants (for multivariant) or are subjected to flag action (for simple).</Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                   {rules.filter(r => r.action === RuleActionEnum.Include).sort((a,b) => a.priority - b.priority).map((r) => (
                     <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>

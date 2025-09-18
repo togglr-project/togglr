@@ -1,10 +1,11 @@
-# FeatureKind
+# SortOrder
 
+Sort order (ascending or descending)
 
 ## Enum
 
-* `Simple` (value: `'simple'`)
+* `Asc` (value: `'asc'`)
 
-* `Multivariant` (value: `'multivariant'`)
+* `Desc` (value: `'desc'`)
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

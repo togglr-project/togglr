@@ -1384,14 +1384,14 @@ func (*FeatureDetailsResponse) updateFeatureRes() {}
 type FeatureKind string
 
 const (
-	FeatureKindBoolean      FeatureKind = "boolean"
+	FeatureKindSimple       FeatureKind = "simple"
 	FeatureKindMultivariant FeatureKind = "multivariant"
 )
 
 // AllValues returns all FeatureKind values.
 func (FeatureKind) AllValues() []FeatureKind {
 	return []FeatureKind{
-		FeatureKindBoolean,
+		FeatureKindSimple,
 		FeatureKindMultivariant,
 	}
 }
@@ -1399,7 +1399,7 @@ func (FeatureKind) AllValues() []FeatureKind {
 // MarshalText implements encoding.TextMarshaler.
 func (s FeatureKind) MarshalText() ([]byte, error) {
 	switch s {
-	case FeatureKindBoolean:
+	case FeatureKindSimple:
 		return []byte(s), nil
 	case FeatureKindMultivariant:
 		return []byte(s), nil
@@ -1411,8 +1411,8 @@ func (s FeatureKind) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *FeatureKind) UnmarshalText(data []byte) error {
 	switch FeatureKind(data) {
-	case FeatureKindBoolean:
-		*s = FeatureKindBoolean
+	case FeatureKindSimple:
+		*s = FeatureKindSimple
 		return nil
 	case FeatureKindMultivariant:
 		*s = FeatureKindMultivariant

@@ -166,7 +166,7 @@ export interface FeatureDetailsResponse {
 }
 
 export const FeatureKind = {
-    Boolean: 'boolean',
+    Simple: 'simple',
     Multivariant: 'multivariant'
 } as const;
 
@@ -491,6 +491,11 @@ export interface LoginResponse {
 export interface ModelError {
     'error': ErrorError;
 }
+export interface Pagination {
+    'total': number;
+    'page': number;
+    'per_page': number;
+}
 export interface ProductInfoResponse {
     /**
      * Unique client identifier for this installation
@@ -671,6 +676,18 @@ export interface SetSuperuserStatusRequest {
 export interface SetUserActiveStatusRequest {
     'is_active': boolean;
 }
+/**
+ * Sort order (ascending or descending)
+ */
+
+export const SortOrder = {
+    Asc: 'asc',
+    Desc: 'desc'
+} as const;
+
+export type SortOrder = typeof SortOrder[keyof typeof SortOrder];
+
+
 export interface SuccessResponse {
     'message'?: string;
 }

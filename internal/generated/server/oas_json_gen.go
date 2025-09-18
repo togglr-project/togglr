@@ -3548,8 +3548,8 @@ func (s *FeatureKind) Decode(d *jx.Decoder) error {
 	}
 	// Try to use constant string.
 	switch FeatureKind(v) {
-	case FeatureKindBoolean:
-		*s = FeatureKindBoolean
+	case FeatureKindSimple:
+		*s = FeatureKindSimple
 	case FeatureKindMultivariant:
 		*s = FeatureKindMultivariant
 	default:
