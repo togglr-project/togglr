@@ -49,6 +49,38 @@ func (s *Error) SetError(val ErrorError) {
 	s.Error = val
 }
 
+// Merged schema.
+// Ref: #/components/schemas/ErrorBadRequest
+type ErrorBadRequest struct {
+	Error ErrorBadRequestError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorBadRequest) GetError() ErrorBadRequestError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
+	s.Error = val
+}
+
+func (*ErrorBadRequest) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+
+type ErrorBadRequestError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorBadRequestError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorBadRequestError) SetMessage(val OptString) {
+	s.Message = val
+}
+
 type ErrorError struct {
 	Message OptString `json:"message"`
 }
@@ -92,6 +124,38 @@ func (s *ErrorInternalServerErrorError) GetMessage() OptString {
 
 // SetMessage sets the value of Message.
 func (s *ErrorInternalServerErrorError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// Merged schema.
+// Ref: #/components/schemas/ErrorNotFound
+type ErrorNotFound struct {
+	Error ErrorNotFoundError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorNotFound) GetError() ErrorNotFoundError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
+	s.Error = val
+}
+
+func (*ErrorNotFound) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+
+type ErrorNotFoundError struct {
+	Message OptString `json:"message"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorNotFoundError) GetMessage() OptString {
+	return s.Message
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorNotFoundError) SetMessage(val OptString) {
 	s.Message = val
 }
 
@@ -172,7 +236,6 @@ type EvaluateResponse struct {
 	FeatureKey string `json:"feature_key"`
 	Enabled    bool   `json:"enabled"`
 	Value      string `json:"value"`
-	Found      bool   `json:"found"`
 }
 
 // GetFeatureKey returns the value of FeatureKey.
@@ -190,11 +253,6 @@ func (s *EvaluateResponse) GetValue() string {
 	return s.Value
 }
 
-// GetFound returns the value of Found.
-func (s *EvaluateResponse) GetFound() bool {
-	return s.Found
-}
-
 // SetFeatureKey sets the value of FeatureKey.
 func (s *EvaluateResponse) SetFeatureKey(val string) {
 	s.FeatureKey = val
@@ -208,11 +266,6 @@ func (s *EvaluateResponse) SetEnabled(val bool) {
 // SetValue sets the value of Value.
 func (s *EvaluateResponse) SetValue(val string) {
 	s.Value = val
-}
-
-// SetFound sets the value of Found.
-func (s *EvaluateResponse) SetFound(val bool) {
-	s.Found = val
 }
 
 func (*EvaluateResponse) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
@@ -324,11 +377,6 @@ func (o OptString) Or(d string) string {
 	}
 	return d
 }
-
-// SdkV1FeaturesFeatureKeyEvaluatePostNotFound is response for SdkV1FeaturesFeatureKeyEvaluatePost operation.
-type SdkV1FeaturesFeatureKeyEvaluatePostNotFound struct{}
-
-func (*SdkV1FeaturesFeatureKeyEvaluatePostNotFound) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 // SdkV1HealthGetDef is default response for SdkV1HealthGet operation.
 type SdkV1HealthGetDef struct {
