@@ -72,6 +72,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/segments
 	CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
+	// CreateRuleAttribute implements CreateRuleAttribute operation.
+	//
+	// Create rule attribute.
+	//
+	// POST /api/v1/rule_attributes
+	CreateRuleAttribute(ctx context.Context, req *CreateRuleAttributeRequest) (CreateRuleAttributeRes, error)
 	// CreateUser implements CreateUser operation.
 	//
 	// Create a new user (superuser only).
@@ -96,6 +102,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteRuleAttribute implements DeleteRuleAttribute operation.
+	//
+	// Delete rule attribute.
+	//
+	// DELETE /api/v1/rule_attributes/{name}
+	DeleteRuleAttribute(ctx context.Context, params DeleteRuleAttributeParams) (DeleteRuleAttributeRes, error)
 	// DeleteSegment implements DeleteSegment operation.
 	//
 	// Delete segment.
@@ -252,6 +264,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects
 	ListProjects(ctx context.Context) (ListProjectsRes, error)
+	// ListRuleAttributes implements ListRuleAttributes operation.
+	//
+	// List of rule attributes.
+	//
+	// GET /api/v1/rule_attributes
+	ListRuleAttributes(ctx context.Context) (ListRuleAttributesRes, error)
 	// ListSegmentDesyncFeatureIDs implements ListSegmentDesyncFeatureIDs operation.
 	//
 	// Get desync feature IDs by segment ID.

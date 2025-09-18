@@ -30,6 +30,7 @@ type RestAPI struct {
 	flagVariantsUseCase     contract.FlagVariantsUseCase
 	rulesUseCase            contract.RulesUseCase
 	featureSchedulesUseCase contract.FeatureSchedulesUseCase
+	ruleAttributesUseCase   contract.RuleAttributesUseCase
 	segmentsUseCase         contract.SegmentsUseCase
 }
 
@@ -48,6 +49,7 @@ func New(
 	rulesUseCase contract.RulesUseCase,
 	featureSchedulesUseCase contract.FeatureSchedulesUseCase,
 	permissionsService contract.PermissionsService,
+	ruleAttributesUseCase contract.RuleAttributesUseCase,
 	segmentsUseCase contract.SegmentsUseCase,
 ) *RestAPI {
 	return &RestAPI{
@@ -65,6 +67,7 @@ func New(
 		flagVariantsUseCase:     flagVariantsUseCase,
 		rulesUseCase:            rulesUseCase,
 		featureSchedulesUseCase: featureSchedulesUseCase,
+		ruleAttributesUseCase:   ruleAttributesUseCase,
 		segmentsUseCase:         segmentsUseCase,
 	}
 }

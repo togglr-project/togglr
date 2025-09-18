@@ -391,6 +391,37 @@ func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 	s.RolloutPercent = val
 }
 
+// CreateRuleAttributeNoContent is response for CreateRuleAttribute operation.
+type CreateRuleAttributeNoContent struct{}
+
+func (*CreateRuleAttributeNoContent) createRuleAttributeRes() {}
+
+// Ref: #/components/schemas/CreateRuleAttributeRequest
+type CreateRuleAttributeRequest struct {
+	Name        string    `json:"name"`
+	Description OptString `json:"description"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateRuleAttributeRequest) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *CreateRuleAttributeRequest) GetDescription() OptString {
+	return s.Description
+}
+
+// SetName sets the value of Name.
+func (s *CreateRuleAttributeRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *CreateRuleAttributeRequest) SetDescription(val OptString) {
+	s.Description = val
+}
+
 // Ref: #/components/schemas/CreateRuleInline
 type CreateRuleInline struct {
 	// Client-provided UUID for the rule.
@@ -655,6 +686,11 @@ type DeleteFeatureScheduleNoContent struct{}
 
 func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
 
+// DeleteRuleAttributeNoContent is response for DeleteRuleAttribute operation.
+type DeleteRuleAttributeNoContent struct{}
+
+func (*DeleteRuleAttributeNoContent) deleteRuleAttributeRes() {}
+
 // DeleteSegmentNoContent is response for DeleteSegment operation.
 type DeleteSegmentNoContent struct{}
 
@@ -686,6 +722,7 @@ func (s *Error) SetError(val ErrorError) {
 }
 
 func (*Error) cancelLDAPSyncRes()        {}
+func (*Error) createRuleAttributeRes()   {}
 func (*Error) getLDAPConfigRes()         {}
 func (*Error) getLDAPSyncLogDetailsRes() {}
 func (*Error) syncLDAPUsersRes()         {}
@@ -768,7 +805,9 @@ func (*ErrorBadRequest) createFeatureRuleRes()        {}
 func (*ErrorBadRequest) createFeatureScheduleRes()    {}
 func (*ErrorBadRequest) createProjectFeatureRes()     {}
 func (*ErrorBadRequest) createProjectSegmentRes()     {}
+func (*ErrorBadRequest) createRuleAttributeRes()      {}
 func (*ErrorBadRequest) createUserRes()               {}
+func (*ErrorBadRequest) deleteRuleAttributeRes()      {}
 func (*ErrorBadRequest) deleteUserRes()               {}
 func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
@@ -841,9 +880,11 @@ func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) createProjectFeatureRes()        {}
 func (*ErrorInternalServerError) createProjectSegmentRes()        {}
+func (*ErrorInternalServerError) createRuleAttributeRes()         {}
 func (*ErrorInternalServerError) createUserRes()                  {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
+func (*ErrorInternalServerError) deleteRuleAttributeRes()         {}
 func (*ErrorInternalServerError) deleteSegmentRes()               {}
 func (*ErrorInternalServerError) deleteUserRes()                  {}
 func (*ErrorInternalServerError) forgotPasswordRes()              {}
@@ -863,6 +904,7 @@ func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
 func (*ErrorInternalServerError) listProjectsRes()                {}
+func (*ErrorInternalServerError) listRuleAttributesRes()          {}
 func (*ErrorInternalServerError) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorInternalServerError) listUsersRes()                   {}
 func (*ErrorInternalServerError) loginRes()                       {}
@@ -952,6 +994,7 @@ func (*ErrorNotFound) createProjectFeatureRes()        {}
 func (*ErrorNotFound) createProjectSegmentRes()        {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
+func (*ErrorNotFound) deleteRuleAttributeRes()         {}
 func (*ErrorNotFound) deleteSegmentRes()               {}
 func (*ErrorNotFound) deleteUserRes()                  {}
 func (*ErrorNotFound) getFeatureRes()                  {}
@@ -1012,10 +1055,12 @@ func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()        {}
 func (*ErrorPermissionDenied) createProjectSegmentRes()        {}
+func (*ErrorPermissionDenied) createRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) createUserRes()                  {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) deleteRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) deleteSegmentRes()               {}
 func (*ErrorPermissionDenied) deleteUserRes()                  {}
 func (*ErrorPermissionDenied) forgotPasswordRes()              {}
@@ -1151,10 +1196,12 @@ func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) createProjectFeatureRes()        {}
 func (*ErrorUnauthorized) createProjectSegmentRes()        {}
+func (*ErrorUnauthorized) createRuleAttributeRes()         {}
 func (*ErrorUnauthorized) createUserRes()                  {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
+func (*ErrorUnauthorized) deleteRuleAttributeRes()         {}
 func (*ErrorUnauthorized) deleteSegmentRes()               {}
 func (*ErrorUnauthorized) deleteUserRes()                  {}
 func (*ErrorUnauthorized) disable2FARes()                  {}
@@ -1177,6 +1224,7 @@ func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
 func (*ErrorUnauthorized) listProjectsRes()                {}
+func (*ErrorUnauthorized) listRuleAttributesRes()          {}
 func (*ErrorUnauthorized) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorUnauthorized) listUsersRes()                   {}
 func (*ErrorUnauthorized) refreshTokenRes()                {}
@@ -3053,6 +3101,10 @@ type ListProjectsResponse []Project
 
 func (*ListProjectsResponse) listProjectsRes() {}
 
+type ListRuleAttributesResponse []RuleAttributeEntity
+
+func (*ListRuleAttributesResponse) listRuleAttributesRes() {}
+
 type ListRulesResponse []Rule
 
 func (*ListRulesResponse) listFeatureRulesRes() {}
@@ -4371,6 +4423,32 @@ func (s *RuleAction) UnmarshalText(data []byte) error {
 }
 
 type RuleAttribute string
+
+// Ref: #/components/schemas/RuleAttributeEntity
+type RuleAttributeEntity struct {
+	Name        string    `json:"name"`
+	Description OptString `json:"description"`
+}
+
+// GetName returns the value of Name.
+func (s *RuleAttributeEntity) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *RuleAttributeEntity) GetDescription() OptString {
+	return s.Description
+}
+
+// SetName sets the value of Name.
+func (s *RuleAttributeEntity) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *RuleAttributeEntity) SetDescription(val OptString) {
+	s.Description = val
+}
 
 // Single condition item.
 // Ref: #/components/schemas/RuleCondition

@@ -107,6 +107,15 @@ func (UnimplementedHandler) CreateProjectSegment(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
+// CreateRuleAttribute implements CreateRuleAttribute operation.
+//
+// Create rule attribute.
+//
+// POST /api/v1/rule_attributes
+func (UnimplementedHandler) CreateRuleAttribute(ctx context.Context, req *CreateRuleAttributeRequest) (r CreateRuleAttributeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateUser implements CreateUser operation.
 //
 // Create a new user (superuser only).
@@ -140,6 +149,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteRuleAttribute implements DeleteRuleAttribute operation.
+//
+// Delete rule attribute.
+//
+// DELETE /api/v1/rule_attributes/{name}
+func (UnimplementedHandler) DeleteRuleAttribute(ctx context.Context, params DeleteRuleAttributeParams) (r DeleteRuleAttributeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -374,6 +392,15 @@ func (UnimplementedHandler) ListProjectSegments(ctx context.Context, params List
 //
 // GET /api/v1/projects
 func (UnimplementedHandler) ListProjects(ctx context.Context) (r ListProjectsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListRuleAttributes implements ListRuleAttributes operation.
+//
+// List of rule attributes.
+//
+// GET /api/v1/rule_attributes
+func (UnimplementedHandler) ListRuleAttributes(ctx context.Context) (r ListRuleAttributesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

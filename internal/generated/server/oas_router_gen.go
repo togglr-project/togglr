@@ -1018,6 +1018,60 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'r': // Prefix: "rule_attributes"
+
+				if l := len("rule_attributes"); len(elem) >= l && elem[0:l] == "rule_attributes" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleListRuleAttributesRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateRuleAttributeRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "name"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteRuleAttributeRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE")
+						}
+
+						return
+					}
+
+				}
+
 			case 's': // Prefix: "s"
 
 				if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
@@ -2682,6 +2736,72 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 						}
 
+					}
+
+				}
+
+			case 'r': // Prefix: "rule_attributes"
+
+				if l := len("rule_attributes"); len(elem) >= l && elem[0:l] == "rule_attributes" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = ListRuleAttributesOperation
+						r.summary = "List of rule attributes"
+						r.operationID = "ListRuleAttributes"
+						r.pathPattern = "/api/v1/rule_attributes"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateRuleAttributeOperation
+						r.summary = "Create rule attribute"
+						r.operationID = "CreateRuleAttribute"
+						r.pathPattern = "/api/v1/rule_attributes"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "name"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "DELETE":
+							r.name = DeleteRuleAttributeOperation
+							r.summary = "Delete rule attribute"
+							r.operationID = "DeleteRuleAttribute"
+							r.pathPattern = "/api/v1/rule_attributes/{name}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
 					}
 
 				}

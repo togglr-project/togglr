@@ -41,6 +41,10 @@ type CreateProjectSegmentRes interface {
 	createProjectSegmentRes()
 }
 
+type CreateRuleAttributeRes interface {
+	createRuleAttributeRes()
+}
+
 type CreateUserRes interface {
 	createUserRes()
 }
@@ -55,6 +59,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteRuleAttributeRes interface {
+	deleteRuleAttributeRes()
 }
 
 type DeleteSegmentRes interface {
@@ -159,6 +167,10 @@ type ListProjectSegmentsRes interface {
 
 type ListProjectsRes interface {
 	listProjectsRes()
+}
+
+type ListRuleAttributesRes interface {
+	listRuleAttributesRes()
 }
 
 type ListSegmentDesyncFeatureIDsRes interface {

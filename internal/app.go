@@ -30,6 +30,7 @@ import (
 	"github.com/rom8726/etoggle/internal/repository/productinfo"
 	"github.com/rom8726/etoggle/internal/repository/projects"
 	"github.com/rom8726/etoggle/internal/repository/rbac"
+	ruleattributesrepo "github.com/rom8726/etoggle/internal/repository/ruleattributes"
 	"github.com/rom8726/etoggle/internal/repository/rules"
 	segmentsrepo "github.com/rom8726/etoggle/internal/repository/segments"
 	"github.com/rom8726/etoggle/internal/repository/settings"
@@ -49,6 +50,7 @@ import (
 	licenseusecase "github.com/rom8726/etoggle/internal/usecases/license"
 	productinfousecase "github.com/rom8726/etoggle/internal/usecases/productinfo"
 	projectsusecase "github.com/rom8726/etoggle/internal/usecases/projects"
+	ruleattributesusecase "github.com/rom8726/etoggle/internal/usecases/ruleattributes"
 	rulesusecase "github.com/rom8726/etoggle/internal/usecases/rules"
 	segmentsusecase "github.com/rom8726/etoggle/internal/usecases/segments"
 	settingsusecase "github.com/rom8726/etoggle/internal/usecases/settings"
@@ -191,6 +193,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(rules.New).Arg(app.PostgresPool)
 	app.registerComponent(featureschedules.New).Arg(app.PostgresPool)
 	app.registerComponent(segmentsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(ruleattributesrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(auditlog.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
@@ -217,6 +220,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(rulesusecase.New)
 	app.registerComponent(featureschedulesusecase.New)
 	app.registerComponent(segmentsusecase.New)
+	app.registerComponent(ruleattributesusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

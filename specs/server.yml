@@ -2955,6 +2955,139 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/rule_attributes:
+    get:
+      summary: List of rule attributes
+      operationId: ListRuleAttributes
+      responses:
+        '200':
+          description: List of rule attributes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListRuleAttributesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create rule attribute
+      operationId: CreateRuleAttribute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRuleAttributeRequest'
+      responses:
+        '204':
+          description: Attribute created
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '409':
+          description: Attribute already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+  /api/v1/rule_attributes/{name}:
+    delete:
+      summary: Delete rule attribute
+      operationId: DeleteRuleAttribute
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: [ ]
+      responses:
+        '204':
+          description: Attribute deleted successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Attribute not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -4394,3 +4527,32 @@ components:
           description: When the client ID was created
           example: "2024-01-15T10:30:00Z"
       required: [client_id, created_at]
+
+    CreateRuleAttributeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "user.id"
+          minLength: 2
+        description:
+          type: string
+          example: "User ID"
+      required: [name]
+
+    ListRuleAttributesResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/RuleAttributeEntity'
+
+    RuleAttributeEntity:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "user.id"
+          minLength: 2
+        description:
+          type: string
+          example: "User ID"
+      required: [name]
