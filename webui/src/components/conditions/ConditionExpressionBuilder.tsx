@@ -1,7 +1,10 @@
 import React from 'react';
 import { Box, Button, Grid, IconButton, MenuItem, Select, TextField, Typography, Tooltip } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import { Add as AddIcon, Delete as DeleteIcon, PlaylistAdd as AddGroupIcon } from '@mui/icons-material';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../../api/apiClient';
 import type { RuleConditionExpression, RuleConditionGroup, RuleCondition, LogicalOperator as LogicalOperatorType, RuleOperator as RuleOperatorType } from '../../generated/api/client';
 import { LogicalOperator, RuleOperator } from '../../generated/api/client';
 
@@ -75,16 +78,26 @@ const ConditionRow: React.FC<{
   value: UiCondition;
   onChange: (next: UiCondition) => void;
   onRemove?: () => void;
-}> = ({ value, onChange, onRemove }) => {
+  attributeOptions?: string[];
+}> = ({ value, onChange, onRemove, attributeOptions }) => {
   return (
     <Grid container spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
       <Grid item xs={12} md={4}>
-        <TextField
-          label="Attribute"
-          value={value.attribute}
-          onChange={(e) => onChange({ ...value, attribute: e.target.value })}
-          fullWidth
-          required
+        <Autocomplete
+          freeSolo
+          disableClearable
+          options={attributeOptions || []}
+          inputValue={value.attribute}
+          onInputChange={(_, newInputValue) => onChange({ ...value, attribute: newInputValue })}
+          onChange={(_, newValue) => onChange({ ...value, attribute: (newValue as string) || '' })}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Attribute"
+              required
+              fullWidth
+            />
+          )}
         />
       </Grid>
       <Grid item xs={12} md={3}>
@@ -125,7 +138,8 @@ const GroupEditor: React.FC<{
   canRemove?: boolean;
   onRemove?: () => void;
   depth?: number;
-}> = ({ value, onChange, canRemove, onRemove, depth = 0 }) => {
+  attributeOptions?: string[];
+}> = ({ value, onChange, canRemove, onRemove, depth = 0, attributeOptions }) => {
   const g = ensureAtLeastOneChild(value);
 
   const setOperator = (op: LogicalOperatorType) => onChange({ ...g, operator: op });
@@ -163,6 +177,7 @@ const GroupEditor: React.FC<{
                 value={ch.condition}
                 onChange={(next) => updateChild(idx, { condition: next })}
                 onRemove={() => removeChild(idx)}
+                attributeOptions={attributeOptions}
               />
             ) : ch.group ? (
               <GroupEditor
@@ -171,6 +186,7 @@ const GroupEditor: React.FC<{
                 canRemove
                 onRemove={() => removeChild(idx)}
                 depth={depth + 1}
+                attributeOptions={attributeOptions}
               />
             ) : null}
           </Box>
@@ -188,7 +204,8 @@ const GroupEditor: React.FC<{
 const ConditionExpressionBuilder: React.FC<{
   value?: RuleConditionExpression;
   onChange: (expr: RuleConditionExpression) => void;
-}> = ({ value, onChange }) => {
+  attributeOptions?: string[];
+}> = ({ value, onChange, attributeOptions }) => {
   const [ui, setUi] = React.useState<UiExpression>(() => toUiExpression(value));
 
   React.useEffect(() => {
@@ -209,9 +226,19 @@ const ConditionExpressionBuilder: React.FC<{
 
   const rootGroup = ensureRootGroup(ui);
 
+  const { data: attrsData } = useQuery<any[]>({
+    queryKey: ['rule-attributes'],
+    queryFn: async () => {
+      const res = await apiClient.listRuleAttributes();
+      return res.data as any[];
+    },
+  });
+  const fetchedAttrNames = React.useMemo(() => (Array.isArray(attrsData) ? attrsData.map((a: any) => a.name).filter(Boolean) : []), [attrsData]);
+  const effectiveOptions = attributeOptions ?? fetchedAttrNames;
+
   return (
     <Box>
-      <GroupEditor value={rootGroup} onChange={(g) => updateUi({ group: g })} />
+      <GroupEditor value={rootGroup} onChange={(g) => updateUi({ group: g })} attributeOptions={effectiveOptions} />
     </Box>
   );
 };

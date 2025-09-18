@@ -10,6 +10,7 @@ docs/CreateFeatureRequest.md
 docs/CreateFeatureScheduleRequest.md
 docs/CreateFlagVariantInline.md
 docs/CreateFlagVariantRequest.md
+docs/CreateRuleAttributeRequest.md
 docs/CreateRuleInline.md
 docs/CreateRuleRequest.md
 docs/CreateSegmentRequest.md
@@ -67,6 +68,7 @@ docs/RefreshTokenResponse.md
 docs/ResetPasswordRequest.md
 docs/Rule.md
 docs/RuleAction.md
+docs/RuleAttributeEntity.md
 docs/RuleCondition.md
 docs/RuleConditionExpression.md
 docs/RuleConditionGroup.md

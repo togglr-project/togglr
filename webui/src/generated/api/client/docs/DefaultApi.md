@@ -14,10 +14,12 @@ All URIs are relative to *http://localhost*
 |[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
 |[**createProjectSegment**](#createprojectsegment) | **POST** /api/v1/projects/{project_id}/segments | Create segment for project|
+|[**createRuleAttribute**](#createruleattribute) | **POST** /api/v1/rule_attributes | Create rule attribute|
 |[**createUser**](#createuser) | **POST** /api/v1/users | Create a new user (superuser only)|
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
 |[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
+|[**deleteRuleAttribute**](#deleteruleattribute) | **DELETE** /api/v1/rule_attributes/{name} | Delete rule attribute|
 |[**deleteSegment**](#deletesegment) | **DELETE** /api/v1/segments/{segment_id} | Delete segment|
 |[**deleteUser**](#deleteuser) | **DELETE** /api/v1/users/{user_id} | Delete a user (superuser only, cannot delete superusers)|
 |[**disable2FA**](#disable2fa) | **POST** /api/v1/users/me/2fa/disable | Disable 2FA (using email-confirmation)|
@@ -44,6 +46,7 @@ All URIs are relative to *http://localhost*
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
 |[**listProjectSegments**](#listprojectsegments) | **GET** /api/v1/projects/{project_id}/segments | List segments for project|
 |[**listProjects**](#listprojects) | **GET** /api/v1/projects | Get projects list|
+|[**listRuleAttributes**](#listruleattributes) | **GET** /api/v1/rule_attributes | List of rule attributes|
 |[**listSegmentDesyncFeatureIDs**](#listsegmentdesyncfeatureids) | **GET** /api/v1/segments/{segment_id}/desync-features | Get desync feature IDs by segment ID|
 |[**listUsers**](#listusers) | **GET** /api/v1/users | List all users (superuser only)|
 |[**login**](#login) | **POST** /api/v1/auth/login | Authenticate user and get access token|
@@ -639,6 +642,63 @@ const { status, data } = await apiInstance.createProjectSegment(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **createRuleAttribute**
+> createRuleAttribute(createRuleAttributeRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateRuleAttributeRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let createRuleAttributeRequest: CreateRuleAttributeRequest; //
+
+const { status, data } = await apiInstance.createRuleAttribute(
+    createRuleAttributeRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createRuleAttributeRequest** | **CreateRuleAttributeRequest**|  | |
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Attribute created |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**409** | Attribute already exists |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createUser**
 > CreateUserResponse createUser(createUserRequest)
 
@@ -847,6 +907,62 @@ This endpoint does not have any parameters.
 |**200** | LDAP configuration deleted |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteRuleAttribute**
+> deleteRuleAttribute()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let name: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteRuleAttribute(
+    name
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **name** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Attribute deleted successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden |  -  |
+|**404** | Attribute not found |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -2190,6 +2306,52 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | List of projects |  -  |
+|**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listRuleAttributes**
+> Array<RuleAttributeEntity> listRuleAttributes()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.listRuleAttributes();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<RuleAttributeEntity>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of rule attributes |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |

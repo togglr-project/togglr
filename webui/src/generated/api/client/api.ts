@@ -71,6 +71,10 @@ export interface CreateFlagVariantRequest {
     'name': string;
     'rollout_percent': number;
 }
+export interface CreateRuleAttributeRequest {
+    'name': string;
+    'description'?: string;
+}
 export interface CreateRuleInline {
     /**
      * Client-provided UUID for the rule
@@ -557,6 +561,10 @@ export const RuleAction = {
 export type RuleAction = typeof RuleAction[keyof typeof RuleAction];
 
 
+export interface RuleAttributeEntity {
+    'name': string;
+    'description'?: string;
+}
 /**
  * Single condition item
  */
@@ -1198,6 +1206,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Create rule attribute
+         * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRuleAttribute: async (createRuleAttributeRequest: CreateRuleAttributeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createRuleAttributeRequest' is not null or undefined
+            assertParamExists('createRuleAttribute', 'createRuleAttributeRequest', createRuleAttributeRequest)
+            const localVarPath = `/api/v1/rule_attributes`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createRuleAttributeRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -1320,6 +1368,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         deleteLDAPConfig: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/ldap/config`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete rule attribute
+         * @param {string} name 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteRuleAttribute: async (name: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'name' is not null or undefined
+            assertParamExists('deleteRuleAttribute', 'name', name)
+            const localVarPath = `/api/v1/rule_attributes/{name}`
+                .replace(`{${"name"}}`, encodeURIComponent(String(name)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2282,6 +2368,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         listProjects: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/projects`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List of rule attributes
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRuleAttributes: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/rule_attributes`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3401,6 +3521,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create rule attribute
+         * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createRuleAttribute(createRuleAttributeRequest: CreateRuleAttributeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createRuleAttribute(createRuleAttributeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createRuleAttribute']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -3448,6 +3581,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteLDAPConfig(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteLDAPConfig']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete rule attribute
+         * @param {string} name 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteRuleAttribute(name: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteRuleAttribute(name, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteRuleAttribute']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -3780,6 +3926,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listProjects(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjects']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List of rule attributes
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listRuleAttributes(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<RuleAttributeEntity>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRuleAttributes(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listRuleAttributes']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4215,6 +4373,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create rule attribute
+         * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createRuleAttribute(createRuleAttributeRequest: CreateRuleAttributeRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.createRuleAttribute(createRuleAttributeRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create a new user (superuser only)
          * @param {CreateUserRequest} createUserRequest 
          * @param {*} [options] Override http request option.
@@ -4251,6 +4419,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteLDAPConfig(options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
             return localVarFp.deleteLDAPConfig(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete rule attribute
+         * @param {string} name 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteRuleAttribute(name: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteRuleAttribute(name, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4505,6 +4683,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listProjects(options?: RawAxiosRequestConfig): AxiosPromise<Array<Project>> {
             return localVarFp.listProjects(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List of rule attributes
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRuleAttributes(options?: RawAxiosRequestConfig): AxiosPromise<Array<RuleAttributeEntity>> {
+            return localVarFp.listRuleAttributes(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4875,6 +5062,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create rule attribute
+     * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createRuleAttribute(createRuleAttributeRequest: CreateRuleAttributeRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createRuleAttribute(createRuleAttributeRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create a new user (superuser only)
      * @param {CreateUserRequest} createUserRequest 
      * @param {*} [options] Override http request option.
@@ -4914,6 +5112,17 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteLDAPConfig(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteLDAPConfig(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete rule attribute
+     * @param {string} name 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteRuleAttribute(name: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteRuleAttribute(name, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5194,6 +5403,16 @@ export class DefaultApi extends BaseAPI {
      */
     public listProjects(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listProjects(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List of rule attributes
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listRuleAttributes(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listRuleAttributes(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
