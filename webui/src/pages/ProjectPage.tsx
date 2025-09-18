@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Stack, Pagination } from '@mui/material';
 import { Add as AddIcon, Flag as FlagIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
@@ -55,7 +55,7 @@ const ProjectPage: React.FC = () => {
       return res.data;
     },
     enabled: !!projectId,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   const features = featuresResp?.items ?? [];

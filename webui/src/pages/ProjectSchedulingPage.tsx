@@ -34,7 +34,7 @@ import {
   Schedule as ScheduleIcon
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
@@ -294,7 +294,7 @@ const ProjectSchedulingPage: React.FC = () => {
       return res.data;
     },
     enabled: !!projectId,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   const features = featuresResp?.items ?? [];

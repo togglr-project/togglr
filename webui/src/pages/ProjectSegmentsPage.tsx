@@ -29,7 +29,7 @@ import {
   PeopleOutline as PeopleIcon
 } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import ConditionExpressionBuilder from '../components/conditions/ConditionExpressionBuilder';
@@ -323,7 +323,7 @@ const ProjectSegmentsPage: React.FC = () => {
       return res.data;
     },
     enabled: !!projectId,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData,
   });
 
   // Dialog state
