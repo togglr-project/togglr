@@ -2965,6 +2965,30 @@ components:
       scheme: bearer
       bearerFormat: JWT
   schemas:
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: uint
+          example: 125
+        page:
+          type: integer
+          format: uint
+          example: 1
+          minimum: 1
+        per_page:
+          type: integer
+          format: uint
+          example: 20
+          minimum: 1
+      required: [ total, page, per_page ]
+
+    SortOrder:
+      type: string
+      description: Sort order (ascending or descending)
+      enum: [asc, desc]
+
     # LDAP Configuration Schemas
     LDAPConfig:
       type: object
