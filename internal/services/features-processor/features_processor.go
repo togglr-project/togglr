@@ -161,7 +161,7 @@ func (s *Service) Watch(ctx context.Context) error {
 				continue
 			}
 
-			slog.Info("Changes on features detected", "count", len(logs))
+			slog.Info("Watcher: changes on features detected", "count", len(logs))
 
 			// Deduplicate by project+feature; keep delete if any delete for a feature entity appears.
 			type changeKey struct {
