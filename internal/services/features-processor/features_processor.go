@@ -172,6 +172,55 @@ func (s *Service) Watch(ctx context.Context) error {
 	}
 }
 
+func (s *Service) Evaluate(
+	projectID domain.ProjectID,
+	featureKey string,
+	reqCtx map[domain.RuleAttribute]any,
+) (value string, enabled bool, found bool) {
+	feature, ok := s.fetchFeature(projectID, featureKey)
+	if !ok {
+		return "", false, false
+	}
+
+	if !IsFeatureActiveNow(feature, time.Now().UTC()) {
+		return "", false, true
+	}
+
+	switch feature.Kind {
+	case domain.FeatureKindBoolean:
+		return feature.DefaultVariant, true, true
+	case domain.FeatureKindMultivariant:
+		for _, rule := range feature.Rules {
+			if !EvaluateExpression(rule.Conditions, reqCtx) {
+				continue
+			}
+
+			switch rule.Action {
+			case domain.RuleActionAssign:
+				if rule.FlagVariantID != nil {
+					if variant, ok := findVariantByID(feature.FlagVariants, *rule.FlagVariantID); ok {
+						return variant.Name, true, true
+					}
+				} else {
+					slog.Error("nil flag variant ID", "rule", rule.ID)
+				}
+			case domain.RuleActionInclude:
+				value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
+
+				return value, true, true
+			case domain.RuleActionExclude:
+				return feature.DefaultVariant, true, true
+			}
+		}
+
+		value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
+
+		return value, true, true
+	default:
+		return feature.DefaultVariant, true, true
+	}
+}
+
 func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
 	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID)
 	if err != nil {
@@ -221,55 +270,6 @@ func (s *Service) removeFeatureFromHolder(
 
 	if featuresMap, ok := s.holder[projectID]; ok {
 		delete(featuresMap, feature.Key)
-	}
-}
-
-func (s *Service) Evaluate(
-	projectID domain.ProjectID,
-	featureKey string,
-	reqCtx map[domain.RuleAttribute]any,
-) (value string, enabled bool, found bool) {
-	feature, ok := s.fetchFeature(projectID, featureKey)
-	if !ok {
-		return "", false, false
-	}
-
-	if !IsFeatureActiveNow(feature, time.Now().UTC()) {
-		return "", false, true
-	}
-
-	switch feature.Kind {
-	case domain.FeatureKindBoolean:
-		return feature.DefaultVariant, true, true
-	case domain.FeatureKindMultivariant:
-		for _, rule := range feature.Rules {
-			if !EvaluateExpression(rule.Conditions, reqCtx) {
-				continue
-			}
-
-			switch rule.Action {
-			case domain.RuleActionAssign:
-				if rule.FlagVariantID != nil {
-					if variant, ok := findVariantByID(feature.FlagVariants, *rule.FlagVariantID); ok {
-						return variant.Name, true, true
-					}
-				} else {
-					slog.Error("nil flag variant ID", "rule", rule.ID)
-				}
-			case domain.RuleActionInclude:
-				value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
-
-				return value, true, true
-			case domain.RuleActionExclude:
-				return feature.DefaultVariant, true, true
-			}
-		}
-
-		value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
-
-		return value, true, true
-	default:
-		return feature.DefaultVariant, true, true
 	}
 }
 
