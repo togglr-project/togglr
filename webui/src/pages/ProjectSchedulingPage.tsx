@@ -41,7 +41,7 @@ import apiClient from '../api/apiClient';
 import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
-import { listTimeZones } from 'timezone-support';
+import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
 
 interface ProjectResponse { project: Project }
 
@@ -61,12 +61,44 @@ const emptyForm = (): ScheduleFormValues => ({
   cron_expr: ''
 });
 
-const normalizeDateTimeLocalToISO = (val?: string): string | undefined => {
+const pad2 = (n: number) => (n < 10 ? '0' + n : '' + n);
+
+const toDatetimeLocalInZone = (iso?: string, tz?: string): string => {
+  if (!iso) return '';
+  try {
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return '';
+    const tzObj = findTimeZone(tz || 'UTC');
+    const z = getZonedTime(date, tzObj);
+    const yyyy = z.year;
+    const MM = pad2(z.month);
+    const dd = pad2(z.day);
+    const HH = pad2(z.hours);
+    const mm = pad2(z.minutes);
+    return `${yyyy}-${MM}-${dd}T${HH}:${mm}`;
+  } catch (_) {
+    return '';
+  }
+};
+
+const fromDatetimeLocalInZoneToISO = (val?: string, tz?: string): string | undefined => {
   if (!val) return undefined;
-  // Convert local datetime-local string to ISO UTC
-  const d = new Date(val);
-  if (isNaN(d.getTime())) return undefined;
-  return d.toISOString();
+  try {
+    const [datePart, timePart] = val.split('T');
+    if (!datePart || !timePart) return undefined;
+    const [y, m, d] = datePart.split('-').map((s) => parseInt(s, 10));
+    const [hh, mm] = timePart.split(':').map((s) => parseInt(s, 10));
+    if (!y || !m || !d || isNaN(hh) || isNaN(mm)) return undefined;
+    const tzObj = findTimeZone(tz || 'UTC');
+    // Build a Date from the provided wall-time components as if they were in UTC,
+    // then subtract the timezone offset to get the real UTC instant.
+    const wallAsUTC = new Date(Date.UTC(y, m - 1, d, hh, mm, 0, 0));
+    const offsetMinutes = getUTCOffset(tzObj, wallAsUTC);
+    const utcDate = new Date(wallAsUTC.getTime() - offsetMinutes * 60 * 1000);
+    return utcDate.toISOString();
+  } catch (_) {
+    return undefined;
+  }
 };
 
 
@@ -85,8 +117,13 @@ const ScheduleDialog: React.FC<{
   const [tzError, setTzError] = useState<string>('');
 
   React.useEffect(() => {
-    // Re-validate cron when dialog opens with initial values
-    setValues({ ...emptyForm(), ...initial } as ScheduleFormValues);
+    // Initialize form values and re-validate cron; convert ISO timestamps to datetime-local per timezone
+    const base = { ...emptyForm(), ...initial } as ScheduleFormValues;
+    const tz = base.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+    const startsLocal = initial?.starts_at ? toDatetimeLocalInZone(initial.starts_at, tz) : '';
+    const endsLocal = initial?.ends_at ? toDatetimeLocalInZone(initial.ends_at, tz) : '';
+    setValues({ ...base, starts_at: startsLocal, ends_at: endsLocal });
+
     const expr = (initial?.cron_expr || '').trim();
     if (expr) {
       const ok = isValidCron(expr, { seconds: false, allowBlankDay: true, alias: true });
@@ -124,7 +161,12 @@ const ScheduleDialog: React.FC<{
                 value={values.timezone}
                 onChange={(e) => {
                   const val = e.target.value;
-                  setValues(v => ({ ...v, timezone: val }));
+                  setValues(v => ({
+                    ...v,
+                    timezone: val,
+                    starts_at: initial?.starts_at ? toDatetimeLocalInZone(initial.starts_at, val) : v.starts_at,
+                    ends_at: initial?.ends_at ? toDatetimeLocalInZone(initial.ends_at, val) : v.ends_at,
+                  }));
                   setTzError(allTimezones.includes(val) ? '' : 'Invalid timezone');
                 }}
                 error={Boolean(tzError)}
@@ -201,8 +243,8 @@ const ScheduleDialog: React.FC<{
           }
           const payload: ScheduleFormValues = {
             ...values,
-            starts_at: normalizeDateTimeLocalToISO(values.starts_at),
-            ends_at: normalizeDateTimeLocalToISO(values.ends_at),
+            starts_at: fromDatetimeLocalInZoneToISO(values.starts_at, values.timezone),
+            ends_at: fromDatetimeLocalInZoneToISO(values.ends_at, values.timezone),
           };
           onSubmit(payload);
         }}>Save</Button>
@@ -667,9 +709,9 @@ const ProjectSchedulingPage: React.FC = () => {
         initial={editSchedule ? {
           action: editSchedule.action,
           timezone: editSchedule.timezone,
-          // Convert ISO to datetime-local format yyyy-MM-ddTHH:mm
-          starts_at: editSchedule.starts_at ? new Date(editSchedule.starts_at).toISOString().slice(0,16) : '',
-          ends_at: editSchedule.ends_at ? new Date(editSchedule.ends_at).toISOString().slice(0,16) : '',
+          // Pass raw ISO; dialog will convert according to timezone
+          starts_at: editSchedule.starts_at || '',
+          ends_at: editSchedule.ends_at || '',
           cron_expr: editSchedule.cron_expr || ''
         } : undefined}
         onSubmit={(values) => {
