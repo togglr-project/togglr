@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -223,39 +224,72 @@ func (s *Service) Evaluate(
 		return "", false, true
 	}
 
-	switch feature.Kind {
-	case domain.FeatureKindBoolean:
-		return feature.DefaultVariant, true, true
-	case domain.FeatureKindMultivariant:
-		for _, rule := range feature.Rules {
-			if !EvaluateExpression(rule.Conditions, reqCtx) {
-				continue
+	var bestAssign *domain.Rule
+	var bestInclude *domain.Rule
+	hasInclude := false
+
+	for _, rule := range feature.Rules {
+		if !EvaluateExpression(rule.Conditions, reqCtx) {
+			continue
+		}
+
+		switch rule.Action {
+		case domain.RuleActionExclude:
+			return "", false, true
+
+		case domain.RuleActionAssign:
+			if bestAssign == nil || rule.Priority < bestAssign.Priority {
+				bestAssign = &rule
 			}
 
-			switch rule.Action {
-			case domain.RuleActionAssign:
-				if rule.FlagVariantID != nil {
-					if variant, ok := findVariantByID(feature.FlagVariants, *rule.FlagVariantID); ok {
-						return variant.Name, true, true
-					}
-				} else {
-					slog.Error("nil flag variant ID", "rule", rule.ID)
-				}
-			case domain.RuleActionInclude:
-				value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
+		case domain.RuleActionInclude:
+			hasInclude = true
+			if bestInclude == nil || rule.Priority < bestInclude.Priority {
+				bestInclude = &rule
+			}
+		}
+	}
 
-				return value, true, true
-			case domain.RuleActionExclude:
-				return feature.DefaultVariant, true, true
+	// assign → сильнее include
+	if bestAssign != nil {
+		if bestAssign.FlagVariantID != nil {
+			if variant, ok := findVariantByID(feature.FlagVariants, *bestAssign.FlagVariantID); ok {
+				return variant.Name, true, true
 			}
 		}
 
-		value = rolloutOrDefault(feature.FlagVariants, feature.RolloutKey, reqCtx, feature.DefaultVariant)
-
-		return value, true, true
-	default:
 		return feature.DefaultVariant, true, true
 	}
+
+	// если были include-правила
+	if hasInclude {
+		// но не нашли подходящего → значит фича выключена
+		if bestInclude == nil {
+			return "", false, true
+		}
+
+		// есть include → идём в rollout
+		value = rolloutOrDefault(
+			feature.Kind,
+			feature.FlagVariants,
+			feature.RolloutKey,
+			reqCtx,
+			feature.DefaultVariant,
+		)
+
+		return value, true, true
+	}
+
+	// нет include → обычный rollout
+	value = rolloutOrDefault(
+		feature.Kind,
+		feature.FlagVariants,
+		feature.RolloutKey,
+		reqCtx,
+		feature.DefaultVariant,
+	)
+
+	return value, true, true
 }
 
 func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
@@ -590,11 +624,16 @@ func findVariantByID(variants []domain.FlagVariant, id domain.FlagVariantID) (do
 }
 
 func rolloutOrDefault(
+	kind domain.FeatureKind,
 	variants []domain.FlagVariant,
 	rolloutKey domain.RuleAttribute,
 	reqCtx map[domain.RuleAttribute]any,
 	defaultVariant string,
 ) string {
+	if kind == domain.FeatureKindBoolean {
+		return defaultVariant
+	}
+
 	if rolloutValue, ok := reqCtx[rolloutKey]; ok {
 		return PickVariant(variants, fmt.Sprint(rolloutValue), defaultVariant)
 	}
@@ -603,6 +642,8 @@ func rolloutOrDefault(
 }
 
 func MakeFeaturePrepared(feature domain.FeatureExtended) FeaturePrepared {
+	SortRules(feature.Rules)
+
 	result := FeaturePrepared{
 		FeatureExtended: feature,
 		crons:           CronsMap{},
@@ -628,4 +669,28 @@ func ParseSchedule(expr string) (cron.Schedule, error) {
 	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 
 	return parser.Parse(expr)
+}
+
+func SortRules(rules []domain.Rule) {
+	sort.Slice(rules, func(i, j int) bool {
+		ai, aj := actionOrder(rules[i].Action), actionOrder(rules[j].Action)
+		if ai != aj {
+			return ai < aj
+		}
+
+		return rules[i].Priority < rules[j].Priority
+	})
+}
+
+func actionOrder(a domain.RuleAction) int {
+	switch a {
+	case domain.RuleActionExclude:
+		return 0
+	case domain.RuleActionAssign:
+		return 1
+	case domain.RuleActionInclude:
+		return 2
+	default:
+		return 99
+	}
 }
