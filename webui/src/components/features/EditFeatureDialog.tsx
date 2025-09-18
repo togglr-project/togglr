@@ -230,6 +230,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       }
       if (!hasValidLeaf(r.expression)) return 'Each rule must have at least one valid condition';
     }
+    if (hasDuplicatePriorities) return 'Rule priorities must be unique within each rules section (Assign/Include/Exclude)';
     return null;
   };
 
@@ -262,6 +263,17 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   };
 
   const disabled = !featureDetails || updateMutation.isPending;
+
+  const hasDuplicatePriorities = [RuleActionEnum.Assign, RuleActionEnum.Include, RuleActionEnum.Exclude].some((action) => {
+    const counts = rules.filter(r => r.action === action).reduce((acc, r) => {
+      const p = r.priority;
+      if (typeof p === 'number') {
+        acc[p] = (acc[p] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<number, number>);
+    return Object.values(counts).some((c) => c > 1);
+  });
 
   const ruleOperatorOptions: any[] = [];
   const featureKindOptions = Object.values(FeatureKindEnum);
@@ -570,6 +582,12 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                   )}
                 </Box>
               </Box>
+
+              {hasDuplicatePriorities && (
+                <Box sx={{ mt: 1 }}>
+                  <Chip size="small" color="warning" label="Duplicate priorities detected within a section" />
+                </Box>
+              )}
             </Box>
           </Box>
         )}

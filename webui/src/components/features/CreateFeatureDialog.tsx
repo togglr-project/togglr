@@ -83,14 +83,16 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const variantNames = variants.map(v => v.name.trim()).filter(n => n.length > 0);
   const hasAtLeastTwoVariants = variantNames.length >= 2;
 
-  const priorityCounts = rules.reduce((acc, r) => {
-    const p = r.priority;
-    if (typeof p === 'number') {
-      acc[p] = (acc[p] || 0) + 1;
-    }
-    return acc;
-  }, {} as Record<number, number>);
-  const hasDuplicatePriorities = Object.values(priorityCounts).some((c) => c > 1);
+  const hasDuplicatePriorities = [RuleActionEnum.Assign, RuleActionEnum.Include, RuleActionEnum.Exclude].some((action) => {
+    const counts = rules.filter(r => r.action === action).reduce((acc, r) => {
+      const p = r.priority;
+      if (typeof p === 'number') {
+        acc[p] = (acc[p] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<number, number>);
+    return Object.values(counts).some((c) => c > 1);
+  });
 
   const hasValidLeaf = (e?: RuleConditionExpression): boolean => {
     if (!e) return false;

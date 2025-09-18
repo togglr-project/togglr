@@ -223,7 +223,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
 
             <Box>
               <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
-              {featureDetails.rules && featureDetails.rules.some((r: any) => r.is_customized) && (
+              {featureDetails.rules && featureDetails.rules.some((r: any) => (r as any).segment_id && (r as any).is_customized) && (
                 <Box sx={{ mb: 1 }}>
                   <Typography variant="body2" color="warning.main" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <WarningAmber fontSize="small" />
