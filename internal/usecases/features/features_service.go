@@ -159,6 +159,18 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 	return items, nil
 }
 
+func (s *Service) ListByProjectIDFiltered(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	filter contract.FeaturesListFilter,
+) ([]domain.Feature, int, error) {
+	items, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list features by projectID filtered: %w", err)
+	}
+	return items, total, nil
+}
+
 func (s *Service) ListExtendedByProjectID(
 	ctx context.Context,
 	projectID domain.ProjectID,

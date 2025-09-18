@@ -472,6 +472,10 @@ export const LicenseType = {
 export type LicenseType = typeof LicenseType[keyof typeof LicenseType];
 
 
+export interface ListFeaturesResponse {
+    'items': Array<Feature>;
+    'pagination': Pagination;
+}
 
 export const LogicalOperator = {
     And: 'and',
@@ -2288,10 +2292,16 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary List features for project
          * @param {string} projectId 
+         * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
+         * @param {boolean} [enabled] Filter by enabled state
+         * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listProjectFeatures: async (projectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listProjectFeatures: async (projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'projectId' is not null or undefined
             assertParamExists('listProjectFeatures', 'projectId', projectId)
             const localVarPath = `/api/v1/projects/{project_id}/features`
@@ -2310,6 +2320,30 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (kind !== undefined) {
+                localVarQueryParameter['kind'] = kind;
+            }
+
+            if (enabled !== undefined) {
+                localVarQueryParameter['enabled'] = enabled;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sort_order'] = sortOrder;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
 
 
     
@@ -3894,11 +3928,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 
          * @summary List features for project
          * @param {string} projectId 
+         * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
+         * @param {boolean} [enabled] Filter by enabled state
+         * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Feature>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectFeatures(projectId, options);
+        async listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListFeaturesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectFeatures(projectId, kind, enabled, sortBy, sortOrder, page, perPage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectFeatures']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4659,11 +4699,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary List features for project
          * @param {string} projectId 
+         * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
+         * @param {boolean} [enabled] Filter by enabled state
+         * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Feature>> {
-            return localVarFp.listProjectFeatures(projectId, options).then((request) => request(axios, basePath));
+        listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListFeaturesResponse> {
+            return localVarFp.listProjectFeatures(projectId, kind, enabled, sortBy, sortOrder, page, perPage, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5377,11 +5423,17 @@ export class DefaultApi extends BaseAPI {
      * 
      * @summary List features for project
      * @param {string} projectId 
+     * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
+     * @param {boolean} [enabled] Filter by enabled state
+     * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
+     * @param {SortOrder} [sortOrder] Sort order
+     * @param {number} [page] Page number (starts from 1)
+     * @param {number} [perPage] Items per page
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public listProjectFeatures(projectId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listProjectFeatures(projectId, options).then((request) => request(this.axios, this.basePath));
+    public listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectFeatures(projectId, kind, enabled, sortBy, sortOrder, page, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5691,6 +5743,20 @@ export const GetLDAPSyncLogsLevelEnum = {
     Error: 'error'
 } as const;
 export type GetLDAPSyncLogsLevelEnum = typeof GetLDAPSyncLogsLevelEnum[keyof typeof GetLDAPSyncLogsLevelEnum];
+export const ListProjectFeaturesKindEnum = {
+    Simple: 'simple',
+    Multivariant: 'multivariant'
+} as const;
+export type ListProjectFeaturesKindEnum = typeof ListProjectFeaturesKindEnum[keyof typeof ListProjectFeaturesKindEnum];
+export const ListProjectFeaturesSortByEnum = {
+    Name: 'name',
+    Key: 'key',
+    Enabled: 'enabled',
+    Kind: 'kind',
+    CreatedAt: 'created_at',
+    UpdatedAt: 'updated_at'
+} as const;
+export type ListProjectFeaturesSortByEnum = typeof ListProjectFeaturesSortByEnum[keyof typeof ListProjectFeaturesSortByEnum];
 
 
 /**

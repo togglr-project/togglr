@@ -3089,13 +3089,147 @@ type ListFeatureSchedulesResponse []FeatureSchedule
 func (*ListFeatureSchedulesResponse) listAllFeatureSchedulesRes() {}
 func (*ListFeatureSchedulesResponse) listFeatureSchedulesRes()    {}
 
-type ListFeaturesResponse []Feature
+// Ref: #/components/schemas/ListFeaturesResponse
+type ListFeaturesResponse struct {
+	Items      []Feature  `json:"items"`
+	Pagination Pagination `json:"pagination"`
+}
+
+// GetItems returns the value of Items.
+func (s *ListFeaturesResponse) GetItems() []Feature {
+	return s.Items
+}
+
+// GetPagination returns the value of Pagination.
+func (s *ListFeaturesResponse) GetPagination() Pagination {
+	return s.Pagination
+}
+
+// SetItems sets the value of Items.
+func (s *ListFeaturesResponse) SetItems(val []Feature) {
+	s.Items = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *ListFeaturesResponse) SetPagination(val Pagination) {
+	s.Pagination = val
+}
 
 func (*ListFeaturesResponse) listProjectFeaturesRes() {}
 
 type ListFlagVariantsResponse []FlagVariant
 
 func (*ListFlagVariantsResponse) listFeatureFlagVariantsRes() {}
+
+type ListProjectFeaturesKind string
+
+const (
+	ListProjectFeaturesKindSimple       ListProjectFeaturesKind = "simple"
+	ListProjectFeaturesKindMultivariant ListProjectFeaturesKind = "multivariant"
+)
+
+// AllValues returns all ListProjectFeaturesKind values.
+func (ListProjectFeaturesKind) AllValues() []ListProjectFeaturesKind {
+	return []ListProjectFeaturesKind{
+		ListProjectFeaturesKindSimple,
+		ListProjectFeaturesKindMultivariant,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListProjectFeaturesKind) MarshalText() ([]byte, error) {
+	switch s {
+	case ListProjectFeaturesKindSimple:
+		return []byte(s), nil
+	case ListProjectFeaturesKindMultivariant:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListProjectFeaturesKind) UnmarshalText(data []byte) error {
+	switch ListProjectFeaturesKind(data) {
+	case ListProjectFeaturesKindSimple:
+		*s = ListProjectFeaturesKindSimple
+		return nil
+	case ListProjectFeaturesKindMultivariant:
+		*s = ListProjectFeaturesKindMultivariant
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type ListProjectFeaturesSortBy string
+
+const (
+	ListProjectFeaturesSortByName      ListProjectFeaturesSortBy = "name"
+	ListProjectFeaturesSortByKey       ListProjectFeaturesSortBy = "key"
+	ListProjectFeaturesSortByEnabled   ListProjectFeaturesSortBy = "enabled"
+	ListProjectFeaturesSortByKind      ListProjectFeaturesSortBy = "kind"
+	ListProjectFeaturesSortByCreatedAt ListProjectFeaturesSortBy = "created_at"
+	ListProjectFeaturesSortByUpdatedAt ListProjectFeaturesSortBy = "updated_at"
+)
+
+// AllValues returns all ListProjectFeaturesSortBy values.
+func (ListProjectFeaturesSortBy) AllValues() []ListProjectFeaturesSortBy {
+	return []ListProjectFeaturesSortBy{
+		ListProjectFeaturesSortByName,
+		ListProjectFeaturesSortByKey,
+		ListProjectFeaturesSortByEnabled,
+		ListProjectFeaturesSortByKind,
+		ListProjectFeaturesSortByCreatedAt,
+		ListProjectFeaturesSortByUpdatedAt,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListProjectFeaturesSortBy) MarshalText() ([]byte, error) {
+	switch s {
+	case ListProjectFeaturesSortByName:
+		return []byte(s), nil
+	case ListProjectFeaturesSortByKey:
+		return []byte(s), nil
+	case ListProjectFeaturesSortByEnabled:
+		return []byte(s), nil
+	case ListProjectFeaturesSortByKind:
+		return []byte(s), nil
+	case ListProjectFeaturesSortByCreatedAt:
+		return []byte(s), nil
+	case ListProjectFeaturesSortByUpdatedAt:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListProjectFeaturesSortBy) UnmarshalText(data []byte) error {
+	switch ListProjectFeaturesSortBy(data) {
+	case ListProjectFeaturesSortByName:
+		*s = ListProjectFeaturesSortByName
+		return nil
+	case ListProjectFeaturesSortByKey:
+		*s = ListProjectFeaturesSortByKey
+		return nil
+	case ListProjectFeaturesSortByEnabled:
+		*s = ListProjectFeaturesSortByEnabled
+		return nil
+	case ListProjectFeaturesSortByKind:
+		*s = ListProjectFeaturesSortByKind
+		return nil
+	case ListProjectFeaturesSortByCreatedAt:
+		*s = ListProjectFeaturesSortByCreatedAt
+		return nil
+	case ListProjectFeaturesSortByUpdatedAt:
+		*s = ListProjectFeaturesSortByUpdatedAt
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 type ListProjectsResponse []Project
 
@@ -3657,6 +3791,98 @@ func (o OptLicenseType) Or(d LicenseType) LicenseType {
 	return d
 }
 
+// NewOptListProjectFeaturesKind returns new OptListProjectFeaturesKind with value set to v.
+func NewOptListProjectFeaturesKind(v ListProjectFeaturesKind) OptListProjectFeaturesKind {
+	return OptListProjectFeaturesKind{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListProjectFeaturesKind is optional ListProjectFeaturesKind.
+type OptListProjectFeaturesKind struct {
+	Value ListProjectFeaturesKind
+	Set   bool
+}
+
+// IsSet returns true if OptListProjectFeaturesKind was set.
+func (o OptListProjectFeaturesKind) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListProjectFeaturesKind) Reset() {
+	var v ListProjectFeaturesKind
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListProjectFeaturesKind) SetTo(v ListProjectFeaturesKind) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListProjectFeaturesKind) Get() (v ListProjectFeaturesKind, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListProjectFeaturesKind) Or(d ListProjectFeaturesKind) ListProjectFeaturesKind {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptListProjectFeaturesSortBy returns new OptListProjectFeaturesSortBy with value set to v.
+func NewOptListProjectFeaturesSortBy(v ListProjectFeaturesSortBy) OptListProjectFeaturesSortBy {
+	return OptListProjectFeaturesSortBy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListProjectFeaturesSortBy is optional ListProjectFeaturesSortBy.
+type OptListProjectFeaturesSortBy struct {
+	Value ListProjectFeaturesSortBy
+	Set   bool
+}
+
+// IsSet returns true if OptListProjectFeaturesSortBy was set.
+func (o OptListProjectFeaturesSortBy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListProjectFeaturesSortBy) Reset() {
+	var v ListProjectFeaturesSortBy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListProjectFeaturesSortBy) SetTo(v ListProjectFeaturesSortBy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListProjectFeaturesSortBy) Get() (v ListProjectFeaturesSortBy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListProjectFeaturesSortBy) Or(d ListProjectFeaturesSortBy) ListProjectFeaturesSortBy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilDateTime returns new OptNilDateTime with value set to v.
 func NewOptNilDateTime(v time.Time) OptNilDateTime {
 	return OptNilDateTime{
@@ -3938,6 +4164,52 @@ func (o OptRuleConditionGroup) Or(d RuleConditionGroup) RuleConditionGroup {
 	return d
 }
 
+// NewOptSortOrder returns new OptSortOrder with value set to v.
+func NewOptSortOrder(v SortOrder) OptSortOrder {
+	return OptSortOrder{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptSortOrder is optional SortOrder.
+type OptSortOrder struct {
+	Value SortOrder
+	Set   bool
+}
+
+// IsSet returns true if OptSortOrder was set.
+func (o OptSortOrder) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptSortOrder) Reset() {
+	var v SortOrder
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptSortOrder) SetTo(v SortOrder) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptSortOrder) Get() (v SortOrder, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptSortOrder) Or(d SortOrder) SortOrder {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -4030,6 +4302,52 @@ func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// NewOptUint returns new OptUint with value set to v.
+func NewOptUint(v uint) OptUint {
+	return OptUint{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptUint is optional uint.
+type OptUint struct {
+	Value uint
+	Set   bool
+}
+
+// IsSet returns true if OptUint was set.
+func (o OptUint) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptUint) Reset() {
+	var v uint
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptUint) SetTo(v uint) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptUint) Get() (v uint, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptUint) Or(d uint) uint {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptUserProjectPermissions returns new OptUserProjectPermissions with value set to v.
 func NewOptUserProjectPermissions(v UserProjectPermissions) OptUserProjectPermissions {
 	return OptUserProjectPermissions{
@@ -4074,6 +4392,43 @@ func (o OptUserProjectPermissions) Or(d UserProjectPermissions) UserProjectPermi
 		return v
 	}
 	return d
+}
+
+// Ref: #/components/schemas/Pagination
+type Pagination struct {
+	Total   uint `json:"total"`
+	Page    uint `json:"page"`
+	PerPage uint `json:"per_page"`
+}
+
+// GetTotal returns the value of Total.
+func (s *Pagination) GetTotal() uint {
+	return s.Total
+}
+
+// GetPage returns the value of Page.
+func (s *Pagination) GetPage() uint {
+	return s.Page
+}
+
+// GetPerPage returns the value of PerPage.
+func (s *Pagination) GetPerPage() uint {
+	return s.PerPage
+}
+
+// SetTotal sets the value of Total.
+func (s *Pagination) SetTotal(val uint) {
+	s.Total = val
+}
+
+// SetPage sets the value of Page.
+func (s *Pagination) SetPage(val uint) {
+	s.Page = val
+}
+
+// SetPerPage sets the value of PerPage.
+func (s *Pagination) SetPerPage(val uint) {
+	s.PerPage = val
 }
 
 // Ref: #/components/schemas/ProductInfoResponse
@@ -4965,6 +5320,49 @@ func (s *SetUserActiveStatusRequest) GetIsActive() bool {
 // SetIsActive sets the value of IsActive.
 func (s *SetUserActiveStatusRequest) SetIsActive(val bool) {
 	s.IsActive = val
+}
+
+// Sort order (ascending or descending).
+// Ref: #/components/schemas/SortOrder
+type SortOrder string
+
+const (
+	SortOrderAsc  SortOrder = "asc"
+	SortOrderDesc SortOrder = "desc"
+)
+
+// AllValues returns all SortOrder values.
+func (SortOrder) AllValues() []SortOrder {
+	return []SortOrder{
+		SortOrderAsc,
+		SortOrderDesc,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s SortOrder) MarshalText() ([]byte, error) {
+	switch s {
+	case SortOrderAsc:
+		return []byte(s), nil
+	case SortOrderDesc:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *SortOrder) UnmarshalText(data []byte) error {
+	switch SortOrder(data) {
+	case SortOrderAsc:
+		*s = SortOrderAsc
+		return nil
+	case SortOrderDesc:
+		*s = SortOrderDesc
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/SuccessResponse

@@ -6,6 +6,15 @@ import (
 	"github.com/rom8726/etoggle/internal/domain"
 )
 
+type FeaturesListFilter struct {
+	Kind     *domain.FeatureKind
+	Enabled  *bool
+	SortBy   string // name, key, enabled, kind, created_at, updated_at
+	SortDesc bool
+	Page     uint
+	PerPage  uint
+}
+
 type FeaturesUseCase interface {
 	Create(ctx context.Context, feature domain.Feature) (domain.Feature, error)
 	// CreateWithChildren creates feature and its related variants and rules in a single transaction.
@@ -27,6 +36,7 @@ type FeaturesUseCase interface {
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)
+	ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter FeaturesListFilter) ([]domain.Feature, int, error)
 	ListExtendedByProjectID(
 		ctx context.Context,
 		projectID domain.ProjectID,
@@ -43,6 +53,7 @@ type FeaturesRepository interface {
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)
+	ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter FeaturesListFilter) ([]domain.Feature, int, error)
 	Update(ctx context.Context, feature domain.Feature) (domain.Feature, error)
 	Delete(ctx context.Context, id domain.FeatureID) error
 }

@@ -7456,6 +7456,30 @@ func (s *Server) handleListProjectFeaturesRequest(args [1]string, argsEscaped bo
 					Name: "project_id",
 					In:   "path",
 				}: params.ProjectID,
+				{
+					Name: "kind",
+					In:   "query",
+				}: params.Kind,
+				{
+					Name: "enabled",
+					In:   "query",
+				}: params.Enabled,
+				{
+					Name: "sort_by",
+					In:   "query",
+				}: params.SortBy,
+				{
+					Name: "sort_order",
+					In:   "query",
+				}: params.SortOrder,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "per_page",
+					In:   "query",
+				}: params.PerPage,
 			},
 			Raw: r,
 		}

@@ -2157,7 +2157,7 @@ const { status, data } = await apiInstance.listFeatureSchedules(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **listProjectFeatures**
-> Array<Feature> listProjectFeatures()
+> ListFeaturesResponse listProjectFeatures()
 
 
 ### Example
@@ -2172,9 +2172,21 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let projectId: string; // (default to undefined)
+let kind: 'simple' | 'multivariant'; //Filter by feature kind (optional) (default to undefined)
+let enabled: boolean; //Filter by enabled state (optional) (default to undefined)
+let sortBy: 'name' | 'key' | 'enabled' | 'kind' | 'created_at' | 'updated_at'; //Sort by field (optional) (default to undefined)
+let sortOrder: SortOrder; //Sort order (optional) (default to undefined)
+let page: number; //Page number (starts from 1) (optional) (default to 1)
+let perPage: number; //Items per page (optional) (default to 20)
 
 const { status, data } = await apiInstance.listProjectFeatures(
-    projectId
+    projectId,
+    kind,
+    enabled,
+    sortBy,
+    sortOrder,
+    page,
+    perPage
 );
 ```
 
@@ -2183,11 +2195,17 @@ const { status, data } = await apiInstance.listProjectFeatures(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **projectId** | [**string**] |  | defaults to undefined|
+| **kind** | [**&#39;simple&#39; | &#39;multivariant&#39;**]**Array<&#39;simple&#39; &#124; &#39;multivariant&#39;>** | Filter by feature kind | (optional) defaults to undefined|
+| **enabled** | [**boolean**] | Filter by enabled state | (optional) defaults to undefined|
+| **sortBy** | [**&#39;name&#39; | &#39;key&#39; | &#39;enabled&#39; | &#39;kind&#39; | &#39;created_at&#39; | &#39;updated_at&#39;**]**Array<&#39;name&#39; &#124; &#39;key&#39; &#124; &#39;enabled&#39; &#124; &#39;kind&#39; &#124; &#39;created_at&#39; &#124; &#39;updated_at&#39;>** | Sort by field | (optional) defaults to undefined|
+| **sortOrder** | **SortOrder** | Sort order | (optional) defaults to undefined|
+| **page** | [**number**] | Page number (starts from 1) | (optional) defaults to 1|
+| **perPage** | [**number**] | Items per page | (optional) defaults to 20|
 
 
 ### Return type
 
-**Array<Feature>**
+**ListFeaturesResponse**
 
 ### Authorization
 

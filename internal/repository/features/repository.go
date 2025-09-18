@@ -6,9 +6,11 @@ import (
 	"errors"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 	"github.com/rom8726/etoggle/internal/repository/auditlog"
 	"github.com/rom8726/etoggle/pkg/db"
@@ -185,6 +187,82 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 	}
 
 	return features, nil
+}
+
+// ListByProjectIDFiltered returns features list by project with optional filters and pagination.
+func (r *Repository) ListByProjectIDFiltered(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	filter contract.FeaturesListFilter,
+) ([]domain.Feature, int, error) {
+	executor := r.getExecutor(ctx)
+
+	builder := sq.Select("*").From("features").Where(sq.Eq{"project_id": projectID})
+	countBuilder := sq.Select("COUNT(*)").From("features").Where(sq.Eq{"project_id": projectID})
+
+	if filter.Kind != nil {
+		builder = builder.Where(sq.Eq{"kind": *filter.Kind})
+		countBuilder = countBuilder.Where(sq.Eq{"kind": *filter.Kind})
+	}
+	if filter.Enabled != nil {
+		builder = builder.Where(sq.Eq{"enabled": *filter.Enabled})
+		countBuilder = countBuilder.Where(sq.Eq{"enabled": *filter.Enabled})
+	}
+
+	// Sorting with whitelist
+	orderCol := "created_at"
+	switch filter.SortBy {
+	case "name", "key", "enabled", "kind", "created_at", "updated_at":
+		orderCol = filter.SortBy
+	}
+	orderDir := "DESC"
+	if !filter.SortDesc {
+		orderDir = "ASC"
+	}
+	builder = builder.OrderBy(fmt.Sprintf("%s %s", orderCol, orderDir))
+
+	// Pagination
+	page := filter.Page
+	perPage := filter.PerPage
+	if page == 0 {
+		page = 1
+	}
+	if perPage == 0 {
+		perPage = 20
+	}
+	offset := (page - 1) * perPage
+	builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
+
+	// Build and execute list query
+	listSQL, listArgs, err := builder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build features list sql: %w", err)
+	}
+	rows, err := executor.Query(ctx, listSQL, listArgs...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("query features filtered: %w", err)
+	}
+	defer rows.Close()
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	if err != nil {
+		return nil, 0, fmt.Errorf("collect features rows: %w", err)
+	}
+	items := make([]domain.Feature, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	// Count total
+	countSQL, countArgs, err := countBuilder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build features count sql: %w", err)
+	}
+	var total int
+	if err := executor.QueryRow(ctx, countSQL, countArgs...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("count features: %w", err)
+	}
+
+	return items, total, nil
 }
 
 // Update updates existing feature by ID and returns updated entity.

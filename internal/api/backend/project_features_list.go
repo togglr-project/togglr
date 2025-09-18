@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
@@ -35,15 +36,42 @@ func (r *RestAPI) ListProjectFeatures(
 		return nil, err
 	}
 
-	items, err := r.featuresUseCase.ListByProjectID(ctx, projectID)
+	// Build filter from query params
+	filter := contract.FeaturesListFilter{SortDesc: true}
+	if params.Kind.Set {
+		k := domain.FeatureKind(string(params.Kind.Value))
+		filter.Kind = &k
+	}
+	if params.Enabled.Set {
+		e := params.Enabled.Value
+		filter.Enabled = &e
+	}
+	if params.SortBy.Set {
+		filter.SortBy = string(params.SortBy.Value)
+	}
+	if params.SortOrder.Set {
+		filter.SortDesc = params.SortOrder.Value == generatedapi.SortOrderDesc
+	}
+	page := uint(1)
+	perPage := uint(20)
+	if params.Page.Set {
+		page = params.Page.Value
+	}
+	if params.PerPage.Set {
+		perPage = params.PerPage.Value
+	}
+	filter.Page = page
+	filter.PerPage = perPage
+
+	items, total, err := r.featuresUseCase.ListByProjectIDFiltered(ctx, projectID, filter)
 	if err != nil {
 		slog.Error("list project features failed", "error", err)
 		return nil, err
 	}
 
-	resp := make(generatedapi.ListFeaturesResponse, 0, len(items))
+	itemsResp := make([]generatedapi.Feature, 0, len(items))
 	for _, it := range items {
-		resp = append(resp, generatedapi.Feature{
+		itemsResp = append(itemsResp, generatedapi.Feature{
 			ID:             it.ID.String(),
 			ProjectID:      it.ProjectID.String(),
 			Key:            it.Key,
@@ -56,6 +84,15 @@ func (r *RestAPI) ListProjectFeatures(
 			CreatedAt:      it.CreatedAt,
 			UpdatedAt:      it.UpdatedAt,
 		})
+	}
+
+	resp := generatedapi.ListFeaturesResponse{
+		Items: itemsResp,
+		Pagination: generatedapi.Pagination{
+			Total:   uint(total),
+			Page:    page,
+			PerPage: perPage,
+		},
 	}
 
 	return &resp, nil

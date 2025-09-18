@@ -19,7 +19,12 @@ import {
   MenuItem,
   Grid,
   Tabs,
-  Tab
+  Tab,
+  FormControl,
+  InputLabel,
+  Select,
+  Stack,
+  Pagination
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -33,7 +38,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
-import type { Feature, FeatureSchedule, FeatureScheduleAction, Project } from '../generated/api/client';
+import type { Feature, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import { listTimeZones } from 'timezone-support';
@@ -220,14 +225,42 @@ const ProjectSchedulingPage: React.FC = () => {
     enabled: !!projectId,
   });
 
-  const { data: features, isLoading: loadingFeatures } = useQuery<Feature[]>({
-    queryKey: ['project-features', projectId],
+  // Filters, sorting and pagination state for features
+  const [search, setSearch] = useState('');
+  const [enabledFilter, setEnabledFilter] = useState<'all' | 'enabled' | 'disabled'>('all');
+  const [kindFilter, setKindFilter] = useState<ListProjectFeaturesKindEnum | 'all'>('all');
+  const [sortBy, setSortBy] = useState<ListProjectFeaturesSortByEnum>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
+
+  const { data: featuresResp, isLoading: loadingFeatures } = useQuery<ListFeaturesResponse>({
+    queryKey: ['project-features', projectId, { enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
     queryFn: async () => {
-      const res = await apiClient.listProjectFeatures(projectId);
+      const res = await apiClient.listProjectFeatures(
+        projectId,
+        kindFilter === 'all' ? undefined : kindFilter,
+        enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
+        sortBy,
+        sortOrder,
+        page,
+        perPage
+      );
       return res.data;
     },
     enabled: !!projectId,
+    keepPreviousData: true,
   });
+
+  const features = featuresResp?.items ?? [];
+  const pagination = featuresResp?.pagination;
+
+  // Apply client-side search on current page results
+  const filteredFeatures = useMemo(() => {
+    if (!search) return features;
+    const s = search.toLowerCase();
+    return features.filter((f) => f.name.toLowerCase().includes(s) || f.key.toLowerCase().includes(s));
+  }, [features, search]);
 
   const { data: allSchedules, isLoading: loadingSchedules } = useQuery<FeatureSchedule[]>({
     queryKey: ['feature-schedules', projectId],
@@ -252,21 +285,21 @@ const ProjectSchedulingPage: React.FC = () => {
 
   // Separate features into two groups
   const { featuresWithSchedules, featuresWithoutSchedules } = useMemo(() => {
-    if (!features) return { featuresWithSchedules: [], featuresWithoutSchedules: [] };
-    
+    const list = filteredFeatures || [];
+
     const withSchedules: Feature[] = [];
     const withoutSchedules: Feature[] = [];
-    
-    features.forEach(feature => {
+
+    list.forEach(feature => {
       if (schedulesByFeature[feature.id] && schedulesByFeature[feature.id].length > 0) {
         withSchedules.push(feature);
       } else {
         withoutSchedules.push(feature);
       }
     });
-    
+
     return { featuresWithSchedules: withSchedules, featuresWithoutSchedules: withoutSchedules };
-  }, [features, schedulesByFeature]);
+  }, [filteredFeatures, schedulesByFeature]);
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -405,8 +438,92 @@ const ProjectSchedulingPage: React.FC = () => {
         </Box>
       )}
 
-      {!loadingFeatures && features && features.length > 0 ? (
+      {!loadingFeatures && filteredFeatures && filteredFeatures.length > 0 ? (
         <Box>
+          {/* Filters and controls */}
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+            <TextField
+              label="Search by name or key"
+              size="small"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              sx={{ minWidth: 240 }}
+            />
+
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="enabled-filter-label">Enabled</InputLabel>
+              <Select
+                labelId="enabled-filter-label"
+                label="Enabled"
+                value={enabledFilter}
+                onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="enabled">Enabled</MenuItem>
+                <MenuItem value="disabled">Disabled</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="kind-filter-label">Kind</InputLabel>
+              <Select
+                labelId="kind-filter-label"
+                label="Kind"
+                value={kindFilter}
+                onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="simple">simple</MenuItem>
+                <MenuItem value="multivariant">multivariant</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="sort-by-label">Sort by</InputLabel>
+              <Select
+                labelId="sort-by-label"
+                label="Sort by"
+                value={sortBy}
+                onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="name">name</MenuItem>
+                <MenuItem value="key">key</MenuItem>
+                <MenuItem value="enabled">enabled</MenuItem>
+                <MenuItem value="kind">kind</MenuItem>
+                <MenuItem value="created_at">created_at</MenuItem>
+                <MenuItem value="updated_at">updated_at</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel id="sort-order-label">Order</InputLabel>
+              <Select
+                labelId="sort-order-label"
+                label="Order"
+                value={sortOrder}
+                onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="asc">asc</MenuItem>
+                <MenuItem value="desc">desc</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
+              <InputLabel id="per-page-label">Per page</InputLabel>
+              <Select
+                labelId="per-page-label"
+                label="Per page"
+                value={perPage}
+                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+              >
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={20}>20</MenuItem>
+                <MenuItem value={50}>50</MenuItem>
+                <MenuItem value={100}>100</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+
           <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
             <Tab 
               label={`Features with schedules (${featuresWithSchedules.length})`} 
@@ -441,9 +558,108 @@ const ProjectSchedulingPage: React.FC = () => {
               )}
             </Box>
           )}
+
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              {pagination ? `Total: ${pagination.total}` : ''}
+            </Typography>
+            <Pagination
+              page={page}
+              count={pagination ? Math.max(1, Math.ceil(pagination.total / (pagination.per_page || perPage))) : 1}
+              onChange={(_e, p) => setPage(p)}
+              shape="rounded"
+              color="primary"
+            />
+          </Box>
         </Box>
       ) : !loadingFeatures ? (
-        <Typography variant="body2">No features yet.</Typography>
+        <Box>
+          {/* Even if no features match filters, still show controls */}
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+            <TextField
+              label="Search by name or key"
+              size="small"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              sx={{ minWidth: 240 }}
+            />
+
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="enabled-filter-label">Enabled</InputLabel>
+              <Select
+                labelId="enabled-filter-label"
+                label="Enabled"
+                value={enabledFilter}
+                onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="enabled">Enabled</MenuItem>
+                <MenuItem value="disabled">Disabled</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="kind-filter-label">Kind</InputLabel>
+              <Select
+                labelId="kind-filter-label"
+                label="Kind"
+                value={kindFilter}
+                onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="simple">simple</MenuItem>
+                <MenuItem value="multivariant">multivariant</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel id="sort-by-label">Sort by</InputLabel>
+              <Select
+                labelId="sort-by-label"
+                label="Sort by"
+                value={sortBy}
+                onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="name">name</MenuItem>
+                <MenuItem value="key">key</MenuItem>
+                <MenuItem value="enabled">enabled</MenuItem>
+                <MenuItem value="kind">kind</MenuItem>
+                <MenuItem value="created_at">created_at</MenuItem>
+                <MenuItem value="updated_at">updated_at</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 140 }}>
+              <InputLabel id="sort-order-label">Order</InputLabel>
+              <Select
+                labelId="sort-order-label"
+                label="Order"
+                value={sortOrder}
+                onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
+              >
+                <MenuItem value="asc">asc</MenuItem>
+                <MenuItem value="desc">desc</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
+              <InputLabel id="per-page-label">Per page</InputLabel>
+              <Select
+                labelId="per-page-label"
+                label="Per page"
+                value={perPage}
+                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+              >
+                <MenuItem value={10}>10</MenuItem>
+                <MenuItem value={20}>20</MenuItem>
+                <MenuItem value={50}>50</MenuItem>
+                <MenuItem value={100}>100</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+          <Typography variant="body2">No features yet.</Typography>
+        </Box>
       ) : null}
 
       {/* Create/Edit Dialog */}
