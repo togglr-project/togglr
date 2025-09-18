@@ -77,6 +77,13 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [submitting, setSubmitting] = useState(false);
 
   // Derived validation helpers
+  // Feature key: allowed characters a-z, A-Z, 0-9, hyphen (-), underscore (_), colon (:), @, !, #, $, dot (.)
+  const keyRegex = /^[A-Za-z0-9_:@!#$.-]+$/; // hyphen and dot are safe here; no spaces allowed
+  const keyValid = useMemo(() => {
+    const v = keyValue.trim();
+    return v.length > 0 && keyRegex.test(v);
+  }, [keyValue]);
+
   const totalRollout = useMemo(() => variants.reduce((sum, v) => sum + (Number.isFinite(Number(v.rollout_percent)) ? Number(v.rollout_percent) : 0), 0), [variants]);
   const rolloutSumValid = Math.round(totalRollout) === 100;
   const variantsValuesValid = variants.every((v) => v.name.trim().length > 0 && Number.isFinite(Number(v.rollout_percent)) && v.rollout_percent > 0 && v.rollout_percent <= 100);
@@ -149,7 +156,10 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     mutationFn: async () => {
       setFormError(null);
 
-      if (!keyValue.trim() || !name.trim()) {
+      if (!keyValid || !name.trim()) {
+        if (!keyValid) {
+          throw new Error('Key contains invalid characters. Allowed: a-z, A-Z, 0-9, -, _, :, @, !, #, $, .');
+        }
         throw new Error('Key and Name are required');
       }
       if (kind === 'multivariant') {
@@ -290,7 +300,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
 
 
   const canCreate = useMemo(() => {
-    if (!keyValue.trim() || !name.trim()) return false;
+    if (!keyValid || !name.trim()) return false;
     if (kind === 'multivariant') {
       if (!rolloutKey.trim()) return false;
       if (!hasAtLeastTwoVariants) return false;
@@ -298,14 +308,22 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     }
     if (rules.length > 0 && !rulesValid) return false;
     return !submitting;
-  }, [keyValue, name, kind, rolloutKey, hasAtLeastTwoVariants, variantsValid, rulesValid, rules.length, submitting]);
+  }, [keyValid, name, kind, rolloutKey, hasAtLeastTwoVariants, variantsValid, rulesValid, rules.length, submitting]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle className="gradient-text-purple">Create Feature</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mt: 1 }}>
-          <TextField label="Key" value={keyValue} onChange={(e) => setKeyValue(e.target.value)} required fullWidth />
+          <TextField 
+            label="Key" 
+            value={keyValue} 
+            onChange={(e) => setKeyValue(e.target.value)} 
+            required 
+            fullWidth 
+            error={keyValue.trim().length > 0 && !keyValid}
+            helperText={!keyValid && keyValue.trim().length > 0 ? 'Allowed: letters (a-z, A-Z), digits (0-9), hyphen (-), underscore (_), colon (:), @, !, #, $, dot (.)' : undefined}
+          />
           <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth />
           <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline minRows={2} />
           <TextField select label="Kind" value={kind} onChange={(e) => { const v = e.target.value as FeatureKind; setKind(v); }} fullWidth>
