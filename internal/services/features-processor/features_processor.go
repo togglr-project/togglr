@@ -41,6 +41,8 @@ type Service struct {
 	auditRepo    contract.AuditLogRepository
 	pollInterval time.Duration
 	lastSeen     time.Time
+
+	stopChan chan struct{}
 }
 
 func New(
@@ -59,13 +61,36 @@ func New(
 		projectsUC:   projectsUC,
 		auditRepo:    auditRepo,
 		pollInterval: pollInterval,
+		stopChan:     make(chan struct{}),
 	}
+}
+
+func (s *Service) Start(ctx context.Context) error {
+	if err := s.LoadAllFeatures(ctx); err != nil {
+		return fmt.Errorf("loading all features: %w", err)
+	}
+
+	go func() {
+		if err := s.Watch(context.Background()); err != nil {
+			slog.Error("Failed to watch features updates", "error", err)
+		}
+	}()
+
+	return nil
+}
+
+func (s *Service) Stop(context.Context) error {
+	close(s.stopChan)
+
+	return nil
 }
 
 func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	if s.featuresUC == nil || s.projectsUC == nil {
 		return fmt.Errorf("features processor: dependencies not set")
 	}
+
+	slog.Info("Start loading all features")
 
 	lastSeen := time.Now()
 
@@ -94,6 +119,8 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	s.lastSeen = lastSeen
 	s.mu.Unlock()
 
+	slog.Info("Finished loading all features")
+
 	return nil
 }
 
@@ -101,6 +128,8 @@ func (s *Service) Watch(ctx context.Context) error {
 	if s.auditRepo == nil || s.featuresUC == nil {
 		return fmt.Errorf("features processor: dependencies not set")
 	}
+
+	slog.Info("Start watching features")
 
 	if s.pollInterval <= 0 {
 		s.pollInterval = defaultPollInterval
@@ -114,7 +143,9 @@ func (s *Service) Watch(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
+		case <-s.stopChan:
+			return nil
 		case <-ticker.C:
 			windowEnd := time.Now().UTC()
 
@@ -126,7 +157,13 @@ func (s *Service) Watch(ctx context.Context) error {
 				continue
 			}
 
-			// Deduplicate by project+feature; keep delete if any delete for feature entity appears.
+			if len(logs) == 0 {
+				continue
+			}
+
+			slog.Info("Changes on features detected", "count", len(logs))
+
+			// Deduplicate by project+feature; keep delete if any delete for a feature entity appears.
 			type changeKey struct {
 				projectID domain.ProjectID
 				featureID domain.FeatureID
