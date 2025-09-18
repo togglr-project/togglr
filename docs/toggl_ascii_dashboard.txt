@@ -1,0 +1,45 @@
++---------------------------------------------------------------+
+|                        DASHBOARD (MVP)                        |
++---------------------------------------------------------------+
+
+  [ Summary Cards ]
+  +-----------+   +-------------+   +--------------+   +----------+
+  | Projects  |   | Features    |   | Active Flags |   | SDK Reqs |
+  |     12    |   |      45     |   |      28      |   |   2.3k   |
+  +-----------+   +-------------+   +--------------+   +----------+
+
+  [ Upcoming Schedules ]
+  ---------------------------------------------------------------
+  | In 10 min   : Feature "checkout_v2" -> ENABLE               |
+  | In 30 min   : Feature "beta_ui" -> DISABLE                  |
+  | In 1 hour   : Feature "search_opt" -> ENABLE                |
+  | In 24 hours : Feature "promo_banner" -> DISABLE             |
+  ---------------------------------------------------------------
+
+  [ SDK Request Activity (in-memory, last 15 min) ]
+  ---------------------------------------------------------------
+  Top features by requests:
+   - checkout_v2        : 830 reqs
+   - search_opt         : 620 reqs
+   - beta_ui            : 410 reqs
+
+  Top projects by requests:
+   - Project A          : 1.2k reqs
+   - Project B          : 700 reqs
+   - Project C          : 300 reqs
+  ---------------------------------------------------------------
+
+  [ Quick Actions ]
+  ---------------------------------------------------------------
+  - Create new Feature
+  - Manage Segments
+  - View Projects
+  - User Management (if superuser)
+  ---------------------------------------------------------------
+
+  [ Recent Activity / Alerts ]
+  ---------------------------------------------------------------
+  - User alice enabled feature "checkout_v2" (5 min ago)
+  - Feature "beta_ui" has overlapping schedules
+  - SDK client api-key-123 exceeded 1000 req/min (rate warning)
+  ---------------------------------------------------------------
