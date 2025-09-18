@@ -4,31 +4,41 @@ info:
   version: 1.0.0
 
 paths:
-  /sdk/v1/features:
-    get:
+  /sdk/v1/features/{feature_key}/evaluate:
+    post:
+      summary: Evaluate feature for given context
+      description: |
+        Returns feature evaluation result for given project and context.
+        The project is derived from the API key.
       security:
-        - apiKeyAuth: [ ]
-      summary: List of features for project
-      operationId: ListProjectFeatures
+        - ApiKeyAuth: []
+      parameters:
+        - name: feature_key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateRequest'
       responses:
         '200':
-          description: List of features for the project
+          description: Evaluation result
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListFeaturesResponse'
+                $ref: '#/components/schemas/EvaluateResponse'
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUnauthorized'
-        '403':
-          description: Permission denied
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
         '500':
           description: Internal server error
           content:
@@ -41,9 +51,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  /sdk/v1/health:
+    get:
+      summary: Health check for SDK server
+      responses:
+        "200":
+          description: Health information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        default:
+          description: Unexpected error
+
 components:
   securitySchemes:
-    apiKeyAuth:
+    ApiKeyAuth:
       type: apiKey
       in: header
       name: Authorization
@@ -112,114 +136,35 @@ components:
               code: "not_found"
               message: "Resource not found"
 
-    ListFeaturesResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/FeatureDetailsResponse'
+    # ----
 
-    FeatureDetailsResponse:
+    EvaluateRequest:
+      type: object
+      additionalProperties: true
+      example:
+        user.id: "123"
+        country: "RU"
+
+    EvaluateResponse:
       type: object
       properties:
-        feature:
-          $ref: '#/components/schemas/Feature'
-        variants:
-          type: array
-          items:
-            $ref: '#/components/schemas/FlagVariant'
-        rules:
-          type: array
-          items:
-            $ref: '#/components/schemas/Rule'
-      required: [feature, variants, rules]
-
-    FlagVariant:
-      type: object
-      properties:
-        id:
+        feature_key:
           type: string
-          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        feature_id:
-          type: string
-          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        name:
-          type: string
-          example: "A"
-        rollout_percent:
-          type: integer
-          format: uint
-          minimum: 1
-          maximum: 100
-          example: 50
-      required: [id, feature_id, name, rollout_percent]
-
-    RuleAttribute:
-      type: string
-      description: Attribute to match in the rule condition
-
-    RuleOperator:
-      type: string
-      description: Operator for condition comparison
-      enum: [eq, neq, in, not_in, gt, gte, lt, lte, regex, percentage]
-
-    RuleCondition:
-      type: object
-      description: Single condition item
-      properties:
-        attribute:
-          $ref: '#/components/schemas/RuleAttribute'
-        operator:
-          $ref: '#/components/schemas/RuleOperator'
-        value: {}
-      required: [attribute, operator, value]
-
-    Rule:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        feature_id:
-          type: string
-          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        conditions:
-          type: array
-          items:
-            $ref: '#/components/schemas/RuleCondition'
-        flag_variant_id:
-          type: string
-          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        priority:
-          type: integer
-          format: uint
-          minimum: 0
-          maximum: 255
-          example: 10
-      required: [id, feature_id, conditions, flag_variant_id, priority]
-
-    FeatureKind:
-      type: string
-      enum:
-        - boolean
-        - multivariant
-
-    Feature:
-      type: object
-      properties:
-        id:
-          type: string
-          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
-        key:
-          type: string
-          example: "new_ui"
-        name:
-          type: string
-          example: "New UI"
-        kind:
-          $ref: '#/components/schemas/FeatureKind'
-        default_variant:
-          type: string
-          example: "on"
         enabled:
           type: boolean
-          example: true
-      required: [id, project_id, key, name, kind, default_variant, enabled]
+        value:
+          type: string
+        found:
+          type: boolean
+      required: [ feature_key, enabled, value, found ]
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ ok ]
+        server_time:
+          type: string
+          format: date-time
+      required: [ status, server_time ]

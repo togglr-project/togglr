@@ -6,5 +6,6 @@ package api
 type OperationName = string
 
 const (
-	ListProjectFeaturesOperation OperationName = "ListProjectFeatures"
+	SdkV1FeaturesFeatureKeyEvaluatePostOperation OperationName = "SdkV1FeaturesFeatureKeyEvaluatePost"
+	SdkV1HealthGetOperation                      OperationName = "SdkV1HealthGet"
 )

@@ -8,16 +8,19 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
-	// ListProjectFeatures implements ListProjectFeatures operation.
+	// SdkV1FeaturesFeatureKeyEvaluatePost implements POST /sdk/v1/features/{feature_key}/evaluate operation.
 	//
-	// List of features for project.
+	// Returns feature evaluation result for given project and context.
+	// The project is derived from the API key.
 	//
-	// GET /sdk/v1/features
-	ListProjectFeatures(ctx context.Context) (ListProjectFeaturesRes, error)
-	// NewError creates *ErrorStatusCode from error returned by handler.
+	// POST /sdk/v1/features/{feature_key}/evaluate
+	SdkV1FeaturesFeatureKeyEvaluatePost(ctx context.Context, req EvaluateRequest, params SdkV1FeaturesFeatureKeyEvaluatePostParams) (SdkV1FeaturesFeatureKeyEvaluatePostRes, error)
+	// SdkV1HealthGet implements GET /sdk/v1/health operation.
 	//
-	// Used for common default response.
-	NewError(ctx context.Context, err error) *ErrorStatusCode
+	// Health check for SDK server.
+	//
+	// GET /sdk/v1/health
+	SdkV1HealthGet(ctx context.Context) (SdkV1HealthGetRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

@@ -40,6 +40,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.notFound(w, r)
 		return
 	}
+	args := [1]string{}
 
 	// Static code generated router with unwrapped path search.
 	switch {
@@ -48,24 +49,83 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/sdk/v1/features"
+		case '/': // Prefix: "/sdk/v1/"
 
-			if l := len("/sdk/v1/features"); len(elem) >= l && elem[0:l] == "/sdk/v1/features" {
+			if l := len("/sdk/v1/"); len(elem) >= l && elem[0:l] == "/sdk/v1/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				// Leaf node.
-				switch r.Method {
-				case "GET":
-					s.handleListProjectFeaturesRequest([0]string{}, elemIsEscaped, w, r)
-				default:
-					s.notAllowed(w, r, "GET")
+				break
+			}
+			switch elem[0] {
+			case 'f': // Prefix: "features/"
+
+				if l := len("features/"); len(elem) >= l && elem[0:l] == "features/" {
+					elem = elem[l:]
+				} else {
+					break
 				}
 
-				return
+				// Param: "feature_key"
+				// Match until "/"
+				idx := strings.IndexByte(elem, '/')
+				if idx < 0 {
+					idx = len(elem)
+				}
+				args[0] = elem[:idx]
+				elem = elem[idx:]
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/evaluate"
+
+					if l := len("/evaluate"); len(elem) >= l && elem[0:l] == "/evaluate" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "POST":
+							s.handleSdkV1FeaturesFeatureKeyEvaluatePostRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "POST")
+						}
+
+						return
+					}
+
+				}
+
+			case 'h': // Prefix: "health"
+
+				if l := len("health"); len(elem) >= l && elem[0:l] == "health" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handleSdkV1HealthGetRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+
 			}
 
 		}
@@ -80,7 +140,7 @@ type Route struct {
 	operationID string
 	pathPattern string
 	count       int
-	args        [0]string
+	args        [1]string
 }
 
 // Name returns ogen operation name.
@@ -148,28 +208,89 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 			break
 		}
 		switch elem[0] {
-		case '/': // Prefix: "/sdk/v1/features"
+		case '/': // Prefix: "/sdk/v1/"
 
-			if l := len("/sdk/v1/features"); len(elem) >= l && elem[0:l] == "/sdk/v1/features" {
+			if l := len("/sdk/v1/"); len(elem) >= l && elem[0:l] == "/sdk/v1/" {
 				elem = elem[l:]
 			} else {
 				break
 			}
 
 			if len(elem) == 0 {
-				// Leaf node.
-				switch method {
-				case "GET":
-					r.name = ListProjectFeaturesOperation
-					r.summary = "List of features for project"
-					r.operationID = "ListProjectFeatures"
-					r.pathPattern = "/sdk/v1/features"
-					r.args = args
-					r.count = 0
-					return r, true
-				default:
-					return
+				break
+			}
+			switch elem[0] {
+			case 'f': // Prefix: "features/"
+
+				if l := len("features/"); len(elem) >= l && elem[0:l] == "features/" {
+					elem = elem[l:]
+				} else {
+					break
 				}
+
+				// Param: "feature_key"
+				// Match until "/"
+				idx := strings.IndexByte(elem, '/')
+				if idx < 0 {
+					idx = len(elem)
+				}
+				args[0] = elem[:idx]
+				elem = elem[idx:]
+
+				if len(elem) == 0 {
+					break
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/evaluate"
+
+					if l := len("/evaluate"); len(elem) >= l && elem[0:l] == "/evaluate" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "POST":
+							r.name = SdkV1FeaturesFeatureKeyEvaluatePostOperation
+							r.summary = "Evaluate feature for given context"
+							r.operationID = ""
+							r.pathPattern = "/sdk/v1/features/{feature_key}/evaluate"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
+					}
+
+				}
+
+			case 'h': // Prefix: "health"
+
+				if l := len("health"); len(elem) >= l && elem[0:l] == "health" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "GET":
+						r.name = SdkV1HealthGetOperation
+						r.summary = "Health check for SDK server"
+						r.operationID = ""
+						r.pathPattern = "/sdk/v1/health"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+
 			}
 
 		}

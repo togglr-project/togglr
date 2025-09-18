@@ -3,15 +3,11 @@
 package api
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
 )
-
-func (s *ErrorStatusCode) Error() string {
-	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
-}
 
 type ApiKeyAuth struct {
 	APIKey string
@@ -83,7 +79,7 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 	s.Error = val
 }
 
-func (*ErrorInternalServerError) listProjectFeaturesRes() {}
+func (*ErrorInternalServerError) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 type ErrorInternalServerErrorError struct {
 	Message OptString `json:"message"`
@@ -96,38 +92,6 @@ func (s *ErrorInternalServerErrorError) GetMessage() OptString {
 
 // SetMessage sets the value of Message.
 func (s *ErrorInternalServerErrorError) SetMessage(val OptString) {
-	s.Message = val
-}
-
-// Merged schema.
-// Ref: #/components/schemas/ErrorPermissionDenied
-type ErrorPermissionDenied struct {
-	Error ErrorPermissionDeniedError `json:"error"`
-}
-
-// GetError returns the value of Error.
-func (s *ErrorPermissionDenied) GetError() ErrorPermissionDeniedError {
-	return s.Error
-}
-
-// SetError sets the value of Error.
-func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
-	s.Error = val
-}
-
-func (*ErrorPermissionDenied) listProjectFeaturesRes() {}
-
-type ErrorPermissionDeniedError struct {
-	Message OptString `json:"message"`
-}
-
-// GetMessage returns the value of Message.
-func (s *ErrorPermissionDeniedError) GetMessage() OptString {
-	return s.Message
-}
-
-// SetMessage sets the value of Message.
-func (s *ErrorPermissionDeniedError) SetMessage(val OptString) {
 	s.Message = val
 }
 
@@ -157,6 +121,8 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+func (*ErrorStatusCode) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+
 // Merged schema.
 // Ref: #/components/schemas/ErrorUnauthorized
 type ErrorUnauthorized struct {
@@ -173,7 +139,7 @@ func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
 	s.Error = val
 }
 
-func (*ErrorUnauthorized) listProjectFeaturesRes() {}
+func (*ErrorUnauthorized) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 type ErrorUnauthorizedError struct {
 	Message OptString `json:"message"`
@@ -189,135 +155,113 @@ func (s *ErrorUnauthorizedError) SetMessage(val OptString) {
 	s.Message = val
 }
 
-// Ref: #/components/schemas/Feature
-type Feature struct {
-	ID             string      `json:"id"`
-	Key            string      `json:"key"`
-	Name           string      `json:"name"`
-	Kind           FeatureKind `json:"kind"`
-	DefaultVariant string      `json:"default_variant"`
-	Enabled        bool        `json:"enabled"`
+// Ref: #/components/schemas/EvaluateRequest
+type EvaluateRequest map[string]jx.Raw
+
+func (s *EvaluateRequest) init() EvaluateRequest {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
 }
 
-// GetID returns the value of ID.
-func (s *Feature) GetID() string {
-	return s.ID
+// Ref: #/components/schemas/EvaluateResponse
+type EvaluateResponse struct {
+	FeatureKey string `json:"feature_key"`
+	Enabled    bool   `json:"enabled"`
+	Value      string `json:"value"`
+	Found      bool   `json:"found"`
 }
 
-// GetKey returns the value of Key.
-func (s *Feature) GetKey() string {
-	return s.Key
-}
-
-// GetName returns the value of Name.
-func (s *Feature) GetName() string {
-	return s.Name
-}
-
-// GetKind returns the value of Kind.
-func (s *Feature) GetKind() FeatureKind {
-	return s.Kind
-}
-
-// GetDefaultVariant returns the value of DefaultVariant.
-func (s *Feature) GetDefaultVariant() string {
-	return s.DefaultVariant
+// GetFeatureKey returns the value of FeatureKey.
+func (s *EvaluateResponse) GetFeatureKey() string {
+	return s.FeatureKey
 }
 
 // GetEnabled returns the value of Enabled.
-func (s *Feature) GetEnabled() bool {
+func (s *EvaluateResponse) GetEnabled() bool {
 	return s.Enabled
 }
 
-// SetID sets the value of ID.
-func (s *Feature) SetID(val string) {
-	s.ID = val
+// GetValue returns the value of Value.
+func (s *EvaluateResponse) GetValue() string {
+	return s.Value
 }
 
-// SetKey sets the value of Key.
-func (s *Feature) SetKey(val string) {
-	s.Key = val
+// GetFound returns the value of Found.
+func (s *EvaluateResponse) GetFound() bool {
+	return s.Found
 }
 
-// SetName sets the value of Name.
-func (s *Feature) SetName(val string) {
-	s.Name = val
-}
-
-// SetKind sets the value of Kind.
-func (s *Feature) SetKind(val FeatureKind) {
-	s.Kind = val
-}
-
-// SetDefaultVariant sets the value of DefaultVariant.
-func (s *Feature) SetDefaultVariant(val string) {
-	s.DefaultVariant = val
+// SetFeatureKey sets the value of FeatureKey.
+func (s *EvaluateResponse) SetFeatureKey(val string) {
+	s.FeatureKey = val
 }
 
 // SetEnabled sets the value of Enabled.
-func (s *Feature) SetEnabled(val bool) {
+func (s *EvaluateResponse) SetEnabled(val bool) {
 	s.Enabled = val
 }
 
-// Ref: #/components/schemas/FeatureDetailsResponse
-type FeatureDetailsResponse struct {
-	Feature  Feature       `json:"feature"`
-	Variants []FlagVariant `json:"variants"`
-	Rules    []Rule        `json:"rules"`
+// SetValue sets the value of Value.
+func (s *EvaluateResponse) SetValue(val string) {
+	s.Value = val
 }
 
-// GetFeature returns the value of Feature.
-func (s *FeatureDetailsResponse) GetFeature() Feature {
-	return s.Feature
+// SetFound sets the value of Found.
+func (s *EvaluateResponse) SetFound(val bool) {
+	s.Found = val
 }
 
-// GetVariants returns the value of Variants.
-func (s *FeatureDetailsResponse) GetVariants() []FlagVariant {
-	return s.Variants
+func (*EvaluateResponse) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+
+// Ref: #/components/schemas/HealthResponse
+type HealthResponse struct {
+	Status     HealthResponseStatus `json:"status"`
+	ServerTime time.Time            `json:"server_time"`
 }
 
-// GetRules returns the value of Rules.
-func (s *FeatureDetailsResponse) GetRules() []Rule {
-	return s.Rules
+// GetStatus returns the value of Status.
+func (s *HealthResponse) GetStatus() HealthResponseStatus {
+	return s.Status
 }
 
-// SetFeature sets the value of Feature.
-func (s *FeatureDetailsResponse) SetFeature(val Feature) {
-	s.Feature = val
+// GetServerTime returns the value of ServerTime.
+func (s *HealthResponse) GetServerTime() time.Time {
+	return s.ServerTime
 }
 
-// SetVariants sets the value of Variants.
-func (s *FeatureDetailsResponse) SetVariants(val []FlagVariant) {
-	s.Variants = val
+// SetStatus sets the value of Status.
+func (s *HealthResponse) SetStatus(val HealthResponseStatus) {
+	s.Status = val
 }
 
-// SetRules sets the value of Rules.
-func (s *FeatureDetailsResponse) SetRules(val []Rule) {
-	s.Rules = val
+// SetServerTime sets the value of ServerTime.
+func (s *HealthResponse) SetServerTime(val time.Time) {
+	s.ServerTime = val
 }
 
-// Ref: #/components/schemas/FeatureKind
-type FeatureKind string
+func (*HealthResponse) sdkV1HealthGetRes() {}
+
+type HealthResponseStatus string
 
 const (
-	FeatureKindBoolean      FeatureKind = "boolean"
-	FeatureKindMultivariant FeatureKind = "multivariant"
+	HealthResponseStatusOk HealthResponseStatus = "ok"
 )
 
-// AllValues returns all FeatureKind values.
-func (FeatureKind) AllValues() []FeatureKind {
-	return []FeatureKind{
-		FeatureKindBoolean,
-		FeatureKindMultivariant,
+// AllValues returns all HealthResponseStatus values.
+func (HealthResponseStatus) AllValues() []HealthResponseStatus {
+	return []HealthResponseStatus{
+		HealthResponseStatusOk,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s FeatureKind) MarshalText() ([]byte, error) {
+func (s HealthResponseStatus) MarshalText() ([]byte, error) {
 	switch s {
-	case FeatureKindBoolean:
-		return []byte(s), nil
-	case FeatureKindMultivariant:
+	case HealthResponseStatusOk:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -325,70 +269,15 @@ func (s FeatureKind) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *FeatureKind) UnmarshalText(data []byte) error {
-	switch FeatureKind(data) {
-	case FeatureKindBoolean:
-		*s = FeatureKindBoolean
-		return nil
-	case FeatureKindMultivariant:
-		*s = FeatureKindMultivariant
+func (s *HealthResponseStatus) UnmarshalText(data []byte) error {
+	switch HealthResponseStatus(data) {
+	case HealthResponseStatusOk:
+		*s = HealthResponseStatusOk
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
-
-// Ref: #/components/schemas/FlagVariant
-type FlagVariant struct {
-	ID             string `json:"id"`
-	FeatureID      string `json:"feature_id"`
-	Name           string `json:"name"`
-	RolloutPercent uint   `json:"rollout_percent"`
-}
-
-// GetID returns the value of ID.
-func (s *FlagVariant) GetID() string {
-	return s.ID
-}
-
-// GetFeatureID returns the value of FeatureID.
-func (s *FlagVariant) GetFeatureID() string {
-	return s.FeatureID
-}
-
-// GetName returns the value of Name.
-func (s *FlagVariant) GetName() string {
-	return s.Name
-}
-
-// GetRolloutPercent returns the value of RolloutPercent.
-func (s *FlagVariant) GetRolloutPercent() uint {
-	return s.RolloutPercent
-}
-
-// SetID sets the value of ID.
-func (s *FlagVariant) SetID(val string) {
-	s.ID = val
-}
-
-// SetFeatureID sets the value of FeatureID.
-func (s *FlagVariant) SetFeatureID(val string) {
-	s.FeatureID = val
-}
-
-// SetName sets the value of Name.
-func (s *FlagVariant) SetName(val string) {
-	s.Name = val
-}
-
-// SetRolloutPercent sets the value of RolloutPercent.
-func (s *FlagVariant) SetRolloutPercent(val uint) {
-	s.RolloutPercent = val
-}
-
-type ListFeaturesResponse []FeatureDetailsResponse
-
-func (*ListFeaturesResponse) listProjectFeaturesRes() {}
 
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
@@ -436,200 +325,24 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
-// Ref: #/components/schemas/Rule
-type Rule struct {
-	ID            string          `json:"id"`
-	FeatureID     string          `json:"feature_id"`
-	Conditions    []RuleCondition `json:"conditions"`
-	FlagVariantID string          `json:"flag_variant_id"`
-	Priority      uint            `json:"priority"`
+// SdkV1FeaturesFeatureKeyEvaluatePostNotFound is response for SdkV1FeaturesFeatureKeyEvaluatePost operation.
+type SdkV1FeaturesFeatureKeyEvaluatePostNotFound struct{}
+
+func (*SdkV1FeaturesFeatureKeyEvaluatePostNotFound) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
+
+// SdkV1HealthGetDef is default response for SdkV1HealthGet operation.
+type SdkV1HealthGetDef struct {
+	StatusCode int
 }
 
-// GetID returns the value of ID.
-func (s *Rule) GetID() string {
-	return s.ID
+// GetStatusCode returns the value of StatusCode.
+func (s *SdkV1HealthGetDef) GetStatusCode() int {
+	return s.StatusCode
 }
 
-// GetFeatureID returns the value of FeatureID.
-func (s *Rule) GetFeatureID() string {
-	return s.FeatureID
+// SetStatusCode sets the value of StatusCode.
+func (s *SdkV1HealthGetDef) SetStatusCode(val int) {
+	s.StatusCode = val
 }
 
-// GetConditions returns the value of Conditions.
-func (s *Rule) GetConditions() []RuleCondition {
-	return s.Conditions
-}
-
-// GetFlagVariantID returns the value of FlagVariantID.
-func (s *Rule) GetFlagVariantID() string {
-	return s.FlagVariantID
-}
-
-// GetPriority returns the value of Priority.
-func (s *Rule) GetPriority() uint {
-	return s.Priority
-}
-
-// SetID sets the value of ID.
-func (s *Rule) SetID(val string) {
-	s.ID = val
-}
-
-// SetFeatureID sets the value of FeatureID.
-func (s *Rule) SetFeatureID(val string) {
-	s.FeatureID = val
-}
-
-// SetConditions sets the value of Conditions.
-func (s *Rule) SetConditions(val []RuleCondition) {
-	s.Conditions = val
-}
-
-// SetFlagVariantID sets the value of FlagVariantID.
-func (s *Rule) SetFlagVariantID(val string) {
-	s.FlagVariantID = val
-}
-
-// SetPriority sets the value of Priority.
-func (s *Rule) SetPriority(val uint) {
-	s.Priority = val
-}
-
-type RuleAttribute string
-
-// Single condition item.
-// Ref: #/components/schemas/RuleCondition
-type RuleCondition struct {
-	Attribute RuleAttribute `json:"attribute"`
-	Operator  RuleOperator  `json:"operator"`
-	Value     jx.Raw        `json:"value"`
-}
-
-// GetAttribute returns the value of Attribute.
-func (s *RuleCondition) GetAttribute() RuleAttribute {
-	return s.Attribute
-}
-
-// GetOperator returns the value of Operator.
-func (s *RuleCondition) GetOperator() RuleOperator {
-	return s.Operator
-}
-
-// GetValue returns the value of Value.
-func (s *RuleCondition) GetValue() jx.Raw {
-	return s.Value
-}
-
-// SetAttribute sets the value of Attribute.
-func (s *RuleCondition) SetAttribute(val RuleAttribute) {
-	s.Attribute = val
-}
-
-// SetOperator sets the value of Operator.
-func (s *RuleCondition) SetOperator(val RuleOperator) {
-	s.Operator = val
-}
-
-// SetValue sets the value of Value.
-func (s *RuleCondition) SetValue(val jx.Raw) {
-	s.Value = val
-}
-
-// Operator for condition comparison.
-// Ref: #/components/schemas/RuleOperator
-type RuleOperator string
-
-const (
-	RuleOperatorEq         RuleOperator = "eq"
-	RuleOperatorNeq        RuleOperator = "neq"
-	RuleOperatorIn         RuleOperator = "in"
-	RuleOperatorNotIn      RuleOperator = "not_in"
-	RuleOperatorGt         RuleOperator = "gt"
-	RuleOperatorGte        RuleOperator = "gte"
-	RuleOperatorLt         RuleOperator = "lt"
-	RuleOperatorLte        RuleOperator = "lte"
-	RuleOperatorRegex      RuleOperator = "regex"
-	RuleOperatorPercentage RuleOperator = "percentage"
-)
-
-// AllValues returns all RuleOperator values.
-func (RuleOperator) AllValues() []RuleOperator {
-	return []RuleOperator{
-		RuleOperatorEq,
-		RuleOperatorNeq,
-		RuleOperatorIn,
-		RuleOperatorNotIn,
-		RuleOperatorGt,
-		RuleOperatorGte,
-		RuleOperatorLt,
-		RuleOperatorLte,
-		RuleOperatorRegex,
-		RuleOperatorPercentage,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s RuleOperator) MarshalText() ([]byte, error) {
-	switch s {
-	case RuleOperatorEq:
-		return []byte(s), nil
-	case RuleOperatorNeq:
-		return []byte(s), nil
-	case RuleOperatorIn:
-		return []byte(s), nil
-	case RuleOperatorNotIn:
-		return []byte(s), nil
-	case RuleOperatorGt:
-		return []byte(s), nil
-	case RuleOperatorGte:
-		return []byte(s), nil
-	case RuleOperatorLt:
-		return []byte(s), nil
-	case RuleOperatorLte:
-		return []byte(s), nil
-	case RuleOperatorRegex:
-		return []byte(s), nil
-	case RuleOperatorPercentage:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *RuleOperator) UnmarshalText(data []byte) error {
-	switch RuleOperator(data) {
-	case RuleOperatorEq:
-		*s = RuleOperatorEq
-		return nil
-	case RuleOperatorNeq:
-		*s = RuleOperatorNeq
-		return nil
-	case RuleOperatorIn:
-		*s = RuleOperatorIn
-		return nil
-	case RuleOperatorNotIn:
-		*s = RuleOperatorNotIn
-		return nil
-	case RuleOperatorGt:
-		*s = RuleOperatorGt
-		return nil
-	case RuleOperatorGte:
-		*s = RuleOperatorGte
-		return nil
-	case RuleOperatorLt:
-		*s = RuleOperatorLt
-		return nil
-	case RuleOperatorLte:
-		*s = RuleOperatorLte
-		return nil
-	case RuleOperatorRegex:
-		*s = RuleOperatorRegex
-		return nil
-	case RuleOperatorPercentage:
-		*s = RuleOperatorPercentage
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
+func (*SdkV1HealthGetDef) sdkV1HealthGetRes() {}

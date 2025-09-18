@@ -14,7 +14,7 @@ import (
 
 // SecurityHandler is handler for security parameters.
 type SecurityHandler interface {
-	// HandleApiKeyAuth handles apiKeyAuth security.
+	// HandleApiKeyAuth handles ApiKeyAuth security.
 	HandleApiKeyAuth(ctx context.Context, operationName OperationName, t ApiKeyAuth) (context.Context, error)
 }
 
@@ -34,7 +34,7 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 }
 
 var operationRolesApiKeyAuth = map[string][]string{
-	ListProjectFeaturesOperation: []string{},
+	SdkV1FeaturesFeatureKeyEvaluatePostOperation: []string{},
 }
 
 func (s *Server) securityApiKeyAuth(ctx context.Context, operationName OperationName, req *http.Request) (context.Context, bool, error) {
@@ -57,7 +57,7 @@ func (s *Server) securityApiKeyAuth(ctx context.Context, operationName Operation
 
 // SecuritySource is provider of security values (tokens, passwords, etc.).
 type SecuritySource interface {
-	// ApiKeyAuth provides apiKeyAuth security value.
+	// ApiKeyAuth provides ApiKeyAuth security value.
 	ApiKeyAuth(ctx context.Context, operationName OperationName) (ApiKeyAuth, error)
 }
 

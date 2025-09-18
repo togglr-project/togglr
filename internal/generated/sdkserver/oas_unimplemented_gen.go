@@ -13,19 +13,21 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
-// ListProjectFeatures implements ListProjectFeatures operation.
+// SdkV1FeaturesFeatureKeyEvaluatePost implements POST /sdk/v1/features/{feature_key}/evaluate operation.
 //
-// List of features for project.
+// Returns feature evaluation result for given project and context.
+// The project is derived from the API key.
 //
-// GET /sdk/v1/features
-func (UnimplementedHandler) ListProjectFeatures(ctx context.Context) (r ListProjectFeaturesRes, _ error) {
+// POST /sdk/v1/features/{feature_key}/evaluate
+func (UnimplementedHandler) SdkV1FeaturesFeatureKeyEvaluatePost(ctx context.Context, req EvaluateRequest, params SdkV1FeaturesFeatureKeyEvaluatePostParams) (r SdkV1FeaturesFeatureKeyEvaluatePostRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
-// NewError creates *ErrorStatusCode from error returned by handler.
+// SdkV1HealthGet implements GET /sdk/v1/health operation.
 //
-// Used for common default response.
-func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *ErrorStatusCode) {
-	r = new(ErrorStatusCode)
-	return r
+// Health check for SDK server.
+//
+// GET /sdk/v1/health
+func (UnimplementedHandler) SdkV1HealthGet(ctx context.Context) (r SdkV1HealthGetRes, _ error) {
+	return r, ht.ErrNotImplemented
 }

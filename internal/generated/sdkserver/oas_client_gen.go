@@ -15,9 +15,9 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/ogenerrors"
-	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
 )
 
@@ -28,12 +28,19 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
-	// ListProjectFeatures invokes ListProjectFeatures operation.
+	// SdkV1FeaturesFeatureKeyEvaluatePost invokes POST /sdk/v1/features/{feature_key}/evaluate operation.
 	//
-	// List of features for project.
+	// Returns feature evaluation result for given project and context.
+	// The project is derived from the API key.
 	//
-	// GET /sdk/v1/features
-	ListProjectFeatures(ctx context.Context) (ListProjectFeaturesRes, error)
+	// POST /sdk/v1/features/{feature_key}/evaluate
+	SdkV1FeaturesFeatureKeyEvaluatePost(ctx context.Context, request EvaluateRequest, params SdkV1FeaturesFeatureKeyEvaluatePostParams) (SdkV1FeaturesFeatureKeyEvaluatePostRes, error)
+	// SdkV1HealthGet invokes GET /sdk/v1/health operation.
+	//
+	// Health check for SDK server.
+	//
+	// GET /sdk/v1/health
+	SdkV1HealthGet(ctx context.Context) (SdkV1HealthGetRes, error)
 }
 
 // Client implements OAS client.
@@ -42,12 +49,8 @@ type Client struct {
 	sec       SecuritySource
 	baseClient
 }
-type errorHandler interface {
-	NewError(ctx context.Context, err error) *ErrorStatusCode
-}
 
 var _ Handler = struct {
-	errorHandler
 	*Client
 }{}
 
@@ -85,21 +88,21 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 	return u
 }
 
-// ListProjectFeatures invokes ListProjectFeatures operation.
+// SdkV1FeaturesFeatureKeyEvaluatePost invokes POST /sdk/v1/features/{feature_key}/evaluate operation.
 //
-// List of features for project.
+// Returns feature evaluation result for given project and context.
+// The project is derived from the API key.
 //
-// GET /sdk/v1/features
-func (c *Client) ListProjectFeatures(ctx context.Context) (ListProjectFeaturesRes, error) {
-	res, err := c.sendListProjectFeatures(ctx)
+// POST /sdk/v1/features/{feature_key}/evaluate
+func (c *Client) SdkV1FeaturesFeatureKeyEvaluatePost(ctx context.Context, request EvaluateRequest, params SdkV1FeaturesFeatureKeyEvaluatePostParams) (SdkV1FeaturesFeatureKeyEvaluatePostRes, error) {
+	res, err := c.sendSdkV1FeaturesFeatureKeyEvaluatePost(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendListProjectFeatures(ctx context.Context) (res ListProjectFeaturesRes, err error) {
+func (c *Client) sendSdkV1FeaturesFeatureKeyEvaluatePost(ctx context.Context, request EvaluateRequest, params SdkV1FeaturesFeatureKeyEvaluatePostParams) (res SdkV1FeaturesFeatureKeyEvaluatePostRes, err error) {
 	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("ListProjectFeatures"),
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/sdk/v1/features"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/sdk/v1/features/{feature_key}/evaluate"),
 	}
 
 	// Run stopwatch.
@@ -114,7 +117,7 @@ func (c *Client) sendListProjectFeatures(ctx context.Context) (res ListProjectFe
 	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
 
 	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, ListProjectFeaturesOperation,
+	ctx, span := c.cfg.Tracer.Start(ctx, SdkV1FeaturesFeatureKeyEvaluatePostOperation,
 		trace.WithAttributes(otelAttrs...),
 		clientSpanKind,
 	)
@@ -131,14 +134,36 @@ func (c *Client) sendListProjectFeatures(ctx context.Context) (res ListProjectFe
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/sdk/v1/features"
+	var pathParts [3]string
+	pathParts[0] = "/sdk/v1/features/"
+	{
+		// Encode "feature_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/evaluate"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
+	r, err := ht.NewRequest(ctx, "POST", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeSdkV1FeaturesFeatureKeyEvaluatePostRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
 	}
 
 	{
@@ -146,7 +171,7 @@ func (c *Client) sendListProjectFeatures(ctx context.Context) (res ListProjectFe
 		var satisfied bitset
 		{
 			stage = "Security:ApiKeyAuth"
-			switch err := c.securityApiKeyAuth(ctx, ListProjectFeaturesOperation, r); {
+			switch err := c.securityApiKeyAuth(ctx, SdkV1FeaturesFeatureKeyEvaluatePostOperation, r); {
 			case err == nil: // if NO error
 				satisfied[0] |= 1 << 0
 			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
@@ -182,7 +207,78 @@ func (c *Client) sendListProjectFeatures(ctx context.Context) (res ListProjectFe
 	defer resp.Body.Close()
 
 	stage = "DecodeResponse"
-	result, err := decodeListProjectFeaturesResponse(resp)
+	result, err := decodeSdkV1FeaturesFeatureKeyEvaluatePostResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// SdkV1HealthGet invokes GET /sdk/v1/health operation.
+//
+// Health check for SDK server.
+//
+// GET /sdk/v1/health
+func (c *Client) SdkV1HealthGet(ctx context.Context) (SdkV1HealthGetRes, error) {
+	res, err := c.sendSdkV1HealthGet(ctx)
+	return res, err
+}
+
+func (c *Client) sendSdkV1HealthGet(ctx context.Context) (res SdkV1HealthGetRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/sdk/v1/health"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SdkV1HealthGetOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/sdk/v1/health"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSdkV1HealthGetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
