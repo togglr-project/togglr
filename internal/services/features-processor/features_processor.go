@@ -151,7 +151,7 @@ func (s *Service) Watch(ctx context.Context) error {
 
 			logs, err := s.auditRepo.ListSince(ctx, last)
 			if err != nil {
-				slog.Error("audit log list since failed", "err", err)
+				slog.Error("Watcher: audit log list since failed", "err", err)
 				last = windowEnd
 
 				continue
@@ -199,7 +199,7 @@ func (s *Service) Watch(ctx context.Context) error {
 
 				// refresh feature by loading from repo
 				if err := s.refreshFeature(ctx, key.projectID, key.featureID); err != nil {
-					slog.Error("refresh feature failed",
+					slog.Error("Watcher: refresh feature failed",
 						"project", key.projectID, "feature", key.featureID, "err", err)
 				}
 			}
