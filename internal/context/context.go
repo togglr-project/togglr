@@ -15,6 +15,7 @@ const (
 	ctxKeyUserID    contextKey = "user_id"
 	ctxKeyIsSuper   contextKey = "is_superuser"
 	ctxRawRequest   contextKey = "raw_request"
+	ctxRequestID    contextKey = "request_id"
 )
 
 func WithProjectID(ctx context.Context, id domain.ProjectID) context.Context {
@@ -54,4 +55,17 @@ func WithRawRequest(ctx context.Context, req *http.Request) context.Context {
 
 func RawRequest(ctx context.Context) *http.Request {
 	return ctx.Value(ctxRawRequest).(*http.Request)
+}
+
+func WithRequestID(ctx context.Context, reqID string) context.Context {
+	return context.WithValue(ctx, ctxRequestID, reqID)
+}
+
+func RequestID(ctx context.Context) string {
+	v, ok := ctx.Value(ctxRequestID).(string)
+	if ok {
+		return v
+	}
+
+	return ""
 }

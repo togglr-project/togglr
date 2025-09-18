@@ -14,14 +14,14 @@ import (
 var _ generatedapi.Handler = (*SDKRestAPI)(nil)
 
 type SDKRestAPI struct {
-	featuresUseCase contract.FeaturesUseCase
+	featureProcessor contract.FeatureProcessor
 }
 
 func New(
-	featuresUseCase contract.FeaturesUseCase,
+	featureProcessor contract.FeatureProcessor,
 ) *SDKRestAPI {
 	return &SDKRestAPI{
-		featuresUseCase: featuresUseCase,
+		featureProcessor: featureProcessor,
 	}
 }
 

@@ -20,6 +20,7 @@ import (
 	generatedsdk "github.com/rom8726/etoggle/internal/generated/sdkserver"
 	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
 	"github.com/rom8726/etoggle/internal/license"
+	"github.com/rom8726/etoggle/internal/repository/auditlog"
 	"github.com/rom8726/etoggle/internal/repository/features"
 	"github.com/rom8726/etoggle/internal/repository/featureschedules"
 	"github.com/rom8726/etoggle/internal/repository/flagvariants"
@@ -34,6 +35,7 @@ import (
 	"github.com/rom8726/etoggle/internal/repository/settings"
 	"github.com/rom8726/etoggle/internal/repository/users"
 	ratelimiter2fa "github.com/rom8726/etoggle/internal/services/2fa/ratelimiter"
+	featuresprocessor "github.com/rom8726/etoggle/internal/services/features-processor"
 	"github.com/rom8726/etoggle/internal/services/ldap"
 	"github.com/rom8726/etoggle/internal/services/notification-channels/email"
 	"github.com/rom8726/etoggle/internal/services/permissions"
@@ -189,6 +191,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(rules.New).Arg(app.PostgresPool)
 	app.registerComponent(featureschedules.New).Arg(app.PostgresPool)
 	app.registerComponent(segmentsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(auditlog.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -197,6 +200,8 @@ func (app *App) registerComponents() {
 
 	// Register permissions service
 	app.registerComponent(permissions.New)
+	// Register feature processor service
+	app.registerComponent(featuresprocessor.New).Arg(time.Second * 3)
 
 	// Register licence middleware
 	app.registerComponent(license.NewMiddleware).Arg(license.LicenseServerURL)
@@ -313,11 +318,13 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 	}
 
 	// Middleware chain:
-	// CORS → RAW -> Auth → API implementation
+	// CORS → RAW → RequestID → Auth → API implementation
 	handler := pkgmiddlewares.CORSMdw(
 		middlewares.WithRawRequest(
-			middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(
-				genServer,
+			middlewares.RequestIDMdw(
+				middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(
+					genServer,
+				),
 			),
 		),
 	)
