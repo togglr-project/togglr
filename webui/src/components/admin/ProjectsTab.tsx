@@ -126,7 +126,6 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({
               }}>
                 <TableCell sx={{ fontWeight: 600, py: 2 }}>ID</TableCell>
                 <TableCell sx={{ fontWeight: 600, py: 2 }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 600, py: 2 }}>Team</TableCell>
                 <TableCell sx={{ fontWeight: 600, py: 2 }}>Created At</TableCell>
                 <TableCell sx={{ fontWeight: 600, py: 2 }}>Actions</TableCell>
               </TableRow>

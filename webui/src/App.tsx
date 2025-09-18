@@ -20,6 +20,7 @@ import ProjectSchedulingPage from './pages/ProjectSchedulingPage';
 import ProjectSegmentsPage from './pages/ProjectSegmentsPage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
+import AdminPage from './pages/AdminPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -99,6 +100,7 @@ function App() {
                         <Route path="/projects/:projectId/scheduling" element={<LicenseGuard><ProjectSchedulingPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/segments" element={<LicenseGuard><ProjectSegmentsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
+                        <Route path="/admin" element={<LicenseGuard><AdminPage /></LicenseGuard>} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                       </Routes>
