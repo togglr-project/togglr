@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Stack, Pagination } from '@mui/material';
 import { Add as AddIcon, Flag as FlagIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
@@ -37,13 +37,16 @@ const ProjectPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
 
+  const effectiveSearch = search.trim();
+  const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
   const { data: featuresResp, isLoading: loadingFeatures, error: featuresError } = useQuery<ListFeaturesResponse>({
-    queryKey: ['project-features', projectId, { enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
+    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
     queryFn: async () => {
       const res = await apiClient.listProjectFeatures(
         projectId,
         kindFilter === 'all' ? undefined : kindFilter,
         enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
+        minSearch,
         sortBy,
         sortOrder,
         page,
@@ -58,12 +61,6 @@ const ProjectPage: React.FC = () => {
   const features = featuresResp?.items ?? [];
   const pagination = featuresResp?.pagination;
 
-  // Apply client-side search (backend does not expose search yet in spec)
-  const filteredFeatures = useMemo(() => {
-    if (!search) return features;
-    const s = search.toLowerCase();
-    return features.filter((f) => f.name.toLowerCase().includes(s) || f.key.toLowerCase().includes(s));
-  }, [features, search]);
 
   // Create Feature Dialog state
   const [open, setOpen] = useState(false);
@@ -206,10 +203,10 @@ const ProjectPage: React.FC = () => {
           <Typography color="error">Failed to load project or features.</Typography>
         )}
 
-        {!loadingFeatures && filteredFeatures && filteredFeatures.length > 0 ? (
+        {!loadingFeatures && features && features.length > 0 ? (
           <>
             <Grid container spacing={2}>
-              {filteredFeatures.map((f) => (
+              {features.map((f) => (
                 <Grid item xs={12} key={f.id}>
                   <Paper
                     onClick={() => openFeatureDetails(f)}

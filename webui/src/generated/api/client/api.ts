@@ -2294,6 +2294,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string} projectId 
          * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
          * @param {boolean} [enabled] Filter by enabled state
+         * @param {string} [textSelector] Case-insensitive text search across key, name, description, rollout_key
          * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
          * @param {SortOrder} [sortOrder] Sort order
          * @param {number} [page] Page number (starts from 1)
@@ -2301,7 +2302,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listProjectFeatures: async (projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listProjectFeatures: async (projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, textSelector?: string, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'projectId' is not null or undefined
             assertParamExists('listProjectFeatures', 'projectId', projectId)
             const localVarPath = `/api/v1/projects/{project_id}/features`
@@ -2327,6 +2328,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
             if (enabled !== undefined) {
                 localVarQueryParameter['enabled'] = enabled;
+            }
+
+            if (textSelector !== undefined) {
+                localVarQueryParameter['text_selector'] = textSelector;
             }
 
             if (sortBy !== undefined) {
@@ -3930,6 +3935,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {string} projectId 
          * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
          * @param {boolean} [enabled] Filter by enabled state
+         * @param {string} [textSelector] Case-insensitive text search across key, name, description, rollout_key
          * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
          * @param {SortOrder} [sortOrder] Sort order
          * @param {number} [page] Page number (starts from 1)
@@ -3937,8 +3943,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListFeaturesResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectFeatures(projectId, kind, enabled, sortBy, sortOrder, page, perPage, options);
+        async listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, textSelector?: string, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListFeaturesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectFeatures(projectId, kind, enabled, textSelector, sortBy, sortOrder, page, perPage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectFeatures']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4701,6 +4707,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {string} projectId 
          * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
          * @param {boolean} [enabled] Filter by enabled state
+         * @param {string} [textSelector] Case-insensitive text search across key, name, description, rollout_key
          * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
          * @param {SortOrder} [sortOrder] Sort order
          * @param {number} [page] Page number (starts from 1)
@@ -4708,8 +4715,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListFeaturesResponse> {
-            return localVarFp.listProjectFeatures(projectId, kind, enabled, sortBy, sortOrder, page, perPage, options).then((request) => request(axios, basePath));
+        listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, textSelector?: string, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListFeaturesResponse> {
+            return localVarFp.listProjectFeatures(projectId, kind, enabled, textSelector, sortBy, sortOrder, page, perPage, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5425,6 +5432,7 @@ export class DefaultApi extends BaseAPI {
      * @param {string} projectId 
      * @param {ListProjectFeaturesKindEnum} [kind] Filter by feature kind
      * @param {boolean} [enabled] Filter by enabled state
+     * @param {string} [textSelector] Case-insensitive text search across key, name, description, rollout_key
      * @param {ListProjectFeaturesSortByEnum} [sortBy] Sort by field
      * @param {SortOrder} [sortOrder] Sort order
      * @param {number} [page] Page number (starts from 1)
@@ -5432,8 +5440,8 @@ export class DefaultApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listProjectFeatures(projectId, kind, enabled, sortBy, sortOrder, page, perPage, options).then((request) => request(this.axios, this.basePath));
+    public listProjectFeatures(projectId: string, kind?: ListProjectFeaturesKindEnum, enabled?: boolean, textSelector?: string, sortBy?: ListProjectFeaturesSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectFeatures(projectId, kind, enabled, textSelector, sortBy, sortOrder, page, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

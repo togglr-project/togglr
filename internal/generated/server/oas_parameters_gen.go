@@ -1621,6 +1621,8 @@ type ListProjectFeaturesParams struct {
 	Kind OptListProjectFeaturesKind
 	// Filter by enabled state.
 	Enabled OptBool
+	// Case-insensitive text search across key, name, description, rollout_key.
+	TextSelector OptString
 	// Sort by field.
 	SortBy OptListProjectFeaturesSortBy
 	// Sort order.
@@ -1655,6 +1657,15 @@ func unpackListProjectFeaturesParams(packed middleware.Parameters) (params ListP
 		}
 		if v, ok := packed[key]; ok {
 			params.Enabled = v.(OptBool)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "text_selector",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.TextSelector = v.(OptString)
 		}
 	}
 	{
@@ -1836,6 +1847,47 @@ func decodeListProjectFeaturesParams(args [1]string, argsEscaped bool, r *http.R
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "enabled",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: text_selector.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "text_selector",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotTextSelectorVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotTextSelectorVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.TextSelector.SetTo(paramsDotTextSelectorVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "text_selector",
 			In:   "query",
 			Err:  err,
 		}

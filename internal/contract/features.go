@@ -7,12 +7,13 @@ import (
 )
 
 type FeaturesListFilter struct {
-	Kind     *domain.FeatureKind
-	Enabled  *bool
-	SortBy   string // name, key, enabled, kind, created_at, updated_at
-	SortDesc bool
-	Page     uint
-	PerPage  uint
+	Kind         *domain.FeatureKind
+	Enabled      *bool
+	TextSelector *string
+	SortBy       string // name, key, enabled, kind, created_at, updated_at
+	SortDesc     bool
+	Page         uint
+	PerPage      uint
 }
 
 type FeaturesUseCase interface {

@@ -1762,6 +1762,12 @@ paths:
           description: Filter by enabled state
           schema:
             type: boolean
+        - name: text_selector
+          in: query
+          required: false
+          description: Case-insensitive text search across key, name, description, rollout_key
+          schema:
+            type: string
         - name: sort_by
           in: query
           required: false

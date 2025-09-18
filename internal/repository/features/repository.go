@@ -208,6 +208,17 @@ func (r *Repository) ListByProjectIDFiltered(
 		builder = builder.Where(sq.Eq{"enabled": *filter.Enabled})
 		countBuilder = countBuilder.Where(sq.Eq{"enabled": *filter.Enabled})
 	}
+	if filter.TextSelector != nil && *filter.TextSelector != "" {
+		pattern := fmt.Sprintf("%%%s%%", *filter.TextSelector)
+		or := sq.Or{
+			sq.Expr("key ILIKE ?", pattern),
+			sq.Expr("name ILIKE ?", pattern),
+			sq.Expr("COALESCE(description, '') ILIKE ?", pattern),
+			sq.Expr("COALESCE(rollout_key, '') ILIKE ?", pattern),
+		}
+		builder = builder.Where(or)
+		countBuilder = countBuilder.Where(or)
+	}
 
 	// Sorting with whitelist
 	orderCol := "created_at"

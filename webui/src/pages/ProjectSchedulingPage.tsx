@@ -234,13 +234,16 @@ const ProjectSchedulingPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
 
+  const effectiveSearch = search.trim();
+  const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
   const { data: featuresResp, isLoading: loadingFeatures } = useQuery<ListFeaturesResponse>({
-    queryKey: ['project-features', projectId, { enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
+    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
     queryFn: async () => {
       const res = await apiClient.listProjectFeatures(
         projectId,
         kindFilter === 'all' ? undefined : kindFilter,
         enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
+        minSearch,
         sortBy,
         sortOrder,
         page,
@@ -255,12 +258,6 @@ const ProjectSchedulingPage: React.FC = () => {
   const features = featuresResp?.items ?? [];
   const pagination = featuresResp?.pagination;
 
-  // Apply client-side search on current page results
-  const filteredFeatures = useMemo(() => {
-    if (!search) return features;
-    const s = search.toLowerCase();
-    return features.filter((f) => f.name.toLowerCase().includes(s) || f.key.toLowerCase().includes(s));
-  }, [features, search]);
 
   const { data: allSchedules, isLoading: loadingSchedules } = useQuery<FeatureSchedule[]>({
     queryKey: ['feature-schedules', projectId],
@@ -285,7 +282,7 @@ const ProjectSchedulingPage: React.FC = () => {
 
   // Separate features into two groups
   const { featuresWithSchedules, featuresWithoutSchedules } = useMemo(() => {
-    const list = filteredFeatures || [];
+    const list = features || [];
 
     const withSchedules: Feature[] = [];
     const withoutSchedules: Feature[] = [];
@@ -299,7 +296,7 @@ const ProjectSchedulingPage: React.FC = () => {
     });
 
     return { featuresWithSchedules: withSchedules, featuresWithoutSchedules: withoutSchedules };
-  }, [filteredFeatures, schedulesByFeature]);
+  }, [features, schedulesByFeature]);
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -438,7 +435,7 @@ const ProjectSchedulingPage: React.FC = () => {
         </Box>
       )}
 
-      {!loadingFeatures && filteredFeatures && filteredFeatures.length > 0 ? (
+      {!loadingFeatures && features && features.length > 0 ? (
         <Box>
           {/* Filters and controls */}
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>

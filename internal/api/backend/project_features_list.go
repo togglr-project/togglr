@@ -52,6 +52,10 @@ func (r *RestAPI) ListProjectFeatures(
 	if params.SortOrder.Set {
 		filter.SortDesc = params.SortOrder.Value == generatedapi.SortOrderDesc
 	}
+	if params.TextSelector.Set {
+		ts := params.TextSelector.Value
+		filter.TextSelector = &ts
+	}
 	page := uint(1)
 	perPage := uint(20)
 	if params.Page.Set {

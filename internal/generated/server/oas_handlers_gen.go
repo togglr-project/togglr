@@ -7465,6 +7465,10 @@ func (s *Server) handleListProjectFeaturesRequest(args [1]string, argsEscaped bo
 					In:   "query",
 				}: params.Enabled,
 				{
+					Name: "text_selector",
+					In:   "query",
+				}: params.TextSelector,
+				{
 					Name: "sort_by",
 					In:   "query",
 				}: params.SortBy,
