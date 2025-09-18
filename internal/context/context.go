@@ -11,11 +11,12 @@ import (
 type contextKey string
 
 const (
-	ctxKeyProjectID contextKey = "project_id"
-	ctxKeyUserID    contextKey = "user_id"
-	ctxKeyIsSuper   contextKey = "is_superuser"
-	ctxRawRequest   contextKey = "raw_request"
-	ctxRequestID    contextKey = "request_id"
+	ctxKeyProjectID  contextKey = "project_id"
+	ctxKeyUserID     contextKey = "user_id"
+	ctxKeyIsSuper    contextKey = "is_superuser"
+	ctxKeyRawRequest contextKey = "raw_request"
+	ctxKeyRequestID  contextKey = "request_id"
+	ctxKeyActorID    contextKey = "actor"
 )
 
 func WithProjectID(ctx context.Context, id domain.ProjectID) context.Context {
@@ -50,22 +51,35 @@ func UserID(ctx context.Context) domain.UserID {
 }
 
 func WithRawRequest(ctx context.Context, req *http.Request) context.Context {
-	return context.WithValue(ctx, ctxRawRequest, req)
+	return context.WithValue(ctx, ctxKeyRawRequest, req)
 }
 
 func RawRequest(ctx context.Context) *http.Request {
-	return ctx.Value(ctxRawRequest).(*http.Request)
+	return ctx.Value(ctxKeyRawRequest).(*http.Request)
 }
 
 func WithRequestID(ctx context.Context, reqID string) context.Context {
-	return context.WithValue(ctx, ctxRequestID, reqID)
+	return context.WithValue(ctx, ctxKeyRequestID, reqID)
 }
 
 func RequestID(ctx context.Context) string {
-	v, ok := ctx.Value(ctxRequestID).(string)
+	v, ok := ctx.Value(ctxKeyRequestID).(string)
 	if ok {
 		return v
 	}
 
 	return ""
+}
+
+func WithActor(ctx context.Context, actor domain.AuditActor) context.Context {
+	return context.WithValue(ctx, ctxKeyActorID, actor)
+}
+
+func Actor(ctx context.Context) domain.AuditActor {
+	v, ok := ctx.Value(ctxKeyActorID).(domain.AuditActor)
+	if ok {
+		return v
+	}
+
+	return domain.AuditActorSystem
 }

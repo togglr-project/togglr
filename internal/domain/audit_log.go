@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+type AuditActor string
+
+const (
+	AuditActorUser   AuditActor = "user"
+	AuditActorSystem AuditActor = "system"
+	AuditActorSDK    AuditActor = "sdk"
+)
+
 type AuditAction string
 
 const (
@@ -28,6 +36,7 @@ type AuditLog struct {
 	ID        AuditLogID
 	ProjectID ProjectID
 	FeatureID FeatureID
+	RequestID string
 	Entity    EntityType
 	Actor     string
 	Action    AuditAction

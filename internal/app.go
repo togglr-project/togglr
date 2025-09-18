@@ -318,12 +318,15 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 	}
 
 	// Middleware chain:
-	// CORS → RAW → RequestID → Auth → API implementation
+	// CORS → RAW → RequestID → Actor → Auth → API implementation
 	handler := pkgmiddlewares.CORSMdw(
 		middlewares.WithRawRequest(
 			middlewares.RequestIDMdw(
-				middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(
-					genServer,
+				middlewares.ActorMdw(
+					middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(
+						genServer,
+					),
+					domain.AuditActorUser,
 				),
 			),
 		),
@@ -362,9 +365,14 @@ func (app *App) newSDKServer() (*httpserver.Server, error) {
 	}
 
 	// Middleware chain:
-	// CORS → API implementation
+	// CORS → RequestID → Actor → API implementation
 	handler := pkgmiddlewares.CORSMdw(
-		genServer,
+		middlewares.RequestIDMdw(
+			middlewares.ActorMdw(
+				genServer,
+				domain.AuditActorSDK,
+			),
+		),
 	)
 
 	lis, err := net.Listen("tcp", cfg.Addr)

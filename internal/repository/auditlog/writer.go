@@ -10,13 +10,24 @@ import (
 	"github.com/rom8726/etoggle/pkg/db"
 )
 
-// ActorFromContext returns audit actor string. If a user is present in context, returns "user:<id>", else "system".
+// ActorFromContext returns an audit actor string. If a user is present in context, returns "user:<id>", else "system".
 func ActorFromContext(ctx context.Context) string {
-	if uid := appctx.UserID(ctx); uid != 0 {
-		return fmt.Sprintf("user:%d", uid)
+	actor := appctx.Actor(ctx)
+	if actor == domain.AuditActorUser {
+		if uid := appctx.UserID(ctx); uid != 0 {
+			return fmt.Sprintf("user:%d", uid)
+		}
 	}
 
-	return "system"
+	return string(actor)
+}
+
+func RequestIDFromContext(ctx context.Context) string {
+	if reqID := appctx.RequestID(ctx); reqID != "" {
+		return reqID
+	}
+
+	return "00000000-0000-0000-0000-000000000000"
 }
 
 // Write inserts an audit log entry within the current transaction (if any).
@@ -53,11 +64,22 @@ func Write(
 	}
 
 	const query = `
-		INSERT INTO audit_log (project_id, feature_id, entity, actor, action, old_value, new_value)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO audit_log (project_id, feature_id, entity, actor, action, old_value, new_value, request_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
-	if _, err := exec.Exec(ctx, query, projectID, featureID, entity, actor, action, oldJSON, newJSON); err != nil {
+	if _, err := exec.Exec(
+		ctx,
+		query,
+		projectID,
+		featureID,
+		entity,
+		actor,
+		action,
+		oldJSON,
+		newJSON,
+		RequestIDFromContext(ctx),
+	); err != nil {
 		return fmt.Errorf("insert audit_log: %w", err)
 	}
 

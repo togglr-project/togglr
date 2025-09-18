@@ -24,6 +24,7 @@ type auditLogModel struct {
 	ID        uint64    `db:"id"`
 	ProjectID string    `db:"project_id"`
 	FeatureID string    `db:"feature_id"`
+	RequestID string    `db:"request_id"`
 	Entity    string    `db:"entity"`
 	Actor     string    `db:"actor"`
 	Action    string    `db:"action"`
@@ -37,6 +38,7 @@ func (m auditLogModel) toDomain() domain.AuditLog {
 		ID:        domain.AuditLogID(m.ID),
 		ProjectID: domain.ProjectID(m.ProjectID),
 		FeatureID: domain.FeatureID(m.FeatureID),
+		RequestID: m.RequestID,
 		Entity:    domain.EntityType(m.Entity),
 		Actor:     m.Actor,
 		Action:    domain.AuditAction(m.Action),
@@ -52,7 +54,7 @@ func (r *Repository) ListSince(ctx context.Context, since time.Time) ([]domain.A
 	exec := r.getExecutor(ctx)
 
 	const query = `
-SELECT id, project_id, feature_id, entity, actor, action, old_value, new_value, created_at
+SELECT id, project_id, feature_id, request_id, entity, actor, action, old_value, new_value, created_at
 FROM audit_log
 WHERE created_at > $1
 ORDER BY created_at
