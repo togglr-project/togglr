@@ -3,14 +3,14 @@ import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, Dial
 import { WarningAmber, ExpandMore, ExpandLess } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { Feature, FeatureDetailsResponse, Segment } from '../../generated/api/client';
+import type { FeatureExtended, FeatureDetailsResponse, Segment } from '../../generated/api/client';
 import { useAuth } from '../../auth/AuthContext';
 import EditFeatureDialog from './EditFeatureDialog';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
   onClose: () => void;
-  feature: Feature | null;
+  feature: FeatureExtended | null;
 }
 
 const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClose, feature }) => {
@@ -202,7 +202,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                 {featureDetails.feature.kind === 'multivariant' && (
                   <Chip size="small" label={`rollout key: ${featureDetails.feature.rollout_key || '-'}`} />
                 )}
-                <Chip size="small" label={featureDetails.feature.enabled ? 'enabled' : 'disabled'} color={featureDetails.feature.enabled ? 'success' : 'default'} />
+                <Chip size="small" label={featureDetails.feature.is_active ? 'active' : 'not active'} color={featureDetails.feature.is_active ? 'success' : 'default'} />
               </Box>
             </Box>
 

@@ -10,4 +10,5 @@ type FeatureProcessor interface {
 		featureKey string,
 		reqCtx map[domain.RuleAttribute]any,
 	) (value string, enabled bool, found bool)
+	IsFeatureActive(feature domain.FeatureExtended) bool
 }

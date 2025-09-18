@@ -168,6 +168,7 @@ func (s *Service) ListByProjectIDFiltered(
 	if err != nil {
 		return nil, 0, fmt.Errorf("list features by projectID filtered: %w", err)
 	}
+
 	return items, total, nil
 }
 
@@ -206,6 +207,44 @@ func (s *Service) ListExtendedByProjectID(
 	}
 
 	return result, nil
+}
+
+func (s *Service) ListExtendedByProjectIDFiltered(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	filter contract.FeaturesListFilter,
+) ([]domain.FeatureExtended, int, error) {
+	features, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list features by projectID: %w", err)
+	}
+
+	result := make([]domain.FeatureExtended, 0, len(features))
+	for _, feature := range features {
+		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("list flag variants: %w", err)
+		}
+
+		rules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("list rules: %w", err)
+		}
+
+		schedules, err := s.schedulesRep.ListByFeatureID(ctx, feature.ID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("list schedules: %w", err)
+		}
+
+		result = append(result, domain.FeatureExtended{
+			Feature:      feature,
+			FlagVariants: variants,
+			Rules:        rules,
+			Schedules:    schedules,
+		})
+	}
+
+	return result, total, nil
 }
 
 func (s *Service) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {

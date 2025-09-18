@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**feature** | [**Feature**](Feature.md) |  | [default to undefined]
+**feature** | [**FeatureExtended**](FeatureExtended.md) |  | [default to undefined]
 **variants** | [**Array&lt;FlagVariant&gt;**](FlagVariant.md) |  | [default to undefined]
 **rules** | [**Array&lt;Rule&gt;**](Rule.md) |  | [default to undefined]
 

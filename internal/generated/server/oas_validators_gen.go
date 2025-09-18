@@ -716,6 +716,29 @@ func (s *FeatureDetailsResponse) Validate() error {
 	return nil
 }
 
+func (s *FeatureExtended) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Kind.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "kind",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
 func (s FeatureKind) Validate() error {
 	switch s {
 	case "simple":

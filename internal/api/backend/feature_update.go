@@ -143,7 +143,7 @@ func (r *RestAPI) UpdateFeature(
 	}
 
 	resp := &generatedapi.FeatureDetailsResponse{
-		Feature: generatedapi.Feature{
+		Feature: generatedapi.FeatureExtended{
 			ID:             updated.ID.String(),
 			ProjectID:      updated.ProjectID.String(),
 			Key:            updated.Key,
@@ -154,6 +154,7 @@ func (r *RestAPI) UpdateFeature(
 			Enabled:        updated.Enabled,
 			CreatedAt:      updated.CreatedAt,
 			UpdatedAt:      updated.UpdatedAt,
+			IsActive:       r.featureProcessor.IsFeatureActive(updated),
 		},
 		Variants: respVariants,
 		Rules:    respRules,

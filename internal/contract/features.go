@@ -37,7 +37,16 @@ type FeaturesUseCase interface {
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)
-	ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter FeaturesListFilter) ([]domain.Feature, int, error)
+	ListByProjectIDFiltered(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		filter FeaturesListFilter,
+	) ([]domain.Feature, int, error)
+	ListExtendedByProjectIDFiltered(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		filter FeaturesListFilter,
+	) ([]domain.FeatureExtended, int, error)
 	ListExtendedByProjectID(
 		ctx context.Context,
 		projectID domain.ProjectID,

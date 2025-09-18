@@ -38,7 +38,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
-import type { Feature, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
+import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import { listTimeZones } from 'timezone-support';
@@ -284,8 +284,8 @@ const ProjectSchedulingPage: React.FC = () => {
   const { featuresWithSchedules, featuresWithoutSchedules } = useMemo(() => {
     const list = features || [];
 
-    const withSchedules: Feature[] = [];
-    const withoutSchedules: Feature[] = [];
+    const withSchedules: FeatureExtended[] = [];
+    const withoutSchedules: FeatureExtended[] = [];
 
     list.forEach(feature => {
       if (schedulesByFeature[feature.id] && schedulesByFeature[feature.id].length > 0) {
@@ -300,7 +300,7 @@ const ProjectSchedulingPage: React.FC = () => {
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogFeature, setDialogFeature] = useState<Feature | null>(null);
+  const [dialogFeature, setDialogFeature] = useState<FeatureExtended | null>(null);
   const [editSchedule, setEditSchedule] = useState<FeatureSchedule | null>(null);
   
   // Tab state
@@ -317,12 +317,12 @@ const ProjectSchedulingPage: React.FC = () => {
     }
   }, [featuresWithSchedules.length, featuresWithoutSchedules.length, activeTab]);
 
-  const openCreate = (feature: Feature) => {
+  const openCreate = (feature: FeatureExtended) => {
     setDialogFeature(feature);
     setEditSchedule(null);
     setDialogOpen(true);
   };
-  const openEdit = (feature: Feature, schedule: FeatureSchedule) => {
+  const openEdit = (feature: FeatureExtended, schedule: FeatureSchedule) => {
     setDialogFeature(feature);
     setEditSchedule(schedule);
     setDialogOpen(true);
@@ -365,7 +365,7 @@ const ProjectSchedulingPage: React.FC = () => {
   const project = projectResp?.project;
 
   // Component to render feature list
-  const renderFeatureList = (featureList: Feature[]) => (
+  const renderFeatureList = (featureList: FeatureExtended[]) => (
     <Box>
       {featureList.map((f) => (
         <Accordion key={f.id} defaultExpanded sx={{ mb: 2 }}>
@@ -377,7 +377,7 @@ const ProjectSchedulingPage: React.FC = () => {
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Chip size="small" label={`kind: ${f.kind}`} />
                   <Chip size="small" label={`default: ${f.default_variant}`} />
-                  <Chip size="small" label={f.enabled ? 'enabled' : 'disabled'} color={f.enabled ? 'success' : 'default'} />
+                  <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>
               <Button variant="contained" startIcon={<AddIcon />} onClick={(e) => { e.stopPropagation(); openCreate(f); }}>

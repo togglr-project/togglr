@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**items** | [**Array&lt;Feature&gt;**](Feature.md) |  | [default to undefined]
+**items** | [**Array&lt;FeatureExtended&gt;**](FeatureExtended.md) |  | [default to undefined]
 **pagination** | [**Pagination**](Pagination.md) |  | [default to undefined]
 
 ## Example

@@ -39,7 +39,7 @@ func (r *RestAPI) ListProjectFeatures(
 	// Build filter from query params
 	filter := contract.FeaturesListFilter{SortDesc: true}
 	if params.Kind.Set {
-		k := domain.FeatureKind(string(params.Kind.Value))
+		k := domain.FeatureKind(params.Kind.Value)
 		filter.Kind = &k
 	}
 	if params.Enabled.Set {
@@ -67,15 +67,15 @@ func (r *RestAPI) ListProjectFeatures(
 	filter.Page = page
 	filter.PerPage = perPage
 
-	items, total, err := r.featuresUseCase.ListByProjectIDFiltered(ctx, projectID, filter)
+	items, total, err := r.featuresUseCase.ListExtendedByProjectIDFiltered(ctx, projectID, filter)
 	if err != nil {
 		slog.Error("list project features failed", "error", err)
 		return nil, err
 	}
 
-	itemsResp := make([]generatedapi.Feature, 0, len(items))
+	itemsResp := make([]generatedapi.FeatureExtended, 0, len(items))
 	for _, it := range items {
-		itemsResp = append(itemsResp, generatedapi.Feature{
+		itemsResp = append(itemsResp, generatedapi.FeatureExtended{
 			ID:             it.ID.String(),
 			ProjectID:      it.ProjectID.String(),
 			Key:            it.Key,
@@ -87,6 +87,7 @@ func (r *RestAPI) ListProjectFeatures(
 			RolloutKey:     ruleAttribute2OptString(it.RolloutKey),
 			CreatedAt:      it.CreatedAt,
 			UpdatedAt:      it.UpdatedAt,
+			IsActive:       r.featureProcessor.IsFeatureActive(it),
 		})
 	}
 

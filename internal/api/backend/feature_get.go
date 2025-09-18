@@ -17,7 +17,7 @@ func (r *RestAPI) GetFeature(
 	featureID := domain.FeatureID(params.FeatureID)
 
 	// Load feature and check access to its project
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -46,21 +46,9 @@ func (r *RestAPI) GetFeature(
 		return nil, err
 	}
 
-	variants, err := r.flagVariantsUseCase.ListByFeatureID(ctx, featureID)
-	if err != nil {
-		slog.Error("list flag variants for feature failed", "error", err)
-		return nil, err
-	}
-
-	rules, err := r.rulesUseCase.ListByFeatureID(ctx, featureID)
-	if err != nil {
-		slog.Error("list rules for feature failed", "error", err)
-		return nil, err
-	}
-
 	// Map to API DTOs
-	respVariants := make([]generatedapi.FlagVariant, 0, len(variants))
-	for _, v := range variants {
+	respVariants := make([]generatedapi.FlagVariant, 0, len(feature.FlagVariants))
+	for _, v := range feature.FlagVariants {
 		respVariants = append(respVariants, generatedapi.FlagVariant{
 			ID:             v.ID.String(),
 			FeatureID:      v.FeatureID.String(),
@@ -69,8 +57,8 @@ func (r *RestAPI) GetFeature(
 		})
 	}
 
-	respRules := make([]generatedapi.Rule, 0, len(rules))
-	for _, it := range rules {
+	respRules := make([]generatedapi.Rule, 0, len(feature.Rules))
+	for _, it := range feature.Rules {
 		expr, err := exprToAPI(it.Conditions)
 		if err != nil {
 			slog.Error("build rule conditions response", "error", err)
@@ -96,7 +84,7 @@ func (r *RestAPI) GetFeature(
 	}
 
 	resp := &generatedapi.FeatureDetailsResponse{
-		Feature: generatedapi.Feature{
+		Feature: generatedapi.FeatureExtended{
 			ID:             feature.ID.String(),
 			ProjectID:      feature.ProjectID.String(),
 			Key:            feature.Key,
@@ -108,6 +96,7 @@ func (r *RestAPI) GetFeature(
 			RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
 			CreatedAt:      feature.CreatedAt,
 			UpdatedAt:      feature.UpdatedAt,
+			IsActive:       r.featureProcessor.IsFeatureActive(feature),
 		},
 		Variants: respVariants,
 		Rules:    respRules,

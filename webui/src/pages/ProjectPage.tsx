@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
-import type { Feature, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
+import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
 import { useAuth } from '../auth/AuthContext';
@@ -69,7 +69,7 @@ const ProjectPage: React.FC = () => {
 
   // Feature details dialog state & data
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
+  const [selectedFeature, setSelectedFeature] = useState<FeatureExtended | null>(null);
 
   // Permission to toggle features in this project (superuser can always toggle)
   const canToggleFeature = Boolean(user?.is_superuser || user?.project_permissions?.[projectId]?.includes('feature.toggle'));
@@ -86,7 +86,7 @@ const ProjectPage: React.FC = () => {
     },
   });
 
-  const openFeatureDetails = (f: Feature) => {
+  const openFeatureDetails = (f: FeatureExtended) => {
     setSelectedFeature(f);
     setDetailsOpen(true);
   };
@@ -228,7 +228,7 @@ const ProjectPage: React.FC = () => {
                       <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                         <Chip size="small" label={`kind: ${f.kind}`} />
                         <Chip size="small" label={`default: ${f.default_variant}`} />
-                        <Chip size="small" label={f.enabled ? 'enabled' : 'disabled'} color={f.enabled ? 'success' : 'default'} />
+                        <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                       </Box>
                     </Box>
                     {canToggleFeature ? (

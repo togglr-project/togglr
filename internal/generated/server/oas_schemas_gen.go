@@ -1390,13 +1390,13 @@ func (s *Feature) SetUpdatedAt(val time.Time) {
 
 // Ref: #/components/schemas/FeatureDetailsResponse
 type FeatureDetailsResponse struct {
-	Feature  Feature       `json:"feature"`
-	Variants []FlagVariant `json:"variants"`
-	Rules    []Rule        `json:"rules"`
+	Feature  FeatureExtended `json:"feature"`
+	Variants []FlagVariant   `json:"variants"`
+	Rules    []Rule          `json:"rules"`
 }
 
 // GetFeature returns the value of Feature.
-func (s *FeatureDetailsResponse) GetFeature() Feature {
+func (s *FeatureDetailsResponse) GetFeature() FeatureExtended {
 	return s.Feature
 }
 
@@ -1411,7 +1411,7 @@ func (s *FeatureDetailsResponse) GetRules() []Rule {
 }
 
 // SetFeature sets the value of Feature.
-func (s *FeatureDetailsResponse) SetFeature(val Feature) {
+func (s *FeatureDetailsResponse) SetFeature(val FeatureExtended) {
 	s.Feature = val
 }
 
@@ -1427,6 +1427,144 @@ func (s *FeatureDetailsResponse) SetRules(val []Rule) {
 
 func (*FeatureDetailsResponse) getFeatureRes()    {}
 func (*FeatureDetailsResponse) updateFeatureRes() {}
+
+// Merged schema.
+// Ref: #/components/schemas/FeatureExtended
+type FeatureExtended struct {
+	ID             string       `json:"id"`
+	ProjectID      string       `json:"project_id"`
+	Key            string       `json:"key"`
+	Name           string       `json:"name"`
+	Description    OptNilString `json:"description"`
+	Kind           FeatureKind  `json:"kind"`
+	DefaultVariant string       `json:"default_variant"`
+	Enabled        bool         `json:"enabled"`
+	RolloutKey     OptString    `json:"rollout_key"`
+	CreatedAt      time.Time    `json:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at"`
+	// Indicates if the feature is currently active (taking schedules).
+	IsActive bool `json:"is_active"`
+}
+
+// GetID returns the value of ID.
+func (s *FeatureExtended) GetID() string {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *FeatureExtended) GetProjectID() string {
+	return s.ProjectID
+}
+
+// GetKey returns the value of Key.
+func (s *FeatureExtended) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *FeatureExtended) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *FeatureExtended) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetKind returns the value of Kind.
+func (s *FeatureExtended) GetKind() FeatureKind {
+	return s.Kind
+}
+
+// GetDefaultVariant returns the value of DefaultVariant.
+func (s *FeatureExtended) GetDefaultVariant() string {
+	return s.DefaultVariant
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *FeatureExtended) GetEnabled() bool {
+	return s.Enabled
+}
+
+// GetRolloutKey returns the value of RolloutKey.
+func (s *FeatureExtended) GetRolloutKey() OptString {
+	return s.RolloutKey
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *FeatureExtended) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *FeatureExtended) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// GetIsActive returns the value of IsActive.
+func (s *FeatureExtended) GetIsActive() bool {
+	return s.IsActive
+}
+
+// SetID sets the value of ID.
+func (s *FeatureExtended) SetID(val string) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *FeatureExtended) SetProjectID(val string) {
+	s.ProjectID = val
+}
+
+// SetKey sets the value of Key.
+func (s *FeatureExtended) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *FeatureExtended) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *FeatureExtended) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetKind sets the value of Kind.
+func (s *FeatureExtended) SetKind(val FeatureKind) {
+	s.Kind = val
+}
+
+// SetDefaultVariant sets the value of DefaultVariant.
+func (s *FeatureExtended) SetDefaultVariant(val string) {
+	s.DefaultVariant = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *FeatureExtended) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// SetRolloutKey sets the value of RolloutKey.
+func (s *FeatureExtended) SetRolloutKey(val OptString) {
+	s.RolloutKey = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *FeatureExtended) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *FeatureExtended) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+// SetIsActive sets the value of IsActive.
+func (s *FeatureExtended) SetIsActive(val bool) {
+	s.IsActive = val
+}
 
 // Ref: #/components/schemas/FeatureKind
 type FeatureKind string
@@ -3091,12 +3229,12 @@ func (*ListFeatureSchedulesResponse) listFeatureSchedulesRes()    {}
 
 // Ref: #/components/schemas/ListFeaturesResponse
 type ListFeaturesResponse struct {
-	Items      []Feature  `json:"items"`
-	Pagination Pagination `json:"pagination"`
+	Items      []FeatureExtended `json:"items"`
+	Pagination Pagination        `json:"pagination"`
 }
 
 // GetItems returns the value of Items.
-func (s *ListFeaturesResponse) GetItems() []Feature {
+func (s *ListFeaturesResponse) GetItems() []FeatureExtended {
 	return s.Items
 }
 
@@ -3106,7 +3244,7 @@ func (s *ListFeaturesResponse) GetPagination() Pagination {
 }
 
 // SetItems sets the value of Items.
-func (s *ListFeaturesResponse) SetItems(val []Feature) {
+func (s *ListFeaturesResponse) SetItems(val []FeatureExtended) {
 	s.Items = val
 }
 

@@ -32,6 +32,7 @@ type RestAPI struct {
 	featureSchedulesUseCase contract.FeatureSchedulesUseCase
 	ruleAttributesUseCase   contract.RuleAttributesUseCase
 	segmentsUseCase         contract.SegmentsUseCase
+	featureProcessor        contract.FeatureProcessor
 }
 
 func New(
@@ -51,6 +52,7 @@ func New(
 	permissionsService contract.PermissionsService,
 	ruleAttributesUseCase contract.RuleAttributesUseCase,
 	segmentsUseCase contract.SegmentsUseCase,
+	featureProcessor contract.FeatureProcessor,
 ) *RestAPI {
 	return &RestAPI{
 		config:                  config,
@@ -69,6 +71,7 @@ func New(
 		featureSchedulesUseCase: featureSchedulesUseCase,
 		ruleAttributesUseCase:   ruleAttributesUseCase,
 		segmentsUseCase:         segmentsUseCase,
+		featureProcessor:        featureProcessor,
 	}
 }
 

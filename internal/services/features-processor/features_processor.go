@@ -292,6 +292,12 @@ func (s *Service) Evaluate(
 	return value, true, true
 }
 
+func (s *Service) IsFeatureActive(feature domain.FeatureExtended) bool {
+	featurePrepared := MakeFeaturePrepared(feature)
+
+	return IsFeatureActiveNow(featurePrepared, time.Now().UTC())
+}
+
 func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
 	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID)
 	if err != nil {

@@ -164,10 +164,29 @@ export interface Feature {
 
 
 export interface FeatureDetailsResponse {
-    'feature': Feature;
+    'feature': FeatureExtended;
     'variants': Array<FlagVariant>;
     'rules': Array<Rule>;
 }
+export interface FeatureExtended {
+    'id': string;
+    'project_id': string;
+    'key': string;
+    'name': string;
+    'description'?: string;
+    'kind': FeatureKind;
+    'default_variant': string;
+    'enabled': boolean;
+    'rollout_key'?: string;
+    'created_at': string;
+    'updated_at': string;
+    /**
+     * Indicates if the feature is currently active (taking schedules)
+     */
+    'is_active': boolean;
+}
+
+
 
 export const FeatureKind = {
     Simple: 'simple',
@@ -473,7 +492,7 @@ export type LicenseType = typeof LicenseType[keyof typeof LicenseType];
 
 
 export interface ListFeaturesResponse {
-    'items': Array<Feature>;
+    'items': Array<FeatureExtended>;
     'pagination': Pagination;
 }
 export interface ListSegmentsResponse {

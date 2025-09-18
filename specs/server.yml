@@ -3958,6 +3958,17 @@ components:
           example: "2023-01-01T01:00:00Z"
       required: [id, project_id, key, name, kind, default_variant, enabled, created_at, updated_at]
 
+    FeatureExtended:
+      allOf:
+        - $ref: '#/components/schemas/Feature'
+        - type: object
+          properties:
+            is_active:
+              type: boolean
+              description: "Indicates if the feature is currently active (taking schedules)"
+              example: true
+          required: [is_active]
+
     CreateFeatureRequest:
       type: object
       properties:
@@ -4008,7 +4019,7 @@ components:
       type: object
       properties:
         feature:
-          $ref: '#/components/schemas/Feature'
+          $ref: '#/components/schemas/FeatureExtended'
         variants:
           type: array
           items:
@@ -4025,7 +4036,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/Feature'
+            $ref: '#/components/schemas/FeatureExtended'
         pagination:
           $ref: '#/components/schemas/Pagination'
       required: [items, pagination]
