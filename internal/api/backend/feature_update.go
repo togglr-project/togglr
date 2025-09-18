@@ -54,6 +54,7 @@ func (r *RestAPI) UpdateFeature(
 		Name:           req.Name,
 		Description:    req.Description.Or(""),
 		Kind:           domain.FeatureKind(req.Kind),
+		RolloutKey:     domain.RuleAttribute(req.RolloutKey.Or("")),
 		DefaultVariant: req.DefaultVariant,
 		Enabled:        req.Enabled.Or(existing.Enabled),
 	}
