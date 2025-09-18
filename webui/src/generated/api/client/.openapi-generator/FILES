@@ -57,6 +57,7 @@ docs/LicenseStatusResponse.md
 docs/LicenseStatusResponseLicense.md
 docs/LicenseType.md
 docs/ListFeaturesResponse.md
+docs/ListSegmentsResponse.md
 docs/LogicalOperator.md
 docs/LoginRequest.md
 docs/LoginResponse.md

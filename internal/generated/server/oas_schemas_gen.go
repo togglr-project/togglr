@@ -3231,6 +3231,54 @@ func (s *ListProjectFeaturesSortBy) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListProjectSegmentsSortBy string
+
+const (
+	ListProjectSegmentsSortByName      ListProjectSegmentsSortBy = "name"
+	ListProjectSegmentsSortByCreatedAt ListProjectSegmentsSortBy = "created_at"
+	ListProjectSegmentsSortByUpdatedAt ListProjectSegmentsSortBy = "updated_at"
+)
+
+// AllValues returns all ListProjectSegmentsSortBy values.
+func (ListProjectSegmentsSortBy) AllValues() []ListProjectSegmentsSortBy {
+	return []ListProjectSegmentsSortBy{
+		ListProjectSegmentsSortByName,
+		ListProjectSegmentsSortByCreatedAt,
+		ListProjectSegmentsSortByUpdatedAt,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListProjectSegmentsSortBy) MarshalText() ([]byte, error) {
+	switch s {
+	case ListProjectSegmentsSortByName:
+		return []byte(s), nil
+	case ListProjectSegmentsSortByCreatedAt:
+		return []byte(s), nil
+	case ListProjectSegmentsSortByUpdatedAt:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListProjectSegmentsSortBy) UnmarshalText(data []byte) error {
+	switch ListProjectSegmentsSortBy(data) {
+	case ListProjectSegmentsSortByName:
+		*s = ListProjectSegmentsSortByName
+		return nil
+	case ListProjectSegmentsSortByCreatedAt:
+		*s = ListProjectSegmentsSortByCreatedAt
+		return nil
+	case ListProjectSegmentsSortByUpdatedAt:
+		*s = ListProjectSegmentsSortByUpdatedAt
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type ListProjectsResponse []Project
 
 func (*ListProjectsResponse) listProjectsRes() {}
@@ -3243,7 +3291,31 @@ type ListRulesResponse []Rule
 
 func (*ListRulesResponse) listFeatureRulesRes() {}
 
-type ListSegmentsResponse []Segment
+// Ref: #/components/schemas/ListSegmentsResponse
+type ListSegmentsResponse struct {
+	Items      []Segment  `json:"items"`
+	Pagination Pagination `json:"pagination"`
+}
+
+// GetItems returns the value of Items.
+func (s *ListSegmentsResponse) GetItems() []Segment {
+	return s.Items
+}
+
+// GetPagination returns the value of Pagination.
+func (s *ListSegmentsResponse) GetPagination() Pagination {
+	return s.Pagination
+}
+
+// SetItems sets the value of Items.
+func (s *ListSegmentsResponse) SetItems(val []Segment) {
+	s.Items = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *ListSegmentsResponse) SetPagination(val Pagination) {
+	s.Pagination = val
+}
 
 func (*ListSegmentsResponse) listProjectSegmentsRes() {}
 
@@ -3877,6 +3949,52 @@ func (o OptListProjectFeaturesSortBy) Get() (v ListProjectFeaturesSortBy, ok boo
 
 // Or returns value if set, or given parameter if does not.
 func (o OptListProjectFeaturesSortBy) Or(d ListProjectFeaturesSortBy) ListProjectFeaturesSortBy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptListProjectSegmentsSortBy returns new OptListProjectSegmentsSortBy with value set to v.
+func NewOptListProjectSegmentsSortBy(v ListProjectSegmentsSortBy) OptListProjectSegmentsSortBy {
+	return OptListProjectSegmentsSortBy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListProjectSegmentsSortBy is optional ListProjectSegmentsSortBy.
+type OptListProjectSegmentsSortBy struct {
+	Value ListProjectSegmentsSortBy
+	Set   bool
+}
+
+// IsSet returns true if OptListProjectSegmentsSortBy was set.
+func (o OptListProjectSegmentsSortBy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListProjectSegmentsSortBy) Reset() {
+	var v ListProjectSegmentsSortBy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListProjectSegmentsSortBy) SetTo(v ListProjectSegmentsSortBy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListProjectSegmentsSortBy) Get() (v ListProjectSegmentsSortBy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListProjectSegmentsSortBy) Or(d ListProjectSegmentsSortBy) ListProjectSegmentsSortBy {
 	if v, ok := o.Get(); ok {
 		return v
 	}

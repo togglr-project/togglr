@@ -2233,7 +2233,7 @@ const { status, data } = await apiInstance.listProjectFeatures(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **listProjectSegments**
-> Array<Segment> listProjectSegments()
+> ListSegmentsResponse listProjectSegments()
 
 
 ### Example
@@ -2248,9 +2248,19 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let projectId: string; // (default to undefined)
+let textSelector: string; //Case-insensitive text search across name, description (optional) (default to undefined)
+let sortBy: 'name' | 'created_at' | 'updated_at'; //Sort by field (optional) (default to undefined)
+let sortOrder: SortOrder; //Sort order (optional) (default to undefined)
+let page: number; //Page number (starts from 1) (optional) (default to 1)
+let perPage: number; //Items per page (optional) (default to 20)
 
 const { status, data } = await apiInstance.listProjectSegments(
-    projectId
+    projectId,
+    textSelector,
+    sortBy,
+    sortOrder,
+    page,
+    perPage
 );
 ```
 
@@ -2259,11 +2269,16 @@ const { status, data } = await apiInstance.listProjectSegments(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **projectId** | [**string**] |  | defaults to undefined|
+| **textSelector** | [**string**] | Case-insensitive text search across name, description | (optional) defaults to undefined|
+| **sortBy** | [**&#39;name&#39; | &#39;created_at&#39; | &#39;updated_at&#39;**]**Array<&#39;name&#39; &#124; &#39;created_at&#39; &#124; &#39;updated_at&#39;>** | Sort by field | (optional) defaults to undefined|
+| **sortOrder** | **SortOrder** | Sort order | (optional) defaults to undefined|
+| **page** | [**number**] | Page number (starts from 1) | (optional) defaults to 1|
+| **perPage** | [**number**] | Items per page | (optional) defaults to 20|
 
 
 ### Return type
 
-**Array<Segment>**
+**ListSegmentsResponse**
 
 ### Authorization
 

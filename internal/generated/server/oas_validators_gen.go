@@ -1368,6 +1368,19 @@ func (s ListProjectFeaturesSortBy) Validate() error {
 	}
 }
 
+func (s ListProjectSegmentsSortBy) Validate() error {
+	switch s {
+	case "name":
+		return nil
+	case "created_at":
+		return nil
+	case "updated_at":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s ListProjectsResponse) Validate() error {
 	alias := ([]Project)(s)
 	if alias == nil {
@@ -1426,24 +1439,50 @@ func (s ListRulesResponse) Validate() error {
 	return nil
 }
 
-func (s ListSegmentsResponse) Validate() error {
-	alias := ([]Segment)(s)
-	if alias == nil {
-		return errors.New("nil is invalid value")
+func (s *ListSegmentsResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
 	}
+
 	var failures []validate.FieldError
-	for i, elem := range alias {
-		if err := func() error {
-			if err := elem.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			failures = append(failures, validate.FieldError{
-				Name:  fmt.Sprintf("[%d]", i),
-				Error: err,
-			})
+	if err := func() error {
+		if s.Items == nil {
+			return errors.New("nil is invalid value")
 		}
+		var failures []validate.FieldError
+		for i, elem := range s.Items {
+			if err := func() error {
+				if err := elem.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				failures = append(failures, validate.FieldError{
+					Name:  fmt.Sprintf("[%d]", i),
+					Error: err,
+				})
+			}
+		}
+		if len(failures) > 0 {
+			return &validate.Error{Fields: failures}
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "items",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Pagination.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "pagination",
+			Error: err,
+		})
 	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}

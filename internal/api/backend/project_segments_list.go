@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
@@ -41,21 +42,43 @@ func (r *RestAPI) ListProjectSegments(
 		return nil, err
 	}
 
-	items, err := r.segmentsUseCase.ListByProjectID(ctx, projectID)
+	// Build filter from query params
+	filter := contract.SegmentsListFilter{SortDesc: true}
+	if params.TextSelector.Set {
+		ts := params.TextSelector.Value
+		filter.TextSelector = &ts
+	}
+	page := uint(1)
+	perPage := uint(20)
+	if params.Page.Set {
+		page = params.Page.Value
+	}
+	if params.PerPage.Set {
+		perPage = params.PerPage.Value
+	}
+	filter.Page = page
+	filter.PerPage = perPage
+	if params.SortBy.Set {
+		filter.SortBy = string(params.SortBy.Value)
+	}
+	if params.SortOrder.Set {
+		filter.SortDesc = params.SortOrder.Value == generatedapi.SortOrderDesc
+	}
+
+	items, total, err := r.segmentsUseCase.ListByProjectIDFiltered(ctx, projectID, filter)
 	if err != nil {
 		slog.Error("list project segments failed", "error", err)
 		return nil, err
 	}
 
-	resp := make(generatedapi.ListSegmentsResponse, 0, len(items))
+	itemsResp := make([]generatedapi.Segment, 0, len(items))
 	for _, it := range items {
 		expr, err := exprToAPI(it.Conditions)
 		if err != nil {
 			slog.Error("build segment conditions response", "error", err)
 			return nil, err
 		}
-
-		resp = append(resp, generatedapi.Segment{
+		itemsResp = append(itemsResp, generatedapi.Segment{
 			ID:          it.ID.String(),
 			ProjectID:   it.ProjectID.String(),
 			Name:        it.Name,
@@ -64,6 +87,15 @@ func (r *RestAPI) ListProjectSegments(
 			CreatedAt:   it.CreatedAt,
 			UpdatedAt:   it.UpdatedAt,
 		})
+	}
+
+	resp := generatedapi.ListSegmentsResponse{
+		Items: itemsResp,
+		Pagination: generatedapi.Pagination{
+			Total:   uint(total),
+			Page:    page,
+			PerPage: perPage,
+		},
 	}
 
 	return &resp, nil

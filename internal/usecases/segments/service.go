@@ -54,6 +54,18 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 	return items, nil
 }
 
+func (s *Service) ListByProjectIDFiltered(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	filter contract.SegmentsListFilter,
+) ([]domain.Segment, int, error) {
+	items, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list segments by projectID filtered: %w", err)
+	}
+	return items, total, nil
+}
+
 func (s *Service) Update(ctx context.Context, segment domain.Segment) (domain.Segment, error) {
 	var updated domain.Segment
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {

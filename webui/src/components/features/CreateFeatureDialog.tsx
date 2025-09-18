@@ -68,7 +68,8 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     queryKey: ['project-segments', projectId],
     queryFn: async () => {
       const res = await apiClient.listProjectSegments(projectId);
-      return res.data as Segment[];
+      const resp = res.data as any;
+      return Array.isArray(resp?.items) ? (resp.items as Segment[]) : (resp as Segment[]);
     },
     enabled: !!projectId,
   });

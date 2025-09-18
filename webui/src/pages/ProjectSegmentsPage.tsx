@@ -16,6 +16,11 @@ import {
   Chip,
   MenuItem,
   Checkbox,
+  FormControl,
+  InputLabel,
+  Select,
+  Stack,
+  Pagination,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -29,7 +34,7 @@ import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import ConditionExpressionBuilder from '../components/conditions/ConditionExpressionBuilder';
 import apiClient from '../api/apiClient';
-import type { Project, Segment, RuleConditionExpression } from '../generated/api/client';
+import type { Project, Segment, RuleConditionExpression, ListProjectSegmentsSortByEnum, SortOrder, ListSegmentsResponse } from '../generated/api/client';
 
 interface ProjectResponse { project: Project }
 
@@ -294,13 +299,31 @@ const ProjectSegmentsPage: React.FC = () => {
     enabled: !!projectId,
   });
 
-  const { data: segments, isLoading, error } = useQuery<Segment[]>({
-    queryKey: ['project-segments', projectId],
+  // Filters, sorting and pagination state for segments
+  const [search, setSearch] = useState('');
+  const [sortBy, setSortBy] = useState<ListProjectSegmentsSortByEnum>('name');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(20);
+
+  const effectiveSearch = search.trim();
+  const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
+
+  const { data: segmentsResp, isLoading, error } = useQuery<ListSegmentsResponse>({
+    queryKey: ['project-segments', projectId, { search: minSearch, sortBy, sortOrder, page, perPage }],
     queryFn: async () => {
-      const res = await apiClient.listProjectSegments(projectId);
+      const res = await apiClient.listProjectSegments(
+        projectId,
+        minSearch,
+        sortBy,
+        sortOrder,
+        page,
+        perPage
+      );
       return res.data;
     },
     enabled: !!projectId,
+    keepPreviousData: true,
   });
 
   // Dialog state
@@ -359,6 +382,59 @@ const ProjectSegmentsPage: React.FC = () => {
           </Button>
         </Box>
 
+        {/* Filters and controls */}
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+          <TextField
+            label="Search by name or description"
+            size="small"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            sx={{ minWidth: 260 }}
+          />
+
+          <FormControl size="small" sx={{ minWidth: 180 }}>
+            <InputLabel id="seg-sort-by-label">Sort by</InputLabel>
+            <Select
+              labelId="seg-sort-by-label"
+              label="Sort by"
+              value={sortBy}
+              onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
+            >
+              <MenuItem value="name">name</MenuItem>
+              <MenuItem value="created_at">created_at</MenuItem>
+              <MenuItem value="updated_at">updated_at</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel id="seg-sort-order-label">Order</InputLabel>
+            <Select
+              labelId="seg-sort-order-label"
+              label="Order"
+              value={sortOrder}
+              onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
+            >
+              <MenuItem value="asc">asc</MenuItem>
+              <MenuItem value="desc">desc</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
+            <InputLabel id="seg-per-page-label">Per page</InputLabel>
+            <Select
+              labelId="seg-per-page-label"
+              label="Per page"
+              value={perPage}
+              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
+            >
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+
         {(loadingProject || isLoading) && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
@@ -368,39 +444,55 @@ const ProjectSegmentsPage: React.FC = () => {
           <Typography color="error">Failed to load segments.</Typography>
         )}
 
-        {!isLoading && segments && segments.length > 0 ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            {segments.map((s) => (
-              <Paper key={s.id} sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Box>
-                  <Typography variant="subtitle1">{s.name}</Typography>
-                  {s.description && (
-                    <Typography variant="body2" color="text.secondary">{s.description}</Typography>
-                  )}
-                  <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Chip size="small" label={`conditions: ${countLeaves(s.conditions)}`} />
-                    <SegmentDesyncCount segmentId={s.id} />
+        {!isLoading && (segmentsResp?.items?.length || 0) > 0 ? (
+          <>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {segmentsResp!.items.map((s) => (
+                <Paper key={s.id} sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box>
+                    <Typography variant="subtitle1">{s.name}</Typography>
+                    {s.description && (
+                      <Typography variant="body2" color="text.secondary">{s.description}</Typography>
+                    )}
+                    <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      <Chip size="small" label={`conditions: ${countLeaves(s.conditions)}`} />
+                      <SegmentDesyncCount segmentId={s.id} />
+                    </Box>
                   </Box>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Tooltip title="Edit">
-                    <span>
-                      <IconButton onClick={() => setEditData(s)} aria-label="edit-segment">
-                        <EditIcon />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <span>
-                      <IconButton onClick={() => setConfirmDelete(s)} aria-label="delete-segment" disabled={deleteMutation.isPending}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                </Box>
-              </Paper>
-            ))}
-          </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Tooltip title="Edit">
+                      <span>
+                        <IconButton onClick={() => setEditData(s)} aria-label="edit-segment">
+                          <EditIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <span>
+                        <IconButton onClick={() => setConfirmDelete(s)} aria-label="delete-segment" disabled={deleteMutation.isPending}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  </Box>
+                </Paper>
+              ))}
+            </Box>
+
+            {/* Pagination */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                {segmentsResp?.pagination ? `Total: ${segmentsResp.pagination.total}` : ''}
+              </Typography>
+              <Pagination
+                page={page}
+                count={segmentsResp?.pagination ? Math.max(1, Math.ceil(segmentsResp.pagination.total / (segmentsResp.pagination.per_page || perPage))) : 1}
+                onChange={(_e, p) => setPage(p)}
+                shape="rounded"
+                color="primary"
+              />
+            </Box>
+          </>
         ) : !isLoading ? (
           <Typography variant="body2">No segments yet.</Typography>
         ) : null}

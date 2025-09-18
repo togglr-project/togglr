@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 	"github.com/rom8726/etoggle/pkg/db"
 )
@@ -111,6 +113,83 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 		items = append(items, m.toDomain())
 	}
 	return items, nil
+}
+
+// ListByProjectIDFiltered returns segments list by project with optional filters and pagination.
+func (r *Repository) ListByProjectIDFiltered(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	filter contract.SegmentsListFilter,
+) ([]domain.Segment, int, error) {
+	executor := r.getExecutor(ctx)
+
+	builder := sq.Select("*").From("segments").Where(sq.Eq{"project_id": projectID})
+	countBuilder := sq.Select("COUNT(*)").From("segments").Where(sq.Eq{"project_id": projectID})
+
+	if filter.TextSelector != nil && *filter.TextSelector != "" {
+		pattern := fmt.Sprintf("%%%s%%", *filter.TextSelector)
+		or := sq.Or{
+			sq.Expr("name ILIKE ?", pattern),
+			sq.Expr("COALESCE(description, '') ILIKE ?", pattern),
+		}
+		builder = builder.Where(or)
+		countBuilder = countBuilder.Where(or)
+	}
+
+	// Sorting with whitelist
+	orderCol := "created_at"
+	switch filter.SortBy {
+	case "name", "created_at", "updated_at":
+		orderCol = filter.SortBy
+	}
+	orderDir := "DESC"
+	if !filter.SortDesc {
+		orderDir = "ASC"
+	}
+	builder = builder.OrderBy(fmt.Sprintf("%s %s", orderCol, orderDir))
+
+	// Pagination
+	page := filter.Page
+	perPage := filter.PerPage
+	if page == 0 {
+		page = 1
+	}
+	if perPage == 0 {
+		perPage = 20
+	}
+	offset := (page - 1) * perPage
+	builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
+
+	// Build and execute list query
+	listSQL, listArgs, err := builder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build segments list sql: %w", err)
+	}
+	rows, err := executor.Query(ctx, listSQL, listArgs...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("query segments filtered: %w", err)
+	}
+	defer rows.Close()
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[segmentModel])
+	if err != nil {
+		return nil, 0, fmt.Errorf("collect segments rows: %w", err)
+	}
+	items := make([]domain.Segment, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	// Count total
+	countSQL, countArgs, err := countBuilder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build segments count sql: %w", err)
+	}
+	var total int
+	if err := executor.QueryRow(ctx, countSQL, countArgs...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("count segments: %w", err)
+	}
+
+	return items, total, nil
 }
 
 // Update updates segment fields and returns the updated row.

@@ -476,6 +476,10 @@ export interface ListFeaturesResponse {
     'items': Array<Feature>;
     'pagination': Pagination;
 }
+export interface ListSegmentsResponse {
+    'items': Array<Segment>;
+    'pagination': Pagination;
+}
 
 export const LogicalOperator = {
     And: 'and',
@@ -2365,10 +2369,15 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary List segments for project
          * @param {string} projectId 
+         * @param {string} [textSelector] Case-insensitive text search across name, description
+         * @param {ListProjectSegmentsSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listProjectSegments: async (projectId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listProjectSegments: async (projectId: string, textSelector?: string, sortBy?: ListProjectSegmentsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'projectId' is not null or undefined
             assertParamExists('listProjectSegments', 'projectId', projectId)
             const localVarPath = `/api/v1/projects/{project_id}/segments`
@@ -2387,6 +2396,26 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (textSelector !== undefined) {
+                localVarQueryParameter['text_selector'] = textSelector;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sort_order'] = sortOrder;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
 
 
     
@@ -3953,11 +3982,16 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 
          * @summary List segments for project
          * @param {string} projectId 
+         * @param {string} [textSelector] Case-insensitive text search across name, description
+         * @param {ListProjectSegmentsSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listProjectSegments(projectId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Segment>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectSegments(projectId, options);
+        async listProjectSegments(projectId: string, textSelector?: string, sortBy?: ListProjectSegmentsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListSegmentsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectSegments(projectId, textSelector, sortBy, sortOrder, page, perPage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectSegments']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4722,11 +4756,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary List segments for project
          * @param {string} projectId 
+         * @param {string} [textSelector] Case-insensitive text search across name, description
+         * @param {ListProjectSegmentsSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listProjectSegments(projectId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Segment>> {
-            return localVarFp.listProjectSegments(projectId, options).then((request) => request(axios, basePath));
+        listProjectSegments(projectId: string, textSelector?: string, sortBy?: ListProjectSegmentsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListSegmentsResponse> {
+            return localVarFp.listProjectSegments(projectId, textSelector, sortBy, sortOrder, page, perPage, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5448,11 +5487,16 @@ export class DefaultApi extends BaseAPI {
      * 
      * @summary List segments for project
      * @param {string} projectId 
+     * @param {string} [textSelector] Case-insensitive text search across name, description
+     * @param {ListProjectSegmentsSortByEnum} [sortBy] Sort by field
+     * @param {SortOrder} [sortOrder] Sort order
+     * @param {number} [page] Page number (starts from 1)
+     * @param {number} [perPage] Items per page
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public listProjectSegments(projectId: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listProjectSegments(projectId, options).then((request) => request(this.axios, this.basePath));
+    public listProjectSegments(projectId: string, textSelector?: string, sortBy?: ListProjectSegmentsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectSegments(projectId, textSelector, sortBy, sortOrder, page, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5765,6 +5809,12 @@ export const ListProjectFeaturesSortByEnum = {
     UpdatedAt: 'updated_at'
 } as const;
 export type ListProjectFeaturesSortByEnum = typeof ListProjectFeaturesSortByEnum[keyof typeof ListProjectFeaturesSortByEnum];
+export const ListProjectSegmentsSortByEnum = {
+    Name: 'name',
+    CreatedAt: 'created_at',
+    UpdatedAt: 'updated_at'
+} as const;
+export type ListProjectSegmentsSortByEnum = typeof ListProjectSegmentsSortByEnum[keyof typeof ListProjectSegmentsSortByEnum];
 
 
 /**

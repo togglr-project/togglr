@@ -7679,6 +7679,26 @@ func (s *Server) handleListProjectSegmentsRequest(args [1]string, argsEscaped bo
 					Name: "project_id",
 					In:   "path",
 				}: params.ProjectID,
+				{
+					Name: "text_selector",
+					In:   "query",
+				}: params.TextSelector,
+				{
+					Name: "sort_by",
+					In:   "query",
+				}: params.SortBy,
+				{
+					Name: "sort_order",
+					In:   "query",
+				}: params.SortOrder,
+				{
+					Name: "page",
+					In:   "query",
+				}: params.Page,
+				{
+					Name: "per_page",
+					In:   "query",
+				}: params.PerPage,
 			},
 			Raw: r,
 		}

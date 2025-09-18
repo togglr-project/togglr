@@ -2701,6 +2701,43 @@ paths:
           required: true
           schema:
             type: string
+        - name: text_selector
+          in: query
+          required: false
+          description: Case-insensitive text search across name, description
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          required: false
+          description: Sort by field
+          schema:
+            type: string
+            enum: [name, created_at, updated_at]
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+        - name: page
+          in: query
+          required: false
+          description: Page number (starts from 1)
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          description: Items per page
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 20
       responses:
         '200':
           description: List of segments for the project
@@ -4066,9 +4103,15 @@ components:
       required: [segment]
 
     ListSegmentsResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/Segment'
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required: [items, pagination]
 
     ListFeatureIDsResponse:
       type: array
