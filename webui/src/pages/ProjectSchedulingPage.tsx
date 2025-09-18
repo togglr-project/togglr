@@ -445,7 +445,17 @@ const ProjectSchedulingPage: React.FC = () => {
                           <IconButton onClick={() => openEdit(f, s)}><EditIcon /></IconButton>
                         </Tooltip>
                         <Tooltip title="Delete schedule">
-                          <IconButton color="error" onClick={() => deleteMut.mutate({ scheduleId: s.id })}><DeleteIcon /></IconButton>
+                          <IconButton
+                            color="error"
+                            onClick={() => {
+                              const confirmed = window.confirm('Delete the schedule? This action is irreversible.');
+                              if (confirmed) {
+                                deleteMut.mutate({ scheduleId: s.id });
+                              }
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
                         </Tooltip>
                       </Box>
                     </Paper>
