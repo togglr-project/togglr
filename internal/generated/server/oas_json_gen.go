@@ -521,6 +521,12 @@ func (s *CreateFeatureScheduleRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.CronDuration.Set {
+			e.FieldStart("cron_duration")
+			s.CronDuration.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("timezone")
 		e.Str(s.Timezone)
 	}
@@ -530,12 +536,13 @@ func (s *CreateFeatureScheduleRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateFeatureScheduleRequest = [5]string{
+var jsonFieldsNameOfCreateFeatureScheduleRequest = [6]string{
 	0: "starts_at",
 	1: "ends_at",
 	2: "cron_expr",
-	3: "timezone",
-	4: "action",
+	3: "cron_duration",
+	4: "timezone",
+	5: "action",
 }
 
 // Decode decodes CreateFeatureScheduleRequest from json.
@@ -578,8 +585,18 @@ func (s *CreateFeatureScheduleRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cron_expr\"")
 			}
+		case "cron_duration":
+			if err := func() error {
+				s.CronDuration.Reset()
+				if err := s.CronDuration.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"cron_duration\"")
+			}
 		case "timezone":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.Timezone = string(v)
@@ -591,7 +608,7 @@ func (s *CreateFeatureScheduleRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"timezone\"")
 			}
 		case "action":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -610,7 +627,7 @@ func (s *CreateFeatureScheduleRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011000,
+		0b00110000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4101,6 +4118,12 @@ func (s *FeatureSchedule) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.CronDuration.Set {
+			e.FieldStart("cron_duration")
+			s.CronDuration.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("timezone")
 		e.Str(s.Timezone)
 	}
@@ -4114,16 +4137,17 @@ func (s *FeatureSchedule) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfFeatureSchedule = [9]string{
+var jsonFieldsNameOfFeatureSchedule = [10]string{
 	0: "id",
 	1: "project_id",
 	2: "feature_id",
 	3: "starts_at",
 	4: "ends_at",
 	5: "cron_expr",
-	6: "timezone",
-	7: "action",
-	8: "created_at",
+	6: "cron_duration",
+	7: "timezone",
+	8: "action",
+	9: "created_at",
 }
 
 // Decode decodes FeatureSchedule from json.
@@ -4201,8 +4225,18 @@ func (s *FeatureSchedule) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cron_expr\"")
 			}
+		case "cron_duration":
+			if err := func() error {
+				s.CronDuration.Reset()
+				if err := s.CronDuration.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"cron_duration\"")
+			}
 		case "timezone":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := d.Str()
 				s.Timezone = string(v)
@@ -4214,7 +4248,7 @@ func (s *FeatureSchedule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"timezone\"")
 			}
 		case "action":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -4224,7 +4258,7 @@ func (s *FeatureSchedule) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"action\"")
 			}
 		case "created_at":
-			requiredBitSet[1] |= 1 << 0
+			requiredBitSet[1] |= 1 << 1
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -4245,8 +4279,8 @@ func (s *FeatureSchedule) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b11000111,
-		0b00000001,
+		0b10000111,
+		0b00000011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -8820,6 +8854,57 @@ func (s *OptNilDateTime) UnmarshalJSON(data []byte) error {
 	return s.Decode(d, json.DecodeDateTime)
 }
 
+// Encode encodes time.Duration as json.
+func (o OptNilDuration) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	if o.Null {
+		e.Null()
+		return
+	}
+	json.EncodeDuration(e, o.Value)
+}
+
+// Decode decodes time.Duration from json.
+func (o *OptNilDuration) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptNilDuration to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v time.Duration
+		o.Value = v
+		o.Set = true
+		o.Null = true
+		return nil
+	}
+	o.Set = true
+	o.Null = false
+	v, err := json.DecodeDuration(d)
+	if err != nil {
+		return err
+	}
+	o.Value = v
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptNilDuration) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptNilDuration) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes int as json.
 func (o OptNilInt) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -12697,6 +12782,12 @@ func (s *UpdateFeatureScheduleRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.CronDuration.Set {
+			e.FieldStart("cron_duration")
+			s.CronDuration.Encode(e)
+		}
+	}
+	{
 		e.FieldStart("timezone")
 		e.Str(s.Timezone)
 	}
@@ -12706,12 +12797,13 @@ func (s *UpdateFeatureScheduleRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfUpdateFeatureScheduleRequest = [5]string{
+var jsonFieldsNameOfUpdateFeatureScheduleRequest = [6]string{
 	0: "starts_at",
 	1: "ends_at",
 	2: "cron_expr",
-	3: "timezone",
-	4: "action",
+	3: "cron_duration",
+	4: "timezone",
+	5: "action",
 }
 
 // Decode decodes UpdateFeatureScheduleRequest from json.
@@ -12753,8 +12845,18 @@ func (s *UpdateFeatureScheduleRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cron_expr\"")
 			}
+		case "cron_duration":
+			if err := func() error {
+				s.CronDuration.Reset()
+				if err := s.CronDuration.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"cron_duration\"")
+			}
 		case "timezone":
-			requiredBitSet[0] |= 1 << 3
+			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
 				s.Timezone = string(v)
@@ -12766,7 +12868,7 @@ func (s *UpdateFeatureScheduleRequest) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"timezone\"")
 			}
 		case "action":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.Action.Decode(d); err != nil {
 					return err
@@ -12785,7 +12887,7 @@ func (s *UpdateFeatureScheduleRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011000,
+		0b00110000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

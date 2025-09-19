@@ -86,10 +86,23 @@ func (s *Service) BuildFeatureTimeline(
 					break
 				}
 
+				// Добавляем событие включения/выключения
 				events = append(events, domain.TimelineEvent{
 					Time:    next,
 					Enabled: sched.Action == domain.FeatureScheduleActionEnable,
 				})
+
+				// Если задана продолжительность для cron, добавляем обратное событие
+				if sched.CronDuration != nil && *sched.CronDuration > 0 {
+					endTime := next.Add(*sched.CronDuration)
+					// Проверяем, что конец не выходит за границы запрашиваемого интервала
+					if endTime.Before(to.In(loc)) {
+						events = append(events, domain.TimelineEvent{
+							Time:    endTime,
+							Enabled: sched.Action != domain.FeatureScheduleActionEnable,
+						})
+					}
+				}
 
 				cursor = next
 

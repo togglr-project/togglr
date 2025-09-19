@@ -56,15 +56,16 @@ func (r *RestAPI) ListFeatureSchedules(
 	resp := make(generatedapi.ListFeatureSchedulesResponse, 0, len(items))
 	for _, it := range items {
 		resp = append(resp, generatedapi.FeatureSchedule{
-			ID:        it.ID.String(),
-			ProjectID: it.ProjectID.String(),
-			FeatureID: it.FeatureID.String(),
-			StartsAt:  ptrToOptNilDateTime(it.StartsAt),
-			EndsAt:    ptrToOptNilDateTime(it.EndsAt),
-			CronExpr:  ptrToOptNilString(it.CronExpr),
-			Timezone:  it.Timezone,
-			Action:    generatedapi.FeatureScheduleAction(it.Action),
-			CreatedAt: it.CreatedAt,
+			ID:           it.ID.String(),
+			ProjectID:    it.ProjectID.String(),
+			FeatureID:    it.FeatureID.String(),
+			StartsAt:     ptrToOptNilDateTime(it.StartsAt),
+			EndsAt:       ptrToOptNilDateTime(it.EndsAt),
+			CronExpr:     ptrToOptNilString(it.CronExpr),
+			CronDuration: ptrToOptNilDuration(it.CronDuration),
+			Timezone:     it.Timezone,
+			Action:       generatedapi.FeatureScheduleAction(it.Action),
+			CreatedAt:    it.CreatedAt,
 		})
 	}
 

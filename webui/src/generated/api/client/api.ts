@@ -54,6 +54,10 @@ export interface CreateFeatureScheduleRequest {
     'starts_at'?: string;
     'ends_at'?: string;
     'cron_expr'?: string;
+    /**
+     * Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: \'1h30m\', \'45m\', \'2h\', etc.
+     */
+    'cron_duration'?: string;
     'timezone': string;
     'action': FeatureScheduleAction;
 }
@@ -206,6 +210,10 @@ export interface FeatureSchedule {
     'starts_at'?: string;
     'ends_at'?: string;
     'cron_expr'?: string;
+    /**
+     * Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: \'1h30m\', \'45m\', \'2h\', etc.
+     */
+    'cron_duration'?: string;
     'timezone': string;
     'action': FeatureScheduleAction;
     'created_at': string;
@@ -766,6 +774,10 @@ export interface UpdateFeatureScheduleRequest {
     'starts_at'?: string;
     'ends_at'?: string;
     'cron_expr'?: string;
+    /**
+     * Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: \'1h30m\', \'45m\', \'2h\', etc.
+     */
+    'cron_duration'?: string;
     'timezone': string;
     'action': FeatureScheduleAction;
 }

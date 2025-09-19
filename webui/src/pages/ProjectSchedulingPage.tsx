@@ -31,7 +31,8 @@ import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Schedule as ScheduleIcon
+  Schedule as ScheduleIcon,
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
@@ -52,6 +53,7 @@ interface ScheduleFormValues {
   starts_at?: string;
   ends_at?: string;
   cron_expr?: string;
+  cron_duration?: string;
 }
 
 const emptyForm = (): ScheduleFormValues => ({
@@ -59,7 +61,8 @@ const emptyForm = (): ScheduleFormValues => ({
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
   starts_at: '',
   ends_at: '',
-  cron_expr: ''
+  cron_expr: '',
+  cron_duration: ''
 });
 
 const pad2 = (n: number) => (n < 10 ? '0' + n : '' + n);
@@ -133,7 +136,7 @@ const ScheduleDialog: React.FC<{
     const tz = base.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
     const startsLocal = initial?.starts_at ? toDatetimeLocalInZone(initial.starts_at, tz) : '';
     const endsLocal = initial?.ends_at ? toDatetimeLocalInZone(initial.ends_at, tz) : '';
-    setValues({ ...base, starts_at: startsLocal, ends_at: endsLocal });
+    setValues({ ...base, starts_at: startsLocal, ends_at: endsLocal, cron_duration: initial?.cron_duration || '' });
 
     const expr = (initial?.cron_expr || '').trim();
     if (expr) {
@@ -208,7 +211,7 @@ const ScheduleDialog: React.FC<{
                 onChange={(e) => setValues(v => ({ ...v, ends_at: e.target.value }))}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={8}>
               <TextField
                 fullWidth
                 label="Cron expression"
@@ -235,6 +238,16 @@ const ScheduleDialog: React.FC<{
                   {cronDesc}
                 </Typography>
               )}
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField
+                fullWidth
+                label="Cron Duration"
+                placeholder="e.g., 1h30m, 45m, 2h"
+                value={values.cron_duration || ''}
+                onChange={(e) => setValues(v => ({ ...v, cron_duration: e.target.value }))}
+                helperText="Duration for cron schedules"
+              />
             </Grid>
           </Grid>
         </Box>
@@ -270,6 +283,7 @@ const ScheduleDialog: React.FC<{
             ...values,
             starts_at: convertedStarts,
             ends_at: convertedEnds,
+            cron_duration: values.cron_duration || undefined,
           };
           onSubmit(payload);
         }}>Save</Button>
@@ -351,7 +365,7 @@ const ProjectSchedulingPage: React.FC = () => {
     return features || [];
   }, [features]);
 
-  const { data: timelinesData, isLoading: loadingTimelines, error: timelinesError } = useQuery<Record<string, FeatureTimelineEvent[]>>({
+  const { data: timelinesData, isLoading: loadingTimelines, error: timelinesError, refetch: refetchTimelines } = useQuery<Record<string, FeatureTimelineEvent[]>>({
     queryKey: ['feature-timelines', projectId, selectedFeatures.map(f => f.id), timelineFrom, timelineTo],
     queryFn: async () => {
       if (selectedFeatures.length === 0) return {};
@@ -509,6 +523,11 @@ const ProjectSchedulingPage: React.FC = () => {
                         <Typography variant="body2" color="text.secondary">
                           {s.cron_expr ? `Cron: ${s.cron_expr}` : `From ${s.starts_at || '—'} to ${s.ends_at || '—'}`}
                         </Typography>
+                        {s.cron_expr && s.cron_duration && (
+                          <Typography variant="body2" color="text.secondary">
+                            Duration: {s.cron_duration}
+                          </Typography>
+                        )}
                         <Typography variant="caption" color="text.secondary">Timezone: {s.timezone}</Typography>
                       </Box>
                       <Box>
@@ -687,9 +706,23 @@ const ProjectSchedulingPage: React.FC = () => {
             <Box>
               {/* Date range selector for timeline */}
               <Paper sx={{ p: 2, mb: 2 }}>
-                <Typography variant="h6" gutterBottom>
-                  Timeline Settings
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    Timeline Settings
+                  </Typography>
+                  <Tooltip title="Refresh timeline data">
+                    <IconButton
+                      onClick={() => {
+                        // Refetch timeline data
+                        refetchTimelines();
+                      }}
+                      disabled={loadingTimelines}
+                      size="small"
+                    >
+                      <RefreshIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
                 <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
                   <TextField
                     label="From"
@@ -856,7 +889,8 @@ const ProjectSchedulingPage: React.FC = () => {
           // Pass raw ISO; dialog will convert according to timezone
           starts_at: editSchedule.starts_at || '',
           ends_at: editSchedule.ends_at || '',
-          cron_expr: editSchedule.cron_expr || ''
+          cron_expr: editSchedule.cron_expr || '',
+          cron_duration: editSchedule.cron_duration || ''
         } : undefined}
         onSubmit={(values) => {
           if (!dialogFeature) return;

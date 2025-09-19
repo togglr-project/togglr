@@ -46,15 +46,16 @@ func (r *RestAPI) GetFeatureSchedule(
 	}
 
 	resp := &generatedapi.FeatureScheduleResponse{Schedule: generatedapi.FeatureSchedule{
-		ID:        item.ID.String(),
-		ProjectID: item.ProjectID.String(),
-		FeatureID: item.FeatureID.String(),
-		StartsAt:  ptrToOptNilDateTime(item.StartsAt),
-		EndsAt:    ptrToOptNilDateTime(item.EndsAt),
-		CronExpr:  ptrToOptNilString(item.CronExpr),
-		Timezone:  item.Timezone,
-		Action:    generatedapi.FeatureScheduleAction(item.Action),
-		CreatedAt: item.CreatedAt,
+		ID:           item.ID.String(),
+		ProjectID:    item.ProjectID.String(),
+		FeatureID:    item.FeatureID.String(),
+		StartsAt:     ptrToOptNilDateTime(item.StartsAt),
+		EndsAt:       ptrToOptNilDateTime(item.EndsAt),
+		CronExpr:     ptrToOptNilString(item.CronExpr),
+		CronDuration: ptrToOptNilDuration(item.CronDuration),
+		Timezone:     item.Timezone,
+		Action:       generatedapi.FeatureScheduleAction(item.Action),
+		CreatedAt:    item.CreatedAt,
 	}}
 
 	return resp, nil

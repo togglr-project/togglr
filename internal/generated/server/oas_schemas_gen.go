@@ -270,11 +270,14 @@ func (s *CreateFeatureRequest) SetRules(val []CreateRuleInline) {
 
 // Ref: #/components/schemas/CreateFeatureScheduleRequest
 type CreateFeatureScheduleRequest struct {
-	StartsAt OptNilDateTime        `json:"starts_at"`
-	EndsAt   OptNilDateTime        `json:"ends_at"`
-	CronExpr OptNilString          `json:"cron_expr"`
-	Timezone string                `json:"timezone"`
-	Action   FeatureScheduleAction `json:"action"`
+	StartsAt OptNilDateTime `json:"starts_at"`
+	EndsAt   OptNilDateTime `json:"ends_at"`
+	CronExpr OptNilString   `json:"cron_expr"`
+	// Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this
+	// duration. Format: '1h30m', '45m', '2h', etc.
+	CronDuration OptNilDuration        `json:"cron_duration"`
+	Timezone     string                `json:"timezone"`
+	Action       FeatureScheduleAction `json:"action"`
 }
 
 // GetStartsAt returns the value of StartsAt.
@@ -290,6 +293,11 @@ func (s *CreateFeatureScheduleRequest) GetEndsAt() OptNilDateTime {
 // GetCronExpr returns the value of CronExpr.
 func (s *CreateFeatureScheduleRequest) GetCronExpr() OptNilString {
 	return s.CronExpr
+}
+
+// GetCronDuration returns the value of CronDuration.
+func (s *CreateFeatureScheduleRequest) GetCronDuration() OptNilDuration {
+	return s.CronDuration
 }
 
 // GetTimezone returns the value of Timezone.
@@ -315,6 +323,11 @@ func (s *CreateFeatureScheduleRequest) SetEndsAt(val OptNilDateTime) {
 // SetCronExpr sets the value of CronExpr.
 func (s *CreateFeatureScheduleRequest) SetCronExpr(val OptNilString) {
 	s.CronExpr = val
+}
+
+// SetCronDuration sets the value of CronDuration.
+func (s *CreateFeatureScheduleRequest) SetCronDuration(val OptNilDuration) {
+	s.CronDuration = val
 }
 
 // SetTimezone sets the value of Timezone.
@@ -1633,15 +1646,18 @@ func (*FeatureResponse) toggleFeatureRes()        {}
 
 // Ref: #/components/schemas/FeatureSchedule
 type FeatureSchedule struct {
-	ID        string                `json:"id"`
-	ProjectID string                `json:"project_id"`
-	FeatureID string                `json:"feature_id"`
-	StartsAt  OptNilDateTime        `json:"starts_at"`
-	EndsAt    OptNilDateTime        `json:"ends_at"`
-	CronExpr  OptNilString          `json:"cron_expr"`
-	Timezone  string                `json:"timezone"`
-	Action    FeatureScheduleAction `json:"action"`
-	CreatedAt time.Time             `json:"created_at"`
+	ID        string         `json:"id"`
+	ProjectID string         `json:"project_id"`
+	FeatureID string         `json:"feature_id"`
+	StartsAt  OptNilDateTime `json:"starts_at"`
+	EndsAt    OptNilDateTime `json:"ends_at"`
+	CronExpr  OptNilString   `json:"cron_expr"`
+	// Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this
+	// duration. Format: '1h30m', '45m', '2h', etc.
+	CronDuration OptNilDuration        `json:"cron_duration"`
+	Timezone     string                `json:"timezone"`
+	Action       FeatureScheduleAction `json:"action"`
+	CreatedAt    time.Time             `json:"created_at"`
 }
 
 // GetID returns the value of ID.
@@ -1672,6 +1688,11 @@ func (s *FeatureSchedule) GetEndsAt() OptNilDateTime {
 // GetCronExpr returns the value of CronExpr.
 func (s *FeatureSchedule) GetCronExpr() OptNilString {
 	return s.CronExpr
+}
+
+// GetCronDuration returns the value of CronDuration.
+func (s *FeatureSchedule) GetCronDuration() OptNilDuration {
+	return s.CronDuration
 }
 
 // GetTimezone returns the value of Timezone.
@@ -1717,6 +1738,11 @@ func (s *FeatureSchedule) SetEndsAt(val OptNilDateTime) {
 // SetCronExpr sets the value of CronExpr.
 func (s *FeatureSchedule) SetCronExpr(val OptNilString) {
 	s.CronExpr = val
+}
+
+// SetCronDuration sets the value of CronDuration.
+func (s *FeatureSchedule) SetCronDuration(val OptNilDuration) {
+	s.CronDuration = val
 }
 
 // SetTimezone sets the value of Timezone.
@@ -4250,6 +4276,69 @@ func (o OptNilDateTime) Or(d time.Time) time.Time {
 	return d
 }
 
+// NewOptNilDuration returns new OptNilDuration with value set to v.
+func NewOptNilDuration(v time.Duration) OptNilDuration {
+	return OptNilDuration{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilDuration is optional nullable time.Duration.
+type OptNilDuration struct {
+	Value time.Duration
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilDuration was set.
+func (o OptNilDuration) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilDuration) Reset() {
+	var v time.Duration
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilDuration) SetTo(v time.Duration) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilDuration) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilDuration) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v time.Duration
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilDuration) Get() (v time.Duration, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilDuration) Or(d time.Duration) time.Duration {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptNilInt returns new OptNilInt with value set to v.
 func NewOptNilInt(v int) OptNilInt {
 	return OptNilInt{
@@ -5855,11 +5944,14 @@ func (*TwoFAVerifyResponse) verify2FARes() {}
 
 // Ref: #/components/schemas/UpdateFeatureScheduleRequest
 type UpdateFeatureScheduleRequest struct {
-	StartsAt OptNilDateTime        `json:"starts_at"`
-	EndsAt   OptNilDateTime        `json:"ends_at"`
-	CronExpr OptNilString          `json:"cron_expr"`
-	Timezone string                `json:"timezone"`
-	Action   FeatureScheduleAction `json:"action"`
+	StartsAt OptNilDateTime `json:"starts_at"`
+	EndsAt   OptNilDateTime `json:"ends_at"`
+	CronExpr OptNilString   `json:"cron_expr"`
+	// Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this
+	// duration. Format: '1h30m', '45m', '2h', etc.
+	CronDuration OptNilDuration        `json:"cron_duration"`
+	Timezone     string                `json:"timezone"`
+	Action       FeatureScheduleAction `json:"action"`
 }
 
 // GetStartsAt returns the value of StartsAt.
@@ -5875,6 +5967,11 @@ func (s *UpdateFeatureScheduleRequest) GetEndsAt() OptNilDateTime {
 // GetCronExpr returns the value of CronExpr.
 func (s *UpdateFeatureScheduleRequest) GetCronExpr() OptNilString {
 	return s.CronExpr
+}
+
+// GetCronDuration returns the value of CronDuration.
+func (s *UpdateFeatureScheduleRequest) GetCronDuration() OptNilDuration {
+	return s.CronDuration
 }
 
 // GetTimezone returns the value of Timezone.
@@ -5900,6 +5997,11 @@ func (s *UpdateFeatureScheduleRequest) SetEndsAt(val OptNilDateTime) {
 // SetCronExpr sets the value of CronExpr.
 func (s *UpdateFeatureScheduleRequest) SetCronExpr(val OptNilString) {
 	s.CronExpr = val
+}
+
+// SetCronDuration sets the value of CronDuration.
+func (s *UpdateFeatureScheduleRequest) SetCronDuration(val OptNilDuration) {
+	s.CronDuration = val
 }
 
 // SetTimezone sets the value of Timezone.

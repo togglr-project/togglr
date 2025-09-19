@@ -4426,6 +4426,11 @@ components:
         cron_expr:
           type: string
           nullable: true
+        cron_duration:
+          type: string
+          format: duration
+          nullable: true
+          description: "Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: '1h30m', '45m', '2h', etc."
         timezone:
           type: string
         action:
@@ -4454,6 +4459,11 @@ components:
         cron_expr:
           type: string
           nullable: true
+        cron_duration:
+          type: string
+          format: duration
+          nullable: true
+          description: "Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: '1h30m', '45m', '2h', etc."
         timezone:
           type: string
           default: UTC
@@ -4475,6 +4485,11 @@ components:
         cron_expr:
           type: string
           nullable: true
+        cron_duration:
+          type: string
+          format: duration
+          nullable: true
+          description: "Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: '1h30m', '45m', '2h', etc."
         timezone:
           type: string
         action:

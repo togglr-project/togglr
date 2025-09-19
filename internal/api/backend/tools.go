@@ -33,6 +33,16 @@ func ruleAttribute2OptString(attr domain.RuleAttribute) generatedapi.OptString {
 	return generatedapi.NewOptString(attr.String())
 }
 
+func optNilDurationToPtr(v generatedapi.OptNilDuration) *time.Duration {
+	if !v.IsSet() || v.IsNull() {
+		return nil
+	}
+
+	t, _ := v.Get()
+
+	return &t
+}
+
 func optNilDateTimeToPtr(v generatedapi.OptNilDateTime) *time.Time {
 	if !v.IsSet() || v.IsNull() {
 		return nil
@@ -52,6 +62,17 @@ func ptrToOptNilDateTime(p *time.Time) generatedapi.OptNilDateTime {
 	}
 
 	return generatedapi.NewOptNilDateTime(*p)
+}
+
+func ptrToOptNilDuration(p *time.Duration) generatedapi.OptNilDuration {
+	if p == nil {
+		var o generatedapi.OptNilDuration
+		o.SetToNull()
+
+		return o
+	}
+
+	return generatedapi.NewOptNilDuration(*p)
 }
 
 func optNilStringToPtr(v generatedapi.OptNilString) *string {

@@ -48,13 +48,14 @@ func (r *RestAPI) CreateFeatureSchedule(
 	}
 
 	sch := domain.FeatureSchedule{
-		ProjectID: feature.ProjectID,
-		FeatureID: featureID,
-		StartsAt:  optNilDateTimeToPtr(req.StartsAt),
-		EndsAt:    optNilDateTimeToPtr(req.EndsAt),
-		CronExpr:  optNilStringToPtr(req.CronExpr),
-		Timezone:  req.Timezone,
-		Action:    domain.FeatureScheduleAction(req.Action),
+		ProjectID:    feature.ProjectID,
+		FeatureID:    featureID,
+		StartsAt:     optNilDateTimeToPtr(req.StartsAt),
+		EndsAt:       optNilDateTimeToPtr(req.EndsAt),
+		CronExpr:     optNilStringToPtr(req.CronExpr),
+		CronDuration: optNilDurationToPtr(req.CronDuration),
+		Timezone:     req.Timezone,
+		Action:       domain.FeatureScheduleAction(req.Action),
 	}
 
 	created, err := r.featureSchedulesUseCase.Create(ctx, sch)
@@ -64,15 +65,16 @@ func (r *RestAPI) CreateFeatureSchedule(
 	}
 
 	resp := &generatedapi.FeatureScheduleResponse{Schedule: generatedapi.FeatureSchedule{
-		ID:        created.ID.String(),
-		ProjectID: created.ProjectID.String(),
-		FeatureID: created.FeatureID.String(),
-		StartsAt:  ptrToOptNilDateTime(created.StartsAt),
-		EndsAt:    ptrToOptNilDateTime(created.EndsAt),
-		CronExpr:  ptrToOptNilString(created.CronExpr),
-		Timezone:  created.Timezone,
-		Action:    generatedapi.FeatureScheduleAction(created.Action),
-		CreatedAt: created.CreatedAt,
+		ID:           created.ID.String(),
+		ProjectID:    created.ProjectID.String(),
+		FeatureID:    created.FeatureID.String(),
+		StartsAt:     ptrToOptNilDateTime(created.StartsAt),
+		EndsAt:       ptrToOptNilDateTime(created.EndsAt),
+		CronExpr:     ptrToOptNilString(created.CronExpr),
+		CronDuration: ptrToOptNilDuration(created.CronDuration),
+		Timezone:     created.Timezone,
+		Action:       generatedapi.FeatureScheduleAction(created.Action),
+		CreatedAt:    created.CreatedAt,
 	}}
 
 	return resp, nil

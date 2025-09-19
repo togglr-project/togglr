@@ -465,10 +465,25 @@ func IsScheduleActive(schedule domain.FeatureSchedule, crons CronsMap, now time.
 		return false
 	}
 
+	// Находим последнее срабатывание cron до текущего времени
 	prev := sched.Next(now.Add(-time.Minute))
 	next := sched.Next(prev)
 
-	return !now.Before(prev) && now.Before(next)
+	// Проверяем, находимся ли мы в интервале между срабатываниями
+	if now.Before(prev) || !now.Before(next) {
+		return false
+	}
+
+	// Если задана продолжительность для cron, проверяем, не истекла ли она
+	if schedule.CronDuration != nil && *schedule.CronDuration > 0 {
+		// Проверяем, не прошло ли время с момента последнего срабатывания
+		timeSinceLastTrigger := now.Sub(prev)
+		if timeSinceLastTrigger > *schedule.CronDuration {
+			return false
+		}
+	}
+
+	return true
 }
 
 func MatchCondition(reqCtx map[domain.RuleAttribute]any, condition domain.Condition) bool {
