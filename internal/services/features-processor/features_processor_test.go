@@ -727,5 +727,188 @@ func TestEvaluateExpression(t *testing.T) {
 	}
 }
 
-func ptrTime(t time.Time) *time.Time { return &t }
-func ptrString(s string) *string     { return &s }
+func TestService_NextState(t *testing.T) {
+	loc, _ := time.LoadLocation("UTC")
+	now := time.Now().UTC()
+
+	tests := []struct {
+		name            string
+		feature         domain.FeatureExtended
+		expectedEnabled bool
+		expectedTime    time.Time
+		hasNextState    bool
+	}{
+		{
+			name: "feature with no schedules returns zero values",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-1 * time.Hour),
+				},
+			},
+			expectedEnabled: false,
+			expectedTime:    time.Time{},
+			hasNextState:    false,
+		},
+		{
+			name: "schedule without cron, returns end time",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched1",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: now.Add(-1 * time.Hour),
+					},
+				},
+			},
+			expectedEnabled: false, // After enable schedule ends, feature becomes inactive
+			expectedTime:    now.Add(1 * time.Hour),
+			hasNextState:    true,
+		},
+		{
+			name: "schedule with cron, returns next cron trigger",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched2",
+						Action:    domain.FeatureScheduleActionEnable,
+						CronExpr:  ptrString("0 14 * * *"), // 2 PM daily
+						Timezone:  "UTC",
+						CreatedAt: now.Add(-1 * time.Hour),
+					},
+				},
+			},
+			expectedEnabled: true,
+			expectedTime:    time.Date(2025, 9, 20, 14, 0, 0, 0, loc), // The next occurrence is in 4 days
+			hasNextState:    true,
+		},
+		{
+			name: "schedule with cron and duration, returns action end time",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:           "sched3",
+						Action:       domain.FeatureScheduleActionEnable,
+						CronExpr:     ptrString("0 14 * * *"), // 2 PM daily
+						CronDuration: ptrDuration(2 * time.Hour),
+						Timezone:     "UTC",
+						CreatedAt:    now.Add(-1 * time.Hour),
+					},
+				},
+			},
+			expectedEnabled: false,                                    // opposite action after duration
+			expectedTime:    time.Date(2025, 9, 20, 16, 0, 0, 0, loc), // Next occurrence + 2 hours
+			hasNextState:    true,
+		},
+		{
+			name: "multiple schedules, returns earliest trigger",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched4",
+						Action:    domain.FeatureScheduleActionDisable,
+						CronExpr:  ptrString("0 15 * * *"), // 3 PM daily
+						Timezone:  "UTC",
+						CreatedAt: now.Add(-1 * time.Hour),
+					},
+					{
+						ID:        "sched5",
+						Action:    domain.FeatureScheduleActionEnable,
+						CronExpr:  ptrString("0 13 * * *"), // 1 PM daily
+						Timezone:  "UTC",
+						CreatedAt: now.Add(-30 * time.Minute),
+					},
+				},
+			},
+			expectedEnabled: true,                                     // 1 PM enable comes first
+			expectedTime:    time.Date(2025, 9, 20, 13, 0, 0, 0, loc), // Next occurrence
+			hasNextState:    true,
+		},
+		{
+			name: "schedule not yet started, returns start time",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched6",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(1 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(3 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: now.Add(-1 * time.Hour),
+					},
+				},
+			},
+			expectedEnabled: true,
+			expectedTime:    now.Add(1 * time.Hour),
+			hasNextState:    true,
+		},
+		{
+			name: "schedule already ended, returns zero values",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched7",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(-3 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(-1 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+				},
+			},
+			expectedEnabled: false,
+			expectedTime:    time.Time{},
+			hasNextState:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := New(nil, nil, nil, 0)
+
+			enabled, timestamp := svc.NextStateAt(tt.feature, now)
+
+			if timestamp.IsZero() && tt.hasNextState {
+				t.Logf("Expected non-zero timestamp but got zero. Feature: %+v", tt.feature)
+			}
+
+			assert.Equal(t, tt.expectedEnabled, enabled)
+			if tt.hasNextState {
+				assert.Equal(t, tt.expectedTime, timestamp)
+			} else {
+				assert.True(t, timestamp.IsZero())
+			}
+		})
+	}
+}
+
+func ptrTime(t time.Time) *time.Time             { return &t }
+func ptrString(s string) *string                 { return &s }
+func ptrDuration(d time.Duration) *time.Duration { return &d }

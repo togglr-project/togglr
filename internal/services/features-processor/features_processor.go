@@ -298,6 +298,154 @@ func (s *Service) IsFeatureActive(feature domain.FeatureExtended) bool {
 	return IsFeatureActiveNow(featurePrepared, time.Now().UTC())
 }
 
+// NextState вычисляет следующее состояние фичи на основе расписания.
+// Если у фичи нет расписания, возвращает нулевые значения.
+func (s *Service) NextState(feature domain.FeatureExtended) (enabled bool, timestamp time.Time) {
+	return s.NextStateAt(feature, time.Now().UTC())
+}
+
+// NextStateAt вычисляет следующее состояние фичи на основе расписания в указанное время.
+// Если у фичи нет расписания, возвращает нулевые значения.
+func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (enabled bool, timestamp time.Time) {
+	// Если у фичи нет расписания, возвращаем нулевые значения
+	if len(feature.Schedules) == 0 {
+		return false, time.Time{}
+	}
+
+	featurePrepared := MakeFeaturePrepared(feature)
+
+	// Находим следующее срабатывание для каждого расписания
+	var nextTriggers []struct {
+		action    domain.FeatureScheduleAction
+		timestamp time.Time
+		createdAt time.Time
+	}
+
+	for _, schedule := range feature.Schedules {
+		nextTime, action := s.getNextScheduleTrigger(schedule, featurePrepared.crons, now, feature.CreatedAt)
+		if !nextTime.IsZero() {
+			nextTriggers = append(nextTriggers, struct {
+				action    domain.FeatureScheduleAction
+				timestamp time.Time
+				createdAt time.Time
+			}{
+				action:    action,
+				timestamp: nextTime,
+				createdAt: schedule.CreatedAt,
+			})
+		}
+	}
+
+	// Если нет активных расписаний, возвращаем нулевые значения
+	if len(nextTriggers) == 0 {
+		return false, time.Time{}
+	}
+
+	// Сортируем по времени срабатывания, затем по приоритету (более новые CreatedAt)
+	sort.Slice(nextTriggers, func(i, j int) bool {
+		if nextTriggers[i].timestamp.Equal(nextTriggers[j].timestamp) {
+			// При одинаковом времени: disable важнее enable, затем по CreatedAt
+			if nextTriggers[i].action != nextTriggers[j].action {
+				return nextTriggers[i].action == domain.FeatureScheduleActionDisable
+			}
+			return nextTriggers[i].createdAt.After(nextTriggers[j].createdAt)
+		}
+		return nextTriggers[i].timestamp.Before(nextTriggers[j].timestamp)
+	})
+
+	// Возвращаем первое (самое раннее) срабатывание
+	next := nextTriggers[0]
+	return next.action == domain.FeatureScheduleActionEnable, next.timestamp
+}
+
+// getNextScheduleTrigger находит следующее срабатывание для конкретного расписания
+func (s *Service) getNextScheduleTrigger(
+	schedule domain.FeatureSchedule,
+	crons CronsMap,
+	now time.Time,
+	featureCreatedAt time.Time,
+) (nextTime time.Time, action domain.FeatureScheduleAction) {
+	loc, err := time.LoadLocation(schedule.Timezone)
+	if err != nil {
+		slog.Error("error loading timezone", "timezone", schedule.Timezone)
+		loc = time.UTC
+	}
+	now = now.In(loc)
+
+	// Определяем начало работы расписания
+	scheduleStart := featureCreatedAt
+	if schedule.StartsAt != nil {
+		scheduleStart = *schedule.StartsAt
+	}
+	scheduleStart = scheduleStart.In(loc)
+
+	// Если расписание еще не началось, возвращаем время начала
+	if now.Before(scheduleStart) {
+		return scheduleStart, schedule.Action
+	}
+
+	// Если расписание уже закончилось, возвращаем нулевое время
+	if schedule.EndsAt != nil && now.After(schedule.EndsAt.In(loc)) {
+		return time.Time{}, schedule.Action
+	}
+
+	// Если нет cron-выражения, расписание активно в своем временном окне
+	if schedule.CronExpr == nil || *schedule.CronExpr == "" {
+		// Для расписания без cron возвращаем время окончания или нулевое время
+		if schedule.EndsAt != nil {
+			// Следующее изменение состояния - когда расписание закончится
+			// Если действие enable, то после окончания фича станет неактивной (disable)
+			// Если действие disable, то после окончания фича станет активной (enable)
+			return schedule.EndsAt.In(loc), s.getOppositeAction(schedule.Action)
+		}
+		// Если нет времени окончания, расписание активно бесконечно - нет следующего изменения
+		return time.Time{}, schedule.Action
+	}
+
+	sched, ok := crons[schedule.ID]
+	if !ok {
+		slog.Error("error parsing cron expression", "cron expression", *schedule.CronExpr)
+		return time.Time{}, schedule.Action
+	}
+
+	// Находим следующее срабатывание cron
+	nextCronTime := sched.Next(now)
+
+	// Проверяем, что следующее срабатывание не выходит за границы расписания
+	if schedule.EndsAt != nil && nextCronTime.After(schedule.EndsAt.In(loc)) {
+		return time.Time{}, schedule.Action
+	}
+
+	// Если задана продолжительность, учитываем ее
+	if schedule.CronDuration != nil && *schedule.CronDuration > 0 {
+		// Возвращаем время окончания действия (срабатывание + продолжительность)
+		actionEndTime := nextCronTime.Add(*schedule.CronDuration)
+
+		// Если время окончания действия выходит за границы расписания
+		if schedule.EndsAt != nil && actionEndTime.After(schedule.EndsAt.In(loc)) {
+			actionEndTime = schedule.EndsAt.In(loc)
+		}
+
+		// Возвращаем время, когда действие изменится на противоположное
+		return actionEndTime, s.getOppositeAction(schedule.Action)
+	}
+
+	// Для расписания без продолжительности возвращаем время следующего срабатывания
+	return nextCronTime, schedule.Action
+}
+
+// getOppositeAction возвращает противоположное действие
+func (s *Service) getOppositeAction(action domain.FeatureScheduleAction) domain.FeatureScheduleAction {
+	switch action {
+	case domain.FeatureScheduleActionEnable:
+		return domain.FeatureScheduleActionDisable
+	case domain.FeatureScheduleActionDisable:
+		return domain.FeatureScheduleActionEnable
+	default:
+		return action
+	}
+}
+
 func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
 	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID)
 	if err != nil {
