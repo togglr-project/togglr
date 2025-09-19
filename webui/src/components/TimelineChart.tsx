@@ -85,51 +85,26 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
           // Set the initial state based on the first event
           currentState = event.enabled;
           segmentStart = eventTime;
-          
-          // Create a segment from the first event to the next event (or end)
-          // This handles the case where the first event is at the beginning
-          if (i === sortedEvents.length - 1) {
-            // This is the only event, create segment from this event to the end
-            segments.push({
-              start: eventTime,
-              end: toTime,
-              enabled: currentState
-            });
-          } else {
-            // There are more events, create segment from this event to the next event
-            const nextEvent = sortedEvents[i + 1];
-            const nextEventTime = new Date(nextEvent.time).getTime();
-            segments.push({
-              start: eventTime,
-              end: nextEventTime,
-              enabled: currentState
-            });
-          }
         } else {
-          // For subsequent events, if state changed, close previous segment and start new one
-          if (event.enabled !== currentState) {
-            segments.push({
-              start: segmentStart,
-              end: eventTime,
-              enabled: currentState
-            });
-            currentState = event.enabled;
-            segmentStart = eventTime;
-          }
+          // For subsequent events, always close previous segment and start new one
+          segments.push({
+            start: segmentStart,
+            end: eventTime,
+            enabled: currentState
+          });
+          currentState = event.enabled;
+          segmentStart = eventTime;
         }
       }
 
-      // Only add final segment if we haven't already created one for the last event
+      // Always add final segment from the last event to the end
       if (sortedEvents.length > 0) {
         const lastEventTime = new Date(sortedEvents[sortedEvents.length - 1].time).getTime();
-        // Only add if the last event is not at the end
-        if (lastEventTime < toTime) {
-          segments.push({
-            start: lastEventTime,
-            end: toTime,
-            enabled: currentState
-          });
-        }
+        segments.push({
+          start: lastEventTime,
+          end: toTime,
+          enabled: currentState
+        });
       } else {
         // If no events, create a single disabled segment for the entire range
         segments.push({
