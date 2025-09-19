@@ -868,6 +868,8 @@ type GetFeatureTimelineParams struct {
 	From time.Time
 	// End of the period (exclusive).
 	To time.Time
+	// Browser's location string.
+	Location string
 }
 
 func unpackGetFeatureTimelineParams(packed middleware.Parameters) (params GetFeatureTimelineParams) {
@@ -891,6 +893,13 @@ func unpackGetFeatureTimelineParams(packed middleware.Parameters) (params GetFea
 			In:   "query",
 		}
 		params.To = packed[key].(time.Time)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "location",
+			In:   "query",
+		}
+		params.Location = packed[key].(string)
 	}
 	return params
 }
@@ -1010,6 +1019,42 @@ func decodeGetFeatureTimelineParams(args [1]string, argsEscaped bool, r *http.Re
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "to",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: location.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "location",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.Location = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "location",
 			In:   "query",
 			Err:  err,
 		}

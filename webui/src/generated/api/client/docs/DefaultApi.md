@@ -1362,11 +1362,13 @@ const apiInstance = new DefaultApi(configuration);
 let featureId: string; // (default to undefined)
 let from: string; //Start of the period (inclusive) (default to undefined)
 let to: string; //End of the period (exclusive) (default to undefined)
+let location: string; //Browser\'s location string (default to undefined)
 
 const { status, data } = await apiInstance.getFeatureTimeline(
     featureId,
     from,
-    to
+    to,
+    location
 );
 ```
 
@@ -1377,6 +1379,7 @@ const { status, data } = await apiInstance.getFeatureTimeline(
 | **featureId** | [**string**] |  | defaults to undefined|
 | **from** | [**string**] | Start of the period (inclusive) | defaults to undefined|
 | **to** | [**string**] | End of the period (exclusive) | defaults to undefined|
+| **location** | [**string**] | Browser\&#39;s location string | defaults to undefined|
 
 
 ### Return type

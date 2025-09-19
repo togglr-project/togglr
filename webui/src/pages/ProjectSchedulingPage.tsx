@@ -410,7 +410,9 @@ const ProjectSchedulingPage: React.FC = () => {
 
       const timelinePromises = selectedFeatures.map(async (feature) => {
         try {
-          const res = await apiClient.getFeatureTimeline(feature.id, from, to);
+          // Get user's timezone
+          const location = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const res = await apiClient.getFeatureTimeline(feature.id, from, to, location);
           return { featureId: feature.id, events: res.data.events };
         } catch (error) {
           console.error(`Failed to load timeline for feature ${feature.id}:`, error);

@@ -4609,6 +4609,10 @@ func (s *Server) handleGetFeatureTimelineRequest(args [1]string, argsEscaped boo
 					Name: "to",
 					In:   "query",
 				}: params.To,
+				{
+					Name: "location",
+					In:   "query",
+				}: params.Location,
 			},
 			Raw: r,
 		}

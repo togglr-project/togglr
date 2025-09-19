@@ -2715,6 +2715,12 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: location
+          in: query
+          required: true
+          description: Browser's location string
+          schema:
+            type: string
       responses:
         '200':
           description: Feature timeline

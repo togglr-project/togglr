@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -47,7 +48,17 @@ func (r *RestAPI) GetFeatureTimeline(
 	}
 
 	// Build timeline using the feature processor
-	events, err := r.featureProcessor.BuildFeatureTimeline(feature, params.From, params.To)
+	loc := params.From.Location()
+	if locReq, err := time.LoadLocation(params.Location); err == nil {
+		loc = locReq
+	} else {
+		slog.Error("invalid location", "location", loc)
+	}
+
+	from := params.From.In(loc)
+	to := params.To.In(loc)
+
+	events, err := r.featureProcessor.BuildFeatureTimeline(feature, from, to)
 	if err != nil {
 		slog.Error("build feature timeline failed", "error", err)
 		return nil, err

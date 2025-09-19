@@ -1754,16 +1754,19 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {string} featureId 
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
+         * @param {string} location Browser\&#39;s location string
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFeatureTimeline: async (featureId: string, from: string, to: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFeatureTimeline: async (featureId: string, from: string, to: string, location: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'featureId' is not null or undefined
             assertParamExists('getFeatureTimeline', 'featureId', featureId)
             // verify required parameter 'from' is not null or undefined
             assertParamExists('getFeatureTimeline', 'from', from)
             // verify required parameter 'to' is not null or undefined
             assertParamExists('getFeatureTimeline', 'to', to)
+            // verify required parameter 'location' is not null or undefined
+            assertParamExists('getFeatureTimeline', 'location', location)
             const localVarPath = `/api/v1/features/{feature_id}/timeline`
                 .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -1791,6 +1794,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['to'] = (to as any instanceof Date) ?
                     (to as any).toISOString() :
                     to;
+            }
+
+            if (location !== undefined) {
+                localVarQueryParameter['location'] = location;
             }
 
 
@@ -3862,11 +3869,12 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {string} featureId 
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
+         * @param {string} location Browser\&#39;s location string
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFeatureTimeline(featureId: string, from: string, to: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeatureTimeline(featureId, from, to, options);
+        async getFeatureTimeline(featureId: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeatureTimeline(featureId, from, to, location, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeatureTimeline']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4702,11 +4710,12 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {string} featureId 
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
+         * @param {string} location Browser\&#39;s location string
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFeatureTimeline(featureId: string, from: string, to: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
-            return localVarFp.getFeatureTimeline(featureId, from, to, options).then((request) => request(axios, basePath));
+        getFeatureTimeline(featureId: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
+            return localVarFp.getFeatureTimeline(featureId, from, to, location, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5428,11 +5437,12 @@ export class DefaultApi extends BaseAPI {
      * @param {string} featureId 
      * @param {string} from Start of the period (inclusive)
      * @param {string} to End of the period (exclusive)
+     * @param {string} location Browser\&#39;s location string
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getFeatureTimeline(featureId: string, from: string, to: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getFeatureTimeline(featureId, from, to, options).then((request) => request(this.axios, this.basePath));
+    public getFeatureTimeline(featureId: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getFeatureTimeline(featureId, from, to, location, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

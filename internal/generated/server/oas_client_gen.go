@@ -3225,6 +3225,20 @@ func (c *Client) sendGetFeatureTimeline(ctx context.Context, params GetFeatureTi
 			return res, errors.Wrap(err, "encode query")
 		}
 	}
+	{
+		// Encode "location" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "location",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.Location))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	u.RawQuery = q.Values().Encode()
 
 	stage = "EncodeRequest"
