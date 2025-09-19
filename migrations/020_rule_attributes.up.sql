@@ -1,7 +1,7 @@
 CREATE TABLE rule_attributes (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    description TEXT
+    name varchar(50) NOT NULL UNIQUE,
+    description varchar(300)
 );
 
 INSERT INTO rule_attributes (name, description) VALUES

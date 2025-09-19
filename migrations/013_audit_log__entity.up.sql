@@ -1,1 +1,1 @@
-alter table audit_log add column entity text not null default 'unknown';
+alter table audit_log add column entity varchar(50) not null default 'unknown';

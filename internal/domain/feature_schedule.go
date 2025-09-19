@@ -21,6 +21,7 @@ type FeatureSchedule struct {
 	Timezone  string
 	Action    FeatureScheduleAction
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (id FeatureScheduleID) String() string { return string(id) }

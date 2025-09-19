@@ -51,13 +51,13 @@ func (r *Repository) Create(ctx context.Context, s domain.FeatureSchedule) (doma
 		query = `
 INSERT INTO feature_schedules (id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action, created_at`
+RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action, created_at, updated_at`
 		args = []any{s.ID, s.ProjectID, s.FeatureID, starts, ends, cron, s.Timezone, s.Action}
 	} else {
 		query = `
 INSERT INTO feature_schedules (project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action, created_at`
+RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action, created_at, updated_at`
 		args = []any{s.ProjectID, s.FeatureID, starts, ends, cron, s.Timezone, s.Action}
 	}
 
@@ -72,6 +72,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, a
 		&m.Timezone,
 		&m.Action,
 		&m.CreatedAt,
+		&m.UpdatedAt,
 	); err != nil {
 		return domain.FeatureSchedule{}, fmt.Errorf("insert feature_schedule: %w", err)
 	}
@@ -196,7 +197,7 @@ func (r *Repository) Update(ctx context.Context, s domain.FeatureSchedule) (doma
 UPDATE feature_schedules
 SET feature_id = $1, starts_at = $2, ends_at = $3, cron_expr = $4, timezone = $5, action = $6
 WHERE id = $7
-RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action, created_at`
+RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, action, created_at, updated_at`
 
 	var m scheduleModel
 	if err := exec.QueryRow(ctx, query,
@@ -217,6 +218,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, timezone, a
 		&m.Timezone,
 		&m.Action,
 		&m.CreatedAt,
+		&m.UpdatedAt,
 	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.FeatureSchedule{}, domain.ErrEntityNotFound

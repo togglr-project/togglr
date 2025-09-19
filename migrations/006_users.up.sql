@@ -16,3 +16,7 @@ create table users
     is_external         boolean                  default false             not null,
     license_accepted    boolean                  default false             not null
 );
+
+create trigger trg_users_set_updated_at
+    before update on users
+    for each row execute function set_updated_at();

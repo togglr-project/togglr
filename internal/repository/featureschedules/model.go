@@ -17,6 +17,7 @@ type scheduleModel struct {
 	Timezone  string         `db:"timezone"`
 	Action    string         `db:"action"`
 	CreatedAt time.Time      `db:"created_at"`
+	UpdatedAt time.Time      `db:"updated_at"`
 }
 
 func (m *scheduleModel) toDomain() domain.FeatureSchedule {
@@ -46,5 +47,6 @@ func (m *scheduleModel) toDomain() domain.FeatureSchedule {
 		Timezone:  m.Timezone,
 		Action:    domain.FeatureScheduleAction(m.Action),
 		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
 	}
 }
