@@ -24,7 +24,15 @@ func New(
 func (s *Service) Create(ctx context.Context, sch domain.FeatureSchedule) (domain.FeatureSchedule, error) {
 	var created domain.FeatureSchedule
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		var err error
+		// Check if feature already has a schedule
+		existingSchedules, err := s.repo.ListByFeatureID(ctx, sch.FeatureID)
+		if err != nil {
+			return fmt.Errorf("check existing schedules: %w", err)
+		}
+		if len(existingSchedules) > 0 {
+			return fmt.Errorf("feature already has a schedule, only one schedule per feature is allowed")
+		}
+
 		created, err = s.repo.Create(ctx, sch)
 		if err != nil {
 			return fmt.Errorf("create feature_schedule: %w", err)

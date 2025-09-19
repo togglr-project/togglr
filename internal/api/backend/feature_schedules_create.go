@@ -61,6 +61,7 @@ func (r *RestAPI) CreateFeatureSchedule(
 	created, err := r.featureSchedulesUseCase.Create(ctx, sch)
 	if err != nil {
 		slog.Error("create feature schedule failed", "error", err)
+
 		return nil, err
 	}
 

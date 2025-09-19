@@ -543,9 +543,19 @@ const ProjectSchedulingPage: React.FC = () => {
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>
-              <Button variant="contained" startIcon={<AddIcon />} onClick={(e) => { e.stopPropagation(); openCreate(f); }}>
-                Add schedule
-              </Button>
+              {(!schedulesByFeature[f.id] || schedulesByFeature[f.id].length === 0) ? (
+                <Button variant="contained" startIcon={<AddIcon />} onClick={(e) => { e.stopPropagation(); openCreate(f); }}>
+                  Add schedule
+                </Button>
+              ) : (
+                <Chip 
+                  size="small" 
+                  label="Schedule exists" 
+                  color="success" 
+                  variant="outlined"
+                  icon={<ScheduleIcon />}
+                />
+              )}
             </Box>
           </AccordionSummary>
           <AccordionDetails>
