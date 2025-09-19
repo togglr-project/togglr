@@ -11,7 +11,7 @@ import (
 
 const cronMaxIters = 11_000
 
-func BuildFeatureTimeline(
+func (s *Service) BuildFeatureTimeline(
 	feature domain.FeatureExtended,
 	from time.Time,
 	to time.Time,
@@ -26,6 +26,7 @@ func BuildFeatureTimeline(
 				Enabled: true,
 			})
 		}
+
 		return events, nil
 	}
 

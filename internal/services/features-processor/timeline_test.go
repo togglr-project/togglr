@@ -106,7 +106,8 @@ func TestBuildFeatureTimeline(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := BuildFeatureTimeline(tt.feature, tt.from, tt.to)
+			svc := New(nil, nil, nil, 0)
+			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err)
 			assert.Equal(t, len(tt.wantTimes), len(got), "unexpected number of events")
 

@@ -1,6 +1,8 @@
 package contract
 
 import (
+	"time"
+
 	"github.com/rom8726/etoggle/internal/domain"
 )
 
@@ -11,4 +13,9 @@ type FeatureProcessor interface {
 		reqCtx map[domain.RuleAttribute]any,
 	) (value string, enabled bool, found bool)
 	IsFeatureActive(feature domain.FeatureExtended) bool
+	BuildFeatureTimeline(
+		feature domain.FeatureExtended,
+		from time.Time,
+		to time.Time,
+	) ([]domain.TimelineEvent, error)
 }
