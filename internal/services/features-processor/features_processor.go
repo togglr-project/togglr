@@ -403,6 +403,11 @@ func EvaluateExpression(expr domain.BooleanExpression, reqCtx map[domain.RuleAtt
 }
 
 func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
+	if len(feature.Schedules) == 0 {
+		return feature.Enabled
+	}
+
+	// Если расписания есть — фича полностью управляется ими
 	var chosen *domain.FeatureSchedule
 	for i := range feature.Schedules {
 		schedule := feature.Schedules[i]
@@ -412,10 +417,11 @@ func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 
 				continue
 			}
+			// Приоритет: более новое по CreatedAt
 			if schedule.CreatedAt.After(chosen.CreatedAt) {
 				chosen = &schedule
 			} else if schedule.CreatedAt.Equal(chosen.CreatedAt) {
-				// disable важнее enable
+				// 'disable' важнее 'enable' при одинаковом времени создания
 				if schedule.Action == domain.FeatureScheduleActionDisable &&
 					chosen.Action == domain.FeatureScheduleActionEnable {
 					chosen = &schedule
@@ -424,11 +430,13 @@ func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 		}
 	}
 
+	// Если нашли активное расписание — возвращаем его действие
 	if chosen != nil {
 		return chosen.Action == domain.FeatureScheduleActionEnable
 	}
 
-	return feature.Enabled
+	// Есть расписания, но ни одно не активно сейчас → disable
+	return false
 }
 
 func IsScheduleActive(schedule domain.FeatureSchedule, crons CronsMap, now time.Time) bool {
