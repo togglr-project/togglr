@@ -16,7 +16,18 @@ func (s *Service) BuildFeatureTimeline(
 	from time.Time,
 	to time.Time,
 ) ([]domain.TimelineEvent, error) {
-	var events []domain.TimelineEvent
+	featurePrepared := MakeFeaturePrepared(feature)
+
+	events := []domain.TimelineEvent{
+		{
+			Time:    from,
+			Enabled: IsFeatureActiveNow(featurePrepared, from),
+		},
+		{
+			Time:    to,
+			Enabled: IsFeatureActiveNow(featurePrepared, to),
+		},
+	}
 
 	// 1. Базовое состояние — если нет расписаний, то считаем от created_at
 	if len(feature.Schedules) == 0 {
@@ -55,11 +66,23 @@ func (s *Service) BuildFeatureTimeline(
 				continue
 			}
 
-			cursor := from
+			// Учитываем таймзону расписания
+			loc := from.Location()
+			if sched.Timezone != "" {
+				if tz, err := time.LoadLocation(sched.Timezone); err == nil {
+					loc = tz
+				}
+			}
+
+			// Чтобы включать событие ровно в момент 'from' (from — включительно),
+			// стартуем с на 1нс раньше.
+			cursor := from.In(loc).Add(-time.Nanosecond)
+
 			cnt := 0
-			for cursor.Before(to) {
+			for {
 				next := schedule.Next(cursor)
-				if next.After(to) {
+				// to — исключительно: отбрасываем next >= to
+				if !next.Before(to.In(loc)) {
 					break
 				}
 
