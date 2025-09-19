@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Box, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button, Typography, Switch, Tooltip, FormControlLabel, Collapse, IconButton } from '@mui/material';
-import { WarningAmber, ExpandMore, ExpandLess } from '@mui/icons-material';
+import { WarningAmber, ExpandMore, ExpandLess, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { FeatureExtended, FeatureDetailsResponse, Segment } from '../../generated/api/client';
 import { useAuth } from '../../auth/AuthContext';
 import EditFeatureDialog from './EditFeatureDialog';
+import { getNextStateDescription } from '../../utils/timeUtils';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -203,6 +204,15 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                   <Chip size="small" label={`rollout key: ${featureDetails.feature.rollout_key || '-'}`} />
                 )}
                 <Chip size="small" label={featureDetails.feature.is_active ? 'active' : 'not active'} color={featureDetails.feature.is_active ? 'success' : 'default'} />
+                {featureDetails.feature.next_state !== undefined && featureDetails.feature.next_state_time && (
+                  <Chip 
+                    size="small" 
+                    icon={<ScheduleIcon />}
+                    label={getNextStateDescription(featureDetails.feature.next_state, featureDetails.feature.next_state_time) || 'Scheduled'} 
+                    color={featureDetails.feature.next_state ? 'info' : 'warning'}
+                    variant="outlined"
+                  />
+                )}
               </Box>
             </Box>
 

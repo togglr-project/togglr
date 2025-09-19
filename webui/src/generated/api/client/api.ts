@@ -188,6 +188,14 @@ export interface FeatureExtended {
      * Indicates if the feature is currently active (taking schedules)
      */
     'is_active': boolean;
+    /**
+     * Indicates the next state the feature will transition to based on schedule (null if no schedule)
+     */
+    'next_state'?: boolean;
+    /**
+     * Timestamp when the feature will transition to the next state (null if no schedule)
+     */
+    'next_state_time'?: string;
 }
 
 

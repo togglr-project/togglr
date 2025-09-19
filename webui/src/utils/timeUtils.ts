@@ -64,4 +64,71 @@ export const formatDurationShort = (seconds: number | undefined): string => {
   
   const days = Math.floor(seconds / 86400);
   return `${days}d`;
+};
+
+/**
+ * Formats next state time for display
+ * @param nextStateTime - ISO string timestamp or undefined
+ * @returns formatted time string or null if no time provided
+ */
+export const formatNextStateTime = (nextStateTime: string | undefined): string | null => {
+  if (!nextStateTime) {
+    return null;
+  }
+  
+  try {
+    const date = new Date(nextStateTime);
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    
+    // If the time is in the past, show "Overdue"
+    if (diffMs < 0) {
+      return 'Overdue';
+    }
+    
+    // If it's within the next hour, show relative time
+    if (diffMs < 3600000) { // 1 hour
+      const minutes = Math.floor(diffMs / 60000);
+      if (minutes < 1) {
+        return 'Now';
+      }
+      return `in ${minutes}m`;
+    }
+    
+    // If it's within the next day, show hours
+    if (diffMs < 86400000) { // 24 hours
+      const hours = Math.floor(diffMs / 3600000);
+      const minutes = Math.floor((diffMs % 3600000) / 60000);
+      if (minutes === 0) {
+        return `in ${hours}h`;
+      }
+      return `in ${hours}h ${minutes}m`;
+    }
+    
+    // For longer periods, show date and time
+    return date.toLocaleString();
+  } catch (error) {
+    console.error('Error formatting next state time:', error);
+    return 'Invalid date';
+  }
+};
+
+/**
+ * Gets a human-readable description of the next state
+ * @param nextState - boolean indicating if next state is enabled, or undefined
+ * @param nextStateTime - ISO string timestamp or undefined
+ * @returns description string or null if no next state
+ */
+export const getNextStateDescription = (nextState: boolean | undefined, nextStateTime: string | undefined): string | null => {
+  if (nextState === undefined || !nextStateTime) {
+    return null;
+  }
+  
+  const timeStr = formatNextStateTime(nextStateTime);
+  if (!timeStr) {
+    return null;
+  }
+  
+  const action = nextState ? 'enable' : 'disable';
+  return `Will ${action} ${timeStr}`;
 }; 

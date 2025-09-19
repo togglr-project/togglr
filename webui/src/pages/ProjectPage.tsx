@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Stack, Pagination } from '@mui/material';
-import { Add as AddIcon, Flag as FlagIcon } from '@mui/icons-material';
+import { Add as AddIcon, Flag as FlagIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
@@ -10,6 +10,7 @@ import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProject
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
 import { useAuth } from '../auth/AuthContext';
+import { getNextStateDescription } from '../utils/timeUtils';
 
 interface ProjectResponse { project: Project }
 
@@ -229,6 +230,15 @@ const ProjectPage: React.FC = () => {
                         <Chip size="small" label={`kind: ${f.kind}`} />
                         <Chip size="small" label={`default: ${f.default_variant}`} />
                         <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
+                        {f.next_state !== undefined && f.next_state_time && (
+                          <Chip 
+                            size="small" 
+                            icon={<ScheduleIcon />}
+                            label={getNextStateDescription(f.next_state, f.next_state_time) || 'Scheduled'} 
+                            color={f.next_state ? 'info' : 'warning'}
+                            variant="outlined"
+                          />
+                        )}
                       </Box>
                     </Box>
                     {canToggleFeature ? (
