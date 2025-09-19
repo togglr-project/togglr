@@ -2691,6 +2691,76 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/features/{feature_id}/timeline:
+    get:
+      summary: Get feature timeline within period
+      operationId: GetFeatureTimeline
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          description: Start of the period (inclusive)
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          description: End of the period (exclusive)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Feature timeline
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureTimelineResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
   /api/v1/projects/{project_id}/segments:
     get:
       summary: List segments for project
@@ -4050,6 +4120,25 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Rule'
+
+    FeatureTimelineEvent:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+        enabled:
+          type: boolean
+      required: [time, enabled]
+
+    FeatureTimelineResponse:
+      type: object
+      properties:
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureTimelineEvent'
+      required: [events]
 
     # ---- Segments ----
     Segment:

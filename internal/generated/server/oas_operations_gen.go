@@ -29,6 +29,7 @@ const (
 	GetCurrentUserOperation              OperationName = "GetCurrentUser"
 	GetFeatureOperation                  OperationName = "GetFeature"
 	GetFeatureScheduleOperation          OperationName = "GetFeatureSchedule"
+	GetFeatureTimelineOperation          OperationName = "GetFeatureTimeline"
 	GetLDAPConfigOperation               OperationName = "GetLDAPConfig"
 	GetLDAPStatisticsOperation           OperationName = "GetLDAPStatistics"
 	GetLDAPSyncLogDetailsOperation       OperationName = "GetLDAPSyncLogDetails"

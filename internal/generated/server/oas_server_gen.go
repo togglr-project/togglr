@@ -150,6 +150,12 @@ type Handler interface {
 	//
 	// GET /api/v1/feature-schedules/{schedule_id}
 	GetFeatureSchedule(ctx context.Context, params GetFeatureScheduleParams) (GetFeatureScheduleRes, error)
+	// GetFeatureTimeline implements GetFeatureTimeline operation.
+	//
+	// Get feature timeline within period.
+	//
+	// GET /api/v1/features/{feature_id}/timeline
+	GetFeatureTimeline(ctx context.Context, params GetFeatureTimelineParams) (GetFeatureTimelineRes, error)
 	// GetLDAPConfig implements GetLDAPConfig operation.
 	//
 	// Get LDAP configuration.

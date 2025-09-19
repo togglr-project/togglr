@@ -484,26 +484,62 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								return
 							}
 
-						case 't': // Prefix: "toggle"
+						case 't': // Prefix: "t"
 
-							if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
+							if l := len("t"); len(elem) >= l && elem[0:l] == "t" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "PUT":
-									s.handleToggleFeatureRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "PUT")
+								break
+							}
+							switch elem[0] {
+							case 'i': // Prefix: "imeline"
+
+								if l := len("imeline"); len(elem) >= l && elem[0:l] == "imeline" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleGetFeatureTimelineRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+
+							case 'o': // Prefix: "oggle"
+
+								if l := len("oggle"); len(elem) >= l && elem[0:l] == "oggle" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "PUT":
+										s.handleToggleFeatureRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "PUT")
+									}
+
+									return
+								}
+
 							}
 
 						case 'v': // Prefix: "variants"
@@ -2110,28 +2146,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								}
 							}
 
-						case 't': // Prefix: "toggle"
+						case 't': // Prefix: "t"
 
-							if l := len("toggle"); len(elem) >= l && elem[0:l] == "toggle" {
+							if l := len("t"); len(elem) >= l && elem[0:l] == "t" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "PUT":
-									r.name = ToggleFeatureOperation
-									r.summary = "Toggle feature enabled state"
-									r.operationID = "ToggleFeature"
-									r.pathPattern = "/api/v1/features/{feature_id}/toggle"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'i': // Prefix: "imeline"
+
+								if l := len("imeline"); len(elem) >= l && elem[0:l] == "imeline" {
+									elem = elem[l:]
+								} else {
+									break
 								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = GetFeatureTimelineOperation
+										r.summary = "Get feature timeline within period"
+										r.operationID = "GetFeatureTimeline"
+										r.pathPattern = "/api/v1/features/{feature_id}/timeline"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'o': // Prefix: "oggle"
+
+								if l := len("oggle"); len(elem) >= l && elem[0:l] == "oggle" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "PUT":
+										r.name = ToggleFeatureOperation
+										r.summary = "Toggle feature enabled state"
+										r.operationID = "ToggleFeature"
+										r.pathPattern = "/api/v1/features/{feature_id}/toggle"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
 							}
 
 						case 'v': // Prefix: "variants"

@@ -224,6 +224,15 @@ func (UnimplementedHandler) GetFeatureSchedule(ctx context.Context, params GetFe
 	return r, ht.ErrNotImplemented
 }
 
+// GetFeatureTimeline implements GetFeatureTimeline operation.
+//
+// Get feature timeline within period.
+//
+// GET /api/v1/features/{feature_id}/timeline
+func (UnimplementedHandler) GetFeatureTimeline(ctx context.Context, params GetFeatureTimelineParams) (r GetFeatureTimelineRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetLDAPConfig implements GetLDAPConfig operation.
 //
 // Get LDAP configuration.

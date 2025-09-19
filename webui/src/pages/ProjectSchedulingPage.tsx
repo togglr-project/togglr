@@ -37,8 +37,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
+import TimelineChart from '../components/TimelineChart';
 import apiClient from '../api/apiClient';
-import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
+import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
@@ -103,6 +104,16 @@ const fromDatetimeLocalInZoneToISO = (val?: string, tz?: string): string | undef
 
 
 const allTimezones = listTimeZones();
+
+// Helper function to format date for datetime-local input
+const formatLocalDateTime = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
 
 const ScheduleDialog: React.FC<{
   open: boolean;
@@ -172,7 +183,7 @@ const ScheduleDialog: React.FC<{
                 error={Boolean(tzError)}
                 helperText={tzError || 'Choose IANA timezone'}
               >
-                {allTimezones.map(tz => (
+                {allTimezones.map((tz: string) => (
                   <MenuItem key={tz} value={tz}>{tz}</MenuItem>
                 ))}
               </TextField>
@@ -314,6 +325,16 @@ const ProjectSchedulingPage: React.FC = () => {
   const features = featuresResp?.items ?? [];
   const pagination = featuresResp?.pagination;
 
+  // Timeline date range state
+  const [timelineFrom, setTimelineFrom] = useState<string>(() => {
+    const now = new Date();
+    return formatLocalDateTime(now);
+  });
+  const [timelineTo, setTimelineTo] = useState<string>(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return formatLocalDateTime(tomorrow);
+  });
 
   const { data: allSchedules, isLoading: loadingSchedules } = useQuery<FeatureSchedule[]>({
     queryKey: ['feature-schedules', projectId],
@@ -323,6 +344,42 @@ const ProjectSchedulingPage: React.FC = () => {
       return (res.data || []).filter((s: FeatureSchedule) => s.project_id === projectId);
     },
     enabled: !!projectId,
+  });
+
+  // Timeline data for selected features
+  const selectedFeatures = useMemo(() => {
+    return features || [];
+  }, [features]);
+
+  const { data: timelinesData, isLoading: loadingTimelines, error: timelinesError } = useQuery<Record<string, FeatureTimelineEvent[]>>({
+    queryKey: ['feature-timelines', projectId, selectedFeatures.map(f => f.id), timelineFrom, timelineTo],
+    queryFn: async () => {
+      if (selectedFeatures.length === 0) return {};
+
+      // Convert local datetime to ISO string for API
+      const from = new Date(timelineFrom).toISOString();
+      const to = new Date(timelineTo).toISOString();
+
+      const timelinePromises = selectedFeatures.map(async (feature) => {
+        try {
+          const res = await apiClient.getFeatureTimeline(feature.id, from, to);
+          return { featureId: feature.id, events: res.data.events };
+        } catch (error) {
+          console.error(`Failed to load timeline for feature ${feature.id}:`, error);
+          return { featureId: feature.id, events: [] };
+        }
+      });
+
+      const results = await Promise.all(timelinePromises);
+      
+      const timelines: Record<string, FeatureTimelineEvent[]> = {};
+      results.forEach(({ featureId, events }) => {
+        timelines[featureId] = events;
+      });
+
+      return timelines;
+    },
+    enabled: !!projectId && selectedFeatures.length > 0
   });
 
   const schedulesByFeature = useMemo(() => {
@@ -596,6 +653,10 @@ const ProjectSchedulingPage: React.FC = () => {
               label={`Features without schedules (${featuresWithoutSchedules.length})`} 
               sx={{ textTransform: 'none' }}
             />
+            <Tab 
+              label={`Timeline (${selectedFeatures.length})`} 
+              sx={{ textTransform: 'none' }}
+            />
           </Tabs>
           
           {activeTab === 0 && (
@@ -619,6 +680,65 @@ const ProjectSchedulingPage: React.FC = () => {
                   All features have schedules! Great job organizing your feature schedules.
                 </Typography>
               )}
+            </Box>
+          )}
+
+          {activeTab === 2 && (
+            <Box>
+              {/* Date range selector for timeline */}
+              <Paper sx={{ p: 2, mb: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Timeline Settings
+                </Typography>
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+                  <TextField
+                    label="From"
+                    type="datetime-local"
+                    size="small"
+                    value={timelineFrom}
+                    onChange={(e) => setTimelineFrom(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ minWidth: 200 }}
+                  />
+                  <TextField
+                    label="To"
+                    type="datetime-local"
+                    size="small"
+                    value={timelineTo}
+                    onChange={(e) => setTimelineTo(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{ minWidth: 200 }}
+                  />
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      const now = new Date();
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      
+                      setTimelineFrom(formatLocalDateTime(now));
+                      setTimelineTo(formatLocalDateTime(tomorrow));
+                    }}
+                    sx={{ alignSelf: 'flex-start' }}
+                  >
+                    Reset to Now + 1 Day
+                  </Button>
+                </Stack>
+                <Typography variant="body2" color="text.secondary">
+                  Select the time range to view feature timelines. Data will be loaded for all selected features.
+                  <br />
+                  <strong>Timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                </Typography>
+              </Paper>
+
+              <TimelineChart
+                features={selectedFeatures}
+                timelines={timelinesData || {}}
+                isLoading={loadingTimelines}
+                error={timelinesError?.message}
+                from={timelineFrom}
+                to={timelineTo}
+              />
             </Box>
           )}
 

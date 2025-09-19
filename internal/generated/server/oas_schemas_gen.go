@@ -811,6 +811,7 @@ func (*ErrorBadRequest) deleteRuleAttributeRes()      {}
 func (*ErrorBadRequest) deleteUserRes()               {}
 func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
+func (*ErrorBadRequest) getFeatureTimelineRes()       {}
 func (*ErrorBadRequest) reset2FARes()                 {}
 func (*ErrorBadRequest) resetPasswordRes()            {}
 func (*ErrorBadRequest) sSOCallbackRes()              {}
@@ -891,6 +892,7 @@ func (*ErrorInternalServerError) forgotPasswordRes()              {}
 func (*ErrorInternalServerError) getCurrentUserRes()              {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
+func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
 func (*ErrorInternalServerError) getLicenseStatusRes()            {}
 func (*ErrorInternalServerError) getProductInfoRes()              {}
 func (*ErrorInternalServerError) getProjectRes()                  {}
@@ -999,6 +1001,7 @@ func (*ErrorNotFound) deleteSegmentRes()               {}
 func (*ErrorNotFound) deleteUserRes()                  {}
 func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
+func (*ErrorNotFound) getFeatureTimelineRes()          {}
 func (*ErrorNotFound) getProjectRes()                  {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
@@ -1066,6 +1069,7 @@ func (*ErrorPermissionDenied) deleteUserRes()                  {}
 func (*ErrorPermissionDenied) forgotPasswordRes()              {}
 func (*ErrorPermissionDenied) getFeatureRes()                  {}
 func (*ErrorPermissionDenied) getFeatureScheduleRes()          {}
+func (*ErrorPermissionDenied) getFeatureTimelineRes()          {}
 func (*ErrorPermissionDenied) getLDAPConfigRes()               {}
 func (*ErrorPermissionDenied) getLDAPStatisticsRes()           {}
 func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes()       {}
@@ -1208,6 +1212,7 @@ func (*ErrorUnauthorized) disable2FARes()                  {}
 func (*ErrorUnauthorized) getCurrentUserRes()              {}
 func (*ErrorUnauthorized) getFeatureRes()                  {}
 func (*ErrorUnauthorized) getFeatureScheduleRes()          {}
+func (*ErrorUnauthorized) getFeatureTimelineRes()          {}
 func (*ErrorUnauthorized) getLDAPConfigRes()               {}
 func (*ErrorUnauthorized) getLDAPStatisticsRes()           {}
 func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()       {}
@@ -1790,6 +1795,49 @@ func (s *FeatureScheduleResponse) SetSchedule(val FeatureSchedule) {
 func (*FeatureScheduleResponse) createFeatureScheduleRes() {}
 func (*FeatureScheduleResponse) getFeatureScheduleRes()    {}
 func (*FeatureScheduleResponse) updateFeatureScheduleRes() {}
+
+// Ref: #/components/schemas/FeatureTimelineEvent
+type FeatureTimelineEvent struct {
+	Time    time.Time `json:"time"`
+	Enabled bool      `json:"enabled"`
+}
+
+// GetTime returns the value of Time.
+func (s *FeatureTimelineEvent) GetTime() time.Time {
+	return s.Time
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *FeatureTimelineEvent) GetEnabled() bool {
+	return s.Enabled
+}
+
+// SetTime sets the value of Time.
+func (s *FeatureTimelineEvent) SetTime(val time.Time) {
+	s.Time = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *FeatureTimelineEvent) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// Ref: #/components/schemas/FeatureTimelineResponse
+type FeatureTimelineResponse struct {
+	Events []FeatureTimelineEvent `json:"events"`
+}
+
+// GetEvents returns the value of Events.
+func (s *FeatureTimelineResponse) GetEvents() []FeatureTimelineEvent {
+	return s.Events
+}
+
+// SetEvents sets the value of Events.
+func (s *FeatureTimelineResponse) SetEvents(val []FeatureTimelineEvent) {
+	s.Events = val
+}
+
+func (*FeatureTimelineResponse) getFeatureTimelineRes() {}
 
 // Ref: #/components/schemas/FlagVariant
 type FlagVariant struct {

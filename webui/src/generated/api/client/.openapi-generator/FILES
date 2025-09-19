@@ -37,6 +37,8 @@ docs/FeatureResponse.md
 docs/FeatureSchedule.md
 docs/FeatureScheduleAction.md
 docs/FeatureScheduleResponse.md
+docs/FeatureTimelineEvent.md
+docs/FeatureTimelineResponse.md
 docs/FlagVariant.md
 docs/FlagVariantResponse.md
 docs/ForgotPasswordRequest.md

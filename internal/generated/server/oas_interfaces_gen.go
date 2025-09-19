@@ -93,6 +93,10 @@ type GetFeatureScheduleRes interface {
 	getFeatureScheduleRes()
 }
 
+type GetFeatureTimelineRes interface {
+	getFeatureTimelineRes()
+}
+
 type GetLDAPConfigRes interface {
 	getLDAPConfigRes()
 }

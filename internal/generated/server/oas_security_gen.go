@@ -55,6 +55,7 @@ var operationRolesBearerAuth = map[string][]string{
 	GetCurrentUserOperation:              []string{},
 	GetFeatureOperation:                  []string{},
 	GetFeatureScheduleOperation:          []string{},
+	GetFeatureTimelineOperation:          []string{},
 	GetLDAPConfigOperation:               []string{},
 	GetLDAPStatisticsOperation:           []string{},
 	GetLDAPSyncLogDetailsOperation:       []string{},
