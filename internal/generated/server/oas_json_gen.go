@@ -3723,9 +3723,21 @@ func (s *FeatureExtended) encodeFields(e *jx.Encoder) {
 		e.FieldStart("is_active")
 		e.Bool(s.IsActive)
 	}
+	{
+		if s.NextState.Set {
+			e.FieldStart("next_state")
+			s.NextState.Encode(e)
+		}
+	}
+	{
+		if s.NextStateTime.Set {
+			e.FieldStart("next_state_time")
+			s.NextStateTime.Encode(e, json.EncodeDateTime)
+		}
+	}
 }
 
-var jsonFieldsNameOfFeatureExtended = [12]string{
+var jsonFieldsNameOfFeatureExtended = [14]string{
 	0:  "id",
 	1:  "project_id",
 	2:  "key",
@@ -3738,6 +3750,8 @@ var jsonFieldsNameOfFeatureExtended = [12]string{
 	9:  "created_at",
 	10: "updated_at",
 	11: "is_active",
+	12: "next_state",
+	13: "next_state_time",
 }
 
 // Decode decodes FeatureExtended from json.
@@ -3886,6 +3900,26 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"is_active\"")
+			}
+		case "next_state":
+			if err := func() error {
+				s.NextState.Reset()
+				if err := s.NextState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_state\"")
+			}
+		case "next_state_time":
+			if err := func() error {
+				s.NextStateTime.Reset()
+				if err := s.NextStateTime.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_state_time\"")
 			}
 		default:
 			return d.Skip()
@@ -8799,6 +8833,57 @@ func (s OptLicenseType) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptLicenseType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes bool as json.
+func (o OptNilBool) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	if o.Null {
+		e.Null()
+		return
+	}
+	e.Bool(bool(o.Value))
+}
+
+// Decode decodes bool from json.
+func (o *OptNilBool) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptNilBool to nil")
+	}
+	if d.Next() == jx.Null {
+		if err := d.Null(); err != nil {
+			return err
+		}
+
+		var v bool
+		o.Value = v
+		o.Set = true
+		o.Null = true
+		return nil
+	}
+	o.Set = true
+	o.Null = false
+	v, err := d.Bool()
+	if err != nil {
+		return err
+	}
+	o.Value = bool(v)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptNilBool) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptNilBool) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

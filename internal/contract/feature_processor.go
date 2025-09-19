@@ -13,6 +13,7 @@ type FeatureProcessor interface {
 		reqCtx map[domain.RuleAttribute]any,
 	) (value string, enabled bool, found bool)
 	IsFeatureActive(feature domain.FeatureExtended) bool
+	NextState(feature domain.FeatureExtended) (enabled bool, timestamp time.Time)
 	BuildFeatureTimeline(
 		feature domain.FeatureExtended,
 		from time.Time,

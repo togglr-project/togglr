@@ -75,6 +75,16 @@ func (r *RestAPI) ListProjectFeatures(
 
 	itemsResp := make([]generatedapi.FeatureExtended, 0, len(items))
 	for _, it := range items {
+		// Get next state information
+		nextStateEnabled, nextStateTime := r.featureProcessor.NextState(it)
+
+		var nextState generatedapi.OptNilBool
+		var nextStateTimeOpt generatedapi.OptNilDateTime
+		if !nextStateTime.IsZero() {
+			nextState = generatedapi.NewOptNilBool(nextStateEnabled)
+			nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)
+		}
+
 		itemsResp = append(itemsResp, generatedapi.FeatureExtended{
 			ID:             it.ID.String(),
 			ProjectID:      it.ProjectID.String(),
@@ -88,6 +98,8 @@ func (r *RestAPI) ListProjectFeatures(
 			CreatedAt:      it.CreatedAt,
 			UpdatedAt:      it.UpdatedAt,
 			IsActive:       r.featureProcessor.IsFeatureActive(it),
+			NextState:      nextState,
+			NextStateTime:  nextStateTimeOpt,
 		})
 	}
 

@@ -142,6 +142,16 @@ func (r *RestAPI) UpdateFeature(
 		})
 	}
 
+	// Get next state information
+	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(updated)
+
+	var nextState generatedapi.OptNilBool
+	var nextStateTimeOpt generatedapi.OptNilDateTime
+	if !nextStateTime.IsZero() {
+		nextState = generatedapi.NewOptNilBool(nextStateEnabled)
+		nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)
+	}
+
 	resp := &generatedapi.FeatureDetailsResponse{
 		Feature: generatedapi.FeatureExtended{
 			ID:             updated.ID.String(),
@@ -155,6 +165,8 @@ func (r *RestAPI) UpdateFeature(
 			CreatedAt:      updated.CreatedAt,
 			UpdatedAt:      updated.UpdatedAt,
 			IsActive:       r.featureProcessor.IsFeatureActive(updated),
+			NextState:      nextState,
+			NextStateTime:  nextStateTimeOpt,
 		},
 		Variants: respVariants,
 		Rules:    respRules,

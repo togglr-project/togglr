@@ -219,3 +219,203 @@ func (_c *MockPermissionsService_GetAccessibleProjects_Call) RunAndReturn(run fu
 	_c.Call.Return(run)
 	return _c
 }
+
+// GetMyProjectPermissions provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) GetMyProjectPermissions(ctx context.Context) (map[domain.ProjectID][]domain.PermKey, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMyProjectPermissions")
+	}
+
+	var r0 map[domain.ProjectID][]domain.PermKey
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (map[domain.ProjectID][]domain.PermKey, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) map[domain.ProjectID][]domain.PermKey); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[domain.ProjectID][]domain.PermKey)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsService_GetMyProjectPermissions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMyProjectPermissions'
+type MockPermissionsService_GetMyProjectPermissions_Call struct {
+	*mock.Call
+}
+
+// GetMyProjectPermissions is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockPermissionsService_Expecter) GetMyProjectPermissions(ctx interface{}) *MockPermissionsService_GetMyProjectPermissions_Call {
+	return &MockPermissionsService_GetMyProjectPermissions_Call{Call: _e.mock.On("GetMyProjectPermissions", ctx)}
+}
+
+func (_c *MockPermissionsService_GetMyProjectPermissions_Call) Run(run func(ctx context.Context)) *MockPermissionsService_GetMyProjectPermissions_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_GetMyProjectPermissions_Call) Return(projectIDToPermKeys map[domain.ProjectID][]domain.PermKey, err error) *MockPermissionsService_GetMyProjectPermissions_Call {
+	_c.Call.Return(projectIDToPermKeys, err)
+	return _c
+}
+
+func (_c *MockPermissionsService_GetMyProjectPermissions_Call) RunAndReturn(run func(ctx context.Context) (map[domain.ProjectID][]domain.PermKey, error)) *MockPermissionsService_GetMyProjectPermissions_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// HasGlobalPermission provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) HasGlobalPermission(ctx context.Context, permKey domain.PermKey) (bool, error) {
+	ret := _mock.Called(ctx, permKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HasGlobalPermission")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.PermKey) (bool, error)); ok {
+		return returnFunc(ctx, permKey)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.PermKey) bool); ok {
+		r0 = returnFunc(ctx, permKey)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.PermKey) error); ok {
+		r1 = returnFunc(ctx, permKey)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsService_HasGlobalPermission_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasGlobalPermission'
+type MockPermissionsService_HasGlobalPermission_Call struct {
+	*mock.Call
+}
+
+// HasGlobalPermission is a helper method to define mock.On call
+//   - ctx context.Context
+//   - permKey domain.PermKey
+func (_e *MockPermissionsService_Expecter) HasGlobalPermission(ctx interface{}, permKey interface{}) *MockPermissionsService_HasGlobalPermission_Call {
+	return &MockPermissionsService_HasGlobalPermission_Call{Call: _e.mock.On("HasGlobalPermission", ctx, permKey)}
+}
+
+func (_c *MockPermissionsService_HasGlobalPermission_Call) Run(run func(ctx context.Context, permKey domain.PermKey)) *MockPermissionsService_HasGlobalPermission_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.PermKey
+		if args[1] != nil {
+			arg1 = args[1].(domain.PermKey)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_HasGlobalPermission_Call) Return(b bool, err error) *MockPermissionsService_HasGlobalPermission_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockPermissionsService_HasGlobalPermission_Call) RunAndReturn(run func(ctx context.Context, permKey domain.PermKey) (bool, error)) *MockPermissionsService_HasGlobalPermission_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// HasProjectPermission provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) HasProjectPermission(ctx context.Context, projectID domain.ProjectID, permKey domain.PermKey) (bool, error) {
+	ret := _mock.Called(ctx, projectID, permKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for HasProjectPermission")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.PermKey) (bool, error)); ok {
+		return returnFunc(ctx, projectID, permKey)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.PermKey) bool); ok {
+		r0 = returnFunc(ctx, projectID, permKey)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.PermKey) error); ok {
+		r1 = returnFunc(ctx, projectID, permKey)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsService_HasProjectPermission_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasProjectPermission'
+type MockPermissionsService_HasProjectPermission_Call struct {
+	*mock.Call
+}
+
+// HasProjectPermission is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - permKey domain.PermKey
+func (_e *MockPermissionsService_Expecter) HasProjectPermission(ctx interface{}, projectID interface{}, permKey interface{}) *MockPermissionsService_HasProjectPermission_Call {
+	return &MockPermissionsService_HasProjectPermission_Call{Call: _e.mock.On("HasProjectPermission", ctx, projectID, permKey)}
+}
+
+func (_c *MockPermissionsService_HasProjectPermission_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, permKey domain.PermKey)) *MockPermissionsService_HasProjectPermission_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.PermKey
+		if args[2] != nil {
+			arg2 = args[2].(domain.PermKey)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_HasProjectPermission_Call) Return(b bool, err error) *MockPermissionsService_HasProjectPermission_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockPermissionsService_HasProjectPermission_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, permKey domain.PermKey) (bool, error)) *MockPermissionsService_HasProjectPermission_Call {
+	_c.Call.Return(run)
+	return _c
+}

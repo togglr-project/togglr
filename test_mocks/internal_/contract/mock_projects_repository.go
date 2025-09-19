@@ -161,6 +161,72 @@ func (_c *MockProjectsRepository_Create_Call) RunAndReturn(run func(ctx context.
 	return _c
 }
 
+// GetByAPIKey provides a mock function for the type MockProjectsRepository
+func (_mock *MockProjectsRepository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
+	ret := _mock.Called(ctx, apiKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByAPIKey")
+	}
+
+	var r0 domain.Project
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.Project, error)); ok {
+		return returnFunc(ctx, apiKey)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.Project); ok {
+		r0 = returnFunc(ctx, apiKey)
+	} else {
+		r0 = ret.Get(0).(domain.Project)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, apiKey)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectsRepository_GetByAPIKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByAPIKey'
+type MockProjectsRepository_GetByAPIKey_Call struct {
+	*mock.Call
+}
+
+// GetByAPIKey is a helper method to define mock.On call
+//   - ctx context.Context
+//   - apiKey string
+func (_e *MockProjectsRepository_Expecter) GetByAPIKey(ctx interface{}, apiKey interface{}) *MockProjectsRepository_GetByAPIKey_Call {
+	return &MockProjectsRepository_GetByAPIKey_Call{Call: _e.mock.On("GetByAPIKey", ctx, apiKey)}
+}
+
+func (_c *MockProjectsRepository_GetByAPIKey_Call) Run(run func(ctx context.Context, apiKey string)) *MockProjectsRepository_GetByAPIKey_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectsRepository_GetByAPIKey_Call) Return(project domain.Project, err error) *MockProjectsRepository_GetByAPIKey_Call {
+	_c.Call.Return(project, err)
+	return _c
+}
+
+func (_c *MockProjectsRepository_GetByAPIKey_Call) RunAndReturn(run func(ctx context.Context, apiKey string) (domain.Project, error)) *MockProjectsRepository_GetByAPIKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByID provides a mock function for the type MockProjectsRepository
 func (_mock *MockProjectsRepository) GetByID(ctx context.Context, id domain.ProjectID) (domain.Project, error) {
 	ret := _mock.Called(ctx, id)

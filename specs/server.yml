@@ -4037,6 +4037,17 @@ components:
               type: boolean
               description: "Indicates if the feature is currently active (taking schedules)"
               example: true
+            next_state:
+              type: boolean
+              nullable: true
+              description: "Indicates the next state the feature will transition to based on schedule (null if no schedule)"
+              example: false
+            next_state_time:
+              type: string
+              format: date-time
+              nullable: true
+              description: "Timestamp when the feature will transition to the next state (null if no schedule)"
+              example: "2025-09-20T14:00:00Z"
           required: [is_active]
 
     CreateFeatureRequest:

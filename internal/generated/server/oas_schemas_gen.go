@@ -1462,6 +1462,10 @@ type FeatureExtended struct {
 	UpdatedAt      time.Time    `json:"updated_at"`
 	// Indicates if the feature is currently active (taking schedules).
 	IsActive bool `json:"is_active"`
+	// Indicates the next state the feature will transition to based on schedule (null if no schedule).
+	NextState OptNilBool `json:"next_state"`
+	// Timestamp when the feature will transition to the next state (null if no schedule).
+	NextStateTime OptNilDateTime `json:"next_state_time"`
 }
 
 // GetID returns the value of ID.
@@ -1524,6 +1528,16 @@ func (s *FeatureExtended) GetIsActive() bool {
 	return s.IsActive
 }
 
+// GetNextState returns the value of NextState.
+func (s *FeatureExtended) GetNextState() OptNilBool {
+	return s.NextState
+}
+
+// GetNextStateTime returns the value of NextStateTime.
+func (s *FeatureExtended) GetNextStateTime() OptNilDateTime {
+	return s.NextStateTime
+}
+
 // SetID sets the value of ID.
 func (s *FeatureExtended) SetID(val string) {
 	s.ID = val
@@ -1582,6 +1596,16 @@ func (s *FeatureExtended) SetUpdatedAt(val time.Time) {
 // SetIsActive sets the value of IsActive.
 func (s *FeatureExtended) SetIsActive(val bool) {
 	s.IsActive = val
+}
+
+// SetNextState sets the value of NextState.
+func (s *FeatureExtended) SetNextState(val OptNilBool) {
+	s.NextState = val
+}
+
+// SetNextStateTime sets the value of NextStateTime.
+func (s *FeatureExtended) SetNextStateTime(val OptNilDateTime) {
+	s.NextStateTime = val
 }
 
 // Ref: #/components/schemas/FeatureKind
@@ -4207,6 +4231,69 @@ func (o OptListProjectSegmentsSortBy) Get() (v ListProjectSegmentsSortBy, ok boo
 
 // Or returns value if set, or given parameter if does not.
 func (o OptListProjectSegmentsSortBy) Or(d ListProjectSegmentsSortBy) ListProjectSegmentsSortBy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilBool returns new OptNilBool with value set to v.
+func NewOptNilBool(v bool) OptNilBool {
+	return OptNilBool{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilBool is optional nullable bool.
+type OptNilBool struct {
+	Value bool
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilBool was set.
+func (o OptNilBool) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilBool) Reset() {
+	var v bool
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilBool) SetTo(v bool) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilBool) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilBool) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v bool
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilBool) Get() (v bool, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilBool) Or(d bool) bool {
 	if v, ok := o.Get(); ok {
 		return v
 	}

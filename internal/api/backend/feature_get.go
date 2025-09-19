@@ -83,6 +83,16 @@ func (r *RestAPI) GetFeature(
 		})
 	}
 
+	// Get next state information
+	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(feature)
+
+	var nextState generatedapi.OptNilBool
+	var nextStateTimeOpt generatedapi.OptNilDateTime
+	if !nextStateTime.IsZero() {
+		nextState = generatedapi.NewOptNilBool(nextStateEnabled)
+		nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)
+	}
+
 	resp := &generatedapi.FeatureDetailsResponse{
 		Feature: generatedapi.FeatureExtended{
 			ID:             feature.ID.String(),
@@ -97,6 +107,8 @@ func (r *RestAPI) GetFeature(
 			CreatedAt:      feature.CreatedAt,
 			UpdatedAt:      feature.UpdatedAt,
 			IsActive:       r.featureProcessor.IsFeatureActive(feature),
+			NextState:      nextState,
+			NextStateTime:  nextStateTimeOpt,
 		},
 		Variants: respVariants,
 		Rules:    respRules,
