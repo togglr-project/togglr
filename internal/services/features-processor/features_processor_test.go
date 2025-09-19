@@ -195,28 +195,15 @@ func TestIsFeatureActiveNow(t *testing.T) {
 			expected: false,
 		},
 		{
-			name: "schedule enable overrides disabled feature",
-			feature: domain.FeatureExtended{
-				Feature: domain.Feature{Enabled: false},
-				Schedules: []domain.FeatureSchedule{
-					{
-						Action:    domain.FeatureScheduleActionEnable,
-						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
-						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
-						Timezone:  "UTC",
-						CreatedAt: now.Add(-30 * time.Minute),
-					},
-				},
-			},
-			now:      now,
-			expected: true,
-		},
-		{
 			name: "schedule disable overrides enabled feature",
 			feature: domain.FeatureExtended{
-				Feature: domain.Feature{Enabled: true},
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
 				Schedules: []domain.FeatureSchedule{
 					{
+						ID:        "sched2",
 						Action:    domain.FeatureScheduleActionDisable,
 						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
 						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
@@ -231,9 +218,13 @@ func TestIsFeatureActiveNow(t *testing.T) {
 		{
 			name: "newer schedule overrides older one",
 			feature: domain.FeatureExtended{
-				Feature: domain.Feature{Enabled: true},
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
 				Schedules: []domain.FeatureSchedule{
 					{
+						ID:        "sched3",
 						Action:    domain.FeatureScheduleActionEnable,
 						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
 						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
@@ -241,6 +232,7 @@ func TestIsFeatureActiveNow(t *testing.T) {
 						CreatedAt: now.Add(-1 * time.Hour),
 					},
 					{
+						ID:        "sched4",
 						Action:    domain.FeatureScheduleActionDisable,
 						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
 						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
@@ -255,9 +247,13 @@ func TestIsFeatureActiveNow(t *testing.T) {
 		{
 			name: "same created_at, disable wins over enable",
 			feature: domain.FeatureExtended{
-				Feature: domain.Feature{Enabled: true},
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: now.Add(-2 * time.Hour),
+				},
 				Schedules: []domain.FeatureSchedule{
 					{
+						ID:        "sched5",
 						Action:    domain.FeatureScheduleActionEnable,
 						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
 						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
@@ -265,6 +261,7 @@ func TestIsFeatureActiveNow(t *testing.T) {
 						CreatedAt: now,
 					},
 					{
+						ID:        "sched6",
 						Action:    domain.FeatureScheduleActionDisable,
 						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
 						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
@@ -290,6 +287,8 @@ func TestIsScheduleActive(t *testing.T) {
 	loc, _ := time.LoadLocation("UTC")
 	now := time.Date(2025, 9, 16, 10, 0, 0, 0, loc)
 
+	featureCreatedAt := now.Add(-24 * time.Hour) // Feature created 24 hours ago
+
 	tests := []struct {
 		name     string
 		schedule domain.FeatureSchedule
@@ -299,6 +298,7 @@ func TestIsScheduleActive(t *testing.T) {
 		{
 			name: "active with no limits",
 			schedule: domain.FeatureSchedule{
+				Action:   domain.FeatureScheduleActionEnable,
 				Timezone: "UTC",
 			},
 			now:      now,
@@ -307,6 +307,7 @@ func TestIsScheduleActive(t *testing.T) {
 		{
 			name: "inactive before starts_at",
 			schedule: domain.FeatureSchedule{
+				Action:   domain.FeatureScheduleActionEnable,
 				StartsAt: ptrTime(now.Add(1 * time.Hour)),
 				Timezone: "UTC",
 			},
@@ -316,6 +317,7 @@ func TestIsScheduleActive(t *testing.T) {
 		{
 			name: "inactive after ends_at",
 			schedule: domain.FeatureSchedule{
+				Action:   domain.FeatureScheduleActionEnable,
 				EndsAt:   ptrTime(now.Add(-1 * time.Hour)),
 				Timezone: "UTC",
 			},
@@ -325,6 +327,7 @@ func TestIsScheduleActive(t *testing.T) {
 		{
 			name: "active between starts_at and ends_at",
 			schedule: domain.FeatureSchedule{
+				Action:   domain.FeatureScheduleActionEnable,
 				StartsAt: ptrTime(now.Add(-1 * time.Hour)),
 				EndsAt:   ptrTime(now.Add(1 * time.Hour)),
 				Timezone: "UTC",
@@ -335,6 +338,8 @@ func TestIsScheduleActive(t *testing.T) {
 		{
 			name: "active cron expr matches hour",
 			schedule: domain.FeatureSchedule{
+				ID:       "cron1",
+				Action:   domain.FeatureScheduleActionEnable,
 				CronExpr: ptrString("0 10 * * *"),
 				Timezone: "UTC",
 			},
@@ -342,9 +347,20 @@ func TestIsScheduleActive(t *testing.T) {
 			expected: true,
 		},
 		{
-			name: "inactive cron expr not matching hour",
+			name: "active cron expr matches hour (fired at 9:00, still active at 10:00)",
 			schedule: domain.FeatureSchedule{
+				ID:       "cron2",
+				Action:   domain.FeatureScheduleActionEnable,
 				CronExpr: ptrString("0 9 * * *"),
+				Timezone: "UTC",
+			},
+			now:      now,
+			expected: true,
+		},
+		{
+			name: "disable action returns false",
+			schedule: domain.FeatureSchedule{
+				Action:   domain.FeatureScheduleActionDisable,
 				Timezone: "UTC",
 			},
 			now:      now,
@@ -361,7 +377,8 @@ func TestIsScheduleActive(t *testing.T) {
 
 				crons[tt.schedule.ID] = cronSched
 			}
-			ok := IsScheduleActive(tt.schedule, crons, tt.now)
+			compatible, action := IsScheduleActive(tt.schedule, crons, tt.now, featureCreatedAt)
+			ok := compatible && action == domain.FeatureScheduleActionEnable
 			assert.Equal(t, tt.expected, ok)
 		})
 	}

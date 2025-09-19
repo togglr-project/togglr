@@ -349,6 +349,37 @@ const ProjectSchedulingPage: React.FC = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     return formatLocalDateTime(tomorrow);
   });
+  const [timelineError, setTimelineError] = useState<string>('');
+
+  // Initialize validation on component mount
+  React.useEffect(() => {
+    setTimelineError(validateTimelineRange(timelineFrom, timelineTo));
+  }, []);
+
+  // Validate timeline date range (max 1 week)
+  const validateTimelineRange = (from: string, to: string): string => {
+    if (!from || !to) return '';
+    
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+    
+    if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+      return 'Invalid date format';
+    }
+    
+    if (fromDate >= toDate) {
+      return 'From date must be before To date';
+    }
+    
+    const diffMs = toDate.getTime() - fromDate.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    
+    if (diffDays > 7) {
+      return 'Maximum time range is 1 week (7 days)';
+    }
+    
+    return '';
+  };
 
   const { data: allSchedules, isLoading: loadingSchedules } = useQuery<FeatureSchedule[]>({
     queryKey: ['feature-schedules', projectId],
@@ -366,9 +397,12 @@ const ProjectSchedulingPage: React.FC = () => {
   }, [features]);
 
   const { data: timelinesData, isLoading: loadingTimelines, error: timelinesError, refetch: refetchTimelines } = useQuery<Record<string, FeatureTimelineEvent[]>>({
-    queryKey: ['feature-timelines', projectId, selectedFeatures.map(f => f.id), timelineFrom, timelineTo],
+    queryKey: ['feature-timelines', projectId, selectedFeatures.map(f => f.id), timelineFrom, timelineTo, timelineError],
     queryFn: async () => {
       if (selectedFeatures.length === 0) return {};
+      
+      // Don't fetch if there's a validation error
+      if (timelineError) return {};
 
       // Convert local datetime to ISO string for API
       const from = new Date(timelineFrom).toISOString();
@@ -729,7 +763,11 @@ const ProjectSchedulingPage: React.FC = () => {
                     type="datetime-local"
                     size="small"
                     value={timelineFrom}
-                    onChange={(e) => setTimelineFrom(e.target.value)}
+                    onChange={(e) => {
+                      const newFrom = e.target.value;
+                      setTimelineFrom(newFrom);
+                      setTimelineError(validateTimelineRange(newFrom, timelineTo));
+                    }}
                     InputLabelProps={{ shrink: true }}
                     sx={{ minWidth: 200 }}
                   />
@@ -738,7 +776,11 @@ const ProjectSchedulingPage: React.FC = () => {
                     type="datetime-local"
                     size="small"
                     value={timelineTo}
-                    onChange={(e) => setTimelineTo(e.target.value)}
+                    onChange={(e) => {
+                      const newTo = e.target.value;
+                      setTimelineTo(newTo);
+                      setTimelineError(validateTimelineRange(timelineFrom, newTo));
+                    }}
                     InputLabelProps={{ shrink: true }}
                     sx={{ minWidth: 200 }}
                   />
@@ -749,16 +791,27 @@ const ProjectSchedulingPage: React.FC = () => {
                       const tomorrow = new Date();
                       tomorrow.setDate(tomorrow.getDate() + 1);
                       
-                      setTimelineFrom(formatLocalDateTime(now));
-                      setTimelineTo(formatLocalDateTime(tomorrow));
+                      const newFrom = formatLocalDateTime(now);
+                      const newTo = formatLocalDateTime(tomorrow);
+                      
+                      setTimelineFrom(newFrom);
+                      setTimelineTo(newTo);
+                      setTimelineError(validateTimelineRange(newFrom, newTo));
                     }}
                     sx={{ alignSelf: 'flex-start' }}
                   >
                     Reset to Now + 1 Day
                   </Button>
                 </Stack>
+                {timelineError && (
+                  <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                    {timelineError}
+                  </Typography>
+                )}
                 <Typography variant="body2" color="text.secondary">
                   Select the time range to view feature timelines. Data will be loaded for all selected features.
+                  <br />
+                  <strong>Maximum range:</strong> 1 week (7 days)
                   <br />
                   <strong>Timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone}
                 </Typography>
