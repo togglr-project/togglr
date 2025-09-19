@@ -241,10 +241,24 @@ const ScheduleDialog: React.FC<{
               return;
             }
           }
+          // Ensure we always use a valid IANA timezone for conversion; fallback to UTC if invalid
+          const safeTz = allTimezones.includes(values.timezone) ? values.timezone : 'UTC';
+
+          // Convert datetime-local strings to ISO in the selected timezone.
+          // If conversion fails but user entered a value, fall back to interpreting it in the browser local TZ.
+          let convertedStarts = fromDatetimeLocalInZoneToISO(values.starts_at, safeTz);
+          let convertedEnds = fromDatetimeLocalInZoneToISO(values.ends_at, safeTz);
+          if (!convertedStarts && values.starts_at) {
+            try { convertedStarts = new Date(values.starts_at).toISOString(); } catch { /* ignore */ }
+          }
+          if (!convertedEnds && values.ends_at) {
+            try { convertedEnds = new Date(values.ends_at).toISOString(); } catch { /* ignore */ }
+          }
+
           const payload: ScheduleFormValues = {
             ...values,
-            starts_at: fromDatetimeLocalInZoneToISO(values.starts_at, values.timezone),
-            ends_at: fromDatetimeLocalInZoneToISO(values.ends_at, values.timezone),
+            starts_at: convertedStarts,
+            ends_at: convertedEnds,
           };
           onSubmit(payload);
         }}>Save</Button>
