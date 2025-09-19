@@ -403,43 +403,56 @@ func EvaluateExpression(expr domain.BooleanExpression, reqCtx map[domain.RuleAtt
 }
 
 func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
+	if !feature.Enabled {
+		return false
+	}
+
 	if len(feature.Schedules) == 0 {
 		return feature.Enabled
 	}
 
 	// Если расписания есть — фича полностью управляется ими
-	var chosen *domain.FeatureSchedule
+	var chosenAction *domain.FeatureScheduleAction
+	var chosenCreatedAt time.Time
 	for i := range feature.Schedules {
 		schedule := feature.Schedules[i]
-		if IsScheduleActive(schedule, feature.crons, now) {
-			if chosen == nil {
-				chosen = &schedule
+		if compatible, action := IsScheduleActive(schedule, feature.crons, now, feature.CreatedAt); compatible {
+			if chosenAction == nil {
+				chosenAction = &action
+				chosenCreatedAt = schedule.CreatedAt
 
 				continue
 			}
+
 			// Приоритет: более новое по CreatedAt
-			if schedule.CreatedAt.After(chosen.CreatedAt) {
-				chosen = &schedule
-			} else if schedule.CreatedAt.Equal(chosen.CreatedAt) {
+			if schedule.CreatedAt.After(chosenCreatedAt) {
+				chosenAction = &action
+				chosenCreatedAt = schedule.CreatedAt
+			} else if schedule.CreatedAt.Equal(chosenCreatedAt) {
 				// 'disable' важнее 'enable' при одинаковом времени создания
 				if schedule.Action == domain.FeatureScheduleActionDisable &&
-					chosen.Action == domain.FeatureScheduleActionEnable {
-					chosen = &schedule
+					*chosenAction == domain.FeatureScheduleActionEnable {
+					chosenAction = &schedule.Action
 				}
 			}
 		}
 	}
 
 	// Если нашли активное расписание — возвращаем его действие
-	if chosen != nil {
-		return chosen.Action == domain.FeatureScheduleActionEnable
+	if chosenAction != nil {
+		return *chosenAction == domain.FeatureScheduleActionEnable
 	}
 
 	// Есть расписания, но ни одно не активно сейчас → disable
 	return false
 }
 
-func IsScheduleActive(schedule domain.FeatureSchedule, crons CronsMap, now time.Time) bool {
+func IsScheduleActive(
+	schedule domain.FeatureSchedule,
+	crons CronsMap,
+	now time.Time,
+	featureCreatedAt time.Time,
+) (compatible bool, action domain.FeatureScheduleAction) {
 	loc, err := time.LoadLocation(schedule.Timezone)
 	if err != nil {
 		slog.Error("error loading timezone", "timezone", schedule.Timezone)
@@ -447,43 +460,86 @@ func IsScheduleActive(schedule domain.FeatureSchedule, crons CronsMap, now time.
 	}
 	now = now.In(loc)
 
-	if schedule.StartsAt != nil && now.Before(*schedule.StartsAt) {
-		return false
+	// Определяем начало работы расписания
+	scheduleStart := featureCreatedAt
+	if schedule.StartsAt != nil {
+		scheduleStart = *schedule.StartsAt
 	}
-	if schedule.EndsAt != nil && now.After(*schedule.EndsAt) {
-		return false
+	scheduleStart = scheduleStart.In(loc)
+
+	// Проверяем, что текущее время не раньше начала расписания
+	if now.Before(scheduleStart) {
+		return false, schedule.Action
 	}
 
+	// Проверяем, что текущее время не позже конца расписания
+	if schedule.EndsAt != nil && now.After(schedule.EndsAt.In(loc)) {
+		return false, schedule.Action
+	}
+
+	// Если нет cron-выражения, расписание активно в своем временном окне
 	if schedule.CronExpr == nil || *schedule.CronExpr == "" {
-		return true
+		return true, schedule.Action
 	}
 
 	sched, ok := crons[schedule.ID]
 	if !ok {
 		slog.Error("error parsing cron expression", "cron expression", *schedule.CronExpr)
 
-		return false
+		return false, schedule.Action
 	}
 
-	// Находим последнее срабатывание cron до текущего времени
-	prev := sched.Next(now.Add(-time.Minute))
-	next := sched.Next(prev)
+	// Эффективный поиск последнего срабатывания cron
+	// Вычисляем шаг cron и находим предыдущее срабатывание
 
-	// Проверяем, находимся ли мы в интервале между срабатываниями
-	if now.Before(prev) || !now.Before(next) {
-		return false
-	}
+	// Получаем следующее срабатывание от текущего времени
+	next1 := sched.Next(now)
+	// Получаем срабатывание после next1 для вычисления шага
+	next2 := sched.Next(next1)
 
-	// Если задана продолжительность для cron, проверяем, не истекла ли она
-	if schedule.CronDuration != nil && *schedule.CronDuration > 0 {
-		// Проверяем, не прошло ли время с момента последнего срабатывания
-		timeSinceLastTrigger := now.Sub(prev)
-		if timeSinceLastTrigger > *schedule.CronDuration {
-			return false
+	// Вычисляем шаг cron (интервал между срабатываниями)
+	step := next2.Sub(next1)
+
+	// Вычисляем время предыдущего срабатывания
+	prev := next1.Add(-step)
+
+	// Проверяем, что предыдущее срабатывание было после начала расписания
+	if prev.Before(scheduleStart) {
+		// Если предыдущее срабатывание до начала расписания,
+		// но next1 после начала, то next1 и есть первое срабатывание
+		if !next1.Before(scheduleStart) {
+			prev = next1
+		} else {
+			// Cron еще не срабатывал в нужном интервале
+			return false, schedule.Action
 		}
 	}
 
-	return true
+	// Проверяем, что мы находимся в интервале между срабатываниями
+	if now.Before(prev) || !now.Before(next1) {
+		return false, schedule.Action
+	}
+
+	// Время последнего срабатывания
+	triggerTime := prev
+
+	// Если задана продолжительность, проверяем, не истекла ли она
+	if schedule.CronDuration != nil && *schedule.CronDuration > 0 {
+		// Проверяем, не прошло ли время с момента последнего срабатывания
+		timeSinceLastTrigger := now.Sub(triggerTime)
+		if timeSinceLastTrigger > *schedule.CronDuration {
+			switch schedule.Action {
+			case domain.FeatureScheduleActionEnable:
+				return true, domain.FeatureScheduleActionDisable
+			case domain.FeatureScheduleActionDisable:
+				return true, domain.FeatureScheduleActionEnable
+			default:
+				return true, schedule.Action
+			}
+		}
+	}
+
+	return true, schedule.Action
 }
 
 func MatchCondition(reqCtx map[domain.RuleAttribute]any, condition domain.Condition) bool {
