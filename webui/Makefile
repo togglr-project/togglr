@@ -59,38 +59,38 @@ docker-build: ## Сборка универсального Docker-образа
 		--build-arg VITE_VERSION=$(FRONTEND_VERSION) \
 		--build-arg VITE_BUILD_TIME=$(FRONTEND_BUILD_TIME) \
 		--build-arg VITE_IS_DEMO=$(VITE_IS_DEMO) \
-		-t etoggle-frontend:latest \
+		-t togglr-frontend:latest \
 		-f ./Dockerfile .
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"FAIL"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
-	@echo ${GREEN}"Universal Docker image 'etoggle-frontend' built successfully!"${NOCOLOR}
-	@echo ${YELLOW}"Note: API URL will be configured at runtime via ETOGGL_API_BASE_URL environment variable"${NOCOLOR}
+	@echo ${GREEN}"Universal Docker image 'togglr-frontend' built successfully!"${NOCOLOR}
+	@echo ${YELLOW}"Note: API URL will be configured at runtime via TOGGLR_API_BASE_URL environment variable"${NOCOLOR}
 
 .PHONY: docker-push
 docker-push: docker-build ## Тегирование и пуш Docker-образа
 	@echo "\nTagging Docker image..."
-	@docker tag etoggle-frontend:latest $(DOCKER_REGISTRY)/etoggle-frontend:latest
+	@docker tag togglr-frontend:latest $(DOCKER_REGISTRY)/togglr-frontend:latest
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"Tagging FAILED"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
 	@echo "\nPushing Docker image to Docker Registry..."
-	@docker push $(DOCKER_REGISTRY)/etoggle-frontend:latest
+	@docker push $(DOCKER_REGISTRY)/togglr-frontend:latest
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"Push FAILED"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
 	@if [ -n "$(VITE_VERSION)" ] && [ "$(VITE_VERSION)" != "latest" ]; then \
 		echo "\nTagging Docker image with version $(VITE_VERSION)..."; \
-		docker tag etoggle-frontend:latest $(DOCKER_REGISTRY)/etoggle-frontend:$(VITE_VERSION); \
+		docker tag togglr-frontend:latest $(DOCKER_REGISTRY)/togglr-frontend:$(VITE_VERSION); \
 		                if [ $$? -ne 0 ] ; then \
                         echo -e ${RED}"Version tagging FAILED"${NOCOLOR} ; \
                         exit 1 ; \
                 fi; \
                 echo "\nPushing Docker image with version $(VITE_VERSION) to Docker Registry..."; \
-                docker push $(DOCKER_REGISTRY)/etoggle-frontend:$(VITE_VERSION); \
+                docker push $(DOCKER_REGISTRY)/togglr-frontend:$(VITE_VERSION); \
                 if [ $$? -ne 0 ] ; then \
                         echo -e ${RED}"Version push FAILED"${NOCOLOR} ; \
 			exit 1 ; \

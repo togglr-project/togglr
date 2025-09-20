@@ -1,8 +1,8 @@
 // Get runtime configuration
 const getConfig = () => {
-  // Try to get from window.ETOGGL_CONFIG first (runtime)
-  if (typeof window !== 'undefined' && window.ETOGGL_CONFIG) {
-    return window.ETOGGL_CONFIG;
+  // Try to get from window.TOGGLR_CONFIG first (runtime)
+  if (typeof window !== 'undefined' && window.TOGGLR_CONFIG) {
+    return window.TOGGLR_CONFIG;
   }
   
   // Fallback to build-time environment variables

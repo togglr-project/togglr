@@ -20,6 +20,7 @@ import {
   Tabs,
   Tab
 } from '@mui/material';
+import { APP_NAME } from '../constants/app';
 import { 
   ArrowBack as ArrowBackIcon,
   Logout as LogoutIcon,
@@ -607,7 +608,7 @@ const Layout: React.FC<LayoutProps> = ({
         >
           <Box sx={{ width: '100%' }}>
             <Typography variant="body2" color="text.secondary" align="center">
-              Toggl © {new Date().getFullYear()}
+              {APP_NAME} © {new Date().getFullYear()}
             </Typography>
           </Box>
         </Box>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, useTheme } from '@mui/material';
 import { useTheme as useAppTheme } from '../theme/ThemeContext';
+import { APP_NAME } from '../constants/app';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
@@ -105,7 +106,7 @@ export const Logo: React.FC<LogoProps> = ({
         </Box>
         {showText && (
           <Box component="span" sx={{ fontSize: fontSize * 0.8 }}>
-            Toggl
+            {APP_NAME}
           </Box>
         )}
       </Box>
@@ -150,7 +151,7 @@ export const Logo: React.FC<LogoProps> = ({
       </Box>
       {showText && (
         <Box component="span">
-          Toggl
+          {APP_NAME}
         </Box>
       )}
     </Box>

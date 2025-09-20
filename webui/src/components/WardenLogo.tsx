@@ -2,6 +2,7 @@ import React from 'react';
 import { Typography, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './WardenLogo.css';
+import { APP_NAME } from '../constants/app';
 
 interface WardenLogoProps {
   variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -39,9 +40,9 @@ const WardenLogo: React.FC<WardenLogoProps> = ({
           height: Math.round(logoSize * 1.22),
           display: 'block'
         }}
-        alt="Toggl Logo"
+        alt="Togglr Logo"
       />
-      Toggl
+      {APP_NAME}
     </Typography>
   );
 
