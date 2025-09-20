@@ -16,7 +16,7 @@ import {
   Select
 } from '@mui/material';
 // @ts-ignore
-import { listTimeZones } from 'timezone-support';
+import { listTimeZones, findTimeZone, getUTCOffset } from 'timezone-support';
 import type { FeatureScheduleAction } from '../generated/api/client';
 
 interface OneShotScheduleData {
@@ -71,10 +71,43 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
     setErrors(validationErrors);
   }, [data, existingSchedules]);
 
+  // Convert datetime-local in selected timezone to ISO string with timezone (RFC3339)
+  const fromDatetimeLocalInZoneToISO = (val?: string, tz?: string): string | undefined => {
+    if (!val) return undefined;
+    try {
+      const [datePart, timePart] = val.split('T');
+      if (!datePart || !timePart) return undefined;
+      const [y, m, d] = datePart.split('-').map((s) => parseInt(s, 10));
+      const [hh, mm] = timePart.split(':').map((s) => parseInt(s, 10));
+      if (!y || !m || !d || isNaN(hh) || isNaN(mm)) return undefined;
+      const tzObj = findTimeZone(tz || 'UTC');
+      const wallAsUTC = new Date(Date.UTC(y, m - 1, d, hh, mm, 0, 0));
+      const offsetMinutes = getUTCOffset(tzObj, wallAsUTC);
+      const utcDate = new Date(wallAsUTC.getTime() - offsetMinutes * 60 * 1000);
+      return utcDate.toISOString();
+    } catch (_) {
+      return undefined;
+    }
+  };
+
   const handleSubmit = () => {
     const validationErrors = validateOneShotSchedule(data, existingSchedules);
     if (validationErrors.length === 0) {
-      onSubmit(data);
+      const safeTz = allTimezones.includes(data.timezone) ? data.timezone : 'UTC';
+      let convertedStarts = fromDatetimeLocalInZoneToISO(data.starts_at, safeTz);
+      let convertedEnds = fromDatetimeLocalInZoneToISO(data.ends_at, safeTz);
+      if (!convertedStarts && data.starts_at) {
+        try { convertedStarts = new Date(data.starts_at).toISOString(); } catch { /* ignore */ }
+      }
+      if (!convertedEnds && data.ends_at) {
+        try { convertedEnds = new Date(data.ends_at).toISOString(); } catch { /* ignore */ }
+      }
+      onSubmit({
+        timezone: data.timezone,
+        starts_at: convertedStarts || '',
+        ends_at: convertedEnds || '',
+        action: data.action
+      });
     }
   };
 
