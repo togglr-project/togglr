@@ -27,11 +27,11 @@ func TestService_Evaluate_Table2(t *testing.T) {
 			name: "exclude rule disables feature",
 			fe: makeFeatureExtended([]domain.Rule{
 				{
-					ID:     domain.RuleID("r1"),
+					ID:     "r1",
 					Action: domain.RuleActionExclude,
 					Conditions: domain.BooleanExpression{
 						Condition: &domain.Condition{
-							Attribute: domain.RuleAttribute("country"),
+							Attribute: "country",
 							Operator:  domain.OpEq,
 							Value:     "RU",
 						},
@@ -49,12 +49,12 @@ func TestService_Evaluate_Table2(t *testing.T) {
 			name: "assign rule selects variant",
 			fe: makeFeatureExtended([]domain.Rule{
 				{
-					ID:            domain.RuleID("r1"),
+					ID:            "r1",
 					Action:        domain.RuleActionAssign,
 					FlagVariantID: ptrFV("v1"),
 					Conditions: domain.BooleanExpression{
 						Condition: &domain.Condition{
-							Attribute: domain.RuleAttribute("country"),
+							Attribute: "country",
 							Operator:  domain.OpEq,
 							Value:     "RU",
 						},
@@ -72,26 +72,26 @@ func TestService_Evaluate_Table2(t *testing.T) {
 			name: "priority: higher priority assign wins (lower numeric = higher priority)",
 			fe: makeFeatureExtended([]domain.Rule{
 				{
-					ID:            domain.RuleID("low"),
+					ID:            "low",
 					Action:        domain.RuleActionAssign,
 					FlagVariantID: ptrFV("v1"),
 					Priority:      10,
 					Conditions: domain.BooleanExpression{
 						Condition: &domain.Condition{
-							Attribute: domain.RuleAttribute("country"),
+							Attribute: "country",
 							Operator:  domain.OpEq,
 							Value:     "RU",
 						},
 					},
 				},
 				{
-					ID:            domain.RuleID("high"),
+					ID:            "high",
 					Action:        domain.RuleActionAssign,
 					FlagVariantID: ptrFV("v2"),
 					Priority:      1, // higher priority (smaller number)
 					Conditions: domain.BooleanExpression{
 						Condition: &domain.Condition{
-							Attribute: domain.RuleAttribute("country"),
+							Attribute: "country",
 							Operator:  domain.OpEq,
 							Value:     "RU",
 						},

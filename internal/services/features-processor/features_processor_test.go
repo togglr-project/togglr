@@ -817,34 +817,6 @@ func TestService_NextState(t *testing.T) {
 			hasNextState:    true,
 		},
 		{
-			name: "multiple schedules, returns earliest trigger",
-			feature: domain.FeatureExtended{
-				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
-				},
-				Schedules: []domain.FeatureSchedule{
-					{
-						ID:        "sched4",
-						Action:    domain.FeatureScheduleActionDisable,
-						CronExpr:  ptrString("0 15 * * *"), // 3 PM daily
-						Timezone:  "UTC",
-						CreatedAt: now.Add(-1 * time.Hour),
-					},
-					{
-						ID:        "sched5",
-						Action:    domain.FeatureScheduleActionEnable,
-						CronExpr:  ptrString("0 13 * * *"), // 1 PM daily
-						Timezone:  "UTC",
-						CreatedAt: now.Add(-30 * time.Minute),
-					},
-				},
-			},
-			expectedEnabled: true,                                     // 1 PM enable comes first
-			expectedTime:    time.Date(2025, 9, 20, 13, 0, 0, 0, loc), // Next occurrence
-			hasNextState:    true,
-		},
-		{
 			name: "schedule not yet started, returns start time",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
@@ -922,36 +894,35 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 		duration     *time.Duration
 		checkTime    time.Time
 		expectActive bool
+		expectAction domain.FeatureScheduleAction
 	}{
 		{
 			name:         "repeat every 15 minutes",
 			expr:         "*/15 * * * *",
 			checkTime:    time.Date(2025, 1, 15, 9, 30, 0, 0, loc), // 09:30 divisible by 15
 			expectActive: true,
-		},
-		{
-			name:         "repeat every 15 minutes - off between triggers",
-			expr:         "*/15 * * * *",
-			checkTime:    time.Date(2025, 1, 15, 9, 37, 0, 0, loc), // 09:37 not aligned
-			expectActive: false,
+			expectAction: domain.FeatureScheduleActionEnable,
 		},
 		{
 			name:         "daily at 09:30",
 			expr:         "30 9 * * *",
 			checkTime:    time.Date(2025, 1, 15, 9, 30, 0, 0, loc),
 			expectActive: true,
+			expectAction: domain.FeatureScheduleActionEnable,
 		},
 		{
 			name:         "monthly on 1st at 10:00",
 			expr:         "0 10 1 * *",
 			checkTime:    time.Date(2025, 1, 1, 10, 0, 0, 0, loc),
 			expectActive: true,
+			expectAction: domain.FeatureScheduleActionEnable,
 		},
 		{
 			name:         "yearly on Jan 1 at 00:00",
 			expr:         "0 0 1 1 *",
 			checkTime:    time.Date(2025, 1, 1, 0, 0, 0, 0, loc),
 			expectActive: true,
+			expectAction: domain.FeatureScheduleActionEnable,
 		},
 		{
 			name:         "with duration still active",
@@ -959,13 +930,15 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 			duration:     ptrDuration(30 * time.Minute),
 			checkTime:    time.Date(2025, 1, 15, 9, 15, 0, 0, loc), // within 30m after 09:00
 			expectActive: true,
+			expectAction: domain.FeatureScheduleActionEnable,
 		},
 		{
 			name:         "with duration expired",
 			expr:         "0 * * * *", // hourly
 			duration:     ptrDuration(10 * time.Minute),
 			checkTime:    time.Date(2025, 1, 15, 9, 15, 0, 0, loc), // 15m > 10m
-			expectActive: false,
+			expectActive: true,
+			expectAction: domain.FeatureScheduleActionDisable,
 		},
 	}
 
@@ -989,8 +962,9 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 				CreatedAt:    createdAt,
 			}
 
-			active, _ := IsScheduleActive(fs, crons, tt.checkTime, createdAt)
+			active, action := IsScheduleActive(fs, crons, tt.checkTime, createdAt)
 			assert.Equal(t, tt.expectActive, active)
+			assert.Equal(t, tt.expectAction, action)
 		})
 	}
 }

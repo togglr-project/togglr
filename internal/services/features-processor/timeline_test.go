@@ -10,7 +10,6 @@ import (
 )
 
 func TestBuildFeatureTimeline(t *testing.T) {
-	t.SkipNow()
 	now := time.Date(2025, 9, 16, 12, 0, 0, 0, time.UTC)
 
 	tests := []struct {
