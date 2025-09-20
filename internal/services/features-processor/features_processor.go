@@ -352,13 +352,16 @@ func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (en
 			if nextTriggers[i].action != nextTriggers[j].action {
 				return nextTriggers[i].action == domain.FeatureScheduleActionDisable
 			}
+
 			return nextTriggers[i].createdAt.After(nextTriggers[j].createdAt)
 		}
+
 		return nextTriggers[i].timestamp.Before(nextTriggers[j].timestamp)
 	})
 
 	// Возвращаем первое (самое раннее) срабатывание
 	next := nextTriggers[0]
+
 	return next.action == domain.FeatureScheduleActionEnable, next.timestamp
 }
 
@@ -400,8 +403,9 @@ func (s *Service) getNextScheduleTrigger(
 			// Следующее изменение состояния - когда расписание закончится
 			// Если действие enable, то после окончания фича станет неактивной (disable)
 			// Если действие disable, то после окончания фича станет активной (enable)
-			return schedule.EndsAt.In(loc), s.getOppositeAction(schedule.Action)
+			return schedule.EndsAt.In(loc), getOppositeAction(schedule.Action)
 		}
+
 		// Если нет времени окончания, расписание активно бесконечно - нет следующего изменения
 		return time.Time{}, schedule.Action
 	}
@@ -409,37 +413,42 @@ func (s *Service) getNextScheduleTrigger(
 	sched, ok := crons[schedule.ID]
 	if !ok {
 		slog.Error("error parsing cron expression", "cron expression", *schedule.CronExpr)
+
 		return time.Time{}, schedule.Action
 	}
+
+	if schedule.CronDuration == nil {
+		slog.Error("null cron duration", "schedule", schedule.ID)
+
+		return time.Time{}, schedule.Action
+	}
+
+	cronDuration := *schedule.CronDuration
 
 	// Находим следующее срабатывание cron
 	nextCronTime := sched.Next(now)
 
-	// Проверяем, что следующее срабатывание не выходит за границы расписания
-	if schedule.EndsAt != nil && nextCronTime.After(schedule.EndsAt.In(loc)) {
+	// Находим предыдущее срабатывание cron
+	prevCronTime, was := findPrevCron(sched, now, scheduleStart)
+	if !was {
 		return time.Time{}, schedule.Action
 	}
 
-	// Если задана продолжительность, учитываем ее
-	if schedule.CronDuration != nil && *schedule.CronDuration > 0 {
-		// Возвращаем время окончания действия (срабатывание + продолжительность)
-		actionEndTime := nextCronTime.Add(*schedule.CronDuration)
-
-		// Если время окончания действия выходит за границы расписания
-		if schedule.EndsAt != nil && actionEndTime.After(schedule.EndsAt.In(loc)) {
-			actionEndTime = schedule.EndsAt.In(loc)
+	middleCronTime := prevCronTime.In(loc).Add(cronDuration)
+	if middleCronTime.Before(now) {
+		// Проверяем, что следующее срабатывание не выходит за границы расписания
+		if schedule.EndsAt != nil && nextCronTime.After(schedule.EndsAt.In(loc)) {
+			return time.Time{}, schedule.Action
 		}
 
-		// Возвращаем время, когда действие изменится на противоположное
-		return actionEndTime, s.getOppositeAction(schedule.Action)
+		return nextCronTime, schedule.Action
 	}
 
-	// Для расписания без продолжительности возвращаем время следующего срабатывания
-	return nextCronTime, schedule.Action
+	return middleCronTime, getOppositeAction(schedule.Action)
 }
 
 // getOppositeAction возвращает противоположное действие
-func (s *Service) getOppositeAction(action domain.FeatureScheduleAction) domain.FeatureScheduleAction {
+func getOppositeAction(action domain.FeatureScheduleAction) domain.FeatureScheduleAction {
 	switch action {
 	case domain.FeatureScheduleActionEnable:
 		return domain.FeatureScheduleActionDisable
