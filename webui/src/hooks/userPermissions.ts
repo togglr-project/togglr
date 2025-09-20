@@ -42,11 +42,6 @@ export const userPermissions = () => {
   const claims = getTokenClaims();
   const permissions = claims?.permissions;
 
-  // Добавляем логирование для отладки
-  console.log('JWT Claims:', claims);
-  console.log('Permissions:', permissions);
-  console.log('Is Superuser:', claims?.isSuperuser);
-
   // Проверка прав на проекты
   const canReadProject = (projectId: number): boolean => {
     // Суперпользователь имеет доступ ко всем проектам
