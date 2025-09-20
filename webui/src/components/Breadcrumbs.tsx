@@ -41,17 +41,6 @@ const Breadcrumbs: React.FC = () => {
   const generateBreadcrumbs = (): BreadcrumbItem[] => {
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
-    
-    // Debug logging
-    console.log('Breadcrumbs debug:', {
-      pathname: location.pathname,
-      pathSegments,
-      currentProject: currentProject?.name,
-      projectId,
-      projectsLoading,
-      projects: projects?.map(p => ({ id: p.id, name: p.name })),
-      projectsCount: projects?.length
-    });
 
     // Always add home
     breadcrumbs.push({
