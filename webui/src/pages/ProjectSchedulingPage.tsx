@@ -39,10 +39,17 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import TimelineChart from '../components/TimelineChart';
+import ScheduleBuilder from '../components/ScheduleBuilder';
+import OneShotScheduleDialog from '../components/OneShotScheduleDialog';
+import EditRecurringScheduleBuilder from '../components/EditRecurringScheduleBuilder';
+import EditOneShotScheduleDialog from '../components/EditOneShotScheduleDialog';
 import apiClient from '../api/apiClient';
+import { canAddRecurringSchedule, canAddOneShotSchedule, getScheduleType } from '../utils/scheduleHelpers';
+import type { ScheduleBuilderData } from '../utils/cronGenerator';
 import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
+// @ts-ignore
 import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
 
 interface ProjectResponse { project: Project }
@@ -107,6 +114,22 @@ const fromDatetimeLocalInZoneToISO = (val?: string, tz?: string): string | undef
 
 
 const allTimezones = listTimeZones();
+
+// Helper function to format duration for cron_duration field
+const formatDuration = (duration: { value: number; unit: string }): string => {
+  const { value, unit } = duration;
+  
+  switch (unit) {
+    case 'minutes':
+      return `${value}m`;
+    case 'hours':
+      return `${value}h`;
+    case 'days':
+      return `${value}d`;
+    default:
+      return `${value}${unit}`;
+  }
+};
 
 // Helper function to format date for datetime-local input
 const formatLocalDateTime = (date: Date): string => {
@@ -466,6 +489,16 @@ const ProjectSchedulingPage: React.FC = () => {
   const [dialogFeature, setDialogFeature] = useState<FeatureExtended | null>(null);
   const [editSchedule, setEditSchedule] = useState<FeatureSchedule | null>(null);
   
+  // New schedule builder dialogs
+  const [scheduleBuilderOpen, setScheduleBuilderOpen] = useState(false);
+  const [oneShotDialogOpen, setOneShotDialogOpen] = useState(false);
+  const [scheduleType, setScheduleType] = useState<'cron' | 'one-shot' | null>(null);
+  
+  // Edit dialogs
+  const [editRecurringBuilderOpen, setEditRecurringBuilderOpen] = useState(false);
+  const [editOneShotDialogOpen, setEditOneShotDialogOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<FeatureSchedule | null>(null);
+  
   // Tab state
   const [activeTab, setActiveTab] = useState(0);
 
@@ -485,13 +518,36 @@ const ProjectSchedulingPage: React.FC = () => {
     setEditSchedule(null);
     setDialogOpen(true);
   };
+  
   const openEdit = (feature: FeatureExtended, schedule: FeatureSchedule) => {
     setDialogFeature(feature);
-    setEditSchedule(schedule);
-    setDialogOpen(true);
+    setEditingSchedule(schedule);
+    
+    // Determine which edit dialog to open based on schedule type
+    if (schedule.cron_expr) {
+      setEditRecurringBuilderOpen(true);
+    } else {
+      setEditOneShotDialogOpen(true);
+    }
+  };
+
+  const openScheduleBuilder = (feature: FeatureExtended) => {
+    setDialogFeature(feature);
+    setScheduleType('cron');
+    setScheduleBuilderOpen(true);
+  };
+
+  const openOneShotDialog = (feature: FeatureExtended) => {
+    setDialogFeature(feature);
+    setScheduleType('one-shot');
+    setOneShotDialogOpen(true);
   };
 
   const closeDialog = () => setDialogOpen(false);
+  const closeScheduleBuilder = () => setScheduleBuilderOpen(false);
+  const closeOneShotDialog = () => setOneShotDialogOpen(false);
+  const closeEditRecurringBuilder = () => setEditRecurringBuilderOpen(false);
+  const closeEditOneShotDialog = () => setEditOneShotDialogOpen(false);
 
   // Mutations
   const createMut = useMutation({
@@ -525,6 +581,66 @@ const ProjectSchedulingPage: React.FC = () => {
     }
   });
 
+  // New mutations for schedule builder
+  const createCronScheduleMut = useMutation({
+    mutationFn: async ({ featureId, data }: { featureId: string; data: ScheduleBuilderData & { cronExpression: string } }) => {
+      const payload = {
+        timezone: data.timezone,
+        starts_at: data.startsAt,
+        ends_at: data.endsAt,
+        action: data.action,
+        cron_expr: data.cronExpression,
+        cron_duration: formatDuration(data.duration)
+      };
+      return apiClient.createFeatureSchedule(featureId, payload);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+      setScheduleBuilderOpen(false);
+      setActiveTab(0);
+    }
+  });
+
+  const createOneShotScheduleMut = useMutation({
+    mutationFn: async ({ featureId, data }: { featureId: string; data: { timezone: string; starts_at: string; ends_at: string; action: FeatureScheduleAction } }) => {
+      return apiClient.createFeatureSchedule(featureId, data);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+      setOneShotDialogOpen(false);
+      setActiveTab(0);
+    }
+  });
+
+  // Edit mutations
+  const editRecurringScheduleMut = useMutation({
+    mutationFn: async ({ scheduleId, data }: { scheduleId: string; data: ScheduleBuilderData & { cronExpression: string } }) => {
+      const payload = {
+        timezone: data.timezone,
+        starts_at: data.startsAt,
+        ends_at: data.endsAt,
+        action: data.action,
+        cron_expr: data.cronExpression,
+        cron_duration: formatDuration(data.duration)
+      };
+      return apiClient.updateFeatureSchedule(scheduleId, payload);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+      setEditRecurringBuilderOpen(false);
+    }
+  });
+
+  const editOneShotScheduleMut = useMutation({
+    mutationFn: async ({ scheduleId, data }: { scheduleId: string; data: { timezone: string; starts_at: string; ends_at: string; action: FeatureScheduleAction } }) => {
+      return apiClient.updateFeatureSchedule(scheduleId, data);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+      setEditOneShotDialogOpen(false);
+    }
+  });
+
   const project = projectResp?.project;
 
   // Component to render feature list
@@ -543,15 +659,39 @@ const ProjectSchedulingPage: React.FC = () => {
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>
-              {(!schedulesByFeature[f.id] || schedulesByFeature[f.id].length === 0) ? (
-                <Button variant="contained" startIcon={<AddIcon />} onClick={(e) => { e.stopPropagation(); openCreate(f); }}>
-                  Add schedule
+              {canAddRecurringSchedule(schedulesByFeature[f.id] || []) ? (
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button 
+                    variant="contained" 
+                    startIcon={<AddIcon />} 
+                    onClick={(e) => { e.stopPropagation(); openScheduleBuilder(f); }}
+                    size="small"
+                  >
+                    Recurring
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    startIcon={<AddIcon />} 
+                    onClick={(e) => { e.stopPropagation(); openOneShotDialog(f); }}
+                    size="small"
+                  >
+                    One-shot
+                  </Button>
+                </Box>
+              ) : canAddOneShotSchedule(schedulesByFeature[f.id] || []) ? (
+                <Button 
+                  variant="outlined" 
+                  startIcon={<AddIcon />} 
+                  onClick={(e) => { e.stopPropagation(); openOneShotDialog(f); }}
+                  size="small"
+                >
+                  Add One-shot
                 </Button>
               ) : (
                 <Chip 
                   size="small" 
-                  label="Schedule exists" 
-                  color="success" 
+                  label="Recurring schedule exists" 
+                  color="warning" 
                   variant="outlined"
                   icon={<ScheduleIcon />}
                 />
@@ -565,9 +705,23 @@ const ProjectSchedulingPage: React.FC = () => {
                   {schedulesByFeature[f.id].map((s) => (
                     <Paper key={s.id} sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
-                        <Typography variant="body1" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{s.action}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{s.action}</Typography>
+                          <Chip 
+                            size="small" 
+                            label={getScheduleType(s) === 'cron' ? 'Recurring' : 'One-shot'} 
+                            color={getScheduleType(s) === 'cron' ? 'primary' : 'secondary'}
+                            variant="outlined"
+                          />
+                        </Box>
                         <Typography variant="body2" color="text.secondary">
-                          {s.cron_expr ? `Cron: ${s.cron_expr}` : `From ${s.starts_at || '—'} to ${s.ends_at || '—'}`}
+                          {s.cron_expr ? (() => {
+                            try {
+                              return cronstrue.toString(s.cron_expr);
+                            } catch (error) {
+                              return `Cron: ${s.cron_expr}`;
+                            }
+                          })() : `From ${s.starts_at || '—'} to ${s.ends_at || '—'}`}
                         </Typography>
                         {s.cron_expr && s.cron_duration && (
                           <Typography variant="body2" color="text.secondary">
@@ -966,6 +1120,75 @@ const ProjectSchedulingPage: React.FC = () => {
           }
           setDialogOpen(false);
         }}
+      />
+
+      {/* Schedule Builder Dialog */}
+      <Dialog 
+        open={scheduleBuilderOpen} 
+        onClose={closeScheduleBuilder}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>Create recurring schedule</DialogTitle>
+        <DialogContent>
+          <ScheduleBuilder
+            open={scheduleBuilderOpen}
+            onClose={closeScheduleBuilder}
+            onSubmit={(data) => {
+              if (dialogFeature) {
+                createCronScheduleMut.mutate({ featureId: dialogFeature.id, data });
+              }
+            }}
+            featureCreatedAt={dialogFeature?.created_at}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* One-Shot Schedule Dialog */}
+      <OneShotScheduleDialog
+        open={oneShotDialogOpen}
+        onClose={closeOneShotDialog}
+        onSubmit={(data) => {
+          if (dialogFeature) {
+            createOneShotScheduleMut.mutate({ featureId: dialogFeature.id, data });
+          }
+        }}
+        existingSchedules={allSchedules?.filter(s => s.feature_id === dialogFeature?.id) || []}
+      />
+
+      {/* Edit Recurring Schedule Builder */}
+      <Dialog 
+        open={editRecurringBuilderOpen} 
+        onClose={closeEditRecurringBuilder}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>Edit recurring schedule</DialogTitle>
+        <DialogContent>
+          <EditRecurringScheduleBuilder
+            open={editRecurringBuilderOpen}
+            onClose={closeEditRecurringBuilder}
+            onSubmit={(data) => {
+              if (editingSchedule) {
+                editRecurringScheduleMut.mutate({ scheduleId: editingSchedule.id, data });
+              }
+            }}
+            initialData={editingSchedule || undefined}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit One-Shot Schedule Dialog */}
+      <EditOneShotScheduleDialog
+        open={editOneShotDialogOpen}
+        onClose={closeEditOneShotDialog}
+        onSubmit={(data) => {
+          if (editingSchedule) {
+            editOneShotScheduleMut.mutate({ scheduleId: editingSchedule.id, data });
+          }
+        }}
+        initialData={editingSchedule || undefined}
+        existingSchedules={allSchedules?.filter(s => s.feature_id === dialogFeature?.id) || []}
       />
     </AuthenticatedLayout>
   );
