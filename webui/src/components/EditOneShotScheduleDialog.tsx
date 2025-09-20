@@ -88,7 +88,7 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
   existingSchedules = []
 }) => {
   const [data, setData] = useState<EditOneShotScheduleData>(() => ({
-    timezone: initialData?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Use browser timezone
     starts_at: initialData?.starts_at || '',
     ends_at: initialData?.ends_at || '',
     action: initialData?.action || 'enable'
@@ -99,12 +99,12 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
   // Reset form when dialog opens
   useEffect(() => {
     if (open && initialData) {
-      const tz = initialData.timezone || 'UTC';
-      const startsLocal = initialData.starts_at ? toDatetimeLocalInZone(initialData.starts_at, tz) : '';
-      const endsLocal = initialData.ends_at ? toDatetimeLocalInZone(initialData.ends_at, tz) : '';
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const startsLocal = initialData.starts_at ? toDatetimeLocalInZone(initialData.starts_at, browserTimezone) : '';
+      const endsLocal = initialData.ends_at ? toDatetimeLocalInZone(initialData.ends_at, browserTimezone) : '';
       
       setData({
-        timezone: tz,
+        timezone: browserTimezone,
         starts_at: startsLocal,
         ends_at: endsLocal,
         action: initialData.action
@@ -122,22 +122,40 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
   const handleSubmit = () => {
     const validationErrors = validateOneShotScheduleData(data, existingSchedules, initialData?.id);
     if (validationErrors.length === 0) {
-      // Convert datetime-local back to ISO
-      const safeTz = allTimezones.includes(data.timezone) ? data.timezone : 'UTC';
-      let convertedStarts = fromDatetimeLocalInZoneToISO(data.starts_at, safeTz);
-      let convertedEnds = fromDatetimeLocalInZoneToISO(data.ends_at, safeTz);
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       
-      if (!convertedStarts && data.starts_at) {
-        try { convertedStarts = new Date(data.starts_at).toISOString(); } catch { /* ignore */ }
+      // Convert datetime-local to ISO (same logic as cron-like builder)
+      let convertedStarts = '';
+      let convertedEnds = '';
+      
+      if (data.starts_at) {
+        const [dateStr, timeStr] = data.starts_at.split('T');
+        if (dateStr && timeStr) {
+          const [year, month, day] = dateStr.split('-').map(Number);
+          const [hours, minutes] = timeStr.split(':').map(Number);
+          const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
+          if (!isNaN(date.getTime())) {
+            convertedStarts = date.toISOString();
+          }
+        }
       }
-      if (!convertedEnds && data.ends_at) {
-        try { convertedEnds = new Date(data.ends_at).toISOString(); } catch { /* ignore */ }
+      
+      if (data.ends_at) {
+        const [dateStr, timeStr] = data.ends_at.split('T');
+        if (dateStr && timeStr) {
+          const [year, month, day] = dateStr.split('-').map(Number);
+          const [hours, minutes] = timeStr.split(':').map(Number);
+          const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
+          if (!isNaN(date.getTime())) {
+            convertedEnds = date.toISOString();
+          }
+        }
       }
 
       onSubmit({
-        timezone: data.timezone,
-        starts_at: convertedStarts || '',
-        ends_at: convertedEnds || '',
+        timezone: browserTimezone,
+        starts_at: convertedStarts,
+        ends_at: convertedEnds,
         action: data.action
       });
     }
@@ -215,54 +233,96 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
                   User's timezone by default
                 </Typography>
-                <Tooltip title="By default, the timezone is detected from your browser (Intl.DateTimeFormat). You can change it if you need a different zone for this schedule.">
+                <Tooltip title="By default, the timezone is detected from your browser">
                   <IconButton size="small">
                     <HelpIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
               </Box>
               <TextField
-                select
                 fullWidth
                 label="Timezone"
-                value={data.timezone}
-                onChange={(e) => {
-                  const newTz = e.target.value;
-                  setData(prev => ({
-                    ...prev,
-                    timezone: newTz,
-                    // Reconvert dates to new timezone
-                    starts_at: prev.starts_at ? toDatetimeLocalInZone(prev.starts_at, newTz) : prev.starts_at,
-                    ends_at: prev.ends_at ? toDatetimeLocalInZone(prev.ends_at, newTz) : prev.ends_at,
-                  }));
-                }}
-              >
-                {allTimezones.map((tz: string) => (
-                  <MenuItem key={tz} value={tz}>{tz}</MenuItem>
-                ))}
-              </TextField>
+                value={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                disabled
+              />
             </Grid>
 
+            {/* Start Date and Time */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, mt: 2 }}>
+                Start Date & Time
+              </Typography>
+            </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="Start time"
-                type="datetime-local"
+                label="Start Date"
+                type="date"
                 InputLabelProps={{ shrink: true }}
-                value={data.starts_at}
-                onChange={(e) => setData(prev => ({ ...prev, starts_at: e.target.value }))}
+                value={data.starts_at ? data.starts_at.split('T')[0] : ''}
+                onChange={(e) => {
+                  const dateStr = e.target.value;
+                  const currentTime = data.starts_at ? data.starts_at.split('T')[1] || '00:00' : '00:00';
+                  setData(prev => ({ ...prev, starts_at: dateStr ? `${dateStr}T${currentTime}` : '' }));
+                }}
+                helperText="Schedule start date"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Start Time"
+                type="time"
+                InputLabelProps={{ shrink: true }}
+                value={data.starts_at ? data.starts_at.split('T')[1] || '00:00' : '00:00'}
+                onChange={(e) => {
+                  const timeStr = e.target.value;
+                  const currentDate = data.starts_at ? data.starts_at.split('T')[0] : '';
+                  if (currentDate && timeStr) {
+                    setData(prev => ({ ...prev, starts_at: `${currentDate}T${timeStr}` }));
+                  }
+                }}
+                inputProps={{ step: 60 }}
                 helperText="Schedule start time"
               />
             </Grid>
 
+            {/* End Date and Time */}
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600, mt: 2 }}>
+                End Date & Time
+              </Typography>
+            </Grid>
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="End time"
-                type="datetime-local"
+                label="End Date"
+                type="date"
                 InputLabelProps={{ shrink: true }}
-                value={data.ends_at}
-                onChange={(e) => setData(prev => ({ ...prev, ends_at: e.target.value }))}
+                value={data.ends_at ? data.ends_at.split('T')[0] : ''}
+                onChange={(e) => {
+                  const dateStr = e.target.value;
+                  const currentTime = data.ends_at ? data.ends_at.split('T')[1] || '23:59' : '23:59';
+                  setData(prev => ({ ...prev, ends_at: dateStr ? `${dateStr}T${currentTime}` : '' }));
+                }}
+                helperText="Schedule end date"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="End Time"
+                type="time"
+                InputLabelProps={{ shrink: true }}
+                value={data.ends_at ? data.ends_at.split('T')[1] || '23:59' : '23:59'}
+                onChange={(e) => {
+                  const timeStr = e.target.value;
+                  const currentDate = data.ends_at ? data.ends_at.split('T')[0] : '';
+                  if (currentDate && timeStr) {
+                    setData(prev => ({ ...prev, ends_at: `${currentDate}T${timeStr}` }));
+                  }
+                }}
+                inputProps={{ step: 60 }}
                 helperText="Schedule end time"
               />
             </Grid>
@@ -273,8 +333,10 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
               size="small"
               variant="outlined"
               onClick={() => {
-                const now = getCurrentDateTime();
-                setData(prev => ({ ...prev, starts_at: now }));
+                const now = new Date();
+                const dateStr = now.toISOString().slice(0, 10);
+                const timeStr = now.toTimeString().slice(0, 5);
+                setData(prev => ({ ...prev, starts_at: `${dateStr}T${timeStr}` }));
               }}
             >
               Now
@@ -283,8 +345,11 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
               size="small"
               variant="outlined"
               onClick={() => {
-                const tomorrow = getTomorrowDateTime();
-                setData(prev => ({ ...prev, starts_at: tomorrow }));
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const dateStr = tomorrow.toISOString().slice(0, 10);
+                const timeStr = tomorrow.toTimeString().slice(0, 5);
+                setData(prev => ({ ...prev, starts_at: `${dateStr}T${timeStr}` }));
               }}
             >
               Tomorrow
@@ -293,9 +358,18 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
               size="small"
               variant="outlined"
               onClick={() => {
-                const now = getCurrentDateTime();
-                const tomorrow = getTomorrowDateTime();
-                setData(prev => ({ ...prev, starts_at: now, ends_at: tomorrow }));
+                const now = new Date();
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                const nowDateStr = now.toISOString().slice(0, 10);
+                const nowTimeStr = now.toTimeString().slice(0, 5);
+                const tomorrowDateStr = tomorrow.toISOString().slice(0, 10);
+                const tomorrowTimeStr = tomorrow.toTimeString().slice(0, 5);
+                setData(prev => ({ 
+                  ...prev, 
+                  starts_at: `${nowDateStr}T${nowTimeStr}`, 
+                  ends_at: `${tomorrowDateStr}T${tomorrowTimeStr}` 
+                }));
               }}
             >
               Now - Tomorrow
