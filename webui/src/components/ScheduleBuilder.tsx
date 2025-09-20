@@ -48,15 +48,14 @@ interface ScheduleBuilderProps {
 
 const allTimezones = listTimeZones();
 
-const steps = [
-  'Timezone',
-  'Date Range',
-  'Schedule Type',
-  'Parameters',
-  'Duration',
-  'Action',
-  'Preview'
-];
+  const steps = [
+    'Date Range',
+    'Schedule Type',
+    'Parameters',
+    'Duration',
+    'Action',
+    'Preview'
+  ];
 
 const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
   open,
@@ -124,42 +123,14 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
 
   const handleSubmit = () => {
     if (errors.length === 0 && cronExpression) {
-      // Convert dates to the selected timezone
-      let finalStartsAt = data.startsAt;
-      let finalEndsAt = data.endsAt;
-
-      if (data.startsAt) {
-        try {
-          const tzObj = findTimeZone(data.timezone);
-          if (tzObj) {
-            const [year, month, day] = data.startsAt.split('T')[0].split('-').map(Number);
-            const localDate = new Date(year, month - 1, day, 0, 0, 0, 0);
-            const offset = getUTCOffset(tzObj, localDate);
-            finalStartsAt = new Date(localDate.getTime() + offset * 60 * 1000).toISOString();
-          }
-        } catch (error) {
-          console.error('Error converting start date:', error);
-        }
-      }
-
-      if (data.endsAt) {
-        try {
-          const tzObj = findTimeZone(data.timezone);
-          if (tzObj) {
-            const [year, month, day] = data.endsAt.split('T')[0].split('-').map(Number);
-            const localDate = new Date(year, month - 1, day, 23, 59, 59, 999); // End of day
-            const offset = getUTCOffset(tzObj, localDate);
-            finalEndsAt = new Date(localDate.getTime() + offset * 60 * 1000).toISOString();
-          }
-        } catch (error) {
-          console.error('Error converting end date:', error);
-        }
-      }
-
+      // Use browser timezone for dates
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      
       onSubmit({
         ...data,
-        startsAt: finalStartsAt,
-        endsAt: finalEndsAt,
+        timezone: browserTimezone,
+        startsAt: data.startsAt,
+        endsAt: data.endsAt,
         cronExpression
       });
     }
@@ -167,13 +138,11 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
 
   const canProceed = () => {
     switch (activeStep) {
-      case 0: // Timezone
-        return !!data.timezone;
-      case 1: // Date Range
+      case 0: // Date Range
         return !!data.startsAt; // startsAt is required, endsAt is optional
-      case 2: // Schedule Type
+      case 1: // Schedule Type
         return !!data.scheduleType;
-      case 3: // Parameters
+      case 2: // Parameters
         switch (data.scheduleType) {
           case 'repeat_every':
             return data.repeatEvery && data.repeatEvery.interval > 0;
@@ -186,7 +155,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
           default:
             return false;
         }
-      case 4: // Duration
+      case 3: // Duration
         if (data.duration.value <= 0) return false;
         
         // Additional validation for repeat_every schedule type
@@ -207,9 +176,9 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         }
         
         return true;
-      case 5: // Action
+      case 4: // Action
         return !!data.action;
-      case 6: // Preview
+      case 5: // Preview
         return errors.length === 0 && !!cronExpression;
       default:
         return false;
@@ -219,46 +188,25 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
   const renderStepContent = () => {
     switch (activeStep) {
       case 0:
-        return renderTimezoneStep();
-      case 1:
         return renderDateRangeStep();
-      case 2:
+      case 1:
         return renderScheduleTypeStep();
-      case 3:
+      case 2:
         return renderParametersStep();
-      case 4:
+      case 3:
         return renderDurationStep();
-      case 5:
+      case 4:
         return renderActionStep();
-      case 6:
+      case 5:
         return renderPreviewStep();
       default:
         return null;
     }
   };
 
-  const renderTimezoneStep = () => (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Select timezone
-      </Typography>
-      <TextField
-        select
-        fullWidth
-        label="Timezone"
-        value={data.timezone}
-        onChange={(e) => setData(prev => ({ ...prev, timezone: e.target.value }))}
-        sx={{ mt: 2 }}
-      >
-        {allTimezones.map((tz: string) => (
-          <MenuItem key={tz} value={tz}>{tz}</MenuItem>
-        ))}
-      </TextField>
-    </Box>
-  );
 
   const renderDateRangeStep = () => {
-    // Simple date conversion helpers
+    // Date and time conversion helpers
     const toDateString = (isoString: string): string => {
       if (!isoString) return '';
       try {
@@ -270,11 +218,24 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
       }
     };
 
-    const fromDateStringToISO = (dateString: string): string => {
+    const toTimeString = (isoString: string): string => {
+      if (!isoString) return '00:00';
+      try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return '00:00';
+        return date.toTimeString().slice(0, 5);
+      } catch (error) {
+        return '00:00';
+      }
+    };
+
+    const fromDateStringToISO = (dateString: string, timeString: string = '00:00'): string => {
       if (!dateString) return '';
       try {
-        // Create date at midnight UTC
-        const date = new Date(dateString + 'T00:00:00.000Z');
+        // Create date with time in local timezone
+        const [year, month, day] = dateString.split('-').map(Number);
+        const [hours, minutes] = timeString.split(':').map(Number);
+        const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
         if (isNaN(date.getTime())) return '';
         return date.toISOString();
       } catch (error) {
@@ -287,47 +248,98 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         <Typography variant="h6" gutterBottom>
           Set schedule date range
         </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Define when the schedule should start and optionally when it should end.
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Define when the schedule should start and optionally when it should end. Dates and times are selected in your local timezone.
         </Typography>
         
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Start date"
-              type="date"
-              value={data.startsAt ? toDateString(data.startsAt) : ''}
-              onChange={(e) => {
-                const isoString = fromDateStringToISO(e.target.value);
-                setData(prev => ({ ...prev, startsAt: isoString }));
-              }}
-              InputLabelProps={{
-                shrink: true,
-              }}
-              required
-            />
+        {/* Start Date and Time */}
+        <Box sx={{ mb: 3 }}>
+          <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+            Start Date & Time
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Start Date"
+                type="date"
+                value={data.startsAt ? toDateString(data.startsAt) : ''}
+                onChange={(e) => {
+                  const dateStr = e.target.value;
+                  if (dateStr) {
+                    const currentTime = data.startsAt ? toTimeString(data.startsAt) : '00:00';
+                    setData(prev => ({ ...prev, startsAt: fromDateStringToISO(dateStr, currentTime) }));
+                  } else {
+                    setData(prev => ({ ...prev, startsAt: undefined }));
+                  }
+                }}
+                InputLabelProps={{ shrink: true }}
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Start Time"
+                type="time"
+                value={data.startsAt ? toTimeString(data.startsAt) : '00:00'}
+                onChange={(e) => {
+                  const timeStr = e.target.value;
+                  const currentDate = data.startsAt ? toDateString(data.startsAt) : '';
+                  if (currentDate && timeStr) {
+                    setData(prev => ({ ...prev, startsAt: fromDateStringToISO(currentDate, timeStr) }));
+                  }
+                }}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ step: 60 }}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="End date (optional)"
-              type="date"
-              value={data.endsAt ? toDateString(data.endsAt) : ''}
-              onChange={(e) => {
-                const isoString = e.target.value ? fromDateStringToISO(e.target.value) : '';
-                setData(prev => ({ ...prev, endsAt: isoString || undefined }));
-              }}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />
+        </Box>
+
+        {/* End Date and Time */}
+        <Box>
+          <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+            End Date & Time (Optional)
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="End Date"
+                type="date"
+                value={data.endsAt ? toDateString(data.endsAt) : ''}
+                onChange={(e) => {
+                  const dateStr = e.target.value;
+                  if (dateStr) {
+                    const currentTime = data.endsAt ? toTimeString(data.endsAt) : '23:59';
+                    setData(prev => ({ ...prev, endsAt: fromDateStringToISO(dateStr, currentTime) }));
+                  } else {
+                    setData(prev => ({ ...prev, endsAt: undefined }));
+                  }
+                }}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="End Time"
+                type="time"
+                value={data.endsAt ? toTimeString(data.endsAt) : '23:59'}
+                onChange={(e) => {
+                  const timeStr = e.target.value;
+                  const currentDate = data.endsAt ? toDateString(data.endsAt) : '';
+                  if (currentDate && timeStr) {
+                    setData(prev => ({ ...prev, endsAt: fromDateStringToISO(currentDate, timeStr) }));
+                  }
+                }}
+                InputLabelProps={{ shrink: true }}
+                inputProps={{ step: 60 }}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-        
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          Dates will be converted to the selected timezone when creating the schedule.
-        </Typography>
+        </Box>
       </Box>
     );
   };
