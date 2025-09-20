@@ -233,7 +233,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
               }}>
                 <span>{formatTime(timeRange.start)}</span>
                 {timeRange.now >= timeRange.start && timeRange.now <= timeRange.end ? (
-                  <span>Now</span>
+                  <span></span>
                 ) : (
                   <span>{formatTime(timeRange.start + totalDuration / 2)}</span>
                 )}
