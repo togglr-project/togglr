@@ -869,14 +869,15 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         {renderStepContent()}
       </Box>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={handleBack}
-          disabled={activeStep === 0}
-        >
-          Back
-        </Button>
+      <Box sx={{ display: 'flex', justifyContent: activeStep > 0 ? 'space-between' : 'flex-end' }}>
+        {activeStep > 0 && (
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={handleBack}
+          >
+            Back
+          </Button>
+        )}
 
         {activeStep === steps.length - 1 ? (
           <Button
