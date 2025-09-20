@@ -307,6 +307,10 @@ func (s *Service) NextState(feature domain.FeatureExtended) (enabled bool, times
 // NextStateAt вычисляет следующее состояние фичи на основе расписания в указанное время.
 // Если у фичи нет расписания, возвращает нулевые значения.
 func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (enabled bool, timestamp time.Time) {
+	if !feature.Enabled {
+		return false, time.Time{}
+	}
+
 	// Если у фичи нет расписания, возвращаем нулевые значения
 	if len(feature.Schedules) == 0 {
 		return false, time.Time{}
