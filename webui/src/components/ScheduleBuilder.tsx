@@ -691,71 +691,59 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
     </Box>
   );
 
-  const renderPreviewStep = () => (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Schedule preview
-      </Typography>
-      
-      {errors.length > 0 && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          <Typography variant="subtitle2">Validation errors:</Typography>
-          <ul>
-            {errors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
-        </Alert>
-      )}
+  const renderPreviewStep = () => {
+    // Log cron expression to console
+    if (cronExpression) {
+      console.log('Generated cron expression:', cronExpression);
+    }
+    
+    return (
+      <Box>
+        <Typography variant="h6" gutterBottom>
+          Schedule preview
+        </Typography>
+        
+        {errors.length > 0 && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            <Typography variant="subtitle2">Validation errors:</Typography>
+            <ul>
+              {errors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </Alert>
+        )}
 
-      {cronExpression && (
-        <Paper sx={{ p: 2, mb: 2 }}>
-          <Typography variant="subtitle1" gutterBottom>
-            Schedule description:
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            {generateScheduleDescription(data)}
-          </Typography>
-          
-          <Divider sx={{ my: 2 }} />
-          
-          <Typography variant="subtitle1" gutterBottom>
-            Cron expression:
-          </Typography>
-          <Typography 
-            variant="body2" 
-            fontFamily="monospace" 
-            sx={{ 
-              bgcolor: 'grey.800', 
-              color: 'white',
-              p: 1, 
-              borderRadius: 1,
-              maxWidth: '300px'
-            }}
-          >
-            {cronExpression}
-          </Typography>
-
-          <Divider sx={{ my: 2 }} />
-          
-          <Typography variant="subtitle1" gutterBottom>
-            Schedule dates:
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            <strong>Start:</strong> {data.startsAt ? new Date(data.startsAt).toLocaleDateString() : 'Not set'}
-          </Typography>
-          {data.endsAt && (
-            <Typography variant="body2" color="text.secondary">
-              <strong>End:</strong> {new Date(data.endsAt).toLocaleDateString()}
+        {cronExpression && (
+          <Paper sx={{ p: 2, mb: 2 }}>
+            <Typography variant="subtitle1" gutterBottom>
+              Schedule description:
             </Typography>
-          )}
-          <Typography variant="body2" color="text.secondary">
-            <strong>Timezone:</strong> {data.timezone}
-          </Typography>
-        </Paper>
-      )}
-    </Box>
-  );
+            <Typography variant="body1" color="text.secondary">
+              {generateScheduleDescription(data)}
+            </Typography>
+            
+            <Divider sx={{ my: 2 }} />
+            
+            <Typography variant="subtitle1" gutterBottom>
+              Schedule dates:
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              <strong>Start:</strong> {data.startsAt ? new Date(data.startsAt).toLocaleDateString() : 'Not set'}
+            </Typography>
+            {data.endsAt && (
+              <Typography variant="body2" color="text.secondary">
+                <strong>End:</strong> {new Date(data.endsAt).toLocaleDateString()}
+              </Typography>
+            )}
+            <Typography variant="body2" color="text.secondary">
+              <strong>Timezone:</strong> {data.timezone}
+            </Typography>
+          </Paper>
+        )}
+      </Box>
+    );
+  };
 
   if (!open) return null;
 
