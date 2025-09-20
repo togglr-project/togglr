@@ -61,6 +61,7 @@ All URIs are relative to *http://localhost*
 |[**setup2FA**](#setup2fa) | **POST** /api/v1/users/me/2fa/setup | Begin setup 2FA (generate secret and QR-code)|
 |[**syncCustomizedFeatureRule**](#synccustomizedfeaturerule) | **PUT** /api/v1/features/{feature_id}/rules/{rule_id}/sync | Synchronize customized feature rule|
 |[**syncLDAPUsers**](#syncldapusers) | **POST** /api/v1/ldap/sync/users | Start user synchronization|
+|[**testFeatureTimeline**](#testfeaturetimeline) | **POST** /api/v1/features/{feature_id}/timeline/test | Test feature timeline with mock schedules|
 |[**testLDAPConnection**](#testldapconnection) | **POST** /api/v1/ldap/test-connection | Test LDAP connection|
 |[**toggleFeature**](#togglefeature) | **PUT** /api/v1/features/{feature_id}/toggle | Toggle feature enabled state|
 |[**updateFeature**](#updatefeature) | **PUT** /api/v1/features/{feature_id} | Update feature with rules and variants|
@@ -3155,6 +3156,75 @@ This endpoint does not have any parameters.
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
 |**409** | Sync already in progress |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **testFeatureTimeline**
+> FeatureTimelineResponse testFeatureTimeline(testFeatureTimelineRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    TestFeatureTimelineRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let from: string; //Start of the period (inclusive) (default to undefined)
+let to: string; //End of the period (exclusive) (default to undefined)
+let location: string; //Browser\'s location string (default to undefined)
+let testFeatureTimelineRequest: TestFeatureTimelineRequest; //
+
+const { status, data } = await apiInstance.testFeatureTimeline(
+    featureId,
+    from,
+    to,
+    location,
+    testFeatureTimelineRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **testFeatureTimelineRequest** | **TestFeatureTimelineRequest**|  | |
+| **featureId** | [**string**] |  | defaults to undefined|
+| **from** | [**string**] | Start of the period (inclusive) | defaults to undefined|
+| **to** | [**string**] | End of the period (exclusive) | defaults to undefined|
+| **location** | [**string**] | Browser\&#39;s location string | defaults to undefined|
+
+
+### Return type
+
+**FeatureTimelineResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Feature timeline with test schedules |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

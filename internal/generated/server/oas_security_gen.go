@@ -81,6 +81,7 @@ var operationRolesBearerAuth = map[string][]string{
 	Setup2FAOperation:                    []string{},
 	SyncCustomizedFeatureRuleOperation:   []string{},
 	SyncLDAPUsersOperation:               []string{},
+	TestFeatureTimelineOperation:         []string{},
 	TestLDAPConnectionOperation:          []string{},
 	ToggleFeatureOperation:               []string{},
 	UpdateFeatureOperation:               []string{},

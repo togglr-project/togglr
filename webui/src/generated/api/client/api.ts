@@ -749,6 +749,25 @@ export type SortOrder = typeof SortOrder[keyof typeof SortOrder];
 export interface SuccessResponse {
     'message'?: string;
 }
+export interface TestFeatureSchedule {
+    'starts_at'?: string;
+    'ends_at'?: string;
+    'cron_expr'?: string;
+    'timezone': string;
+    'action': TestFeatureScheduleActionEnum;
+    'cron_duration'?: string;
+}
+
+export const TestFeatureScheduleActionEnum = {
+    Enable: 'enable',
+    Disable: 'disable'
+} as const;
+
+export type TestFeatureScheduleActionEnum = typeof TestFeatureScheduleActionEnum[keyof typeof TestFeatureScheduleActionEnum];
+
+export interface TestFeatureTimelineRequest {
+    'schedules': Array<TestFeatureSchedule>;
+}
 export interface ToggleFeatureRequest {
     'enabled': boolean;
 }
@@ -3098,6 +3117,75 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Test feature timeline with mock schedules
+         * @param {string} featureId 
+         * @param {string} from Start of the period (inclusive)
+         * @param {string} to End of the period (exclusive)
+         * @param {string} location Browser\&#39;s location string
+         * @param {TestFeatureTimelineRequest} testFeatureTimelineRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        testFeatureTimeline: async (featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('testFeatureTimeline', 'featureId', featureId)
+            // verify required parameter 'from' is not null or undefined
+            assertParamExists('testFeatureTimeline', 'from', from)
+            // verify required parameter 'to' is not null or undefined
+            assertParamExists('testFeatureTimeline', 'to', to)
+            // verify required parameter 'location' is not null or undefined
+            assertParamExists('testFeatureTimeline', 'location', location)
+            // verify required parameter 'testFeatureTimelineRequest' is not null or undefined
+            assertParamExists('testFeatureTimeline', 'testFeatureTimelineRequest', testFeatureTimelineRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/timeline/test`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (from !== undefined) {
+                localVarQueryParameter['from'] = (from as any instanceof Date) ?
+                    (from as any).toISOString() :
+                    from;
+            }
+
+            if (to !== undefined) {
+                localVarQueryParameter['to'] = (to as any instanceof Date) ?
+                    (to as any).toISOString() :
+                    to;
+            }
+
+            if (location !== undefined) {
+                localVarQueryParameter['location'] = location;
+            }
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(testFeatureTimelineRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Test LDAP connection
          * @param {LDAPConnectionTest} lDAPConnectionTest 
          * @param {*} [options] Override http request option.
@@ -4316,6 +4404,23 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Test feature timeline with mock schedules
+         * @param {string} featureId 
+         * @param {string} from Start of the period (inclusive)
+         * @param {string} to End of the period (exclusive)
+         * @param {string} location Browser\&#39;s location string
+         * @param {TestFeatureTimelineRequest} testFeatureTimelineRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async testFeatureTimeline(featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.testFeatureTimeline(featureId, from, to, location, testFeatureTimelineRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.testFeatureTimeline']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Test LDAP connection
          * @param {LDAPConnectionTest} lDAPConnectionTest 
          * @param {*} [options] Override http request option.
@@ -5052,6 +5157,20 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         syncLDAPUsers(options?: RawAxiosRequestConfig): AxiosPromise<LDAPSyncStartResponse> {
             return localVarFp.syncLDAPUsers(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Test feature timeline with mock schedules
+         * @param {string} featureId 
+         * @param {string} from Start of the period (inclusive)
+         * @param {string} to End of the period (exclusive)
+         * @param {string} location Browser\&#39;s location string
+         * @param {TestFeatureTimelineRequest} testFeatureTimelineRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        testFeatureTimeline(featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
+            return localVarFp.testFeatureTimeline(featureId, from, to, location, testFeatureTimelineRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5812,6 +5931,21 @@ export class DefaultApi extends BaseAPI {
      */
     public syncLDAPUsers(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).syncLDAPUsers(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Test feature timeline with mock schedules
+     * @param {string} featureId 
+     * @param {string} from Start of the period (inclusive)
+     * @param {string} to End of the period (exclusive)
+     * @param {string} location Browser\&#39;s location string
+     * @param {TestFeatureTimelineRequest} testFeatureTimelineRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public testFeatureTimeline(featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).testFeatureTimeline(featureId, from, to, location, testFeatureTimelineRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -64,6 +64,7 @@ const (
 	Setup2FAOperation                    OperationName = "Setup2FA"
 	SyncCustomizedFeatureRuleOperation   OperationName = "SyncCustomizedFeatureRule"
 	SyncLDAPUsersOperation               OperationName = "SyncLDAPUsers"
+	TestFeatureTimelineOperation         OperationName = "TestFeatureTimeline"
 	TestLDAPConnectionOperation          OperationName = "TestLDAPConnection"
 	ToggleFeatureOperation               OperationName = "ToggleFeature"
 	UpdateFeatureOperation               OperationName = "UpdateFeature"

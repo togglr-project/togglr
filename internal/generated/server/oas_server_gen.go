@@ -360,6 +360,12 @@ type Handler interface {
 	//
 	// POST /api/v1/ldap/sync/users
 	SyncLDAPUsers(ctx context.Context) (SyncLDAPUsersRes, error)
+	// TestFeatureTimeline implements TestFeatureTimeline operation.
+	//
+	// Test feature timeline with mock schedules.
+	//
+	// POST /api/v1/features/{feature_id}/timeline/test
+	TestFeatureTimeline(ctx context.Context, req *TestFeatureTimelineRequest, params TestFeatureTimelineParams) (TestFeatureTimelineRes, error)
 	// TestLDAPConnection implements TestLDAPConnection operation.
 	//
 	// Test LDAP connection.

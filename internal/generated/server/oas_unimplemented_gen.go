@@ -539,6 +539,15 @@ func (UnimplementedHandler) SyncLDAPUsers(ctx context.Context) (r SyncLDAPUsersR
 	return r, ht.ErrNotImplemented
 }
 
+// TestFeatureTimeline implements TestFeatureTimeline operation.
+//
+// Test feature timeline with mock schedules.
+//
+// POST /api/v1/features/{feature_id}/timeline/test
+func (UnimplementedHandler) TestFeatureTimeline(ctx context.Context, req *TestFeatureTimelineRequest, params TestFeatureTimelineParams) (r TestFeatureTimelineRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // TestLDAPConnection implements TestLDAPConnection operation.
 //
 // Test LDAP connection.

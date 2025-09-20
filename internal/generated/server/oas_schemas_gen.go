@@ -832,6 +832,7 @@ func (*ErrorBadRequest) sSOInitiateRes()              {}
 func (*ErrorBadRequest) send2FACodeRes()              {}
 func (*ErrorBadRequest) setSuperuserStatusRes()       {}
 func (*ErrorBadRequest) setUserActiveStatusRes()      {}
+func (*ErrorBadRequest) testFeatureTimelineRes()      {}
 func (*ErrorBadRequest) toggleFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
@@ -930,6 +931,7 @@ func (*ErrorInternalServerError) sSOInitiateRes()                 {}
 func (*ErrorInternalServerError) setSuperuserStatusRes()          {}
 func (*ErrorInternalServerError) setUserActiveStatusRes()         {}
 func (*ErrorInternalServerError) syncCustomizedFeatureRuleRes()   {}
+func (*ErrorInternalServerError) testFeatureTimelineRes()         {}
 func (*ErrorInternalServerError) toggleFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
@@ -1028,6 +1030,7 @@ func (*ErrorNotFound) listUsersRes()                   {}
 func (*ErrorNotFound) setSuperuserStatusRes()          {}
 func (*ErrorNotFound) setUserActiveStatusRes()         {}
 func (*ErrorNotFound) syncCustomizedFeatureRuleRes()   {}
+func (*ErrorNotFound) testFeatureTimelineRes()         {}
 func (*ErrorNotFound) toggleFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
@@ -1104,6 +1107,7 @@ func (*ErrorPermissionDenied) setSuperuserStatusRes()          {}
 func (*ErrorPermissionDenied) setUserActiveStatusRes()         {}
 func (*ErrorPermissionDenied) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorPermissionDenied) syncLDAPUsersRes()               {}
+func (*ErrorPermissionDenied) testFeatureTimelineRes()         {}
 func (*ErrorPermissionDenied) testLDAPConnectionRes()          {}
 func (*ErrorPermissionDenied) toggleFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureRes()               {}
@@ -1255,6 +1259,7 @@ func (*ErrorUnauthorized) setUserActiveStatusRes()         {}
 func (*ErrorUnauthorized) setup2FARes()                    {}
 func (*ErrorUnauthorized) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorUnauthorized) syncLDAPUsersRes()               {}
+func (*ErrorUnauthorized) testFeatureTimelineRes()         {}
 func (*ErrorUnauthorized) testLDAPConnectionRes()          {}
 func (*ErrorUnauthorized) toggleFeatureRes()               {}
 func (*ErrorUnauthorized) updateFeatureRes()               {}
@@ -1887,7 +1892,8 @@ func (s *FeatureTimelineResponse) SetEvents(val []FeatureTimelineEvent) {
 	s.Events = val
 }
 
-func (*FeatureTimelineResponse) getFeatureTimelineRes() {}
+func (*FeatureTimelineResponse) getFeatureTimelineRes()  {}
+func (*FeatureTimelineResponse) testFeatureTimelineRes() {}
 
 // Ref: #/components/schemas/FlagVariant
 type FlagVariant struct {
@@ -5862,6 +5868,132 @@ func (s *SuccessResponse) SetMessage(val OptString) {
 
 func (*SuccessResponse) cancelLDAPSyncRes()   {}
 func (*SuccessResponse) deleteLDAPConfigRes() {}
+
+// Ref: #/components/schemas/TestFeatureSchedule
+type TestFeatureSchedule struct {
+	StartsAt     OptNilDateTime            `json:"starts_at"`
+	EndsAt       OptNilDateTime            `json:"ends_at"`
+	CronExpr     OptNilString              `json:"cron_expr"`
+	Timezone     string                    `json:"timezone"`
+	Action       TestFeatureScheduleAction `json:"action"`
+	CronDuration OptNilString              `json:"cron_duration"`
+}
+
+// GetStartsAt returns the value of StartsAt.
+func (s *TestFeatureSchedule) GetStartsAt() OptNilDateTime {
+	return s.StartsAt
+}
+
+// GetEndsAt returns the value of EndsAt.
+func (s *TestFeatureSchedule) GetEndsAt() OptNilDateTime {
+	return s.EndsAt
+}
+
+// GetCronExpr returns the value of CronExpr.
+func (s *TestFeatureSchedule) GetCronExpr() OptNilString {
+	return s.CronExpr
+}
+
+// GetTimezone returns the value of Timezone.
+func (s *TestFeatureSchedule) GetTimezone() string {
+	return s.Timezone
+}
+
+// GetAction returns the value of Action.
+func (s *TestFeatureSchedule) GetAction() TestFeatureScheduleAction {
+	return s.Action
+}
+
+// GetCronDuration returns the value of CronDuration.
+func (s *TestFeatureSchedule) GetCronDuration() OptNilString {
+	return s.CronDuration
+}
+
+// SetStartsAt sets the value of StartsAt.
+func (s *TestFeatureSchedule) SetStartsAt(val OptNilDateTime) {
+	s.StartsAt = val
+}
+
+// SetEndsAt sets the value of EndsAt.
+func (s *TestFeatureSchedule) SetEndsAt(val OptNilDateTime) {
+	s.EndsAt = val
+}
+
+// SetCronExpr sets the value of CronExpr.
+func (s *TestFeatureSchedule) SetCronExpr(val OptNilString) {
+	s.CronExpr = val
+}
+
+// SetTimezone sets the value of Timezone.
+func (s *TestFeatureSchedule) SetTimezone(val string) {
+	s.Timezone = val
+}
+
+// SetAction sets the value of Action.
+func (s *TestFeatureSchedule) SetAction(val TestFeatureScheduleAction) {
+	s.Action = val
+}
+
+// SetCronDuration sets the value of CronDuration.
+func (s *TestFeatureSchedule) SetCronDuration(val OptNilString) {
+	s.CronDuration = val
+}
+
+type TestFeatureScheduleAction string
+
+const (
+	TestFeatureScheduleActionEnable  TestFeatureScheduleAction = "enable"
+	TestFeatureScheduleActionDisable TestFeatureScheduleAction = "disable"
+)
+
+// AllValues returns all TestFeatureScheduleAction values.
+func (TestFeatureScheduleAction) AllValues() []TestFeatureScheduleAction {
+	return []TestFeatureScheduleAction{
+		TestFeatureScheduleActionEnable,
+		TestFeatureScheduleActionDisable,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TestFeatureScheduleAction) MarshalText() ([]byte, error) {
+	switch s {
+	case TestFeatureScheduleActionEnable:
+		return []byte(s), nil
+	case TestFeatureScheduleActionDisable:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TestFeatureScheduleAction) UnmarshalText(data []byte) error {
+	switch TestFeatureScheduleAction(data) {
+	case TestFeatureScheduleActionEnable:
+		*s = TestFeatureScheduleActionEnable
+		return nil
+	case TestFeatureScheduleActionDisable:
+		*s = TestFeatureScheduleActionDisable
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/TestFeatureTimelineRequest
+type TestFeatureTimelineRequest struct {
+	Schedules []TestFeatureSchedule `json:"schedules"`
+}
+
+// GetSchedules returns the value of Schedules.
+func (s *TestFeatureTimelineRequest) GetSchedules() []TestFeatureSchedule {
+	return s.Schedules
+}
+
+// SetSchedules sets the value of Schedules.
+func (s *TestFeatureTimelineRequest) SetSchedules(val []TestFeatureSchedule) {
+	s.Schedules = val
+}
 
 // Ref: #/components/schemas/ToggleFeatureRequest
 type ToggleFeatureRequest struct {

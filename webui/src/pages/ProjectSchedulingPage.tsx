@@ -468,6 +468,32 @@ const ProjectSchedulingPage: React.FC = () => {
     return map;
   }, [allSchedules]);
 
+  // Function to test timeline with mock schedules
+  const testTimelineWithSchedules = async (featureId: string, schedules: any[], from: Date, to: Date) => {
+    try {
+      const response = await apiClient.testFeatureTimeline(
+        featureId,
+        from.toISOString(),
+        to.toISOString(),
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+        {
+          schedules: schedules.map(schedule => ({
+            starts_at: schedule.startsAt ? new Date(schedule.startsAt).toISOString() : undefined,
+            ends_at: schedule.endsAt ? new Date(schedule.endsAt).toISOString() : undefined,
+            cron_expr: schedule.cronExpr,
+            timezone: schedule.timezone,
+            action: schedule.action,
+            cron_duration: schedule.cronDuration
+          }))
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Failed to test timeline:', error);
+      throw error;
+    }
+  };
+
   // Separate features into two groups
   const { featuresWithSchedules, featuresWithoutSchedules } = useMemo(() => {
     const list = features || [];
@@ -1169,6 +1195,7 @@ const ProjectSchedulingPage: React.FC = () => {
           <ScheduleBuilder
             open={scheduleBuilderOpen}
             onClose={closeScheduleBuilder}
+            featureId={dialogFeature?.id || ''}
             onSubmit={(data) => {
               if (dialogFeature) {
                 createCronScheduleMut.mutate({ featureId: dialogFeature.id, data });
@@ -1203,6 +1230,7 @@ const ProjectSchedulingPage: React.FC = () => {
           <EditRecurringScheduleBuilder
             open={editRecurringBuilderOpen}
             onClose={closeEditRecurringBuilder}
+            featureId={editingSchedule?.feature_id || ''}
             onSubmit={(data) => {
               if (editingSchedule) {
                 editRecurringScheduleMut.mutate({ scheduleId: editingSchedule.id, data });

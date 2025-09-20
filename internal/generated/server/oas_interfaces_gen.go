@@ -233,6 +233,10 @@ type SyncLDAPUsersRes interface {
 	syncLDAPUsersRes()
 }
 
+type TestFeatureTimelineRes interface {
+	testFeatureTimelineRes()
+}
+
 type TestLDAPConnectionRes interface {
 	testLDAPConnectionRes()
 }

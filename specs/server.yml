@@ -2767,6 +2767,88 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/features/{feature_id}/timeline/test:
+    post:
+      summary: Test feature timeline with mock schedules
+      operationId: TestFeatureTimeline
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          description: Start of the period (inclusive)
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          description: End of the period (exclusive)
+          schema:
+            type: string
+            format: date-time
+        - name: location
+          in: query
+          required: true
+          description: Browser's location string
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestFeatureTimelineRequest'
+      responses:
+        '200':
+          description: Feature timeline with test schedules
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureTimelineResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
   /api/v1/projects/{project_id}/segments:
     get:
       summary: List segments for project
@@ -4156,6 +4238,39 @@ components:
           items:
             $ref: '#/components/schemas/FeatureTimelineEvent'
       required: [events]
+
+    TestFeatureTimelineRequest:
+      type: object
+      properties:
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/TestFeatureSchedule'
+      required: [schedules]
+
+    TestFeatureSchedule:
+      type: object
+      properties:
+        starts_at:
+          type: string
+          format: date-time
+          nullable: true
+        ends_at:
+          type: string
+          format: date-time
+          nullable: true
+        cron_expr:
+          type: string
+          nullable: true
+        timezone:
+          type: string
+        action:
+          type: string
+          enum: [enable, disable]
+        cron_duration:
+          type: string
+          nullable: true
+      required: [timezone, action]
 
     # ---- Segments ----
     Segment:

@@ -89,6 +89,8 @@ docs/SetSuperuserStatusRequest.md
 docs/SetUserActiveStatusRequest.md
 docs/SortOrder.md
 docs/SuccessResponse.md
+docs/TestFeatureSchedule.md
+docs/TestFeatureTimelineRequest.md
 docs/ToggleFeatureRequest.md
 docs/TwoFAConfirmRequest.md
 docs/TwoFADisableRequest.md

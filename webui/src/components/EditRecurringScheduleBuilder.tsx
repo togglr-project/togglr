@@ -37,12 +37,14 @@ import {
   generateScheduleDescription,
   validateScheduleData
 } from '../utils/cronGenerator';
+import TimelinePreview from './TimelinePreview';
 import type { FeatureSchedule, FeatureScheduleAction } from '../generated/api/client';
 
 interface EditRecurringScheduleBuilderProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: ScheduleBuilderData & { cronExpression: string }) => void;
+  featureId: string;
   initialData?: FeatureSchedule;
 }
 
@@ -132,11 +134,12 @@ const parseDuration = (duration: string): { value: number; unit: 'minutes' | 'ho
   return { value: 1, unit: 'hours' };
 };
 
-const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> = ({
-  open,
-  onClose,
-  onSubmit,
-  initialData
+const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> = ({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  featureId,
+  initialData 
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [data, setData] = useState<ScheduleBuilderData>(() => {
@@ -833,6 +836,19 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
             </Typography>
           </Paper>
         )}
+
+        {/* Timeline Preview */}
+        <TimelinePreview 
+          featureId={featureId}
+          schedules={[{
+            startsAt: data.startsAt,
+            endsAt: data.endsAt,
+            cronExpr: cronExpression,
+            timezone: data.timezone,
+            action: data.action,
+            cronDuration: data.duration
+          }]}
+        />
       </Box>
     );
   };

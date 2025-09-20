@@ -37,11 +37,13 @@ import {
   generateScheduleDescription,
   validateScheduleData
 } from '../utils/cronGenerator';
+import TimelinePreview from './TimelinePreview';
 
 interface ScheduleBuilderProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: ScheduleBuilderData & { cronExpression: string }) => void;
+  featureId: string;
   initialData?: Partial<ScheduleBuilderData>;
   featureCreatedAt?: string; // ISO string for feature creation date
 }
@@ -57,12 +59,13 @@ const allTimezones = listTimeZones();
     'Preview'
   ];
 
-const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
-  open,
-  onClose,
-  onSubmit,
+const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({ 
+  open, 
+  onClose, 
+  onSubmit, 
+  featureId,
   initialData,
-  featureCreatedAt
+  featureCreatedAt 
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [data, setData] = useState<ScheduleBuilderData>(() => ({
@@ -741,6 +744,19 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
             </Typography>
           </Paper>
         )}
+
+        {/* Timeline Preview */}
+        <TimelinePreview 
+          featureId={featureId}
+          schedules={[{
+            startsAt: data.startsAt,
+            endsAt: data.endsAt,
+            cronExpr: cronExpression,
+            timezone: data.timezone,
+            action: data.action,
+            cronDuration: data.duration
+          }]}
+        />
       </Box>
     );
   };
