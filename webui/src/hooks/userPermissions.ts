@@ -141,7 +141,6 @@ export const userPermissions = () => {
   // Общие права
   const canCreateProjects = (): boolean => {
     const result = claims?.isSuperuser || permissions?.can_create_projects || false;
-    console.log('canCreateProjects result:', result);
     return result;
   };
 
