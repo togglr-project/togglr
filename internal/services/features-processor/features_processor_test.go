@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -905,6 +906,91 @@ func TestService_NextState(t *testing.T) {
 			} else {
 				assert.True(t, timestamp.IsZero())
 			}
+		})
+	}
+}
+
+func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
+	loc := time.UTC
+	createdAt := time.Date(2025, 1, 1, 0, 0, 0, 0, loc)
+
+	parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+
+	cases := []struct {
+		name         string
+		expr         string
+		duration     *time.Duration
+		checkTime    time.Time
+		expectActive bool
+	}{
+		{
+			name:         "repeat every 15 minutes",
+			expr:         "*/15 * * * *",
+			checkTime:    time.Date(2025, 1, 15, 9, 30, 0, 0, loc), // 09:30 divisible by 15
+			expectActive: true,
+		},
+		{
+			name:         "repeat every 15 minutes - off between triggers",
+			expr:         "*/15 * * * *",
+			checkTime:    time.Date(2025, 1, 15, 9, 37, 0, 0, loc), // 09:37 not aligned
+			expectActive: false,
+		},
+		{
+			name:         "daily at 09:30",
+			expr:         "30 9 * * *",
+			checkTime:    time.Date(2025, 1, 15, 9, 30, 0, 0, loc),
+			expectActive: true,
+		},
+		{
+			name:         "monthly on 1st at 10:00",
+			expr:         "0 10 1 * *",
+			checkTime:    time.Date(2025, 1, 1, 10, 0, 0, 0, loc),
+			expectActive: true,
+		},
+		{
+			name:         "yearly on Jan 1 at 00:00",
+			expr:         "0 0 1 1 *",
+			checkTime:    time.Date(2025, 1, 1, 0, 0, 0, 0, loc),
+			expectActive: true,
+		},
+		{
+			name:         "with duration still active",
+			expr:         "0 * * * *", // hourly
+			duration:     ptrDuration(30 * time.Minute),
+			checkTime:    time.Date(2025, 1, 15, 9, 15, 0, 0, loc), // within 30m after 09:00
+			expectActive: true,
+		},
+		{
+			name:         "with duration expired",
+			expr:         "0 * * * *", // hourly
+			duration:     ptrDuration(10 * time.Minute),
+			checkTime:    time.Date(2025, 1, 15, 9, 15, 0, 0, loc), // 15m > 10m
+			expectActive: false,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			sched, err := parser.Parse(tt.expr)
+			assert.NoError(t, err)
+
+			crons := CronsMap{
+				"test": sched,
+			}
+
+			fs := domain.FeatureSchedule{
+				ID:           "test",
+				ProjectID:    "proj1",
+				FeatureID:    "f1",
+				CronExpr:     &tt.expr,
+				CronDuration: tt.duration,
+				Timezone:     "UTC",
+				Action:       domain.FeatureScheduleActionEnable,
+				CreatedAt:    createdAt,
+			}
+
+			active, _ := IsScheduleActive(fs, crons, tt.checkTime, createdAt)
+			assert.Equal(t, tt.expectActive, active)
 		})
 	}
 }

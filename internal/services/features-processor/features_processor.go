@@ -600,7 +600,7 @@ func IsScheduleActive(
 	crons CronsMap,
 	now time.Time,
 	featureCreatedAt time.Time,
-) (compatible bool, action domain.FeatureScheduleAction) {
+) (bool, domain.FeatureScheduleAction) {
 	loc, err := time.LoadLocation(schedule.Timezone)
 	if err != nil {
 		slog.Error("error loading timezone", "timezone", schedule.Timezone)
@@ -632,39 +632,14 @@ func IsScheduleActive(
 
 	sched, ok := crons[schedule.ID]
 	if !ok {
-		slog.Error("error parsing cron expression", "cron expression", *schedule.CronExpr)
+		slog.Error("invalid cron expr", "expr", *schedule.CronExpr)
 
 		return false, schedule.Action
 	}
 
-	// Эффективный поиск последнего срабатывания cron
-	// Вычисляем шаг cron и находим предыдущее срабатывание
-
-	// Получаем следующее срабатывание от текущего времени
-	next1 := sched.Next(now)
-	// Получаем срабатывание после next1 для вычисления шага
-	next2 := sched.Next(next1)
-
-	// Вычисляем шаг cron (интервал между срабатываниями)
-	step := next2.Sub(next1)
-
-	// Вычисляем время предыдущего срабатывания
-	prev := next1.Add(-step)
-
-	// Проверяем, что предыдущее срабатывание было после начала расписания
-	if prev.Before(scheduleStart) {
-		// Если предыдущее срабатывание до начала расписания,
-		// но next1 после начала, то next1 и есть первое срабатывание
-		if !next1.Before(scheduleStart) {
-			prev = next1
-		} else {
-			// Cron еще не срабатывал в нужном интервале
-			return false, schedule.Action
-		}
-	}
-
-	// Проверяем, что мы находимся в интервале между срабатываниями
-	if now.Before(prev) || !now.Before(next1) {
+	// Предыдущее срабатывание
+	prev, ok := findPrevCron(sched, now, scheduleStart)
+	if !ok {
 		return false, schedule.Action
 	}
 
@@ -926,4 +901,29 @@ func actionOrder(a domain.RuleAction) int {
 	default:
 		return 99
 	}
+}
+
+// findPrevCron — возвращает предыдущее срабатывание для простого cron.
+// Мы предполагаем, что cron всегда простой (только шаги и фиксированные времена).
+func findPrevCron(sched cron.Schedule, now, scheduleStart time.Time) (time.Time, bool) {
+	// Следующее срабатывание после now
+	next1 := sched.Next(now)
+	// Срабатывание после next1
+	next2 := sched.Next(next1)
+
+	// Шаг между событиями
+	step := next2.Sub(next1)
+	if step <= 0 {
+		return time.Time{}, false
+	}
+
+	// Предыдущее событие
+	prev := next1.Add(-step)
+
+	// Проверяем, что оно в рамках расписания
+	if prev.Before(scheduleStart) {
+		return time.Time{}, false
+	}
+
+	return prev, true
 }
