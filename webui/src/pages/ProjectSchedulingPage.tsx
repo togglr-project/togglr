@@ -32,7 +32,8 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Schedule as ScheduleIcon,
-  Refresh as RefreshIcon
+  Refresh as RefreshIcon,
+  Help as HelpIcon
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
@@ -43,6 +44,7 @@ import ScheduleBuilder from '../components/ScheduleBuilder';
 import OneShotScheduleDialog from '../components/OneShotScheduleDialog';
 import EditRecurringScheduleBuilder from '../components/EditRecurringScheduleBuilder';
 import EditOneShotScheduleDialog from '../components/EditOneShotScheduleDialog';
+import ScheduleHelpDialog from '../components/ScheduleHelpDialog';
 import apiClient from '../api/apiClient';
 import { canAddRecurringSchedule, canAddOneShotSchedule, getScheduleType } from '../utils/scheduleHelpers';
 import type { ScheduleBuilderData } from '../utils/cronGenerator';
@@ -186,8 +188,8 @@ const ScheduleDialog: React.FC<{
                 value={values.action}
                 onChange={(e) => setValues(v => ({ ...v, action: e.target.value as FeatureScheduleAction }))}
               >
-                <MenuItem value="enable">Enable</MenuItem>
-                <MenuItem value="disable">Disable</MenuItem>
+                <MenuItem value="enable">Activate</MenuItem>
+                <MenuItem value="disable">Deactivate</MenuItem>
               </TextField>
             </Grid>
             <Grid item xs={12} md={6}>
@@ -498,6 +500,7 @@ const ProjectSchedulingPage: React.FC = () => {
   const [editRecurringBuilderOpen, setEditRecurringBuilderOpen] = useState(false);
   const [editOneShotDialogOpen, setEditOneShotDialogOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<FeatureSchedule | null>(null);
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
   
   // Tab state
   const [activeTab, setActiveTab] = useState(0);
@@ -706,7 +709,9 @@ const ProjectSchedulingPage: React.FC = () => {
                     <Paper key={s.id} sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                          <Typography variant="body1" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>{s.action}</Typography>
+                          <Typography variant="body1" sx={{ fontWeight: 600, textTransform: 'capitalize' }}>
+                            {s.action === 'enable' ? 'Activate' : s.action === 'disable' ? 'Deactivate' : s.action}
+                          </Typography>
                           <Chip 
                             size="small" 
                             label={getScheduleType(s) === 'cron' ? 'Recurring' : 'One-shot'} 
@@ -765,11 +770,41 @@ const ProjectSchedulingPage: React.FC = () => {
     <AuthenticatedLayout showBackButton backTo={`/projects/${projectId}`}>
       <PageHeader
         title={project ? `${project.name} — Scheduling` : 'Scheduling'}
-        subtitle={project ? `Manage feature schedules in project ${project.name}` : 'Feature schedules'}
+        // subtitle={project ? `Manage feature schedules in project ${project.name}` : 'Feature schedules'}
         icon={<ScheduleIcon />}
         gradientVariant="default"
         subtitleGradientVariant="default"
       />
+      
+      {/* Help Link - positioned as part of subtitle */}
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'flex-start',
+        mb: 2, 
+        mt: -2,
+        px: 2
+      }}>
+        <Box
+          component="span"
+          onClick={() => setHelpDialogOpen(true)}
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.5,
+            color: 'primary.main',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            fontSize: '0.875rem',
+            '&:hover': {
+              color: 'primary.dark',
+              textDecoration: 'underline'
+            }
+          }}
+        >
+          <HelpIcon fontSize="small" />
+          Understanding Feature Enablement and Schedules
+        </Box>
+      </Box>
 
       {(loadingProject || loadingFeatures || loadingSchedules) && (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
@@ -1189,6 +1224,12 @@ const ProjectSchedulingPage: React.FC = () => {
         }}
         initialData={editingSchedule || undefined}
         existingSchedules={allSchedules?.filter(s => s.feature_id === dialogFeature?.id) || []}
+      />
+
+      {/* Help Dialog */}
+      <ScheduleHelpDialog
+        open={helpDialogOpen}
+        onClose={() => setHelpDialogOpen(false)}
       />
     </AuthenticatedLayout>
   );

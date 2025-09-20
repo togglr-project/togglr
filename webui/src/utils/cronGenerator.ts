@@ -114,7 +114,7 @@ function generateYearlyCron(params: YearlyParams): string {
 export function generateScheduleDescription(data: ScheduleBuilderData): string {
   const { scheduleType, repeatEvery, daily, monthly, yearly, duration, action } = data;
   
-  const actionText = action === 'enable' ? 'enable' : 'disable';
+  const actionText = action === 'enable' ? 'activate' : 'deactivate';
   const durationText = formatDuration(duration);
 
   switch (scheduleType) {

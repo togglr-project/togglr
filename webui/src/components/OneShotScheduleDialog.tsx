@@ -13,8 +13,11 @@ import {
   Box,
   FormControl,
   InputLabel,
-  Select
+  Select,
+  Tooltip,
+  IconButton
 } from '@mui/material';
+import { Help as HelpIcon } from '@mui/icons-material';
 // @ts-ignore
 import { listTimeZones, findTimeZone, getUTCOffset } from 'timezone-support';
 import type { FeatureScheduleAction } from '../generated/api/client';
@@ -146,8 +149,25 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
             </Alert>
           )}
 
+          <Alert severity="warning" sx={{ mb: 3 }}>
+            <Typography variant="body2">
+              <strong>Important:</strong> Activate/Deactivate schedules only work when the feature's Master Enable switch is ON. 
+              When Master Enable is OFF, the feature is completely disabled and schedules are ignored.
+            </Typography>
+          </Alert>
+
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  Action
+                </Typography>
+                <Tooltip title="Master Enable is the global on/off switch: when OFF the feature is always disabled and schedules are ignored. When ON, the feature is either controlled manually (if no schedules are defined) or automatically by schedules. You can create either one repeating schedule (using the friendly 'repeat' builder) or one-or-more non-overlapping one-shot intervals. Repeating schedules define periodic active windows (duration is required); one-shot intervals define exact start/end periods. Baseline (state outside scheduled windows) depends on schedule types: repeating-Activate → baseline OFF (activate only during windows); repeating-Deactivate → baseline ON (deactivate only during windows); for one-shots baseline is ON if any Deactivate interval exists, otherwise OFF. Newer schedules override older ones; if two are created at the same instant, Deactivate wins.">
+                  <IconButton size="small">
+                    <HelpIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
               <FormControl fullWidth>
                 <InputLabel>Action</InputLabel>
                 <Select
@@ -155,13 +175,23 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
                   onChange={(e) => setData(prev => ({ ...prev, action: e.target.value as FeatureScheduleAction }))}
                   label="Action"
                 >
-                  <MenuItem value="enable">Enable feature</MenuItem>
-                  <MenuItem value="disable">Disable feature</MenuItem>
+                  <MenuItem value="enable">Activate feature</MenuItem>
+                  <MenuItem value="disable">Deactivate feature</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
 
             <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                  User's timezone by default
+                </Typography>
+                <Tooltip title="By default, the timezone is detected from your browser (Intl.DateTimeFormat). You can change it if you need a different zone for this schedule.">
+                  <IconButton size="small">
+                    <HelpIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              </Box>
               <TextField
                 select
                 fullWidth
