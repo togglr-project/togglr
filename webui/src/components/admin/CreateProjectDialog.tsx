@@ -83,7 +83,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={handleCancel}>
-      <DialogTitle className="gradient-text-purple">Create New Project</DialogTitle>
+      <DialogTitle sx={{ color: 'primary.main' }}>Create New Project</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Enter the name for the new project and select a team (optional).

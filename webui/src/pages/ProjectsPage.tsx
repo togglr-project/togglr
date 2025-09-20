@@ -83,7 +83,7 @@ const ProjectsPage: React.FC = () => {
         }}
       >
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h6" className="gradient-subtitle">
+          <Typography variant="h6" sx={{ color: 'primary.light' }}>
             Projects
           </Typography>
           {canCreateProjects() && (

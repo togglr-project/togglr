@@ -47,7 +47,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={handleCancel}>
-      <DialogTitle className="gradient-text-purple">Create New User</DialogTitle>
+      <DialogTitle sx={{ color: 'primary.main' }}>Create New User</DialogTitle>
       <DialogContent>
         <DialogContentText>
           Enter the details for the new user.

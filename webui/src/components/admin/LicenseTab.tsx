@@ -197,7 +197,7 @@ const LicenseTab: React.FC = () => {
   return (
     <Box>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="h2" fontWeight={600} className="gradient-text-purple">
+        <Typography variant="h5" component="h2" fontWeight={600} sx={{ color: 'primary.main' }}>
           License Management
         </Typography>
         <Button
@@ -215,7 +215,7 @@ const LicenseTab: React.FC = () => {
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom fontWeight={600} className="gradient-subtitle-purple">
+              <Typography variant="h6" gutterBottom fontWeight={600} sx={{ color: 'primary.light' }}>
                 Installation Info
               </Typography>
             </Box>
@@ -264,7 +264,7 @@ const LicenseTab: React.FC = () => {
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom fontWeight={600} className="gradient-subtitle-purple">
+              <Typography variant="h6" gutterBottom fontWeight={600} sx={{ color: 'primary.light' }}>
                 Current License Status
               </Typography>
               <Grid container spacing={2} alignItems="center">
@@ -404,7 +404,7 @@ const LicenseTab: React.FC = () => {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle className="gradient-text-purple">Update License</DialogTitle>
+        <DialogTitle sx={{ color: 'primary.main' }}>Update License</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Enter your new license key to update the current license.

@@ -227,7 +227,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
                 display: 'flex', 
                 justifyContent: 'space-between',
                 fontSize: '0.75rem',
-                color: 'text.secondary',
+                color: 'primary.light',
                 mt: 1,
                 px: 1
               }}>

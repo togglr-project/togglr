@@ -13,7 +13,7 @@ const Divider: React.FC<DividerProps> = ({ text = 'or' }) => {
         variant="body2"
         sx={{
           px: 2,
-          color: 'text.secondary',
+          color: 'primary.light',
           textTransform: 'uppercase',
           fontSize: '0.75rem',
           fontWeight: 500,

@@ -287,7 +287,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   return (
     <Dialog open={open} onClose={disabled ? undefined : onClose} fullWidth maxWidth="md">
-      <DialogTitle className="gradient-text-purple">Edit Feature</DialogTitle>
+      <DialogTitle sx={{ color: 'primary.main' }}>Edit Feature</DialogTitle>
       <DialogContent>
         {!featureDetails ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>

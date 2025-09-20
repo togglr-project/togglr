@@ -171,7 +171,7 @@ const Layout: React.FC<LayoutProps> = ({
               },
             }}
           >
-            <MenuIcon className="gradient-text" />
+            <MenuIcon />
           </IconButton>
 
           {showBackButton && (
@@ -188,7 +188,7 @@ const Layout: React.FC<LayoutProps> = ({
               }}
               onClick={() => navigate(backTo)}
             >
-              <ArrowBackIcon className="gradient-text" />
+              <ArrowBackIcon />
             </IconButton>
           )}
 
@@ -212,7 +212,7 @@ const Layout: React.FC<LayoutProps> = ({
                 }}
               >
                 <Badge badgeContent={12} color="error">
-                  <NotificationsIcon className="gradient-text" />
+                  <NotificationsIcon />
                 </Badge>
               </IconButton>
             </Tooltip>

@@ -312,7 +312,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle className="gradient-text-purple">Create Feature</DialogTitle>
+      <DialogTitle sx={{ color: 'primary.main' }}>Create Feature</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mt: 1 }}>
           <TextField 

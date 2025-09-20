@@ -57,7 +57,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onClose }
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
-        <Typography variant="h5" component="div" align="center" className="gradient-text">
+        <Typography variant="h5" component="div" align="center" sx={{ color: 'primary.main' }}>
           Change Your Password
         </Typography>
       </DialogTitle>

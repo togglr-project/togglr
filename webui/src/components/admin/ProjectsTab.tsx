@@ -66,7 +66,7 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({
               fontWeight: 600,
               mb: 0.5
             }}
-            className="gradient-subtitle-purple"
+            sx={{ color: 'primary.light' }}
           >
             Manage Projects
           </Typography>

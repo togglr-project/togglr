@@ -18,8 +18,6 @@ interface PageHeaderProps {
   };
   loading?: boolean;
   children?: React.ReactNode;
-  gradientVariant?: 'default' | 'purple' | 'blue' | 'green';
-  subtitleGradientVariant?: 'default' | 'purple' | 'blue' | 'green';
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({ 
@@ -28,39 +26,9 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   icon, 
   badge, 
   loading = false,
-  children,
-  gradientVariant = 'default',
-  subtitleGradientVariant
+  children
 }) => {
   const theme = useTheme();
-
-  const getGradientClass = () => {
-    switch (gradientVariant) {
-      case 'purple':
-        return 'gradient-text-purple';
-      case 'blue':
-        return 'gradient-text-blue';
-      case 'green':
-        return 'gradient-text-green';
-      default:
-        return 'gradient-text';
-    }
-  };
-
-  const getSubtitleGradientClass = () => {
-    if (!subtitleGradientVariant) return '';
-    
-    switch (subtitleGradientVariant) {
-      case 'purple':
-        return 'gradient-subtitle-purple';
-      case 'blue':
-        return 'gradient-subtitle-blue';
-      case 'green':
-        return 'gradient-subtitle-green';
-      default:
-        return 'gradient-subtitle';
-    }
-  };
 
   if (loading) {
     return (
@@ -106,11 +74,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           <Typography 
             variant="h4" 
             component="h1" 
-            className={getGradientClass()}
             sx={{ 
               fontWeight: 700,
               lineHeight: 1.2,
               fontSize: '1.55rem',
+              color: 'primary.main'
             }}
           >
             {title}
@@ -132,12 +100,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         {subtitle && (
           <Typography 
             variant="body1" 
-            className={getSubtitleGradientClass()}
             sx={{ 
               ml: icon ? 6 : 0,
               fontSize: '1rem',
               lineHeight: 1.5,
               whiteSpace: 'pre-wrap',
+              color: 'primary.light'
             }}
           >
             {subtitle}

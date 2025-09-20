@@ -65,7 +65,7 @@ const ForgotPasswordPage: React.FC = () => {
             <WardenLogo logoSize={58} showLink={false} variant={"h3"} />
           </Box>
 
-          <Typography component="h1" variant="h5" sx={{ mb: 3 }} className="gradient-text">
+          <Typography component="h1" variant="h5" sx={{ mb: 3, color: 'primary.main' }}>
             Forgot Password
           </Typography>
 

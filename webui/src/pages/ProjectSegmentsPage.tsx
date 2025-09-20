@@ -255,7 +255,7 @@ const CreateEditSegmentDialog: React.FC<{
   return (
     <>
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle className="gradient-text-purple">{title}</DialogTitle>
+      <DialogTitle sx={{ color: 'primary.main' }}>{title}</DialogTitle>
       <DialogContent dividers>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
           <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth />
@@ -376,7 +376,7 @@ const ProjectSegmentsPage: React.FC = () => {
 
       <Paper sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" className="gradient-subtitle">Segments</Typography>
+          <Typography variant="h6" sx={{ color: 'primary.light' }}>Segments</Typography>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)}>
             Add Segment
           </Button>

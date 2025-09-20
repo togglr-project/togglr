@@ -23,7 +23,7 @@ const WardenLogo: React.FC<WardenLogoProps> = ({
   const logoContent = (
     <Typography
       variant={variant}
-      className={`gradient-text ${className}`}
+      className={`togglr-logo-gradient ${className}`}
       sx={{
         textDecoration: 'none',
         fontWeight: 700,

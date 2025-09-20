@@ -1,40 +1,18 @@
-/* Gradient text effect for logo */
-.gradient-text {
+/* Gradient text effect specifically for Togglr logo */
+.togglr-logo-gradient {
     background: linear-gradient(45deg, rgb(130, 82, 255), #FF5A8C);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    transition: all 0.3s ease;
 }
 
-/* Alternative gradient variations */
-.gradient-text-purple {
-    background: linear-gradient(45deg, rgb(130, 82, 255), rgb(150, 110, 255));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.gradient-text-blue {
-    background: linear-gradient(45deg, #3B82F6, #8B5CF6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.gradient-text-green {
-    background: linear-gradient(45deg, #10B981, #059669);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* Hover effects */
-.gradient-text:hover {
+/* Hover effects for logo */
+.togglr-logo-gradient:hover {
     background: linear-gradient(45deg, rgb(110, 62, 235), #E54A7C);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    transition: all 0.3s ease;
 }
 
 /* Animation for logo */

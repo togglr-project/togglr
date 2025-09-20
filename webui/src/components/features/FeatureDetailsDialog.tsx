@@ -155,7 +155,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle className="gradient-text-purple">Feature Details</DialogTitle>
+      <DialogTitle sx={{ color: 'primary.main' }}>Feature Details</DialogTitle>
       <DialogContent>
         {!feature || isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>

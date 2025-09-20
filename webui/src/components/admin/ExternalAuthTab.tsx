@@ -45,7 +45,7 @@ const ExternalAuthTab: React.FC = () => {
         <Typography
           variant="body1"
           sx={{
-            color: 'text.secondary',
+            color: 'primary.light',
             maxWidth: '800px',
             fontSize: '1rem'
           }}

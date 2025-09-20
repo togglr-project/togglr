@@ -64,7 +64,7 @@ const LicenseDialog: React.FC<LicenseDialogProps> = ({ open, onClose }) => {
       disableEscapeKeyDown // Prevent closing with Escape key
     >
       <DialogTitle>
-        <Typography variant="h5" component="div" align="center" className="gradient-text">
+        <Typography variant="h5" component="div" align="center" sx={{ color: 'primary.main' }}>
           License Agreement
         </Typography>
       </DialogTitle>

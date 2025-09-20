@@ -105,7 +105,7 @@ const ProjectPage: React.FC = () => {
 
       <Paper id="features" sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" className="gradient-subtitle">Features</Typography>
+          <Typography variant="h6" sx={{ color: 'primary.light' }}>Features</Typography>
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>
             Add Feature
           </Button>
