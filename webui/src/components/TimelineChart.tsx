@@ -202,18 +202,21 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
               height: 20, 
               position: 'relative', 
               mb: 3,
-              borderBottom: `1px solid ${theme.palette.divider}`
+              borderBottom: `1px solid ${theme.palette.divider}`,
+              ml: '251px' // Match the feature name width (250px + 1px margin)
             }}>
               {/* Current time indicator */}
-              <Box sx={{
-                position: 'absolute',
-                left: `${((timeRange.now - timeRange.start) / totalDuration) * 100}%`,
-                top: 0,
-                bottom: 0,
-                width: 2,
-                backgroundColor: theme.palette.primary.main,
-                zIndex: 10
-              }} />
+              {timeRange.now >= timeRange.start && timeRange.now <= timeRange.end && (
+                <Box sx={{
+                  position: 'absolute',
+                  left: `${((timeRange.now - timeRange.start) / totalDuration) * 100}%`,
+                  top: 0,
+                  bottom: 0,
+                  width: 2,
+                  backgroundColor: theme.palette.primary.main,
+                  zIndex: 10
+                }} />
+              )}
               
               {/* Time labels */}
               <Box sx={{ 
@@ -229,9 +232,53 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
                 px: 1
               }}>
                 <span>{formatTime(timeRange.start)}</span>
-                <span>Now</span>
+                {timeRange.now >= timeRange.start && timeRange.now <= timeRange.end ? (
+                  <span>Now</span>
+                ) : (
+                  <span>{formatTime(timeRange.start + totalDuration / 2)}</span>
+                )}
                 <span>{formatTime(timeRange.end)}</span>
               </Box>
+              
+              {/* Time grid lines */}
+              {Array.from({ length: 5 }, (_, i) => {
+                const time = timeRange.start + (totalDuration / 4) * i;
+                const leftPercent = ((time - timeRange.start) / totalDuration) * 100;
+                return (
+                  <Box
+                    key={i}
+                    sx={{
+                      position: 'absolute',
+                      left: `${leftPercent}%`,
+                      top: 0,
+                      bottom: 0,
+                      width: 1,
+                      backgroundColor: theme.palette.divider,
+                      opacity: 0.5
+                    }}
+                  />
+                );
+              })}
+              
+              {/* Extended grid lines to cover feature timelines */}
+              {Array.from({ length: 5 }, (_, i) => {
+                const time = timeRange.start + (totalDuration / 4) * i;
+                const leftPercent = ((time - timeRange.start) / totalDuration) * 100;
+                return (
+                  <Box
+                    key={`extended-${i}`}
+                    sx={{
+                      position: 'absolute',
+                      left: `${leftPercent}%`,
+                      top: '100%',
+                      height: '200px', // Extend down to cover all feature timelines
+                      width: 1,
+                      backgroundColor: theme.palette.divider,
+                      opacity: 0.3
+                    }}
+                  />
+                );
+              })}
             </Box>
 
             {/* Feature timelines */}
