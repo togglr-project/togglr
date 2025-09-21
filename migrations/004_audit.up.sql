@@ -1,6 +1,6 @@
 create table audit_log (
     id bigserial primary key,
-    feature_id uuid not null references features(id) on delete no action,
+    feature_id uuid not null,
     actor varchar(50) not null,         -- user/system
     action varchar(50) not null,        -- "create", "update", "delete"
     old_value jsonb,
