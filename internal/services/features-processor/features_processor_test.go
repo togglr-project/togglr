@@ -893,8 +893,8 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 			expr:         "0 * * * *", // hourly
 			duration:     ptrDuration(10 * time.Minute),
 			checkTime:    time.Date(2025, 1, 15, 9, 15, 0, 0, loc), // 15m > 10m
-			expectActive: true,
-			expectAction: domain.FeatureScheduleActionDisable,
+			expectActive: true,                                     // расписание все еще активно
+			expectAction: domain.FeatureScheduleActionDisable,      // возвращает противоположное действие
 		},
 	}
 
@@ -921,6 +921,246 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 			active, action := IsScheduleActive(fs, crons, tt.checkTime, createdAt)
 			assert.Equal(t, tt.expectActive, active)
 			assert.Equal(t, tt.expectAction, action)
+		})
+	}
+}
+
+// TestIsFeatureActiveNow_ScheduleBaseline тестирует правильность baseline логики согласно docs/schedule_full.md
+func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
+	loc, _ := time.LoadLocation("UTC")
+	now := time.Date(2025, 9, 16, 12, 0, 0, 0, loc)
+	featureCreatedAt := now.Add(-24 * time.Hour)
+
+	tests := []struct {
+		name     string
+		feature  domain.FeatureExtended
+		now      time.Time
+		expected bool
+		desc     string
+	}{
+		{
+			name: "master enable OFF - feature completely disabled",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   false, // Master Enable = OFF
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "repeating1",
+						Action:    domain.FeatureScheduleActionEnable,
+						CronExpr:  ptrString("0 9 * * *"), // daily at 9:00
+						Timezone:  "UTC",
+						CreatedAt: featureCreatedAt.Add(1 * time.Hour),
+					},
+				},
+			},
+			now:      now,
+			expected: false, // Master Enable OFF → feature completely disabled
+			desc:     "Master Enable OFF: feature completely disabled regardless of schedules",
+		},
+		{
+			name: "master enable ON, no schedules - stays in manual state",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true, // Master Enable = ON
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{}, // no schedules
+			},
+			now:      now,
+			expected: true, // Master Enable ON + no schedules → stays enabled
+			desc:     "Master Enable ON, no schedules: stays in manual state (enabled)",
+		},
+		{
+			name: "repeating schedule with enable action - baseline should be OFF",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:           "repeating1",
+						Action:       domain.FeatureScheduleActionEnable,
+						CronExpr:     ptrString("0 9 * * *"),        // daily at 9:00
+						CronDuration: ptrDuration(30 * time.Minute), // 30 minutes duration
+						Timezone:     "UTC",
+						CreatedAt:    featureCreatedAt.Add(1 * time.Hour),
+					},
+				},
+			},
+			now:      now,   // 12:00, not during 9:00-9:30 window
+			expected: false, // baseline should be OFF for enable action
+			desc:     "Repeating enable schedule: baseline OFF, active only during scheduled windows",
+		},
+		{
+			name: "repeating schedule with disable action - baseline should be ON",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:           "repeating2",
+						Action:       domain.FeatureScheduleActionDisable,
+						CronExpr:     ptrString("0 9 * * *"),        // daily at 9:00
+						CronDuration: ptrDuration(30 * time.Minute), // 30 minutes duration
+						Timezone:     "UTC",
+						CreatedAt:    featureCreatedAt.Add(1 * time.Hour),
+					},
+				},
+			},
+			now:      now,  // 12:00, not during 9:00-9:30 window
+			expected: true, // baseline should be ON for disable action
+			desc:     "Repeating disable schedule: baseline ON, disabled only during scheduled windows",
+		},
+		{
+			name: "one-shot schedules - all activate, baseline should be OFF",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "oneshot1",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(-2 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(-1 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: featureCreatedAt.Add(1 * time.Hour),
+					},
+					{
+						ID:        "oneshot2",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(1 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(2 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: featureCreatedAt.Add(2 * time.Hour),
+					},
+				},
+			},
+			now:      now,   // between the two one-shot intervals
+			expected: false, // baseline should be OFF when all one-shot are activate
+			desc:     "One-shot schedules all activate: baseline OFF",
+		},
+		{
+			name: "one-shot schedules - any deactivate, baseline should be ON",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "oneshot3",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(-2 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(-1 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: featureCreatedAt.Add(1 * time.Hour),
+					},
+					{
+						ID:        "oneshot4",
+						Action:    domain.FeatureScheduleActionDisable,
+						StartsAt:  ptrTime(now.Add(1 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(2 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: featureCreatedAt.Add(2 * time.Hour),
+					},
+				},
+			},
+			now:      now,  // between the two one-shot intervals
+			expected: true, // baseline should be ON when any one-shot is deactivate
+			desc:     "One-shot schedules with deactivate: baseline ON",
+		},
+		{
+			name: "one-shot schedules - during active interval",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					Enabled:   true,
+					CreatedAt: featureCreatedAt,
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "oneshot5",
+						Action:    domain.FeatureScheduleActionEnable,
+						StartsAt:  ptrTime(now.Add(-1 * time.Hour)),
+						EndsAt:    ptrTime(now.Add(1 * time.Hour)),
+						Timezone:  "UTC",
+						CreatedAt: featureCreatedAt.Add(1 * time.Hour),
+					},
+				},
+			},
+			now:      now,  // during the active interval
+			expected: true, // should be active during the interval
+			desc:     "One-shot schedule: active during interval",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			featurePrepared := MakeFeaturePrepared(tt.feature)
+			result := IsFeatureActiveNow(featurePrepared, tt.now)
+			assert.Equal(t, tt.expected, result, tt.desc)
+		})
+	}
+}
+
+// TestIsScheduleActive_CronDurationBaseline тестирует правильность baseline для cron с продолжительностью
+func TestIsScheduleActive_CronDurationBaseline(t *testing.T) {
+	loc, _ := time.LoadLocation("UTC")
+	now := time.Date(2025, 9, 16, 10, 15, 0, 0, loc) // 10:15
+	featureCreatedAt := now.Add(-24 * time.Hour)
+
+	// Cron срабатывает каждый час в 10:00, продолжительность 30 минут
+	// В 10:15 мы должны быть в активном окне (10:00-10:30)
+	// В 10:45 мы должны быть в baseline состоянии (после 10:30)
+
+	tests := []struct {
+		name         string
+		checkTime    time.Time
+		expectActive bool
+		expectAction domain.FeatureScheduleAction
+		desc         string
+	}{
+		{
+			name:         "within duration window - should be active",
+			checkTime:    time.Date(2025, 9, 16, 10, 15, 0, 0, loc), // 15 minutes after 10:00
+			expectActive: true,
+			expectAction: domain.FeatureScheduleActionEnable,
+			desc:         "Within 30-minute window after 10:00 trigger",
+		},
+		{
+			name:         "after duration window - should return opposite action",
+			checkTime:    time.Date(2025, 9, 16, 10, 45, 0, 0, loc), // 45 minutes after 10:00
+			expectActive: true,                                      // расписание все еще активно
+			expectAction: domain.FeatureScheduleActionDisable,       // возвращает противоположное действие
+			desc:         "After 30-minute window, schedule returns opposite action",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			schedule := domain.FeatureSchedule{
+				ID:           "cron_test",
+				Action:       domain.FeatureScheduleActionEnable,
+				CronExpr:     ptrString("0 10 * * *"), // daily at 10:00
+				CronDuration: ptrDuration(30 * time.Minute),
+				Timezone:     "UTC",
+				CreatedAt:    featureCreatedAt,
+			}
+
+			crons := CronsMap{}
+			cronSched, err := ParseSchedule(*schedule.CronExpr)
+			require.NoError(t, err)
+			crons[schedule.ID] = cronSched
+
+			active, action := IsScheduleActive(schedule, crons, tt.checkTime, featureCreatedAt)
+			assert.Equal(t, tt.expectActive, active, tt.desc)
+			assert.Equal(t, tt.expectAction, action, tt.desc)
 		})
 	}
 }

@@ -564,15 +564,17 @@ func EvaluateExpression(expr domain.BooleanExpression, reqCtx map[domain.RuleAtt
 }
 
 func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
+	// Master Enable = OFF → фича полностью выключена
 	if !feature.Enabled {
 		return false
 	}
 
+	// Master Enable = ON, но нет расписаний → остается в ручном состоянии
 	if len(feature.Schedules) == 0 {
 		return feature.Enabled
 	}
 
-	// Если расписания есть — фича полностью управляется ими
+	// Master Enable = ON и есть расписания → фича полностью управляется ими
 	var chosenAction *domain.FeatureScheduleAction
 	var chosenCreatedAt time.Time
 	for i := range feature.Schedules {
@@ -604,8 +606,35 @@ func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 		return *chosenAction == domain.FeatureScheduleActionEnable
 	}
 
-	// Есть расписания, но ни одно не активно сейчас → disable
-	return false
+	// Есть расписания, но ни одно не активно сейчас → возвращаем baseline
+	return getScheduleBaseline(feature.Schedules)
+}
+
+// getScheduleBaseline определяет baseline состояние на основе типа расписаний
+func getScheduleBaseline(schedules []domain.FeatureSchedule) bool {
+	if len(schedules) == 0 {
+		return false
+	}
+
+	// Проверяем первый элемент - если у него есть CronExpr, то это cron-like расписание
+	if schedules[0].CronExpr != nil && *schedules[0].CronExpr != "" {
+		// Repeating расписание: baseline противоположен действию
+		switch schedules[0].Action {
+		case domain.FeatureScheduleActionEnable:
+			return false // baseline OFF для enable действия
+		case domain.FeatureScheduleActionDisable:
+			return true // baseline ON для disable действия
+		}
+	}
+
+	// One-shot расписания: если любой deactivate → baseline ON, иначе OFF
+	for _, schedule := range schedules {
+		if schedule.Action == domain.FeatureScheduleActionDisable {
+			return true // любой deactivate → baseline ON
+		}
+	}
+
+	return false // все activate → baseline OFF
 }
 
 func IsScheduleActive(
@@ -664,6 +693,8 @@ func IsScheduleActive(
 		// Проверяем, не прошло ли время с момента последнего срабатывания
 		timeSinceLastTrigger := now.Sub(triggerTime)
 		if timeSinceLastTrigger > *schedule.CronDuration {
+			// Время действия истекло - возвращаем противоположное действие
+			// Но расписание все еще активно, пока не вышли за EndsAt
 			switch schedule.Action {
 			case domain.FeatureScheduleActionEnable:
 				return true, domain.FeatureScheduleActionDisable
