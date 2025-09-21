@@ -131,6 +131,16 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	require.NoError(t, err)
 	env.Set("POSTGRES_PORT", extractPort(connStr))
 
+	// MailHog ----------------------------------------------------------------
+	mailC, mailDown := startMailHog(t)
+	defer mailDown()
+	mailPort, err := mailC.MappedPort(t.Context(), "1025")
+	require.NoError(t, err)
+	env.Set("MAILER_ADDR", "localhost:"+mailPort.Port())
+
+	mailPort, _ = mailC.MappedPort(t.Context(), "8025")
+	fmt.Println("MailHog UI: http://localhost:" + mailPort.Port())
+
 	// Config and App initialization ------------------------------------------
 	env.SetUp()
 	defer env.CleanUp()
@@ -147,14 +157,28 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	slog.SetDefault(logger)
 
 	time.Sleep(time.Second * 3)
+
+	if err := upMigrations(connStr, cfg.MigrationsDir); err != nil {
+		t.Fatal(err)
+	}
+
 	app, err := internal.NewApp(t.Context(), cfg, logger)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer app.Close()
 
-	if err := upMigrations(connStr, cfg.MigrationsDir); err != nil {
-		t.Fatal(err)
+	if testCfg.UsesOTP {
+		modifiedFixtures := setValidFASecretsInFixtures(t, "./fixtures")
+
+		defer func() {
+			// --- reset modified fixtures ---
+			if len(modifiedFixtures) > 0 {
+				for _, filePath := range modifiedFixtures {
+					resetFixtureFile(t, filePath)
+				}
+			}
+		}()
 	}
 
 	testyCfg := testy.Config{
