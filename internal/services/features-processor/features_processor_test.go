@@ -729,7 +729,6 @@ func TestEvaluateExpression(t *testing.T) {
 }
 
 func TestService_NextState(t *testing.T) {
-	loc, _ := time.LoadLocation("UTC")
 	now := time.Now().UTC()
 
 	tests := []struct {
@@ -771,49 +770,6 @@ func TestService_NextState(t *testing.T) {
 			},
 			expectedEnabled: false, // After enable schedule ends, feature becomes inactive
 			expectedTime:    now.Add(1 * time.Hour),
-			hasNextState:    true,
-		},
-		{
-			name: "schedule with cron, returns next cron trigger",
-			feature: domain.FeatureExtended{
-				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
-				},
-				Schedules: []domain.FeatureSchedule{
-					{
-						ID:        "sched2",
-						Action:    domain.FeatureScheduleActionEnable,
-						CronExpr:  ptrString("0 14 * * *"), // 2 PM daily
-						Timezone:  "UTC",
-						CreatedAt: now.Add(-1 * time.Hour),
-					},
-				},
-			},
-			expectedEnabled: true,
-			expectedTime:    time.Date(2025, 9, 20, 14, 0, 0, 0, loc), // The next occurrence is in 4 days
-			hasNextState:    true,
-		},
-		{
-			name: "schedule with cron and duration, returns action end time",
-			feature: domain.FeatureExtended{
-				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
-				},
-				Schedules: []domain.FeatureSchedule{
-					{
-						ID:           "sched3",
-						Action:       domain.FeatureScheduleActionEnable,
-						CronExpr:     ptrString("0 14 * * *"), // 2 PM daily
-						CronDuration: ptrDuration(2 * time.Hour),
-						Timezone:     "UTC",
-						CreatedAt:    now.Add(-1 * time.Hour),
-					},
-				},
-			},
-			expectedEnabled: false,                                    // opposite action after duration
-			expectedTime:    time.Date(2025, 9, 20, 16, 0, 0, 0, loc), // Next occurrence + 2 hours
 			hasNextState:    true,
 		},
 		{

@@ -81,11 +81,12 @@ func TestBuildFeatureTimeline(t *testing.T) {
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
-						ID:        "cron1",
-						CronExpr:  ptrStr("*/10 * * * *"), // каждые 10 минут
-						Action:    domain.FeatureScheduleActionEnable,
-						Timezone:  "UTC",
-						CreatedAt: now,
+						ID:           "cron1",
+						CronExpr:     ptrStr("*/10 * * * *"), // каждые 10 минут
+						CronDuration: ptrDuration(time.Minute * 5),
+						Action:       domain.FeatureScheduleActionEnable,
+						Timezone:     "UTC",
+						CreatedAt:    now,
 					},
 				},
 			},
@@ -93,12 +94,15 @@ func TestBuildFeatureTimeline(t *testing.T) {
 			to:   now.Add(30 * time.Minute),
 			wantTimes: []time.Time{
 				now, // from
-				time.Date(2025, 9, 16, 12, 10, 0, 0, time.UTC), // cron 1
-				time.Date(2025, 9, 16, 12, 20, 0, 0, time.UTC), // cron 2
-				time.Date(2025, 9, 16, 12, 30, 0, 0, time.UTC), // cron 3
-				now.Add(30 * time.Minute),                      // to
+				time.Date(2025, 9, 16, 12, 0, 0, 0, time.UTC),
+				time.Date(2025, 9, 16, 12, 5, 0, 0, time.UTC),
+				time.Date(2025, 9, 16, 12, 10, 0, 0, time.UTC),
+				time.Date(2025, 9, 16, 12, 15, 0, 0, time.UTC),
+				time.Date(2025, 9, 16, 12, 20, 0, 0, time.UTC),
+				time.Date(2025, 9, 16, 12, 25, 0, 0, time.UTC),
+				now.Add(30 * time.Minute), // to
 			},
-			wantEn: []bool{true, true, true, true, true},
+			wantEn: []bool{false, true, false, true, false, true, false, false},
 		},
 		{
 			name: "disabled feature without schedules",
