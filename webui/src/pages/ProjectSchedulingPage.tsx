@@ -798,8 +798,6 @@ const ProjectSchedulingPage: React.FC = () => {
         title={project ? `${project.name} — Scheduling` : 'Scheduling'}
         // subtitle={project ? `Manage feature schedules in project ${project.name}` : 'Feature schedules'}
         icon={<ScheduleIcon />}
-        gradientVariant="default"
-        subtitleGradientVariant="default"
       />
       
       {/* Help Link - positioned as part of subtitle */}

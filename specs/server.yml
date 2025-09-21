@@ -929,6 +929,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '409':
+          description: Project already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:

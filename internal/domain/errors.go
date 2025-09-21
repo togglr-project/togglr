@@ -6,6 +6,7 @@ import (
 
 var (
 	ErrEntityNotFound       = errors.New("entity not found")
+	ErrEntityAlreadyExists  = errors.New("entity already exists")
 	ErrInvalidToken         = errors.New("invalid token")
 	ErrUsernameAlreadyInUse = errors.New("username already in use")
 	ErrEmailAlreadyInUse    = errors.New("email already in use")

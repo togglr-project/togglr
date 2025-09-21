@@ -370,8 +370,6 @@ const ProjectSegmentsPage: React.FC = () => {
         title={project ? `${project.name} - Segments` : 'Project Segments'}
         subtitle={project ? `Manage user segments for ${project.name}` : 'Segments'}
         icon={<PeopleIcon />}
-        gradientVariant="default"
-        subtitleGradientVariant="default"
       />
 
       <Paper sx={{ p: 3 }}>

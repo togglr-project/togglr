@@ -67,8 +67,6 @@ const ProjectsPage: React.FC = () => {
         title="Projects"
         subtitle="Browse and manage your projects."
         icon={<ProjectsIcon />}
-        gradientVariant="default"
-        subtitleGradientVariant="default"
       />
 
       <Paper

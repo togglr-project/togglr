@@ -5,6 +5,7 @@ ENV PROJECTDIR=/src
 ENV CGO_ENABLED=0
 
 RUN apk add --no-cache make
+RUN apk add --no-cache tzdata
 
 WORKDIR ${PROJECTDIR}
 COPY go.mod go.sum ${PROJECTDIR}/
@@ -18,6 +19,7 @@ RUN make build
 FROM alpine:3.19 AS curl-extract
 
 RUN apk add --no-cache curl
+RUN apk add --no-cache tzdata
 
 # Extract curl and its dependencies directly in Dockerfile
 RUN mkdir -p /curl-deps && \
@@ -32,6 +34,9 @@ FROM scratch AS prod
 COPY --from=curl-extract /curl-deps/curl /usr/bin/curl
 COPY --from=curl-extract /curl-deps/*.so* /lib/
 COPY --from=curl-extract /curl-deps/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
+# Copy timezones
+COPY --from=curl-extract /usr/share/zoneinfo /usr/share/zoneinfo
 
 # Copy application binary and migrations
 COPY --from=build /src/bin/app /bin/app

@@ -98,8 +98,6 @@ const ProjectPage: React.FC = () => {
         title={project ? `${project.name} - Features` : 'Project'}
         subtitle={project ? `Manage features in project ${project.name}` : 'Features'}
         icon={<FlagIcon />}
-        gradientVariant="default"
-        subtitleGradientVariant="default"
       />
 
 

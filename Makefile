@@ -73,7 +73,7 @@ build: ## Build binary
 	go env -w GOPROXY=${GOPROXY}
 	go env -w GOPRIVATE=${GOPRIVATE}
 
-	CGO_ENABLED=0 $(GOBUILD) -trimpath -ldflags=$(LD_FLAGS) -o ${BIN_OUTPUT_DIR}/app .
+	CGO_ENABLED=0 $(GOBUILD) -trimpath -tags timetzdata -ldflags=$(LD_FLAGS) -o ${BIN_OUTPUT_DIR}/app .
 
 .PHONY: mocks
 mocks: .install-mockery ## Generate mocks with mockery

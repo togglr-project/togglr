@@ -19,8 +19,6 @@ const DashboardPage: React.FC = () => {
         title="Dashboard"
         subtitle=""
         icon={<DashboardIcon />}
-        gradientVariant="default"
-        subtitleGradientVariant="default"
       />
       <Box sx={{ p: 2 }}>
         <Typography variant="body2" color="text.secondary">

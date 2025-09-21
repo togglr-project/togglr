@@ -734,6 +734,7 @@ func (s *Error) SetError(val ErrorError) {
 	s.Error = val
 }
 
+func (*Error) addProjectRes()            {}
 func (*Error) cancelLDAPSyncRes()        {}
 func (*Error) createRuleAttributeRes()   {}
 func (*Error) getLDAPConfigRes()         {}
@@ -1067,6 +1068,7 @@ func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
 	s.Error = val
 }
 
+func (*ErrorPermissionDenied) addProjectRes()                  {}
 func (*ErrorPermissionDenied) archiveProjectRes()              {}
 func (*ErrorPermissionDenied) cancelLDAPSyncRes()              {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}

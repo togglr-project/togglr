@@ -100,8 +100,6 @@ const ProjectSettingsPage: React.FC = () => {
         title={project ? `${project.name} — Settings` : 'Project Settings'}
         subtitle={project ? `Project ID: ${project.id}` : 'Edit project'}
         icon={<SettingsIcon />}
-        gradientVariant="default"
-        subtitleGradientVariant="default"
       />
 
       {isLoading && (

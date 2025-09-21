@@ -61,12 +61,12 @@ const ProjectsTab: React.FC<ProjectsTabProps> = ({
       >
         <Box>
           <Typography 
-            variant="h6"
+            variant="h6" 
             sx={{ 
               fontWeight: 600,
-              mb: 0.5
+              mb: 0.5,
+              color: 'primary.light'
             }}
-            sx={{ color: 'primary.light' }}
           >
             Manage Projects
           </Typography>
