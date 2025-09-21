@@ -893,8 +893,8 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 			expr:         "0 * * * *", // hourly
 			duration:     ptrDuration(10 * time.Minute),
 			checkTime:    time.Date(2025, 1, 15, 9, 15, 0, 0, loc), // 15m > 10m
-			expectActive: true,                                     // расписание все еще активно
-			expectAction: domain.FeatureScheduleActionDisable,      // возвращает противоположное действие
+			expectActive: false,                                    // расписание неактивно после истечения времени
+			expectAction: domain.FeatureScheduleActionEnable,       // возвращает исходное действие
 		},
 	}
 
@@ -1134,11 +1134,11 @@ func TestIsScheduleActive_CronDurationBaseline(t *testing.T) {
 			desc:         "Within 30-minute window after 10:00 trigger",
 		},
 		{
-			name:         "after duration window - should return opposite action",
+			name:         "after duration window - should be inactive",
 			checkTime:    time.Date(2025, 9, 16, 10, 45, 0, 0, loc), // 45 minutes after 10:00
-			expectActive: true,                                      // расписание все еще активно
-			expectAction: domain.FeatureScheduleActionDisable,       // возвращает противоположное действие
-			desc:         "After 30-minute window, schedule returns opposite action",
+			expectActive: false,                                     // расписание неактивно после истечения времени
+			expectAction: domain.FeatureScheduleActionEnable,        // возвращает исходное действие
+			desc:         "After 30-minute window, schedule should be inactive",
 		},
 	}
 

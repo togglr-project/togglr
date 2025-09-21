@@ -692,17 +692,9 @@ func IsScheduleActive(
 	if schedule.CronDuration != nil && *schedule.CronDuration > 0 {
 		// Проверяем, не прошло ли время с момента последнего срабатывания
 		timeSinceLastTrigger := now.Sub(triggerTime)
-		if timeSinceLastTrigger > *schedule.CronDuration {
-			// Время действия истекло - возвращаем противоположное действие
-			// Но расписание все еще активно, пока не вышли за EndsAt
-			switch schedule.Action {
-			case domain.FeatureScheduleActionEnable:
-				return true, domain.FeatureScheduleActionDisable
-			case domain.FeatureScheduleActionDisable:
-				return true, domain.FeatureScheduleActionEnable
-			default:
-				return true, schedule.Action
-			}
+		if timeSinceLastTrigger >= *schedule.CronDuration {
+			// Время действия истекло - расписание неактивно, применяется baseline
+			return false, schedule.Action
 		}
 	}
 
