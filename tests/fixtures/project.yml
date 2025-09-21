@@ -1,0 +1,18 @@
+public.users:
+  - id: 1
+    username: admin
+    email: admin@togglr.tech
+    password_hash: $2a$10$wFiI/2DOOS6gpfEjFHc.Cu6ycBYgArF4enzHK7jLh/PyU218rzCy.
+    is_superuser: true
+    is_active: true
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+    last_login: $eval(SELECT NOW())
+    is_tmp_password: false
+    two_fa_enabled: false
+public.projects:
+  - id: 11111111-1111-1111-1111-111111111111
+    name: Project
+    description: Some project
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F7
+    created_at: $eval(SELECT NOW())

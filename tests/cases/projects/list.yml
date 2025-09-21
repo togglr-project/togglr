@@ -1,0 +1,144 @@
+- name: success get projects list
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+    - name: get_projects_list
+      request:
+        method: GET
+        path: /api/v1/projects
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        json: |
+          [
+            {
+              "id": "11111111-1111-1111-1111-111111111111",
+              "name": "Project",
+              "api_key": "545c3e6a-8b17-4204-9558-9106d33b56f7",
+              "description": "Some project",
+              "created_at": "<<PRESENCE>>"
+            }
+          ]
+
+- name: get projects list without auth
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: get_projects_list_unauthorized
+      request:
+        method: GET
+        path: /api/v1/projects
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: get projects list with multiple projects for superuser
+  fixtures:
+    - empty_db
+    - multiple_projects
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+    - name: get_projects_list
+      request:
+        method: GET
+        path: /api/v1/projects
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        json: |
+          [
+            {
+              "id": "11111111-1111-1111-1111-111111111111",
+              "name": "Project1",
+              "api_key": "81b39a12-2bb6-4c5b-9622-046dfb6dba1a",
+              "description": "Some project",
+              "created_at": "<<PRESENCE>>"
+            },
+            {
+              "id": "22222222-2222-2222-2222-222222222222",
+              "name": "Project2",
+              "description": "Some project",
+              "api_key": "a557bb85-384a-48e0-9bb1-e168c31e53b6",
+              "created_at": "<<PRESENCE>>"
+            },
+            {
+              "id": "33333333-3333-3333-3333-333333333333",
+              "name": "Project3",
+              "description": "Some project",
+              "api_key": "af89ed6b-0ec1-4eac-a4c8-31bd9a70e7b4",
+              "created_at": "<<PRESENCE>>"
+            },
+            {
+              "id": "44444444-4444-4444-4444-444444444444",
+              "name": "ProjectQA",
+              "description": "Some project",
+              "api_key": "b6ee013c-9d08-4b5c-9237-464b25048abf",
+              "created_at": "<<PRESENCE>>"
+            }
+          ]
+
+- name: get projects list for user with limited access
+  fixtures:
+    - empty_db
+    - multiple_projects
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev2", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+    - name: get_projects_list
+      request:
+        method: GET
+        path: /api/v1/projects
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        json: |
+          []

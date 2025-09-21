@@ -1,0 +1,60 @@
+- name: SSO initiate success
+  fixtures:
+    - empty_db
+    - settings
+
+  steps:
+    - name: sso_initiate
+      request:
+        method: GET
+        path: /api/v1/auth/sso/initiate?provider=ad_saml
+        headers:
+          Content-Type: application/json
+      response:
+        status: 200
+        json: |
+          {
+            "redirect_url": "<<PRESENCE>>"
+          }
+
+- name: SSO callback with invalid SAML response
+  fixtures:
+    - empty_db
+
+  steps:
+    - name: sso_callback_invalid
+      request:
+        method: POST
+        path: /api/v1/auth/sso/callback
+        headers:
+          Content-Type: application/json
+        body: {"provider":"ad_saml","response":"invalid_saml_response","state":"invalid_state"}
+      response:
+        status: 500
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+- name: SSO callback with missing parameters
+  fixtures:
+    - empty_db
+
+  steps:
+    - name: sso_callback_missing_params
+      request:
+        method: POST
+        path: /api/v1/auth/sso/callback
+        headers:
+          Content-Type: application/json
+        body: {"provider":"ad_saml","response":"some_saml_response"}
+      response:
+        status: 400
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          } 

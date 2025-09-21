@@ -1,0 +1,60 @@
+- name: SSO login flow test
+  fixtures:
+    - empty_db
+    - settings
+
+  steps:
+    - name: initiate_sso
+      request:
+        method: GET
+        path: /api/v1/auth/sso/initiate
+      response:
+        status: 200
+        json: |
+          {
+            "redirect_url": "<<PRESENCE>>"
+          }
+        headers:
+          Content-Type: application/json
+
+    - name: sso_callback_success
+      request:
+        method: POST
+        path: /api/v1/auth/sso/callback
+        headers:
+          Content-Type: application/json
+        body: |
+          {
+            "code": "test_auth_code",
+            "state": "test_state"
+          }
+      response:
+        status: 200
+        json: |
+          {
+            "access_token": "<<PRESENCE>>",
+            "refresh_token": "<<PRESENCE>>",
+            "is_tmp_password": false
+          }
+        headers:
+          Content-Type: application/json
+
+    - name: sso_callback_invalid_code
+      request:
+        method: POST
+        path: /api/v1/auth/sso/callback
+        headers:
+          Content-Type: application/json
+        body: |
+          {
+            "code": "invalid_code",
+            "state": "invalid_state"
+          }
+      response:
+        status: 400
+        json: |
+          {
+            "message": "<<PRESENCE>>"
+          }
+        headers:
+          Content-Type: application/json 

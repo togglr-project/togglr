@@ -1,0 +1,213 @@
+- name: success project update
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: update_project
+      request:
+        method: PUT
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: {"name":"Updated Project Name", "description":"Updated project description"}
+      response:
+        status: 200
+        json: |
+          {
+            "project": {
+              "id": "11111111-1111-1111-1111-111111111111",
+              "name": "Updated Project Name",
+              "api_key": "545c3e6a-8b17-4204-9558-9106d33b56f7",
+              "description": "Updated project description",
+              "created_at": "<<PRESENCE>>"
+            }
+          }
+      dbChecks:
+        - query: SELECT name, description FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - name: "Updated Project Name"
+              description: "Updated project description"
+
+- name: update project without auth
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: update_project_unauthorized
+      request:
+        method: PUT
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+        body: {"name":"Unauthorized Update", "description":"This update should fail"}
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+      dbChecks:
+        - query: SELECT name, description FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - name: "Project"
+              description: "Some project"
+
+- name: update non-existent project
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: update_nonexistent_project
+      request:
+        method: PUT
+        path: /api/v1/projects/11111111-9999-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: {"name":"Nonexistent Project", "description":"This project doesn't exist"}
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "entity not found"
+            }
+          }
+
+- name: update project without permission
+  fixtures:
+    - empty_db
+    - multiple_projects
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev4", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: update_project_without_permission
+      request:
+        method: PUT
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: {"name":"No Permission Update", "description":"This update should fail due to permissions"}
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+      dbChecks:
+        - query: SELECT name, description FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - name: "Project1"
+              description: "Some project"
+
+- name: update project with invalid data - short name
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: update_project_short_name
+      request:
+        method: PUT
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: {"name":"A", "description":"Valid description that is long enough"}
+      response:
+        status: 400
+      dbChecks:
+        - query: SELECT name, description FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - name: "Project"
+              description: "Some project"
+
+- name: update project with invalid data - short description
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: update_project_short_description
+      request:
+        method: PUT
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: {"name":"Valid Name", "description":"Short"}
+      response:
+        status: 400
+      dbChecks:
+        - query: SELECT name, description FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - name: "Project"
+              description: "Some project"

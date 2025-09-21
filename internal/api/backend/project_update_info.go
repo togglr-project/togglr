@@ -42,7 +42,7 @@ func (r *RestAPI) UpdateProject(
 
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
-				Message: generatedapi.NewOptString(err.Error()),
+				Message: generatedapi.NewOptString(domain.ErrEntityNotFound.Error()),
 			}}, nil
 		}
 
@@ -53,6 +53,7 @@ func (r *RestAPI) UpdateProject(
 		Project: generatedapi.Project{
 			ID:          project.ID.String(),
 			Name:        project.Name,
+			APIKey:      project.APIKey,
 			Description: project.Description,
 			CreatedAt:   project.CreatedAt,
 		},

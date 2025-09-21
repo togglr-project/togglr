@@ -1,0 +1,7 @@
+public.settings:
+  - id: 1
+    name: ldap_config
+    value: '{}'
+    description: ''
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
