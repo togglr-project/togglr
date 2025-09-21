@@ -1,0 +1,161 @@
+- name: success sync customized feature rule
+  fixtures:
+    - empty_db
+    - feature_with_variants_and_rules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: sync_customized_feature_rule
+      request:
+        method: PUT
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/55555555-5555-5555-5555-555555555555/sync
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "rule": {
+              "id": "55555555-5555-5555-5555-555555555555",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "conditions": "<<PRESENCE>>",
+              "action": "assign",
+              "flag_variant_id": "33333333-3333-3333-3333-333333333333",
+              "priority": 10,
+              "is_customized": false,
+              "created_at": "<<PRESENCE>>",
+              "segment_id": "66666666-6666-6666-6666-666666666666"
+            }
+          }
+
+- name: sync customized feature rule without auth
+  fixtures:
+    - empty_db
+    - feature_with_variants_and_rules
+  steps:
+    - name: sync_customized_feature_rule_no_auth
+      request:
+        method: PUT
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/55555555-5555-5555-5555-555555555555/sync
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: sync customized feature rule without permissions
+  fixtures:
+    - empty_db
+    - multiple_features
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev2", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: sync_customized_feature_rule_no_permissions
+      request:
+        method: PUT
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/rules/55555555-5555-5555-5555-555555555555/sync
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: sync customized feature rule for non-existent feature
+  fixtures:
+    - empty_db
+    - project
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: sync_customized_feature_rule_non_existent_feature
+      request:
+        method: PUT
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/rules/55555555-5555-5555-5555-555555555555/sync
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "feature not found"
+            }
+          }
+
+- name: sync customized feature rule for non-existent rule
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: sync_customized_feature_rule_non_existent_rule
+      request:
+        method: PUT
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/99999999-9999-9999-9999-999999999999/sync
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }

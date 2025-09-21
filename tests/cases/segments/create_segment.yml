@@ -1,0 +1,340 @@
+- name: success create segment
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body:
+          name: "VIP Users"
+          description: "Users included in VIP campaign"
+          conditions:
+            condition:
+              attribute: "user.tier"
+              operator: "eq"
+              value: "vip"
+      response:
+        status: 201
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "segment": {
+              "id": "<<PRESENCE>>",
+              "project_id": "11111111-1111-1111-1111-111111111111",
+              "name": "VIP Users",
+              "description": "Users included in VIP campaign",
+              "conditions": {
+                "condition": {
+                  "attribute": "user.tier",
+                  "operator": "eq",
+                  "value": "vip"
+                }
+              },
+              "created_at": "<<PRESENCE>>",
+              "updated_at": "<<PRESENCE>>"
+            }
+          }
+      dbChecks:
+        - query: SELECT name, description FROM segments WHERE name = 'VIP Users'
+          result:
+            - name: "VIP Users"
+              description: "Users included in VIP campaign"
+
+- name: success create segment with complex conditions
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment_complex
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body:
+          name: "Premium Users"
+          description: "Users with premium subscription and high activity"
+          conditions:
+            group:
+              operator: "and"
+              children:
+                - condition:
+                    attribute: "user.subscription"
+                    operator: "eq"
+                    value: "premium"
+                - condition:
+                    attribute: "user.activity_score"
+                    operator: "gte"
+                    value: 80
+      response:
+        status: 201
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "segment": {
+              "id": "<<PRESENCE>>",
+              "project_id": "11111111-1111-1111-1111-111111111111",
+              "name": "Premium Users",
+              "description": "Users with premium subscription and high activity",
+              "conditions": {
+                "group": {
+                  "operator": "and",
+                  "children": [
+                    {
+                      "condition": {
+                        "attribute": "user.subscription",
+                        "operator": "eq",
+                        "value": "premium"
+                      }
+                    },
+                    {
+                      "condition": {
+                        "attribute": "user.activity_score",
+                        "operator": "gte",
+                        "value": 80
+                      }
+                    }
+                  ]
+                }
+              },
+              "created_at": "<<PRESENCE>>",
+              "updated_at": "<<PRESENCE>>"
+            }
+          }
+      dbChecks:
+        - query: SELECT name, description FROM segments WHERE name = 'Premium Users'
+          result:
+            - name: "Premium Users"
+              description: "Users with premium subscription and high activity"
+
+- name: create segment without auth
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: create_segment_unauthorized
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+        body:
+          name: "VIP Users"
+          conditions:
+            condition:
+              attribute: "user.tier"
+              operator: "eq"
+              value: "vip"
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: create segment without permissions
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev4", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment_no_permission
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body:
+          name: "VIP Users"
+          conditions:
+            condition:
+              attribute: "user.tier"
+              operator: "eq"
+              value: "vip"
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: create segment for non-existent project
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment_not_found
+      request:
+        method: POST
+        path: /api/v1/projects/99999999-9999-9999-9999-999999999999/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body:
+          name: "VIP Users"
+          conditions:
+            condition:
+              attribute: "user.tier"
+              operator: "eq"
+              value: "vip"
+      response:
+        status: 500
+
+- name: create segment with validation errors - empty name
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment_empty_name
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body:
+          name: ""
+          conditions:
+            condition:
+              attribute: "user.tier"
+              operator: "eq"
+              value: "vip"
+      response:
+        status: 400
+
+- name: create segment with validation errors - missing required fields
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment_missing_fields
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body:
+          name: "VIP Users"
+      response:
+        status: 400
+
+- name: create segment with invalid JSON
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_segment_invalid_json
+      request:
+        method: POST
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: '{"name": "VIP Users", "conditions": {"condition": {"attribute": "user.tier", "operator": "eq", "value": "vip",}}}'
+      response:
+        status: 400

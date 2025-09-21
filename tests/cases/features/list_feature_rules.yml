@@ -1,0 +1,164 @@
+- name: success list feature rules
+  fixtures:
+    - empty_db
+    - feature_with_variants_and_rules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_rules
+      request:
+        method: GET
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          [
+            {
+              "id": "55555555-5555-5555-5555-555555555555",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "segment_id": "66666666-6666-6666-6666-666666666666",
+              "conditions": {
+                "condition": {
+                  "attribute": "user.id",
+                  "operator": "eq",
+                  "value": "123"
+                }
+              },
+              "flag_variant_id": "33333333-3333-3333-3333-333333333333",
+              "priority": 10,
+              "created_at": "<<PRESENCE>>",
+              "action": "assign",
+              "is_customized": true
+            }
+          ]
+
+- name: list feature rules for feature without rules
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_rules_empty
+      request:
+        method: GET
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: "[]"
+
+- name: list feature rules without auth
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: list_feature_rules_no_auth
+      request:
+        method: GET
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: list feature rules without permissions
+  fixtures:
+    - empty_db
+    - multiple_features
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev2", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_rules_no_permissions
+      request:
+        method: GET
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/rules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: list feature rules for non-existent feature
+  fixtures:
+    - empty_db
+    - project
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_rules_non_existent
+      request:
+        method: GET
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/rules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "feature not found"
+            }
+          }

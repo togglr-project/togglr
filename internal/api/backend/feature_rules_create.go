@@ -25,6 +25,7 @@ func (r *RestAPI) CreateFeatureRule(
 			}}, nil
 		}
 		slog.Error("get feature for rule create failed", "error", err)
+
 		return nil, err
 	}
 
@@ -81,6 +82,7 @@ func (r *RestAPI) CreateFeatureRule(
 	respExpr, err := exprToAPI(created.Conditions)
 	if err != nil {
 		slog.Error("build rule conditions response", "error", err)
+
 		return nil, err
 	}
 

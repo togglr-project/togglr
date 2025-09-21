@@ -164,7 +164,7 @@ func (r *Repository) ListCustomizedFeatureIDsBySegment(
 ) ([]domain.FeatureID, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT DISTINCT feature_id FROM rules WHERE segment_id = $1 AND is_customized = TRUE`
+	const query = `SELECT DISTINCT feature_id FROM rules WHERE segment_id = $1 AND is_customized = TRUE ORDER BY feature_id`
 
 	rows, err := executor.Query(ctx, query, segmentID)
 	if err != nil {

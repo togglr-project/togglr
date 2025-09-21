@@ -1,0 +1,228 @@
+- name: success archive project
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: archive_project
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+      dbChecks:
+        - query: SELECT archived_at FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - archived_at: "<<PRESENCE>>"
+
+- name: archive project without auth
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: archive_project_unauthorized
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: archive project without permissions
+  fixtures:
+    - empty_db
+    - multiple_features
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev4", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: archive_project_no_permission
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: archive non-existent project
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: archive_project_not_found
+      request:
+        method: DELETE
+        path: /api/v1/projects/99999999-9999-9999-9999-999999999999
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "failed to get project: entity not found"
+            }
+          }
+
+- name: archive already archived project
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: archive_project_first_time
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+    - name: archive_project_second_time
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+- name: archive project with features
+  fixtures:
+    - empty_db
+    - multiple_features
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: archive_project_with_features
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+      dbChecks:
+        - query: SELECT archived_at FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - archived_at: "<<PRESENCE>>"
+        - query: SELECT COUNT(*) as count FROM features WHERE project_id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - count: 2
+
+- name: archive project with segments
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: archive_project_with_segments
+      request:
+        method: DELETE
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+      dbChecks:
+        - query: SELECT archived_at FROM projects WHERE id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - archived_at: "<<PRESENCE>>"
+        - query: SELECT COUNT(*) as count FROM segments WHERE project_id = '11111111-1111-1111-1111-111111111111'
+          result:
+            - count: 2

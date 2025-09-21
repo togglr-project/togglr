@@ -45,26 +45,32 @@ public.projects:
     api_key: A557BB85-384A-48E0-9BB1-E168C31E53B6
     created_at: $eval(SELECT NOW())
 
-public.features:
+public.segments:
   - id: 33333333-3333-3333-3333-333333333333
-    key: feature1
-    name: Feature 1
-    description: First feature
-    kind: simple
-    default_variant: on
-    enabled: true
+    name: VIP Users
+    description: Users included in VIP campaign
+    conditions: |
+      {
+        "condition": {
+          "attribute": "user.tier",
+          "operator": "eq",
+          "value": "vip"
+        }
+      }
     created_at: $eval(SELECT NOW())
     updated_at: $eval(SELECT NOW())
     project_id: 11111111-1111-1111-1111-111111111111
-    rollout_key: user.id
   - id: 44444444-4444-4444-4444-444444444444
-    key: feature2
-    name: Feature 2
-    description: Second feature
-    kind: multivariant
-    default_variant: control
-    enabled: false
+    name: Premium Users
+    description: Users with premium subscription
+    conditions: |
+      {
+        "condition": {
+          "attribute": "user.subscription",
+          "operator": "eq",
+          "value": "premium"
+        }
+      }
     created_at: $eval(SELECT NOW())
     updated_at: $eval(SELECT NOW())
     project_id: 11111111-1111-1111-1111-111111111111
-    rollout_key: user.id

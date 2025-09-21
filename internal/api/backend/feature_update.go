@@ -157,6 +157,7 @@ func (r *RestAPI) UpdateFeature(
 			ID:             updated.ID.String(),
 			ProjectID:      updated.ProjectID.String(),
 			Key:            updated.Key,
+			RolloutKey:     ruleAttribute2OptString(updated.RolloutKey),
 			Name:           updated.Name,
 			Description:    generatedapi.NewOptNilString(updated.Description),
 			Kind:           generatedapi.FeatureKind(updated.Kind),

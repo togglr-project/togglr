@@ -1,0 +1,293 @@
+- name: success create feature variant
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_feature_variant
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "variant_a", "rollout_percent": 30 }
+      response:
+        status: 201
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "flag_variant": {
+              "id": "<<PRESENCE>>",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "name": "variant_a",
+              "rollout_percent": 30
+            }
+          }
+      dbChecks:
+        - query: SELECT name, rollout_percent FROM flag_variants WHERE feature_id = '22222222-2222-2222-2222-222222222222' AND name = 'variant_a'
+          result:
+            - name: "variant_a"
+              rollout_percent: 30
+
+- name: success create multiple feature variants
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_first_variant
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "control", "rollout_percent": 50 }
+      response:
+        status: 201
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "flag_variant": {
+              "id": "<<PRESENCE>>",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "name": "control",
+              "rollout_percent": 50
+            }
+          }
+
+    - name: create_second_variant
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "treatment", "rollout_percent": 50 }
+      response:
+        status: 201
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "flag_variant": {
+              "id": "<<PRESENCE>>",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "name": "treatment",
+              "rollout_percent": 50
+            }
+          }
+      dbChecks:
+        - query: SELECT COUNT(*) FROM flag_variants WHERE feature_id = '22222222-2222-2222-2222-222222222222'
+          result:
+            - count: 2
+
+- name: create feature variant without auth
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: create_feature_variant_no_auth
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+        body: { "name": "unauthorized_variant", "rollout_percent": 100 }
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: create feature variant without permissions
+  fixtures:
+    - empty_db
+    - multiple_features
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev2", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_feature_variant_no_permissions
+      request:
+        method: POST
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "no_permissions_variant", "rollout_percent": 100 }
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: create feature variant for non-existent feature
+  fixtures:
+    - empty_db
+    - project
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_feature_variant_non_existent
+      request:
+        method: POST
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "non_existent_variant", "rollout_percent": 100 }
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "feature not found"
+            }
+          }
+
+- name: create feature variant with validation errors - missing required fields
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_feature_variant_missing_fields
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "incomplete_variant" }
+      response:
+        status: 400
+        json: |
+          {
+              "error_message": "<<PRESENCE>>"
+          }
+
+- name: create feature variant with validation errors - invalid rollout_percent
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_feature_variant_invalid_rollout
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "invalid_rollout", "rollout_percent": 150 }
+      response:
+        status: 400
+        json: |
+          {
+              "error_message": "<<PRESENCE>>"
+          }
+
+- name: create feature variant with invalid JSON
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_feature_variant_invalid_json
+      request:
+        method: POST
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "invalid_json", "rollout_percent": "not a number" }
+      response:
+        status: 400
+        json: |
+          {
+              "error_message": "<<PRESENCE>>"
+          }

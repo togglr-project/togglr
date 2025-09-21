@@ -1,0 +1,342 @@
+- name: success list segments
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "items": "<<PRESENCE>>",
+            "pagination": {
+              "total": 2,
+              "page": 1,
+              "per_page": 20
+            }
+          }
+
+- name: success list segments with empty result
+  fixtures:
+    - empty_db
+    - project
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_empty
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "items": [],
+            "pagination": {
+              "total": 0,
+              "page": 1,
+              "per_page": 20
+            }
+          }
+
+- name: success list segments with text search
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_text_search
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments?text_selector=VIP
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "items": "<<PRESENCE>>",
+            "pagination": {
+              "total": 1,
+              "page": 1,
+              "per_page": 20
+            }
+          }
+
+- name: success list segments with sorting
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_sorted_by_name_desc
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments?sort_by=name&sort_order=desc
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "items": "<<PRESENCE>>",
+            "pagination": {
+              "total": 2,
+              "page": 1,
+              "per_page": 20
+            }
+          }
+
+- name: success list segments with pagination
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_pagination
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments?page=1&per_page=1
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          {
+            "items": "<<PRESENCE>>",
+            "pagination": {
+              "total": 2,
+              "page": 1,
+              "per_page": 1
+            }
+          }
+
+- name: list segments without auth
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: list_segments_unauthorized
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: list segments without permissions
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev4", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_no_permission
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: list segments for non-existent project
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_not_found
+      request:
+        method: GET
+        path: /api/v1/projects/99999999-9999-9999-9999-999999999999/segments
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        json: |
+          {
+            "items": [],
+            "pagination": {
+              "total": 0,
+              "page": 1,
+              "per_page": 20
+            }
+          }
+
+- name: list segments with invalid pagination parameters
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_invalid_page
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments?page=0
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 400
+
+- name: list segments with invalid per_page parameter
+  fixtures:
+    - empty_db
+    - multiple_segments
+
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_segments_invalid_per_page
+      request:
+        method: GET
+        path: /api/v1/projects/11111111-1111-1111-1111-111111111111/segments?per_page=0
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 400

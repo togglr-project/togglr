@@ -1,0 +1,159 @@
+- name: success list feature variants
+  fixtures:
+    - empty_db
+    - feature_with_variants_and_rules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_variants
+      request:
+        method: GET
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          [
+            {
+              "id": "33333333-3333-3333-3333-333333333333",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "name": "control",
+              "rollout_percent": 50
+            },
+            {
+              "id": "44444444-4444-4444-4444-444444444444",
+              "feature_id": "22222222-2222-2222-2222-222222222222",
+              "name": "treatment",
+              "rollout_percent": 50
+            }
+          ]
+
+- name: list feature variants for feature without variants
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_variants_empty
+      request:
+        method: GET
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: "[]"
+
+- name: list feature variants without auth
+  fixtures:
+    - empty_db
+    - feature
+  steps:
+    - name: list_feature_variants_no_auth
+      request:
+        method: GET
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: list feature variants without permissions
+  fixtures:
+    - empty_db
+    - multiple_features
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev2", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_variants_no_permissions
+      request:
+        method: GET
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: list feature variants for non-existent feature
+  fixtures:
+    - empty_db
+    - project
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_feature_variants_non_existent
+      request:
+        method: GET
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/variants
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "feature not found"
+            }
+          }
