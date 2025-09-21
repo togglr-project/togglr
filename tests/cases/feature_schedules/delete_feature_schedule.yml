@@ -1,0 +1,210 @@
+- name: success delete feature schedule
+  fixtures:
+    - empty_db
+    - admin_user
+    - feature_schedules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_feature_schedule
+      request:
+        method: DELETE
+        path: /api/v1/feature-schedules/44444444-4444-4444-4444-444444444444
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+    - name: verify_feature_schedule_deleted
+      request:
+        method: GET
+        path: /api/v1/feature-schedules/44444444-4444-4444-4444-444444444444
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+- name: delete feature schedule without auth
+  fixtures:
+    - empty_db
+    - admin_user
+    - feature_schedules
+  steps:
+    - name: delete_feature_schedule_without_auth
+      request:
+        method: DELETE
+        path: /api/v1/feature-schedules/44444444-4444-4444-4444-444444444444
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: delete feature schedule with non-superuser
+  fixtures:
+    - empty_db
+    - admin_user
+    - dev_user
+    - feature_schedules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev1", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_feature_schedule_non_superuser
+      request:
+        method: DELETE
+        path: /api/v1/feature-schedules/44444444-4444-4444-4444-444444444444
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: delete non-existent feature schedule
+  fixtures:
+    - empty_db
+    - admin_user
+    - feature_schedules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_non_existent_feature_schedule
+      request:
+        method: DELETE
+        path: /api/v1/feature-schedules/99999999-9999-9999-9999-999999999999
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+- name: delete feature schedule from empty list
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_feature_schedule_from_empty_list
+      request:
+        method: DELETE
+        path: /api/v1/feature-schedules/44444444-4444-4444-4444-444444444444
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+- name: delete cron feature schedule
+  fixtures:
+    - empty_db
+    - admin_user
+    - feature_schedules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_cron_feature_schedule
+      request:
+        method: DELETE
+        path: /api/v1/feature-schedules/66666666-6666-6666-6666-666666666666
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+    - name: verify_cron_feature_schedule_deleted
+      request:
+        method: GET
+        path: /api/v1/feature-schedules/66666666-6666-6666-6666-666666666666
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 404
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }

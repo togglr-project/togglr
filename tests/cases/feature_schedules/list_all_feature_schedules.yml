@@ -1,0 +1,117 @@
+- name: success list all feature schedules
+  fixtures:
+    - empty_db
+    - admin_user
+    - feature_schedules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_all_feature_schedules
+      request:
+        method: GET
+        path: /api/v1/feature-schedules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          "<<PRESENCE>>"
+
+- name: list all feature schedules without auth
+  fixtures:
+    - empty_db
+    - admin_user
+    - feature_schedules
+  steps:
+    - name: list_all_feature_schedules_without_auth
+      request:
+        method: GET
+        path: /api/v1/feature-schedules
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: list all feature schedules with non-superuser
+  fixtures:
+    - empty_db
+    - admin_user
+    - dev_user
+    - feature_schedules
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev1", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_all_feature_schedules_non_superuser
+      request:
+        method: GET
+        path: /api/v1/feature-schedules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 403
+        json: |
+          {
+            "error": {
+              "message": "permission denied"
+            }
+          }
+
+- name: list empty feature schedules
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: list_empty_feature_schedules
+      request:
+        method: GET
+        path: /api/v1/feature-schedules
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: "[]"
