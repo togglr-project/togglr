@@ -1,0 +1,12 @@
+public.users:
+  - id: 2
+    username: dev1
+    email: dev1@togglr.tech
+    password_hash: $2a$10$wFiI/2DOOS6gpfEjFHc.Cu6ycBYgArF4enzHK7jLh/PyU218rzCy.
+    is_superuser: false
+    is_active: true
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+    last_login: $eval(SELECT NOW())
+    is_tmp_password: false
+    two_fa_enabled: false

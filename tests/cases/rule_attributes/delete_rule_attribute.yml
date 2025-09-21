@@ -1,0 +1,212 @@
+- name: success delete rule attribute
+  fixtures:
+    - empty_db
+    - admin_user
+    - rule_attributes
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_rule_attribute
+      request:
+        method: DELETE
+        path: /api/v1/rule_attributes/user.tier
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+    - name: verify_rule_attribute_deleted
+      request:
+        method: GET
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          [
+            {
+              "name": "user.id",
+              "description": "User ID attribute"
+            },
+            {
+              "name": "user.role",
+              "description": "User role attribute"
+            }
+          ]
+
+- name: delete rule attribute without auth
+  fixtures:
+    - empty_db
+    - admin_user
+    - rule_attributes
+  steps:
+    - name: delete_rule_attribute_without_auth
+      request:
+        method: DELETE
+        path: /api/v1/rule_attributes/user.tier
+        headers:
+          Content-Type: application/json
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: delete rule attribute with non-superuser
+  fixtures:
+    - empty_db
+    - admin_user
+    - dev_user
+    - rule_attributes
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev1", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_rule_attribute_non_superuser
+      request:
+        method: DELETE
+        path: /api/v1/rule_attributes/user.tier
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: delete non-existent rule attribute
+  fixtures:
+    - empty_db
+    - admin_user
+    - rule_attributes
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_non_existent_rule_attribute
+      request:
+        method: DELETE
+        path: /api/v1/rule_attributes/non.existent
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+- name: delete rule attribute from empty list
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_rule_attribute_from_empty_list
+      request:
+        method: DELETE
+        path: /api/v1/rule_attributes/user.tier
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+- name: delete rule attribute with special characters in name
+  fixtures:
+    - empty_db
+    - admin_user
+    - rule_attributes
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: delete_rule_attribute_with_special_chars
+      request:
+        method: DELETE
+        path: /api/v1/rule_attributes/user.id
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 204
+
+    - name: verify_rule_attribute_with_special_chars_deleted
+      request:
+        method: GET
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          [
+            {
+              "name": "user.role",
+              "description": "User role attribute"
+            },
+            {
+              "name": "user.tier",
+              "description": "User tier attribute"
+            }
+          ]

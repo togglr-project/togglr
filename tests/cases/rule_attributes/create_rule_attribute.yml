@@ -1,0 +1,298 @@
+- name: success create rule attribute
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_rule_attribute
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "user.country", "description": "User country attribute" }
+      response:
+        status: 204
+
+    - name: verify_rule_attribute_created
+      request:
+        method: GET
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          "<<PRESENCE>>"
+
+- name: success create rule attribute without description
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_rule_attribute_without_description
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "user.region" }
+      response:
+        status: 204
+
+    - name: verify_rule_attribute_created_without_description
+      request:
+        method: GET
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+        json: |
+          "<<PRESENCE>>"
+
+- name: create rule attribute without auth
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: create_rule_attribute_without_auth
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+        body: { "name": "user.country", "description": "User country attribute" }
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: create rule attribute with non-superuser
+  fixtures:
+    - empty_db
+    - admin_user
+    - dev_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"dev1", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_rule_attribute_non_superuser
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "user.country", "description": "User country attribute" }
+      response:
+        status: 401
+        json: |
+          {
+            "error": {
+              "message": "unauthorized"
+            }
+          }
+
+- name: create rule attribute with validation errors
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_rule_attribute_empty_name
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "", "description": "Empty name attribute" }
+      response:
+        status: 400
+        json: |
+          {
+            "error_message": "<<PRESENCE>>"
+          }
+
+    - name: create_rule_attribute_missing_name
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "description": "Missing name attribute" }
+      response:
+        status: 400
+        json: |
+          {
+            "error_message": "<<PRESENCE>>"
+          }
+
+    - name: create_rule_attribute_short_name
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "a", "description": "Too short name" }
+      response:
+        status: 400
+        json: |
+          {
+            "error_message": "<<PRESENCE>>"
+          }
+
+    - name: create_rule_attribute_long_name
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "this_is_a_very_long_attribute_name_that_exceeds_fifty_characters", "description": "Too long name" }
+      response:
+        status: 500
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+    - name: create_rule_attribute_long_description
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "user.test", "description": "This is a very long description that exceeds three hundred characters and should cause a validation error because the database schema limits the description field to varchar(300) which means it can only hold up to 300 characters but this description is much longer than that and should trigger a validation error when trying to create the rule attribute with such a long description" }
+      response:
+        status: 500
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+- name: create rule attribute that already exists
+  fixtures:
+    - empty_db
+    - admin_user
+    - rule_attributes
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_duplicate_rule_attribute
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "user.id", "description": "Duplicate user ID attribute" }
+      response:
+        status: 500
+        json: |
+          {
+            "error": {
+              "message": "<<PRESENCE>>"
+            }
+          }
+
+- name: create rule attribute with invalid json
+  fixtures:
+    - empty_db
+    - admin_user
+  steps:
+    - name: auth
+      request:
+        method: POST
+        path: /api/v1/auth/login
+        headers:
+          Content-Type: application/json
+        body: {"username":"admin", "password":"Warden123!"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+
+    - name: create_rule_attribute_invalid_json
+      request:
+        method: POST
+        path: /api/v1/rule_attributes
+        headers:
+          Content-Type: application/json
+          Authorization: 'Bearer {{auth.response.access_token}}'
+        body: { "name": "user.invalid", "description": "Invalid JSON here" }
+      response:
+        status: 204

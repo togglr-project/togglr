@@ -1,7 +1,8 @@
-- name: success list feature schedules
+- name: success list rule attributes
   fixtures:
     - empty_db
-    - feature
+    - admin_user
+    - rule_attributes
   steps:
     - name: auth
       request:
@@ -15,10 +16,10 @@
         headers:
           Content-Type: application/json
 
-    - name: list_feature_schedules
+    - name: list_rule_attributes
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/rule_attributes
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -26,17 +27,32 @@
         status: 200
         headers:
           Content-Type: application/json
-        json: "[]"
+        json: |
+          [
+            {
+              "name": "user.id",
+              "description": "User ID attribute"
+            },
+            {
+              "name": "user.role",
+              "description": "User role attribute"
+            },
+            {
+              "name": "user.tier",
+              "description": "User tier attribute"
+            }
+          ]
 
-- name: list feature schedules without auth
+- name: list rule attributes without auth
   fixtures:
     - empty_db
-    - feature
+    - admin_user
+    - rule_attributes
   steps:
-    - name: list_feature_schedules_no_auth
+    - name: list_rule_attributes_without_auth
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/rule_attributes
         headers:
           Content-Type: application/json
       response:
@@ -48,10 +64,11 @@
             }
           }
 
-- name: list feature schedules without permissions
+- name: list rule attributes with non-superuser
   fixtures:
     - empty_db
-    - multiple_features
+    - admin_user
+    - rule_attributes
   steps:
     - name: auth
       request:
@@ -59,32 +76,43 @@
         path: /api/v1/auth/login
         headers:
           Content-Type: application/json
-        body: {"username":"dev2", "password":"Warden123!"}
+        body: {"username":"dev1", "password":"Warden123!"}
       response:
         status: 200
         headers:
           Content-Type: application/json
 
-    - name: list_feature_schedules_no_permissions
+    - name: list_rule_attributes_non_superuser
       request:
         method: GET
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333/schedules
+        path: /api/v1/rule_attributes
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
       response:
-        status: 403
+        status: 200
+        headers:
+          Content-Type: application/json
         json: |
-          {
-            "error": {
-              "message": "permission denied"
+          [
+            {
+              "name": "user.id",
+              "description": "User ID attribute"
+            },
+            {
+              "name": "user.role",
+              "description": "User role attribute"
+            },
+            {
+              "name": "user.tier",
+              "description": "User tier attribute"
             }
-          }
+          ]
 
-- name: list feature schedules for non-existent feature
+- name: list empty rule attributes
   fixtures:
     - empty_db
-    - project
+    - admin_user
   steps:
     - name: auth
       request:
@@ -98,19 +126,16 @@
         headers:
           Content-Type: application/json
 
-    - name: list_feature_schedules_non_existent
+    - name: list_empty_rule_attributes
       request:
         method: GET
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999/schedules
+        path: /api/v1/rule_attributes
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
       response:
-        status: 404
+        status: 200
+        headers:
+          Content-Type: application/json
         json: |
-          {
-            "error": {
-              "message": "feature not found"
-            }
-          }
-
+          "<<PRESENCE>>"
