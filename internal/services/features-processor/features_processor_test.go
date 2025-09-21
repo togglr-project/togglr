@@ -12,125 +12,133 @@ import (
 )
 
 func TestService_Evaluate(t *testing.T) {
-	projectID := domain.ProjectID("proj1")
-	featureKey := "my_feature"
-
 	variantA := domain.FlagVariant{ID: "v1", Name: "A", RolloutPercent: 100}
-	rule := domain.Rule{
-		ID:        "r1",
-		ProjectID: projectID,
-		FeatureID: "f1",
-		Conditions: domain.BooleanExpression{
-			Condition: &domain.Condition{
-				Attribute: "country",
-				Operator:  domain.OpEq,
-				Value:     "RU",
-			},
-		},
-		Action:        domain.RuleActionAssign,
-		FlagVariantID: &variantA.ID,
-		CreatedAt:     time.Now(),
-	}
-
-	feature := domain.FeatureExtended{
-		Feature: domain.Feature{
-			ID:             "f1",
-			ProjectID:      projectID,
-			Key:            featureKey,
-			Name:           "Test Feature",
-			Kind:           domain.FeatureKindMultivariant,
-			DefaultVariant: "default",
-			Enabled:        true,
-			CreatedAt:      time.Now(),
-		},
-		FlagVariants: []domain.FlagVariant{variantA},
-		Rules:        []domain.Rule{rule},
-	}
-
-	holder := Holder{
-		projectID: ProjectFeatures{
-			featureKey: MakeFeaturePrepared(feature),
-		},
-	}
-
-	svc := New(nil, nil, nil, 0)
-	svc.holder = holder
-
-	reqCtx := map[domain.RuleAttribute]any{"country": "RU"}
-	value, enabled, found := svc.Evaluate(projectID, featureKey, reqCtx)
-
-	assert.True(t, found)
-	assert.True(t, enabled)
-	assert.Equal(t, "A", value)
-}
-
-func TestService_Evaluate_TableDriven(t *testing.T) {
-	projectID := domain.ProjectID("proj1")
-	featureKey := "my_feature"
-
-	variantA := domain.FlagVariant{ID: "v1", Name: "A", RolloutPercent: 100}
-	rule := domain.Rule{
-		ID:        "r1",
-		ProjectID: projectID,
-		FeatureID: "f1",
-		Conditions: domain.BooleanExpression{
-			Condition: &domain.Condition{
-				Attribute: "country",
-				Operator:  domain.OpEq,
-				Value:     "RU",
-			},
-		},
-		Action:        domain.RuleActionAssign,
-		FlagVariantID: &variantA.ID,
-		CreatedAt:     time.Now(),
-	}
-
-	baseFeature := domain.FeatureExtended{
-		Feature: domain.Feature{
-			ID:             "f1",
-			ProjectID:      projectID,
-			Key:            featureKey,
-			Name:           "Test Feature",
-			Kind:           domain.FeatureKindMultivariant,
-			DefaultVariant: "default",
-			Enabled:        true,
-			CreatedAt:      time.Now(),
-		},
-		FlagVariants: []domain.FlagVariant{variantA},
-		Rules:        []domain.Rule{rule},
-	}
+	variantB := domain.FlagVariant{ID: "v2", Name: "B", RolloutPercent: 50}
 
 	tests := []struct {
 		name          string
+		projectID     domain.ProjectID
+		featureKey    string
 		feature       domain.FeatureExtended
 		reqCtx        map[domain.RuleAttribute]any
 		expectedValue string
 		expectedEn    bool
 		expectedFound bool
+		// optional allowed values set for rollout (if multiple possibilities)
+		allowedValues []string
 	}{
 		{
-			name:          "condition matches → variant A",
-			feature:       baseFeature,
+			name:       "condition matches → variant A",
+			projectID:  "proj1",
+			featureKey: "my_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "proj1",
+					Key:            "my_feature",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Now(),
+				},
+				FlagVariants: []domain.FlagVariant{variantA},
+				Rules: []domain.Rule{
+					{
+						ID:        "r1",
+						ProjectID: "proj1",
+						FeatureID: "f1",
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: &variantA.ID,
+						CreatedAt:     time.Now(),
+					},
+				},
+			},
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
 			expectedValue: "A",
 			expectedEn:    true,
 			expectedFound: true,
 		},
 		{
-			name:          "condition does not match → default",
-			feature:       baseFeature,
+			name:       "condition does not match → default",
+			projectID:  "proj1",
+			featureKey: "my_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "proj1",
+					Key:            "my_feature",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Now(),
+				},
+				FlagVariants: []domain.FlagVariant{variantA},
+				Rules: []domain.Rule{
+					{
+						ID:        "r1",
+						ProjectID: "proj1",
+						FeatureID: "f1",
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: &variantA.ID,
+						CreatedAt:     time.Now(),
+					},
+				},
+			},
 			reqCtx:        map[domain.RuleAttribute]any{"country": "US"},
 			expectedValue: "default",
 			expectedEn:    true,
 			expectedFound: true,
 		},
 		{
-			name: "feature disabled",
-			feature: func() domain.FeatureExtended {
-				f := baseFeature
-				f.Enabled = false
-				return f
-			}(),
+			name:       "feature disabled",
+			projectID:  "proj1",
+			featureKey: "my_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "proj1",
+					Key:            "my_feature",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        false, // disabled
+					CreatedAt:      time.Now(),
+				},
+				FlagVariants: []domain.FlagVariant{variantA},
+				Rules: []domain.Rule{
+					{
+						ID:        "r1",
+						ProjectID: "proj1",
+						FeatureID: "f1",
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: &variantA.ID,
+						CreatedAt:     time.Now(),
+					},
+				},
+			},
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
 			expectedValue: "",
 			expectedEn:    false,
@@ -138,33 +146,133 @@ func TestService_Evaluate_TableDriven(t *testing.T) {
 		},
 		{
 			name:          "feature not found",
-			feature:       domain.FeatureExtended{},
+			projectID:     "proj1",
+			featureKey:    "my_feature",
+			feature:       domain.FeatureExtended{}, // empty feature
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
 			expectedValue: "",
 			expectedEn:    false,
 			expectedFound: false,
 		},
+		{
+			name:       "exclude rule disables feature",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Now(),
+				},
+				Rules: []domain.Rule{
+					{
+						ID:     "r1",
+						Action: domain.RuleActionExclude,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "",
+			expectedEn:    false,
+			expectedFound: true,
+		},
+		{
+			name:       "priority: higher priority assign wins (lower numeric = higher priority)",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Now(),
+				},
+				FlagVariants: []domain.FlagVariant{variantA, variantB},
+				Rules: []domain.Rule{
+					{
+						ID:            "low",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: ptrFV("v1"),
+						Priority:      10,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+					},
+					{
+						ID:            "high",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: ptrFV("v2"),
+						Priority:      1, // higher priority (smaller number)
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "B",
+			expectedEn:    true,
+			expectedFound: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			holder := Holder{}
+			svc := New(nil, nil, nil, 0)
+
+			// Initialize holder
+			svc.mu.Lock()
+			svc.holder = Holder{}
+			svc.mu.Unlock()
+
+			// Add feature to holder if it should be found
 			if tt.expectedFound {
-				holder = Holder{
-					projectID: ProjectFeatures{
-						featureKey: MakeFeaturePrepared(tt.feature),
-					},
+				svc.mu.Lock()
+				if svc.holder == nil {
+					svc.holder = Holder{}
 				}
+				svc.holder[tt.projectID] = ProjectFeatures{
+					tt.featureKey: MakeFeaturePrepared(tt.feature),
+				}
+				svc.mu.Unlock()
 			}
 
-			svc := New(nil, nil, nil, 0)
-			svc.holder = holder
+			value, enabled, found := svc.Evaluate(tt.projectID, tt.featureKey, tt.reqCtx)
 
-			value, enabled, found := svc.Evaluate(projectID, featureKey, tt.reqCtx)
+			assert.Equal(t, tt.expectedEn, enabled, "enabled mismatch")
+			assert.Equal(t, tt.expectedFound, found, "found mismatch")
 
-			assert.Equal(t, tt.expectedValue, value)
-			assert.Equal(t, tt.expectedEn, enabled)
-			assert.Equal(t, tt.expectedFound, found)
+			if tt.allowedValues != nil {
+				// value must be one of allowedValues
+				assert.Contains(t, tt.allowedValues, value)
+			} else {
+				assert.Equal(t, tt.expectedValue, value)
+			}
 		})
 	}
 }
@@ -1165,6 +1273,13 @@ func TestIsScheduleActive_CronDurationBaseline(t *testing.T) {
 	}
 }
 
-func ptrTime(t time.Time) *time.Time             { return &t }
-func ptrString(s string) *string                 { return &s }
+func ptrTime(t time.Time) *time.Time { return &t }
+
+func ptrString(s string) *string { return &s }
+
 func ptrDuration(d time.Duration) *time.Duration { return &d }
+
+func ptrFV(id string) *domain.FlagVariantID {
+	v := domain.FlagVariantID(id)
+	return &v
+}
