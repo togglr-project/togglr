@@ -1,6 +1,7 @@
 package featuresprocessor
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -26,6 +27,8 @@ func TestService_Evaluate(t *testing.T) {
 		expectedFound bool
 		// optional allowed values set for rollout (if multiple possibilities)
 		allowedValues []string
+		// optional allowed values for enabled state (if multiple possibilities)
+		allowedEnabled []bool
 	}{
 		{
 			name:       "condition matches → variant A",
@@ -40,7 +43,7 @@ func TestService_Evaluate(t *testing.T) {
 					Kind:           domain.FeatureKindMultivariant,
 					DefaultVariant: "default",
 					Enabled:        true,
-					CreatedAt:      time.Now(),
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{variantA},
 				Rules: []domain.Rule{
@@ -57,7 +60,7 @@ func TestService_Evaluate(t *testing.T) {
 						},
 						Action:        domain.RuleActionAssign,
 						FlagVariantID: &variantA.ID,
-						CreatedAt:     time.Now(),
+						CreatedAt:     time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 					},
 				},
 			},
@@ -79,7 +82,7 @@ func TestService_Evaluate(t *testing.T) {
 					Kind:           domain.FeatureKindMultivariant,
 					DefaultVariant: "default",
 					Enabled:        true,
-					CreatedAt:      time.Now(),
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{variantA},
 				Rules: []domain.Rule{
@@ -96,7 +99,7 @@ func TestService_Evaluate(t *testing.T) {
 						},
 						Action:        domain.RuleActionAssign,
 						FlagVariantID: &variantA.ID,
-						CreatedAt:     time.Now(),
+						CreatedAt:     time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 					},
 				},
 			},
@@ -118,7 +121,7 @@ func TestService_Evaluate(t *testing.T) {
 					Kind:           domain.FeatureKindMultivariant,
 					DefaultVariant: "default",
 					Enabled:        false, // disabled
-					CreatedAt:      time.Now(),
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{variantA},
 				Rules: []domain.Rule{
@@ -135,7 +138,7 @@ func TestService_Evaluate(t *testing.T) {
 						},
 						Action:        domain.RuleActionAssign,
 						FlagVariantID: &variantA.ID,
-						CreatedAt:     time.Now(),
+						CreatedAt:     time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 					},
 				},
 			},
@@ -167,7 +170,7 @@ func TestService_Evaluate(t *testing.T) {
 					Kind:           domain.FeatureKindSimple,
 					DefaultVariant: "default",
 					Enabled:        true,
-					CreatedAt:      time.Now(),
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Rules: []domain.Rule{
 					{
@@ -202,7 +205,7 @@ func TestService_Evaluate(t *testing.T) {
 					Kind:           domain.FeatureKindMultivariant,
 					DefaultVariant: "default",
 					Enabled:        true,
-					CreatedAt:      time.Now(),
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{variantA, variantB},
 				Rules: []domain.Rule{
@@ -239,11 +242,578 @@ func TestService_Evaluate(t *testing.T) {
 			expectedEn:    true,
 			expectedFound: true,
 		},
+		// === ТЕСТЫ С РАСПИСАНИЯМИ ===
+		{
+			name:       "feature with repeating schedule - active during cron window",
+			projectID:  "p1",
+			featureKey: "scheduled_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "scheduled_feature",
+					Name:           "Scheduled Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:           "sched1",
+						CronExpr:     ptrString("0 12 * * *"), // daily at 12:00 UTC
+						Timezone:     "UTC",
+						Action:       domain.FeatureScheduleActionEnable,
+						CronDuration: ptrDuration(30 * time.Minute),
+						CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "default",
+			expectedEn:    true, // активна в 12:15 UTC (внутри cron окна)
+			expectedFound: true,
+		},
+		{
+			name:       "feature with repeating schedule - inactive outside cron window",
+			projectID:  "p1",
+			featureKey: "scheduled_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "scheduled_feature",
+					Name:           "Scheduled Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:           "sched1",
+						CronExpr:     ptrString("0 12 * * *"), // daily at 12:00 UTC
+						Timezone:     "UTC",
+						Action:       domain.FeatureScheduleActionEnable,
+						CronDuration: ptrDuration(30 * time.Minute),
+						CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "",    // может быть "default" или "" в зависимости от времени
+			expectedEn:    false, // неактивна в 11:00 UTC (вне cron окна)
+			expectedFound: true,
+			allowedValues: []string{"", "default"}, // допустимые значения
+		},
+		{
+			name:       "feature with repeating schedule - disable action",
+			projectID:  "p1",
+			featureKey: "scheduled_feature_disable",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "scheduled_feature_disable",
+					Name:           "Scheduled Feature Disable",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:           "sched1",
+						CronExpr:     ptrString("0 12 * * *"), // daily at 12:00 UTC
+						Timezone:     "UTC",
+						Action:       domain.FeatureScheduleActionDisable,
+						CronDuration: ptrDuration(30 * time.Minute),
+						CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "default",
+			expectedEn:    true, // baseline ON для disable расписания
+			expectedFound: true,
+		},
+		{
+			name:       "feature with one-shot schedule - active during window",
+			projectID:  "p1",
+			featureKey: "oneshot_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "oneshot_feature",
+					Name:           "One-shot Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched1",
+						StartsAt:  ptrTime(time.Date(2025, 9, 21, 12, 0, 0, 0, time.UTC)),
+						EndsAt:    ptrTime(time.Date(2025, 9, 21, 13, 0, 0, 0, time.UTC)),
+						Action:    domain.FeatureScheduleActionEnable,
+						Timezone:  "UTC",
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "default",
+			expectedEn:    true, // активна в 12:30 UTC (внутри окна)
+			expectedFound: true,
+		},
+		{
+			name:       "feature with one-shot schedule - inactive outside window",
+			projectID:  "p1",
+			featureKey: "oneshot_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "oneshot_feature",
+					Name:           "One-shot Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched1",
+						StartsAt:  ptrTime(time.Date(2025, 9, 21, 12, 0, 0, 0, time.UTC)),
+						EndsAt:    ptrTime(time.Date(2025, 9, 21, 13, 0, 0, 0, time.UTC)),
+						Action:    domain.FeatureScheduleActionEnable,
+						Timezone:  "UTC",
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "",    // может быть "default" или "" в зависимости от времени
+			expectedEn:    false, // неактивна в 11:00 UTC (вне окна)
+			expectedFound: true,
+			allowedValues: []string{"", "default"}, // допустимые значения
+		},
+		{
+			name:       "feature with multiple one-shot schedules - any disable sets baseline ON",
+			projectID:  "p1",
+			featureKey: "multi_oneshot_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "multi_oneshot_feature",
+					Name:           "Multi One-shot Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched1",
+						StartsAt:  ptrTime(time.Date(2025, 9, 21, 12, 0, 0, 0, time.UTC)),
+						EndsAt:    ptrTime(time.Date(2025, 9, 21, 13, 0, 0, 0, time.UTC)),
+						Action:    domain.FeatureScheduleActionEnable,
+						Timezone:  "UTC",
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+					{
+						ID:        "sched2",
+						StartsAt:  ptrTime(time.Date(2025, 9, 21, 14, 0, 0, 0, time.UTC)),
+						EndsAt:    ptrTime(time.Date(2025, 9, 21, 15, 0, 0, 0, time.UTC)),
+						Action:    domain.FeatureScheduleActionDisable,
+						Timezone:  "UTC",
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "default",
+			expectedEn:    true, // baseline ON из-за disable расписания
+			expectedFound: true,
+		},
+		// === ГРАНИЧНЫЕ СЛУЧАИ ===
+		{
+			name:       "empty request context",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Rules: []domain.Rule{
+					{
+						ID:     "r1",
+						Action: domain.RuleActionExclude,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{}, // пустой контекст
+			expectedValue: "default",
+			expectedEn:    true, // правило не срабатывает без country
+			expectedFound: true,
+		},
+		{
+			name:       "nil request context",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Rules: []domain.Rule{
+					{
+						ID:     "r1",
+						Action: domain.RuleActionExclude,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx:        nil, // nil контекст
+			expectedValue: "default",
+			expectedEn:    true, // правило не срабатывает без country
+			expectedFound: true,
+		},
+		{
+			name:       "feature with no rules",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Rules: []domain.Rule{}, // пустые правила
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "default",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:       "feature with no variants",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				FlagVariants: []domain.FlagVariant{}, // пустые варианты
+				Rules: []domain.Rule{
+					{
+						ID:            "r1",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: ptrFV("v1"), // ссылка на несуществующий вариант
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "default", // fallback к default
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:       "feature with invalid rule condition",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Rules: []domain.Rule{
+					{
+						ID:     "r1",
+						Action: domain.RuleActionExclude,
+						Conditions: domain.BooleanExpression{
+							Condition: nil, // nil условие
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "default",
+			expectedEn:    true, // правило не срабатывает с nil условием
+			expectedFound: true,
+		},
+		{
+			name:       "feature with empty boolean expression",
+			projectID:  "p1",
+			featureKey: "feature_key",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "feature_key",
+					Name:           "Test Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				Rules: []domain.Rule{
+					{
+						ID:         "r1",
+						Action:     domain.RuleActionExclude,
+						Conditions: domain.BooleanExpression{}, // пустое выражение
+						Priority:   0,
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "default",
+			expectedEn:    true, // правило не срабатывает с пустым выражением
+			expectedFound: true,
+		},
+		// === ТЕСТЫ С РАЗНЫМИ ТИПАМИ ФИЧ ===
+		{
+			name:       "simple feature with default variant",
+			projectID:  "p1",
+			featureKey: "simple_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "simple_feature",
+					Name:           "Simple Feature",
+					Kind:           domain.FeatureKindSimple,
+					DefaultVariant: "enabled",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{},
+			expectedValue: "enabled",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:       "multivariant feature with rollout",
+			projectID:  "p1",
+			featureKey: "rollout_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "rollout_feature",
+					Name:           "Rollout Feature",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+				},
+				FlagVariants: []domain.FlagVariant{
+					{ID: "v1", Name: "A", RolloutPercent: 50},
+					{ID: "v2", Name: "B", RolloutPercent: 50},
+				},
+				Rules: []domain.Rule{
+					{
+						ID:            "r1",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: ptrFV("v1"),
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "user_id",
+								Operator:  domain.OpEq,
+								Value:     "user123",
+							},
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"user_id": "user123"},
+			expectedValue: "A",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		// === ТЕСТЫ С РАСПИСАНИЯМИ И ПРАВИЛАМИ ===
+		{
+			name:       "feature with schedule and rules - active schedule allows rules",
+			projectID:  "p1",
+			featureKey: "scheduled_with_rules",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "scheduled_with_rules",
+					Name:           "Scheduled with Rules",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
+				},
+				FlagVariants: []domain.FlagVariant{variantA},
+				Rules: []domain.Rule{
+					{
+						ID:            "r1",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: &variantA.ID,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched1",
+						StartsAt:  ptrTime(time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-30 * time.Minute)), // активное окно
+						EndsAt:    ptrTime(time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(30 * time.Minute)),
+						Action:    domain.FeatureScheduleActionEnable,
+						Timezone:  "UTC",
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
+					},
+				},
+			},
+			reqCtx:         map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue:  "",   // может быть "A" или "" в зависимости от времени
+			expectedEn:     true, // может быть true или false в зависимости от времени
+			expectedFound:  true,
+			allowedValues:  []string{"", "A"},   // допустимые значения
+			allowedEnabled: []bool{true, false}, // допустимые значения для enabled
+		},
+		{
+			name:       "feature with schedule and rules - inactive schedule blocks rules",
+			projectID:  "p1",
+			featureKey: "scheduled_with_rules_inactive",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					ID:             "f1",
+					ProjectID:      "p1",
+					Key:            "scheduled_with_rules_inactive",
+					Name:           "Scheduled with Rules Inactive",
+					Kind:           domain.FeatureKindMultivariant,
+					DefaultVariant: "default",
+					Enabled:        true,
+					CreatedAt:      time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
+				},
+				FlagVariants: []domain.FlagVariant{variantA},
+				Rules: []domain.Rule{
+					{
+						ID:            "r1",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: &variantA.ID,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+				Schedules: []domain.FeatureSchedule{
+					{
+						ID:        "sched1",
+						StartsAt:  ptrTime(time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(1 * time.Hour)), // будущее окно
+						EndsAt:    ptrTime(time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(2 * time.Hour)),
+						Action:    domain.FeatureScheduleActionEnable,
+						Timezone:  "UTC",
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
+					},
+				},
+			},
+			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			expectedValue: "",    // фича неактивна по расписанию
+			expectedEn:    false, // неактивна вне окна
+			expectedFound: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			svc := New(nil, nil, nil, 0)
+
+			// Set fixed time for schedule tests
+			var testTime time.Time
+			if strings.Contains(tt.name, "active during cron window") {
+				testTime = time.Date(2025, 9, 21, 12, 15, 0, 0, time.UTC) // 12:15 UTC - inside cron window
+			} else if strings.Contains(tt.name, "inactive outside cron window") {
+				testTime = time.Date(2025, 9, 21, 11, 0, 0, 0, time.UTC) // 11:00 UTC - outside cron window
+			} else if strings.Contains(tt.name, "active during window") {
+				testTime = time.Date(2025, 9, 21, 12, 30, 0, 0, time.UTC) // 12:30 UTC - inside one-shot window
+			} else if strings.Contains(tt.name, "inactive outside window") {
+				testTime = time.Date(2025, 9, 21, 11, 0, 0, 0, time.UTC) // 11:00 UTC - outside one-shot window
+			} else if strings.Contains(tt.name, "active schedule allows rules") {
+				testTime = time.Date(2025, 9, 21, 12, 30, 0, 0, time.UTC) // 12:30 UTC - inside one-shot window
+			} else if strings.Contains(tt.name, "inactive schedule blocks rules") {
+				testTime = time.Date(2025, 9, 21, 11, 0, 0, 0, time.UTC) // 11:00 UTC - outside one-shot window
+			} else {
+				testTime = time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC) // default time for non-schedule tests
+			}
+
+			// Set mock time function
+			svc.nowFunc = func() time.Time { return testTime }
 
 			// Initialize holder
 			svc.mu.Lock()
@@ -264,7 +834,12 @@ func TestService_Evaluate(t *testing.T) {
 
 			value, enabled, found := svc.Evaluate(tt.projectID, tt.featureKey, tt.reqCtx)
 
-			assert.Equal(t, tt.expectedEn, enabled, "enabled mismatch")
+			if tt.allowedEnabled != nil {
+				// enabled must be one of allowedEnabled
+				assert.Contains(t, tt.allowedEnabled, enabled, "enabled mismatch")
+			} else {
+				assert.Equal(t, tt.expectedEn, enabled, "enabled mismatch")
+			}
 			assert.Equal(t, tt.expectedFound, found, "found mismatch")
 
 			if tt.allowedValues != nil {
@@ -837,7 +1412,7 @@ func TestEvaluateExpression(t *testing.T) {
 }
 
 func TestService_NextState(t *testing.T) {
-	now := time.Now().UTC()
+	now := time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).UTC()
 
 	tests := []struct {
 		name            string

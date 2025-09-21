@@ -44,6 +44,9 @@ type Service struct {
 	lastSeen     time.Time
 
 	stopChan chan struct{}
+
+	// nowFunc используется для получения текущего времени (для тестирования)
+	nowFunc func() time.Time
 }
 
 func New(
@@ -63,7 +66,13 @@ func New(
 		auditRepo:    auditRepo,
 		pollInterval: pollInterval,
 		stopChan:     make(chan struct{}),
+		nowFunc:      time.Now, // дефолтная функция времени
 	}
+}
+
+// now возвращает текущее время (может быть переопределено в тестах)
+func (s *Service) now() time.Time {
+	return s.nowFunc()
 }
 
 func (s *Service) Start(ctx context.Context) error {
@@ -93,7 +102,7 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 
 	slog.Info("Start loading all features")
 
-	lastSeen := time.Now()
+	lastSeen := s.now()
 
 	projects, err := s.projectsUC.List(ctx)
 	if err != nil {
@@ -148,7 +157,7 @@ func (s *Service) Watch(ctx context.Context) error {
 		case <-s.stopChan:
 			return nil
 		case <-ticker.C:
-			windowEnd := time.Now().UTC()
+			windowEnd := s.now().UTC()
 
 			logs, err := s.auditRepo.ListSince(ctx, last)
 			if err != nil {
@@ -220,7 +229,7 @@ func (s *Service) Evaluate(
 		return "", false, false
 	}
 
-	if !IsFeatureActiveNow(feature, time.Now().UTC()) {
+	if !IsFeatureActiveNow(feature, s.now().UTC()) {
 		return "", false, true
 	}
 
@@ -295,13 +304,13 @@ func (s *Service) Evaluate(
 func (s *Service) IsFeatureActive(feature domain.FeatureExtended) bool {
 	featurePrepared := MakeFeaturePrepared(feature)
 
-	return IsFeatureActiveNow(featurePrepared, time.Now().UTC())
+	return IsFeatureActiveNow(featurePrepared, s.now().UTC())
 }
 
 // NextState вычисляет следующее состояние фичи на основе расписания.
 // Если у фичи нет расписания, возвращает нулевые значения.
 func (s *Service) NextState(feature domain.FeatureExtended) (enabled bool, timestamp time.Time) {
-	return s.NextStateAt(feature, time.Now().UTC())
+	return s.NextStateAt(feature, s.now().UTC())
 }
 
 // NextStateAt вычисляет следующее состояние фичи на основе расписания в указанное время.
