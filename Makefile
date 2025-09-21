@@ -63,7 +63,12 @@ lint: .install-linter ## Run linter
 
 .PHONY: test
 test: ## Run tests
-	@go test -cover -coverprofile=coverage.out -v ./...
+	@go test -tags integration -cover -coverprofile=coverage.out -v ./...
+	@go tool cover -html=coverage.out -o coverage.html
+
+.PHONY: test-integration
+test-integration: ## Run integration tests
+	@go test -tags integration -cover -coverprofile=coverage.out -v ./...
 	@go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: build
