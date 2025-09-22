@@ -208,18 +208,6 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
           }}
         />
       </Box>
-      
-      <Typography variant="caption" color="text.secondary">
-        {currentSegment ? (
-          currentSegment.enabled ? 'Currently enabled' : 'Currently disabled'
-        ) : 'No current state'}
-        {timeUntilNext && featureEnabled && (
-          <span>
-            {' • Next change in '}
-            {Math.round(timeUntilNext / (1000 * 60))} minutes
-          </span>
-        )}
-      </Typography>
     </Box>
   );
 };
