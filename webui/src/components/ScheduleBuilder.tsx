@@ -9,7 +9,6 @@ import {
   TextField,
   MenuItem,
   FormControl,
-  FormLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
@@ -266,6 +265,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                 fullWidth
                 label="Start Date"
                 type="date"
+                size="small"
                 value={data.startsAt ? toDateString(data.startsAt) : ''}
                 onChange={(e) => {
                   const dateStr = e.target.value;
@@ -285,6 +285,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                 fullWidth
                 label="Start Time"
                 type="time"
+                size="small"
                 value={data.startsAt ? toTimeString(data.startsAt) : '00:00'}
                 onChange={(e) => {
                   const timeStr = e.target.value;
@@ -311,6 +312,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                 fullWidth
                 label="End Date"
                 type="date"
+                size="small"
                 value={data.endsAt ? toDateString(data.endsAt) : ''}
                 onChange={(e) => {
                   const dateStr = e.target.value;
@@ -329,6 +331,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                 fullWidth
                 label="End Time"
                 type="time"
+                size="small"
                 value={data.endsAt ? toTimeString(data.endsAt) : '23:59'}
                 onChange={(e) => {
                   const timeStr = e.target.value;
@@ -359,22 +362,22 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         >
           <FormControlLabel
             value="repeat_every"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="Repeat every N minutes/hours"
           />
           <FormControlLabel
             value="daily"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="At fixed time daily"
           />
           <FormControlLabel
             value="monthly"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="At fixed day monthly"
           />
           <FormControlLabel
             value="yearly"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="Once a year"
           />
         </RadioGroup>
@@ -396,6 +399,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   fullWidth
                   label="Interval"
                   type="number"
+                  size="small"
                   value={data.repeatEvery?.interval || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -411,6 +415,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   select
                   fullWidth
                   label="Unit"
+                  size="small"
                   value={data.repeatEvery?.unit || 'minutes'}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -438,6 +443,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
               fullWidth
               label="Time"
               type="time"
+              size="small"
               value={data.daily?.time || ''}
               onChange={(e) => setData(prev => ({
                 ...prev,
@@ -461,6 +467,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   fullWidth
                   label="Day of month"
                   type="number"
+                  size="small"
                   inputProps={{ min: 1, max: 31 }}
                   value={data.monthly?.dayOfMonth || ''}
                   onChange={(e) => setData(prev => ({
@@ -477,6 +484,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   fullWidth
                   label="Time"
                   type="time"
+                  size="small"
                   value={data.monthly?.time || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -504,6 +512,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   select
                   fullWidth
                   label="Month"
+                  size="small"
                   value={data.yearly?.month || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -525,6 +534,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   fullWidth
                   label="Day"
                   type="number"
+                  size="small"
                   inputProps={{ min: 1, max: 31 }}
                   value={data.yearly?.day || ''}
                   onChange={(e) => setData(prev => ({
@@ -541,6 +551,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
                   fullWidth
                   label="Time"
                   type="time"
+                  size="small"
                   value={data.yearly?.time || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -617,6 +628,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
               fullWidth
               label="Value"
               type="number"
+              size="small"
               value={data.duration.value}
               onChange={(e) => setData(prev => ({
                 ...prev,
@@ -634,6 +646,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
               select
               fullWidth
               label="Unit"
+              size="small"
               value={data.duration.unit}
               onChange={(e) => setData(prev => ({
                 ...prev,
@@ -675,12 +688,12 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         >
           <FormControlLabel
             value="enable"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="Activate feature"
           />
           <FormControlLabel
             value="disable"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="Deactivate feature"
           />
         </RadioGroup>
@@ -782,6 +795,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={handleBack}
+            size="small"
           >
             Back
           </Button>
@@ -793,6 +807,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
             startIcon={<CheckIcon />}
             onClick={handleSubmit}
             disabled={!canProceed()}
+            size="small"
           >
             Create Schedule
           </Button>
@@ -802,6 +817,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
             endIcon={<ArrowForwardIcon />}
             onClick={handleNext}
             disabled={!canProceed()}
+            size="small"
           >
             Next
           </Button>

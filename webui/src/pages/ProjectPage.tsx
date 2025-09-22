@@ -233,6 +233,7 @@ const ProjectPage: React.FC = () => {
                       }
                     }}
                     canToggle={canToggleFeature}
+                    isToggling={toggleMutation.isPending}
                   />
               ))}
             </Box>

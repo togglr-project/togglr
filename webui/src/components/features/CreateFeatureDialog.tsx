@@ -22,6 +22,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { Feature, FeatureKind, RuleAction as RuleActionType, RuleConditionExpression, Segment } from '../../generated/api/client';
 import { RuleAction as RuleActionEnum } from '../../generated/api/client';
+import { useFormChanges } from '../../hooks/useFormChanges';
+import ConfirmDiscardDialog from '../common/ConfirmDiscardDialog';
 
 // UUID generator (uses crypto.randomUUID when available)
 const genId = (): string => {
@@ -75,6 +77,50 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   });
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Track form changes
+  const formData = useMemo(() => ({
+    key: keyValue,
+    name,
+    description,
+    rolloutKey,
+    kind,
+    defaultVariant,
+    enabled,
+    variants,
+    rules,
+  }), [keyValue, name, description, rolloutKey, kind, defaultVariant, enabled, variants, rules]);
+
+  const {
+    hasChanges,
+    showDiscardDialog,
+    checkForChanges,
+    markAsChanged,
+    resetChanges,
+    handleDiscard,
+    showDiscardConfirmation,
+    closeDiscardDialog,
+  } = useFormChanges({
+    onDiscard: () => {
+      // Reset form to initial state
+      setKeyValue('');
+      setName('');
+      setDescription('');
+      setRolloutKey('');
+      setKind('simple');
+      setDefaultVariant('');
+      setEnabled(true);
+      setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
+      setRules([]);
+      setFormError(null);
+      onClose();
+    },
+  });
+
+  // Check for changes whenever form data changes
+  useEffect(() => {
+    checkForChanges(formData);
+  }, [formData, checkForChanges]);
 
   // Derived validation helpers
   // Feature key: allowed characters a-z, A-Z, 0-9, hyphen (-), underscore (_), colon (:), @, !, #, $, dot (.)
@@ -150,6 +196,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
     setRules([]);
     setFormError(null);
+    resetChanges();
   };
 
   const createFeatureMutation = useMutation({
@@ -310,8 +357,15 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     return !submitting;
   }, [keyValid, name, kind, rolloutKey, hasAtLeastTwoVariants, variantsValid, rulesValid, rules.length, submitting]);
 
+  const handleClose = () => {
+    if (showDiscardConfirmation()) {
+      return; // Dialog will be shown
+    }
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ color: 'primary.main' }}>Create Feature</DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5, mt: 1 }}>
@@ -603,7 +657,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => { resetForm(); onClose(); }} size="small">Cancel</Button>
+        <Button onClick={handleClose} size="small">Cancel</Button>
         <Button
           onClick={() => { setSubmitting(true); createFeatureMutation.mutate(); }}
           variant="contained"
@@ -613,6 +667,14 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           Create
         </Button>
       </DialogActions>
+      
+      <ConfirmDiscardDialog
+        open={showDiscardDialog}
+        onClose={closeDiscardDialog}
+        onConfirm={handleDiscard}
+        title="Discard Feature Creation?"
+        message="You have unsaved changes. Are you sure you want to discard them and close the dialog?"
+      />
     </Dialog>
   );
 };

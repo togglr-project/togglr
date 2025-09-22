@@ -9,6 +9,8 @@ import {
   IconButton,
   Tooltip,
   Stack,
+  LinearProgress,
+  Fade,
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -24,6 +26,7 @@ interface FeatureCardProps {
   onView: (feature: FeatureExtended) => void;
   onToggle: (feature: FeatureExtended) => void;
   canToggle?: boolean;
+  isToggling?: boolean;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -32,6 +35,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   onView,
   onToggle,
   canToggle = true,
+  isToggling = false,
 }) => {
   const getKindColor = (kind: string) => {
     switch (kind) {
@@ -44,6 +48,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   const getStatusColor = (enabled: boolean) => {
     return enabled ? 'success' : 'default';
   };
+
 
   return (
     <Card 
@@ -156,12 +161,43 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 
           {/* Right side - Switch and actions */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Switch
-              size="small"
-              checked={feature.enabled}
-              onChange={() => onToggle(feature)}
-              disabled={!canToggle}
-            />
+            <Box sx={{ position: 'relative' }}>
+              <Switch
+                size="small"
+                checked={feature.enabled}
+                onChange={() => onToggle(feature)}
+                disabled={!canToggle || isToggling}
+              />
+              <Fade in={isToggling}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    bgcolor: 'background.paper',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <LinearProgress
+                    sx={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: '50%',
+                      color: 'primary.main',
+                      '& .MuiLinearProgress-bar': {
+                        borderRadius: '50%',
+                      },
+                    }}
+                  />
+                </Box>
+              </Fade>
+            </Box>
             
             {/* Actions */}
             <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
