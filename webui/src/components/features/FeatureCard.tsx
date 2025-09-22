@@ -25,8 +25,10 @@ interface FeatureCardProps {
   onEdit: (feature: FeatureExtended) => void;
   onView: (feature: FeatureExtended) => void;
   onToggle: (feature: FeatureExtended) => void;
+  onSelect?: (feature: FeatureExtended) => void;
   canToggle?: boolean;
   isToggling?: boolean;
+  isSelected?: boolean;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -34,8 +36,10 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   onEdit,
   onView,
   onToggle,
+  onSelect,
   canToggle = true,
   isToggling = false,
+  isSelected = false,
 }) => {
   const getKindColor = (kind: string) => {
     switch (kind) {
@@ -50,20 +54,41 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   };
 
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't trigger selection if clicking on buttons or switch
+    if (
+      (e.target as HTMLElement).closest('button') ||
+      (e.target as HTMLElement).closest('[role="switch"]')
+    ) {
+      return;
+    }
+    onSelect?.(feature);
+  };
+
   return (
     <Card 
+      onClick={handleCardClick}
       sx={{ 
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         transition: 'all 0.2s ease-in-out',
+        cursor: 'pointer',
         '&:hover': {
           boxShadow: 2,
           transform: 'translateY(-1px)',
         },
-        border: '1px solid',
-        borderColor: feature.enabled ? 'success.light' : 'divider',
-        bgcolor: feature.enabled ? 'success.50' : 'background.paper',
+        border: '2px solid',
+        borderColor: isSelected 
+          ? 'primary.main' 
+          : feature.enabled 
+            ? 'success.light' 
+            : 'divider',
+        bgcolor: isSelected 
+          ? 'primary.50' 
+          : feature.enabled 
+            ? 'success.50' 
+            : 'background.paper',
         minHeight: 80,
       }}
     >
@@ -115,21 +140,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             />
             
             <Box sx={{ width: 1, height: 12, bgcolor: 'divider', opacity: 0.5 }} />
-            
-            {feature.default_variant && (
-              <>
-                <Chip
-                  size="small"
-                  label={`default: ${feature.default_variant}`}
-                  variant="outlined"
-                  sx={{ 
-                    fontSize: '0.7rem',
-                    height: 20,
-                  }}
-                />
-                <Box sx={{ width: 1, height: 12, bgcolor: 'divider', opacity: 0.5 }} />
-              </>
-            )}
             
             <Chip
               size="small"

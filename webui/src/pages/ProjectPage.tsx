@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tansta
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import SearchPanel from '../components/SearchPanel';
+import FeaturePreviewPanel from '../components/features/FeaturePreviewPanel';
 import apiClient from '../api/apiClient';
 import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
@@ -73,6 +74,9 @@ const ProjectPage: React.FC = () => {
   // Feature details dialog state & data
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<FeatureExtended | null>(null);
+  
+  // Feature preview panel state
+  const [previewFeature, setPreviewFeature] = useState<FeatureExtended | null>(null);
 
   // Permission to toggle features in this project (superuser can always toggle)
   const canToggleFeature = Boolean(user?.is_superuser || user?.project_permissions?.[projectId]?.includes('feature.toggle'));
@@ -93,6 +97,15 @@ const ProjectPage: React.FC = () => {
   const openFeatureDetails = (f: FeatureExtended) => {
     setSelectedFeature(f);
     setDetailsOpen(true);
+  };
+
+  const handleFeatureSelect = (f: FeatureExtended) => {
+    // If clicking the same feature, deselect it
+    if (previewFeature?.id === f.id) {
+      setPreviewFeature(null);
+    } else {
+      setPreviewFeature(f);
+    }
   };
 
   return (
@@ -216,26 +229,40 @@ const ProjectPage: React.FC = () => {
 
         {!loadingFeatures && features && features.length > 0 ? (
           <>
-            {/* Features list */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {features.map((f) => (
-                  <FeatureCard
-                    key={f.id}
-                    feature={f}
-                    onEdit={openFeatureDetails}
-                    onView={openFeatureDetails}
-                    onToggle={(feature) => {
-                      if (canToggleFeature) {
-                        toggleMutation.mutate({ 
-                          featureId: feature.id, 
-                          enabled: !feature.enabled 
-                        });
-                      }
-                    }}
-                    canToggle={canToggleFeature}
-                    isToggling={toggleMutation.isPending}
-                  />
-              ))}
+            {/* Features list and preview panel */}
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
+              {/* Features list - 2/3 width */}
+              <Box sx={{ flex: '2', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {features.map((f) => (
+                    <FeatureCard
+                      key={f.id}
+                      feature={f}
+                      onEdit={openFeatureDetails}
+                      onView={openFeatureDetails}
+                      onSelect={handleFeatureSelect}
+                      onToggle={(feature) => {
+                        if (canToggleFeature) {
+                          toggleMutation.mutate({ 
+                            featureId: feature.id, 
+                            enabled: !feature.enabled 
+                          });
+                        }
+                      }}
+                      canToggle={canToggleFeature}
+                      isToggling={toggleMutation.isPending}
+                      isSelected={previewFeature?.id === f.id}
+                    />
+                ))}
+              </Box>
+              
+              {/* Preview panel - 1/3 width */}
+              <Box sx={{ flex: '1', minWidth: 300 }}>
+                <FeaturePreviewPanel
+                  selectedFeature={previewFeature}
+                  projectId={projectId!}
+                  onClose={() => setPreviewFeature(null)}
+                />
+              </Box>
             </Box>
 
             {/* Pagination */}
