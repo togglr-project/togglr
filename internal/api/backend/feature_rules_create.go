@@ -57,7 +57,7 @@ func (r *RestAPI) CreateFeatureRule(
 
 	var segmentIDRef *domain.SegmentID
 	if req.SegmentID.IsSet() {
-		segmentID := domain.SegmentID(req.SegmentID.Value)
+		segmentID := domain.SegmentID(req.SegmentID.Value.String())
 		segmentIDRef = &segmentID
 	}
 
@@ -78,7 +78,7 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
-	// Build response Rule with expression tree
+	// Build response Rule with an expression tree
 	respExpr, err := exprToAPI(created.Conditions)
 	if err != nil {
 		slog.Error("build rule conditions response", "error", err)

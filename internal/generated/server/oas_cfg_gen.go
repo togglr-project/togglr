@@ -12,9 +12,16 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
+	"github.com/ogen-go/ogen/ogenregex"
 	"github.com/ogen-go/ogen/otelogen"
 )
 
+var regexMap = map[string]ogenregex.Regexp{
+	"^[0-9]{6}$":             ogenregex.MustCompile("^[0-9]{6}$"),
+	"^[A-Za-z0-9_:@!#$.-]+$": ogenregex.MustCompile("^[A-Za-z0-9_:@!#$.-]+$"),
+	"^[a-zA-Z0-9._-]+$":      ogenregex.MustCompile("^[a-zA-Z0-9._-]+$"),
+	"^[a-zA-Z0-9]{6}$":       ogenregex.MustCompile("^[a-zA-Z0-9]{6}$"),
+}
 var (
 	// Allocate option closure once.
 	clientSpanKind = trace.WithSpanKind(trace.SpanKindClient)

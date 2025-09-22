@@ -3819,9 +3819,11 @@ components:
         name:
           type: string
           minLength: 2
+          maxLength: 128
         description:
           type: string
           minLength: 10
+          maxLength: 300
 
     UpdateProjectRequest:
       type: object
@@ -3832,9 +3834,11 @@ components:
         name:
           type: string
           minLength: 2
+          maxLength: 128
         description:
           type: string
           minLength: 10
+          maxLength: 300
 
     # ---- /auth/login ----
     LoginRequest:
@@ -3843,9 +3847,13 @@ components:
         username:
           type: string
           example: "user@example.com"
+          minLength: 1
+          maxLength: 255
         password:
           type: string
           example: "password123"
+          minLength: 1
+          maxLength: 255
       required: [username, password]
 
     LoginResponse:
@@ -3882,14 +3890,17 @@ components:
           type: string
           description: Name of the SSO provider
           example: "keycloak"
+          minLength: 1
         response:
           type: string
           description: Response from SSO provider (code for OIDC, SAML response for SAML)
           example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+          minLength: 1
         state:
           type: string
           description: State parameter for CSRF protection
           example: "abc123def456"
+          minLength: 1
       required: [provider, response, state]
 
     SSOInitiateResponse:
@@ -3943,6 +3954,7 @@ components:
         refresh_token:
           type: string
           example: "<JWT_REFRESH_TOKEN>"
+          minLength: 1
       required: [refresh_token]
 
     RefreshTokenResponse:
@@ -3976,6 +3988,8 @@ components:
           type: string
           format: email
           example: "user@example.com"
+          minLength: 5
+          maxLength: 255
       required: [email]
 
     # ---- /auth/reset-password ----
@@ -3985,10 +3999,13 @@ components:
         token:
           type: string
           example: "reset_token_123456"
+          minLength: 1
+          maxLength: 255
         new_password:
           type: string
           example: "newpassword123"
           minLength: 8
+          maxLength: 255
       required: [token, new_password]
 
     # ---- /users/me ----
@@ -4156,28 +4173,37 @@ components:
         key:
           type: string
           minLength: 2
+          maxLength: 50
+          pattern: '^[A-Za-z0-9_:@!#$.-]+$'
         name:
           type: string
           minLength: 2
+          maxLength: 50
         description:
           type: string
           nullable: true
+          maxLength: 300
         kind:
           $ref: '#/components/schemas/FeatureKind'
         default_variant:
           type: string
+          minLength: 1
+          maxLength: 128
         enabled:
           type: boolean
         rollout_key:
           type: string
+          maxLength: 50
         variants:
           type: array
           description: Optional list of flag variants to create along with the feature
+          maxItems: 50
           items:
             $ref: '#/components/schemas/CreateFlagVariantInline'
         rules:
           type: array
           description: Optional list of rules to create along with the feature
+          maxItems: 100
           items:
             $ref: '#/components/schemas/CreateRuleInline'
       required: [key, name, kind, default_variant]
@@ -4258,6 +4284,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TestFeatureSchedule'
+          minItems: 1
+          maxItems: 50
       required: [schedules]
 
     TestFeatureSchedule:
@@ -4274,14 +4302,18 @@ components:
         cron_expr:
           type: string
           nullable: true
+          maxLength: 255
         timezone:
           type: string
+          maxLength: 50
         action:
           type: string
           enum: [enable, disable]
         cron_duration:
           type: string
           nullable: true
+          format: duration
+          maxLength: 30
       required: [timezone, action]
 
     # ---- Segments ----
@@ -4319,9 +4351,11 @@ components:
         name:
           type: string
           minLength: 1
+          maxLength: 255
         description:
           type: string
           nullable: true
+          maxLength: 255
         conditions:
           $ref: '#/components/schemas/RuleConditionExpression'
       required: [name, conditions]
@@ -4332,9 +4366,11 @@ components:
         name:
           type: string
           minLength: 1
+          maxLength: 255
         description:
           type: string
           nullable: true
+          maxLength: 255
         conditions:
           $ref: '#/components/schemas/RuleConditionExpression'
       required: [name, conditions]
@@ -4387,6 +4423,7 @@ components:
         name:
           type: string
           minLength: 1
+          maxLength: 128
         rollout_percent:
           type: integer
           minimum: 1
@@ -4400,9 +4437,11 @@ components:
         id:
           type: string
           description: Client-provided UUID for the variant
+          format: uuid
         name:
           type: string
           minLength: 1
+          maxLength: 128
         rollout_percent:
           type: integer
           minimum: 1
@@ -4434,6 +4473,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RuleConditionExpression'
+          minItems: 1
+          maxItems: 50
       required: [operator, children]
 
     LogicalOperator:
@@ -4443,6 +4484,9 @@ components:
     RuleAttribute:
       type: string
       description: Attribute to match in the rule condition
+      minLength: 1
+      maxLength: 50
+      pattern: '^[a-zA-Z0-9._-]+$'
 
     RuleOperator:
       type: string
@@ -4503,12 +4547,14 @@ components:
           $ref: '#/components/schemas/RuleConditionExpression'
         segment_id:
           type: string
+          format: uuid
         is_customized:
           type: boolean
         action:
           $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
           type: string
+          format: uuid
         priority:
           type: integer
           minimum: 0
@@ -4522,16 +4568,19 @@ components:
         id:
           type: string
           description: Client-provided UUID for the rule
+          format: uuid
         conditions:
           $ref: '#/components/schemas/RuleConditionExpression'
         segment_id:
           type: string
+          format: uuid
         is_customized:
           type: boolean
         action:
           $ref: '#/components/schemas/RuleAction'
         flag_variant_id:
           type: string
+          format: uuid
         priority:
           type: integer
           minimum: 0
@@ -4603,14 +4652,17 @@ components:
         cron_expr:
           type: string
           nullable: true
+          maxLength: 255
         cron_duration:
           type: string
           format: duration
           nullable: true
           description: "Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: '1h30m', '45m', '2h', etc."
+          maxLength: 30
         timezone:
           type: string
           default: UTC
+          maxLength: 50
         action:
           $ref: '#/components/schemas/FeatureScheduleAction'
       required: [timezone, action]
@@ -4629,13 +4681,16 @@ components:
         cron_expr:
           type: string
           nullable: true
+          maxLength: 255
         cron_duration:
           type: string
           format: duration
           nullable: true
           description: "Duration for cron-based schedules. When cron triggers, feature will be enabled/disabled for this duration. Format: '1h30m', '45m', '2h', etc."
+          maxLength: 30
         timezone:
           type: string
+          maxLength: 50
         action:
           $ref: '#/components/schemas/FeatureScheduleAction'
       required: [timezone, action]
@@ -4664,14 +4719,19 @@ components:
           type: string
           example: "john.doe"
           minLength: 3
+          maxLength: 255
+          pattern: '^[a-zA-Z0-9._-]+$'
         email:
           type: string
           format: email
           example: "john.doe@example.com"
+          minLength: 5
+          maxLength: 255
         password:
           type: string
           example: "password123"
           minLength: 8
+          maxLength: 255
         is_superuser:
           type: boolean
           example: false
@@ -4709,10 +4769,13 @@ components:
         old_password:
           type: string
           example: "password123"
+          minLength: 1
+          maxLength: 255
         new_password:
           type: string
           example: "password1234"
           minLength: 8
+          maxLength: 255
 
     UpdateLicenseAcceptanceRequest:
       type: object
@@ -4744,6 +4807,9 @@ components:
         code:
           type: string
           example: "123456"
+          minLength: 6
+          maxLength: 6
+          pattern: '^[0-9]{6}$'
       required: [code]
 
     TwoFADisableRequest:
@@ -4752,6 +4818,9 @@ components:
         email_code:
           type: string
           example: "abcdef"
+          minLength: 6
+          maxLength: 6
+          pattern: '^[a-zA-Z0-9]{6}$'
       required: [email_code]
 
     TwoFAResetRequest:
@@ -4760,6 +4829,9 @@ components:
         email_code:
           type: string
           example: "abcdef"
+          minLength: 6
+          maxLength: 6
+          pattern: '^[a-zA-Z0-9]{6}$'
       required: [email_code]
 
     TwoFAVerifyRequest:
@@ -4768,9 +4840,13 @@ components:
         code:
           type: string
           example: "123456"
+          minLength: 6
+          maxLength: 6
+          pattern: '^[0-9]{6}$'
         session_id:
           type: string
           example: "session-uuid"
+          format: uuid
       required: [code, session_id]
 
     TwoFAVerifyResponse:
@@ -4870,6 +4946,7 @@ components:
           type: string
           description: The license key text
           example: "-----BEGIN LICENSE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
+          minLength: 1
       required: [license_text]
 
     ProductInfoResponse:
@@ -4893,9 +4970,12 @@ components:
           type: string
           example: "user.id"
           minLength: 2
+          maxLength: 50
+          pattern: '^[a-zA-Z0-9._-]+$'
         description:
           type: string
           example: "User ID"
+          maxLength: 300
       required: [name]
 
     ListRuleAttributesResponse:
@@ -4910,7 +4990,9 @@ components:
           type: string
           example: "user.id"
           minLength: 2
+          maxLength: 50
         description:
           type: string
           example: "User ID"
+          maxLength: 300
       required: [name]

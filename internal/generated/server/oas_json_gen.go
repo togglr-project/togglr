@@ -684,7 +684,7 @@ func (s *CreateFlagVariantInline) Encode(e *jx.Encoder) {
 func (s *CreateFlagVariantInline) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
-		e.Str(s.ID)
+		json.EncodeUUID(e, s.ID)
 	}
 	{
 		e.FieldStart("name")
@@ -714,8 +714,8 @@ func (s *CreateFlagVariantInline) Decode(d *jx.Decoder) error {
 		case "id":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
+				v, err := json.DecodeUUID(d)
+				s.ID = v
 				if err != nil {
 					return err
 				}
@@ -1040,7 +1040,7 @@ func (s *CreateRuleInline) Encode(e *jx.Encoder) {
 func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("id")
-		e.Str(s.ID)
+		json.EncodeUUID(e, s.ID)
 	}
 	{
 		e.FieldStart("conditions")
@@ -1096,8 +1096,8 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 		case "id":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				v, err := d.Str()
-				s.ID = string(v)
+				v, err := json.DecodeUUID(d)
+				s.ID = v
 				if err != nil {
 					return err
 				}
@@ -12936,7 +12936,7 @@ func (s *TwoFAVerifyRequest) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("session_id")
-		e.Str(s.SessionID)
+		json.EncodeUUID(e, s.SessionID)
 	}
 }
 
@@ -12969,8 +12969,8 @@ func (s *TwoFAVerifyRequest) Decode(d *jx.Decoder) error {
 		case "session_id":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := d.Str()
-				s.SessionID = string(v)
+				v, err := json.DecodeUUID(d)
+				s.SessionID = v
 				if err != nil {
 					return err
 				}

@@ -343,13 +343,13 @@ func (s *CreateFeatureScheduleRequest) SetAction(val FeatureScheduleAction) {
 // Ref: #/components/schemas/CreateFlagVariantInline
 type CreateFlagVariantInline struct {
 	// Client-provided UUID for the variant.
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	RolloutPercent int    `json:"rollout_percent"`
+	ID             uuid.UUID `json:"id"`
+	Name           string    `json:"name"`
+	RolloutPercent int       `json:"rollout_percent"`
 }
 
 // GetID returns the value of ID.
-func (s *CreateFlagVariantInline) GetID() string {
+func (s *CreateFlagVariantInline) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -364,7 +364,7 @@ func (s *CreateFlagVariantInline) GetRolloutPercent() int {
 }
 
 // SetID sets the value of ID.
-func (s *CreateFlagVariantInline) SetID(val string) {
+func (s *CreateFlagVariantInline) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -438,17 +438,17 @@ func (s *CreateRuleAttributeRequest) SetDescription(val OptString) {
 // Ref: #/components/schemas/CreateRuleInline
 type CreateRuleInline struct {
 	// Client-provided UUID for the rule.
-	ID            string                  `json:"id"`
+	ID            uuid.UUID               `json:"id"`
 	Conditions    RuleConditionExpression `json:"conditions"`
-	SegmentID     OptString               `json:"segment_id"`
+	SegmentID     OptUUID                 `json:"segment_id"`
 	IsCustomized  bool                    `json:"is_customized"`
 	Action        RuleAction              `json:"action"`
-	FlagVariantID OptString               `json:"flag_variant_id"`
+	FlagVariantID OptUUID                 `json:"flag_variant_id"`
 	Priority      OptInt                  `json:"priority"`
 }
 
 // GetID returns the value of ID.
-func (s *CreateRuleInline) GetID() string {
+func (s *CreateRuleInline) GetID() uuid.UUID {
 	return s.ID
 }
 
@@ -458,7 +458,7 @@ func (s *CreateRuleInline) GetConditions() RuleConditionExpression {
 }
 
 // GetSegmentID returns the value of SegmentID.
-func (s *CreateRuleInline) GetSegmentID() OptString {
+func (s *CreateRuleInline) GetSegmentID() OptUUID {
 	return s.SegmentID
 }
 
@@ -473,7 +473,7 @@ func (s *CreateRuleInline) GetAction() RuleAction {
 }
 
 // GetFlagVariantID returns the value of FlagVariantID.
-func (s *CreateRuleInline) GetFlagVariantID() OptString {
+func (s *CreateRuleInline) GetFlagVariantID() OptUUID {
 	return s.FlagVariantID
 }
 
@@ -483,7 +483,7 @@ func (s *CreateRuleInline) GetPriority() OptInt {
 }
 
 // SetID sets the value of ID.
-func (s *CreateRuleInline) SetID(val string) {
+func (s *CreateRuleInline) SetID(val uuid.UUID) {
 	s.ID = val
 }
 
@@ -493,7 +493,7 @@ func (s *CreateRuleInline) SetConditions(val RuleConditionExpression) {
 }
 
 // SetSegmentID sets the value of SegmentID.
-func (s *CreateRuleInline) SetSegmentID(val OptString) {
+func (s *CreateRuleInline) SetSegmentID(val OptUUID) {
 	s.SegmentID = val
 }
 
@@ -508,7 +508,7 @@ func (s *CreateRuleInline) SetAction(val RuleAction) {
 }
 
 // SetFlagVariantID sets the value of FlagVariantID.
-func (s *CreateRuleInline) SetFlagVariantID(val OptString) {
+func (s *CreateRuleInline) SetFlagVariantID(val OptUUID) {
 	s.FlagVariantID = val
 }
 
@@ -520,10 +520,10 @@ func (s *CreateRuleInline) SetPriority(val OptInt) {
 // Ref: #/components/schemas/CreateRuleRequest
 type CreateRuleRequest struct {
 	Conditions    RuleConditionExpression `json:"conditions"`
-	SegmentID     OptString               `json:"segment_id"`
+	SegmentID     OptUUID                 `json:"segment_id"`
 	IsCustomized  bool                    `json:"is_customized"`
 	Action        RuleAction              `json:"action"`
-	FlagVariantID OptString               `json:"flag_variant_id"`
+	FlagVariantID OptUUID                 `json:"flag_variant_id"`
 	Priority      OptInt                  `json:"priority"`
 }
 
@@ -533,7 +533,7 @@ func (s *CreateRuleRequest) GetConditions() RuleConditionExpression {
 }
 
 // GetSegmentID returns the value of SegmentID.
-func (s *CreateRuleRequest) GetSegmentID() OptString {
+func (s *CreateRuleRequest) GetSegmentID() OptUUID {
 	return s.SegmentID
 }
 
@@ -548,7 +548,7 @@ func (s *CreateRuleRequest) GetAction() RuleAction {
 }
 
 // GetFlagVariantID returns the value of FlagVariantID.
-func (s *CreateRuleRequest) GetFlagVariantID() OptString {
+func (s *CreateRuleRequest) GetFlagVariantID() OptUUID {
 	return s.FlagVariantID
 }
 
@@ -563,7 +563,7 @@ func (s *CreateRuleRequest) SetConditions(val RuleConditionExpression) {
 }
 
 // SetSegmentID sets the value of SegmentID.
-func (s *CreateRuleRequest) SetSegmentID(val OptString) {
+func (s *CreateRuleRequest) SetSegmentID(val OptUUID) {
 	s.SegmentID = val
 }
 
@@ -578,7 +578,7 @@ func (s *CreateRuleRequest) SetAction(val RuleAction) {
 }
 
 // SetFlagVariantID sets the value of FlagVariantID.
-func (s *CreateRuleRequest) SetFlagVariantID(val OptString) {
+func (s *CreateRuleRequest) SetFlagVariantID(val OptUUID) {
 	s.FlagVariantID = val
 }
 
@@ -5878,7 +5878,7 @@ type TestFeatureSchedule struct {
 	CronExpr     OptNilString              `json:"cron_expr"`
 	Timezone     string                    `json:"timezone"`
 	Action       TestFeatureScheduleAction `json:"action"`
-	CronDuration OptNilString              `json:"cron_duration"`
+	CronDuration OptNilDuration            `json:"cron_duration"`
 }
 
 // GetStartsAt returns the value of StartsAt.
@@ -5907,7 +5907,7 @@ func (s *TestFeatureSchedule) GetAction() TestFeatureScheduleAction {
 }
 
 // GetCronDuration returns the value of CronDuration.
-func (s *TestFeatureSchedule) GetCronDuration() OptNilString {
+func (s *TestFeatureSchedule) GetCronDuration() OptNilDuration {
 	return s.CronDuration
 }
 
@@ -5937,7 +5937,7 @@ func (s *TestFeatureSchedule) SetAction(val TestFeatureScheduleAction) {
 }
 
 // SetCronDuration sets the value of CronDuration.
-func (s *TestFeatureSchedule) SetCronDuration(val OptNilString) {
+func (s *TestFeatureSchedule) SetCronDuration(val OptNilDuration) {
 	s.CronDuration = val
 }
 
@@ -6100,8 +6100,8 @@ func (*TwoFASetupResponse) setup2FARes() {}
 
 // Ref: #/components/schemas/TwoFAVerifyRequest
 type TwoFAVerifyRequest struct {
-	Code      string `json:"code"`
-	SessionID string `json:"session_id"`
+	Code      string    `json:"code"`
+	SessionID uuid.UUID `json:"session_id"`
 }
 
 // GetCode returns the value of Code.
@@ -6110,7 +6110,7 @@ func (s *TwoFAVerifyRequest) GetCode() string {
 }
 
 // GetSessionID returns the value of SessionID.
-func (s *TwoFAVerifyRequest) GetSessionID() string {
+func (s *TwoFAVerifyRequest) GetSessionID() uuid.UUID {
 	return s.SessionID
 }
 
@@ -6120,7 +6120,7 @@ func (s *TwoFAVerifyRequest) SetCode(val string) {
 }
 
 // SetSessionID sets the value of SessionID.
-func (s *TwoFAVerifyRequest) SetSessionID(val string) {
+func (s *TwoFAVerifyRequest) SetSessionID(val uuid.UUID) {
 	s.SessionID = val
 }
 

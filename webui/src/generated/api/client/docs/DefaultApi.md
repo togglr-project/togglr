@@ -124,6 +124,8 @@ void (empty response body)
 |**201** | Project created |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**409** | Project already exists |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

@@ -14,7 +14,7 @@ func (r *RestAPI) Verify2FA(
 	ctx context.Context,
 	req *generatedapi.TwoFAVerifyRequest,
 ) (generatedapi.Verify2FARes, error) {
-	accessToken, refreshToken, expiresIn, err := r.usersUseCase.Verify2FA(ctx, req.Code, req.SessionID)
+	accessToken, refreshToken, expiresIn, err := r.usersUseCase.Verify2FA(ctx, req.Code, req.SessionID.String())
 	if err != nil {
 		switch {
 		case errors.Is(err, domain.ErrInvalid2FACode):

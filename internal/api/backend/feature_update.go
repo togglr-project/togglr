@@ -63,7 +63,7 @@ func (r *RestAPI) UpdateFeature(
 	variants := make([]domain.FlagVariant, 0, len(req.Variants))
 	for _, variant := range req.Variants {
 		variants = append(variants, domain.FlagVariant{
-			ID:             domain.FlagVariantID(variant.ID),
+			ID:             domain.FlagVariantID(variant.ID.String()),
 			ProjectID:      existing.ProjectID,
 			FeatureID:      featureID,
 			Name:           variant.Name,
@@ -82,12 +82,12 @@ func (r *RestAPI) UpdateFeature(
 
 		var segmentIDRef *domain.SegmentID
 		if rr.SegmentID.IsSet() {
-			segmentID := domain.SegmentID(rr.SegmentID.Value)
+			segmentID := domain.SegmentID(rr.SegmentID.Value.String())
 			segmentIDRef = &segmentID
 		}
 
 		rules = append(rules, domain.Rule{
-			ID:            domain.RuleID(rr.ID),
+			ID:            domain.RuleID(rr.ID.String()),
 			ProjectID:     existing.ProjectID,
 			FeatureID:     featureID,
 			Conditions:    expr,

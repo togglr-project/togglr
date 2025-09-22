@@ -96,7 +96,7 @@ func (r *RestAPI) TestFeatureTimeline(
 
 		// Set cron_duration if provided
 		if sched.CronDuration.Set {
-			if duration, err := time.ParseDuration(sched.CronDuration.Value); err == nil {
+			if duration, err := time.ParseDuration(sched.CronDuration.Value.String()); err == nil {
 				schedule.CronDuration = &duration
 			} else {
 				slog.Error("invalid cron_duration", "cron_duration", sched.CronDuration.Value, "error", err)

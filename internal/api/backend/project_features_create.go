@@ -56,7 +56,7 @@ func (r *RestAPI) CreateProjectFeature(
 	variants := make([]domain.FlagVariant, 0, len(req.Variants))
 	for _, v := range req.Variants {
 		variants = append(variants, domain.FlagVariant{
-			ID:             domain.FlagVariantID(v.ID),
+			ID:             domain.FlagVariantID(v.ID.String()),
 			ProjectID:      projectID,
 			Name:           v.Name,
 			RolloutPercent: uint8(v.RolloutPercent),
@@ -74,12 +74,12 @@ func (r *RestAPI) CreateProjectFeature(
 
 		var segmentIDRef *domain.SegmentID
 		if rr.SegmentID.IsSet() {
-			segmentID := domain.SegmentID(rr.SegmentID.Value)
+			segmentID := domain.SegmentID(rr.SegmentID.Value.String())
 			segmentIDRef = &segmentID
 		}
 
 		rules = append(rules, domain.Rule{
-			ID:            domain.RuleID(rr.ID),
+			ID:            domain.RuleID(rr.ID.String()),
 			ProjectID:     projectID,
 			Conditions:    expr,
 			SegmentID:     segmentIDRef,

@@ -7,12 +7,12 @@ import (
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
-func optString2FlagVariantIDRef(optString generatedapi.OptString) *domain.FlagVariantID {
+func optString2FlagVariantIDRef(optString generatedapi.OptUUID) *domain.FlagVariantID {
 	if !optString.IsSet() {
 		return nil
 	}
 
-	id := domain.FlagVariantID(optString.Value)
+	id := domain.FlagVariantID(optString.Value.String())
 
 	return &id
 }
