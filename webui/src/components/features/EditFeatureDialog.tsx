@@ -302,18 +302,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
             {/* Basic info */}
             <Typography variant="subtitle1">Basic</Typography>
-            <Grid container spacing={2}>
+            <Grid container spacing={1.5}>
               <Grid item xs={12} md={6}>
-                <TextField label="Key" value={keyVal} onChange={(e) => setKeyVal(e.target.value)} fullWidth disabled />
+                <TextField label="Key" value={keyVal} onChange={(e) => setKeyVal(e.target.value)} fullWidth disabled size="small" />
               </Grid>
               <Grid item xs={12} md={6}>
-                <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth />
+                <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} fullWidth size="small" />
               </Grid>
               <Grid item xs={12}>
                 <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline minRows={2} />
               </Grid>
               <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
+                <FormControl fullWidth size="small">
                   <InputLabel id="kind-label">Kind</InputLabel>
                   <Select labelId="kind-label" label="Kind" value={kind} onChange={(e) => setKind(e.target.value)} disabled>
                     {featureKindOptions.map(k => (
@@ -334,7 +334,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                     onChange={(_, val) => setRolloutKey(val || '')}
                     onInputChange={(_, val) => setRolloutKey(val)}
                     renderInput={(params) => (
-                      <TextField {...params} label="Rollout Key" required fullWidth helperText="Select from suggestions or type any attribute name" />
+                      <TextField {...params} label="Rollout Key" required fullWidth size="small" helperText="Select from suggestions or type any attribute name" />
                     )}
                   />
                 </Grid>
@@ -354,19 +354,19 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                   {variants.map((v, idx) => (
                     <React.Fragment key={v.id}>
                       <Grid item xs={12} md={4}>
-                        <TextField label={`Variant name #${idx + 1}`} value={v.name} onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, name: e.target.value } : x))} fullWidth />
+                        <TextField label={`Variant name #${idx + 1}`} value={v.name} onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, name: e.target.value } : x))} fullWidth size="small" />
                       </Grid>
                       <Grid item xs={12} md={3}>
                         <TextField type="number" label="Rollout %" inputProps={{ min: 0, max: 100 }} value={v.rollout_percent}
-                          onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, rollout_percent: Number(e.target.value) } : x))} fullWidth />
+                          onChange={(e) => setVariants(prev => prev.map(x => x.id === v.id ? { ...x, rollout_percent: Number(e.target.value) } : x))} fullWidth size="small" />
                       </Grid>
                       <Grid item xs={12} md={4}>
-                        <TextField label="ID" value={v.id} fullWidth disabled />
+                        <TextField label="ID" value={v.id} fullWidth disabled size="small" />
                       </Grid>
                       <Grid item xs={12} md={1} sx={{ display: 'flex', alignItems: 'center' }}>
                         <Tooltip title={canDeleteVariant(v.id) ? 'Delete variant' : 'Cannot delete: used in assign rules'}>
                           <span>
-                            <IconButton onClick={() => removeVariant(v.id)} disabled={!canDeleteVariant(v.id)} aria-label="delete variant">
+                            <IconButton onClick={() => removeVariant(v.id)} disabled={!canDeleteVariant(v.id)} aria-label="delete variant" size="small">
                               <Delete />
                             </IconButton>
                           </span>
@@ -381,6 +381,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                     value={defaultVariant}
                     onChange={(e) => setDefaultVariant(e.target.value)}
                     fullWidth
+                    size="small"
                     helperText="May be any string; not required to match defined variants"
                   />
                   <Typography variant="body2" color="text.secondary">Variants total: {variants.length}</Typography>
@@ -393,6 +394,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                   value={defaultVariant}
                   onChange={(e) => setDefaultVariant(e.target.value)}
                   fullWidth
+                  size="small"
                   helperText="Any value; when feature is enabled, this exact value is returned"
                 />
               </Box>
@@ -416,8 +418,8 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                     <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
-                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
-                        <FormControl sx={{ minWidth: 240 }}>
+                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} size="small" />
+                        <FormControl sx={{ minWidth: 240 }} size="small">
                           <InputLabel id={`rule-var-${r.id}`}>Target variant</InputLabel>
                           <Select labelId={`rule-var-${r.id}`} label="Target variant" value={r.flag_variant_id || ''}
                             onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, flag_variant_id: String(e.target.value) } : x))}>
@@ -426,13 +428,14 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                             ))}
                           </Select>
                         </FormControl>
-                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
+                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule" size="small"><Delete /></IconButton>
                       </Box>
 
                       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <TextField
                           select
                           label="Segment template"
+                          size="small"
                           value={r.segment_id || ''}
                           onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
                           sx={{ minWidth: 240 }}
@@ -482,14 +485,15 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                     <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
-                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
-                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
+                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} size="small" />
+                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule" size="small"><Delete /></IconButton>
                       </Box>
 
                       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <TextField
                           select
                           label="Segment template"
+                          size="small"
                           value={r.segment_id || ''}
                           onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
                           sx={{ minWidth: 240 }}
@@ -539,14 +543,15 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                     <Box key={r.id} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                         <TextField type="number" label="Priority" value={r.priority} sx={{ width: 140 }}
-                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} />
-                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule"><Delete /></IconButton>
+                          onChange={(e) => setRules(prev => prev.map(x => x.id === r.id ? { ...x, priority: Number(e.target.value) } : x))} size="small" />
+                        <IconButton onClick={() => removeRule(r.id)} aria-label="delete rule" size="small"><Delete /></IconButton>
                       </Box>
 
                       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
                         <TextField
                           select
                           label="Segment template"
+                          size="small"
                           value={r.segment_id || ''}
                           onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
                           sx={{ minWidth: 240 }}

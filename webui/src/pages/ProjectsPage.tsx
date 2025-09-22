@@ -71,7 +71,7 @@ const ProjectsPage: React.FC = () => {
 
       <Paper
         sx={{
-          p: 3,
+          p: 2,
           background: (theme) =>
             theme.palette.mode === 'dark'
               ? 'linear-gradient(to bottom, rgba(65, 68, 74, 0.5), rgba(55, 58, 64, 0.5))'
@@ -80,7 +80,7 @@ const ProjectsPage: React.FC = () => {
           boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.05)'
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>
             Projects
           </Typography>
@@ -90,6 +90,7 @@ const ProjectsPage: React.FC = () => {
               startIcon={<AddIcon />}
               onClick={() => setCreateOpen(true)}
               disabled={creating}
+              size="small"
             >
               Add Project
             </Button>
@@ -103,9 +104,9 @@ const ProjectsPage: React.FC = () => {
         ) : error ? (
           <Typography color="error">Failed to load projects.</Typography>
         ) : projects && projects.length > 0 ? (
-          <Grid container spacing={2}>
+          <Grid container spacing={1.5}>
             {projects.map((project: Project) => (
-              <Grid item xs={12} sm={6} md={4} key={project.id}>
+              <Grid item xs={12} sm={6} md={4} lg={3} key={project.id}>
                 <ProjectCard
                   id={project.id}
                   name={project.name}

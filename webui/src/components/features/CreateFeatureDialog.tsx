@@ -314,19 +314,20 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ color: 'primary.main' }}>Create Feature</DialogTitle>
       <DialogContent>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mt: 1 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5, mt: 1 }}>
           <TextField 
             label="Key" 
             value={keyValue} 
             onChange={(e) => setKeyValue(e.target.value)} 
             required 
             fullWidth 
+            size="small"
             error={keyValue.trim().length > 0 && !keyValid}
             helperText={!keyValid && keyValue.trim().length > 0 ? 'Allowed: letters (a-z, A-Z), digits (0-9), hyphen (-), underscore (_), colon (:), @, !, #, $, dot (.)' : undefined}
           />
-          <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth />
+          <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth size="small" />
           <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline minRows={2} />
-          <TextField select label="Kind" value={kind} onChange={(e) => { const v = e.target.value as FeatureKind; setKind(v); }} fullWidth>
+          <TextField select label="Kind" value={kind} onChange={(e) => { const v = e.target.value as FeatureKind; setKind(v); }} fullWidth size="small">
             {kindOptions.map(k => (
               <MenuItem key={k} value={k}>{k}</MenuItem>
             ))}
@@ -339,7 +340,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               onChange={(_, val) => setRolloutKey(val || '')}
               onInputChange={(_, val) => setRolloutKey(val)}
               renderInput={(params) => (
-                <TextField {...params} label="Rollout Key" required fullWidth helperText="Select from suggestions or type any attribute name" />
+                <TextField {...params} label="Rollout Key" required fullWidth size="small" helperText="Select from suggestions or type any attribute name" />
               )}
             />
           )}
@@ -349,6 +350,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               value={defaultVariant}
               onChange={(e) => setDefaultVariant(e.target.value)}
               fullWidth
+              size="small"
               helperText="Any value; when feature is enabled, this exact value is returned"
             />
           ) : (
@@ -357,6 +359,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               value={defaultVariant}
               onChange={(e) => setDefaultVariant(e.target.value)}
               fullWidth
+              size="small"
               helperText="May be any string; not required to match defined variants"
             />
           )}
@@ -367,7 +370,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         </Box>
 
         {kind === 'multivariant' && (
-          <Box sx={{ mt: 3 }}>
+          <Box sx={{ mt: 2 }}>
             <Typography variant="subtitle1">Variants</Typography>
             <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
               {variants.map((v, index) => (
@@ -378,6 +381,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                     onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
                     required
                     fullWidth
+                    size="small"
                   />
                   <TextField
                     label="Rollout %"
@@ -386,8 +390,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                     value={v.rollout_percent}
                     onChange={(e) => handleVariantChange(index, 'rollout_percent', e.target.value)}
                     required
+                    size="small"
                   />
-                  <IconButton aria-label="delete-variant" onClick={() => handleRemoveVariant(index)} disabled={variants.length <= 1}>
+                  <IconButton aria-label="delete-variant" onClick={() => handleRemoveVariant(index)} disabled={variants.length <= 1} size="small">
                     <DeleteIcon />
                   </IconButton>
                 </Box>
@@ -409,7 +414,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         )}
 
         {/* Rules (shown for both boolean and multivariant) */}
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 2 }}>
           <Typography variant="subtitle1" sx={{ mb: 1 }}>Rules</Typography>
 
           {/* Assign section (multivariant only) */}
@@ -430,18 +435,20 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                         inputProps={{ min: 0, max: 255, step: 1 }}
                         value={r.priority}
                         onChange={(e) => updateRuleById(r.id, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
+                        size="small"
                       />
                       <TextField
                         select
                         label="Target variant"
                         value={r.flag_variant_id || ''}
                         onChange={(e) => updateRuleById(r.id, { flag_variant_id: String(e.target.value) })}
+                        size="small"
                       >
                         {variants.map(v => (
                           <MenuItem key={v.id} value={v.id}>{v.name || v.id}</MenuItem>
                         ))}
                       </TextField>
-                      <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
+                      <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)} size="small">
                         <DeleteIcon />
                       </IconButton>
                     </Box>
@@ -453,6 +460,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                         value={r.segment_id || ''}
                         onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
                         sx={{ minWidth: 240 }}
+                        size="small"
                      >
                         <MenuItem value="">Custom (no segment)</MenuItem>
                         {(segments || []).map((s) => (
@@ -494,8 +502,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       inputProps={{ min: 0, max: 255, step: 1 }}
                       value={r.priority}
                       onChange={(e) => updateRuleById(r.id, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
+                      size="small"
                     />
-                    <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
+                    <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)} size="small">
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -506,6 +515,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       value={r.segment_id || ''}
                       onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
                       sx={{ minWidth: 240 }}
+                      size="small"
                     >
                       <MenuItem value="">Custom (no segment)</MenuItem>
                       {(segments || []).map((s) => (
@@ -545,8 +555,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       inputProps={{ min: 0, max: 255, step: 1 }}
                       value={r.priority}
                       onChange={(e) => updateRuleById(r.id, { priority: e.target.value === '' ? '' : Number(e.target.value) })}
+                      size="small"
                     />
-                    <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)}>
+                    <IconButton aria-label="delete-rule" onClick={() => removeRuleById(r.id)} size="small">
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -557,6 +568,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       value={r.segment_id || ''}
                       onChange={(e) => handleSelectSegment(r.id, String(e.target.value))}
                       sx={{ minWidth: 240 }}
+                      size="small"
                     >
                       <MenuItem value="">Custom (no segment)</MenuItem>
                       {(segments || []).map((s) => (

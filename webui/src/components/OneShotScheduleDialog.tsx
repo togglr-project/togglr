@@ -215,6 +215,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
               </Box>
               <TextField
                 fullWidth
+                size="small"
                 label="Timezone"
                 value={Intl.DateTimeFormat().resolvedOptions().timeZone}
                 disabled
@@ -230,6 +231,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                size="small"
                 label="Start Date"
                 type="date"
                 InputLabelProps={{ shrink: true }}
@@ -245,6 +247,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                size="small"
                 label="Start Time"
                 type="time"
                 InputLabelProps={{ shrink: true }}
@@ -270,6 +273,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                size="small"
                 label="End Date"
                 type="date"
                 InputLabelProps={{ shrink: true }}
@@ -285,6 +289,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                size="small"
                 label="End Time"
                 type="time"
                 InputLabelProps={{ shrink: true }}

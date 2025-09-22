@@ -32,37 +32,37 @@ const PageHeader: React.FC<PageHeaderProps> = ({
 
   if (loading) {
     return (
-      <Box sx={{ mb: 4, width: '100%' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Skeleton variant="circular" width={32} height={32} />
-          <Skeleton variant="text" width={200} height={24} />
-          {badge && <Skeleton variant="rectangular" width={80} height={24} sx={{ borderRadius: 1 }} />}
+      <Box sx={{ mb: 1.5, width: '100%' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
+          <Skeleton variant="circular" width={28} height={28} />
+          <Skeleton variant="text" width={200} height={20} />
+          {badge && <Skeleton variant="rectangular" width={80} height={20} sx={{ borderRadius: 1 }} />}
         </Box>
-        {subtitle && <Skeleton variant="text" width={300} height={20} />}
+        {subtitle && <Skeleton variant="text" width={300} height={16} />}
       </Box>
     );
   }
 
   return (
     <Box sx={{ 
-      mb: 4, 
+      mb: 1.5, 
       width: '100%',
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
       flexWrap: 'wrap',
-      gap: 2
+      gap: 1.5
     }}>
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
           {icon && (
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              width: 40,
-              height: 40,
-              borderRadius: 2,
+              width: 28,
+              height: 28,
+              borderRadius: 1.5,
               backgroundColor: theme.palette.mode === 'dark' 
                 ? 'rgba(130, 82, 255, 0.1)' 
                 : 'rgba(130, 82, 255, 0.08)',
@@ -72,12 +72,12 @@ const PageHeader: React.FC<PageHeaderProps> = ({
             </Box>
           )}
           <Typography 
-            variant="h4" 
+            variant="h6" 
             component="h1" 
             sx={{ 
               fontWeight: 700,
               lineHeight: 1.2,
-              fontSize: '1.55rem',
+              fontSize: '1.2rem',
               color: 'primary.main'
             }}
           >
@@ -90,8 +90,8 @@ const PageHeader: React.FC<PageHeaderProps> = ({
               variant={badge.variant || 'filled'}
               size="small"
               sx={{ 
-                height: 24,
-                fontSize: '0.75rem',
+                height: 20,
+                fontSize: '0.7rem',
                 fontWeight: 500,
               }}
             />
@@ -99,11 +99,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
         </Box>
         {subtitle && (
           <Typography 
-            variant="body1" 
+            variant="body2" 
             sx={{ 
-              ml: icon ? 6 : 0,
-              fontSize: '1rem',
-              lineHeight: 1.5,
+              ml: icon ? 5 : 0,
+              fontSize: '0.9rem',
+              lineHeight: 1.4,
               whiteSpace: 'pre-wrap',
               color: 'primary.light'
             }}

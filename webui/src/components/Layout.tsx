@@ -52,12 +52,12 @@ interface LayoutProps {
 }
 
 // Drawer width constants
-const DRAWER_WIDTH = 260;
-const DRAWER_COLLAPSED_WIDTH = 72;
+const DRAWER_WIDTH = 240;
+const DRAWER_COLLAPSED_WIDTH = 64;
 
 // AppBar heights
-const APPBAR_MAIN_HEIGHT = 70;
-const TABBAR_HEIGHT = 48;
+const APPBAR_MAIN_HEIGHT = 56;
+const TABBAR_HEIGHT = 40;
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, 
@@ -156,7 +156,7 @@ const Layout: React.FC<LayoutProps> = ({
           }),
         }}
       >
-        <Toolbar sx={{ height: 70, px: { xs: 2, sm: 3 } }}>
+        <Toolbar sx={{ height: 56, px: { xs: 1.5, sm: 2 } }}>
           <IconButton
             aria-label="toggle drawer"
             edge="start"
@@ -276,7 +276,7 @@ const Layout: React.FC<LayoutProps> = ({
         {/* Secondary navigation tabs (below main toolbar) */}
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
           <Divider sx={{ opacity: theme.palette.mode === 'dark' ? 0.12 : 0.08 }} />
-          <Toolbar variant="dense" sx={{ minHeight: TABBAR_HEIGHT, px: { xs: 2, sm: 3 } }}>
+          <Toolbar variant="dense" sx={{ minHeight: TABBAR_HEIGHT, px: { xs: 1.5, sm: 2 } }}>
             <Tabs
               value={menuItems.find((it) => isActive(it.path))?.path ?? false}
               onChange={(_e, val) => { if (typeof val === 'string') navigate(val); }}
@@ -562,7 +562,7 @@ const Layout: React.FC<LayoutProps> = ({
         component="main"
         sx={{ 
           flexGrow: 1, 
-          p: { xs: 2, sm: 3, md: 4 },
+          p: { xs: 1.5, sm: 2, md: 2.5 },
           ml: 0,
           mr: '0 !important',
           right: 0,
@@ -582,8 +582,8 @@ const Layout: React.FC<LayoutProps> = ({
         <Box 
           id="main-content"
           sx={{ 
-            mt: 2,
-            mb: 4, 
+            mt: 1,
+            mb: 2, 
             width: '100%', 
             maxWidth: '1400px', 
           }}

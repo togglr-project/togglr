@@ -98,6 +98,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
           variant="outlined"
           value={projectName}
           onChange={(e) => setProjectName(e.target.value)}
+          size="small"
         />
         <TextField
           margin="dense"
@@ -113,6 +114,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
           required
           error={!!descriptionError}
           helperText={descriptionError || 'Enter a detailed description of the project (minimum 10 characters)'}
+          size="small"
         />
       </DialogContent>
       <DialogActions>

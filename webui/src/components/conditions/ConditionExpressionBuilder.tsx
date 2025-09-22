@@ -96,6 +96,7 @@ const ConditionRow: React.FC<{
               label="Attribute"
               required
               fullWidth
+              size="small"
             />
           )}
         />
@@ -107,6 +108,7 @@ const ConditionRow: React.FC<{
           value={value.operator}
           onChange={(e) => onChange({ ...value, operator: e.target.value as RuleOperatorType })}
           fullWidth
+          size="small"
         >
           {ruleOperatorOptions.map(op => (
             <MenuItem key={op} value={op}>{op}</MenuItem>
@@ -115,10 +117,11 @@ const ConditionRow: React.FC<{
       </Grid>
       <Grid item xs={12} md={4}>
         <TextField
-          label="Value (JSON or plain)"
+          label="Value"
           value={value.value}
           onChange={(e) => onChange({ ...value, value: e.target.value })}
           fullWidth
+          size="small"
         />
       </Grid>
       <Grid item xs={12} md={1}>

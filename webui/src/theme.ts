@@ -133,14 +133,14 @@ export const getTheme = (mode: ThemeMode) => {
       },
     },
     shape: {
-      borderRadius: 10,
+      borderRadius: 8,
     },
     components: {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 10,
-            padding: '8px 16px',
+            borderRadius: 8,
+            padding: '6px 12px',
             fontWeight: 500,
             color: '#ffffff',
             boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.1)',
@@ -175,7 +175,7 @@ export const getTheme = (mode: ThemeMode) => {
       MuiPaper: {
         styleOverrides: {
           root: {
-            borderRadius: 12,
+            borderRadius: 8,
             backgroundImage: (() => {
               if (mode === 'dark') {
                 return 'linear-gradient(to bottom, rgba(45, 48, 56, 0.7), rgba(35, 38, 46, 0.85))';
@@ -218,7 +218,7 @@ export const getTheme = (mode: ThemeMode) => {
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: 12,
+            borderRadius: 8,
             background: (() => {
               if (mode === 'dark') {
                 return 'linear-gradient(135deg, rgba(45, 48, 56, 0.85) 0%, rgba(35, 38, 46, 0.85) 100%)';
@@ -246,7 +246,7 @@ export const getTheme = (mode: ThemeMode) => {
       MuiChip: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
+            borderRadius: 6,
             fontWeight: 500,
           },
           outlined: {
@@ -258,7 +258,7 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           root: {
             '& .MuiOutlinedInput-root': {
-              borderRadius: 10,
+              borderRadius: 8,
               // Override browser autofill styling
               '& input:-webkit-autofill': {
                 WebkitBoxShadow: `0 0 0 100px ${paperColor} inset`,
@@ -277,19 +277,52 @@ export const getTheme = (mode: ThemeMode) => {
             },
           },
         },
+        variants: [
+          {
+            props: { size: 'small' },
+            style: {
+              '& .MuiOutlinedInput-root': {
+                height: 36,
+                '& .MuiInputBase-input': {
+                  padding: '8px 12px',
+                  fontSize: '0.875rem',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: '0.875rem',
+                transform: 'translate(14px, 9px) scale(1)',
+                '&.MuiInputLabel-shrink': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
+                },
+              },
+            },
+          },
+        ],
       },
       MuiSelect: {
         styleOverrides: {
           outlined: {
-            borderRadius: 10,
+            borderRadius: 8,
           },
         },
+        variants: [
+          {
+            props: { size: 'small' },
+            style: {
+              height: 36,
+              '& .MuiSelect-select': {
+                padding: '8px 12px',
+                fontSize: '0.875rem',
+              },
+            },
+          },
+        ],
       },
       MuiMenuItem: {
         styleOverrides: {
           root: {
-            borderRadius: 6,
-            margin: '2px 4px',
+            borderRadius: 4,
+            margin: '1px 2px',
             '&:hover': {
               backgroundColor: (() => {
                 if (mode === 'dark') {
@@ -309,8 +342,8 @@ export const getTheme = (mode: ThemeMode) => {
       MuiListItemButton: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
-            margin: '2px 4px',
+            borderRadius: 6,
+            margin: '1px 2px',
             '&:hover': {
               backgroundColor: (() => {
                 if (mode === 'dark') {
@@ -363,6 +396,22 @@ export const getTheme = (mode: ThemeMode) => {
             },
           },
         },
+      },
+      MuiFormControl: {
+        variants: [
+          {
+            props: { size: 'small' },
+            style: {
+              '& .MuiInputLabel-root': {
+                fontSize: '0.875rem',
+                transform: 'translate(14px, 9px) scale(1)',
+                '&.MuiInputLabel-shrink': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
+                },
+              },
+            },
+          },
+        ],
       },
       MuiFilledInput: {
         styleOverrides: {

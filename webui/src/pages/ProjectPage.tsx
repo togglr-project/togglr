@@ -101,16 +101,16 @@ const ProjectPage: React.FC = () => {
       />
 
 
-      <Paper id="features" sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Paper id="features" sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Features</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)} size="small">
             Add Feature
           </Button>
         </Box>
 
         {/* Filters and controls */}
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
           <TextField
             label="Search by name or key"
             size="small"
@@ -124,6 +124,7 @@ const ProjectPage: React.FC = () => {
             <Select
               labelId="enabled-filter-label"
               label="Enabled"
+              size="small"
               value={enabledFilter}
               onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
             >
@@ -138,6 +139,7 @@ const ProjectPage: React.FC = () => {
             <Select
               labelId="kind-filter-label"
               label="Kind"
+              size="small"
               value={kindFilter}
               onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
             >
@@ -152,6 +154,7 @@ const ProjectPage: React.FC = () => {
             <Select
               labelId="sort-by-label"
               label="Sort by"
+              size="small"
               value={sortBy}
               onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
             >
@@ -169,6 +172,7 @@ const ProjectPage: React.FC = () => {
             <Select
               labelId="sort-order-label"
               label="Order"
+              size="small"
               value={sortOrder}
               onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
             >
@@ -182,6 +186,7 @@ const ProjectPage: React.FC = () => {
             <Select
               labelId="per-page-label"
               label="Per page"
+              size="small"
               value={perPage}
               onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
             >

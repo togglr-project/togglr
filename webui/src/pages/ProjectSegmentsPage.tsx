@@ -257,8 +257,8 @@ const CreateEditSegmentDialog: React.FC<{
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ color: 'primary.main' }}>{title}</DialogTitle>
       <DialogContent dividers>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-          <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth />
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 1.5 }}>
+          <TextField label="Name" value={name} onChange={(e) => setName(e.target.value)} required fullWidth size="small" />
           <TextField label="Description" value={description} onChange={(e) => setDescription(e.target.value)} fullWidth multiline minRows={2} />
         </Box>
 
@@ -372,16 +372,16 @@ const ProjectSegmentsPage: React.FC = () => {
         icon={<PeopleIcon />}
       />
 
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Paper sx={{ p: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Segments</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)}>
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)} size="small">
             Add Segment
           </Button>
         </Box>
 
         {/* Filters and controls */}
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
           <TextField
             label="Search by name or description"
             size="small"
@@ -395,6 +395,7 @@ const ProjectSegmentsPage: React.FC = () => {
             <Select
               labelId="seg-sort-by-label"
               label="Sort by"
+              size="small"
               value={sortBy}
               onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
             >
@@ -409,6 +410,7 @@ const ProjectSegmentsPage: React.FC = () => {
             <Select
               labelId="seg-sort-order-label"
               label="Order"
+              size="small"
               value={sortOrder}
               onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
             >
@@ -422,6 +424,7 @@ const ProjectSegmentsPage: React.FC = () => {
             <Select
               labelId="seg-per-page-label"
               label="Per page"
+              size="small"
               value={perPage}
               onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
             >
@@ -444,9 +447,9 @@ const ProjectSegmentsPage: React.FC = () => {
 
         {!isLoading && (segmentsResp?.items?.length || 0) > 0 ? (
           <>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {segmentsResp!.items.map((s) => (
-                <Paper key={s.id} sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Paper key={s.id} sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Box>
                     <Typography variant="subtitle1">{s.name}</Typography>
                     {s.description && (
@@ -478,11 +481,12 @@ const ProjectSegmentsPage: React.FC = () => {
             </Box>
 
             {/* Pagination */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-              <Typography variant="body2" color="text.secondary">
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
                 {segmentsResp?.pagination ? `Total: ${segmentsResp.pagination.total}` : ''}
               </Typography>
               <Pagination
+                size="small"
                 page={page}
                 count={segmentsResp?.pagination ? Math.max(1, Math.ceil(segmentsResp.pagination.total / (segmentsResp.pagination.per_page || perPage))) : 1}
                 onChange={(_e, p) => setPage(p)}

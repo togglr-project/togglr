@@ -184,6 +184,7 @@ const ScheduleDialog: React.FC<{
               <TextField
                 select
                 fullWidth
+                size="small"
                 label="Action"
                 value={values.action}
                 onChange={(e) => setValues(v => ({ ...v, action: e.target.value as FeatureScheduleAction }))}
@@ -196,6 +197,7 @@ const ScheduleDialog: React.FC<{
               <TextField
                 select
                 fullWidth
+                size="small"
                 label="Timezone"
                 value={values.timezone}
                 onChange={(e) => {
@@ -219,6 +221,7 @@ const ScheduleDialog: React.FC<{
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                size="small"
                 label="Starts at"
                 type="datetime-local"
                 InputLabelProps={{ shrink: true }}
@@ -229,6 +232,7 @@ const ScheduleDialog: React.FC<{
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
+                size="small"
                 label="Ends at"
                 type="datetime-local"
                 InputLabelProps={{ shrink: true }}
@@ -239,6 +243,7 @@ const ScheduleDialog: React.FC<{
             <Grid item xs={12} md={8}>
               <TextField
                 fullWidth
+                size="small"
                 label="Cron expression"
                 placeholder="Optional, e.g., 0 8 * * 1-5"
                 value={values.cron_expr || ''}
@@ -267,6 +272,7 @@ const ScheduleDialog: React.FC<{
             <Grid item xs={12} md={4}>
               <TextField
                 fullWidth
+                size="small"
                 label="Cron Duration"
                 placeholder="e.g., 1h30m, 45m, 2h"
                 value={values.cron_duration || ''}
@@ -839,7 +845,7 @@ const ProjectSchedulingPage: React.FC = () => {
       {!loadingFeatures && features && features.length > 0 ? (
         <Box>
           {/* Filters and controls */}
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
             <TextField
               label="Search by name or key"
               size="small"
@@ -853,6 +859,7 @@ const ProjectSchedulingPage: React.FC = () => {
               <Select
                 labelId="enabled-filter-label"
                 label="Enabled"
+                size="small"
                 value={enabledFilter}
                 onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
               >
@@ -867,6 +874,7 @@ const ProjectSchedulingPage: React.FC = () => {
               <Select
                 labelId="kind-filter-label"
                 label="Kind"
+                size="small"
                 value={kindFilter}
                 onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
               >
@@ -881,6 +889,7 @@ const ProjectSchedulingPage: React.FC = () => {
               <Select
                 labelId="sort-by-label"
                 label="Sort by"
+                size="small"
                 value={sortBy}
                 onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
               >
@@ -898,6 +907,7 @@ const ProjectSchedulingPage: React.FC = () => {
               <Select
                 labelId="sort-order-label"
                 label="Order"
+                size="small"
                 value={sortOrder}
                 onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
               >
@@ -911,6 +921,7 @@ const ProjectSchedulingPage: React.FC = () => {
               <Select
                 labelId="per-page-label"
                 label="Per page"
+                size="small"
                 value={perPage}
                 onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
               >
@@ -922,7 +933,7 @@ const ProjectSchedulingPage: React.FC = () => {
             </FormControl>
           </Stack>
 
-          <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 3 }}>
+          <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 2 }}>
             <Tab 
               label={`Features with schedules (${featuresWithSchedules.length})`} 
               sx={{ textTransform: 'none' }}
@@ -1054,11 +1065,12 @@ const ProjectSchedulingPage: React.FC = () => {
           )}
 
           {/* Pagination */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
-            <Typography variant="body2" color="text.secondary">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.5 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
               {pagination ? `Total: ${pagination.total}` : ''}
             </Typography>
             <Pagination
+              size="small"
               page={page}
               count={pagination ? Math.max(1, Math.ceil(pagination.total / (pagination.per_page || perPage))) : 1}
               onChange={(_e, p) => setPage(p)}
@@ -1070,7 +1082,7 @@ const ProjectSchedulingPage: React.FC = () => {
       ) : !loadingFeatures ? (
         <Box>
           {/* Even if no features match filters, still show controls */}
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2 }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
             <TextField
               label="Search by name or key"
               size="small"
