@@ -18,8 +18,6 @@ import {
   IconButton
 } from '@mui/material';
 import { Help as HelpIcon } from '@mui/icons-material';
-// @ts-ignore
-import { listTimeZones, findTimeZone, getUTCOffset } from 'timezone-support';
 import type { FeatureScheduleAction } from '../generated/api/client';
 
 interface OneShotScheduleData {
@@ -36,8 +34,6 @@ interface OneShotScheduleDialogProps {
   initialData?: Partial<OneShotScheduleData>;
   existingSchedules?: Array<{ starts_at?: string; ends_at?: string }>;
 }
-
-const allTimezones = listTimeZones();
 
 const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
   open,
@@ -73,25 +69,6 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
     const validationErrors = validateOneShotSchedule(data, existingSchedules);
     setErrors(validationErrors);
   }, [data, existingSchedules]);
-
-  // Convert datetime-local in selected timezone to ISO string with timezone (RFC3339)
-  const fromDatetimeLocalInZoneToISO = (val?: string, tz?: string): string | undefined => {
-    if (!val) return undefined;
-    try {
-      const [datePart, timePart] = val.split('T');
-      if (!datePart || !timePart) return undefined;
-      const [y, m, d] = datePart.split('-').map((s) => parseInt(s, 10));
-      const [hh, mm] = timePart.split(':').map((s) => parseInt(s, 10));
-      if (!y || !m || !d || isNaN(hh) || isNaN(mm)) return undefined;
-      const tzObj = findTimeZone(tz || 'UTC');
-      const wallAsUTC = new Date(Date.UTC(y, m - 1, d, hh, mm, 0, 0));
-      const offsetMinutes = getUTCOffset(tzObj, wallAsUTC);
-      const utcDate = new Date(wallAsUTC.getTime() - offsetMinutes * 60 * 1000);
-      return utcDate.toISOString();
-    } catch (_) {
-      return undefined;
-    }
-  };
 
   const handleSubmit = () => {
     const validationErrors = validateOneShotSchedule(data, existingSchedules);
@@ -135,25 +112,6 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
     }
   };
 
-  const formatLocalDateTime = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
-  const getCurrentDateTime = () => {
-    return formatLocalDateTime(new Date());
-  };
-
-  const getTomorrowDateTime = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return formatLocalDateTime(tomorrow);
-  };
-
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Create one-shot schedule</DialogTitle>
@@ -195,6 +153,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
                   value={data.action}
                   onChange={(e) => setData(prev => ({ ...prev, action: e.target.value as FeatureScheduleAction }))}
                   label="Action"
+                  size="small"
                 >
                   <MenuItem value="enable">Activate feature</MenuItem>
                   <MenuItem value="disable">Deactivate feature</MenuItem>

@@ -221,6 +221,7 @@ const EditOneShotScheduleDialog: React.FC<EditOneShotScheduleDialogProps> = ({
                   value={data.action}
                   onChange={(e) => setData(prev => ({ ...prev, action: e.target.value as FeatureScheduleAction }))}
                   label="Action"
+                  size="small"
                 >
                   <MenuItem value="enable">Activate feature</MenuItem>
                   <MenuItem value="disable">Deactivate feature</MenuItem>

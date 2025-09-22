@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, Button, CircularProgress, Grid, Chip, Switch, Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Stack, Pagination } from '@mui/material';
+import { Box, Paper, Typography, Button, CircularProgress, Chip, Switch, Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Stack, Pagination } from '@mui/material';
 import { Add as AddIcon, Flag as FlagIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
+import SearchPanel from '../components/SearchPanel';
 import apiClient from '../api/apiClient';
 import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
+import FeatureCard from '../components/features/FeatureCard';
 import { useAuth } from '../auth/AuthContext';
 import { getNextStateDescription } from '../utils/timeUtils';
 
@@ -87,6 +89,7 @@ const ProjectPage: React.FC = () => {
     },
   });
 
+
   const openFeatureDetails = (f: FeatureExtended) => {
     setSelectedFeature(f);
     setDetailsOpen(true);
@@ -109,94 +112,98 @@ const ProjectPage: React.FC = () => {
           </Button>
         </Box>
 
-        {/* Filters and controls */}
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
-          <TextField
-            label="Search by name or key"
-            size="small"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            sx={{ minWidth: 240 }}
-          />
-
-          <FormControl size="small" sx={{ minWidth: 160 }}>
-            <InputLabel id="enabled-filter-label">Enabled</InputLabel>
-            <Select
-              labelId="enabled-filter-label"
-              label="Enabled"
-              size="small"
-              value={enabledFilter}
-              onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="enabled">Enabled</MenuItem>
-              <MenuItem value="disabled">Disabled</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel id="kind-filter-label">Kind</InputLabel>
-            <Select
-              labelId="kind-filter-label"
-              label="Kind"
-              size="small"
-              value={kindFilter}
-              onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="simple">simple</MenuItem>
-              <MenuItem value="multivariant">multivariant</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel id="sort-by-label">Sort by</InputLabel>
-            <Select
-              labelId="sort-by-label"
-              label="Sort by"
-              size="small"
-              value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
-            >
-              <MenuItem value="name">name</MenuItem>
-              <MenuItem value="key">key</MenuItem>
-              <MenuItem value="enabled">enabled</MenuItem>
-              <MenuItem value="kind">kind</MenuItem>
-              <MenuItem value="created_at">created_at</MenuItem>
-              <MenuItem value="updated_at">updated_at</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel id="sort-order-label">Order</InputLabel>
-            <Select
-              labelId="sort-order-label"
-              label="Order"
-              size="small"
-              value={sortOrder}
-              onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
-            >
-              <MenuItem value="asc">asc</MenuItem>
-              <MenuItem value="desc">desc</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
-            <InputLabel id="per-page-label">Per page</InputLabel>
-            <Select
-              labelId="per-page-label"
-              label="Per page"
-              size="small"
-              value={perPage}
-              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-            >
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
-              <MenuItem value={100}>100</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
+        {/* Search and filters */}
+        <SearchPanel
+          searchValue={search}
+          onSearchChange={(value) => { setSearch(value); setPage(1); }}
+          placeholder="Search features by name or key..."
+          quickFilters={[
+            {
+              label: 'Enabled',
+              value: 'enabled',
+              active: enabledFilter === 'enabled',
+              onClick: () => { setEnabledFilter(enabledFilter === 'enabled' ? 'all' : 'enabled'); setPage(1); }
+            },
+            {
+              label: 'Disabled',
+              value: 'disabled',
+              active: enabledFilter === 'disabled',
+              onClick: () => { setEnabledFilter(enabledFilter === 'disabled' ? 'all' : 'disabled'); setPage(1); }
+            },
+            {
+              label: 'Simple',
+              value: 'simple',
+              active: kindFilter === 'simple',
+              onClick: () => { setKindFilter(kindFilter === 'simple' ? 'all' : 'simple'); setPage(1); }
+            },
+            {
+              label: 'Multivariant',
+              value: 'multivariant',
+              active: kindFilter === 'multivariant',
+              onClick: () => { setKindFilter(kindFilter === 'multivariant' ? 'all' : 'multivariant'); setPage(1); }
+            },
+          ]}
+          filters={[
+            {
+              key: 'enabled',
+              label: 'Status',
+              value: enabledFilter,
+              options: [
+                { value: 'all', label: 'All' },
+                { value: 'enabled', label: 'Enabled' },
+                { value: 'disabled', label: 'Disabled' },
+              ],
+              onChange: (value) => { setEnabledFilter(value); setPage(1); }
+            },
+            {
+              key: 'kind',
+              label: 'Kind',
+              value: kindFilter,
+              options: [
+                { value: 'all', label: 'All' },
+                { value: 'simple', label: 'Simple' },
+                { value: 'multivariant', label: 'Multivariant' },
+              ],
+              onChange: (value) => { setKindFilter(value); setPage(1); }
+            },
+            {
+              key: 'sortBy',
+              label: 'Sort by',
+              value: sortBy,
+              options: [
+                { value: 'name', label: 'Name' },
+                { value: 'key', label: 'Key' },
+                { value: 'enabled', label: 'Enabled' },
+                { value: 'kind', label: 'Kind' },
+                { value: 'created_at', label: 'Created' },
+                { value: 'updated_at', label: 'Updated' },
+              ],
+              onChange: (value) => { setSortBy(value); setPage(1); }
+            },
+            {
+              key: 'sortOrder',
+              label: 'Order',
+              value: sortOrder,
+              options: [
+                { value: 'asc', label: 'Ascending' },
+                { value: 'desc', label: 'Descending' },
+              ],
+              onChange: (value) => { setSortOrder(value); setPage(1); }
+            },
+            {
+              key: 'perPage',
+              label: 'Per page',
+              value: perPage,
+              options: [
+                { value: 10, label: '10' },
+                { value: 20, label: '20' },
+                { value: 50, label: '50' },
+                { value: 100, label: '100' },
+              ],
+              onChange: (value) => { setPerPage(Number(value)); setPage(1); }
+            },
+          ]}
+        />
 
         {(loadingProject || loadingFeatures) && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -209,66 +216,26 @@ const ProjectPage: React.FC = () => {
 
         {!loadingFeatures && features && features.length > 0 ? (
           <>
-            <Grid container spacing={2}>
+            {/* Features list */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {features.map((f) => (
-                <Grid item xs={12} key={f.id}>
-                  <Paper
-                    onClick={() => openFeatureDetails(f)}
-                    sx={{
-                      p: 2,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                      transition: 'box-shadow 0.2s, transform 0.1s',
-                      '&:hover': { boxShadow: 4 },
-                      '&:active': { transform: 'scale(0.997)' }
+                  <FeatureCard
+                    key={f.id}
+                    feature={f}
+                    onEdit={openFeatureDetails}
+                    onView={openFeatureDetails}
+                    onToggle={(feature) => {
+                      if (canToggleFeature) {
+                        toggleMutation.mutate({ 
+                          featureId: feature.id, 
+                          enabled: !feature.enabled 
+                        });
+                      }
                     }}
-                    role="button"
-                  >
-                    <Box>
-                      <Typography variant="subtitle1">{f.name}</Typography>
-                      <Typography variant="body2" color="text.secondary">{f.key}</Typography>
-                      <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                        <Chip size="small" label={`kind: ${f.kind}`} />
-                        <Chip size="small" label={`default: ${f.default_variant}`} />
-                        <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
-                        {f.next_state !== undefined && f.next_state_time && (
-                          <Chip 
-                            size="small" 
-                            icon={<ScheduleIcon />}
-                            label={getNextStateDescription(f.next_state, f.next_state_time) || 'Scheduled'} 
-                            color={f.next_state ? 'info' : 'warning'}
-                            variant="outlined"
-                          />
-                        )}
-                      </Box>
-                    </Box>
-                    {canToggleFeature ? (
-                      <Tooltip title={f.enabled ? 'Disable feature' : 'Enable feature'}>
-                        <Switch
-                          checked={f.enabled}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            const enabled = e.target.checked;
-                            toggleMutation.mutate({ featureId: f.id, enabled });
-                          }}
-                          disabled={toggleMutation.isPending}
-                          inputProps={{ 'aria-label': 'toggle feature' }}
-                        />
-                      </Tooltip>
-                    ) : (
-                      <Tooltip title="You don't have permission to toggle features in this project">
-                        <span onClick={(e) => e.stopPropagation()}>
-                          <Switch checked={f.enabled} disabled />
-                        </span>
-                      </Tooltip>
-                    )}
-                  </Paper>
-                </Grid>
+                    canToggle={canToggleFeature}
+                  />
               ))}
-            </Grid>
+            </Box>
 
             {/* Pagination */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
