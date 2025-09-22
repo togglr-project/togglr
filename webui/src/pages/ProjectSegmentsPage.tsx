@@ -457,7 +457,12 @@ const ProjectSegmentsPage: React.FC = () => {
                     </Tooltip>
                     <Tooltip title="Delete">
                       <span>
-                        <IconButton onClick={() => setConfirmDelete(s)} aria-label="delete-segment" disabled={deleteMutation.isPending}>
+                        <IconButton 
+                          onClick={() => setConfirmDelete(s)} 
+                          aria-label="delete-segment" 
+                          disabled={deleteMutation.isPending}
+                          sx={{ color: 'error.main' }}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </span>
