@@ -45,6 +45,7 @@ func AuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCase
 
 			// Set the user ID and superuser flag in the context
 			ctx := etogglcontext.WithUserID(request.Context(), user.ID)
+			ctx = etogglcontext.WithUsername(ctx, user.Username)
 			ctx = etogglcontext.WithIsSuper(ctx, user.IsSuperuser)
 
 			// Continue with the modified context
