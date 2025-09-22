@@ -1001,6 +1001,7 @@ const ProjectSchedulingPage: React.FC = () => {
                   />
                   <Button
                     variant="outlined"
+                    size="small"
                     onClick={() => {
                       const now = new Date();
                       const tomorrow = new Date();
