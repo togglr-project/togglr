@@ -32,6 +32,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
+import SearchPanel from '../components/SearchPanel';
 import ConditionExpressionBuilder from '../components/conditions/ConditionExpressionBuilder';
 import apiClient from '../api/apiClient';
 import type { Project, Segment, RuleConditionExpression, ListProjectSegmentsSortByEnum, SortOrder, ListSegmentsResponse } from '../generated/api/client';
@@ -180,8 +181,8 @@ const SyncCustomizedFeaturesDialog: React.FC<{ open: boolean; onClose: () => voi
         {submitError && <Typography color="error" sx={{ mt: 1 }}>{submitError}</Typography>}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={submitting}>Cancel</Button>
-        <Button onClick={handleSync} variant="contained" disabled={submitting || (ids?.length || 0) === 0}>
+        <Button onClick={onClose} disabled={submitting} size="small">Cancel</Button>
+        <Button onClick={handleSync} variant="contained" disabled={submitting || (ids?.length || 0) === 0} size="small">
           {submitting ? 'Synchronizing…' : 'Synchronize'}
         </Button>
       </DialogActions>
@@ -273,12 +274,12 @@ const CreateEditSegmentDialog: React.FC<{
       </DialogContent>
       <DialogActions>
         {isEdit && desyncCount > 0 && (
-          <Button variant="outlined" color="secondary" onClick={() => setSyncOpen(true)}>
+          <Button variant="outlined" color="secondary" onClick={() => setSyncOpen(true)} size="small">
             Sync customized features
           </Button>
         )}
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit} disabled={!canSubmit} variant="contained">Save</Button>
+        <Button onClick={onClose} size="small">Cancel</Button>
+        <Button onClick={handleSubmit} disabled={!canSubmit} variant="contained" size="small">Save</Button>
       </DialogActions>
     </Dialog>
     <SyncCustomizedFeaturesDialog open={syncOpen} onClose={() => setSyncOpen(false)} segmentId={segmentId || ''} />
@@ -380,61 +381,47 @@ const ProjectSegmentsPage: React.FC = () => {
           </Button>
         </Box>
 
-        {/* Filters and controls */}
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
-          <TextField
-            label="Search by name or description"
-            size="small"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            sx={{ minWidth: 260 }}
-          />
-
-          <FormControl size="small" sx={{ minWidth: 180 }}>
-            <InputLabel id="seg-sort-by-label">Sort by</InputLabel>
-            <Select
-              labelId="seg-sort-by-label"
-              label="Sort by"
-              size="small"
-              value={sortBy}
-              onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
-            >
-              <MenuItem value="name">name</MenuItem>
-              <MenuItem value="created_at">created_at</MenuItem>
-              <MenuItem value="updated_at">updated_at</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 140 }}>
-            <InputLabel id="seg-sort-order-label">Order</InputLabel>
-            <Select
-              labelId="seg-sort-order-label"
-              label="Order"
-              size="small"
-              value={sortOrder}
-              onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
-            >
-              <MenuItem value="asc">asc</MenuItem>
-              <MenuItem value="desc">desc</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
-            <InputLabel id="seg-per-page-label">Per page</InputLabel>
-            <Select
-              labelId="seg-per-page-label"
-              label="Per page"
-              size="small"
-              value={perPage}
-              onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-            >
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
-              <MenuItem value={100}>100</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
+        {/* Search and filters */}
+        <SearchPanel
+          searchValue={search}
+          onSearchChange={(value) => { setSearch(value); setPage(1); }}
+          placeholder="Search by name or description"
+          filters={[
+            {
+              key: 'sortBy',
+              label: 'Sort by',
+              value: sortBy,
+              options: [
+                { value: 'name', label: 'Name' },
+                { value: 'created_at', label: 'Created' },
+                { value: 'updated_at', label: 'Updated' },
+              ],
+              onChange: (value) => { setSortBy(value as any); setPage(1); },
+            },
+            {
+              key: 'sortOrder',
+              label: 'Order',
+              value: sortOrder,
+              options: [
+                { value: 'asc', label: 'Ascending' },
+                { value: 'desc', label: 'Descending' },
+              ],
+              onChange: (value) => { setSortOrder(value as any); setPage(1); },
+            },
+            {
+              key: 'perPage',
+              label: 'Per page',
+              value: perPage,
+              options: [
+                { value: 10, label: '10' },
+                { value: 20, label: '20' },
+                { value: 50, label: '50' },
+                { value: 100, label: '100' },
+              ],
+              onChange: (value) => { setPerPage(Number(value)); setPage(1); },
+            },
+          ]}
+        />
 
         {(loadingProject || isLoading) && (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -529,8 +516,8 @@ const ProjectSegmentsPage: React.FC = () => {
           <Typography>Are you sure you want to delete segment "{confirmDelete?.name}"?</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-          <Button color="error" variant="contained" onClick={() => confirmDelete && deleteMutation.mutate(confirmDelete.id)} disabled={deleteMutation.isPending}>Delete</Button>
+          <Button onClick={() => setConfirmDelete(null)} size="small">Cancel</Button>
+          <Button color="error" variant="contained" onClick={() => confirmDelete && deleteMutation.mutate(confirmDelete.id)} disabled={deleteMutation.isPending} size="small">Delete</Button>
         </DialogActions>
       </Dialog>
 

@@ -9,7 +9,6 @@ import {
   TextField,
   MenuItem,
   FormControl,
-  FormLabel,
   RadioGroup,
   FormControlLabel,
   Radio,
@@ -26,8 +25,6 @@ import {
   Check as CheckIcon,
   Help as HelpIcon
 } from '@mui/icons-material';
-// @ts-ignore
-import { listTimeZones, findTimeZone, getUTCOffset } from 'timezone-support';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import {
@@ -47,8 +44,6 @@ interface EditRecurringScheduleBuilderProps {
   featureId: string;
   initialData?: FeatureSchedule;
 }
-
-const allTimezones = listTimeZones();
 
   const steps = [
     'Date Range',
@@ -358,6 +353,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                 fullWidth
                 label="Start Date"
                 type="date"
+                size="small"
                 value={data.startsAt ? toDateString(data.startsAt) : ''}
                 onChange={(e) => {
                   const dateStr = e.target.value;
@@ -377,6 +373,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                 fullWidth
                 label="Start Time"
                 type="time"
+                size="small"
                 value={data.startsAt ? toTimeString(data.startsAt) : '00:00'}
                 onChange={(e) => {
                   const timeStr = e.target.value;
@@ -403,6 +400,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                 fullWidth
                 label="End Date"
                 type="date"
+                size="small"
                 value={data.endsAt ? toDateString(data.endsAt) : ''}
                 onChange={(e) => {
                   const dateStr = e.target.value;
@@ -421,6 +419,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                 fullWidth
                 label="End Time"
                 type="time"
+                size="small"
                 value={data.endsAt ? toTimeString(data.endsAt) : '23:59'}
                 onChange={(e) => {
                   const timeStr = e.target.value;
@@ -451,22 +450,22 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         >
           <FormControlLabel
             value="repeat_every"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="Repeat every N minutes/hours"
           />
           <FormControlLabel
             value="daily"
-            control={<Radio />}
+            control={<Radio size="small" />}
             label="At fixed time daily"
           />
           <FormControlLabel
             value="monthly"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="At fixed day monthly"
           />
           <FormControlLabel
             value="yearly"
-            control={<Radio />}
+            control={<Radio size="small"/>}
             label="Once a year"
           />
         </RadioGroup>
@@ -488,6 +487,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   fullWidth
                   label="Interval"
                   type="number"
+                  size="small"
                   value={data.repeatEvery?.interval || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -503,6 +503,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   select
                   fullWidth
                   label="Unit"
+                  size="small"
                   value={data.repeatEvery?.unit || 'minutes'}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -530,6 +531,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
               fullWidth
               label="Time"
               type="time"
+              size="small"
               value={data.daily?.time || ''}
               onChange={(e) => setData(prev => ({
                 ...prev,
@@ -553,6 +555,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   fullWidth
                   label="Day of month"
                   type="number"
+                  size="small"
                   inputProps={{ min: 1, max: 31 }}
                   value={data.monthly?.dayOfMonth || ''}
                   onChange={(e) => setData(prev => ({
@@ -569,6 +572,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   fullWidth
                   label="Time"
                   type="time"
+                  size="small"
                   value={data.monthly?.time || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -596,6 +600,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   select
                   fullWidth
                   label="Month"
+                  size="small"
                   value={data.yearly?.month || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -617,6 +622,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   fullWidth
                   label="Day"
                   type="number"
+                  size="small"
                   inputProps={{ min: 1, max: 31 }}
                   value={data.yearly?.day || ''}
                   onChange={(e) => setData(prev => ({
@@ -633,6 +639,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
                   fullWidth
                   label="Time"
                   type="time"
+                  size="small"
                   value={data.yearly?.time || ''}
                   onChange={(e) => setData(prev => ({
                     ...prev,
@@ -709,6 +716,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
               fullWidth
               label="Value"
               type="number"
+              size="small"
               value={data.duration.value}
               onChange={(e) => setData(prev => ({
                 ...prev,
@@ -726,6 +734,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
               select
               fullWidth
               label="Unit"
+              size="small"
               value={data.duration.unit}
               onChange={(e) => setData(prev => ({
                 ...prev,
@@ -769,11 +778,13 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
             value="enable"
             control={<Radio />}
             label="Activate feature"
+            size="small"
           />
           <FormControlLabel
             value="disable"
             control={<Radio />}
             label="Deactivate feature"
+            size="small"
           />
         </RadioGroup>
         <Alert severity="warning" sx={{ mt: 2 }}>
@@ -874,6 +885,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={handleBack}
+            size="small"
           >
             Back
           </Button>
@@ -885,6 +897,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
             startIcon={<CheckIcon />}
             onClick={handleSubmit}
             disabled={!canProceed()}
+            size="small"
           >
             Save Changes
           </Button>
@@ -894,6 +907,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
             endIcon={<ArrowForwardIcon />}
             onClick={handleNext}
             disabled={!canProceed()}
+            size="small"
           >
             Next
           </Button>

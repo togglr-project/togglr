@@ -193,8 +193,8 @@ const ProjectSettingsPage: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
-          <Button color="error" onClick={() => { setConfirmOpen(false); deleteMut.mutate(); }}>Delete</Button>
+          <Button onClick={() => setConfirmOpen(false)} size="small">Cancel</Button>
+          <Button color="error" onClick={() => { setConfirmOpen(false); deleteMut.mutate(); }} size="small">Delete</Button>
         </DialogActions>
       </Dialog>
     </AuthenticatedLayout>

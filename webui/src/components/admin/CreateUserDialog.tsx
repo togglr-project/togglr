@@ -99,6 +99,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
         <Button 
           onClick={handleCancel}
           color="primary"
+          size="small"
         >
           Cancel
         </Button>
@@ -107,6 +108,7 @@ const CreateUserDialog: React.FC<CreateUserDialogProps> = ({
           variant="contained"
           color="primary"
           disabled={!username.trim() || !email.trim() || !password.trim()}
+          size="small"
         >
           Create
         </Button>

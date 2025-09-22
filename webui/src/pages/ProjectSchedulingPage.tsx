@@ -39,6 +39,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
+import SearchPanel from '../components/SearchPanel';
 import TimelineChart from '../components/TimelineChart';
 import ScheduleBuilder from '../components/ScheduleBuilder';
 import OneShotScheduleDialog from '../components/OneShotScheduleDialog';
@@ -284,7 +285,7 @@ const ScheduleDialog: React.FC<{
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} size="small">Cancel</Button>
         <Button variant="contained"
               disabled={Boolean(cronError || tzError)}
           onClick={() => {
@@ -317,7 +318,7 @@ const ScheduleDialog: React.FC<{
             cron_duration: values.cron_duration || undefined,
           };
           onSubmit(payload);
-        }}>Save</Button>
+        }} size="small">Save</Button>
       </DialogActions>
     </Dialog>
   );
@@ -769,7 +770,7 @@ const ProjectSchedulingPage: React.FC = () => {
                       </Box>
                       <Box>
                         <Tooltip title="Edit schedule">
-                          <IconButton onClick={() => openEdit(f, s)}><EditIcon /></IconButton>
+                          <IconButton onClick={() => openEdit(f, s)} size="small"><EditIcon /></IconButton>
                         </Tooltip>
                         <Tooltip title="Delete schedule">
                           <IconButton
@@ -844,94 +845,72 @@ const ProjectSchedulingPage: React.FC = () => {
 
       {!loadingFeatures && features && features.length > 0 ? (
         <Box>
-          {/* Filters and controls */}
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
-            <TextField
-              label="Search by name or key"
-              size="small"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              sx={{ minWidth: 240 }}
-            />
-
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel id="enabled-filter-label">Enabled</InputLabel>
-              <Select
-                labelId="enabled-filter-label"
-                label="Enabled"
-                size="small"
-                value={enabledFilter}
-                onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="enabled">Enabled</MenuItem>
-                <MenuItem value="disabled">Disabled</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel id="kind-filter-label">Kind</InputLabel>
-              <Select
-                labelId="kind-filter-label"
-                label="Kind"
-                size="small"
-                value={kindFilter}
-                onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="simple">simple</MenuItem>
-                <MenuItem value="multivariant">multivariant</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel id="sort-by-label">Sort by</InputLabel>
-              <Select
-                labelId="sort-by-label"
-                label="Sort by"
-                size="small"
-                value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="name">name</MenuItem>
-                <MenuItem value="key">key</MenuItem>
-                <MenuItem value="enabled">enabled</MenuItem>
-                <MenuItem value="kind">kind</MenuItem>
-                <MenuItem value="created_at">created_at</MenuItem>
-                <MenuItem value="updated_at">updated_at</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel id="sort-order-label">Order</InputLabel>
-              <Select
-                labelId="sort-order-label"
-                label="Order"
-                size="small"
-                value={sortOrder}
-                onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="asc">asc</MenuItem>
-                <MenuItem value="desc">desc</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
-              <InputLabel id="per-page-label">Per page</InputLabel>
-              <Select
-                labelId="per-page-label"
-                label="Per page"
-                size="small"
-                value={perPage}
-                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-              >
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={20}>20</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-                <MenuItem value={100}>100</MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
+          {/* Search and filters */}
+          <SearchPanel
+            searchValue={search}
+            onSearchChange={(value) => { setSearch(value); setPage(1); }}
+            placeholder="Search by name or key"
+            filters={[
+              {
+                key: 'enabledFilter',
+                label: 'Enabled',
+                value: enabledFilter,
+                options: [
+                  { value: 'all', label: 'All' },
+                  { value: 'enabled', label: 'Enabled' },
+                  { value: 'disabled', label: 'Disabled' },
+                ],
+                onChange: (value) => { setEnabledFilter(value as any); setPage(1); },
+              },
+              {
+                key: 'kindFilter',
+                label: 'Kind',
+                value: kindFilter,
+                options: [
+                  { value: 'all', label: 'All' },
+                  { value: 'simple', label: 'Simple' },
+                  { value: 'multivariant', label: 'Multivariant' },
+                ],
+                onChange: (value) => { setKindFilter(value as any); setPage(1); },
+              },
+              {
+                key: 'sortBy',
+                label: 'Sort by',
+                value: sortBy,
+                options: [
+                  { value: 'name', label: 'Name' },
+                  { value: 'key', label: 'Key' },
+                  { value: 'enabled', label: 'Enabled' },
+                  { value: 'kind', label: 'Kind' },
+                  { value: 'created_at', label: 'Created' },
+                  { value: 'updated_at', label: 'Updated' },
+                ],
+                onChange: (value) => { setSortBy(value as any); setPage(1); },
+              },
+              {
+                key: 'sortOrder',
+                label: 'Order',
+                value: sortOrder,
+                options: [
+                  { value: 'asc', label: 'Ascending' },
+                  { value: 'desc', label: 'Descending' },
+                ],
+                onChange: (value) => { setSortOrder(value as any); setPage(1); },
+              },
+              {
+                key: 'perPage',
+                label: 'Per page',
+                value: perPage,
+                options: [
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ],
+                onChange: (value) => { setPerPage(Number(value)); setPage(1); },
+              },
+            ]}
+          />
 
           <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)} sx={{ mb: 2 }}>
             <Tab 
@@ -1081,89 +1060,72 @@ const ProjectSchedulingPage: React.FC = () => {
         </Box>
       ) : !loadingFeatures ? (
         <Box>
-          {/* Even if no features match filters, still show controls */}
-          <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 1.5 }}>
-            <TextField
-              label="Search by name or key"
-              size="small"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              sx={{ minWidth: 240 }}
-            />
-
-            <FormControl size="small" sx={{ minWidth: 160 }}>
-              <InputLabel id="enabled-filter-label">Enabled</InputLabel>
-              <Select
-                labelId="enabled-filter-label"
-                label="Enabled"
-                value={enabledFilter}
-                onChange={(e) => { setEnabledFilter(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="enabled">Enabled</MenuItem>
-                <MenuItem value="disabled">Disabled</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel id="kind-filter-label">Kind</InputLabel>
-              <Select
-                labelId="kind-filter-label"
-                label="Kind"
-                value={kindFilter}
-                onChange={(e) => { setKindFilter(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="simple">simple</MenuItem>
-                <MenuItem value="multivariant">multivariant</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel id="sort-by-label">Sort by</InputLabel>
-              <Select
-                labelId="sort-by-label"
-                label="Sort by"
-                value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="name">name</MenuItem>
-                <MenuItem value="key">key</MenuItem>
-                <MenuItem value="enabled">enabled</MenuItem>
-                <MenuItem value="kind">kind</MenuItem>
-                <MenuItem value="created_at">created_at</MenuItem>
-                <MenuItem value="updated_at">updated_at</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 140 }}>
-              <InputLabel id="sort-order-label">Order</InputLabel>
-              <Select
-                labelId="sort-order-label"
-                label="Order"
-                value={sortOrder}
-                onChange={(e) => { setSortOrder(e.target.value as any); setPage(1); }}
-              >
-                <MenuItem value="asc">asc</MenuItem>
-                <MenuItem value="desc">desc</MenuItem>
-              </Select>
-            </FormControl>
-
-            <FormControl size="small" sx={{ minWidth: 120, ml: { xs: 0, md: 'auto' } }}>
-              <InputLabel id="per-page-label">Per page</InputLabel>
-              <Select
-                labelId="per-page-label"
-                label="Per page"
-                value={perPage}
-                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-              >
-                <MenuItem value={10}>10</MenuItem>
-                <MenuItem value={20}>20</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-                <MenuItem value={100}>100</MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
+          {/* Search and filters */}
+          <SearchPanel
+            searchValue={search}
+            onSearchChange={(value) => { setSearch(value); setPage(1); }}
+            placeholder="Search by name or key"
+            filters={[
+              {
+                key: 'enabledFilter',
+                label: 'Enabled',
+                value: enabledFilter,
+                options: [
+                  { value: 'all', label: 'All' },
+                  { value: 'enabled', label: 'Enabled' },
+                  { value: 'disabled', label: 'Disabled' },
+                ],
+                onChange: (value) => { setEnabledFilter(value as any); setPage(1); },
+              },
+              {
+                key: 'kindFilter',
+                label: 'Kind',
+                value: kindFilter,
+                options: [
+                  { value: 'all', label: 'All' },
+                  { value: 'simple', label: 'Simple' },
+                  { value: 'multivariant', label: 'Multivariant' },
+                ],
+                onChange: (value) => { setKindFilter(value as any); setPage(1); },
+              },
+              {
+                key: 'sortBy',
+                label: 'Sort by',
+                value: sortBy,
+                options: [
+                  { value: 'name', label: 'Name' },
+                  { value: 'key', label: 'Key' },
+                  { value: 'enabled', label: 'Enabled' },
+                  { value: 'kind', label: 'Kind' },
+                  { value: 'created_at', label: 'Created' },
+                  { value: 'updated_at', label: 'Updated' },
+                ],
+                onChange: (value) => { setSortBy(value as any); setPage(1); },
+              },
+              {
+                key: 'sortOrder',
+                label: 'Order',
+                value: sortOrder,
+                options: [
+                  { value: 'asc', label: 'Ascending' },
+                  { value: 'desc', label: 'Descending' },
+                ],
+                onChange: (value) => { setSortOrder(value as any); setPage(1); },
+              },
+              {
+                key: 'perPage',
+                label: 'Per page',
+                value: perPage,
+                options: [
+                  { value: 10, label: '10' },
+                  { value: 20, label: '20' },
+                  { value: 50, label: '50' },
+                  { value: 100, label: '100' },
+                ],
+                onChange: (value) => { setPerPage(Number(value)); setPage(1); },
+              },
+            ]}
+          />
           <Typography variant="body2">No features yet.</Typography>
         </Box>
       ) : null}

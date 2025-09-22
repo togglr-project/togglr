@@ -424,7 +424,7 @@ const LicenseTab: React.FC = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseUpdateDialog} disabled={isSubmitting}>
+          <Button onClick={handleCloseUpdateDialog} disabled={isSubmitting} size="small">
             Cancel
           </Button>
           <Button
@@ -432,6 +432,7 @@ const LicenseTab: React.FC = () => {
             variant="contained"
             disabled={!newLicense.trim() || isSubmitting}
             startIcon={isSubmitting ? <CircularProgress size={16} /> : null}
+            size="small"
           >
             {isSubmitting ? 'Updating...' : 'Update License'}
           </Button>

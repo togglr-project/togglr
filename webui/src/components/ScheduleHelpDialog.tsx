@@ -124,7 +124,7 @@ const ScheduleHelpDialog: React.FC<ScheduleHelpDialogProps> = ({ open, onClose }
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} variant="contained">
+        <Button onClick={onClose} variant="contained" size="small">
           Got it
         </Button>
       </DialogActions>

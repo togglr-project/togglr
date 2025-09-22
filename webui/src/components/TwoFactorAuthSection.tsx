@@ -323,8 +323,8 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
               ) : null}
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseSetup} disabled={loading || is2FABlocked}>Cancel</Button>
-              <Button variant="contained" disabled={!code || loading || success || is2FABlocked} onClick={handleConfirm2FA}>Confirm</Button>
+              <Button onClick={handleCloseSetup} disabled={loading || is2FABlocked} size="small">Cancel</Button>
+              <Button variant="contained" disabled={!code || loading || success || is2FABlocked} onClick={handleConfirm2FA} size="small">Confirm</Button>
             </DialogActions>
           </Dialog>
 
@@ -400,8 +400,8 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseDisable} disabled={disableLoading}>Cancel</Button>
-              <Button variant="contained" color="error" disabled={!emailCode || disableLoading || disableSuccess} onClick={handleConfirmDisable2FA}>
+              <Button onClick={handleCloseDisable} disabled={disableLoading} size="small">Cancel</Button>
+              <Button variant="contained" color="error" disabled={!emailCode || disableLoading || disableSuccess} onClick={handleConfirmDisable2FA} size="small">
                 Confirm
               </Button>
             </DialogActions>

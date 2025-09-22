@@ -355,16 +355,17 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                 }}
                 color="error"
                 disabled={deleteMutation.isPending}
+                size="small"
               >
                 {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
               </Button>
             )}
             {canManage && (
-              <Button onClick={() => setEditOpen(true)} color="secondary">Edit</Button>
+              <Button onClick={() => setEditOpen(true)} color="secondary" size="small">Edit</Button>
             )}
           </>
         )}
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose} size="small">Close</Button>
       </DialogActions>
       {/* Advanced edit dialog */}
       <EditFeatureDialog open={editOpen} onClose={() => setEditOpen(false)} featureDetails={featureDetails ?? null} />

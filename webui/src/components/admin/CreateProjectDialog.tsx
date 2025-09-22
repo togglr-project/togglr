@@ -114,13 +114,13 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
           required
           error={!!descriptionError}
           helperText={descriptionError || 'Enter a detailed description of the project (minimum 10 characters)'}
-          size="small"
         />
       </DialogContent>
       <DialogActions>
         <Button 
           onClick={handleCancel}
           color="primary"
+          size="small"
         >
           Cancel
         </Button>
@@ -129,6 +129,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
           variant="contained"
           color="primary"
           disabled={!projectName.trim() || !projectDescription.trim() || !!descriptionError}
+          size="small"
         >
           Create
         </Button>

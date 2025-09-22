@@ -451,7 +451,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                             {r.is_customized && (
                               <Tooltip title="Sync with segment">
                                 <span>
-                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule">
+                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule" size="small">
                                     <Sync />
                                   </IconButton>
                                 </span>
@@ -509,7 +509,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                             {r.is_customized && (
                               <Tooltip title="Sync with segment">
                                 <span>
-                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule">
+                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule" size="small">
                                     <Sync />
                                   </IconButton>
                                 </span>
@@ -567,7 +567,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                             {r.is_customized && (
                               <Tooltip title="Sync with segment">
                                 <span>
-                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule">
+                                  <IconButton onClick={() => handleSyncRule(r.id)} disabled={!!syncing[r.id]} aria-label="sync rule" size="small">
                                     <Sync />
                                   </IconButton>
                                 </span>
@@ -599,8 +599,8 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={disabled}>Cancel</Button>
-        <Button onClick={onSave} variant="contained" disabled={disabled}>{updateMutation.isPending ? 'Saving…' : 'Save'}</Button>
+        <Button onClick={onClose} disabled={disabled} size="small">Cancel</Button>
+        <Button onClick={onSave} variant="contained" disabled={disabled} size="small">{updateMutation.isPending ? 'Saving…' : 'Save'}</Button>
       </DialogActions>
     </Dialog>
   );

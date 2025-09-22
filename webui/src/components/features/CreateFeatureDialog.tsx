@@ -398,7 +398,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                 </Box>
               ))}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Button startIcon={<AddIcon />} onClick={handleAddVariant}>Add Variant</Button>
+                <Button startIcon={<AddIcon />} onClick={handleAddVariant} size="small">Add Variant</Button>
                 <Typography variant="body2" color={rolloutSumValid ? 'text.secondary' : 'error'}>
                   Total rollout: {totalRollout}% (must equal 100)
                 </Typography>
@@ -603,11 +603,12 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => { resetForm(); onClose(); }}>Cancel</Button>
+        <Button onClick={() => { resetForm(); onClose(); }} size="small">Cancel</Button>
         <Button
           onClick={() => { setSubmitting(true); createFeatureMutation.mutate(); }}
           variant="contained"
           disabled={!canCreate}
+          size="small"
         >
           Create
         </Button>

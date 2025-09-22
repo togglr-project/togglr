@@ -316,11 +316,12 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} size="small">Cancel</Button>
         <Button
           variant="contained"
           onClick={handleSubmit}
           disabled={errors.length > 0}
+          size="small"
         >
           Create
         </Button>

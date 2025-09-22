@@ -118,7 +118,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onClose }
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleSubmit} disabled={isLoading}>
+        <Button onClick={handleSubmit} disabled={isLoading} size="small">
           {isLoading ? <CircularProgress size={24} /> : 'Change Password'}
         </Button>
       </DialogActions>

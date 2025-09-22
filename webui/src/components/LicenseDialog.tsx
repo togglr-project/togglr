@@ -131,6 +131,7 @@ By accepting this license, you acknowledge that you have read this Agreement, un
           disabled={isLoading}
           variant="outlined"
           color="error"
+          size="small"
         >
           {isLoading ? <CircularProgress size={24} /> : 'Decline'}
         </Button>
@@ -139,6 +140,7 @@ By accepting this license, you acknowledge that you have read this Agreement, un
           disabled={isLoading}
           variant="contained"
           color="primary"
+          size="small"
         >
           {isLoading ? <CircularProgress size={24} /> : 'Accept'}
         </Button>
