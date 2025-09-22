@@ -17,6 +17,7 @@ const (
 	ctxKeyRawRequest contextKey = "raw_request"
 	ctxKeyRequestID  contextKey = "request_id"
 	ctxKeyActorID    contextKey = "actor"
+	ctxKeyUsername   contextKey = "username"
 )
 
 func WithProjectID(ctx context.Context, id domain.ProjectID) context.Context {
@@ -82,4 +83,17 @@ func Actor(ctx context.Context) domain.AuditActor {
 	}
 
 	return domain.AuditActorSystem
+}
+
+func WithUsername(ctx context.Context, username string) context.Context {
+	return context.WithValue(ctx, ctxKeyUsername, username)
+}
+
+func Username(ctx context.Context) string {
+	v, ok := ctx.Value(ctxKeyUsername).(string)
+	if ok {
+		return v
+	}
+
+	return ""
 }

@@ -10,16 +10,9 @@ import (
 	"github.com/rom8726/etoggle/pkg/db"
 )
 
-// ActorFromContext returns an audit actor string. If a user is present in context, returns "user:<id>", else "system".
+// ActorFromContext returns an audit actor string. If a user is present in context, returns "user", else "system".
 func ActorFromContext(ctx context.Context) string {
-	actor := appctx.Actor(ctx)
-	if actor == domain.AuditActorUser {
-		if uid := appctx.UserID(ctx); uid != 0 {
-			return fmt.Sprintf("user:%d", uid)
-		}
-	}
-
-	return string(actor)
+	return string(appctx.Actor(ctx))
 }
 
 func RequestIDFromContext(ctx context.Context) string {
@@ -30,6 +23,10 @@ func RequestIDFromContext(ctx context.Context) string {
 	return "00000000-0000-0000-0000-000000000000"
 }
 
+func UsernameFromContext(ctx context.Context) string {
+	return appctx.Username(ctx)
+}
+
 // Write inserts an audit log entry within the current transaction (if any).
 // oldVal and newVal are marshaled to JSON. If nil, the corresponding JSON is NULL.
 func Write(
@@ -38,7 +35,7 @@ func Write(
 	projectID domain.ProjectID,
 	featureID domain.FeatureID,
 	entity domain.EntityType,
-	actor string,
+	entityID string,
 	action domain.AuditAction,
 	oldVal any,
 	newVal any,
@@ -64,17 +61,22 @@ func Write(
 	}
 
 	const query = `
-		INSERT INTO audit_log (project_id, feature_id, entity, actor, action, old_value, new_value, request_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO audit_log (project_id, feature_id, entity_id, entity, actor, username, action, old_value, new_value, request_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`
+
+	actor := ActorFromContext(ctx)
+	username := UsernameFromContext(ctx)
 
 	if _, err := exec.Exec(
 		ctx,
 		query,
 		projectID,
 		featureID,
+		entityID,
 		entity,
 		actor,
+		username,
 		action,
 		oldJSON,
 		newJSON,

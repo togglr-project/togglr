@@ -36,9 +36,11 @@ type AuditLog struct {
 	ID        AuditLogID
 	ProjectID ProjectID
 	FeatureID FeatureID
+	EntityID  string
 	RequestID string
 	Entity    EntityType
 	Actor     string
+	Username  string
 	Action    AuditAction
 	OldValue  json.RawMessage
 	NewValue  json.RawMessage
@@ -63,6 +65,7 @@ type Change struct {
 type ChangeGroup struct {
 	RequestID string
 	Actor     string
+	Username  string
 	CreatedAt time.Time
 	Changes   []Change
 }

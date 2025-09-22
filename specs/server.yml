@@ -5178,6 +5178,10 @@ components:
           type: string
           description: Who made the changes (system, sdk, user:<user_id>)
           example: "user:123"
+        username:
+          type: string
+          description: Username of the user who made the changes
+          example: "john.doe"
         created_at:
           type: string
           format: date-time
@@ -5188,7 +5192,7 @@ components:
           items:
             $ref: '#/components/schemas/Change'
           description: List of changes made in this request
-      required: [request_id, actor, created_at, changes]
+      required: [request_id, actor, username, created_at, changes]
 
     ListChangesResponse:
       type: object

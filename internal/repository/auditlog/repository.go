@@ -25,9 +25,11 @@ type auditLogModel struct {
 	ID        uint64    `db:"id"`
 	ProjectID string    `db:"project_id"`
 	FeatureID string    `db:"feature_id"`
+	EntityID  *string   `db:"entity_id"`
 	RequestID string    `db:"request_id"`
 	Entity    string    `db:"entity"`
 	Actor     string    `db:"actor"`
+	Username  *string   `db:"username"`
 	Action    string    `db:"action"`
 	OldValue  []byte    `db:"old_value"`
 	NewValue  []byte    `db:"new_value"`
@@ -35,13 +37,25 @@ type auditLogModel struct {
 }
 
 func (m auditLogModel) toDomain() domain.AuditLog {
+	entityID := ""
+	if m.EntityID != nil {
+		entityID = *m.EntityID
+	}
+
+	username := ""
+	if m.Username != nil {
+		username = *m.Username
+	}
+
 	return domain.AuditLog{
 		ID:        domain.AuditLogID(m.ID),
 		ProjectID: domain.ProjectID(m.ProjectID),
 		FeatureID: domain.FeatureID(m.FeatureID),
+		EntityID:  entityID,
 		RequestID: m.RequestID,
 		Entity:    domain.EntityType(m.Entity),
 		Actor:     m.Actor,
+		Username:  username,
 		Action:    domain.AuditAction(m.Action),
 		OldValue:  m.OldValue,
 		NewValue:  m.NewValue,
@@ -55,7 +69,7 @@ func (r *Repository) ListSince(ctx context.Context, since time.Time) ([]domain.A
 	exec := r.getExecutor(ctx)
 
 	const query = `
-SELECT id, project_id, feature_id, request_id, entity, actor, action, old_value, new_value, created_at
+SELECT id, project_id, feature_id, entity_id, request_id, entity, actor, username, action, old_value, new_value, created_at
 FROM audit_log
 WHERE created_at > $1
 ORDER BY created_at
@@ -89,7 +103,7 @@ func (r *Repository) ListChanges(
 
 	// Build base query for changes
 	builder := sq.Select(
-		"id", "project_id", "feature_id", "request_id", "entity", "actor", "action",
+		"id", "project_id", "feature_id", "entity_id", "request_id", "entity", "actor", "username", "action",
 		"old_value", "new_value", "created_at",
 	).From("audit_log")
 
@@ -167,6 +181,7 @@ func (r *Repository) ListChanges(
 			group = &domain.ChangeGroup{
 				RequestID: auditLog.RequestID,
 				Actor:     auditLog.Actor,
+				Username:  auditLog.Username,
 				CreatedAt: auditLog.CreatedAt,
 				Changes:   make([]domain.Change, 0),
 			}
@@ -177,7 +192,7 @@ func (r *Repository) ListChanges(
 		change := domain.Change{
 			ID:       auditLog.ID,
 			Entity:   auditLog.Entity,
-			EntityID: string(auditLog.FeatureID), // Using FeatureID as EntityID
+			EntityID: auditLog.EntityID, // Using EntityID field
 			Action:   auditLog.Action,
 		}
 

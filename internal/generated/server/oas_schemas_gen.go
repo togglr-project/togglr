@@ -207,6 +207,8 @@ type ChangeGroup struct {
 	RequestID uuid.UUID `json:"request_id"`
 	// Who made the changes (system, sdk, user:<user_id>).
 	Actor string `json:"actor"`
+	// Username of the user who made the changes.
+	Username string `json:"username"`
 	// When the changes were made.
 	CreatedAt time.Time `json:"created_at"`
 	// List of changes made in this request.
@@ -221,6 +223,11 @@ func (s *ChangeGroup) GetRequestID() uuid.UUID {
 // GetActor returns the value of Actor.
 func (s *ChangeGroup) GetActor() string {
 	return s.Actor
+}
+
+// GetUsername returns the value of Username.
+func (s *ChangeGroup) GetUsername() string {
+	return s.Username
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -241,6 +248,11 @@ func (s *ChangeGroup) SetRequestID(val uuid.UUID) {
 // SetActor sets the value of Actor.
 func (s *ChangeGroup) SetActor(val string) {
 	s.Actor = val
+}
+
+// SetUsername sets the value of Username.
+func (s *ChangeGroup) SetUsername(val string) {
+	s.Username = val
 }
 
 // SetCreatedAt sets the value of CreatedAt.

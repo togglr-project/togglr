@@ -63,6 +63,7 @@ func DomainChangesToAPI(result domain.ChangesListResult) generatedapi.ListChange
 		items = append(items, generatedapi.ChangeGroup{
 			RequestID: requestID,
 			Actor:     group.Actor,
+			Username:  group.Username,
 			CreatedAt: group.CreatedAt,
 			Changes:   changes,
 		})
