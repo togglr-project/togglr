@@ -286,14 +286,15 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
                 </ListItemIcon>
                 <ListItemText
                   primary={
-                    <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                      {item.action} by {item.user}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                        {item.action} by {item.user}
+                      </Typography>
                       {item.changesCount > 1 && (
                         <Chip
                           label={`+${item.changesCount - 1}`}
                           size="small"
                           sx={{ 
-                            ml: 1, 
                             height: 16, 
                             fontSize: '0.6rem',
                             bgcolor: 'action.hover',
@@ -301,7 +302,7 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
                           }}
                         />
                       )}
-                    </Typography>
+                    </Box>
                   }
                   secondary={
                     <Typography variant="caption" color="text.secondary">
