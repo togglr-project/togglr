@@ -48,3 +48,43 @@ type AuditLog struct {
 func (id AuditLogID) Uint64() uint64 {
 	return uint64(id)
 }
+
+// Change represents a single change in the audit log
+type Change struct {
+	ID       AuditLogID
+	Entity   EntityType
+	EntityID string // UUID of the changed entity
+	Action   AuditAction
+	OldValue *json.RawMessage
+	NewValue *json.RawMessage
+}
+
+// ChangeGroup represents a group of changes made in a single request
+type ChangeGroup struct {
+	RequestID string
+	Actor     string
+	CreatedAt time.Time
+	Changes   []Change
+}
+
+// ChangesListFilter represents filter parameters for listing changes
+type ChangesListFilter struct {
+	ProjectID ProjectID
+	Page      int
+	PerPage   int
+	SortBy    string
+	SortDesc  bool
+	Actor     *string
+	Entity    *EntityType
+	Action    *AuditAction
+	FeatureID *FeatureID
+	From      *time.Time
+	To        *time.Time
+}
+
+// ChangesListResult represents paginated result of changes
+type ChangesListResult struct {
+	ProjectID ProjectID
+	Items     []ChangeGroup
+	Total     int
+}

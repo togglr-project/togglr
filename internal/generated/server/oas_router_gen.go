@@ -1017,6 +1017,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
+							case 'c': // Prefix: "changes"
+
+								if l := len("changes"); len(elem) >= l && elem[0:l] == "changes" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleListProjectChangesRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+
 							case 'f': // Prefix: "features"
 
 								if l := len("features"); len(elem) >= l && elem[0:l] == "features" {
@@ -2790,6 +2812,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
+							case 'c': // Prefix: "changes"
+
+								if l := len("changes"); len(elem) >= l && elem[0:l] == "changes" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = ListProjectChangesOperation
+										r.summary = "Get project changes history"
+										r.operationID = "ListProjectChanges"
+										r.pathPattern = "/api/v1/projects/{project_id}/changes"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
 							case 'f': // Prefix: "features"
 
 								if l := len("features"); len(elem) >= l && elem[0:l] == "features" {

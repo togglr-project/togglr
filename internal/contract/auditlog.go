@@ -18,4 +18,5 @@ import (
 // If necessary, expand with filtering parameters later.
 type AuditLogRepository interface {
 	ListSince(ctx context.Context, since time.Time) ([]domain.AuditLog, error)
+	ListChanges(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error)
 }

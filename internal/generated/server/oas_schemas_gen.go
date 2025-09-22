@@ -52,6 +52,56 @@ type ArchiveProjectNoContent struct{}
 
 func (*ArchiveProjectNoContent) archiveProjectRes() {}
 
+// Type of action performed on entity.
+// Ref: #/components/schemas/AuditAction
+type AuditAction string
+
+const (
+	AuditActionCreate AuditAction = "create"
+	AuditActionUpdate AuditAction = "update"
+	AuditActionDelete AuditAction = "delete"
+)
+
+// AllValues returns all AuditAction values.
+func (AuditAction) AllValues() []AuditAction {
+	return []AuditAction{
+		AuditActionCreate,
+		AuditActionUpdate,
+		AuditActionDelete,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s AuditAction) MarshalText() ([]byte, error) {
+	switch s {
+	case AuditActionCreate:
+		return []byte(s), nil
+	case AuditActionUpdate:
+		return []byte(s), nil
+	case AuditActionDelete:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *AuditAction) UnmarshalText(data []byte) error {
+	switch AuditAction(data) {
+	case AuditActionCreate:
+		*s = AuditActionCreate
+		return nil
+	case AuditActionUpdate:
+		*s = AuditActionUpdate
+		return nil
+	case AuditActionDelete:
+		*s = AuditActionDelete
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type BearerAuth struct {
 	Token string
 	Roles []string
@@ -76,6 +126,138 @@ func (s *BearerAuth) SetToken(val string) {
 func (s *BearerAuth) SetRoles(val []string) {
 	s.Roles = val
 }
+
+// Ref: #/components/schemas/Change
+type Change struct {
+	// Audit log entry ID.
+	ID     int64      `json:"id"`
+	Entity EntityType `json:"entity"`
+	// ID of the changed entity.
+	EntityID uuid.UUID   `json:"entity_id"`
+	Action   AuditAction `json:"action"`
+	// Previous value of the entity (null for create actions).
+	OldValue *ChangeOldValue `json:"old_value"`
+	// New value of the entity (null for delete actions).
+	NewValue *ChangeNewValue `json:"new_value"`
+}
+
+// GetID returns the value of ID.
+func (s *Change) GetID() int64 {
+	return s.ID
+}
+
+// GetEntity returns the value of Entity.
+func (s *Change) GetEntity() EntityType {
+	return s.Entity
+}
+
+// GetEntityID returns the value of EntityID.
+func (s *Change) GetEntityID() uuid.UUID {
+	return s.EntityID
+}
+
+// GetAction returns the value of Action.
+func (s *Change) GetAction() AuditAction {
+	return s.Action
+}
+
+// GetOldValue returns the value of OldValue.
+func (s *Change) GetOldValue() *ChangeOldValue {
+	return s.OldValue
+}
+
+// GetNewValue returns the value of NewValue.
+func (s *Change) GetNewValue() *ChangeNewValue {
+	return s.NewValue
+}
+
+// SetID sets the value of ID.
+func (s *Change) SetID(val int64) {
+	s.ID = val
+}
+
+// SetEntity sets the value of Entity.
+func (s *Change) SetEntity(val EntityType) {
+	s.Entity = val
+}
+
+// SetEntityID sets the value of EntityID.
+func (s *Change) SetEntityID(val uuid.UUID) {
+	s.EntityID = val
+}
+
+// SetAction sets the value of Action.
+func (s *Change) SetAction(val AuditAction) {
+	s.Action = val
+}
+
+// SetOldValue sets the value of OldValue.
+func (s *Change) SetOldValue(val *ChangeOldValue) {
+	s.OldValue = val
+}
+
+// SetNewValue sets the value of NewValue.
+func (s *Change) SetNewValue(val *ChangeNewValue) {
+	s.NewValue = val
+}
+
+// Ref: #/components/schemas/ChangeGroup
+type ChangeGroup struct {
+	// Request ID that groups related changes.
+	RequestID uuid.UUID `json:"request_id"`
+	// Who made the changes (system, sdk, user:<user_id>).
+	Actor string `json:"actor"`
+	// When the changes were made.
+	CreatedAt time.Time `json:"created_at"`
+	// List of changes made in this request.
+	Changes []Change `json:"changes"`
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *ChangeGroup) GetRequestID() uuid.UUID {
+	return s.RequestID
+}
+
+// GetActor returns the value of Actor.
+func (s *ChangeGroup) GetActor() string {
+	return s.Actor
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ChangeGroup) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetChanges returns the value of Changes.
+func (s *ChangeGroup) GetChanges() []Change {
+	return s.Changes
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *ChangeGroup) SetRequestID(val uuid.UUID) {
+	s.RequestID = val
+}
+
+// SetActor sets the value of Actor.
+func (s *ChangeGroup) SetActor(val string) {
+	s.Actor = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ChangeGroup) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetChanges sets the value of Changes.
+func (s *ChangeGroup) SetChanges(val []Change) {
+	s.Changes = val
+}
+
+// New value of the entity (null for delete actions).
+type ChangeNewValue struct{}
+
+// Previous value of the entity (null for create actions).
+type ChangeOldValue struct{}
 
 // Ref: #/components/schemas/ChangeUserPasswordRequest
 type ChangeUserPasswordRequest struct {
@@ -719,6 +901,63 @@ type Disable2FANoContent struct{}
 
 func (*Disable2FANoContent) disable2FARes() {}
 
+// Type of entity that was changed.
+// Ref: #/components/schemas/EntityType
+type EntityType string
+
+const (
+	EntityTypeFeature         EntityType = "feature"
+	EntityTypeRule            EntityType = "rule"
+	EntityTypeFlagVariant     EntityType = "flag_variant"
+	EntityTypeFeatureSchedule EntityType = "feature_schedule"
+)
+
+// AllValues returns all EntityType values.
+func (EntityType) AllValues() []EntityType {
+	return []EntityType{
+		EntityTypeFeature,
+		EntityTypeRule,
+		EntityTypeFlagVariant,
+		EntityTypeFeatureSchedule,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s EntityType) MarshalText() ([]byte, error) {
+	switch s {
+	case EntityTypeFeature:
+		return []byte(s), nil
+	case EntityTypeRule:
+		return []byte(s), nil
+	case EntityTypeFlagVariant:
+		return []byte(s), nil
+	case EntityTypeFeatureSchedule:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *EntityType) UnmarshalText(data []byte) error {
+	switch EntityType(data) {
+	case EntityTypeFeature:
+		*s = EntityTypeFeature
+		return nil
+	case EntityTypeRule:
+		*s = EntityTypeRule
+		return nil
+	case EntityTypeFlagVariant:
+		*s = EntityTypeFlagVariant
+		return nil
+	case EntityTypeFeatureSchedule:
+		*s = EntityTypeFeatureSchedule
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/Error
 type Error struct {
 	Error ErrorError `json:"error"`
@@ -918,6 +1157,7 @@ func (*ErrorInternalServerError) listAllFeatureSchedulesRes()     {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
 func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
+func (*ErrorInternalServerError) listProjectChangesRes()          {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
 func (*ErrorInternalServerError) listProjectsRes()                {}
@@ -1024,6 +1264,7 @@ func (*ErrorNotFound) getSegmentRes()                  {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
+func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
 func (*ErrorNotFound) listProjectSegmentsRes()         {}
 func (*ErrorNotFound) listSegmentDesyncFeatureIDsRes() {}
@@ -1101,6 +1342,7 @@ func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()     {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
+func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
 func (*ErrorPermissionDenied) listProjectSegmentsRes()         {}
 func (*ErrorPermissionDenied) listSegmentDesyncFeatureIDsRes() {}
@@ -1245,6 +1487,7 @@ func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
 func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
+func (*ErrorUnauthorized) listProjectChangesRes()          {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
 func (*ErrorUnauthorized) listProjectsRes()                {}
@@ -3324,6 +3567,47 @@ func (s *LicenseType) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/ListChangesResponse
+type ListChangesResponse struct {
+	// Project ID.
+	ProjectID uuid.UUID `json:"project_id"`
+	// List of change groups.
+	Items      []ChangeGroup `json:"items"`
+	Pagination Pagination    `json:"pagination"`
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *ListChangesResponse) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetItems returns the value of Items.
+func (s *ListChangesResponse) GetItems() []ChangeGroup {
+	return s.Items
+}
+
+// GetPagination returns the value of Pagination.
+func (s *ListChangesResponse) GetPagination() Pagination {
+	return s.Pagination
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *ListChangesResponse) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetItems sets the value of Items.
+func (s *ListChangesResponse) SetItems(val []ChangeGroup) {
+	s.Items = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *ListChangesResponse) SetPagination(val Pagination) {
+	s.Pagination = val
+}
+
+func (*ListChangesResponse) listProjectChangesRes() {}
+
 type ListFeatureIDsResponse []string
 
 func (*ListFeatureIDsResponse) listSegmentDesyncFeatureIDsRes() {}
@@ -3364,6 +3648,54 @@ func (*ListFeaturesResponse) listProjectFeaturesRes() {}
 type ListFlagVariantsResponse []FlagVariant
 
 func (*ListFlagVariantsResponse) listFeatureFlagVariantsRes() {}
+
+type ListProjectChangesSortBy string
+
+const (
+	ListProjectChangesSortByCreatedAt ListProjectChangesSortBy = "created_at"
+	ListProjectChangesSortByActor     ListProjectChangesSortBy = "actor"
+	ListProjectChangesSortByEntity    ListProjectChangesSortBy = "entity"
+)
+
+// AllValues returns all ListProjectChangesSortBy values.
+func (ListProjectChangesSortBy) AllValues() []ListProjectChangesSortBy {
+	return []ListProjectChangesSortBy{
+		ListProjectChangesSortByCreatedAt,
+		ListProjectChangesSortByActor,
+		ListProjectChangesSortByEntity,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListProjectChangesSortBy) MarshalText() ([]byte, error) {
+	switch s {
+	case ListProjectChangesSortByCreatedAt:
+		return []byte(s), nil
+	case ListProjectChangesSortByActor:
+		return []byte(s), nil
+	case ListProjectChangesSortByEntity:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListProjectChangesSortBy) UnmarshalText(data []byte) error {
+	switch ListProjectChangesSortBy(data) {
+	case ListProjectChangesSortByCreatedAt:
+		*s = ListProjectChangesSortByCreatedAt
+		return nil
+	case ListProjectChangesSortByActor:
+		*s = ListProjectChangesSortByActor
+		return nil
+	case ListProjectChangesSortByEntity:
+		*s = ListProjectChangesSortByEntity
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 type ListProjectFeaturesKind string
 
@@ -3693,6 +4025,52 @@ func (s *LoginResponse) SetIsTmpPassword(val bool) {
 func (*LoginResponse) loginRes()       {}
 func (*LoginResponse) sSOCallbackRes() {}
 
+// NewOptAuditAction returns new OptAuditAction with value set to v.
+func NewOptAuditAction(v AuditAction) OptAuditAction {
+	return OptAuditAction{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptAuditAction is optional AuditAction.
+type OptAuditAction struct {
+	Value AuditAction
+	Set   bool
+}
+
+// IsSet returns true if OptAuditAction was set.
+func (o OptAuditAction) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptAuditAction) Reset() {
+	var v AuditAction
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptAuditAction) SetTo(v AuditAction) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptAuditAction) Get() (v AuditAction, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptAuditAction) Or(d AuditAction) AuditAction {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
 	return OptBool{
@@ -3825,6 +4203,52 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptEntityType returns new OptEntityType with value set to v.
+func NewOptEntityType(v EntityType) OptEntityType {
+	return OptEntityType{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptEntityType is optional EntityType.
+type OptEntityType struct {
+	Value EntityType
+	Set   bool
+}
+
+// IsSet returns true if OptEntityType was set.
+func (o OptEntityType) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptEntityType) Reset() {
+	var v EntityType
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptEntityType) SetTo(v EntityType) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptEntityType) Get() (v EntityType, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptEntityType) Or(d EntityType) EntityType {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -4101,6 +4525,52 @@ func (o OptLicenseType) Get() (v LicenseType, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptLicenseType) Or(d LicenseType) LicenseType {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptListProjectChangesSortBy returns new OptListProjectChangesSortBy with value set to v.
+func NewOptListProjectChangesSortBy(v ListProjectChangesSortBy) OptListProjectChangesSortBy {
+	return OptListProjectChangesSortBy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListProjectChangesSortBy is optional ListProjectChangesSortBy.
+type OptListProjectChangesSortBy struct {
+	Value ListProjectChangesSortBy
+	Set   bool
+}
+
+// IsSet returns true if OptListProjectChangesSortBy was set.
+func (o OptListProjectChangesSortBy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListProjectChangesSortBy) Reset() {
+	var v ListProjectChangesSortBy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListProjectChangesSortBy) SetTo(v ListProjectChangesSortBy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListProjectChangesSortBy) Get() (v ListProjectChangesSortBy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListProjectChangesSortBy) Or(d ListProjectChangesSortBy) ListProjectChangesSortBy {
 	if v, ok := o.Get(); ok {
 		return v
 	}

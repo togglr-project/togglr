@@ -161,6 +161,10 @@ type ListFeatureSchedulesRes interface {
 	listFeatureSchedulesRes()
 }
 
+type ListProjectChangesRes interface {
+	listProjectChangesRes()
+}
+
 type ListProjectFeaturesRes interface {
 	listProjectFeaturesRes()
 }

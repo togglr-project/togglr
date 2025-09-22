@@ -69,6 +69,7 @@ var operationRolesBearerAuth = map[string][]string{
 	ListFeatureFlagVariantsOperation:     []string{},
 	ListFeatureRulesOperation:            []string{},
 	ListFeatureSchedulesOperation:        []string{},
+	ListProjectChangesOperation:          []string{},
 	ListProjectFeaturesOperation:         []string{},
 	ListProjectSegmentsOperation:         []string{},
 	ListProjectsOperation:                []string{},

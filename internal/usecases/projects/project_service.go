@@ -13,14 +13,17 @@ import (
 )
 
 type ProjectService struct {
-	projectRepo contract.ProjectsRepository
+	projectRepo  contract.ProjectsRepository
+	auditLogRepo contract.AuditLogRepository
 }
 
 func New(
 	projectRepo contract.ProjectsRepository,
+	auditLogRepo contract.AuditLogRepository,
 ) *ProjectService {
 	return &ProjectService{
-		projectRepo: projectRepo,
+		projectRepo:  projectRepo,
+		auditLogRepo: auditLogRepo,
 	}
 }
 
@@ -95,4 +98,23 @@ func (s *ProjectService) ArchiveProject(ctx context.Context, id domain.ProjectID
 	slog.Info("project archived", "project_id", id)
 
 	return nil
+}
+
+func (s *ProjectService) ListChanges(
+	ctx context.Context,
+	filter domain.ChangesListFilter,
+) (domain.ChangesListResult, error) {
+	// Verify that the project exists
+	_, err := s.projectRepo.GetByID(ctx, filter.ProjectID)
+	if err != nil {
+		return domain.ChangesListResult{}, fmt.Errorf("get project: %w", err)
+	}
+
+	// Get changes from audit log repository
+	result, err := s.auditLogRepo.ListChanges(ctx, filter)
+	if err != nil {
+		return domain.ChangesListResult{}, fmt.Errorf("list changes: %w", err)
+	}
+
+	return result, nil
 }

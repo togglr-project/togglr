@@ -377,6 +377,15 @@ func (UnimplementedHandler) ListFeatureSchedules(ctx context.Context, params Lis
 	return r, ht.ErrNotImplemented
 }
 
+// ListProjectChanges implements ListProjectChanges operation.
+//
+// Get history of changes made to project features, rules, and other entities grouped by request_id.
+//
+// GET /api/v1/projects/{project_id}/changes
+func (UnimplementedHandler) ListProjectChanges(ctx context.Context, params ListProjectChangesParams) (r ListProjectChangesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectFeatures implements ListProjectFeatures operation.
 //
 // List features for project.

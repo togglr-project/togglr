@@ -3212,6 +3212,135 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/projects/{project_id}/changes:
+    get:
+      summary: Get project changes history
+      description: Get history of changes made to project features, rules, and other entities grouped by request_id
+      operationId: ListProjectChanges
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          description: Project ID
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          required: false
+          description: Page number (starts from 1)
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          description: Items per page
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sort_by
+          in: query
+          required: false
+          description: Sort by field
+          schema:
+            type: string
+            enum: [created_at, actor, entity]
+            default: created_at
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+            default: desc
+        - name: actor
+          in: query
+          required: false
+          description: Filter by actor (system, sdk, user:<user_id>)
+          schema:
+            type: string
+            example: "user:123"
+        - name: entity
+          in: query
+          required: false
+          description: Filter by entity type
+          schema:
+            $ref: '#/components/schemas/EntityType'
+        - name: action
+          in: query
+          required: false
+          description: Filter by action type
+          schema:
+            $ref: '#/components/schemas/AuditAction'
+        - name: feature_id
+          in: query
+          required: false
+          description: Filter by specific feature ID
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          required: false
+          description: Filter changes from this date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+            example: "2025-01-01T00:00:00Z"
+        - name: to
+          in: query
+          required: false
+          description: Filter changes until this date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+            example: "2025-12-31T23:59:59Z"
+      responses:
+        '200':
+          description: List of change groups for the project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListChangesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
   /api/v1/rule_attributes:
     get:
       summary: List of rule attributes
@@ -4996,3 +5125,84 @@ components:
           example: "User ID"
           maxLength: 300
       required: [name]
+
+    # Audit Log Schemas
+    EntityType:
+      type: string
+      description: Type of entity that was changed
+      enum: [feature, rule, flag_variant, feature_schedule]
+
+    AuditAction:
+      type: string
+      description: Type of action performed on entity
+      enum: [create, update, delete]
+
+    Change:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Audit log entry ID
+          example: 101
+        entity:
+          $ref: '#/components/schemas/EntityType'
+        entity_id:
+          type: string
+          format: uuid
+          description: ID of the changed entity
+          example: "3fcebf52-99e3-47d6-bf5d-0f7e6c0d8a22"
+        action:
+          $ref: '#/components/schemas/AuditAction'
+        old_value:
+          type: object
+          description: Previous value of the entity (null for create actions)
+          nullable: true
+          example: {"enabled": false}
+        new_value:
+          type: object
+          description: New value of the entity (null for delete actions)
+          nullable: true
+          example: {"enabled": true}
+      required: [id, entity, entity_id, action, old_value, new_value]
+
+    ChangeGroup:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: Request ID that groups related changes
+          example: "d88e40b4-8d55-4e8b-a409-5d23eb0d946f"
+        actor:
+          type: string
+          description: Who made the changes (system, sdk, user:<user_id>)
+          example: "user:123"
+        created_at:
+          type: string
+          format: date-time
+          description: When the changes were made
+          example: "2025-09-22T11:22:33Z"
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Change'
+          description: List of changes made in this request
+      required: [request_id, actor, created_at, changes]
+
+    ListChangesResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+          description: Project ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeGroup'
+          description: List of change groups
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required: [project_id, items, pagination]

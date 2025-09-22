@@ -12,6 +12,7 @@ type ProjectsUseCase interface {
 	List(ctx context.Context) ([]domain.Project, error)
 	UpdateInfo(ctx context.Context, id domain.ProjectID, name, description string) (domain.Project, error)
 	ArchiveProject(ctx context.Context, id domain.ProjectID) error
+	ListChanges(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error)
 }
 
 type ProjectsRepository interface {

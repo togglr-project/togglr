@@ -46,6 +46,7 @@ const (
 	ListFeatureFlagVariantsOperation     OperationName = "ListFeatureFlagVariants"
 	ListFeatureRulesOperation            OperationName = "ListFeatureRules"
 	ListFeatureSchedulesOperation        OperationName = "ListFeatureSchedules"
+	ListProjectChangesOperation          OperationName = "ListProjectChanges"
 	ListProjectFeaturesOperation         OperationName = "ListProjectFeatures"
 	ListProjectSegmentsOperation         OperationName = "ListProjectSegments"
 	ListProjectsOperation                OperationName = "ListProjects"

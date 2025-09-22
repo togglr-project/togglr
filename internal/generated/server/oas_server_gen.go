@@ -252,6 +252,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}/schedules
 	ListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (ListFeatureSchedulesRes, error)
+	// ListProjectChanges implements ListProjectChanges operation.
+	//
+	// Get history of changes made to project features, rules, and other entities grouped by request_id.
+	//
+	// GET /api/v1/projects/{project_id}/changes
+	ListProjectChanges(ctx context.Context, params ListProjectChangesParams) (ListProjectChangesRes, error)
 	// ListProjectFeatures implements ListProjectFeatures operation.
 	//
 	// List features for project.
