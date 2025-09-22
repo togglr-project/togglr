@@ -44,6 +44,7 @@ All URIs are relative to *http://localhost*
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
 |[**listFeatureRules**](#listfeaturerules) | **GET** /api/v1/features/{feature_id}/rules | List rules for feature|
 |[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
+|[**listProjectChanges**](#listprojectchanges) | **GET** /api/v1/projects/{project_id}/changes | Get project changes history|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
 |[**listProjectSegments**](#listprojectsegments) | **GET** /api/v1/projects/{project_id}/segments | List segments for project|
 |[**listProjects**](#listprojects) | **GET** /api/v1/projects | Get projects list|
@@ -2220,6 +2221,92 @@ const { status, data } = await apiInstance.listFeatureSchedules(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listProjectChanges**
+> ListChangesResponse listProjectChanges()
+
+Get history of changes made to project features, rules, and other entities grouped by request_id
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; //Project ID (default to undefined)
+let page: number; //Page number (starts from 1) (optional) (default to 1)
+let perPage: number; //Items per page (optional) (default to 20)
+let sortBy: 'created_at' | 'actor' | 'entity'; //Sort by field (optional) (default to 'created_at')
+let sortOrder: SortOrder; //Sort order (optional) (default to undefined)
+let actor: string; //Filter by actor (system, sdk, user:<user_id>) (optional) (default to undefined)
+let entity: EntityType; //Filter by entity type (optional) (default to undefined)
+let action: AuditAction; //Filter by action type (optional) (default to undefined)
+let featureId: string; //Filter by specific feature ID (optional) (default to undefined)
+let from: string; //Filter changes from this date (ISO 8601 format) (optional) (default to undefined)
+let to: string; //Filter changes until this date (ISO 8601 format) (optional) (default to undefined)
+
+const { status, data } = await apiInstance.listProjectChanges(
+    projectId,
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    actor,
+    entity,
+    action,
+    featureId,
+    from,
+    to
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] | Project ID | defaults to undefined|
+| **page** | [**number**] | Page number (starts from 1) | (optional) defaults to 1|
+| **perPage** | [**number**] | Items per page | (optional) defaults to 20|
+| **sortBy** | [**&#39;created_at&#39; | &#39;actor&#39; | &#39;entity&#39;**]**Array<&#39;created_at&#39; &#124; &#39;actor&#39; &#124; &#39;entity&#39;>** | Sort by field | (optional) defaults to 'created_at'|
+| **sortOrder** | **SortOrder** | Sort order | (optional) defaults to undefined|
+| **actor** | [**string**] | Filter by actor (system, sdk, user:&lt;user_id&gt;) | (optional) defaults to undefined|
+| **entity** | **EntityType** | Filter by entity type | (optional) defaults to undefined|
+| **action** | **AuditAction** | Filter by action type | (optional) defaults to undefined|
+| **featureId** | [**string**] | Filter by specific feature ID | (optional) defaults to undefined|
+| **from** | [**string**] | Filter changes from this date (ISO 8601 format) | (optional) defaults to undefined|
+| **to** | [**string**] | Filter changes until this date (ISO 8601 format) | (optional) defaults to undefined|
+
+
+### Return type
+
+**ListChangesResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of change groups for the project |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Project not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

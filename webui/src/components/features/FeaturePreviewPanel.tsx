@@ -20,7 +20,7 @@ import {
   Add as AddIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
-import type { FeatureExtended, FeatureDetailsResponse, FlagVariant } from '../../generated/api/client';
+import type { FeatureExtended, FeatureDetailsResponse, FlagVariant, ListChangesResponse, ChangeGroup } from '../../generated/api/client';
 import SimpleTimelinePreview from './SimpleTimelinePreview';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
@@ -69,28 +69,57 @@ const getMockVariants = (featureId: string, kind: string) => {
   return variantSets[index] || variantSets[0];
 };
 
-// Mock data for history
-const getMockHistory = (featureId: string) => {
-  const histories = [
-    [
-      { action: 'Created', user: 'john.doe', timestamp: '2 hours ago', icon: AddIcon },
-      { action: 'Updated', user: 'jane.smith', timestamp: '1 hour ago', icon: EditIcon },
-      { action: 'Enabled', user: 'admin', timestamp: '30 minutes ago', icon: ScheduleIcon },
-    ],
-    [
-      { action: 'Created', user: 'alice.wilson', timestamp: '1 day ago', icon: AddIcon },
-      { action: 'Updated', user: 'bob.johnson', timestamp: '6 hours ago', icon: EditIcon },
-      { action: 'Disabled', user: 'admin', timestamp: '2 hours ago', icon: ScheduleIcon },
-      { action: 'Updated', user: 'charlie.brown', timestamp: '1 hour ago', icon: EditIcon },
-    ],
-    [
-      { action: 'Created', user: 'diana.prince', timestamp: '3 days ago', icon: AddIcon },
-      { action: 'Updated', user: 'bruce.wayne', timestamp: '1 day ago', icon: EditIcon },
-    ],
-  ];
+// Helper function to format timestamp
+const formatTimestamp = (timestamp: string) => {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMinutes = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes} minutes ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hours ago`;
+  } else {
+    return `${diffDays} days ago`;
+  }
+};
+
+// Helper function to get action icon
+const getActionIcon = (action: string) => {
+  switch (action) {
+    case 'create':
+      return AddIcon;
+    case 'update':
+      return EditIcon;
+    case 'delete':
+      return ScheduleIcon;
+    default:
+      return EditIcon;
+  }
+};
+
+// Helper function to format action text
+const formatActionText = (action: string, entity: string) => {
+  const actionMap: { [key: string]: string } = {
+    create: 'Created',
+    update: 'Updated',
+    delete: 'Deleted',
+  };
   
-  const index = parseInt(featureId) % histories.length;
-  return histories[index] || histories[0];
+  const entityMap: { [key: string]: string } = {
+    feature: 'feature',
+    rule: 'rule',
+    flag_variant: 'variant',
+    feature_schedule: 'schedule',
+  };
+
+  const actionText = actionMap[action] || action;
+  const entityText = entityMap[entity] || entity;
+  
+  return `${actionText} ${entityText}`;
 };
 
 const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
@@ -129,9 +158,46 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
     enabled: !!selectedFeature && selectedFeature.kind === 'multivariant',
   });
 
+  // Load feature changes history
+  const { data: changesData } = useQuery<ListChangesResponse>({
+    queryKey: ['feature-changes', selectedFeature.id, projectId],
+    queryFn: async () => {
+      const response = await apiClient.listProjectChanges(
+        projectId,
+        1, // page
+        3, // perPage - limit to 3 events as requested
+        undefined, // sortBy
+        'desc', // sortOrder - newest first
+        undefined, // actor
+        undefined, // entity
+        undefined, // action
+        selectedFeature.id, // featureId - filter by specific feature
+        undefined, // from
+        undefined  // to
+      );
+      return response.data;
+    },
+    enabled: !!selectedFeature,
+  });
+
   const tags = getMockTags(selectedFeature.id);
   const variants = featureDetails?.variants?.map(v => v.name) || getMockVariants(selectedFeature.id, selectedFeature.kind);
-  const history = getMockHistory(selectedFeature.id);
+  
+  // Process changes data into history format
+  const history = changesData?.items?.map((changeGroup: ChangeGroup) => {
+    // Get the first change from the group to determine the main action
+    const firstChange = changeGroup.changes[0];
+    const actionText = firstChange ? formatActionText(firstChange.action, firstChange.entity) : 'Changed';
+    const actionIcon = firstChange ? getActionIcon(firstChange.action) : EditIcon;
+    
+    return {
+      action: actionText,
+      user: changeGroup.username || 'Unknown',
+      timestamp: formatTimestamp(changeGroup.created_at),
+      icon: actionIcon,
+      changesCount: changeGroup.changes.length,
+    };
+  }) || [];
 
   return (
     <Paper sx={{ p: 2, height: 'fit-content', minHeight: 400 }}>
@@ -209,29 +275,48 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
         <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
           History
         </Typography>
-        <List dense sx={{ p: 0 }}>
-          {history.map((item, index) => (
-            <ListItem key={index} sx={{ px: 0, py: 0.5 }}>
-              <ListItemIcon sx={{ minWidth: 32 }}>
-                <Avatar sx={{ width: 20, height: 20, bgcolor: 'action.hover' }}>
-                  <item.icon sx={{ fontSize: 12 }} />
-                </Avatar>
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                    {item.action} by {item.user}
-                  </Typography>
-                }
-                secondary={
-                  <Typography variant="caption" color="text.secondary">
-                    {item.timestamp}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          ))}
-        </List>
+        {history.length > 0 ? (
+          <List dense sx={{ p: 0 }}>
+            {history.map((item, index) => (
+              <ListItem key={index} sx={{ px: 0, py: 0.5 }}>
+                <ListItemIcon sx={{ minWidth: 32 }}>
+                  <Avatar sx={{ width: 20, height: 20, bgcolor: 'action.hover' }}>
+                    <item.icon sx={{ fontSize: 12 }} />
+                  </Avatar>
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                      {item.action} by {item.user}
+                      {item.changesCount > 1 && (
+                        <Chip
+                          label={`+${item.changesCount - 1}`}
+                          size="small"
+                          sx={{ 
+                            ml: 1, 
+                            height: 16, 
+                            fontSize: '0.6rem',
+                            bgcolor: 'action.hover',
+                            color: 'text.secondary'
+                          }}
+                        />
+                      )}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography variant="caption" color="text.secondary">
+                      {item.timestamp}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+            No changes recorded
+          </Typography>
+        )}
       </Box>
     </Paper>
   );

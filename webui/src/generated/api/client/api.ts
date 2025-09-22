@@ -27,6 +27,63 @@ export interface AddProjectRequest {
     'name': string;
     'description': string;
 }
+/**
+ * Type of action performed on entity
+ */
+
+export const AuditAction = {
+    Create: 'create',
+    Update: 'update',
+    Delete: 'delete'
+} as const;
+
+export type AuditAction = typeof AuditAction[keyof typeof AuditAction];
+
+
+export interface Change {
+    /**
+     * Audit log entry ID
+     */
+    'id': number;
+    'entity': EntityType;
+    /**
+     * ID of the changed entity
+     */
+    'entity_id': string;
+    'action': AuditAction;
+    /**
+     * Previous value of the entity (null for create actions)
+     */
+    'old_value': object;
+    /**
+     * New value of the entity (null for delete actions)
+     */
+    'new_value': object;
+}
+
+
+export interface ChangeGroup {
+    /**
+     * Request ID that groups related changes
+     */
+    'request_id': string;
+    /**
+     * Who made the changes (system, sdk, user:<user_id>)
+     */
+    'actor': string;
+    /**
+     * Username of the user who made the changes
+     */
+    'username': string;
+    /**
+     * When the changes were made
+     */
+    'created_at': string;
+    /**
+     * List of changes made in this request
+     */
+    'changes': Array<Change>;
+}
 export interface ChangeUserPasswordRequest {
     'old_password': string;
     'new_password': string;
@@ -117,6 +174,20 @@ export interface CreateUserRequest {
 export interface CreateUserResponse {
     'user': User;
 }
+/**
+ * Type of entity that was changed
+ */
+
+export const EntityType = {
+    Feature: 'feature',
+    Rule: 'rule',
+    FlagVariant: 'flag_variant',
+    FeatureSchedule: 'feature_schedule'
+} as const;
+
+export type EntityType = typeof EntityType[keyof typeof EntityType];
+
+
 export interface Error2FARequired {
     'error': Error2FARequiredError;
 }
@@ -514,6 +585,17 @@ export const LicenseType = {
 export type LicenseType = typeof LicenseType[keyof typeof LicenseType];
 
 
+export interface ListChangesResponse {
+    /**
+     * Project ID
+     */
+    'project_id': string;
+    /**
+     * List of change groups
+     */
+    'items': Array<ChangeGroup>;
+    'pagination': Pagination;
+}
 export interface ListFeaturesResponse {
     'items': Array<FeatureExtended>;
     'pagination': Pagination;
@@ -2421,6 +2503,98 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * Get history of changes made to project features, rules, and other entities grouped by request_id
+         * @summary Get project changes history
+         * @param {string} projectId Project ID
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
+         * @param {ListProjectChangesSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {string} [actor] Filter by actor (system, sdk, user:&lt;user_id&gt;)
+         * @param {EntityType} [entity] Filter by entity type
+         * @param {AuditAction} [action] Filter by action type
+         * @param {string} [featureId] Filter by specific feature ID
+         * @param {string} [from] Filter changes from this date (ISO 8601 format)
+         * @param {string} [to] Filter changes until this date (ISO 8601 format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectChanges: async (projectId: string, page?: number, perPage?: number, sortBy?: ListProjectChangesSortByEnum, sortOrder?: SortOrder, actor?: string, entity?: EntityType, action?: AuditAction, featureId?: string, from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listProjectChanges', 'projectId', projectId)
+            const localVarPath = `/api/v1/projects/{project_id}/changes`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sort_order'] = sortOrder;
+            }
+
+            if (actor !== undefined) {
+                localVarQueryParameter['actor'] = actor;
+            }
+
+            if (entity !== undefined) {
+                localVarQueryParameter['entity'] = entity;
+            }
+
+            if (action !== undefined) {
+                localVarQueryParameter['action'] = action;
+            }
+
+            if (featureId !== undefined) {
+                localVarQueryParameter['feature_id'] = featureId;
+            }
+
+            if (from !== undefined) {
+                localVarQueryParameter['from'] = (from as any instanceof Date) ?
+                    (from as any).toISOString() :
+                    from;
+            }
+
+            if (to !== undefined) {
+                localVarQueryParameter['to'] = (to as any instanceof Date) ?
+                    (to as any).toISOString() :
+                    to;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 
          * @summary List features for project
          * @param {string} projectId 
@@ -4172,6 +4346,29 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Get history of changes made to project features, rules, and other entities grouped by request_id
+         * @summary Get project changes history
+         * @param {string} projectId Project ID
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
+         * @param {ListProjectChangesSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {string} [actor] Filter by actor (system, sdk, user:&lt;user_id&gt;)
+         * @param {EntityType} [entity] Filter by entity type
+         * @param {AuditAction} [action] Filter by action type
+         * @param {string} [featureId] Filter by specific feature ID
+         * @param {string} [from] Filter changes from this date (ISO 8601 format)
+         * @param {string} [to] Filter changes until this date (ISO 8601 format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listProjectChanges(projectId: string, page?: number, perPage?: number, sortBy?: ListProjectChangesSortByEnum, sortOrder?: SortOrder, actor?: string, entity?: EntityType, action?: AuditAction, featureId?: string, from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListChangesResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectChanges(projectId, page, perPage, sortBy, sortOrder, actor, entity, action, featureId, from, to, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectChanges']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary List features for project
          * @param {string} projectId 
@@ -4979,6 +5176,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.listFeatureSchedules(featureId, options).then((request) => request(axios, basePath));
         },
         /**
+         * Get history of changes made to project features, rules, and other entities grouped by request_id
+         * @summary Get project changes history
+         * @param {string} projectId Project ID
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
+         * @param {ListProjectChangesSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {string} [actor] Filter by actor (system, sdk, user:&lt;user_id&gt;)
+         * @param {EntityType} [entity] Filter by entity type
+         * @param {AuditAction} [action] Filter by action type
+         * @param {string} [featureId] Filter by specific feature ID
+         * @param {string} [from] Filter changes from this date (ISO 8601 format)
+         * @param {string} [to] Filter changes until this date (ISO 8601 format)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectChanges(projectId: string, page?: number, perPage?: number, sortBy?: ListProjectChangesSortByEnum, sortOrder?: SortOrder, actor?: string, entity?: EntityType, action?: AuditAction, featureId?: string, from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<ListChangesResponse> {
+            return localVarFp.listProjectChanges(projectId, page, perPage, sortBy, sortOrder, actor, entity, action, featureId, from, to, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary List features for project
          * @param {string} projectId 
@@ -5737,6 +5954,27 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * Get history of changes made to project features, rules, and other entities grouped by request_id
+     * @summary Get project changes history
+     * @param {string} projectId Project ID
+     * @param {number} [page] Page number (starts from 1)
+     * @param {number} [perPage] Items per page
+     * @param {ListProjectChangesSortByEnum} [sortBy] Sort by field
+     * @param {SortOrder} [sortOrder] Sort order
+     * @param {string} [actor] Filter by actor (system, sdk, user:&lt;user_id&gt;)
+     * @param {EntityType} [entity] Filter by entity type
+     * @param {AuditAction} [action] Filter by action type
+     * @param {string} [featureId] Filter by specific feature ID
+     * @param {string} [from] Filter changes from this date (ISO 8601 format)
+     * @param {string} [to] Filter changes until this date (ISO 8601 format)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listProjectChanges(projectId: string, page?: number, perPage?: number, sortBy?: ListProjectChangesSortByEnum, sortOrder?: SortOrder, actor?: string, entity?: EntityType, action?: AuditAction, featureId?: string, from?: string, to?: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectChanges(projectId, page, perPage, sortBy, sortOrder, actor, entity, action, featureId, from, to, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * 
      * @summary List features for project
      * @param {string} projectId 
@@ -6081,6 +6319,12 @@ export const GetLDAPSyncLogsLevelEnum = {
     Error: 'error'
 } as const;
 export type GetLDAPSyncLogsLevelEnum = typeof GetLDAPSyncLogsLevelEnum[keyof typeof GetLDAPSyncLogsLevelEnum];
+export const ListProjectChangesSortByEnum = {
+    CreatedAt: 'created_at',
+    Actor: 'actor',
+    Entity: 'entity'
+} as const;
+export type ListProjectChangesSortByEnum = typeof ListProjectChangesSortByEnum[keyof typeof ListProjectChangesSortByEnum];
 export const ListProjectFeaturesKindEnum = {
     Simple: 'simple',
     Multivariant: 'multivariant'
