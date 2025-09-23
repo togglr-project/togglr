@@ -299,7 +299,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     // Remove old tags
     for (const tag of tagsToRemove) {
       try {
-        await apiClient.removeFeatureTag(featureId, { tag_id: tag.id });
+        await apiClient.removeFeatureTag(featureId, tag.id);
       } catch (err) {
         console.warn('Failed to remove tag from feature:', err);
       }

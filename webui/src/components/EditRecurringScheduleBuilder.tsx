@@ -778,13 +778,11 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
             value="enable"
             control={<Radio />}
             label="Activate feature"
-            size="small"
           />
           <FormControlLabel
             value="disable"
             control={<Radio />}
             label="Deactivate feature"
-            size="small"
           />
         </RadioGroup>
         <Alert severity="warning" sx={{ mt: 2 }}>
