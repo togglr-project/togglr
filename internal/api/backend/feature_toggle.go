@@ -17,7 +17,7 @@ func (r *RestAPI) ToggleFeature(
 ) (generatedapi.ToggleFeatureRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
-	// Ensure feature exists and get project ID
+	// Ensure a feature exists and get project ID
 	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {

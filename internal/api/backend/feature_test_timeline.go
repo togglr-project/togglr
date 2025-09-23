@@ -18,7 +18,7 @@ func (r *RestAPI) TestFeatureTimeline(
 ) (generatedapi.TestFeatureTimelineRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
-	// Load feature and check access to its project
+	// Load a feature and check access to its project
 	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {

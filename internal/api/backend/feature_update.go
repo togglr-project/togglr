@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -18,7 +19,7 @@ func (r *RestAPI) UpdateFeature(
 ) (generatedapi.UpdateFeatureRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
-	// Load feature to get project and check permissions
+	// Load feature to get a project and check permissions
 	existing, err := r.featuresUseCase.GetByID(ctx, featureID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {

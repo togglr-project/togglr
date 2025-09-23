@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -53,15 +54,8 @@ func (r *RestAPI) ListFeatureFlagVariants(
 		return nil, err
 	}
 
-	resp := make(generatedapi.ListFlagVariantsResponse, 0, len(items))
-	for _, it := range items {
-		resp = append(resp, generatedapi.FlagVariant{
-			ID:             it.ID.String(),
-			FeatureID:      it.FeatureID.String(),
-			Name:           it.Name,
-			RolloutPercent: int(it.RolloutPercent),
-		})
-	}
+	resp := dto.DomainFlagVariantsToAPI(items)
 
-	return &resp, nil
+	respSlice := generatedapi.ListFlagVariantsResponse(resp)
+	return &respSlice, nil
 }

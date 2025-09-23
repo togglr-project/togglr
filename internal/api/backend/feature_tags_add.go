@@ -2,6 +2,7 @@ package apibackend
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
@@ -23,13 +24,13 @@ func (r *RestAPI) AddFeatureTag(
 	if err != nil {
 		slog.Error("add feature tag failed", "error", err, "user_id", userID, "feature_id", featureID, "tag_id", tagID)
 
-		if err == domain.ErrEntityNotFound {
+		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
 				Message: generatedapi.NewOptString(err.Error()),
 			}}, nil
 		}
 
-		// Check for "already associated" error
+		// Check for the "already associated" error
 		if err.Error() == "tag already associated with feature" {
 			return &generatedapi.Error{Error: generatedapi.ErrorError{
 				Message: generatedapi.NewOptString("tag already associated with feature"),

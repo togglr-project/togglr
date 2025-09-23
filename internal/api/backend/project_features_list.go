@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-
-	"github.com/google/uuid"
+	"time"
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -80,13 +80,6 @@ func (r *RestAPI) ListProjectFeatures(
 		// Get next state information
 		nextStateEnabled, nextStateTime := r.featureProcessor.NextState(it)
 
-		var nextState generatedapi.OptNilBool
-		var nextStateTimeOpt generatedapi.OptNilDateTime
-		if !nextStateTime.IsZero() {
-			nextState = generatedapi.NewOptNilBool(nextStateEnabled)
-			nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)
-		}
-
 		// Get feature tags
 		tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, it.ID)
 		if err != nil {
@@ -94,60 +87,20 @@ func (r *RestAPI) ListProjectFeatures(
 			tags = []domain.Tag{} // Continue with empty tags
 		}
 
-		// Convert tags to API format
-		tagsResp := make([]generatedapi.ProjectTag, 0, len(tags))
-		for _, tag := range tags {
-			var description generatedapi.OptNilString
-			if tag.Description != nil {
-				description = generatedapi.NewOptNilString(*tag.Description)
-			}
+		// Create FeatureExtended with tags
+		featureWithTags := it
+		featureWithTags.Tags = tags
 
-			var color generatedapi.OptNilString
-			if tag.Color != nil {
-				color = generatedapi.NewOptNilString(*tag.Color)
-			}
-
-			var categoryID generatedapi.OptNilUUID
-			if tag.CategoryID != nil {
-				catID, err := uuid.Parse(tag.CategoryID.String())
-				if err == nil {
-					categoryID = generatedapi.NewOptNilUUID(catID)
-				}
-			}
-
-			tagID, err := uuid.Parse(tag.ID.String())
-			if err != nil {
-				slog.Warn("invalid tag ID", "error", err, "tag_id", tag.ID)
-				continue
-			}
-
-			tagsResp = append(tagsResp, generatedapi.ProjectTag{
-				ID:          tagID,
-				Name:        tag.Name,
-				Slug:        tag.Slug,
-				Description: description,
-				Color:       color,
-				CategoryID:  categoryID,
-			})
+		// Get next state information
+		var nextStatePtr *bool
+		var nextStateTimePtr *time.Time
+		if !nextStateTime.IsZero() {
+			nextStatePtr = &nextStateEnabled
+			nextStateTimePtr = &nextStateTime
 		}
 
-		itemsResp = append(itemsResp, generatedapi.FeatureExtended{
-			ID:             it.ID.String(),
-			ProjectID:      it.ProjectID.String(),
-			Key:            it.Key,
-			Name:           it.Name,
-			Description:    generatedapi.NewOptNilString(it.Description),
-			Kind:           generatedapi.FeatureKind(it.Kind),
-			DefaultVariant: it.DefaultVariant,
-			Enabled:        it.Enabled,
-			RolloutKey:     ruleAttribute2OptString(it.RolloutKey),
-			CreatedAt:      it.CreatedAt,
-			UpdatedAt:      it.UpdatedAt,
-			IsActive:       r.featureProcessor.IsFeatureActive(it),
-			NextState:      nextState,
-			NextStateTime:  nextStateTimeOpt,
-			Tags:           tagsResp,
-		})
+		featureExtended := dto.DomainFeatureExtendedToAPI(featureWithTags, r.featureProcessor.IsFeatureActive(it), nextStatePtr, nextStateTimePtr)
+		itemsResp = append(itemsResp, featureExtended)
 	}
 
 	resp := generatedapi.ListFeaturesResponse{

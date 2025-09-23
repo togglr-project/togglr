@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"time"
 
-	"github.com/google/uuid"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -48,40 +49,12 @@ func (r *RestAPI) GetFeature(
 	}
 
 	// Map to API DTOs
-	respVariants := make([]generatedapi.FlagVariant, 0, len(feature.FlagVariants))
-	for _, v := range feature.FlagVariants {
-		respVariants = append(respVariants, generatedapi.FlagVariant{
-			ID:             v.ID.String(),
-			FeatureID:      v.FeatureID.String(),
-			Name:           v.Name,
-			RolloutPercent: int(v.RolloutPercent),
-		})
-	}
+	respVariants := dto.DomainFlagVariantsToAPI(feature.FlagVariants)
 
-	respRules := make([]generatedapi.Rule, 0, len(feature.Rules))
-	for _, it := range feature.Rules {
-		expr, err := exprToAPI(it.Conditions)
-		if err != nil {
-			slog.Error("build rule conditions response", "error", err)
-			return nil, err
-		}
-
-		var segmentID generatedapi.OptString
-		if it.SegmentID != nil {
-			segmentID = generatedapi.NewOptString(it.SegmentID.String())
-		}
-
-		respRules = append(respRules, generatedapi.Rule{
-			ID:            it.ID.String(),
-			FeatureID:     it.FeatureID.String(),
-			Conditions:    expr,
-			SegmentID:     segmentID,
-			IsCustomized:  it.IsCustomized,
-			Action:        generatedapi.RuleAction(it.Action),
-			FlagVariantID: flagVariantRef2OptString(it.FlagVariantID),
-			Priority:      int(it.Priority),
-			CreatedAt:     it.CreatedAt,
-		})
+	respRules, err := dto.DomainRulesToAPI(feature.Rules)
+	if err != nil {
+		slog.Error("build rule conditions response", "error", err)
+		return nil, err
 	}
 
 	// Get tags
@@ -92,78 +65,27 @@ func (r *RestAPI) GetFeature(
 	}
 
 	// Convert tags to response
-	respTags := make([]generatedapi.ProjectTag, len(tags))
-	for i, tag := range tags {
-		item := generatedapi.ProjectTag{
-			ID:        uuid.MustParse(tag.ID.String()),
-			ProjectID: uuid.MustParse(tag.ProjectID.String()),
-			Name:      tag.Name,
-			Slug:      tag.Slug,
-			CreatedAt: tag.CreatedAt,
-			UpdatedAt: tag.UpdatedAt,
-		}
-
-		if tag.CategoryID != nil {
-			item.CategoryID = generatedapi.NewOptNilUUID(uuid.MustParse(tag.CategoryID.String()))
-		}
-		if tag.Description != nil {
-			item.Description = generatedapi.NewOptNilString(*tag.Description)
-		}
-		if tag.Color != nil {
-			item.Color = generatedapi.NewOptNilString(*tag.Color)
-		}
-
-		// Convert category
-		if tag.Category != nil {
-			catItem := generatedapi.Category{
-				ID:        uuid.MustParse(tag.Category.ID.String()),
-				Name:      tag.Category.Name,
-				Slug:      tag.Category.Slug,
-				Kind:      generatedapi.CategoryKind(tag.Category.Kind),
-				CreatedAt: tag.Category.CreatedAt,
-				UpdatedAt: tag.Category.UpdatedAt,
-			}
-
-			if tag.Category.Description != nil {
-				catItem.Description = generatedapi.NewOptNilString(*tag.Category.Description)
-			}
-			if tag.Category.Color != nil {
-				catItem.Color = generatedapi.NewOptNilString(*tag.Category.Color)
-			}
-
-			item.Category = generatedapi.NewOptCategory(catItem)
-		}
-
-		respTags[i] = item
-	}
+	respTags := dto.DomainTagsToAPI(tags)
 
 	// Get next state information
 	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(feature)
 
-	var nextState generatedapi.OptNilBool
-	var nextStateTimeOpt generatedapi.OptNilDateTime
+	// Create FeatureExtended with tags
+	featureWithTags := feature
+	featureWithTags.Tags = tags
+
+	// Get next state information
+	var nextStatePtr *bool
+	var nextStateTimePtr *time.Time
 	if !nextStateTime.IsZero() {
-		nextState = generatedapi.NewOptNilBool(nextStateEnabled)
-		nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)
+		nextStatePtr = &nextStateEnabled
+		nextStateTimePtr = &nextStateTime
 	}
 
+	featureExtended := dto.DomainFeatureExtendedToAPI(featureWithTags, r.featureProcessor.IsFeatureActive(feature), nextStatePtr, nextStateTimePtr)
+
 	resp := &generatedapi.FeatureDetailsResponse{
-		Feature: generatedapi.FeatureExtended{
-			ID:             feature.ID.String(),
-			ProjectID:      feature.ProjectID.String(),
-			Key:            feature.Key,
-			Name:           feature.Name,
-			Description:    generatedapi.NewOptNilString(feature.Description),
-			Kind:           generatedapi.FeatureKind(feature.Kind),
-			DefaultVariant: feature.DefaultVariant,
-			Enabled:        feature.Enabled,
-			RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
-			CreatedAt:      feature.CreatedAt,
-			UpdatedAt:      feature.UpdatedAt,
-			IsActive:       r.featureProcessor.IsFeatureActive(feature),
-			NextState:      nextState,
-			NextStateTime:  nextStateTimeOpt,
-		},
+		Feature:  featureExtended,
 		Variants: respVariants,
 		Rules:    respRules,
 		Tags:     respTags,

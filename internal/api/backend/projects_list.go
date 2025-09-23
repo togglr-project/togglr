@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -27,17 +28,7 @@ func (r *RestAPI) ListProjects(ctx context.Context) (generatedapi.ListProjectsRe
 		return nil, err
 	}
 
-	items := make([]generatedapi.Project, 0, len(projects))
-	for i := range projects {
-		project := projects[i]
-		items = append(items, generatedapi.Project{
-			ID:          project.ID.String(),
-			Name:        project.Name,
-			Description: project.Description,
-			APIKey:      project.APIKey,
-			CreatedAt:   project.CreatedAt,
-		})
-	}
+	items := dto.DomainProjectsToAPI(projects)
 
 	resp := generatedapi.ListProjectsResponse(items)
 

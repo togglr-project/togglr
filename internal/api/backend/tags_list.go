@@ -4,10 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/google/uuid"
-
 	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -39,49 +38,7 @@ func (r *RestAPI) ListProjectTags(
 		return nil, err
 	}
 
-	items := make([]generatedapi.ProjectTag, 0, len(tags))
-	for i := range tags {
-		tag := tags[i]
-		item := generatedapi.ProjectTag{
-			ID:        uuid.MustParse(tag.ID.String()),
-			ProjectID: uuid.MustParse(tag.ProjectID.String()),
-			Name:      tag.Name,
-			Slug:      tag.Slug,
-			CreatedAt: tag.CreatedAt,
-			UpdatedAt: tag.UpdatedAt,
-		}
-
-		if tag.Description != nil {
-			item.Description = generatedapi.NewOptNilString(*tag.Description)
-		}
-		if tag.Color != nil {
-			item.Color = generatedapi.NewOptNilString(*tag.Color)
-		}
-
-		// Convert category
-		if tag.Category != nil {
-			catItem := generatedapi.Category{
-				ID:           uuid.MustParse(tag.Category.ID.String()),
-				Name:         tag.Category.Name,
-				Slug:         tag.Category.Slug,
-				Kind:         generatedapi.CategoryKind(tag.Category.Kind),
-				CategoryType: generatedapi.CategoryCategoryType(tag.Category.Type),
-				CreatedAt:    tag.Category.CreatedAt,
-				UpdatedAt:    tag.Category.UpdatedAt,
-			}
-
-			if tag.Category.Description != nil {
-				catItem.Description = generatedapi.NewOptNilString(*tag.Category.Description)
-			}
-			if tag.Category.Color != nil {
-				catItem.Color = generatedapi.NewOptNilString(*tag.Category.Color)
-			}
-
-			item.Category = generatedapi.NewOptCategory(catItem)
-		}
-
-		items = append(items, item)
-	}
+	items := dto.DomainTagsToAPI(tags)
 
 	resp := generatedapi.ListProjectTagsResponse(items)
 

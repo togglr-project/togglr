@@ -4,9 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/google/uuid"
-
 	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -20,28 +19,7 @@ func (r *RestAPI) ListCategories(ctx context.Context) (generatedapi.ListCategori
 		return nil, err
 	}
 
-	items := make([]generatedapi.Category, 0, len(categories))
-	for i := range categories {
-		category := categories[i]
-		item := generatedapi.Category{
-			ID:           uuid.MustParse(category.ID.String()),
-			Name:         category.Name,
-			Slug:         category.Slug,
-			Kind:         generatedapi.CategoryKind(category.Kind),
-			CategoryType: generatedapi.CategoryCategoryType(category.Type),
-			CreatedAt:    category.CreatedAt,
-			UpdatedAt:    category.UpdatedAt,
-		}
-
-		if category.Description != nil {
-			item.Description = generatedapi.NewOptNilString(*category.Description)
-		}
-		if category.Color != nil {
-			item.Color = generatedapi.NewOptNilString(*category.Color)
-		}
-
-		items = append(items, item)
-	}
+	items := dto.DomainCategoriesToAPI(categories)
 
 	resp := generatedapi.ListCategoriesResponse(items)
 

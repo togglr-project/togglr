@@ -2,6 +2,7 @@ package apibackend
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
@@ -22,7 +23,7 @@ func (r *RestAPI) RemoveFeatureTag(
 	if err != nil {
 		slog.Error("remove feature tag failed", "error", err, "user_id", userID, "feature_id", featureID, "tag_id", tagID)
 
-		if err == domain.ErrEntityNotFound {
+		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
 				Message: generatedapi.NewOptString(err.Error()),
 			}}, nil

@@ -2,6 +2,7 @@ package apibackend
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -23,7 +24,7 @@ func (r *RestAPI) ListFeatureTags(
 	if err != nil {
 		slog.Error("list feature tags failed", "error", err, "user_id", userID, "feature_id", featureID)
 
-		if err == domain.ErrEntityNotFound {
+		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
 				Message: generatedapi.NewOptString(err.Error()),
 			}}, nil

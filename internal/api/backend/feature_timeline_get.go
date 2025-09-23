@@ -17,7 +17,7 @@ func (r *RestAPI) GetFeatureTimeline(
 ) (generatedapi.GetFeatureTimelineRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
-	// Load feature with extended data (schedules needed) and check access to its project
+	// Load a feature with extended data (schedules needed) and check access to its project
 	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
