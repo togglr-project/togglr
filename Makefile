@@ -62,12 +62,12 @@ lint: .install-linter ## Run linter
 	@$(GOLANGCI_LINT) run ./... --config=./.golangci.yml
 
 .PHONY: test
-test: ## Run tests
-	@go test -tags integration -cover -coverprofile=coverage.out -v ./...
+test: ## Run unit tests
+	@go test -cover -coverprofile=coverage.out -v ./...
 	@go tool cover -html=coverage.out -o coverage.html
 
 .PHONY: test-integration
-test-integration: ## Run integration tests
+test-integration: ## Run unit and integration tests
 	@go test -tags integration -cover -coverprofile=coverage.out -v ./...
 	@go tool cover -html=coverage.out -o coverage.html
 
