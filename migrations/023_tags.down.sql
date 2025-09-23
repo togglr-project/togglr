@@ -1,3 +1,5 @@
-drop table segments_tags;
-drop table features_feature_tags;
+drop view v_feature_categories;
+drop table tag_categories;
 drop table feature_tags;
+drop table tags;
+drop table categories;
