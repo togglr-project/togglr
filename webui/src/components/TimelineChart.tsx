@@ -195,15 +195,24 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
           <strong>Timezone:</strong> {Intl.DateTimeFormat().resolvedOptions().timeZone}
         </Typography>
 
-        <Box sx={{ overflowX: 'auto' }}>
-          <Box sx={{ minWidth: 1000, position: 'relative', px: 1 }}>
+        <Box sx={{ 
+          width: '100%',
+          overflow: 'hidden'
+        }}>
+          <Box sx={{ 
+            position: 'relative', 
+            px: 1,
+            width: '100%'
+          }}>
             {/* Time axis */}
             <Box sx={{ 
               height: 20, 
               position: 'relative', 
               mb: 3,
               borderBottom: `1px solid ${theme.palette.divider}`,
-              ml: '251px' // Match the feature name width (250px + 1px margin)
+              ml: { xs: '200px', sm: '250px' }, // Responsive margin
+              width: { xs: 'calc(100% - 200px)', sm: 'calc(100% - 250px)' },
+              minWidth: 0
             }}>
               {/* Current time indicator */}
               {timeRange.now >= timeRange.start && timeRange.now <= timeRange.end && (
@@ -271,7 +280,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
                       position: 'absolute',
                       left: `${leftPercent}%`,
                       top: '100%',
-                      height: '200px', // Extend down to cover all feature timelines
+                      height: '100%', // Use relative height instead of fixed
                       width: 1,
                       backgroundColor: theme.palette.divider,
                       opacity: 0.3
@@ -282,16 +291,29 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
             </Box>
 
             {/* Feature timelines */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 2, 
+              mt: 2,
+              width: '100%'
+            }}>
               {processedFeatures.map(({ feature, segments }) => (
-                <Box key={feature.id} sx={{ display: 'flex', alignItems: 'center', minHeight: 50 }}>
+                <Box key={feature.id} sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  minHeight: 50,
+                  width: '100%',
+                  overflow: 'hidden'
+                }}>
                   {/* Feature name */}
                   <Box sx={{ 
-                    minWidth: 250, 
+                    minWidth: { xs: 200, sm: 250 }, 
                     pr: 3, 
                     display: 'flex', 
                     flexDirection: 'column',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    flexShrink: 0
                   }}>
                     <Typography variant="body2" sx={{ fontWeight: 500 }}>
                       {feature.name}
@@ -309,7 +331,9 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
                     backgroundColor: theme.palette.grey[100],
                     borderRadius: 1,
                     overflow: 'hidden',
-                    ml: 1
+                    ml: 1,
+                    minWidth: 0,
+                    width: '100%'
                   }}>
                     {segments.map((segment, index) => {
                       const leftPercent = ((segment.start - timeRange.start) / totalDuration) * 100;

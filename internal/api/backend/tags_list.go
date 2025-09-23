@@ -61,12 +61,13 @@ func (r *RestAPI) ListProjectTags(
 		// Convert category
 		if tag.Category != nil {
 			catItem := generatedapi.Category{
-				ID:        uuid.MustParse(tag.Category.ID.String()),
-				Name:      tag.Category.Name,
-				Slug:      tag.Category.Slug,
-				Kind:      generatedapi.CategoryKind(tag.Category.Kind),
-				CreatedAt: tag.Category.CreatedAt,
-				UpdatedAt: tag.Category.UpdatedAt,
+				ID:           uuid.MustParse(tag.Category.ID.String()),
+				Name:         tag.Category.Name,
+				Slug:         tag.Category.Slug,
+				Kind:         generatedapi.CategoryKind(tag.Category.Kind),
+				CategoryType: generatedapi.CategoryCategoryType(tag.Category.Type),
+				CreatedAt:    tag.Category.CreatedAt,
+				UpdatedAt:    tag.Category.UpdatedAt,
 			}
 
 			if tag.Category.Description != nil {

@@ -31,6 +31,7 @@ import {
 import { 
   Category as CategoryIcon, 
   Add as AddIcon, 
+  Edit as EditIcon,
   Delete as DeleteIcon,
   MoreVert as MoreVertIcon
 } from '@mui/icons-material';
@@ -126,9 +127,26 @@ const CategoriesPage: React.FC = () => {
 
   const isSuperuser = user?.is_superuser;
 
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return false;
+    }
+    if (!formData.slug.trim()) {
+      setError('Slug is required');
+      return false;
+    }
+    // Slug validation: only a-z, 0-9, dash and underscore
+    const slugRegex = /^[a-z0-9_-]+$/;
+    if (!slugRegex.test(formData.slug)) {
+      setError('Slug can only contain lowercase letters, numbers, dashes and underscores');
+      return false;
+    }
+    return true;
+  };
+
   const handleCreate = () => {
-    if (!formData.name.trim() || !formData.slug.trim()) {
-      setError('Name and slug are required');
+    if (!validateForm()) {
       return;
     }
     createMutation.mutate({
@@ -153,8 +171,11 @@ const CategoriesPage: React.FC = () => {
   };
 
   const handleUpdate = () => {
-    if (!selectedCategory || !formData.name.trim() || !formData.slug.trim()) {
-      setError('Name and slug are required');
+    if (!selectedCategory) {
+      setError('No category selected');
+      return;
+    }
+    if (!validateForm()) {
       return;
     }
     updateMutation.mutate({ 
@@ -193,6 +214,13 @@ const CategoriesPage: React.FC = () => {
   const handleMenuClose = () => {
     setMenuAnchor(null);
     setMenuCategory(null);
+  };
+
+  const handleEditFromMenu = () => {
+    if (menuCategory) {
+      handleEdit(menuCategory);
+    }
+    handleMenuClose();
   };
 
   const handleDeleteFromMenu = () => {
@@ -384,6 +412,8 @@ const CategoriesPage: React.FC = () => {
               variant="outlined"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              error={!formData.name.trim()}
+              helperText={!formData.name.trim() ? 'Name is required' : undefined}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -393,6 +423,14 @@ const CategoriesPage: React.FC = () => {
               variant="outlined"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              error={Boolean(!formData.slug.trim() || (formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)))}
+              helperText={
+                !formData.slug.trim() 
+                  ? 'Slug is required' 
+                  : formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)
+                    ? 'Slug can only contain lowercase letters, numbers, dashes and underscores'
+                    : undefined
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -444,6 +482,9 @@ const CategoriesPage: React.FC = () => {
         <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
           <DialogTitle>Edit Category</DialogTitle>
           <DialogContent>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              You can only edit name, slug, description, and color. Kind and category type cannot be changed.
+            </Alert>
             <TextField
               autoFocus
               margin="dense"
@@ -452,6 +493,8 @@ const CategoriesPage: React.FC = () => {
               variant="outlined"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              error={!formData.name.trim()}
+              helperText={!formData.name.trim() ? 'Name is required' : undefined}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -461,6 +504,14 @@ const CategoriesPage: React.FC = () => {
               variant="outlined"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              error={Boolean(!formData.slug.trim() || (formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)))}
+              helperText={
+                !formData.slug.trim() 
+                  ? 'Slug is required' 
+                  : formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)
+                    ? 'Slug can only contain lowercase letters, numbers, dashes and underscores'
+                    : undefined
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -532,6 +583,17 @@ const CategoriesPage: React.FC = () => {
             horizontal: 'right',
           }}
         >
+          {/* Edit option - only for user categories */}
+          {menuCategory && (menuCategory.kind as string) === 'user' && (
+            <MenuItem onClick={handleEditFromMenu}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit category</ListItemText>
+            </MenuItem>
+          )}
+          
+          {/* Delete option */}
           <MenuItem 
             onClick={handleDeleteFromMenu}
             disabled={!!(menuCategory && ((menuCategory.kind as string) === 'system' || (menuCategory.kind as string) === 'nocopy'))}

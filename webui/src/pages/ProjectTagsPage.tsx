@@ -23,13 +23,19 @@ import {
   Select,
   MenuItem,
   Autocomplete,
+  Tabs,
+  Tab,
+  Menu,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import { 
   LocalOffer as TagIcon, 
   Add as AddIcon, 
   Edit as EditIcon, 
   Delete as DeleteIcon,
-  Category as CategoryIcon
+  Category as CategoryIcon,
+  MoreVert as MoreVertIcon
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Navigate } from 'react-router-dom';
@@ -49,6 +55,9 @@ const ProjectTagsPage: React.FC = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState<ProjectTag | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuTag, setMenuTag] = useState<ProjectTag | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
@@ -129,11 +138,42 @@ const ProjectTagsPage: React.FC = () => {
 
   const canManage = user?.is_superuser || (projectId && canManageProject(parseInt(projectId)));
 
+  const validateForm = () => {
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return false;
+    }
+    if (!formData.slug.trim()) {
+      setError('Slug is required');
+      return false;
+    }
+    // Slug validation: only a-z, 0-9, dash and underscore
+    const slugRegex = /^[a-z0-9_-]+$/;
+    if (!slugRegex.test(formData.slug)) {
+      setError('Slug can only contain lowercase letters, numbers, dashes and underscores');
+      return false;
+    }
+    if (!formData.category_id) {
+      setError('Category is required');
+      return false;
+    }
+    return true;
+  };
+
   const handleCreate = () => {
-    if (!formData.name.trim() || !formData.slug.trim()) {
-      setError('Name and slug are required');
+    if (!validateForm()) {
       return;
     }
+    
+    // Проверяем, что выбранная категория имеет правильный category_type
+    if (formData.category_id) {
+      const selectedCategory = categories?.find(cat => cat.id === formData.category_id);
+      if (selectedCategory && selectedCategory.category_type !== 'domain' && selectedCategory.category_type !== 'user') {
+        setError('Can only create tags for domain or user categories');
+        return;
+      }
+    }
+    
     createMutation.mutate({
       name: formData.name,
       slug: formData.slug,
@@ -144,6 +184,11 @@ const ProjectTagsPage: React.FC = () => {
   };
 
   const handleEdit = (tag: ProjectTag) => {
+    // Проверяем, можно ли редактировать тег (категория не должна быть system)
+    if (tag.category && (tag.category.kind as string) === 'system') {
+      setError('Cannot edit tags with system categories');
+      return;
+    }
     setSelectedTag(tag);
     setFormData({
       name: tag.name,
@@ -156,8 +201,11 @@ const ProjectTagsPage: React.FC = () => {
   };
 
   const handleUpdate = () => {
-    if (!selectedTag || !formData.name.trim() || !formData.slug.trim()) {
-      setError('Name and slug are required');
+    if (!selectedTag) {
+      setError('No tag selected');
+      return;
+    }
+    if (!validateForm()) {
       return;
     }
     updateMutation.mutate({ 
@@ -173,6 +221,11 @@ const ProjectTagsPage: React.FC = () => {
   };
 
   const handleDelete = (tag: ProjectTag) => {
+    // Проверяем, можно ли удалить тег (категория не должна быть system)
+    if (tag.category && (tag.category.kind as string) === 'system') {
+      setError('Cannot delete tags with system categories');
+      return;
+    }
     setSelectedTag(tag);
     setDeleteOpen(true);
   };
@@ -181,6 +234,43 @@ const ProjectTagsPage: React.FC = () => {
     if (selectedTag) {
       deleteMutation.mutate(selectedTag.id);
     }
+  };
+
+  const getFilteredTags = () => {
+    if (!tags) return [];
+    
+    const tabTypes = ['domain', 'user', 'safety'];
+    const selectedType = tabTypes[activeTab];
+    
+    return tags.filter(tag => tag.category?.category_type === selectedType);
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, tag: ProjectTag) => {
+    setMenuAnchor(event.currentTarget);
+    setMenuTag(tag);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setMenuTag(null);
+  };
+
+  const handleEditFromMenu = () => {
+    if (menuTag) {
+      handleEdit(menuTag);
+    }
+    handleMenuClose();
+  };
+
+  const handleDeleteFromMenu = () => {
+    if (menuTag) {
+      handleDelete(menuTag);
+    }
+    handleMenuClose();
   };
 
   const getCategoryName = (tag: ProjectTag) => {
@@ -254,6 +344,15 @@ const ProjectTagsPage: React.FC = () => {
           </Alert>
         )}
 
+        {/* Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs value={activeTab} onChange={handleTabChange} aria-label="tag category type tabs">
+            <Tab label="Domain" />
+            <Tab label="User" />
+            <Tab label="Safety" />
+          </Tabs>
+        </Box>
+
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
@@ -263,11 +362,12 @@ const ProjectTagsPage: React.FC = () => {
             Error loading tags. Please try again.
           </Alert>
         ) : tags && tags.length > 0 ? (
-          <Grid container spacing={2}>
-            {tags.map((tag) => (
+          getFilteredTags().length > 0 ? (
+            <Grid container spacing={2}>
+              {getFilteredTags().map((tag) => (
               <Grid item xs={12} sm={6} md={4} key={tag.id}>
                 <Card>
-                  <CardContent>
+                  <CardContent sx={{ position: 'relative' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <Box
                         sx={{
@@ -281,6 +381,15 @@ const ProjectTagsPage: React.FC = () => {
                       <Typography variant="h6" sx={{ flexGrow: 1 }}>
                         {tag.name}
                       </Typography>
+                      {canManage && (
+                        <IconButton
+                          size="small"
+                          onClick={(e) => handleMenuOpen(e, tag)}
+                          sx={{ position: 'absolute', top: 8, right: 8 }}
+                        >
+                          <MoreVertIcon />
+                        </IconButton>
+                      )}
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                       {tag.slug}
@@ -299,31 +408,33 @@ const ProjectTagsPage: React.FC = () => {
                       />
                     </Box>
                   </CardContent>
-                  {canManage && (
-                    <CardActions>
-                      <Tooltip title="Edit tag">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEdit(tag)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete tag">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDelete(tag)}
-                          color="error"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </CardActions>
-                  )}
                 </Card>
               </Grid>
             ))}
           </Grid>
+          ) : (
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <TagIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                No {['Domain', 'User', 'Safety'][activeTab]} tags found
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {canManage 
+                  ? 'Create your first tag to organize features.'
+                  : 'No tags are available for this project.'
+                }
+              </Typography>
+              {canManage && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  Create Tag
+                </Button>
+              )}
+            </Paper>
+          )
         ) : (
           <Paper sx={{ p: 4, textAlign: 'center' }}>
             <TagIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
@@ -360,6 +471,8 @@ const ProjectTagsPage: React.FC = () => {
               variant="outlined"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              error={!formData.name.trim()}
+              helperText={!formData.name.trim() ? 'Name is required' : undefined}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -369,6 +482,14 @@ const ProjectTagsPage: React.FC = () => {
               variant="outlined"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              error={Boolean(!formData.slug.trim() || (formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)))}
+              helperText={
+                !formData.slug.trim() 
+                  ? 'Slug is required' 
+                  : formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)
+                    ? 'Slug can only contain lowercase letters, numbers, dashes and underscores'
+                    : undefined
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -402,7 +523,9 @@ const ProjectTagsPage: React.FC = () => {
                 <MenuItem value="">
                   <em>No category</em>
                 </MenuItem>
-                {categories?.map((category) => (
+                {categories?.filter(category => 
+                  category.category_type === 'domain' || category.category_type === 'user'
+                ).map((category) => (
                   <MenuItem key={category.id} value={category.id}>
                     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                       <Box
@@ -445,6 +568,8 @@ const ProjectTagsPage: React.FC = () => {
               variant="outlined"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              error={!formData.name.trim()}
+              helperText={!formData.name.trim() ? 'Name is required' : undefined}
               sx={{ mb: 2 }}
             />
             <TextField
@@ -454,6 +579,14 @@ const ProjectTagsPage: React.FC = () => {
               variant="outlined"
               value={formData.slug}
               onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+              error={Boolean(!formData.slug.trim() || (formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)))}
+              helperText={
+                !formData.slug.trim() 
+                  ? 'Slug is required' 
+                  : formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)
+                    ? 'Slug can only contain lowercase letters, numbers, dashes and underscores'
+                    : undefined
+              }
               sx={{ mb: 2 }}
             />
             <TextField
@@ -487,7 +620,9 @@ const ProjectTagsPage: React.FC = () => {
                 <MenuItem value="">
                   <em>No category</em>
                 </MenuItem>
-                {categories?.map((category) => (
+                {categories?.filter(category => 
+                  category.category_type === 'domain' || category.category_type === 'user'
+                ).map((category) => (
                   <MenuItem key={category.id} value={category.id}>
                     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                       <Box
@@ -539,6 +674,47 @@ const ProjectTagsPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Context Menu */}
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          {/* Edit option - only for non-system categories */}
+          {menuTag && menuTag.category && (menuTag.category.kind as string) !== 'system' && (
+            <MenuItem onClick={handleEditFromMenu}>
+              <ListItemIcon>
+                <EditIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Edit tag</ListItemText>
+            </MenuItem>
+          )}
+          
+          {/* Delete option */}
+          <MenuItem 
+            onClick={handleDeleteFromMenu}
+            disabled={!!(menuTag && menuTag.category && (menuTag.category.kind as string) === 'system')}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>
+              {menuTag && menuTag.category && (menuTag.category.kind as string) === 'system'
+                ? 'Cannot delete tags with system categories'
+                : 'Delete tag'
+              }
+            </ListItemText>
+          </MenuItem>
+        </Menu>
       </Box>
     </AuthenticatedLayout>
   );
