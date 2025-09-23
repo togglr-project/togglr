@@ -12,26 +12,18 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  Grid,
   Chip,
-  MenuItem,
   Checkbox,
-  FormControl,
-  InputLabel,
-  Select,
-  Stack,
   Pagination,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  PeopleOutline as PeopleIcon
 } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
-import PageHeader from '../components/PageHeader';
 import SearchPanel from '../components/SearchPanel';
 import ConditionExpressionBuilder from '../components/conditions/ConditionExpressionBuilder';
 import apiClient from '../api/apiClient';
@@ -367,12 +359,6 @@ const ProjectSegmentsPage: React.FC = () => {
 
   return (
     <AuthenticatedLayout showBackButton backTo="/dashboard">
-      <PageHeader
-        title={project ? `${project.name} - Segments` : 'Project Segments'}
-        subtitle={project ? `Manage user segments for ${project.name}` : 'Segments'}
-        icon={<PeopleIcon />}
-      />
-
       <Paper sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Segments</Typography>

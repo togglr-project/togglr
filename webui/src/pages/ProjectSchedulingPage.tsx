@@ -20,9 +20,6 @@ import {
   Grid,
   Tabs,
   Tab,
-  FormControl,
-  InputLabel,
-  Select,
   Stack,
   Pagination
 } from '@mui/material';
@@ -38,7 +35,6 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
-import PageHeader from '../components/PageHeader';
 import SearchPanel from '../components/SearchPanel';
 import TimelineChart from '../components/TimelineChart';
 import ScheduleBuilder from '../components/ScheduleBuilder';
@@ -52,7 +48,6 @@ import type { ScheduleBuilderData } from '../utils/cronGenerator';
 import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
-// @ts-ignore
 import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
 
 interface ProjectResponse { project: Project }
@@ -801,18 +796,12 @@ const ProjectSchedulingPage: React.FC = () => {
 
   return (
     <AuthenticatedLayout showBackButton backTo={`/projects/${projectId}`}>
-      <PageHeader
-        title={project ? `${project.name} — Scheduling` : 'Scheduling'}
-        // subtitle={project ? `Manage feature schedules in project ${project.name}` : 'Feature schedules'}
-        icon={<ScheduleIcon />}
-      />
-      
       {/* Help Link - positioned as part of subtitle */}
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'flex-start',
         mb: 2, 
-        mt: -2,
+        mt: 2,
         px: 2
       }}>
         <Box

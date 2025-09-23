@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, Button, CircularProgress, Chip, Switch, Tooltip, TextField, FormControl, InputLabel, Select, MenuItem, Stack, Pagination } from '@mui/material';
-import { Add as AddIcon, Flag as FlagIcon, Schedule as ScheduleIcon } from '@mui/icons-material';
+import { Box, Paper, Typography, Button, CircularProgress, Pagination } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
-import PageHeader from '../components/PageHeader';
 import SearchPanel from '../components/SearchPanel';
 import FeaturePreviewPanel from '../components/features/FeaturePreviewPanel';
 import apiClient from '../api/apiClient';
@@ -13,7 +12,6 @@ import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
 import FeatureCard from '../components/features/FeatureCard';
 import { useAuth } from '../auth/AuthContext';
-import { getNextStateDescription } from '../utils/timeUtils';
 
 interface ProjectResponse { project: Project }
 
@@ -69,8 +67,6 @@ const ProjectPage: React.FC = () => {
   // Create Feature Dialog state
   const [open, setOpen] = useState(false);
 
-  const project = projectResp?.project;
-
   // Feature details dialog state & data
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<FeatureExtended | null>(null);
@@ -110,13 +106,6 @@ const ProjectPage: React.FC = () => {
 
   return (
     <AuthenticatedLayout showBackButton backTo="/dashboard">
-      <PageHeader
-        title={project ? `${project.name} - Features` : 'Project'}
-        subtitle={project ? `Manage features in project ${project.name}` : 'Features'}
-        icon={<FlagIcon />}
-      />
-
-
       <Paper id="features" sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Features</Typography>
