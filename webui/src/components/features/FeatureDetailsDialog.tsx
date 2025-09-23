@@ -214,6 +214,33 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                   />
                 )}
               </Box>
+              
+              {/* Tags */}
+              {featureDetails.tags && featureDetails.tags.length > 0 && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+                    Tags
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {featureDetails.tags.map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        label={tag.slug}
+                        size="small"
+                        sx={{ 
+                          fontSize: '0.7rem', 
+                          height: 20,
+                          backgroundColor: tag.color || 'default',
+                          color: tag.color ? 'white' : 'inherit',
+                          '& .MuiChip-label': {
+                            color: tag.color ? 'white' : 'inherit'
+                          }
+                        }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             <Box>

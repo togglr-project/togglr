@@ -27,8 +27,9 @@ import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder
 import { Add, Delete, Sync } from '@mui/icons-material';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType, Segment } from '../../generated/api/client';
+import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType, Segment, ProjectTag } from '../../generated/api/client';
 import { FeatureKind as FeatureKindEnum, RuleAction as RuleActionEnum } from '../../generated/api/client';
+import TagSelector from './TagSelector';
 
 export interface EditFeatureDialogProps {
   open: boolean;
@@ -53,6 +54,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [variants, setVariants] = useState<VariantForm[]>([]);
   const [defaultVariant, setDefaultVariant] = useState<string>('');
   const [rules, setRules] = useState<RuleForm[]>([]);
+  const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
 
   const [syncing, setSyncing] = useState<Record<string, boolean>>({});
   const [syncErrors, setSyncErrors] = useState<Record<string, string | undefined>>({});
@@ -74,6 +76,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     setDefaultVariant(f.default_variant || '');
     const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any, segment_id: (r as any).segment_id, is_customized: (r as any).is_customized }));
     setRules(rls);
+    setSelectedTags(featureDetails.tags || []);
     setError(null);
   }, [open, featureDetails]);
 
@@ -261,6 +264,46 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     };
 
     updateMutation.mutate(payload);
+    
+    // Update tags after feature update
+    if (featureId) {
+      updateFeatureTags(featureId);
+    }
+  };
+
+  const updateFeatureTags = async (featureId: string) => {
+    if (!featureDetails) return;
+    
+    const currentTags = featureDetails.tags || [];
+    const newTags = selectedTags;
+    
+    // Find tags to add
+    const tagsToAdd = newTags.filter(newTag => 
+      !currentTags.some(currentTag => currentTag.id === newTag.id)
+    );
+    
+    // Find tags to remove
+    const tagsToRemove = currentTags.filter(currentTag => 
+      !newTags.some(newTag => newTag.id === currentTag.id)
+    );
+    
+    // Add new tags
+    for (const tag of tagsToAdd) {
+      try {
+        await apiClient.addFeatureTag(featureId, { tag_id: tag.id });
+      } catch (err) {
+        console.warn('Failed to add tag to feature:', err);
+      }
+    }
+    
+    // Remove old tags
+    for (const tag of tagsToRemove) {
+      try {
+        await apiClient.removeFeatureTag(featureId, { tag_id: tag.id });
+      } catch (err) {
+        console.warn('Failed to remove tag from feature:', err);
+      }
+    }
   };
 
   const disabled = !featureDetails || updateMutation.isPending;
@@ -340,6 +383,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                 </Grid>
               )}
             </Grid>
+
+            {/* Tags */}
+            {projectId && (
+              <Box>
+                <TagSelector
+                  projectId={projectId}
+                  selectedTags={selectedTags}
+                  onChange={setSelectedTags}
+                  disabled={disabled}
+                />
+              </Box>
+            )}
 
             <Divider />
 

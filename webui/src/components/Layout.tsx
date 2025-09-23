@@ -27,6 +27,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   FolderOutlined as ProjectsIcon,
+  Category as CategoriesIcon,
   BugReportOutlined as IssuesIcon,
   SettingsOutlined as SettingsIcon,
   Menu as MenuIcon,
@@ -110,6 +111,7 @@ const Layout: React.FC<LayoutProps> = ({
     const items = [
       { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
       { text: 'Projects', icon: <ProjectsIcon />, path: '/projects' },
+      { text: 'Categories', icon: <CategoriesIcon />, path: '/categories' },
       { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
       { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
     ];

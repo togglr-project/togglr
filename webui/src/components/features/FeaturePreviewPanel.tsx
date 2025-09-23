@@ -20,7 +20,7 @@ import {
   Add as AddIcon,
   Schedule as ScheduleIcon,
 } from '@mui/icons-material';
-import type { FeatureExtended, FeatureDetailsResponse, FlagVariant, ListChangesResponse, ChangeGroup } from '../../generated/api/client';
+import type { FeatureExtended, FeatureDetailsResponse, ListChangesResponse, ChangeGroup } from '../../generated/api/client';
 import SimpleTimelinePreview from './SimpleTimelinePreview';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
@@ -30,44 +30,6 @@ interface FeaturePreviewPanelProps {
   projectId: string;
   onClose: () => void;
 }
-
-// Mock data for tags
-const getMockTags = (featureId: string) => {
-  const tagSets = [
-    [
-      { label: 'frontend', color: 'primary' as const, slug: 'frontend' },
-      { label: 'experiment', color: 'secondary' as const, slug: 'experiment' },
-      { label: 'beta', color: 'warning' as const, slug: 'beta' },
-    ],
-    [
-      { label: 'backend', color: 'default' as const, slug: 'backend' },
-      { label: 'critical', color: 'error' as const, slug: 'critical' },
-      { label: 'stable', color: 'success' as const, slug: 'stable' },
-    ],
-    [
-      { label: 'mobile', color: 'info' as const, slug: 'mobile' },
-      { label: 'analytics', color: 'secondary' as const, slug: 'analytics' },
-      { label: 'deprecated', color: 'default' as const, slug: 'deprecated' },
-    ],
-  ];
-  
-  const index = parseInt(featureId) % tagSets.length;
-  return tagSets[index] || tagSets[0];
-};
-
-// Mock data for variants
-const getMockVariants = (featureId: string, kind: string) => {
-  if (kind !== 'multivariant') return [];
-  
-  const variantSets = [
-    ['control', 'treatment', 'variant_a'],
-    ['default', 'premium', 'beta'],
-    ['v1', 'v2', 'experimental'],
-  ];
-  
-  const index = parseInt(featureId) % variantSets.length;
-  return variantSets[index] || variantSets[0];
-};
 
 // Helper function to format timestamp
 const formatTimestamp = (timestamp: string) => {
@@ -180,8 +142,9 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
     enabled: !!selectedFeature,
   });
 
-  const tags = getMockTags(selectedFeature.id);
-  const variants = featureDetails?.variants?.map(v => v.name) || getMockVariants(selectedFeature.id, selectedFeature.kind);
+  // Use real tags from API response
+  const tags = featureDetails?.tags || [];
+  const variants = featureDetails?.variants?.map(v => v.name) || [];
   
   // Process changes data into history format
   const history = changesData?.items?.map((changeGroup: ChangeGroup) => {
@@ -212,22 +175,31 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
       </Box>
 
       {/* Tags */}
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
-          Tags
-        </Typography>
-        <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
-          {tags.map((tag) => (
-            <Chip
-              key={tag.slug}
-              label={tag.label}
-              color={tag.color}
-              size="small"
-              sx={{ fontSize: '0.7rem', height: 20 }}
-            />
-          ))}
-        </Stack>
-      </Box>
+      {tags.length > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+            Tags
+          </Typography>
+          <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
+            {tags.map((tag) => (
+              <Chip
+                key={tag.id}
+                label={tag.slug}
+                size="small"
+                sx={{ 
+                  fontSize: '0.7rem', 
+                  height: 20,
+                  backgroundColor: tag.color || 'default',
+                  color: tag.color ? 'white' : 'inherit',
+                  '& .MuiChip-label': {
+                    color: tag.color ? 'white' : 'inherit'
+                  }
+                }}
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
 
       {/* Default Variant/Value and Available Variants */}
       {selectedFeature.default_variant && (

@@ -20,10 +20,11 @@ import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { Feature, FeatureKind, RuleAction as RuleActionType, RuleConditionExpression, Segment } from '../../generated/api/client';
+import type { Feature, FeatureKind, RuleAction as RuleActionType, RuleConditionExpression, Segment, ProjectTag } from '../../generated/api/client';
 import { RuleAction as RuleActionEnum } from '../../generated/api/client';
 import { useFormChanges } from '../../hooks/useFormChanges';
 import ConfirmDiscardDialog from '../common/ConfirmDiscardDialog';
+import TagSelector from './TagSelector';
 
 // UUID generator (uses crypto.randomUUID when available)
 const genId = (): string => {
@@ -64,6 +65,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [enabled, setEnabled] = useState(true);
   const [variants, setVariants] = useState<VariantFormItem[]>([{ id: genId(), name: 'control', rollout_percent: 100 }]);
   const [rules, setRules] = useState<RuleFormItem[]>([]);
+  const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
 
   // Load project segments for reuse in rules
   const { data: segments } = useQuery<Segment[]>({
@@ -89,7 +91,8 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     enabled,
     variants,
     rules,
-  }), [keyValue, name, description, rolloutKey, kind, defaultVariant, enabled, variants, rules]);
+    selectedTags,
+  }), [keyValue, name, description, rolloutKey, kind, defaultVariant, enabled, variants, rules, selectedTags]);
 
   const {
     hasChanges,
@@ -112,6 +115,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
       setEnabled(true);
       setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
       setRules([]);
+      setSelectedTags([]);
       setFormError(null);
       onClose();
     },
@@ -195,6 +199,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     setEnabled(true);
     setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
     setRules([]);
+    setSelectedTags([]);
     setFormError(null);
     resetChanges();
   };
@@ -251,6 +256,19 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         rules: inlineRules,
       } as any);
       const feature = (featureRes.data as { feature: Feature }).feature;
+      
+      // Add selected tags to the feature
+      if (selectedTags.length > 0) {
+        for (const tag of selectedTags) {
+          try {
+            await apiClient.addFeatureTag(feature.id, { tag_id: tag.id });
+          } catch (err) {
+            console.warn('Failed to add tag to feature:', err);
+            // Don't fail the entire operation if tag addition fails
+          }
+        }
+      }
+      
       return feature;
     },
     onSuccess: async () => {
@@ -420,6 +438,16 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           <FormControlLabel
             control={<Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />}
             label="Enabled"
+          />
+        </Box>
+
+        {/* Tags */}
+        <Box sx={{ mt: 2 }}>
+          <TagSelector
+            projectId={projectId}
+            selectedTags={selectedTags}
+            onChange={setSelectedTags}
+            disabled={submitting}
           />
         </Box>
 
