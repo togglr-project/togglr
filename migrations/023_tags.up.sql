@@ -69,16 +69,11 @@ INSERT INTO categories (id, name, slug, color, description, kind) VALUES
 -- special/meta
 (gen_random_uuid(), 'User Tags', 'user-tags', '#10B981', 'User-defined tags', 'nocopy'),
 
--- algorithms / experimentations
-(gen_random_uuid(), 'Experiment', 'experiment', '#3B82F6', 'Feature participates in experiment (A/B, bandit, etc.)', 'system'),
-(gen_random_uuid(), 'Bandit', 'bandit', '#8B5CF6', 'Feature controlled by multi-armed bandit algorithm', 'system'),
-(gen_random_uuid(), 'Contextual Bandit', 'contextual-bandit', '#6366F1', 'Feature controlled by contextual bandit algorithm', 'system'),
-(gen_random_uuid(), 'ML-Driven', 'ml-driven', '#20C981', 'Feature rollout managed by ML model', 'system'),
-
 -- safety / governance
 (gen_random_uuid(), 'Critical', 'critical', '#DC2626', 'Critical feature, excluded from algorithms', 'system'),
 (gen_random_uuid(), 'Auto-Disable', 'auto-disable', '#F97316', 'Feature automatically disabled on high error rate', 'system'),
 (gen_random_uuid(), 'Guarded', 'guarded', '#F59E0B', 'Feature requires manual approval for changes', 'system'),
+-- (gen_random_uuid(), 'Security', 'security', '#7C3AED', 'Security or access control feature', 'system'),
 
 -- domains
 (gen_random_uuid(), 'UI/UX', 'ui-ux', '#06B6D4', 'UI or UX related feature', 'system'),
@@ -86,8 +81,7 @@ INSERT INTO categories (id, name, slug, color, description, kind) VALUES
 (gen_random_uuid(), 'Infra', 'infra', '#9CA3AF', 'Infrastructure or DevOps feature', 'system'),
 (gen_random_uuid(), 'Ads Campaign', 'ads-campaign', '#EC4899', 'Advertising campaign feature', 'system'),
 (gen_random_uuid(), 'Pricing', 'pricing', '#84CC16', 'Pricing or discount related feature', 'system'),
-(gen_random_uuid(), 'Compliance', 'compliance', '#0EA5E9', 'Regulatory or compliance-related feature', 'system'),
-(gen_random_uuid(), 'Security', 'security', '#7C3AED', 'Security or access control feature', 'system')
+(gen_random_uuid(), 'Compliance', 'compliance', '#0EA5E9', 'Regulatory or compliance-related feature', 'system')
 ON CONFLICT (slug) DO NOTHING;
 
 CREATE OR REPLACE FUNCTION init_project_tags(p_project_id uuid)
