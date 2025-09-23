@@ -66,19 +66,88 @@ JOIN categories c ON t.category_id = c.id;
 
 
 INSERT INTO categories (id, name, slug, color, description, kind) VALUES
+-- special/meta
 (gen_random_uuid(), 'User Tags', 'user-tags', '#10B981', 'User-defined tags', 'nocopy'),
-(gen_random_uuid(), 'Experiment', 'experiment', '#3B82F6', 'Feature participates in experiment (A/B, bandit, etc.)', 'system'),
--- (gen_random_uuid(), 'Bandit', 'bandit', '#8B5CF6', 'Feature controlled by multi-armed bandit algorithm', 'system'),
--- (gen_random_uuid(), 'Contextual Bandit', 'contextual-bandit', '#6366F1', 'Feature controlled by contextual bandit', 'system'),
--- (gen_random_uuid(), 'ML-Driven', 'ml-driven', '#10B981', 'Feature rollout managed by ML model', 'system'),
 
+-- algorithms / experimentations
+(gen_random_uuid(), 'Experiment', 'experiment', '#3B82F6', 'Feature participates in experiment (A/B, bandit, etc.)', 'system'),
+(gen_random_uuid(), 'Bandit', 'bandit', '#8B5CF6', 'Feature controlled by multi-armed bandit algorithm', 'system'),
+(gen_random_uuid(), 'Contextual Bandit', 'contextual-bandit', '#6366F1', 'Feature controlled by contextual bandit algorithm', 'system'),
+(gen_random_uuid(), 'ML-Driven', 'ml-driven', '#20C981', 'Feature rollout managed by ML model', 'system'),
+
+-- safety / governance
 (gen_random_uuid(), 'Critical', 'critical', '#DC2626', 'Critical feature, excluded from algorithms', 'system'),
 (gen_random_uuid(), 'Auto-Disable', 'auto-disable', '#F97316', 'Feature automatically disabled on high error rate', 'system'),
 (gen_random_uuid(), 'Guarded', 'guarded', '#F59E0B', 'Feature requires manual approval for changes', 'system'),
 
+-- domains
 (gen_random_uuid(), 'UI/UX', 'ui-ux', '#06B6D4', 'UI or UX related feature', 'system'),
 (gen_random_uuid(), 'Backend', 'backend', '#4B5563', 'Backend logic feature', 'system'),
-(gen_random_uuid(), 'Infra', 'infra', '#9CA3AF', 'Infrastructure feature', 'system')
--- (gen_random_uuid(), 'Ads Campaign', 'ads-campaign', '#EC4899', 'Advertising campaign feature', 'system'),
--- (gen_random_uuid(), 'Pricing', 'pricing', '#84CC16', 'Pricing or discount related feature', 'system')
+(gen_random_uuid(), 'Infra', 'infra', '#9CA3AF', 'Infrastructure or DevOps feature', 'system'),
+(gen_random_uuid(), 'Ads Campaign', 'ads-campaign', '#EC4899', 'Advertising campaign feature', 'system'),
+(gen_random_uuid(), 'Pricing', 'pricing', '#84CC16', 'Pricing or discount related feature', 'system'),
+(gen_random_uuid(), 'Compliance', 'compliance', '#0EA5E9', 'Regulatory or compliance-related feature', 'system'),
+(gen_random_uuid(), 'Security', 'security', '#7C3AED', 'Security or access control feature', 'system')
 ON CONFLICT (slug) DO NOTHING;
+
+CREATE OR REPLACE FUNCTION init_project_tags(p_project_id uuid)
+    RETURNS void AS $$
+BEGIN
+    INSERT INTO tags (project_id, category_id, name, slug, color, description)
+    SELECT
+        p_project_id,
+        c.id,
+        c.name,
+        c.slug,
+        c.color,
+        c.description
+    FROM categories c
+    WHERE c.kind <> 'nocopy'
+    ON CONFLICT (project_id, slug) DO NOTHING;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trigger_init_project_tags()
+    RETURNS trigger AS $$
+BEGIN
+    PERFORM init_project_tags(NEW.id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_init_project_tags
+    AFTER INSERT ON projects
+    FOR EACH ROW
+EXECUTE FUNCTION trigger_init_project_tags();
+
+CREATE OR REPLACE FUNCTION init_category_tags(p_category_id uuid)
+    RETURNS void AS $$
+BEGIN
+    INSERT INTO tags (project_id, category_id, name, slug, color, description)
+    SELECT
+        p.id,
+        c.id,
+        c.name,
+        c.slug,
+        c.color,
+        c.description
+    FROM projects p
+             CROSS JOIN categories c
+    WHERE c.id = p_category_id
+      AND c.kind <> 'nocopy'
+    ON CONFLICT (project_id, slug) DO NOTHING;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION trigger_init_category_tags()
+    RETURNS trigger AS $$
+BEGIN
+    PERFORM init_category_tags(NEW.id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_init_category_tags
+    AFTER INSERT ON categories
+    FOR EACH ROW
+EXECUTE FUNCTION trigger_init_category_tags();

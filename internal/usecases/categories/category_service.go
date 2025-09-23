@@ -34,7 +34,7 @@ func (s *Service) CreateCategory(
 		return domain.Category{}, fmt.Errorf("slug is required")
 	}
 
-	// Check if category with this slug already exists
+	// Check if the category with this slug already exists
 	_, err := s.categoryRepo.GetBySlug(ctx, slug)
 	if err == nil {
 		return domain.Category{}, fmt.Errorf("category with slug %s already exists", slug)
@@ -111,7 +111,7 @@ func (s *Service) UpdateCategory(
 		if err == nil {
 			return domain.Category{}, fmt.Errorf("category with slug %s already exists", slug)
 		}
-		if err != domain.ErrEntityNotFound {
+		if !errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.Category{}, fmt.Errorf("check category existence: %w", err)
 		}
 	}
@@ -122,7 +122,7 @@ func (s *Service) UpdateCategory(
 		return domain.Category{}, fmt.Errorf("update category: %w", err)
 	}
 
-	// Get updated category
+	// Get an updated category
 	category, err := s.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Category{}, fmt.Errorf("get updated category: %w", err)

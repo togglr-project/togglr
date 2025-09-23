@@ -4,6 +4,7 @@ All URIs are relative to *http://localhost*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**addFeatureTag**](#addfeaturetag) | **POST** /api/v1/features/{feature_id}/tags | Add tag to feature|
 |[**addProject**](#addproject) | **POST** /api/v1/projects/add | Add new project|
 |[**archiveProject**](#archiveproject) | **DELETE** /api/v1/projects/{project_id} | Archive a project|
 |[**cancelLDAPSync**](#cancelldapsync) | **DELETE** /api/v1/ldap/sync/cancel | Cancel ongoing synchronization|
@@ -51,6 +52,7 @@ All URIs are relative to *http://localhost*
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
 |[**listFeatureRules**](#listfeaturerules) | **GET** /api/v1/features/{feature_id}/rules | List rules for feature|
 |[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
+|[**listFeatureTags**](#listfeaturetags) | **GET** /api/v1/features/{feature_id}/tags | List feature tags|
 |[**listProjectChanges**](#listprojectchanges) | **GET** /api/v1/projects/{project_id}/changes | Get project changes history|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
 |[**listProjectSegments**](#listprojectsegments) | **GET** /api/v1/projects/{project_id}/segments | List segments for project|
@@ -61,6 +63,7 @@ All URIs are relative to *http://localhost*
 |[**listUsers**](#listusers) | **GET** /api/v1/users | List all users (superuser only)|
 |[**login**](#login) | **POST** /api/v1/auth/login | Authenticate user and get access token|
 |[**refreshToken**](#refreshtoken) | **POST** /api/v1/auth/refresh | Refresh access token|
+|[**removeFeatureTag**](#removefeaturetag) | **DELETE** /api/v1/features/{feature_id}/tags | Remove tag from feature|
 |[**reset2FA**](#reset2fa) | **POST** /api/v1/users/me/2fa/reset | Reset/generate secret 2FA (using email-confirmation)|
 |[**resetPassword**](#resetpassword) | **POST** /api/v1/auth/reset-password | Reset password using token|
 |[**sSOCallback**](#ssocallback) | **POST** /api/v1/auth/sso/callback | Handle SSO callback from Keycloak|
@@ -84,6 +87,67 @@ All URIs are relative to *http://localhost*
 |[**updateSegment**](#updatesegment) | **PUT** /api/v1/segments/{segment_id} | Update segment|
 |[**userChangeMyPassword**](#userchangemypassword) | **POST** /api/v1/users/me/change-password | Change my password|
 |[**verify2FA**](#verify2fa) | **POST** /api/v1/auth/2fa/verify | Verify 2FA-code on login|
+
+# **addFeatureTag**
+> addFeatureTag(addFeatureTagRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    AddFeatureTagRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let addFeatureTagRequest: AddFeatureTagRequest; //
+
+const { status, data } = await apiInstance.addFeatureTag(
+    featureId,
+    addFeatureTagRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **addFeatureTagRequest** | **AddFeatureTagRequest**|  | |
+| **featureId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Tag added to feature |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature or tag not found |  -  |
+|**409** | Tag already associated with feature |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **addProject**
 > addProject(addProjectRequest)
@@ -2627,6 +2691,61 @@ const { status, data } = await apiInstance.listFeatureSchedules(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **listFeatureTags**
+> Array<ProjectTag> listFeatureTags()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.listFeatureTags(
+    featureId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<ProjectTag>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of feature tags |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **listProjectChanges**
 > ListChangesResponse listProjectChanges()
 
@@ -3216,6 +3335,64 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | Token refreshed successfully |  -  |
 |**401** | Invalid refresh token |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **removeFeatureTag**
+> removeFeatureTag()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let tagId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.removeFeatureTag(
+    featureId,
+    tagId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+| **tagId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Tag removed from feature |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature or tag not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

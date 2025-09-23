@@ -4,6 +4,7 @@ api.ts
 base.ts
 common.ts
 configuration.ts
+docs/AddFeatureTagRequest.md
 docs/AddProjectRequest.md
 docs/AuditAction.md
 docs/Category.md

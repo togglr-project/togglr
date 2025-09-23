@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **feature** | [**FeatureExtended**](FeatureExtended.md) |  | [default to undefined]
 **variants** | [**Array&lt;FlagVariant&gt;**](FlagVariant.md) |  | [default to undefined]
 **rules** | [**Array&lt;Rule&gt;**](Rule.md) |  | [default to undefined]
+**tags** | [**Array&lt;ProjectTag&gt;**](ProjectTag.md) |  | [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: FeatureDetailsResponse = {
     feature,
     variants,
     rules,
+    tags,
 };
 ```
 

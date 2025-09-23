@@ -23,6 +23,12 @@ import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
+export interface AddFeatureTagRequest {
+    /**
+     * ID of tag to associate with feature
+     */
+    'tag_id': string;
+}
 export interface AddProjectRequest {
     'name': string;
     'description': string;
@@ -279,6 +285,7 @@ export interface FeatureDetailsResponse {
     'feature': FeatureExtended;
     'variants': Array<FlagVariant>;
     'rules': Array<Rule>;
+    'tags': Array<ProjectTag>;
 }
 export interface FeatureExtended {
     'id': string;
@@ -1010,6 +1017,50 @@ export interface User {
  */
 export const DefaultApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @summary Add tag to feature
+         * @param {string} featureId 
+         * @param {AddFeatureTagRequest} addFeatureTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addFeatureTag: async (featureId: string, addFeatureTagRequest: AddFeatureTagRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('addFeatureTag', 'featureId', featureId)
+            // verify required parameter 'addFeatureTagRequest' is not null or undefined
+            assertParamExists('addFeatureTag', 'addFeatureTagRequest', addFeatureTagRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/tags`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addFeatureTagRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary Add new project
@@ -2852,6 +2903,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
+         * 
+         * @summary List feature tags
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listFeatureTags: async (featureId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('listFeatureTags', 'featureId', featureId)
+            const localVarPath = `/api/v1/features/{feature_id}/tags`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
          * @summary Get project changes history
          * @param {string} projectId Project ID
@@ -3328,6 +3417,51 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(refreshTokenRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Remove tag from feature
+         * @param {string} featureId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeFeatureTag: async (featureId: string, tagId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('removeFeatureTag', 'featureId', featureId)
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('removeFeatureTag', 'tagId', tagId)
+            const localVarPath = `/api/v1/features/{feature_id}/tags`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (tagId !== undefined) {
+                localVarQueryParameter['tag_id'] = tagId;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4309,6 +4443,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary Add tag to feature
+         * @param {string} featureId 
+         * @param {AddFeatureTagRequest} addFeatureTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async addFeatureTag(featureId: string, addFeatureTagRequest: AddFeatureTagRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.addFeatureTag(featureId, addFeatureTagRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.addFeatureTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Add new project
          * @param {AddProjectRequest} addProjectRequest 
          * @param {*} [options] Override http request option.
@@ -4923,6 +5071,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary List feature tags
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listFeatureTags(featureId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ProjectTag>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listFeatureTags(featureId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listFeatureTags']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
          * @summary Get project changes history
          * @param {string} projectId Project ID
@@ -5070,6 +5231,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.refreshToken(refreshTokenRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.refreshToken']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Remove tag from feature
+         * @param {string} featureId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.removeFeatureTag(featureId, tagId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.removeFeatureTag']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -5393,6 +5568,17 @@ export const DefaultApiFp = function(configuration?: Configuration) {
 export const DefaultApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = DefaultApiFp(configuration)
     return {
+        /**
+         * 
+         * @summary Add tag to feature
+         * @param {string} featureId 
+         * @param {AddFeatureTagRequest} addFeatureTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        addFeatureTag(featureId: string, addFeatureTagRequest: AddFeatureTagRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.addFeatureTag(featureId, addFeatureTagRequest, options).then((request) => request(axios, basePath));
+        },
         /**
          * 
          * @summary Add new project
@@ -5868,6 +6054,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.listFeatureSchedules(featureId, options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @summary List feature tags
+         * @param {string} featureId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listFeatureTags(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProjectTag>> {
+            return localVarFp.listFeatureTags(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
          * @summary Get project changes history
          * @param {string} projectId Project ID
@@ -5986,6 +6182,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         refreshToken(refreshTokenRequest: RefreshTokenRequest, options?: RawAxiosRequestConfig): AxiosPromise<RefreshTokenResponse> {
             return localVarFp.refreshToken(refreshTokenRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Remove tag from feature
+         * @param {string} featureId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.removeFeatureTag(featureId, tagId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6237,6 +6444,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
  * DefaultApi - object-oriented interface
  */
 export class DefaultApi extends BaseAPI {
+    /**
+     * 
+     * @summary Add tag to feature
+     * @param {string} featureId 
+     * @param {AddFeatureTagRequest} addFeatureTagRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public addFeatureTag(featureId: string, addFeatureTagRequest: AddFeatureTagRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).addFeatureTag(featureId, addFeatureTagRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary Add new project
@@ -6759,6 +6978,17 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
+     * 
+     * @summary List feature tags
+     * @param {string} featureId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listFeatureTags(featureId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listFeatureTags(featureId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
      * Get history of changes made to project features, rules, and other entities grouped by request_id
      * @summary Get project changes history
      * @param {string} projectId Project ID
@@ -6886,6 +7116,18 @@ export class DefaultApi extends BaseAPI {
      */
     public refreshToken(refreshTokenRequest: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).refreshToken(refreshTokenRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Remove tag from feature
+     * @param {string} featureId 
+     * @param {string} tagId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).removeFeatureTag(featureId, tagId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
