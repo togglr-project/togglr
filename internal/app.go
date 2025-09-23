@@ -22,6 +22,7 @@ import (
 	"github.com/rom8726/etoggle/internal/license"
 	"github.com/rom8726/etoggle/internal/repository/auditlog"
 	"github.com/rom8726/etoggle/internal/repository/categories"
+	featuretagsrepo "github.com/rom8726/etoggle/internal/repository/feature_tags"
 	"github.com/rom8726/etoggle/internal/repository/features"
 	"github.com/rom8726/etoggle/internal/repository/featureschedules"
 	"github.com/rom8726/etoggle/internal/repository/flagvariants"
@@ -46,6 +47,7 @@ import (
 	samlprovider "github.com/rom8726/etoggle/internal/services/sso/saml"
 	"github.com/rom8726/etoggle/internal/services/tokenizer"
 	categoriesusecase "github.com/rom8726/etoggle/internal/usecases/categories"
+	featuretagsusecase "github.com/rom8726/etoggle/internal/usecases/feature_tags"
 	featuresusecase "github.com/rom8726/etoggle/internal/usecases/features"
 	featureschedulesusecase "github.com/rom8726/etoggle/internal/usecases/featureschedules"
 	flagvariantsusecase "github.com/rom8726/etoggle/internal/usecases/flagvariants"
@@ -201,6 +203,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(segmentsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(ruleattributesrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(auditlog.New).Arg(app.PostgresPool)
+	app.registerComponent(featuretagsrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -221,6 +224,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(settingsusecase.New).Arg(app.Config.SecretKey)
 	app.registerComponent(categoriesusecase.New)
 	app.registerComponent(tagsusecase.New)
+	app.registerComponent(featuretagsusecase.New)
 	app.registerComponent(licenseusecase.New)
 	app.registerComponent(productinfousecase.New)
 	app.registerComponent(featuresusecase.New)

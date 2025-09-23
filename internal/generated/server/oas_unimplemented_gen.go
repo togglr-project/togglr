@@ -13,6 +13,15 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// AddFeatureTag implements AddFeatureTag operation.
+//
+// Add tag to feature.
+//
+// POST /api/v1/features/{feature_id}/tags
+func (UnimplementedHandler) AddFeatureTag(ctx context.Context, req *AddFeatureTagRequest, params AddFeatureTagParams) (r AddFeatureTagRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // AddProject implements addProject operation.
 //
 // Add new project.
@@ -440,6 +449,15 @@ func (UnimplementedHandler) ListFeatureSchedules(ctx context.Context, params Lis
 	return r, ht.ErrNotImplemented
 }
 
+// ListFeatureTags implements ListFeatureTags operation.
+//
+// List feature tags.
+//
+// GET /api/v1/features/{feature_id}/tags
+func (UnimplementedHandler) ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (r ListFeatureTagsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectChanges implements ListProjectChanges operation.
 //
 // Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -527,6 +545,15 @@ func (UnimplementedHandler) Login(ctx context.Context, req *LoginRequest) (r Log
 //
 // POST /api/v1/auth/refresh
 func (UnimplementedHandler) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (r RefreshTokenRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RemoveFeatureTag implements RemoveFeatureTag operation.
+//
+// Remove tag from feature.
+//
+// DELETE /api/v1/features/{feature_id}/tags
+func (UnimplementedHandler) RemoveFeatureTag(ctx context.Context, params RemoveFeatureTagParams) (r RemoveFeatureTagRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

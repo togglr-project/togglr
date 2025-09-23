@@ -34,6 +34,7 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 }
 
 var operationRolesBearerAuth = map[string][]string{
+	AddFeatureTagOperation:               []string{},
 	AddProjectOperation:                  []string{},
 	ArchiveProjectOperation:              []string{},
 	CancelLDAPSyncOperation:              []string{},
@@ -76,6 +77,7 @@ var operationRolesBearerAuth = map[string][]string{
 	ListFeatureFlagVariantsOperation:     []string{},
 	ListFeatureRulesOperation:            []string{},
 	ListFeatureSchedulesOperation:        []string{},
+	ListFeatureTagsOperation:             []string{},
 	ListProjectChangesOperation:          []string{},
 	ListProjectFeaturesOperation:         []string{},
 	ListProjectSegmentsOperation:         []string{},
@@ -84,6 +86,7 @@ var operationRolesBearerAuth = map[string][]string{
 	ListRuleAttributesOperation:          []string{},
 	ListSegmentDesyncFeatureIDsOperation: []string{},
 	ListUsersOperation:                   []string{},
+	RemoveFeatureTagOperation:            []string{},
 	Reset2FAOperation:                    []string{},
 	SetSuperuserStatusOperation:          []string{},
 	SetUserActiveStatusOperation:         []string{},

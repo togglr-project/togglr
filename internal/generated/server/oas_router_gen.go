@@ -558,6 +558,36 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 							switch elem[0] {
+							case 'a': // Prefix: "ags"
+
+								if l := len("ags"); len(elem) >= l && elem[0:l] == "ags" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "DELETE":
+										s.handleRemoveFeatureTagRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "GET":
+										s.handleListFeatureTagsRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "POST":
+										s.handleAddFeatureTagRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "DELETE,GET,POST")
+									}
+
+									return
+								}
+
 							case 'i': // Prefix: "imeline"
 
 								if l := len("imeline"); len(elem) >= l && elem[0:l] == "imeline" {
@@ -2416,6 +2446,46 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 							switch elem[0] {
+							case 'a': // Prefix: "ags"
+
+								if l := len("ags"); len(elem) >= l && elem[0:l] == "ags" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "DELETE":
+										r.name = RemoveFeatureTagOperation
+										r.summary = "Remove tag from feature"
+										r.operationID = "RemoveFeatureTag"
+										r.pathPattern = "/api/v1/features/{feature_id}/tags"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "GET":
+										r.name = ListFeatureTagsOperation
+										r.summary = "List feature tags"
+										r.operationID = "ListFeatureTags"
+										r.pathPattern = "/api/v1/features/{feature_id}/tags"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "POST":
+										r.name = AddFeatureTagOperation
+										r.summary = "Add tag to feature"
+										r.operationID = "AddFeatureTag"
+										r.pathPattern = "/api/v1/features/{feature_id}/tags"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
 							case 'i': // Prefix: "imeline"
 
 								if l := len("imeline"); len(elem) >= l && elem[0:l] == "imeline" {

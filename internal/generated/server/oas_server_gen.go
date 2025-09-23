@@ -8,6 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// AddFeatureTag implements AddFeatureTag operation.
+	//
+	// Add tag to feature.
+	//
+	// POST /api/v1/features/{feature_id}/tags
+	AddFeatureTag(ctx context.Context, req *AddFeatureTagRequest, params AddFeatureTagParams) (AddFeatureTagRes, error)
 	// AddProject implements addProject operation.
 	//
 	// Add new project.
@@ -294,6 +300,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}/schedules
 	ListFeatureSchedules(ctx context.Context, params ListFeatureSchedulesParams) (ListFeatureSchedulesRes, error)
+	// ListFeatureTags implements ListFeatureTags operation.
+	//
+	// List feature tags.
+	//
+	// GET /api/v1/features/{feature_id}/tags
+	ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (ListFeatureTagsRes, error)
 	// ListProjectChanges implements ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -354,6 +366,12 @@ type Handler interface {
 	//
 	// POST /api/v1/auth/refresh
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (RefreshTokenRes, error)
+	// RemoveFeatureTag implements RemoveFeatureTag operation.
+	//
+	// Remove tag from feature.
+	//
+	// DELETE /api/v1/features/{feature_id}/tags
+	RemoveFeatureTag(ctx context.Context, params RemoveFeatureTagParams) (RemoveFeatureTagRes, error)
 	// Reset2FA implements Reset2FA operation.
 	//
 	// Reset/generate secret 2FA (using email-confirmation).

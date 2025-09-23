@@ -2861,6 +2861,173 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/features/{feature_id}/tags:
+    get:
+      summary: List feature tags
+      operationId: ListFeatureTags
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of feature tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectTagsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Add tag to feature
+      operationId: AddFeatureTag
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFeatureTagRequest'
+      responses:
+        '201':
+          description: Tag added to feature
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature or tag not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Tag already associated with feature
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Remove tag from feature
+      operationId: RemoveFeatureTag
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tag_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Tag removed from feature
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature or tag not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /api/v1/projects/{project_id}/segments:
     get:
       summary: List segments for project
@@ -4926,7 +5093,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Rule'
-      required: [feature, variants, rules]
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectTag'
+      required: [feature, variants, rules, tags]
 
     ListFeaturesResponse:
       type: object
@@ -5974,6 +6145,17 @@ components:
           example: "550e8400-e29b-41d4-a716-446655440000"
           description: ID of category to associate with this tag
           nullable: true
+
+    AddFeatureTagRequest:
+      type: object
+      required:
+        - tag_id
+      properties:
+        tag_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+          description: ID of tag to associate with feature
 
     UpdateProjectTagRequest:
       type: object

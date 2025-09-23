@@ -6,6 +6,7 @@ package api
 type OperationName = string
 
 const (
+	AddFeatureTagOperation               OperationName = "AddFeatureTag"
 	AddProjectOperation                  OperationName = "AddProject"
 	ArchiveProjectOperation              OperationName = "ArchiveProject"
 	CancelLDAPSyncOperation              OperationName = "CancelLDAPSync"
@@ -53,6 +54,7 @@ const (
 	ListFeatureFlagVariantsOperation     OperationName = "ListFeatureFlagVariants"
 	ListFeatureRulesOperation            OperationName = "ListFeatureRules"
 	ListFeatureSchedulesOperation        OperationName = "ListFeatureSchedules"
+	ListFeatureTagsOperation             OperationName = "ListFeatureTags"
 	ListProjectChangesOperation          OperationName = "ListProjectChanges"
 	ListProjectFeaturesOperation         OperationName = "ListProjectFeatures"
 	ListProjectSegmentsOperation         OperationName = "ListProjectSegments"
@@ -63,6 +65,7 @@ const (
 	ListUsersOperation                   OperationName = "ListUsers"
 	LoginOperation                       OperationName = "Login"
 	RefreshTokenOperation                OperationName = "RefreshToken"
+	RemoveFeatureTagOperation            OperationName = "RemoveFeatureTag"
 	Reset2FAOperation                    OperationName = "Reset2FA"
 	ResetPasswordOperation               OperationName = "ResetPassword"
 	SSOCallbackOperation                 OperationName = "SSOCallback"

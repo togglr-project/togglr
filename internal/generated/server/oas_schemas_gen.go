@@ -16,6 +16,27 @@ func (s *ErrorStatusCode) Error() string {
 	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
+// AddFeatureTagCreated is response for AddFeatureTag operation.
+type AddFeatureTagCreated struct{}
+
+func (*AddFeatureTagCreated) addFeatureTagRes() {}
+
+// Ref: #/components/schemas/AddFeatureTagRequest
+type AddFeatureTagRequest struct {
+	// ID of tag to associate with feature.
+	TagID uuid.UUID `json:"tag_id"`
+}
+
+// GetTagID returns the value of TagID.
+func (s *AddFeatureTagRequest) GetTagID() uuid.UUID {
+	return s.TagID
+}
+
+// SetTagID sets the value of TagID.
+func (s *AddFeatureTagRequest) SetTagID(val uuid.UUID) {
+	s.TagID = val
+}
+
 // AddProjectCreated is response for AddProject operation.
 type AddProjectCreated struct{}
 
@@ -1255,6 +1276,7 @@ func (s *Error) SetError(val ErrorError) {
 	s.Error = val
 }
 
+func (*Error) addFeatureTagRes()         {}
 func (*Error) addProjectRes()            {}
 func (*Error) cancelLDAPSyncRes()        {}
 func (*Error) createCategoryRes()        {}
@@ -1334,6 +1356,7 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 	s.Error = val
 }
 
+func (*ErrorBadRequest) addFeatureTagRes()            {}
 func (*ErrorBadRequest) addProjectRes()               {}
 func (*ErrorBadRequest) confirm2FARes()               {}
 func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
@@ -1415,6 +1438,7 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 	s.Error = val
 }
 
+func (*ErrorInternalServerError) addFeatureTagRes()               {}
 func (*ErrorInternalServerError) addProjectRes()                  {}
 func (*ErrorInternalServerError) archiveProjectRes()              {}
 func (*ErrorInternalServerError) consumeSAMLAssertionRes()        {}
@@ -1452,6 +1476,7 @@ func (*ErrorInternalServerError) listCategoriesRes()              {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
 func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
+func (*ErrorInternalServerError) listFeatureTagsRes()             {}
 func (*ErrorInternalServerError) listProjectChangesRes()          {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
@@ -1462,6 +1487,7 @@ func (*ErrorInternalServerError) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorInternalServerError) listUsersRes()                   {}
 func (*ErrorInternalServerError) loginRes()                       {}
 func (*ErrorInternalServerError) refreshTokenRes()                {}
+func (*ErrorInternalServerError) removeFeatureTagRes()            {}
 func (*ErrorInternalServerError) resetPasswordRes()               {}
 func (*ErrorInternalServerError) sSOCallbackRes()                 {}
 func (*ErrorInternalServerError) sSOInitiateRes()                 {}
@@ -1542,6 +1568,7 @@ func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
 	s.Error = val
 }
 
+func (*ErrorNotFound) addFeatureTagRes()               {}
 func (*ErrorNotFound) archiveProjectRes()              {}
 func (*ErrorNotFound) createFeatureFlagVariantRes()    {}
 func (*ErrorNotFound) createFeatureRuleRes()           {}
@@ -1567,12 +1594,14 @@ func (*ErrorNotFound) getSegmentRes()                  {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
+func (*ErrorNotFound) listFeatureTagsRes()             {}
 func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
 func (*ErrorNotFound) listProjectSegmentsRes()         {}
 func (*ErrorNotFound) listProjectTagsRes()             {}
 func (*ErrorNotFound) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorNotFound) listUsersRes()                   {}
+func (*ErrorNotFound) removeFeatureTagRes()            {}
 func (*ErrorNotFound) setSuperuserStatusRes()          {}
 func (*ErrorNotFound) setUserActiveStatusRes()         {}
 func (*ErrorNotFound) syncCustomizedFeatureRuleRes()   {}
@@ -1615,6 +1644,7 @@ func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
 	s.Error = val
 }
 
+func (*ErrorPermissionDenied) addFeatureTagRes()               {}
 func (*ErrorPermissionDenied) addProjectRes()                  {}
 func (*ErrorPermissionDenied) archiveProjectRes()              {}
 func (*ErrorPermissionDenied) cancelLDAPSyncRes()              {}
@@ -1655,12 +1685,14 @@ func (*ErrorPermissionDenied) listCategoriesRes()              {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
+func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
 func (*ErrorPermissionDenied) listProjectSegmentsRes()         {}
 func (*ErrorPermissionDenied) listProjectTagsRes()             {}
 func (*ErrorPermissionDenied) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorPermissionDenied) listUsersRes()                   {}
+func (*ErrorPermissionDenied) removeFeatureTagRes()            {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()          {}
 func (*ErrorPermissionDenied) setUserActiveStatusRes()         {}
 func (*ErrorPermissionDenied) syncCustomizedFeatureRuleRes()   {}
@@ -1767,6 +1799,7 @@ func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
 	s.Error = val
 }
 
+func (*ErrorUnauthorized) addFeatureTagRes()               {}
 func (*ErrorUnauthorized) addProjectRes()                  {}
 func (*ErrorUnauthorized) archiveProjectRes()              {}
 func (*ErrorUnauthorized) cancelLDAPSyncRes()              {}
@@ -1810,6 +1843,7 @@ func (*ErrorUnauthorized) listCategoriesRes()              {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
 func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
+func (*ErrorUnauthorized) listFeatureTagsRes()             {}
 func (*ErrorUnauthorized) listProjectChangesRes()          {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
@@ -1819,6 +1853,7 @@ func (*ErrorUnauthorized) listRuleAttributesRes()          {}
 func (*ErrorUnauthorized) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorUnauthorized) listUsersRes()                   {}
 func (*ErrorUnauthorized) refreshTokenRes()                {}
+func (*ErrorUnauthorized) removeFeatureTagRes()            {}
 func (*ErrorUnauthorized) reset2FARes()                    {}
 func (*ErrorUnauthorized) resetPasswordRes()               {}
 func (*ErrorUnauthorized) sSOCallbackRes()                 {}
@@ -1987,6 +2022,7 @@ type FeatureDetailsResponse struct {
 	Feature  FeatureExtended `json:"feature"`
 	Variants []FlagVariant   `json:"variants"`
 	Rules    []Rule          `json:"rules"`
+	Tags     []ProjectTag    `json:"tags"`
 }
 
 // GetFeature returns the value of Feature.
@@ -2004,6 +2040,11 @@ func (s *FeatureDetailsResponse) GetRules() []Rule {
 	return s.Rules
 }
 
+// GetTags returns the value of Tags.
+func (s *FeatureDetailsResponse) GetTags() []ProjectTag {
+	return s.Tags
+}
+
 // SetFeature sets the value of Feature.
 func (s *FeatureDetailsResponse) SetFeature(val FeatureExtended) {
 	s.Feature = val
@@ -2017,6 +2058,11 @@ func (s *FeatureDetailsResponse) SetVariants(val []FlagVariant) {
 // SetRules sets the value of Rules.
 func (s *FeatureDetailsResponse) SetRules(val []Rule) {
 	s.Rules = val
+}
+
+// SetTags sets the value of Tags.
+func (s *FeatureDetailsResponse) SetTags(val []ProjectTag) {
+	s.Tags = val
 }
 
 func (*FeatureDetailsResponse) getFeatureRes()    {}
@@ -4187,6 +4233,7 @@ func (s *ListProjectSegmentsSortBy) UnmarshalText(data []byte) error {
 
 type ListProjectTagsResponse []ProjectTag
 
+func (*ListProjectTagsResponse) listFeatureTagsRes() {}
 func (*ListProjectTagsResponse) listProjectTagsRes() {}
 
 type ListProjectsResponse []Project
@@ -6127,6 +6174,11 @@ func (s *RefreshTokenResponse) SetExpiresIn(val int) {
 }
 
 func (*RefreshTokenResponse) refreshTokenRes() {}
+
+// RemoveFeatureTagNoContent is response for RemoveFeatureTag operation.
+type RemoveFeatureTagNoContent struct{}
+
+func (*RemoveFeatureTagNoContent) removeFeatureTagRes() {}
 
 // ResetPasswordNoContent is response for ResetPassword operation.
 type ResetPasswordNoContent struct{}
