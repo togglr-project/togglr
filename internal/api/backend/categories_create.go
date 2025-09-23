@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
 )
 
@@ -43,6 +44,7 @@ func (r *RestAPI) CreateCategory(
 		req.Slug,
 		description,
 		color,
+		domain.CategoryType(req.CategoryType),
 	)
 	if err != nil {
 		slog.Error("create category failed", "error", err, "user_id", userID)
@@ -52,12 +54,13 @@ func (r *RestAPI) CreateCategory(
 
 	// Convert to response
 	item := generatedapi.Category{
-		ID:        uuid.MustParse(category.ID.String()),
-		Name:      category.Name,
-		Slug:      category.Slug,
-		Kind:      generatedapi.CategoryKind(category.Kind),
-		CreatedAt: category.CreatedAt,
-		UpdatedAt: category.UpdatedAt,
+		ID:           uuid.MustParse(category.ID.String()),
+		Name:         category.Name,
+		Slug:         category.Slug,
+		Kind:         generatedapi.CategoryKind(category.Kind),
+		CategoryType: generatedapi.CategoryCategoryType(req.CategoryType),
+		CreatedAt:    category.CreatedAt,
+		UpdatedAt:    category.UpdatedAt,
 	}
 
 	if category.Description != nil {

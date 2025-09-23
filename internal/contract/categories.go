@@ -12,6 +12,7 @@ type CategoriesUseCase interface {
 		name, slug string,
 		description *string,
 		color *string,
+		categoryType domain.CategoryType,
 	) (domain.Category, error)
 	GetCategory(ctx context.Context, id domain.CategoryID) (domain.Category, error)
 	ListCategories(ctx context.Context) ([]domain.Category, error)

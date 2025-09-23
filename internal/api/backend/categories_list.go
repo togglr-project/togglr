@@ -24,12 +24,13 @@ func (r *RestAPI) ListCategories(ctx context.Context) (generatedapi.ListCategori
 	for i := range categories {
 		category := categories[i]
 		item := generatedapi.Category{
-			ID:        uuid.MustParse(category.ID.String()),
-			Name:      category.Name,
-			Slug:      category.Slug,
-			Kind:      generatedapi.CategoryKind(category.Kind),
-			CreatedAt: category.CreatedAt,
-			UpdatedAt: category.UpdatedAt,
+			ID:           uuid.MustParse(category.ID.String()),
+			Name:         category.Name,
+			Slug:         category.Slug,
+			Kind:         generatedapi.CategoryKind(category.Kind),
+			CategoryType: generatedapi.CategoryCategoryType(category.Type),
+			CreatedAt:    category.CreatedAt,
+			UpdatedAt:    category.UpdatedAt,
 		}
 
 		if category.Description != nil {

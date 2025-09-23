@@ -304,6 +304,10 @@ func (s *Category) encodeFields(e *jx.Encoder) {
 		s.Kind.Encode(e)
 	}
 	{
+		e.FieldStart("category_type")
+		s.CategoryType.Encode(e)
+	}
+	{
 		e.FieldStart("created_at")
 		json.EncodeDateTime(e, s.CreatedAt)
 	}
@@ -313,15 +317,16 @@ func (s *Category) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCategory = [8]string{
+var jsonFieldsNameOfCategory = [9]string{
 	0: "id",
 	1: "name",
 	2: "slug",
 	3: "description",
 	4: "color",
 	5: "kind",
-	6: "created_at",
-	7: "updated_at",
+	6: "category_type",
+	7: "created_at",
+	8: "updated_at",
 }
 
 // Decode decodes Category from json.
@@ -329,7 +334,7 @@ func (s *Category) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode Category to nil")
 	}
-	var requiredBitSet [1]uint8
+	var requiredBitSet [2]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -399,8 +404,18 @@ func (s *Category) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"kind\"")
 			}
-		case "created_at":
+		case "category_type":
 			requiredBitSet[0] |= 1 << 6
+			if err := func() error {
+				if err := s.CategoryType.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"category_type\"")
+			}
+		case "created_at":
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -412,7 +427,7 @@ func (s *Category) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"created_at\"")
 			}
 		case "updated_at":
-			requiredBitSet[0] |= 1 << 7
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.UpdatedAt = v
@@ -432,8 +447,9 @@ func (s *Category) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [1]uint8{
+	for i, mask := range [2]uint8{
 		0b11100111,
+		0b00000001,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -475,6 +491,48 @@ func (s *Category) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *Category) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CategoryCategoryType as json.
+func (s CategoryCategoryType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CategoryCategoryType from json.
+func (s *CategoryCategoryType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CategoryCategoryType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CategoryCategoryType(v) {
+	case CategoryCategoryTypeSafety:
+		*s = CategoryCategoryTypeSafety
+	case CategoryCategoryTypeDomain:
+		*s = CategoryCategoryTypeDomain
+	case CategoryCategoryTypeUser:
+		*s = CategoryCategoryTypeUser
+	default:
+		*s = CategoryCategoryType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CategoryCategoryType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CategoryCategoryType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -1204,13 +1262,18 @@ func (s *CreateCategoryRequest) encodeFields(e *jx.Encoder) {
 			s.Color.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("category_type")
+		s.CategoryType.Encode(e)
+	}
 }
 
-var jsonFieldsNameOfCreateCategoryRequest = [4]string{
+var jsonFieldsNameOfCreateCategoryRequest = [5]string{
 	0: "name",
 	1: "slug",
 	2: "description",
 	3: "color",
+	4: "category_type",
 }
 
 // Decode decodes CreateCategoryRequest from json.
@@ -1266,6 +1329,16 @@ func (s *CreateCategoryRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"color\"")
 			}
+		case "category_type":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.CategoryType.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"category_type\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -1276,7 +1349,7 @@ func (s *CreateCategoryRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000011,
+		0b00010011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -1318,6 +1391,46 @@ func (s *CreateCategoryRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateCategoryRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CreateCategoryRequestCategoryType as json.
+func (s CreateCategoryRequestCategoryType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CreateCategoryRequestCategoryType from json.
+func (s *CreateCategoryRequestCategoryType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateCategoryRequestCategoryType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CreateCategoryRequestCategoryType(v) {
+	case CreateCategoryRequestCategoryTypeUser:
+		*s = CreateCategoryRequestCategoryTypeUser
+	case CreateCategoryRequestCategoryTypeDomain:
+		*s = CreateCategoryRequestCategoryTypeDomain
+	default:
+		*s = CreateCategoryRequestCategoryType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CreateCategoryRequestCategoryType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateCategoryRequestCategoryType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

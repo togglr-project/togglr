@@ -35,12 +35,13 @@ func (r *RestAPI) GetCategory(
 
 	// Convert to response
 	item := generatedapi.Category{
-		ID:        uuid.MustParse(category.ID.String()),
-		Name:      category.Name,
-		Slug:      category.Slug,
-		Kind:      generatedapi.CategoryKind(category.Kind),
-		CreatedAt: category.CreatedAt,
-		UpdatedAt: category.UpdatedAt,
+		ID:           uuid.MustParse(category.ID.String()),
+		Name:         category.Name,
+		Slug:         category.Slug,
+		Kind:         generatedapi.CategoryKind(category.Kind),
+		CategoryType: generatedapi.CategoryCategoryType(category.Type),
+		CreatedAt:    category.CreatedAt,
+		UpdatedAt:    category.UpdatedAt,
 	}
 
 	if category.Description != nil {

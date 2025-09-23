@@ -53,6 +53,7 @@ export interface Category {
     'description'?: string;
     'color'?: string;
     'kind': CategoryKindEnum;
+    'category_type': CategoryCategoryTypeEnum;
     'created_at': string;
     'updated_at': string;
 }
@@ -63,6 +64,13 @@ export const CategoryKindEnum = {
 } as const;
 
 export type CategoryKindEnum = typeof CategoryKindEnum[keyof typeof CategoryKindEnum];
+export const CategoryCategoryTypeEnum = {
+    Safety: 'safety',
+    Domain: 'domain',
+    User: 'user'
+} as const;
+
+export type CategoryCategoryTypeEnum = typeof CategoryCategoryTypeEnum[keyof typeof CategoryCategoryTypeEnum];
 
 export interface CategoryResponse {
     'category': Category;
@@ -120,7 +128,16 @@ export interface CreateCategoryRequest {
     'slug': string;
     'description'?: string;
     'color'?: string;
+    'category_type': CreateCategoryRequestCategoryTypeEnum;
 }
+
+export const CreateCategoryRequestCategoryTypeEnum = {
+    User: 'user',
+    Domain: 'domain'
+} as const;
+
+export type CreateCategoryRequestCategoryTypeEnum = typeof CreateCategoryRequestCategoryTypeEnum[keyof typeof CreateCategoryRequestCategoryTypeEnum];
+
 export interface CreateFeatureRequest {
     'key': string;
     'name': string;

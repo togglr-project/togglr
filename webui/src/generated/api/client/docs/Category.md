@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **description** | **string** |  | [optional] [default to undefined]
 **color** | **string** |  | [optional] [default to undefined]
 **kind** | **string** |  | [default to undefined]
+**category_type** | **string** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 
@@ -26,6 +27,7 @@ const instance: Category = {
     description,
     color,
     kind,
+    category_type,
     created_at,
     updated_at,
 };

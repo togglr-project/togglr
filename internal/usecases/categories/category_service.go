@@ -25,6 +25,7 @@ func (s *Service) CreateCategory(
 	name, slug string,
 	description *string,
 	color *string,
+	categoryType domain.CategoryType,
 ) (domain.Category, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
@@ -50,6 +51,7 @@ func (s *Service) CreateCategory(
 		Description: description,
 		Color:       color,
 		Kind:        domain.CategoryKindUser,
+		Type:        categoryType,
 	}
 
 	id, err := s.categoryRepo.Create(ctx, categoryDTO)

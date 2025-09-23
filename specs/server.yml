@@ -5984,6 +5984,10 @@ components:
           type: string
           enum: [system, user]
           example: "system"
+        category_type:
+          type: string
+          enum: [safety, domain, user]
+          example: "domain"
         created_at:
           type: string
           format: date-time
@@ -5992,7 +5996,7 @@ components:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, name, slug, kind, created_at, updated_at]
+      required: [id, name, slug, kind, category_type, created_at, updated_at]
 
     ListCategoriesResponse:
       type: array
@@ -6011,6 +6015,7 @@ components:
       required:
         - name
         - slug
+        - category_type
       properties:
         name:
           type: string
@@ -6030,6 +6035,9 @@ components:
           type: string
           example: "#4B5563"
           pattern: '^#[0-9A-Fa-f]{6}$'
+        category_type:
+          type: string
+          enum: [user, domain]
 
     UpdateCategoryRequest:
       type: object

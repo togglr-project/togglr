@@ -150,14 +150,15 @@ func (s *BearerAuth) SetRoles(val []string) {
 
 // Ref: #/components/schemas/Category
 type Category struct {
-	ID          uuid.UUID    `json:"id"`
-	Name        string       `json:"name"`
-	Slug        string       `json:"slug"`
-	Description OptNilString `json:"description"`
-	Color       OptNilString `json:"color"`
-	Kind        CategoryKind `json:"kind"`
-	CreatedAt   time.Time    `json:"created_at"`
-	UpdatedAt   time.Time    `json:"updated_at"`
+	ID           uuid.UUID            `json:"id"`
+	Name         string               `json:"name"`
+	Slug         string               `json:"slug"`
+	Description  OptNilString         `json:"description"`
+	Color        OptNilString         `json:"color"`
+	Kind         CategoryKind         `json:"kind"`
+	CategoryType CategoryCategoryType `json:"category_type"`
+	CreatedAt    time.Time            `json:"created_at"`
+	UpdatedAt    time.Time            `json:"updated_at"`
 }
 
 // GetID returns the value of ID.
@@ -188,6 +189,11 @@ func (s *Category) GetColor() OptNilString {
 // GetKind returns the value of Kind.
 func (s *Category) GetKind() CategoryKind {
 	return s.Kind
+}
+
+// GetCategoryType returns the value of CategoryType.
+func (s *Category) GetCategoryType() CategoryCategoryType {
+	return s.CategoryType
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -230,6 +236,11 @@ func (s *Category) SetKind(val CategoryKind) {
 	s.Kind = val
 }
 
+// SetCategoryType sets the value of CategoryType.
+func (s *Category) SetCategoryType(val CategoryCategoryType) {
+	s.CategoryType = val
+}
+
 // SetCreatedAt sets the value of CreatedAt.
 func (s *Category) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
@@ -238,6 +249,54 @@ func (s *Category) SetCreatedAt(val time.Time) {
 // SetUpdatedAt sets the value of UpdatedAt.
 func (s *Category) SetUpdatedAt(val time.Time) {
 	s.UpdatedAt = val
+}
+
+type CategoryCategoryType string
+
+const (
+	CategoryCategoryTypeSafety CategoryCategoryType = "safety"
+	CategoryCategoryTypeDomain CategoryCategoryType = "domain"
+	CategoryCategoryTypeUser   CategoryCategoryType = "user"
+)
+
+// AllValues returns all CategoryCategoryType values.
+func (CategoryCategoryType) AllValues() []CategoryCategoryType {
+	return []CategoryCategoryType{
+		CategoryCategoryTypeSafety,
+		CategoryCategoryTypeDomain,
+		CategoryCategoryTypeUser,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CategoryCategoryType) MarshalText() ([]byte, error) {
+	switch s {
+	case CategoryCategoryTypeSafety:
+		return []byte(s), nil
+	case CategoryCategoryTypeDomain:
+		return []byte(s), nil
+	case CategoryCategoryTypeUser:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CategoryCategoryType) UnmarshalText(data []byte) error {
+	switch CategoryCategoryType(data) {
+	case CategoryCategoryTypeSafety:
+		*s = CategoryCategoryTypeSafety
+		return nil
+	case CategoryCategoryTypeDomain:
+		*s = CategoryCategoryTypeDomain
+		return nil
+	case CategoryCategoryTypeUser:
+		*s = CategoryCategoryTypeUser
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 type CategoryKind string
@@ -532,10 +591,11 @@ func (s *ConsumeSAMLAssertionReq) SetRelayState(val string) {
 
 // Ref: #/components/schemas/CreateCategoryRequest
 type CreateCategoryRequest struct {
-	Name        string    `json:"name"`
-	Slug        string    `json:"slug"`
-	Description OptString `json:"description"`
-	Color       OptString `json:"color"`
+	Name         string                            `json:"name"`
+	Slug         string                            `json:"slug"`
+	Description  OptString                         `json:"description"`
+	Color        OptString                         `json:"color"`
+	CategoryType CreateCategoryRequestCategoryType `json:"category_type"`
 }
 
 // GetName returns the value of Name.
@@ -558,6 +618,11 @@ func (s *CreateCategoryRequest) GetColor() OptString {
 	return s.Color
 }
 
+// GetCategoryType returns the value of CategoryType.
+func (s *CreateCategoryRequest) GetCategoryType() CreateCategoryRequestCategoryType {
+	return s.CategoryType
+}
+
 // SetName sets the value of Name.
 func (s *CreateCategoryRequest) SetName(val string) {
 	s.Name = val
@@ -576,6 +641,52 @@ func (s *CreateCategoryRequest) SetDescription(val OptString) {
 // SetColor sets the value of Color.
 func (s *CreateCategoryRequest) SetColor(val OptString) {
 	s.Color = val
+}
+
+// SetCategoryType sets the value of CategoryType.
+func (s *CreateCategoryRequest) SetCategoryType(val CreateCategoryRequestCategoryType) {
+	s.CategoryType = val
+}
+
+type CreateCategoryRequestCategoryType string
+
+const (
+	CreateCategoryRequestCategoryTypeUser   CreateCategoryRequestCategoryType = "user"
+	CreateCategoryRequestCategoryTypeDomain CreateCategoryRequestCategoryType = "domain"
+)
+
+// AllValues returns all CreateCategoryRequestCategoryType values.
+func (CreateCategoryRequestCategoryType) AllValues() []CreateCategoryRequestCategoryType {
+	return []CreateCategoryRequestCategoryType{
+		CreateCategoryRequestCategoryTypeUser,
+		CreateCategoryRequestCategoryTypeDomain,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateCategoryRequestCategoryType) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateCategoryRequestCategoryTypeUser:
+		return []byte(s), nil
+	case CreateCategoryRequestCategoryTypeDomain:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateCategoryRequestCategoryType) UnmarshalText(data []byte) error {
+	switch CreateCategoryRequestCategoryType(data) {
+	case CreateCategoryRequestCategoryTypeUser:
+		*s = CreateCategoryRequestCategoryTypeUser
+		return nil
+	case CreateCategoryRequestCategoryTypeDomain:
+		*s = CreateCategoryRequestCategoryTypeDomain
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/CreateFeatureRequest
