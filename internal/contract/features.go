@@ -10,6 +10,7 @@ type FeaturesListFilter struct {
 	Kind         *domain.FeatureKind
 	Enabled      *bool
 	TextSelector *string
+	TagIDs       []domain.TagID
 	SortBy       string // name, key, enabled, kind, created_at, updated_at
 	SortDesc     bool
 	Page         uint

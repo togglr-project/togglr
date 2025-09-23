@@ -3101,6 +3101,8 @@ type ListProjectFeaturesParams struct {
 	Enabled OptBool
 	// Case-insensitive text search across key, name, description, rollout_key.
 	TextSelector OptString
+	// Filter by tag IDs (comma-separated).
+	TagIds OptString
 	// Sort by field.
 	SortBy OptListProjectFeaturesSortBy
 	// Sort order.
@@ -3144,6 +3146,15 @@ func unpackListProjectFeaturesParams(packed middleware.Parameters) (params ListP
 		}
 		if v, ok := packed[key]; ok {
 			params.TextSelector = v.(OptString)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "tag_ids",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.TagIds = v.(OptString)
 		}
 	}
 	{
@@ -3366,6 +3377,47 @@ func decodeListProjectFeaturesParams(args [1]string, argsEscaped bool, r *http.R
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "text_selector",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: tag_ids.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "tag_ids",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotTagIdsVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotTagIdsVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.TagIds.SetTo(paramsDotTagIdsVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "tag_ids",
 			In:   "query",
 			Err:  err,
 		}

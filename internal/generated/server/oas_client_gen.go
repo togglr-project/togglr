@@ -6726,6 +6726,23 @@ func (c *Client) sendListProjectFeatures(ctx context.Context, params ListProject
 		}
 	}
 	{
+		// Encode "tag_ids" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "tag_ids",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.TagIds.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
 		// Encode "sort_by" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "sort_by",

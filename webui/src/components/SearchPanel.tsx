@@ -20,6 +20,8 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
 } from '@mui/icons-material';
+import type { ProjectTag } from '../generated/api/client';
+import TagFilter from './features/TagFilter';
 
 export interface FilterOption {
   key: string;
@@ -37,6 +39,11 @@ export interface SearchPanelProps {
   placeholder?: string;
   showAdvancedFilters?: boolean;
   onToggleAdvanced?: (expanded: boolean) => void;
+  // Tag filter props
+  projectId?: string;
+  selectedTags?: ProjectTag[];
+  onTagsChange?: (tags: ProjectTag[]) => void;
+  showTagFilter?: boolean;
 }
 
 const SearchPanel: React.FC<SearchPanelProps> = ({
@@ -47,6 +54,10 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   placeholder = "Search...",
   showAdvancedFilters = true,
   onToggleAdvanced,
+  projectId,
+  selectedTags = [],
+  onTagsChange,
+  showTagFilter = false,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -61,7 +72,9 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
   };
 
   const activeQuickFilters = quickFilters.filter(f => f.active);
-  const hasActiveFilters = activeQuickFilters.length > 0 || filters.some(f => f.value !== '' && f.value !== null && f.value !== undefined);
+  const hasActiveFilters = activeQuickFilters.length > 0 || 
+    filters.some(f => f.value !== '' && f.value !== null && f.value !== undefined) ||
+    (showTagFilter && selectedTags.length > 0);
 
   return (
     <Box sx={{ mb: 2 }}>
@@ -103,8 +116,8 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
         )}
       </Box>
 
-      {/* Quick filters */}
-      {quickFilters.length > 0 && (
+      {/* Quick filters and selected tags */}
+      {(quickFilters.length > 0 || (showTagFilter && selectedTags.length > 0)) && (
         <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
           {quickFilters.map((filter, index) => (
             <Chip
@@ -118,6 +131,26 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                 fontSize: '0.75rem',
                 height: 24,
                 '& .MuiChip-label': { px: 1 },
+              }}
+            />
+          ))}
+          {showTagFilter && selectedTags.map((tag) => (
+            <Chip
+              key={tag.id}
+              label={tag.name}
+              size="small"
+              variant="filled"
+              color="secondary"
+              onDelete={() => onTagsChange?.(selectedTags.filter(t => t.id !== tag.id))}
+              sx={{ 
+                fontSize: '0.75rem',
+                height: 24,
+                backgroundColor: tag.color || 'secondary.main',
+                color: tag.color ? 'white' : 'inherit',
+                '& .MuiChip-label': { px: 1 },
+                '& .MuiChip-deleteIcon': {
+                  color: tag.color ? 'white' : 'inherit',
+                },
               }}
             />
           ))}
@@ -149,6 +182,18 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                 </Select>
               </FormControl>
             ))}
+            {showTagFilter && projectId && onTagsChange && (
+              <Box>
+                <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
+                  Теги
+                </Typography>
+                <TagFilter
+                  projectId={projectId}
+                  selectedTags={selectedTags}
+                  onChange={onTagsChange}
+                />
+              </Box>
+            )}
           </Stack>
         </Box>
       </Collapse>

@@ -7,7 +7,7 @@ import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import SearchPanel from '../components/SearchPanel';
 import FeaturePreviewPanel from '../components/features/FeaturePreviewPanel';
 import apiClient from '../api/apiClient';
-import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse } from '../generated/api/client';
+import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, ProjectTag } from '../generated/api/client';
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
 import FeatureCard from '../components/features/FeatureCard';
@@ -38,17 +38,20 @@ const ProjectPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
+  const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
 
   const effectiveSearch = search.trim();
   const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
   const { data: featuresResp, isLoading: loadingFeatures, error: featuresError } = useQuery<ListFeaturesResponse>({
-    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
+    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage, selectedTags }],
     queryFn: async () => {
+      const tagIds = selectedTags.length > 0 ? selectedTags.map(tag => tag.id).join(',') : undefined;
       const res = await apiClient.listProjectFeatures(
         projectId,
         kindFilter === 'all' ? undefined : kindFilter,
         enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
         minSearch,
+        tagIds,
         sortBy,
         sortOrder,
         page,
@@ -119,6 +122,10 @@ const ProjectPage: React.FC = () => {
           searchValue={search}
           onSearchChange={(value) => { setSearch(value); setPage(1); }}
           placeholder="Search features by name or key..."
+          projectId={projectId}
+          selectedTags={selectedTags}
+          onTagsChange={(tags) => { setSelectedTags(tags); setPage(1); }}
+          showTagFilter={true}
           quickFilters={[
             {
               label: 'Enabled',

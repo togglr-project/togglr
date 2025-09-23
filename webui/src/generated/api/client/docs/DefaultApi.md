@@ -2851,6 +2851,7 @@ let projectId: string; // (default to undefined)
 let kind: 'simple' | 'multivariant'; //Filter by feature kind (optional) (default to undefined)
 let enabled: boolean; //Filter by enabled state (optional) (default to undefined)
 let textSelector: string; //Case-insensitive text search across key, name, description, rollout_key (optional) (default to undefined)
+let tagIds: string; //Filter by tag IDs (comma-separated) (optional) (default to undefined)
 let sortBy: 'name' | 'key' | 'enabled' | 'kind' | 'created_at' | 'updated_at'; //Sort by field (optional) (default to undefined)
 let sortOrder: SortOrder; //Sort order (optional) (default to undefined)
 let page: number; //Page number (starts from 1) (optional) (default to 1)
@@ -2861,6 +2862,7 @@ const { status, data } = await apiInstance.listProjectFeatures(
     kind,
     enabled,
     textSelector,
+    tagIds,
     sortBy,
     sortOrder,
     page,
@@ -2876,6 +2878,7 @@ const { status, data } = await apiInstance.listProjectFeatures(
 | **kind** | [**&#39;simple&#39; | &#39;multivariant&#39;**]**Array<&#39;simple&#39; &#124; &#39;multivariant&#39;>** | Filter by feature kind | (optional) defaults to undefined|
 | **enabled** | [**boolean**] | Filter by enabled state | (optional) defaults to undefined|
 | **textSelector** | [**string**] | Case-insensitive text search across key, name, description, rollout_key | (optional) defaults to undefined|
+| **tagIds** | [**string**] | Filter by tag IDs (comma-separated) | (optional) defaults to undefined|
 | **sortBy** | [**&#39;name&#39; | &#39;key&#39; | &#39;enabled&#39; | &#39;kind&#39; | &#39;created_at&#39; | &#39;updated_at&#39;**]**Array<&#39;name&#39; &#124; &#39;key&#39; &#124; &#39;enabled&#39; &#124; &#39;kind&#39; &#124; &#39;created_at&#39; &#124; &#39;updated_at&#39;>** | Sort by field | (optional) defaults to undefined|
 | **sortOrder** | **SortOrder** | Sort order | (optional) defaults to undefined|
 | **page** | [**number**] | Page number (starts from 1) | (optional) defaults to 1|

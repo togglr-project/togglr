@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/togglr-project/togglr/internal/contract"
@@ -57,6 +58,20 @@ func (r *RestAPI) ListProjectFeatures(
 	if params.TextSelector.Set {
 		ts := params.TextSelector.Value
 		filter.TextSelector = &ts
+	}
+	if params.TagIds.Set {
+		// Parse comma-separated tag IDs
+		tagIDsStr := params.TagIds.Value
+		if tagIDsStr != "" {
+			tagIDs := make([]domain.TagID, 0)
+			for _, idStr := range strings.Split(tagIDsStr, ",") {
+				idStr = strings.TrimSpace(idStr)
+				if idStr != "" {
+					tagIDs = append(tagIDs, domain.TagID(idStr))
+				}
+			}
+			filter.TagIDs = tagIDs
+		}
 	}
 	page := uint(1)
 	perPage := uint(20)

@@ -1780,6 +1780,13 @@ paths:
           description: Case-insensitive text search across key, name, description, rollout_key
           schema:
             type: string
+        - name: tag_ids
+          in: query
+          required: false
+          description: Filter by tag IDs (comma-separated)
+          schema:
+            type: string
+            example: "550e8400-e29b-41d4-a716-446655440000,550e8400-e29b-41d4-a716-446655440001"
         - name: sort_by
           in: query
           required: false

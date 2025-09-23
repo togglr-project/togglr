@@ -352,6 +352,7 @@ const ProjectSchedulingPage: React.FC = () => {
         kindFilter === 'all' ? undefined : kindFilter,
         enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
         minSearch,
+        undefined, // tagIds
         sortBy,
         sortOrder,
         page,

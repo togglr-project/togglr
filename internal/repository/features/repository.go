@@ -219,6 +219,14 @@ func (r *Repository) ListByProjectIDFiltered(
 		builder = builder.Where(or)
 		countBuilder = countBuilder.Where(or)
 	}
+	if len(filter.TagIDs) > 0 {
+		// Use subquery to filter by tag IDs to avoid GROUP BY issues
+		subquery := sq.Select("DISTINCT feature_id").From("feature_tags").Where(sq.Eq{"tag_id": filter.TagIDs})
+		subquerySQL, subqueryArgs, _ := subquery.PlaceholderFormat(sq.Question).ToSql()
+
+		builder = builder.Where(sq.Expr("features.id IN ("+subquerySQL+")", subqueryArgs...))
+		countBuilder = countBuilder.Where(sq.Expr("features.id IN ("+subquerySQL+")", subqueryArgs...))
+	}
 
 	// Sorting with whitelist
 	orderCol := "created_at"
