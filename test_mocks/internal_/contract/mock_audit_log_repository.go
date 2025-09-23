@@ -39,6 +39,72 @@ func (_m *MockAuditLogRepository) EXPECT() *MockAuditLogRepository_Expecter {
 	return &MockAuditLogRepository_Expecter{mock: &_m.Mock}
 }
 
+// ListChanges provides a mock function for the type MockAuditLogRepository
+func (_mock *MockAuditLogRepository) ListChanges(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error) {
+	ret := _mock.Called(ctx, filter)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListChanges")
+	}
+
+	var r0 domain.ChangesListResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ChangesListFilter) (domain.ChangesListResult, error)); ok {
+		return returnFunc(ctx, filter)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ChangesListFilter) domain.ChangesListResult); ok {
+		r0 = returnFunc(ctx, filter)
+	} else {
+		r0 = ret.Get(0).(domain.ChangesListResult)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ChangesListFilter) error); ok {
+		r1 = returnFunc(ctx, filter)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAuditLogRepository_ListChanges_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListChanges'
+type MockAuditLogRepository_ListChanges_Call struct {
+	*mock.Call
+}
+
+// ListChanges is a helper method to define mock.On call
+//   - ctx context.Context
+//   - filter domain.ChangesListFilter
+func (_e *MockAuditLogRepository_Expecter) ListChanges(ctx interface{}, filter interface{}) *MockAuditLogRepository_ListChanges_Call {
+	return &MockAuditLogRepository_ListChanges_Call{Call: _e.mock.On("ListChanges", ctx, filter)}
+}
+
+func (_c *MockAuditLogRepository_ListChanges_Call) Run(run func(ctx context.Context, filter domain.ChangesListFilter)) *MockAuditLogRepository_ListChanges_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ChangesListFilter
+		if args[1] != nil {
+			arg1 = args[1].(domain.ChangesListFilter)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAuditLogRepository_ListChanges_Call) Return(changesListResult domain.ChangesListResult, err error) *MockAuditLogRepository_ListChanges_Call {
+	_c.Call.Return(changesListResult, err)
+	return _c
+}
+
+func (_c *MockAuditLogRepository_ListChanges_Call) RunAndReturn(run func(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error)) *MockAuditLogRepository_ListChanges_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListSince provides a mock function for the type MockAuditLogRepository
 func (_mock *MockAuditLogRepository) ListSince(ctx context.Context, since time.Time) ([]domain.AuditLog, error) {
 	ret := _mock.Called(ctx, since)

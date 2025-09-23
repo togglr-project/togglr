@@ -295,6 +295,72 @@ func (_c *MockProjectsUseCase_List_Call) RunAndReturn(run func(ctx context.Conte
 	return _c
 }
 
+// ListChanges provides a mock function for the type MockProjectsUseCase
+func (_mock *MockProjectsUseCase) ListChanges(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error) {
+	ret := _mock.Called(ctx, filter)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListChanges")
+	}
+
+	var r0 domain.ChangesListResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ChangesListFilter) (domain.ChangesListResult, error)); ok {
+		return returnFunc(ctx, filter)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ChangesListFilter) domain.ChangesListResult); ok {
+		r0 = returnFunc(ctx, filter)
+	} else {
+		r0 = ret.Get(0).(domain.ChangesListResult)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ChangesListFilter) error); ok {
+		r1 = returnFunc(ctx, filter)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectsUseCase_ListChanges_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListChanges'
+type MockProjectsUseCase_ListChanges_Call struct {
+	*mock.Call
+}
+
+// ListChanges is a helper method to define mock.On call
+//   - ctx context.Context
+//   - filter domain.ChangesListFilter
+func (_e *MockProjectsUseCase_Expecter) ListChanges(ctx interface{}, filter interface{}) *MockProjectsUseCase_ListChanges_Call {
+	return &MockProjectsUseCase_ListChanges_Call{Call: _e.mock.On("ListChanges", ctx, filter)}
+}
+
+func (_c *MockProjectsUseCase_ListChanges_Call) Run(run func(ctx context.Context, filter domain.ChangesListFilter)) *MockProjectsUseCase_ListChanges_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ChangesListFilter
+		if args[1] != nil {
+			arg1 = args[1].(domain.ChangesListFilter)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectsUseCase_ListChanges_Call) Return(changesListResult domain.ChangesListResult, err error) *MockProjectsUseCase_ListChanges_Call {
+	_c.Call.Return(changesListResult, err)
+	return _c
+}
+
+func (_c *MockProjectsUseCase_ListChanges_Call) RunAndReturn(run func(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error)) *MockProjectsUseCase_ListChanges_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateInfo provides a mock function for the type MockProjectsUseCase
 func (_mock *MockProjectsUseCase) UpdateInfo(ctx context.Context, id domain.ProjectID, name string, description string) (domain.Project, error) {
 	ret := _mock.Called(ctx, id, name, description)
