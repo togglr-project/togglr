@@ -407,6 +407,136 @@ func decodeCreateProjectSegmentParams(args [1]string, argsEscaped bool, r *http.
 	return params, nil
 }
 
+// CreateProjectTagParams is parameters of CreateProjectTag operation.
+type CreateProjectTagParams struct {
+	ProjectID uuid.UUID
+}
+
+func unpackCreateProjectTagParams(packed middleware.Parameters) (params CreateProjectTagParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeCreateProjectTagParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateProjectTagParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteCategoryParams is parameters of DeleteCategory operation.
+type DeleteCategoryParams struct {
+	CategoryID uuid.UUID
+}
+
+func unpackDeleteCategoryParams(packed middleware.Parameters) (params DeleteCategoryParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "category_id",
+			In:   "path",
+		}
+		params.CategoryID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteCategoryParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteCategoryParams, _ error) {
+	// Decode path: category_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "category_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.CategoryID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "category_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteFeatureParams is parameters of DeleteFeature operation.
 type DeleteFeatureParams struct {
 	FeatureID string
@@ -530,6 +660,124 @@ func decodeDeleteFeatureScheduleParams(args [1]string, argsEscaped bool, r *http
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "schedule_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteProjectTagParams is parameters of DeleteProjectTag operation.
+type DeleteProjectTagParams struct {
+	ProjectID uuid.UUID
+	TagID     uuid.UUID
+}
+
+func unpackDeleteProjectTagParams(packed middleware.Parameters) (params DeleteProjectTagParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "tag_id",
+			In:   "path",
+		}
+		params.TagID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteProjectTagParams(args [2]string, argsEscaped bool, r *http.Request) (params DeleteProjectTagParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: tag_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "tag_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.TagID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "tag_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -725,6 +973,71 @@ func decodeDeleteUserParams(args [1]string, argsEscaped bool, r *http.Request) (
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "user_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetCategoryParams is parameters of GetCategory operation.
+type GetCategoryParams struct {
+	CategoryID uuid.UUID
+}
+
+func unpackGetCategoryParams(packed middleware.Parameters) (params GetCategoryParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "category_id",
+			In:   "path",
+		}
+		params.CategoryID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetCategoryParams(args [1]string, argsEscaped bool, r *http.Request) (params GetCategoryParams, _ error) {
+	// Decode path: category_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "category_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.CategoryID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "category_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -1549,6 +1862,124 @@ func decodeGetProjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetProjectTagParams is parameters of GetProjectTag operation.
+type GetProjectTagParams struct {
+	ProjectID uuid.UUID
+	TagID     uuid.UUID
+}
+
+func unpackGetProjectTagParams(packed middleware.Parameters) (params GetProjectTagParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "tag_id",
+			In:   "path",
+		}
+		params.TagID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetProjectTagParams(args [2]string, argsEscaped bool, r *http.Request) (params GetProjectTagParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: tag_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "tag_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.TagID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "tag_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -3488,6 +3919,124 @@ func decodeListProjectSegmentsParams(args [1]string, argsEscaped bool, r *http.R
 	return params, nil
 }
 
+// ListProjectTagsParams is parameters of ListProjectTags operation.
+type ListProjectTagsParams struct {
+	ProjectID uuid.UUID
+	// Filter by category ID.
+	CategoryID OptUUID
+}
+
+func unpackListProjectTagsParams(packed middleware.Parameters) (params ListProjectTagsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "category_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.CategoryID = v.(OptUUID)
+		}
+	}
+	return params
+}
+
+func decodeListProjectTagsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListProjectTagsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: category_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "category_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotCategoryIDVal uuid.UUID
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToUUID(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotCategoryIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.CategoryID.SetTo(paramsDotCategoryIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "category_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListSegmentDesyncFeatureIDsParams is parameters of ListSegmentDesyncFeatureIDs operation.
 type ListSegmentDesyncFeatureIDsParams struct {
 	SegmentID string
@@ -4125,6 +4674,71 @@ func decodeToggleFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 	return params, nil
 }
 
+// UpdateCategoryParams is parameters of UpdateCategory operation.
+type UpdateCategoryParams struct {
+	CategoryID uuid.UUID
+}
+
+func unpackUpdateCategoryParams(packed middleware.Parameters) (params UpdateCategoryParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "category_id",
+			In:   "path",
+		}
+		params.CategoryID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateCategoryParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateCategoryParams, _ error) {
+	// Decode path: category_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "category_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.CategoryID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "category_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateFeatureParams is parameters of UpdateFeature operation.
 type UpdateFeatureParams struct {
 	FeatureID string
@@ -4313,6 +4927,124 @@ func decodeUpdateProjectParams(args [1]string, argsEscaped bool, r *http.Request
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateProjectTagParams is parameters of UpdateProjectTag operation.
+type UpdateProjectTagParams struct {
+	ProjectID uuid.UUID
+	TagID     uuid.UUID
+}
+
+func unpackUpdateProjectTagParams(packed middleware.Parameters) (params UpdateProjectTagParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "tag_id",
+			In:   "path",
+		}
+		params.TagID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateProjectTagParams(args [2]string, argsEscaped bool, r *http.Request) (params UpdateProjectTagParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: tag_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "tag_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.TagID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "tag_id",
 			In:   "path",
 			Err:  err,
 		}

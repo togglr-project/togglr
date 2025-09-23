@@ -21,6 +21,10 @@ type ConsumeSAMLAssertionRes interface {
 	consumeSAMLAssertionRes()
 }
 
+type CreateCategoryRes interface {
+	createCategoryRes()
+}
+
 type CreateFeatureFlagVariantRes interface {
 	createFeatureFlagVariantRes()
 }
@@ -41,12 +45,20 @@ type CreateProjectSegmentRes interface {
 	createProjectSegmentRes()
 }
 
+type CreateProjectTagRes interface {
+	createProjectTagRes()
+}
+
 type CreateRuleAttributeRes interface {
 	createRuleAttributeRes()
 }
 
 type CreateUserRes interface {
 	createUserRes()
+}
+
+type DeleteCategoryRes interface {
+	deleteCategoryRes()
 }
 
 type DeleteFeatureRes interface {
@@ -59,6 +71,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteProjectTagRes interface {
+	deleteProjectTagRes()
 }
 
 type DeleteRuleAttributeRes interface {
@@ -79,6 +95,10 @@ type Disable2FARes interface {
 
 type ForgotPasswordRes interface {
 	forgotPasswordRes()
+}
+
+type GetCategoryRes interface {
+	getCategoryRes()
 }
 
 type GetCurrentUserRes interface {
@@ -133,6 +153,10 @@ type GetProjectRes interface {
 	getProjectRes()
 }
 
+type GetProjectTagRes interface {
+	getProjectTagRes()
+}
+
 type GetSAMLMetadataRes interface {
 	getSAMLMetadataRes()
 }
@@ -147,6 +171,10 @@ type GetSegmentRes interface {
 
 type ListAllFeatureSchedulesRes interface {
 	listAllFeatureSchedulesRes()
+}
+
+type ListCategoriesRes interface {
+	listCategoriesRes()
 }
 
 type ListFeatureFlagVariantsRes interface {
@@ -171,6 +199,10 @@ type ListProjectFeaturesRes interface {
 
 type ListProjectSegmentsRes interface {
 	listProjectSegmentsRes()
+}
+
+type ListProjectTagsRes interface {
+	listProjectTagsRes()
 }
 
 type ListProjectsRes interface {
@@ -249,6 +281,10 @@ type ToggleFeatureRes interface {
 	toggleFeatureRes()
 }
 
+type UpdateCategoryRes interface {
+	updateCategoryRes()
+}
+
 type UpdateFeatureRes interface {
 	updateFeatureRes()
 }
@@ -271,6 +307,10 @@ type UpdateLicenseRes interface {
 
 type UpdateProjectRes interface {
 	updateProjectRes()
+}
+
+type UpdateProjectTagRes interface {
+	updateProjectTagRes()
 }
 
 type UpdateSegmentRes interface {

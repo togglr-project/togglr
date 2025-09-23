@@ -82,6 +82,20 @@ func encodeConsumeSAMLAssertionRequest(
 	return nil
 }
 
+func encodeCreateCategoryRequest(
+	req *CreateCategoryRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateFeatureFlagVariantRequest(
 	req *CreateFlagVariantRequest,
 	r *http.Request,
@@ -140,6 +154,20 @@ func encodeCreateProjectFeatureRequest(
 
 func encodeCreateProjectSegmentRequest(
 	req *CreateSegmentRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeCreateProjectTagRequest(
+	req *CreateProjectTagRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -348,6 +376,20 @@ func encodeToggleFeatureRequest(
 	return nil
 }
 
+func encodeUpdateCategoryRequest(
+	req *UpdateCategoryRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeUpdateFeatureRequest(
 	req *CreateFeatureRequest,
 	r *http.Request,
@@ -420,6 +462,20 @@ func encodeUpdateLicenseAcceptanceRequest(
 
 func encodeUpdateProjectRequest(
 	req *UpdateProjectRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateProjectTagRequest(
+	req *UpdateProjectTagRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

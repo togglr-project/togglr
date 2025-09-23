@@ -127,6 +127,158 @@ func (s *BearerAuth) SetRoles(val []string) {
 	s.Roles = val
 }
 
+// Ref: #/components/schemas/Category
+type Category struct {
+	ID          uuid.UUID    `json:"id"`
+	Name        string       `json:"name"`
+	Slug        string       `json:"slug"`
+	Description OptNilString `json:"description"`
+	Color       OptNilString `json:"color"`
+	Kind        CategoryKind `json:"kind"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Category) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetName returns the value of Name.
+func (s *Category) GetName() string {
+	return s.Name
+}
+
+// GetSlug returns the value of Slug.
+func (s *Category) GetSlug() string {
+	return s.Slug
+}
+
+// GetDescription returns the value of Description.
+func (s *Category) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetColor returns the value of Color.
+func (s *Category) GetColor() OptNilString {
+	return s.Color
+}
+
+// GetKind returns the value of Kind.
+func (s *Category) GetKind() CategoryKind {
+	return s.Kind
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Category) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *Category) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Category) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetName sets the value of Name.
+func (s *Category) SetName(val string) {
+	s.Name = val
+}
+
+// SetSlug sets the value of Slug.
+func (s *Category) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Category) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetColor sets the value of Color.
+func (s *Category) SetColor(val OptNilString) {
+	s.Color = val
+}
+
+// SetKind sets the value of Kind.
+func (s *Category) SetKind(val CategoryKind) {
+	s.Kind = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Category) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *Category) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+type CategoryKind string
+
+const (
+	CategoryKindSystem CategoryKind = "system"
+	CategoryKindUser   CategoryKind = "user"
+)
+
+// AllValues returns all CategoryKind values.
+func (CategoryKind) AllValues() []CategoryKind {
+	return []CategoryKind{
+		CategoryKindSystem,
+		CategoryKindUser,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CategoryKind) MarshalText() ([]byte, error) {
+	switch s {
+	case CategoryKindSystem:
+		return []byte(s), nil
+	case CategoryKindUser:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CategoryKind) UnmarshalText(data []byte) error {
+	switch CategoryKind(data) {
+	case CategoryKindSystem:
+		*s = CategoryKindSystem
+		return nil
+	case CategoryKindUser:
+		*s = CategoryKindUser
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/CategoryResponse
+type CategoryResponse struct {
+	Category Category `json:"category"`
+}
+
+// GetCategory returns the value of Category.
+func (s *CategoryResponse) GetCategory() Category {
+	return s.Category
+}
+
+// SetCategory sets the value of Category.
+func (s *CategoryResponse) SetCategory(val Category) {
+	s.Category = val
+}
+
+func (*CategoryResponse) createCategoryRes() {}
+func (*CategoryResponse) getCategoryRes()    {}
+func (*CategoryResponse) updateCategoryRes() {}
+
 // Ref: #/components/schemas/Change
 type Change struct {
 	// Audit log entry ID.
@@ -355,6 +507,54 @@ func (s *ConsumeSAMLAssertionReq) SetSAMLResponse(val string) {
 // SetRelayState sets the value of RelayState.
 func (s *ConsumeSAMLAssertionReq) SetRelayState(val string) {
 	s.RelayState = val
+}
+
+// Ref: #/components/schemas/CreateCategoryRequest
+type CreateCategoryRequest struct {
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Description OptString `json:"description"`
+	Color       OptString `json:"color"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateCategoryRequest) GetName() string {
+	return s.Name
+}
+
+// GetSlug returns the value of Slug.
+func (s *CreateCategoryRequest) GetSlug() string {
+	return s.Slug
+}
+
+// GetDescription returns the value of Description.
+func (s *CreateCategoryRequest) GetDescription() OptString {
+	return s.Description
+}
+
+// GetColor returns the value of Color.
+func (s *CreateCategoryRequest) GetColor() OptString {
+	return s.Color
+}
+
+// SetName sets the value of Name.
+func (s *CreateCategoryRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetSlug sets the value of Slug.
+func (s *CreateCategoryRequest) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetDescription sets the value of Description.
+func (s *CreateCategoryRequest) SetDescription(val OptString) {
+	s.Description = val
+}
+
+// SetColor sets the value of Color.
+func (s *CreateCategoryRequest) SetColor(val OptString) {
+	s.Color = val
 }
 
 // Ref: #/components/schemas/CreateFeatureRequest
@@ -596,6 +796,66 @@ func (s *CreateFlagVariantRequest) SetName(val string) {
 // SetRolloutPercent sets the value of RolloutPercent.
 func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 	s.RolloutPercent = val
+}
+
+// Ref: #/components/schemas/CreateProjectTagRequest
+type CreateProjectTagRequest struct {
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Description OptString `json:"description"`
+	Color       OptString `json:"color"`
+	// ID of category to associate with this tag.
+	CategoryID OptNilUUID `json:"category_id"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateProjectTagRequest) GetName() string {
+	return s.Name
+}
+
+// GetSlug returns the value of Slug.
+func (s *CreateProjectTagRequest) GetSlug() string {
+	return s.Slug
+}
+
+// GetDescription returns the value of Description.
+func (s *CreateProjectTagRequest) GetDescription() OptString {
+	return s.Description
+}
+
+// GetColor returns the value of Color.
+func (s *CreateProjectTagRequest) GetColor() OptString {
+	return s.Color
+}
+
+// GetCategoryID returns the value of CategoryID.
+func (s *CreateProjectTagRequest) GetCategoryID() OptNilUUID {
+	return s.CategoryID
+}
+
+// SetName sets the value of Name.
+func (s *CreateProjectTagRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetSlug sets the value of Slug.
+func (s *CreateProjectTagRequest) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetDescription sets the value of Description.
+func (s *CreateProjectTagRequest) SetDescription(val OptString) {
+	s.Description = val
+}
+
+// SetColor sets the value of Color.
+func (s *CreateProjectTagRequest) SetColor(val OptString) {
+	s.Color = val
+}
+
+// SetCategoryID sets the value of CategoryID.
+func (s *CreateProjectTagRequest) SetCategoryID(val OptNilUUID) {
+	s.CategoryID = val
 }
 
 // CreateRuleAttributeNoContent is response for CreateRuleAttribute operation.
@@ -883,6 +1143,11 @@ func (s *CreateUserResponse) SetUser(val User) {
 
 func (*CreateUserResponse) createUserRes() {}
 
+// DeleteCategoryNoContent is response for DeleteCategory operation.
+type DeleteCategoryNoContent struct{}
+
+func (*DeleteCategoryNoContent) deleteCategoryRes() {}
+
 // DeleteFeatureNoContent is response for DeleteFeature operation.
 type DeleteFeatureNoContent struct{}
 
@@ -892,6 +1157,11 @@ func (*DeleteFeatureNoContent) deleteFeatureRes() {}
 type DeleteFeatureScheduleNoContent struct{}
 
 func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
+
+// DeleteProjectTagNoContent is response for DeleteProjectTag operation.
+type DeleteProjectTagNoContent struct{}
+
+func (*DeleteProjectTagNoContent) deleteProjectTagRes() {}
 
 // DeleteRuleAttributeNoContent is response for DeleteRuleAttribute operation.
 type DeleteRuleAttributeNoContent struct{}
@@ -987,6 +1257,8 @@ func (s *Error) SetError(val ErrorError) {
 
 func (*Error) addProjectRes()            {}
 func (*Error) cancelLDAPSyncRes()        {}
+func (*Error) createCategoryRes()        {}
+func (*Error) createProjectTagRes()      {}
 func (*Error) createRuleAttributeRes()   {}
 func (*Error) getLDAPConfigRes()         {}
 func (*Error) getLDAPSyncLogDetailsRes() {}
@@ -1065,11 +1337,13 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 func (*ErrorBadRequest) addProjectRes()               {}
 func (*ErrorBadRequest) confirm2FARes()               {}
 func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
+func (*ErrorBadRequest) createCategoryRes()           {}
 func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
 func (*ErrorBadRequest) createFeatureRuleRes()        {}
 func (*ErrorBadRequest) createFeatureScheduleRes()    {}
 func (*ErrorBadRequest) createProjectFeatureRes()     {}
 func (*ErrorBadRequest) createProjectSegmentRes()     {}
+func (*ErrorBadRequest) createProjectTagRes()         {}
 func (*ErrorBadRequest) createRuleAttributeRes()      {}
 func (*ErrorBadRequest) createUserRes()               {}
 func (*ErrorBadRequest) deleteRuleAttributeRes()      {}
@@ -1086,11 +1360,13 @@ func (*ErrorBadRequest) setSuperuserStatusRes()       {}
 func (*ErrorBadRequest) setUserActiveStatusRes()      {}
 func (*ErrorBadRequest) testFeatureTimelineRes()      {}
 func (*ErrorBadRequest) toggleFeatureRes()            {}
+func (*ErrorBadRequest) updateCategoryRes()           {}
 func (*ErrorBadRequest) updateFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
 func (*ErrorBadRequest) updateLicenseRes()            {}
 func (*ErrorBadRequest) updateProjectRes()            {}
+func (*ErrorBadRequest) updateProjectTagRes()         {}
 func (*ErrorBadRequest) updateSegmentRes()            {}
 func (*ErrorBadRequest) userChangeMyPasswordRes()     {}
 func (*ErrorBadRequest) verify2FARes()                {}
@@ -1142,19 +1418,24 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 func (*ErrorInternalServerError) addProjectRes()                  {}
 func (*ErrorInternalServerError) archiveProjectRes()              {}
 func (*ErrorInternalServerError) consumeSAMLAssertionRes()        {}
+func (*ErrorInternalServerError) createCategoryRes()              {}
 func (*ErrorInternalServerError) createFeatureFlagVariantRes()    {}
 func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) createProjectFeatureRes()        {}
 func (*ErrorInternalServerError) createProjectSegmentRes()        {}
+func (*ErrorInternalServerError) createProjectTagRes()            {}
 func (*ErrorInternalServerError) createRuleAttributeRes()         {}
 func (*ErrorInternalServerError) createUserRes()                  {}
+func (*ErrorInternalServerError) deleteCategoryRes()              {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
+func (*ErrorInternalServerError) deleteProjectTagRes()            {}
 func (*ErrorInternalServerError) deleteRuleAttributeRes()         {}
 func (*ErrorInternalServerError) deleteSegmentRes()               {}
 func (*ErrorInternalServerError) deleteUserRes()                  {}
 func (*ErrorInternalServerError) forgotPasswordRes()              {}
+func (*ErrorInternalServerError) getCategoryRes()                 {}
 func (*ErrorInternalServerError) getCurrentUserRes()              {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
@@ -1162,16 +1443,19 @@ func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
 func (*ErrorInternalServerError) getLicenseStatusRes()            {}
 func (*ErrorInternalServerError) getProductInfoRes()              {}
 func (*ErrorInternalServerError) getProjectRes()                  {}
+func (*ErrorInternalServerError) getProjectTagRes()               {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()             {}
 func (*ErrorInternalServerError) getSSOProvidersRes()             {}
 func (*ErrorInternalServerError) getSegmentRes()                  {}
 func (*ErrorInternalServerError) listAllFeatureSchedulesRes()     {}
+func (*ErrorInternalServerError) listCategoriesRes()              {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
 func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listProjectChangesRes()          {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
+func (*ErrorInternalServerError) listProjectTagsRes()             {}
 func (*ErrorInternalServerError) listProjectsRes()                {}
 func (*ErrorInternalServerError) listRuleAttributesRes()          {}
 func (*ErrorInternalServerError) listSegmentDesyncFeatureIDsRes() {}
@@ -1186,11 +1470,13 @@ func (*ErrorInternalServerError) setUserActiveStatusRes()         {}
 func (*ErrorInternalServerError) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorInternalServerError) testFeatureTimelineRes()         {}
 func (*ErrorInternalServerError) toggleFeatureRes()               {}
+func (*ErrorInternalServerError) updateCategoryRes()              {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
 func (*ErrorInternalServerError) updateLicenseRes()               {}
 func (*ErrorInternalServerError) updateProjectRes()               {}
+func (*ErrorInternalServerError) updateProjectTagRes()            {}
 func (*ErrorInternalServerError) updateSegmentRes()               {}
 func (*ErrorInternalServerError) userChangeMyPasswordRes()        {}
 
@@ -1262,15 +1548,20 @@ func (*ErrorNotFound) createFeatureRuleRes()           {}
 func (*ErrorNotFound) createFeatureScheduleRes()       {}
 func (*ErrorNotFound) createProjectFeatureRes()        {}
 func (*ErrorNotFound) createProjectSegmentRes()        {}
+func (*ErrorNotFound) createProjectTagRes()            {}
+func (*ErrorNotFound) deleteCategoryRes()              {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
+func (*ErrorNotFound) deleteProjectTagRes()            {}
 func (*ErrorNotFound) deleteRuleAttributeRes()         {}
 func (*ErrorNotFound) deleteSegmentRes()               {}
 func (*ErrorNotFound) deleteUserRes()                  {}
+func (*ErrorNotFound) getCategoryRes()                 {}
 func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
 func (*ErrorNotFound) getFeatureTimelineRes()          {}
 func (*ErrorNotFound) getProjectRes()                  {}
+func (*ErrorNotFound) getProjectTagRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
@@ -1279,6 +1570,7 @@ func (*ErrorNotFound) listFeatureSchedulesRes()        {}
 func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
 func (*ErrorNotFound) listProjectSegmentsRes()         {}
+func (*ErrorNotFound) listProjectTagsRes()             {}
 func (*ErrorNotFound) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorNotFound) listUsersRes()                   {}
 func (*ErrorNotFound) setSuperuserStatusRes()          {}
@@ -1286,9 +1578,11 @@ func (*ErrorNotFound) setUserActiveStatusRes()         {}
 func (*ErrorNotFound) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorNotFound) testFeatureTimelineRes()         {}
 func (*ErrorNotFound) toggleFeatureRes()               {}
+func (*ErrorNotFound) updateCategoryRes()              {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
 func (*ErrorNotFound) updateProjectRes()               {}
+func (*ErrorNotFound) updateProjectTagRes()            {}
 func (*ErrorNotFound) updateSegmentRes()               {}
 
 type ErrorNotFoundError struct {
@@ -1324,20 +1618,25 @@ func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
 func (*ErrorPermissionDenied) addProjectRes()                  {}
 func (*ErrorPermissionDenied) archiveProjectRes()              {}
 func (*ErrorPermissionDenied) cancelLDAPSyncRes()              {}
+func (*ErrorPermissionDenied) createCategoryRes()              {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()        {}
 func (*ErrorPermissionDenied) createProjectSegmentRes()        {}
+func (*ErrorPermissionDenied) createProjectTagRes()            {}
 func (*ErrorPermissionDenied) createRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) createUserRes()                  {}
+func (*ErrorPermissionDenied) deleteCategoryRes()              {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) deleteProjectTagRes()            {}
 func (*ErrorPermissionDenied) deleteRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) deleteSegmentRes()               {}
 func (*ErrorPermissionDenied) deleteUserRes()                  {}
 func (*ErrorPermissionDenied) forgotPasswordRes()              {}
+func (*ErrorPermissionDenied) getCategoryRes()                 {}
 func (*ErrorPermissionDenied) getFeatureRes()                  {}
 func (*ErrorPermissionDenied) getFeatureScheduleRes()          {}
 func (*ErrorPermissionDenied) getFeatureTimelineRes()          {}
@@ -1349,14 +1648,17 @@ func (*ErrorPermissionDenied) getLDAPSyncProgressRes()         {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()           {}
 func (*ErrorPermissionDenied) getProductInfoRes()              {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
+func (*ErrorPermissionDenied) getProjectTagRes()               {}
 func (*ErrorPermissionDenied) getSegmentRes()                  {}
 func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()     {}
+func (*ErrorPermissionDenied) listCategoriesRes()              {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
 func (*ErrorPermissionDenied) listProjectSegmentsRes()         {}
+func (*ErrorPermissionDenied) listProjectTagsRes()             {}
 func (*ErrorPermissionDenied) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorPermissionDenied) listUsersRes()                   {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()          {}
@@ -1366,11 +1668,13 @@ func (*ErrorPermissionDenied) syncLDAPUsersRes()               {}
 func (*ErrorPermissionDenied) testFeatureTimelineRes()         {}
 func (*ErrorPermissionDenied) testLDAPConnectionRes()          {}
 func (*ErrorPermissionDenied) toggleFeatureRes()               {}
+func (*ErrorPermissionDenied) updateCategoryRes()              {}
 func (*ErrorPermissionDenied) updateFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}
 func (*ErrorPermissionDenied) updateLicenseRes()               {}
 func (*ErrorPermissionDenied) updateProjectRes()               {}
+func (*ErrorPermissionDenied) updateProjectTagRes()            {}
 func (*ErrorPermissionDenied) updateSegmentRes()               {}
 func (*ErrorPermissionDenied) userChangeMyPasswordRes()        {}
 
@@ -1468,20 +1772,25 @@ func (*ErrorUnauthorized) archiveProjectRes()              {}
 func (*ErrorUnauthorized) cancelLDAPSyncRes()              {}
 func (*ErrorUnauthorized) confirm2FARes()                  {}
 func (*ErrorUnauthorized) consumeSAMLAssertionRes()        {}
+func (*ErrorUnauthorized) createCategoryRes()              {}
 func (*ErrorUnauthorized) createFeatureFlagVariantRes()    {}
 func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) createProjectFeatureRes()        {}
 func (*ErrorUnauthorized) createProjectSegmentRes()        {}
+func (*ErrorUnauthorized) createProjectTagRes()            {}
 func (*ErrorUnauthorized) createRuleAttributeRes()         {}
 func (*ErrorUnauthorized) createUserRes()                  {}
+func (*ErrorUnauthorized) deleteCategoryRes()              {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
+func (*ErrorUnauthorized) deleteProjectTagRes()            {}
 func (*ErrorUnauthorized) deleteRuleAttributeRes()         {}
 func (*ErrorUnauthorized) deleteSegmentRes()               {}
 func (*ErrorUnauthorized) deleteUserRes()                  {}
 func (*ErrorUnauthorized) disable2FARes()                  {}
+func (*ErrorUnauthorized) getCategoryRes()                 {}
 func (*ErrorUnauthorized) getCurrentUserRes()              {}
 func (*ErrorUnauthorized) getFeatureRes()                  {}
 func (*ErrorUnauthorized) getFeatureScheduleRes()          {}
@@ -1494,14 +1803,17 @@ func (*ErrorUnauthorized) getLDAPSyncProgressRes()         {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()           {}
 func (*ErrorUnauthorized) getProductInfoRes()              {}
 func (*ErrorUnauthorized) getProjectRes()                  {}
+func (*ErrorUnauthorized) getProjectTagRes()               {}
 func (*ErrorUnauthorized) getSegmentRes()                  {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
+func (*ErrorUnauthorized) listCategoriesRes()              {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
 func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listProjectChangesRes()          {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
+func (*ErrorUnauthorized) listProjectTagsRes()             {}
 func (*ErrorUnauthorized) listProjectsRes()                {}
 func (*ErrorUnauthorized) listRuleAttributesRes()          {}
 func (*ErrorUnauthorized) listSegmentDesyncFeatureIDsRes() {}
@@ -1519,12 +1831,14 @@ func (*ErrorUnauthorized) syncLDAPUsersRes()               {}
 func (*ErrorUnauthorized) testFeatureTimelineRes()         {}
 func (*ErrorUnauthorized) testLDAPConnectionRes()          {}
 func (*ErrorUnauthorized) toggleFeatureRes()               {}
+func (*ErrorUnauthorized) updateCategoryRes()              {}
 func (*ErrorUnauthorized) updateFeatureRes()               {}
 func (*ErrorUnauthorized) updateFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()     {}
 func (*ErrorUnauthorized) updateLicenseRes()               {}
 func (*ErrorUnauthorized) updateProjectRes()               {}
+func (*ErrorUnauthorized) updateProjectTagRes()            {}
 func (*ErrorUnauthorized) updateSegmentRes()               {}
 func (*ErrorUnauthorized) userChangeMyPasswordRes()        {}
 func (*ErrorUnauthorized) verify2FARes()                   {}
@@ -3579,6 +3893,10 @@ func (s *LicenseType) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListCategoriesResponse []Category
+
+func (*ListCategoriesResponse) listCategoriesRes() {}
+
 // Ref: #/components/schemas/ListChangesResponse
 type ListChangesResponse struct {
 	// Project ID.
@@ -3867,6 +4185,10 @@ func (s *ListProjectSegmentsSortBy) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListProjectTagsResponse []ProjectTag
+
+func (*ListProjectTagsResponse) listProjectTagsRes() {}
+
 type ListProjectsResponse []Project
 
 func (*ListProjectsResponse) listProjectsRes() {}
@@ -4123,6 +4445,52 @@ func (o OptBool) Get() (v bool, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptBool) Or(d bool) bool {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptCategory returns new OptCategory with value set to v.
+func NewOptCategory(v Category) OptCategory {
+	return OptCategory{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCategory is optional Category.
+type OptCategory struct {
+	Value Category
+	Set   bool
+}
+
+// IsSet returns true if OptCategory was set.
+func (o OptCategory) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCategory) Reset() {
+	var v Category
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCategory) SetTo(v Category) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCategory) Get() (v Category, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCategory) Or(d Category) Category {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -5042,6 +5410,69 @@ func (o OptNilString) Or(d string) string {
 	return d
 }
 
+// NewOptNilUUID returns new OptNilUUID with value set to v.
+func NewOptNilUUID(v uuid.UUID) OptNilUUID {
+	return OptNilUUID{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilUUID is optional nullable uuid.UUID.
+type OptNilUUID struct {
+	Value uuid.UUID
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilUUID was set.
+func (o OptNilUUID) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilUUID) Reset() {
+	var v uuid.UUID
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilUUID) SetTo(v uuid.UUID) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilUUID) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilUUID) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v uuid.UUID
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilUUID) Get() (v uuid.UUID, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptRuleCondition returns new OptRuleCondition with value set to v.
 func NewOptRuleCondition(v RuleCondition) OptRuleCondition {
 	return OptRuleCondition{
@@ -5508,6 +5939,140 @@ func (s *ProjectResponse) SetProject(val Project) {
 
 func (*ProjectResponse) getProjectRes()    {}
 func (*ProjectResponse) updateProjectRes() {}
+
+// Ref: #/components/schemas/ProjectTag
+type ProjectTag struct {
+	ID          uuid.UUID    `json:"id"`
+	ProjectID   uuid.UUID    `json:"project_id"`
+	CategoryID  OptNilUUID   `json:"category_id"`
+	Name        string       `json:"name"`
+	Slug        string       `json:"slug"`
+	Description OptNilString `json:"description"`
+	Color       OptNilString `json:"color"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
+	// Category this tag belongs to.
+	Category OptCategory `json:"category"`
+}
+
+// GetID returns the value of ID.
+func (s *ProjectTag) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *ProjectTag) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetCategoryID returns the value of CategoryID.
+func (s *ProjectTag) GetCategoryID() OptNilUUID {
+	return s.CategoryID
+}
+
+// GetName returns the value of Name.
+func (s *ProjectTag) GetName() string {
+	return s.Name
+}
+
+// GetSlug returns the value of Slug.
+func (s *ProjectTag) GetSlug() string {
+	return s.Slug
+}
+
+// GetDescription returns the value of Description.
+func (s *ProjectTag) GetDescription() OptNilString {
+	return s.Description
+}
+
+// GetColor returns the value of Color.
+func (s *ProjectTag) GetColor() OptNilString {
+	return s.Color
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ProjectTag) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *ProjectTag) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// GetCategory returns the value of Category.
+func (s *ProjectTag) GetCategory() OptCategory {
+	return s.Category
+}
+
+// SetID sets the value of ID.
+func (s *ProjectTag) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *ProjectTag) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetCategoryID sets the value of CategoryID.
+func (s *ProjectTag) SetCategoryID(val OptNilUUID) {
+	s.CategoryID = val
+}
+
+// SetName sets the value of Name.
+func (s *ProjectTag) SetName(val string) {
+	s.Name = val
+}
+
+// SetSlug sets the value of Slug.
+func (s *ProjectTag) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetDescription sets the value of Description.
+func (s *ProjectTag) SetDescription(val OptNilString) {
+	s.Description = val
+}
+
+// SetColor sets the value of Color.
+func (s *ProjectTag) SetColor(val OptNilString) {
+	s.Color = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ProjectTag) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *ProjectTag) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+// SetCategory sets the value of Category.
+func (s *ProjectTag) SetCategory(val OptCategory) {
+	s.Category = val
+}
+
+// Ref: #/components/schemas/ProjectTagResponse
+type ProjectTagResponse struct {
+	Tag ProjectTag `json:"tag"`
+}
+
+// GetTag returns the value of Tag.
+func (s *ProjectTagResponse) GetTag() ProjectTag {
+	return s.Tag
+}
+
+// SetTag sets the value of Tag.
+func (s *ProjectTagResponse) SetTag(val ProjectTag) {
+	s.Tag = val
+}
+
+func (*ProjectTagResponse) createProjectTagRes() {}
+func (*ProjectTagResponse) getProjectTagRes()    {}
+func (*ProjectTagResponse) updateProjectTagRes() {}
 
 // Ref: #/components/schemas/RefreshTokenRequest
 type RefreshTokenRequest struct {
@@ -6645,6 +7210,54 @@ func (s *TwoFAVerifyResponse) SetExpiresIn(val int) {
 
 func (*TwoFAVerifyResponse) verify2FARes() {}
 
+// Ref: #/components/schemas/UpdateCategoryRequest
+type UpdateCategoryRequest struct {
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Description OptString `json:"description"`
+	Color       OptString `json:"color"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateCategoryRequest) GetName() string {
+	return s.Name
+}
+
+// GetSlug returns the value of Slug.
+func (s *UpdateCategoryRequest) GetSlug() string {
+	return s.Slug
+}
+
+// GetDescription returns the value of Description.
+func (s *UpdateCategoryRequest) GetDescription() OptString {
+	return s.Description
+}
+
+// GetColor returns the value of Color.
+func (s *UpdateCategoryRequest) GetColor() OptString {
+	return s.Color
+}
+
+// SetName sets the value of Name.
+func (s *UpdateCategoryRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetSlug sets the value of Slug.
+func (s *UpdateCategoryRequest) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetDescription sets the value of Description.
+func (s *UpdateCategoryRequest) SetDescription(val OptString) {
+	s.Description = val
+}
+
+// SetColor sets the value of Color.
+func (s *UpdateCategoryRequest) SetColor(val OptString) {
+	s.Color = val
+}
+
 // Ref: #/components/schemas/UpdateFeatureScheduleRequest
 type UpdateFeatureScheduleRequest struct {
 	StartsAt OptNilDateTime `json:"starts_at"`
@@ -6778,6 +7391,66 @@ func (s *UpdateProjectRequest) SetName(val string) {
 // SetDescription sets the value of Description.
 func (s *UpdateProjectRequest) SetDescription(val string) {
 	s.Description = val
+}
+
+// Ref: #/components/schemas/UpdateProjectTagRequest
+type UpdateProjectTagRequest struct {
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Description OptString `json:"description"`
+	Color       OptString `json:"color"`
+	// ID of category to associate with this tag.
+	CategoryID OptNilUUID `json:"category_id"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateProjectTagRequest) GetName() string {
+	return s.Name
+}
+
+// GetSlug returns the value of Slug.
+func (s *UpdateProjectTagRequest) GetSlug() string {
+	return s.Slug
+}
+
+// GetDescription returns the value of Description.
+func (s *UpdateProjectTagRequest) GetDescription() OptString {
+	return s.Description
+}
+
+// GetColor returns the value of Color.
+func (s *UpdateProjectTagRequest) GetColor() OptString {
+	return s.Color
+}
+
+// GetCategoryID returns the value of CategoryID.
+func (s *UpdateProjectTagRequest) GetCategoryID() OptNilUUID {
+	return s.CategoryID
+}
+
+// SetName sets the value of Name.
+func (s *UpdateProjectTagRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetSlug sets the value of Slug.
+func (s *UpdateProjectTagRequest) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetDescription sets the value of Description.
+func (s *UpdateProjectTagRequest) SetDescription(val OptString) {
+	s.Description = val
+}
+
+// SetColor sets the value of Color.
+func (s *UpdateProjectTagRequest) SetColor(val OptString) {
+	s.Color = val
+}
+
+// SetCategoryID sets the value of CategoryID.
+func (s *UpdateProjectTagRequest) SetCategoryID(val OptNilUUID) {
+	s.CategoryID = val
 }
 
 // Ref: #/components/schemas/UpdateSegmentRequest

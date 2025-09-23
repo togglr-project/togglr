@@ -62,6 +62,15 @@ func (UnimplementedHandler) ConsumeSAMLAssertion(ctx context.Context, req *Consu
 	return r, ht.ErrNotImplemented
 }
 
+// CreateCategory implements CreateCategory operation.
+//
+// Create new category.
+//
+// POST /api/v1/categories
+func (UnimplementedHandler) CreateCategory(ctx context.Context, req *CreateCategoryRequest) (r CreateCategoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
 //
 // Create flag variant for feature.
@@ -107,6 +116,15 @@ func (UnimplementedHandler) CreateProjectSegment(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
+// CreateProjectTag implements CreateProjectTag operation.
+//
+// Create new tag for project.
+//
+// POST /api/v1/projects/{project_id}/tags
+func (UnimplementedHandler) CreateProjectTag(ctx context.Context, req *CreateProjectTagRequest, params CreateProjectTagParams) (r CreateProjectTagRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateRuleAttribute implements CreateRuleAttribute operation.
 //
 // Create rule attribute.
@@ -122,6 +140,15 @@ func (UnimplementedHandler) CreateRuleAttribute(ctx context.Context, req *Create
 //
 // POST /api/v1/users
 func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserRequest) (r CreateUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteCategory implements DeleteCategory operation.
+//
+// Delete category.
+//
+// DELETE /api/v1/categories/{category_id}
+func (UnimplementedHandler) DeleteCategory(ctx context.Context, params DeleteCategoryParams) (r DeleteCategoryRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -149,6 +176,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteProjectTag implements DeleteProjectTag operation.
+//
+// Delete tag.
+//
+// DELETE /api/v1/projects/{project_id}/tags/{tag_id}
+func (UnimplementedHandler) DeleteProjectTag(ctx context.Context, params DeleteProjectTagParams) (r DeleteProjectTagRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -194,6 +230,15 @@ func (UnimplementedHandler) Disable2FA(ctx context.Context, req *TwoFADisableReq
 //
 // POST /api/v1/auth/forgot-password
 func (UnimplementedHandler) ForgotPassword(ctx context.Context, req *ForgotPasswordRequest) (r ForgotPasswordRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetCategory implements GetCategory operation.
+//
+// Get category details.
+//
+// GET /api/v1/categories/{category_id}
+func (UnimplementedHandler) GetCategory(ctx context.Context, params GetCategoryParams) (r GetCategoryRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -314,6 +359,15 @@ func (UnimplementedHandler) GetProject(ctx context.Context, params GetProjectPar
 	return r, ht.ErrNotImplemented
 }
 
+// GetProjectTag implements GetProjectTag operation.
+//
+// Get tag details.
+//
+// GET /api/v1/projects/{project_id}/tags/{tag_id}
+func (UnimplementedHandler) GetProjectTag(ctx context.Context, params GetProjectTagParams) (r GetProjectTagRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetSAMLMetadata implements GetSAMLMetadata operation.
 //
 // Get SAML metadata.
@@ -347,6 +401,15 @@ func (UnimplementedHandler) GetSegment(ctx context.Context, params GetSegmentPar
 //
 // GET /api/v1/feature-schedules
 func (UnimplementedHandler) ListAllFeatureSchedules(ctx context.Context) (r ListAllFeatureSchedulesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListCategories implements ListCategories operation.
+//
+// Get categories list.
+//
+// GET /api/v1/categories
+func (UnimplementedHandler) ListCategories(ctx context.Context) (r ListCategoriesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -401,6 +464,15 @@ func (UnimplementedHandler) ListProjectFeatures(ctx context.Context, params List
 //
 // GET /api/v1/projects/{project_id}/segments
 func (UnimplementedHandler) ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (r ListProjectSegmentsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectTags implements ListProjectTags operation.
+//
+// Get tags list for project.
+//
+// GET /api/v1/projects/{project_id}/tags
+func (UnimplementedHandler) ListProjectTags(ctx context.Context, params ListProjectTagsParams) (r ListProjectTagsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -575,6 +647,15 @@ func (UnimplementedHandler) ToggleFeature(ctx context.Context, req *ToggleFeatur
 	return r, ht.ErrNotImplemented
 }
 
+// UpdateCategory implements UpdateCategory operation.
+//
+// Update category.
+//
+// PUT /api/v1/categories/{category_id}
+func (UnimplementedHandler) UpdateCategory(ctx context.Context, req *UpdateCategoryRequest, params UpdateCategoryParams) (r UpdateCategoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UpdateFeature implements UpdateFeature operation.
 //
 // Update feature with rules and variants.
@@ -626,6 +707,15 @@ func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *Up
 //
 // PUT /api/v1/projects/{project_id}
 func (UnimplementedHandler) UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (r UpdateProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateProjectTag implements UpdateProjectTag operation.
+//
+// Update tag.
+//
+// PUT /api/v1/projects/{project_id}/tags/{tag_id}
+func (UnimplementedHandler) UpdateProjectTag(ctx context.Context, req *UpdateProjectTagRequest, params UpdateProjectTagParams) (r UpdateProjectTagRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

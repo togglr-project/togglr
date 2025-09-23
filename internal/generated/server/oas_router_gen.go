@@ -263,6 +263,68 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'c': // Prefix: "categories"
+
+				if l := len("categories"); len(elem) >= l && elem[0:l] == "categories" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleListCategoriesRequest([0]string{}, elemIsEscaped, w, r)
+					case "POST":
+						s.handleCreateCategoryRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET,POST")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "category_id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch r.Method {
+						case "DELETE":
+							s.handleDeleteCategoryRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleGetCategoryRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateCategoryRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "DELETE,GET,PUT")
+						}
+
+						return
+					}
+
+				}
+
 			case 'f': // Prefix: "feature"
 
 				if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
@@ -1089,6 +1151,75 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									}
 
 									return
+								}
+
+							case 't': // Prefix: "tags"
+
+								if l := len("tags"); len(elem) >= l && elem[0:l] == "tags" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch r.Method {
+									case "GET":
+										s.handleListProjectTagsRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									case "POST":
+										s.handleCreateProjectTagRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET,POST")
+									}
+
+									return
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "tag_id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "DELETE":
+											s.handleDeleteProjectTagRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										case "GET":
+											s.handleGetProjectTagRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										case "PUT":
+											s.handleUpdateProjectTagRequest([2]string{
+												args[0],
+												args[1],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "DELETE,GET,PUT")
+										}
+
+										return
+									}
+
 								}
 
 							}
@@ -1929,6 +2060,88 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 
+					}
+
+				}
+
+			case 'c': // Prefix: "categories"
+
+				if l := len("categories"); len(elem) >= l && elem[0:l] == "categories" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = ListCategoriesOperation
+						r.summary = "Get categories list"
+						r.operationID = "ListCategories"
+						r.pathPattern = "/api/v1/categories"
+						r.args = args
+						r.count = 0
+						return r, true
+					case "POST":
+						r.name = CreateCategoryOperation
+						r.summary = "Create new category"
+						r.operationID = "CreateCategory"
+						r.pathPattern = "/api/v1/categories"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					// Param: "category_id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
+					if len(elem) == 0 {
+						// Leaf node.
+						switch method {
+						case "DELETE":
+							r.name = DeleteCategoryOperation
+							r.summary = "Delete category"
+							r.operationID = "DeleteCategory"
+							r.pathPattern = "/api/v1/categories/{category_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetCategoryOperation
+							r.summary = "Get category details"
+							r.operationID = "GetCategory"
+							r.pathPattern = "/api/v1/categories/{category_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateCategoryOperation
+							r.summary = "Update category"
+							r.operationID = "UpdateCategory"
+							r.pathPattern = "/api/v1/categories/{category_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						default:
+							return
+						}
 					}
 
 				}
@@ -2898,6 +3111,88 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 									default:
 										return
 									}
+								}
+
+							case 't': // Prefix: "tags"
+
+								if l := len("tags"); len(elem) >= l && elem[0:l] == "tags" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									switch method {
+									case "GET":
+										r.name = ListProjectTagsOperation
+										r.summary = "Get tags list for project"
+										r.operationID = "ListProjectTags"
+										r.pathPattern = "/api/v1/projects/{project_id}/tags"
+										r.args = args
+										r.count = 1
+										return r, true
+									case "POST":
+										r.name = CreateProjectTagOperation
+										r.summary = "Create new tag for project"
+										r.operationID = "CreateProjectTag"
+										r.pathPattern = "/api/v1/projects/{project_id}/tags"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+								switch elem[0] {
+								case '/': // Prefix: "/"
+
+									if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									// Param: "tag_id"
+									// Leaf parameter, slashes are prohibited
+									idx := strings.IndexByte(elem, '/')
+									if idx >= 0 {
+										break
+									}
+									args[1] = elem
+									elem = ""
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "DELETE":
+											r.name = DeleteProjectTagOperation
+											r.summary = "Delete tag"
+											r.operationID = "DeleteProjectTag"
+											r.pathPattern = "/api/v1/projects/{project_id}/tags/{tag_id}"
+											r.args = args
+											r.count = 2
+											return r, true
+										case "GET":
+											r.name = GetProjectTagOperation
+											r.summary = "Get tag details"
+											r.operationID = "GetProjectTag"
+											r.pathPattern = "/api/v1/projects/{project_id}/tags/{tag_id}"
+											r.args = args
+											r.count = 2
+											return r, true
+										case "PUT":
+											r.name = UpdateProjectTagOperation
+											r.summary = "Update tag"
+											r.operationID = "UpdateProjectTag"
+											r.pathPattern = "/api/v1/projects/{project_id}/tags/{tag_id}"
+											r.args = args
+											r.count = 2
+											return r, true
+										default:
+											return
+										}
+									}
+
 								}
 
 							}

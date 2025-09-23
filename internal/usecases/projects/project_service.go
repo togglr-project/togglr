@@ -15,15 +15,18 @@ import (
 type ProjectService struct {
 	projectRepo  contract.ProjectsRepository
 	auditLogRepo contract.AuditLogRepository
+	tagsUseCase  contract.TagsUseCase
 }
 
 func New(
 	projectRepo contract.ProjectsRepository,
 	auditLogRepo contract.AuditLogRepository,
+	tagsUseCase contract.TagsUseCase,
 ) *ProjectService {
 	return &ProjectService{
 		projectRepo:  projectRepo,
 		auditLogRepo: auditLogRepo,
+		tagsUseCase:  tagsUseCase,
 	}
 }
 
@@ -44,6 +47,13 @@ func (s *ProjectService) CreateProject(
 	id, err := s.projectRepo.Create(ctx, &project)
 	if err != nil {
 		return domain.Project{}, fmt.Errorf("create project: %w", err)
+	}
+
+	// Create tags from system categories
+	err = s.tagsUseCase.CreateTagsFromCategories(ctx, id)
+	if err != nil {
+		slog.Error("failed to create tags from categories", "error", err, "project_id", id)
+		// Don't fail project creation if tag creation fails
 	}
 
 	return domain.Project{

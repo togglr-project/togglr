@@ -42,6 +42,12 @@ type Handler interface {
 	//
 	// POST /api/v1/saml/acs
 	ConsumeSAMLAssertion(ctx context.Context, req *ConsumeSAMLAssertionReq) (ConsumeSAMLAssertionRes, error)
+	// CreateCategory implements CreateCategory operation.
+	//
+	// Create new category.
+	//
+	// POST /api/v1/categories
+	CreateCategory(ctx context.Context, req *CreateCategoryRequest) (CreateCategoryRes, error)
 	// CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
 	//
 	// Create flag variant for feature.
@@ -72,6 +78,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/segments
 	CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
+	// CreateProjectTag implements CreateProjectTag operation.
+	//
+	// Create new tag for project.
+	//
+	// POST /api/v1/projects/{project_id}/tags
+	CreateProjectTag(ctx context.Context, req *CreateProjectTagRequest, params CreateProjectTagParams) (CreateProjectTagRes, error)
 	// CreateRuleAttribute implements CreateRuleAttribute operation.
 	//
 	// Create rule attribute.
@@ -84,6 +96,12 @@ type Handler interface {
 	//
 	// POST /api/v1/users
 	CreateUser(ctx context.Context, req *CreateUserRequest) (CreateUserRes, error)
+	// DeleteCategory implements DeleteCategory operation.
+	//
+	// Delete category.
+	//
+	// DELETE /api/v1/categories/{category_id}
+	DeleteCategory(ctx context.Context, params DeleteCategoryParams) (DeleteCategoryRes, error)
 	// DeleteFeature implements DeleteFeature operation.
 	//
 	// Delete feature.
@@ -102,6 +120,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteProjectTag implements DeleteProjectTag operation.
+	//
+	// Delete tag.
+	//
+	// DELETE /api/v1/projects/{project_id}/tags/{tag_id}
+	DeleteProjectTag(ctx context.Context, params DeleteProjectTagParams) (DeleteProjectTagRes, error)
 	// DeleteRuleAttribute implements DeleteRuleAttribute operation.
 	//
 	// Delete rule attribute.
@@ -132,6 +156,12 @@ type Handler interface {
 	//
 	// POST /api/v1/auth/forgot-password
 	ForgotPassword(ctx context.Context, req *ForgotPasswordRequest) (ForgotPasswordRes, error)
+	// GetCategory implements GetCategory operation.
+	//
+	// Get category details.
+	//
+	// GET /api/v1/categories/{category_id}
+	GetCategory(ctx context.Context, params GetCategoryParams) (GetCategoryRes, error)
 	// GetCurrentUser implements GetCurrentUser operation.
 	//
 	// Get current user information.
@@ -210,6 +240,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}
 	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetProjectTag implements GetProjectTag operation.
+	//
+	// Get tag details.
+	//
+	// GET /api/v1/projects/{project_id}/tags/{tag_id}
+	GetProjectTag(ctx context.Context, params GetProjectTagParams) (GetProjectTagRes, error)
 	// GetSAMLMetadata implements GetSAMLMetadata operation.
 	//
 	// Get SAML metadata.
@@ -234,6 +270,12 @@ type Handler interface {
 	//
 	// GET /api/v1/feature-schedules
 	ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error)
+	// ListCategories implements ListCategories operation.
+	//
+	// Get categories list.
+	//
+	// GET /api/v1/categories
+	ListCategories(ctx context.Context) (ListCategoriesRes, error)
 	// ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
 	//
 	// List flag variants for feature.
@@ -270,6 +312,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/segments
 	ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (ListProjectSegmentsRes, error)
+	// ListProjectTags implements ListProjectTags operation.
+	//
+	// Get tags list for project.
+	//
+	// GET /api/v1/projects/{project_id}/tags
+	ListProjectTags(ctx context.Context, params ListProjectTagsParams) (ListProjectTagsRes, error)
 	// ListProjects implements ListProjects operation.
 	//
 	// Get projects list.
@@ -384,6 +432,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/features/{feature_id}/toggle
 	ToggleFeature(ctx context.Context, req *ToggleFeatureRequest, params ToggleFeatureParams) (ToggleFeatureRes, error)
+	// UpdateCategory implements UpdateCategory operation.
+	//
+	// Update category.
+	//
+	// PUT /api/v1/categories/{category_id}
+	UpdateCategory(ctx context.Context, req *UpdateCategoryRequest, params UpdateCategoryParams) (UpdateCategoryRes, error)
 	// UpdateFeature implements UpdateFeature operation.
 	//
 	// Update feature with rules and variants.
@@ -420,6 +474,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateProjectTag implements UpdateProjectTag operation.
+	//
+	// Update tag.
+	//
+	// PUT /api/v1/projects/{project_id}/tags/{tag_id}
+	UpdateProjectTag(ctx context.Context, req *UpdateProjectTagRequest, params UpdateProjectTagParams) (UpdateProjectTagRes, error)
 	// UpdateSegment implements UpdateSegment operation.
 	//
 	// Update segment.

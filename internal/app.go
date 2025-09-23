@@ -11,7 +11,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/rom8726/etoggle/internal/api/backend"
+	apibackend "github.com/rom8726/etoggle/internal/api/backend"
 	"github.com/rom8726/etoggle/internal/api/backend/middlewares"
 	apisdk "github.com/rom8726/etoggle/internal/api/sdk"
 	"github.com/rom8726/etoggle/internal/config"
@@ -21,6 +21,7 @@ import (
 	generatedserver "github.com/rom8726/etoggle/internal/generated/server"
 	"github.com/rom8726/etoggle/internal/license"
 	"github.com/rom8726/etoggle/internal/repository/auditlog"
+	"github.com/rom8726/etoggle/internal/repository/categories"
 	"github.com/rom8726/etoggle/internal/repository/features"
 	"github.com/rom8726/etoggle/internal/repository/featureschedules"
 	"github.com/rom8726/etoggle/internal/repository/flagvariants"
@@ -34,6 +35,7 @@ import (
 	"github.com/rom8726/etoggle/internal/repository/rules"
 	segmentsrepo "github.com/rom8726/etoggle/internal/repository/segments"
 	"github.com/rom8726/etoggle/internal/repository/settings"
+	"github.com/rom8726/etoggle/internal/repository/tags"
 	"github.com/rom8726/etoggle/internal/repository/users"
 	ratelimiter2fa "github.com/rom8726/etoggle/internal/services/2fa/ratelimiter"
 	featuresprocessor "github.com/rom8726/etoggle/internal/services/features-processor"
@@ -43,6 +45,7 @@ import (
 	ssoprovidermanager "github.com/rom8726/etoggle/internal/services/sso/provider-manager"
 	samlprovider "github.com/rom8726/etoggle/internal/services/sso/saml"
 	"github.com/rom8726/etoggle/internal/services/tokenizer"
+	categoriesusecase "github.com/rom8726/etoggle/internal/usecases/categories"
 	featuresusecase "github.com/rom8726/etoggle/internal/usecases/features"
 	featureschedulesusecase "github.com/rom8726/etoggle/internal/usecases/featureschedules"
 	flagvariantsusecase "github.com/rom8726/etoggle/internal/usecases/flagvariants"
@@ -54,6 +57,7 @@ import (
 	rulesusecase "github.com/rom8726/etoggle/internal/usecases/rules"
 	segmentsusecase "github.com/rom8726/etoggle/internal/usecases/segments"
 	settingsusecase "github.com/rom8726/etoggle/internal/usecases/settings"
+	tagsusecase "github.com/rom8726/etoggle/internal/usecases/tags"
 	usersusecase "github.com/rom8726/etoggle/internal/usecases/users"
 	"github.com/rom8726/etoggle/pkg/db"
 	"github.com/rom8726/etoggle/pkg/httpserver"
@@ -184,6 +188,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(projects.New).Arg(app.PostgresPool)
 	app.registerComponent(users.New).Arg(app.PostgresPool)
 	app.registerComponent(ldapsyncstats.New).Arg(app.PostgresPool)
+	app.registerComponent(categories.New).Arg(app.PostgresPool)
+	app.registerComponent(tags.New).Arg(app.PostgresPool)
 	app.registerComponent(ldapsynclogs.New).Arg(app.PostgresPool)
 	app.registerComponent(settings.New).Arg(app.PostgresPool)
 	app.registerComponent(licenses.New).Arg(app.PostgresPool)
@@ -213,6 +219,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(projectsusecase.New)
 	app.registerComponent(ldapusecase.New)
 	app.registerComponent(settingsusecase.New).Arg(app.Config.SecretKey)
+	app.registerComponent(categoriesusecase.New)
+	app.registerComponent(tagsusecase.New)
 	app.registerComponent(licenseusecase.New)
 	app.registerComponent(productinfousecase.New)
 	app.registerComponent(featuresusecase.New)
