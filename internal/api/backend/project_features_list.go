@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/google/uuid"
+
 	"github.com/rom8726/etoggle/internal/contract"
 	"github.com/rom8726/etoggle/internal/domain"
 	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
@@ -85,6 +87,50 @@ func (r *RestAPI) ListProjectFeatures(
 			nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)
 		}
 
+		// Get feature tags
+		tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, it.ID)
+		if err != nil {
+			slog.Warn("failed to load feature tags", "error", err, "feature_id", it.ID)
+			tags = []domain.Tag{} // Continue with empty tags
+		}
+
+		// Convert tags to API format
+		tagsResp := make([]generatedapi.ProjectTag, 0, len(tags))
+		for _, tag := range tags {
+			var description generatedapi.OptNilString
+			if tag.Description != nil {
+				description = generatedapi.NewOptNilString(*tag.Description)
+			}
+
+			var color generatedapi.OptNilString
+			if tag.Color != nil {
+				color = generatedapi.NewOptNilString(*tag.Color)
+			}
+
+			var categoryID generatedapi.OptNilUUID
+			if tag.CategoryID != nil {
+				catID, err := uuid.Parse(tag.CategoryID.String())
+				if err == nil {
+					categoryID = generatedapi.NewOptNilUUID(catID)
+				}
+			}
+
+			tagID, err := uuid.Parse(tag.ID.String())
+			if err != nil {
+				slog.Warn("invalid tag ID", "error", err, "tag_id", tag.ID)
+				continue
+			}
+
+			tagsResp = append(tagsResp, generatedapi.ProjectTag{
+				ID:          tagID,
+				Name:        tag.Name,
+				Slug:        tag.Slug,
+				Description: description,
+				Color:       color,
+				CategoryID:  categoryID,
+			})
+		}
+
 		itemsResp = append(itemsResp, generatedapi.FeatureExtended{
 			ID:             it.ID.String(),
 			ProjectID:      it.ProjectID.String(),
@@ -100,6 +146,7 @@ func (r *RestAPI) ListProjectFeatures(
 			IsActive:       r.featureProcessor.IsFeatureActive(it),
 			NextState:      nextState,
 			NextStateTime:  nextStateTimeOpt,
+			Tags:           tagsResp,
 		})
 	}
 

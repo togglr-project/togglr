@@ -28,6 +28,7 @@ import {
   ChevronRight as ChevronRightIcon,
   FolderOutlined as ProjectsIcon,
   Category as CategoriesIcon,
+  LocalOffer as TagsIcon,
   BugReportOutlined as IssuesIcon,
   SettingsOutlined as SettingsIcon,
   Menu as MenuIcon,
@@ -481,6 +482,52 @@ const Layout: React.FC<LayoutProps> = ({
                     primaryTypographyProps={{
                       fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 600 : 500,
                       color: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 'primary.main' : 'inherit',
+                    }}
+                    sx={{ 
+                      opacity: open ? 1 : 0,
+                      ml: 0.5,
+                    }} 
+                  />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Tags menu item */}
+              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    py: 1.2,
+                    borderRadius: 2,
+                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? (
+                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                    ) : 'transparent',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.06)' 
+                        : 'rgba(130, 82, 255, 0.06)',
+                    },
+                  }}
+                  onClick={() => {
+                    if (currentProjectId) navigate(`/projects/${currentProjectId}/tags`);
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 'primary.main' : 'inherit',
+                    }}
+                  >
+                    <TagsIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={'Tags'} 
+                    primaryTypographyProps={{
+                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 600 : 500,
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 'primary.main' : 'inherit',
                     }}
                     sx={{ 
                       opacity: open ? 1 : 0,

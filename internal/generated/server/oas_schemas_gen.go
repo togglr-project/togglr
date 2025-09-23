@@ -2088,6 +2088,8 @@ type FeatureExtended struct {
 	NextState OptNilBool `json:"next_state"`
 	// Timestamp when the feature will transition to the next state (null if no schedule).
 	NextStateTime OptNilDateTime `json:"next_state_time"`
+	// Tags associated with this feature.
+	Tags []ProjectTag `json:"tags"`
 }
 
 // GetID returns the value of ID.
@@ -2160,6 +2162,11 @@ func (s *FeatureExtended) GetNextStateTime() OptNilDateTime {
 	return s.NextStateTime
 }
 
+// GetTags returns the value of Tags.
+func (s *FeatureExtended) GetTags() []ProjectTag {
+	return s.Tags
+}
+
 // SetID sets the value of ID.
 func (s *FeatureExtended) SetID(val string) {
 	s.ID = val
@@ -2228,6 +2235,11 @@ func (s *FeatureExtended) SetNextState(val OptNilBool) {
 // SetNextStateTime sets the value of NextStateTime.
 func (s *FeatureExtended) SetNextStateTime(val OptNilDateTime) {
 	s.NextStateTime = val
+}
+
+// SetTags sets the value of Tags.
+func (s *FeatureExtended) SetTags(val []ProjectTag) {
+	s.Tags = val
 }
 
 // Ref: #/components/schemas/FeatureKind

@@ -110,14 +110,14 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
     );
   }
 
-  // Load feature details to get variants
+  // Load feature details to get variants and tags
   const { data: featureDetails } = useQuery<FeatureDetailsResponse>({
     queryKey: ['feature-details', selectedFeature.id],
     queryFn: async () => {
       const response = await apiClient.getFeature(selectedFeature.id);
       return response.data;
     },
-    enabled: !!selectedFeature && selectedFeature.kind === 'multivariant',
+    enabled: !!selectedFeature,
   });
 
   // Load feature changes history

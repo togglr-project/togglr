@@ -21,6 +21,7 @@ import ProjectSegmentsPage from './pages/ProjectSegmentsPage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import CategoriesPage from './pages/CategoriesPage';
+import ProjectTagsPage from './pages/ProjectTagsPage';
 import AdminPage from './pages/AdminPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
@@ -101,6 +102,7 @@ function App() {
                         <Route path="/projects/:projectId" element={<LicenseGuard><ProjectPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/scheduling" element={<LicenseGuard><ProjectSchedulingPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/segments" element={<LicenseGuard><ProjectSegmentsPage /></LicenseGuard>} />
+                        <Route path="/projects/:projectId/tags" element={<LicenseGuard><ProjectTagsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
                         <Route path="/admin" element={<LicenseGuard><AdminPage /></LicenseGuard>} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />

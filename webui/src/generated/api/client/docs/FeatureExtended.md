@@ -19,6 +19,7 @@ Name | Type | Description | Notes
 **is_active** | **boolean** | Indicates if the feature is currently active (taking schedules) | [default to undefined]
 **next_state** | **boolean** | Indicates the next state the feature will transition to based on schedule (null if no schedule) | [optional] [default to undefined]
 **next_state_time** | **string** | Timestamp when the feature will transition to the next state (null if no schedule) | [optional] [default to undefined]
+**tags** | [**Array&lt;ProjectTag&gt;**](ProjectTag.md) | Tags associated with this feature | [optional] [default to undefined]
 
 ## Example
 
@@ -40,6 +41,7 @@ const instance: FeatureExtended = {
     is_active,
     next_state,
     next_state_time,
+    tags,
 };
 ```
 

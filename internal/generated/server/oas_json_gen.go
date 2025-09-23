@@ -5052,9 +5052,19 @@ func (s *FeatureExtended) encodeFields(e *jx.Encoder) {
 			s.NextStateTime.Encode(e, json.EncodeDateTime)
 		}
 	}
+	{
+		if s.Tags != nil {
+			e.FieldStart("tags")
+			e.ArrStart()
+			for _, elem := range s.Tags {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
 }
 
-var jsonFieldsNameOfFeatureExtended = [14]string{
+var jsonFieldsNameOfFeatureExtended = [15]string{
 	0:  "id",
 	1:  "project_id",
 	2:  "key",
@@ -5069,6 +5079,7 @@ var jsonFieldsNameOfFeatureExtended = [14]string{
 	11: "is_active",
 	12: "next_state",
 	13: "next_state_time",
+	14: "tags",
 }
 
 // Decode decodes FeatureExtended from json.
@@ -5237,6 +5248,23 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"next_state_time\"")
+			}
+		case "tags":
+			if err := func() error {
+				s.Tags = make([]ProjectTag, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem ProjectTag
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Tags = append(s.Tags, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"tags\"")
 			}
 		default:
 			return d.Skip()
