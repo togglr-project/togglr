@@ -5,16 +5,17 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) ListFeatureTags(
 	ctx context.Context,
 	params generatedapi.ListFeatureTagsParams,
 ) (generatedapi.ListFeatureTagsRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	featureID := domain.FeatureID(params.FeatureID.String())
 
 	// Get feature tags

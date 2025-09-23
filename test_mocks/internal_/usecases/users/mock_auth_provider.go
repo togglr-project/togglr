@@ -7,8 +7,8 @@ package mockusers
 import (
 	"context"
 
-	"github.com/rom8726/etoggle/internal/domain"
 	mock "github.com/stretchr/testify/mock"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // NewMockAuthProvider creates a new instance of MockAuthProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -4,8 +4,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rom8726/etoggle/internal/contract"
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 var _ contract.TwoFARateLimiter = (*InMemoryTwoFARateLimiter)(nil)

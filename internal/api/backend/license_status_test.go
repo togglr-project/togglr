@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
-	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 )
 
 func TestGetLicenseStatus(t *testing.T) {

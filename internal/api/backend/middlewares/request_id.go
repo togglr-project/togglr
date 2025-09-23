@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	appcontext "github.com/togglr-project/togglr/internal/context"
 )
 
 const (
@@ -19,7 +19,7 @@ func RequestIDMdw(next http.Handler) http.Handler {
 			reqID = uuid.NewString()
 		}
 
-		ctx := etogglcontext.WithRequestID(request.Context(), reqID)
+		ctx := appcontext.WithRequestID(request.Context(), reqID)
 
 		next.ServeHTTP(writer, request.WithContext(ctx))
 	})

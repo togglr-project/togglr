@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 func TestBuildFeatureTimeline(t *testing.T) {

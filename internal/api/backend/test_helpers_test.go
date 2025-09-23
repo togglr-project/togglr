@@ -3,7 +3,7 @@ package apibackend
 import (
 	"time"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // domainUserIDPtr создает указатель на domain.UserID.

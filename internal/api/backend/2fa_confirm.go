@@ -6,16 +6,16 @@ import (
 
 	"github.com/pkg/errors"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) Confirm2FA(
 	ctx context.Context,
 	req *generatedapi.TwoFAConfirmRequest,
 ) (generatedapi.Confirm2FARes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	err := r.usersUseCase.Confirm2FA(ctx, userID, req.Code)
 	if err != nil {
 		switch {

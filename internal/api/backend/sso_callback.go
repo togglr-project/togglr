@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) SSOCallback(
@@ -16,7 +16,7 @@ func (r *RestAPI) SSOCallback(
 	request *generatedapi.SSOCallbackRequest,
 ) (generatedapi.SSOCallbackRes, error) {
 	accessToken, refreshToken, _, err := r.usersUseCase.SSOCallback(
-		ctx, request.Provider, etogglcontext.RawRequest(ctx), request.Response, request.State)
+		ctx, request.Provider, appcontext.RawRequest(ctx), request.Response, request.State)
 	if err != nil {
 		slog.Error("SSO callback failed", "error", err)
 

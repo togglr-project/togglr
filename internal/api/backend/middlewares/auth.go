@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/contract"
-	"github.com/rom8726/etoggle/internal/domain"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // AuthMiddleware extracts the user ID from the request and sets it in the context.
@@ -44,9 +44,9 @@ func AuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCase
 			}
 
 			// Set the user ID and superuser flag in the context
-			ctx := etogglcontext.WithUserID(request.Context(), user.ID)
-			ctx = etogglcontext.WithUsername(ctx, user.Username)
-			ctx = etogglcontext.WithIsSuper(ctx, user.IsSuperuser)
+			ctx := appcontext.WithUserID(request.Context(), user.ID)
+			ctx = appcontext.WithUsername(ctx, user.Username)
+			ctx = appcontext.WithIsSuper(ctx, user.IsSuperuser)
 
 			// Continue with the modified context
 			next.ServeHTTP(writer, request.WithContext(ctx))

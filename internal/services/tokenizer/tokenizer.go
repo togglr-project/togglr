@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 var (

@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) CreateRuleAttribute(
@@ -14,7 +14,7 @@ func (r *RestAPI) CreateRuleAttribute(
 	req *generatedapi.CreateRuleAttributeRequest,
 ) (generatedapi.CreateRuleAttributeRes, error) {
 	// Only superuser can create attributes
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("unauthorized"),
 		}}, nil

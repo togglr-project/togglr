@@ -5,19 +5,19 @@ import (
 	"fmt"
 	"time"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) CancelLDAPSync(ctx context.Context) (generatedapi.CancelLDAPSyncRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -36,13 +36,13 @@ func (r *RestAPI) CancelLDAPSync(ctx context.Context) (generatedapi.CancelLDAPSy
 }
 
 func (r *RestAPI) DeleteLDAPConfig(ctx context.Context) (generatedapi.DeleteLDAPConfigRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -54,13 +54,13 @@ func (r *RestAPI) DeleteLDAPConfig(ctx context.Context) (generatedapi.DeleteLDAP
 }
 
 func (r *RestAPI) GetLDAPConfig(ctx context.Context) (generatedapi.GetLDAPConfigRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -90,13 +90,13 @@ func (r *RestAPI) GetLDAPConfig(ctx context.Context) (generatedapi.GetLDAPConfig
 }
 
 func (r *RestAPI) GetLDAPStatistics(ctx context.Context) (generatedapi.GetLDAPStatisticsRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -121,13 +121,13 @@ func (r *RestAPI) GetLDAPSyncLogDetails(
 	ctx context.Context,
 	params generatedapi.GetLDAPSyncLogDetailsParams,
 ) (generatedapi.GetLDAPSyncLogDetailsRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -157,13 +157,13 @@ func (r *RestAPI) GetLDAPSyncLogs(
 	ctx context.Context,
 	params generatedapi.GetLDAPSyncLogsParams,
 ) (generatedapi.GetLDAPSyncLogsRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -203,13 +203,13 @@ func (r *RestAPI) GetLDAPSyncLogs(
 }
 
 func (r *RestAPI) GetLDAPSyncProgress(ctx context.Context) (generatedapi.GetLDAPSyncProgressRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -234,13 +234,13 @@ func (r *RestAPI) GetLDAPSyncProgress(ctx context.Context) (generatedapi.GetLDAP
 }
 
 func (r *RestAPI) GetLDAPSyncStatus(ctx context.Context) (generatedapi.GetLDAPSyncStatusRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -265,13 +265,13 @@ func (r *RestAPI) GetLDAPSyncStatus(ctx context.Context) (generatedapi.GetLDAPSy
 }
 
 func (r *RestAPI) SyncLDAPUsers(ctx context.Context) (generatedapi.SyncLDAPUsersRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -292,13 +292,13 @@ func (r *RestAPI) SyncLDAPUsers(ctx context.Context) (generatedapi.SyncLDAPUsers
 func (r *RestAPI) TestLDAPConnection(
 	ctx context.Context, _ *generatedapi.LDAPConnectionTest,
 ) (generatedapi.TestLDAPConnectionRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
@@ -320,13 +320,13 @@ func (r *RestAPI) UpdateLDAPConfig(
 	ctx context.Context,
 	req *generatedapi.LDAPConfig,
 ) (generatedapi.UpdateLDAPConfigRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	if userID == 0 {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil

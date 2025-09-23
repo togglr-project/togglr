@@ -1,6 +1,6 @@
-# eToggle
+# Togglr
 
-eToggle is a feature flag and experimentation platform for modern applications.
+Togglr is a feature flag and experimentation platform for modern applications.
 It allows developers and product teams to toggle features on/off, run A/B tests, and roll out changes progressively without redeploying code.
 
 ✨ Features
@@ -22,7 +22,7 @@ It allows developers and product teams to toggle features on/off, run A/B tests,
    - Client-side caching and periodic refresh.
    - Context-aware evaluation (userID, attributes, etc.).
  - Service architecture
-   - Central API service (etoggld) for flag storage and evaluation.
+   - Central API service for flag storage and evaluation.
    - PostgreSQL as primary storage (with migrations).
    - CLI tool (ffctl) for DevOps and automation.
    - REST/gRPC APIs for integration.

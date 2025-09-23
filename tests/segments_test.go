@@ -5,7 +5,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/rom8726/etoggle/tests/runner"
+	"github.com/togglr-project/togglr/tests/runner"
 )
 
 func TestSegmentsAPI(t *testing.T) {

@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	appctx "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	"github.com/rom8726/etoggle/pkg/db"
+	appctx "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 // ActorFromContext returns an audit actor string. If a user is present in context, returns "user", else "system".

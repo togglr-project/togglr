@@ -8,9 +8,9 @@ import (
 
 	"github.com/ogen-go/ogen/ogenerrors"
 
-	"github.com/rom8726/etoggle/internal/config"
-	"github.com/rom8726/etoggle/internal/contract"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	"github.com/togglr-project/togglr/internal/config"
+	"github.com/togglr-project/togglr/internal/contract"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 var _ generatedapi.Handler = (*RestAPI)(nil)

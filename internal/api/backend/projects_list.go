@@ -4,12 +4,12 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) ListProjects(ctx context.Context) (generatedapi.ListProjectsRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 
 	// Get all projects
 	allProjects, err := r.projectsUseCase.List(ctx)

@@ -7,8 +7,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/rom8726/etoggle/internal/domain"
-	mockusers "github.com/rom8726/etoggle/test_mocks/internal_/usecases/users"
+	"github.com/togglr-project/togglr/internal/domain"
+	mockusers "github.com/togglr-project/togglr/test_mocks/internal_/usecases/users"
 )
 
 func TestNewAuthProviderChain(t *testing.T) {

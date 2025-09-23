@@ -7,9 +7,9 @@ import (
 
 	"github.com/google/uuid"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) UpdateProjectTag(
@@ -17,7 +17,7 @@ func (r *RestAPI) UpdateProjectTag(
 	req *generatedapi.UpdateProjectTagRequest,
 	params generatedapi.UpdateProjectTagParams,
 ) (generatedapi.UpdateProjectTagRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	projectID := domain.ProjectID(params.ProjectID.String())
 	tagID := domain.TagID(params.TagID.String())
 

@@ -7,8 +7,8 @@ import (
 
 	"github.com/ogen-go/ogen/ogenerrors"
 
-	"github.com/rom8726/etoggle/internal/contract"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/sdkserver"
+	"github.com/togglr-project/togglr/internal/contract"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
 )
 
 var _ generatedapi.Handler = (*SDKRestAPI)(nil)

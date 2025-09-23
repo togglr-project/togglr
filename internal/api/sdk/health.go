@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	generatedapi "github.com/rom8726/etoggle/internal/generated/sdkserver"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
 )
 
 func (*SDKRestAPI) SdkV1HealthGet(context.Context) (generatedapi.SdkV1HealthGetRes, error) {

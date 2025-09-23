@@ -6,8 +6,8 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 // UpdateFeature handles PUT /api/v1/features/{feature_id}

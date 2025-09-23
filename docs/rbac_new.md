@@ -1,4 +1,4 @@
-# RBAC 2.0 for etoggl
+# RBAC 2.0 for Togglr
 
 Goal: design a robust, extensible RBAC that fits our Clean Architecture and current codebase
 without forcing per-endpoint ad-hoc checks. This document defines the target architecture,
@@ -179,7 +179,7 @@ package contract
 import (
     "context"
 
-    "github.com/rom8726/etoggle/internal/domain"
+    "github.com/togglr-project/togglr/internal/domain"
 )
 
 type RolesRepository interface {
@@ -251,9 +251,9 @@ package permissions
 import (
     "context"
 
-    etx "github.com/rom8726/etoggle/internal/context"
-    "github.com/rom8726/etoggle/internal/contract"
-    "github.com/rom8726/etoggle/internal/domain"
+    etx "github.com/togglr-project/togglr/internal/context"
+    "github.com/togglr-project/togglr/internal/contract"
+    "github.com/togglr-project/togglr/internal/domain"
 )
 
 type Service struct {
@@ -356,7 +356,7 @@ package rest
 import (
     "context"
 
-    "github.com/rom8726/etoggle/internal/domain"
+    "github.com/togglr-project/togglr/internal/domain"
 )
 
 type policy struct {
@@ -467,7 +467,7 @@ Commands:
 
 ## 11. Notes and decisions
 
-- Superuser bypass remains in effect via context (etoggle/internal/context.IsSuper).
+- Superuser bypass remains in effect via context (togglr/internal/context.IsSuper).
 - RBAC scope is per project. Feature permissions are evaluated in the context of the feature's
   project. Extractors can map feature id -> project id using a read path.
 - Performance: we can add small caches for role->permissions and membership lookups with short TTL

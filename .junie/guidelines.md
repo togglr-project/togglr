@@ -753,7 +753,7 @@ Each test step typically includes:
     path: /api/v1/auth/login
     headers:
       Content-Type: application/json
-    body: {"username":"admin", "password":"eToggle123!"}
+    body: {"username":"admin", "password":"Togglr123!"}
   response:
     status: 200
     headers:
@@ -847,7 +847,7 @@ Here's a complete example of a functional test for updating a project:
         path: /api/v1/auth/login
         headers:
           Content-Type: application/json
-        body: {"username":"admin", "password":"eToggle123!"}
+        body: {"username":"admin", "password":"Togglr123!"}
       response:
         status: 200
         headers:

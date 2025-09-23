@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 type ruleModel struct {

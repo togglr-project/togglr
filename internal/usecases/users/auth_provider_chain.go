@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // AuthProvider defines the interface for authentication providers.

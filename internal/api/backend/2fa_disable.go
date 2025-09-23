@@ -6,16 +6,16 @@ import (
 
 	"github.com/pkg/errors"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) Disable2FA(
 	ctx context.Context,
 	req *generatedapi.TwoFADisableRequest,
 ) (generatedapi.Disable2FARes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 
 	slog.Warn("User wants to disable 2FA", "user_id", userID)
 

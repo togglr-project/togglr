@@ -3,10 +3,10 @@ package apibackend
 import (
 	"context"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/contract"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 var _ generatedapi.SecurityHandler = (*SecurityHandler)(nil)
@@ -41,7 +41,7 @@ func (r *SecurityHandler) HandleBearerAuth(
 		return nil, err
 	}
 
-	ctx = etogglcontext.WithUserID(ctx, user.ID)
+	ctx = appcontext.WithUserID(ctx, user.ID)
 
 	return ctx, nil
 }

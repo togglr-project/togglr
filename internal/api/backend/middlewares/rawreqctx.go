@@ -3,13 +3,13 @@ package middlewares
 import (
 	"net/http"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
+	appcontext "github.com/togglr-project/togglr/internal/context"
 )
 
 func WithRawRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fixURL(r)
-		ctx := etogglcontext.WithRawRequest(r.Context(), r)
+		ctx := appcontext.WithRawRequest(r.Context(), r)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

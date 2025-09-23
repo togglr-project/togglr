@@ -4552,7 +4552,7 @@ components:
         stack_trace:
           type: string
           nullable: true
-          example: "github.com/rom8726/etoggle/internal/services/ldap.(*Service).syncUser\n\t/etoggle/internal/services/ldap/ldap.go:161\n..."
+          example: "github.com/togglr-project/togglr/internal/services/ldap.(*Service).syncUser\n\t/togglr/internal/services/ldap/ldap.go:161\n..."
         ldap_error_code:
           type: integer
           nullable: true
@@ -4767,7 +4767,7 @@ components:
         redirect_url:
           type: string
           description: URL to redirect user for SSO login
-          example: "https://keycloak.example.com/auth/realms/etoggle/protocol/openid-connect/auth?client_id=etoggle-client&response_type=code&scope=openid+email+profile&redirect_uri=https://etoggle.example.com/api/v1/auth/sso/callback&state=abc123def456"
+          example: "https://keycloak.example.com/auth/realms/togglr/protocol/openid-connect/auth?client_id=togglr-client&response_type=code&scope=openid+email+profile&redirect_uri=https://togglr.example.com/api/v1/auth/sso/callback&state=abc123def456"
       required: [redirect_url]
 
     SSOProvidersResponse:
@@ -5663,7 +5663,7 @@ components:
           example: "JBSWY3DPEHPK3PXP"
         qr_url:
           type: string
-          example: "otpauth://totp/eToggle:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=eToggle"
+          example: "otpauth://totp/togglr:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=togglr"
         qr_image:
           type: string
           description: "Base64 PNG QR image"

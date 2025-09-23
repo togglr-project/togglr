@@ -1,4 +1,4 @@
-module github.com/rom8726/etoggle
+module github.com/togglr-project/togglr
 
 go 1.25
 
@@ -35,6 +35,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sync v0.17.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -125,5 +126,4 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

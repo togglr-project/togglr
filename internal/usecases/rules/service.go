@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/rom8726/etoggle/internal/contract"
-	"github.com/rom8726/etoggle/internal/domain"
-	"github.com/rom8726/etoggle/pkg/db"
+	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 type Service struct {

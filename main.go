@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/rom8726/etoggle/cmd/server"
+	"github.com/togglr-project/togglr/cmd/server"
 )
 
 var rootCmd = &cobra.Command{

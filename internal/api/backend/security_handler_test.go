@@ -9,10 +9,10 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
-	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 )
 
 func TestSecurityHandler_HandleBearerAuth(t *testing.T) {
@@ -49,7 +49,7 @@ func TestSecurityHandler_HandleBearerAuth(t *testing.T) {
 
 		require.NoError(t, err)
 		require.NotNil(t, resultCtx)
-		assert.Equal(t, domain.UserID(123), etogglcontext.UserID(resultCtx))
+		assert.Equal(t, domain.UserID(123), appcontext.UserID(resultCtx))
 	})
 
 	t.Run("invalid token", func(t *testing.T) {

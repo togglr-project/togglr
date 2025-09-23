@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 )
 
 func TestAuthMiddleware(t *testing.T) {
@@ -111,8 +111,8 @@ func TestAuthMiddleware(t *testing.T) {
 			var isSuperFromContext bool
 			testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if tt.checkContext {
-					userIDFromContext = etogglcontext.UserID(r.Context())
-					isSuperFromContext = etogglcontext.IsSuper(r.Context())
+					userIDFromContext = appcontext.UserID(r.Context())
+					isSuperFromContext = appcontext.IsSuper(r.Context())
 				}
 				w.WriteHeader(http.StatusOK)
 			})

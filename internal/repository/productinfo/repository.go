@@ -5,7 +5,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/rom8726/etoggle/pkg/db"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 type Repository struct {

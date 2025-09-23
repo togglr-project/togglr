@@ -5,16 +5,16 @@ import (
 	"errors"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) CreateUser(
 	ctx context.Context,
 	req *generatedapi.CreateUserRequest,
 ) (generatedapi.CreateUserRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	currentUser, err := r.usersUseCase.GetByID(ctx, userID)
 	if err != nil {
 		slog.Error("get current user failed", "error", err)

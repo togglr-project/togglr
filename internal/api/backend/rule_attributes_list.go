@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) ListRuleAttributes(ctx context.Context) (generatedapi.ListRuleAttributesRes, error) {

@@ -5,13 +5,13 @@ import (
 	"errors"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) Setup2FA(ctx context.Context) (generatedapi.Setup2FARes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	secret, qrURL, qrImage, err := r.usersUseCase.Setup2FA(ctx, userID)
 	if err != nil {
 		switch {

@@ -4,13 +4,13 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) GetProductInfo(ctx context.Context) (generatedapi.GetProductInfoRes, error) {
 	// Check if the user is a superuser
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 			Message: generatedapi.NewOptString("unauthorized"),
 		}}, nil

@@ -6,16 +6,16 @@ import (
 
 	"github.com/pkg/errors"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) Reset2FA(
 	ctx context.Context,
 	req *generatedapi.TwoFAResetRequest,
 ) (generatedapi.Reset2FARes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	secret, qrURL, qrImage, err := r.usersUseCase.Reset2FA(ctx, userID, req.EmailCode)
 	if err != nil {
 		switch {

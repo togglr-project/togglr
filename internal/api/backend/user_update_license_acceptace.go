@@ -4,15 +4,15 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) UpdateLicenseAcceptance(
 	ctx context.Context,
 	req *generatedapi.UpdateLicenseAcceptanceRequest,
 ) (generatedapi.UpdateLicenseAcceptanceRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 
 	err := r.usersUseCase.UpdateLicenseAcceptance(ctx, userID, req.Accepted)
 	if err != nil {

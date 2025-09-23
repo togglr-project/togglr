@@ -26,9 +26,9 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 	"gopkg.in/yaml.v3"
 
-	"github.com/rom8726/etoggle/internal"
-	"github.com/rom8726/etoggle/internal/config"
-	"github.com/rom8726/etoggle/pkg/crypt"
+	"github.com/togglr-project/togglr/internal"
+	"github.com/togglr-project/togglr/internal/config"
+	"github.com/togglr-project/togglr/pkg/crypt"
 )
 
 type Config struct {

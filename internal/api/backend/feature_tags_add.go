@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) AddFeatureTag(
@@ -14,7 +14,7 @@ func (r *RestAPI) AddFeatureTag(
 	req *generatedapi.AddFeatureTagRequest,
 	params generatedapi.AddFeatureTagParams,
 ) (generatedapi.AddFeatureTagRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 	featureID := domain.FeatureID(params.FeatureID.String())
 	tagID := domain.TagID(req.TagID.String())
 

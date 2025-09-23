@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/rom8726/etoggle/internal"
-	"github.com/rom8726/etoggle/internal/config"
+	"github.com/togglr-project/togglr/internal"
+	"github.com/togglr-project/togglr/internal/config"
 )
 
 var ServerCmd = &cobra.Command{

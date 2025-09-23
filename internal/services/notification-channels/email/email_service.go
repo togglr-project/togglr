@@ -18,7 +18,7 @@ import (
 
 	"github.com/go-mail/mail"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 const (
@@ -74,7 +74,7 @@ func (s *Service) Type() domain.NotificationType {
 
 // Send2FACodeEmail sends a 2FA confirmation code for a specific action (disable/reset).
 func (s *Service) Send2FACodeEmail(ctx context.Context, email, code, action string) error {
-	subject := "eToggle: 2FA confirmation code"
+	subject := "Togglr: 2FA confirmation code"
 	var actionText string
 	switch action {
 	case "disable":
@@ -130,7 +130,7 @@ func (s *Service) SendResetPasswordEmail(ctx context.Context, email, token strin
 		return fmt.Errorf("execute template: %w", err)
 	}
 
-	err = s.SendEmail(ctx, []string{email}, "eToggle: Reset Your Password", body.String())
+	err = s.SendEmail(ctx, []string{email}, "Togglr: Reset Your Password", body.String())
 	if err != nil {
 		slog.Error("failed to send reset password email", "error", err)
 

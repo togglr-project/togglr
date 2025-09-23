@@ -6,23 +6,23 @@ import (
 	"log/slog"
 	"net/url"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) ConsumeSAMLAssertion(
 	ctx context.Context,
 	req *generatedapi.ConsumeSAMLAssertionReq,
 ) (generatedapi.ConsumeSAMLAssertionRes, error) {
-	rawReq := etogglcontext.RawRequest(ctx)
+	rawReq := appcontext.RawRequest(ctx)
 
 	rawReq.PostForm = make(map[string][]string)
 	rawReq.PostForm.Set("SAMLResponse", req.SAMLResponse)
 	rawReq.PostForm.Set("RelayState", req.RelayState)
 
 	accessToken, refreshToken, _, err := r.usersUseCase.SSOCallback(
-		ctx, domain.SSOProviderNameADSaml, etogglcontext.RawRequest(ctx), req.SAMLResponse, req.RelayState)
+		ctx, domain.SSOProviderNameADSaml, appcontext.RawRequest(ctx), req.SAMLResponse, req.RelayState)
 	if err != nil {
 		slog.Error("SSO assert failed", "error", err)
 

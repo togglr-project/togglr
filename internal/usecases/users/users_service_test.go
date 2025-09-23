@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/rom8726/etoggle/internal/domain"
-	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
-	mockusers "github.com/rom8726/etoggle/test_mocks/internal_/usecases/users"
+	"github.com/togglr-project/togglr/internal/domain"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
+	mockusers "github.com/togglr-project/togglr/test_mocks/internal_/usecases/users"
 )
 
 func TestNew(t *testing.T) {

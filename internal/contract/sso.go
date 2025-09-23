@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // SSOProvider represents an SSO provider interface.

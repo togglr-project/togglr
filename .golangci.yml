@@ -217,7 +217,7 @@ linters-settings:
       - default # Default section: contains all imports that could not be matched to another section type.
       #      - blank # Blank section: contains all blank imports. This section is not present unless explicitly enabled.
       #      - dot # Dot section: contains all dot imports. This section is not present unless explicitly enabled.
-      - prefix(github.com/rom8726/etoggle) # Custom section: groups all imports with the specified Prefix.
+      - prefix(github.com/togglr-project/togglr) # Custom section: groups all imports with the specified Prefix.
     # Skip generated files.
     # Default: true
     skip-generated: true
@@ -563,7 +563,7 @@ linters-settings:
   gofumpt:
     # Module path which contains the source code being formatted.
     # Default: ""
-    module-path: github.com/rom8726/etoggle
+    module-path: github.com/togglr-project/togglr
     # Choose whether to use the extra rules.
     # Default: false
     extra-rules: true

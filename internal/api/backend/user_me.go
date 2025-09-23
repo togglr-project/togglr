@@ -4,12 +4,12 @@ import (
 	"context"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) GetCurrentUser(ctx context.Context) (generatedapi.GetCurrentUserRes, error) {
-	userInfo, err := r.usersUseCase.GetByID(ctx, etogglcontext.UserID(ctx))
+	userInfo, err := r.usersUseCase.GetByID(ctx, appcontext.UserID(ctx))
 	if err != nil {
 		slog.Error("get current user info failed", "error", err)
 

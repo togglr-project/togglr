@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
-	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -24,7 +24,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username: "newuser",
 			Email:    "newuser@example.com",
@@ -71,7 +71,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username:    "superuser",
 			Email:       "superuser@example.com",
@@ -119,7 +119,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username: "newuser",
 			Email:    "newuser@example.com",
@@ -156,7 +156,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username: "existinguser",
 			Email:    "newuser@example.com",
@@ -193,7 +193,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username: "newuser",
 			Email:    "existing@example.com",
@@ -230,7 +230,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username: "newuser",
 			Email:    "newuser@example.com",
@@ -256,7 +256,7 @@ func TestRestAPI_CreateUser(t *testing.T) {
 			usersUseCase: mockUsersUseCase,
 		}
 
-		ctx := etogglcontext.WithUserID(context.Background(), domain.UserID(1))
+		ctx := appcontext.WithUserID(context.Background(), domain.UserID(1))
 		req := &generatedapi.CreateUserRequest{
 			Username: "newuser",
 			Email:    "newuser@example.com",

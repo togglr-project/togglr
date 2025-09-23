@@ -5,16 +5,16 @@ import (
 	"errors"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) UserChangeMyPassword(
 	ctx context.Context,
 	req *generatedapi.ChangeUserPasswordRequest,
 ) (generatedapi.UserChangeMyPasswordRes, error) {
-	err := r.usersUseCase.UpdatePassword(ctx, etogglcontext.UserID(ctx), req.OldPassword, req.NewPassword)
+	err := r.usersUseCase.UpdatePassword(ctx, appcontext.UserID(ctx), req.OldPassword, req.NewPassword)
 	if err != nil {
 		slog.Error("update password failed", "error", err)
 

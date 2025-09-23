@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // AuditLogRepository provides read access to audit log entries for change tracking.

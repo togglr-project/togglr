@@ -5,10 +5,10 @@ import (
 	"errors"
 	"testing"
 
-	appctx "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
-	mockcontract "github.com/rom8726/etoggle/test_mocks/internal_/contract"
+	appctx "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

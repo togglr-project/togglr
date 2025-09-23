@@ -12,8 +12,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/rom8726/etoggle/internal/domain"
-	"github.com/rom8726/etoggle/pkg/crypt"
+	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/crypt"
 )
 
 const selfSignedTrialTTL = time.Hour * 24 * 60

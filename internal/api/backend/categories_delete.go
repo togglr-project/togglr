@@ -5,19 +5,19 @@ import (
 	"errors"
 	"log/slog"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/domain"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) DeleteCategory(
 	ctx context.Context,
 	params generatedapi.DeleteCategoryParams,
 ) (generatedapi.DeleteCategoryRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 
 	// Check if user is superuser
-	if !etogglcontext.IsSuper(ctx) {
+	if !appcontext.IsSuper(ctx) {
 		slog.Error("permission denied", "user_id", userID)
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),

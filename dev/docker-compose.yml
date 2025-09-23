@@ -1,24 +1,24 @@
 version: '3.8'
 
 services:
-  etoggle-reverse-proxy:
+  togglr-reverse-proxy:
     build:
       context: ../reverse-proxy
       dockerfile: Dockerfile
-    container_name: etoggle-reverse-proxy
+    container_name: togglr-reverse-proxy
     ports:
       - "443:443"
     environment:
       - DOMAIN=${DOMAIN}
-      - BACKEND_URL=http://etoggle-backend:8080
-      - FRONTEND_URL=http://etoggle-frontend
+      - BACKEND_URL=http://togglr-backend:8080
+      - FRONTEND_URL=http://togglr-frontend
       - SSL_CERT=${SSL_CERT}
       - SSL_CERT_KEY=${SSL_CERT_KEY}
       - SECURE_LINK_MD5=${SECURE_LINK_MD5}
     volumes:
       - "./nginx/ssl:/etc/nginx/ssl"
     depends_on:
-      etoggle-frontend:
+      togglr-frontend:
         condition: service_healthy
     restart: always
     healthcheck:
@@ -28,16 +28,16 @@ services:
       retries: 3
       start_period: 40s
 
-  etoggle-frontend:
+  togglr-frontend:
     build:
       context: ../webui
       dockerfile: Dockerfile
-    container_name: etoggle-frontend
+    container_name: togglr-frontend
     environment:
-      - ETOGGL_API_BASE_URL=https://${DOMAIN}
+      - TOGGLR_API_BASE_URL=https://${DOMAIN}
     restart: always
     depends_on:
-      etoggle-backend:
+      togglr-backend:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:80/"]
@@ -46,8 +46,8 @@ services:
       retries: 3
       start_period: 30s
 
-  etoggle-backend:
-    container_name: etoggle-backend
+  togglr-backend:
+    container_name: togglr-backend
     build:
       context: ../
       target: prod
@@ -59,7 +59,7 @@ services:
       - compose.env
     command: ["/bin/app", "server"]
     depends_on:
-      etoggle-postgresql:
+      togglr-postgresql:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
@@ -68,9 +68,9 @@ services:
       retries: 3
       start_period: 60s
 
-  etoggle-postgresql:
+  togglr-postgresql:
     image: postgres:16
-    container_name: etoggle-postgresql
+    container_name: togglr-postgresql
     restart: always
     environment:
       POSTGRES_USER: user
@@ -78,7 +78,7 @@ services:
       POSTGRES_DB: db
       PGDATA: /var/lib/postgresql/data/main
     volumes:
-      - "postgresql_etoggl:/var/lib/postgresql/data/main"
+      - "postgresql_togglr:/var/lib/postgresql/data/main"
     ports:
       - "5432:5432"
     healthcheck:
@@ -88,4 +88,4 @@ services:
       retries: 5
       start_period: 30s
 volumes:
-    postgresql_etoggl:
+    postgresql_togglr:

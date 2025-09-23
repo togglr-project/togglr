@@ -3,9 +3,9 @@ package apisdk
 import (
 	"context"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/contract"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/sdkserver"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/contract"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
 )
 
 var _ generatedapi.SecurityHandler = (*SecurityHandler)(nil)
@@ -32,7 +32,7 @@ func (r *SecurityHandler) HandleApiKeyAuth(
 		return ctx, err
 	}
 
-	ctx = etogglcontext.WithProjectID(ctx, project.ID)
+	ctx = appcontext.WithProjectID(ctx, project.ID)
 
 	return ctx, nil
 }

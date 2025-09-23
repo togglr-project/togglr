@@ -1,6 +1,6 @@
 # LDAP Service
 
-This package provides LDAP authentication and user synchronization functionality for the eToggle application.
+This package provides LDAP authentication and user synchronization functionality for the Togglr application.
 
 ## Features
 
@@ -42,7 +42,7 @@ ldap:
 
 ```go
 import (
-    "github.com/rom8726/etoggle/internal/services/ldap"
+    "github.com/togglr-project/togglr/internal/services/ldap"
     "go.uber.org/zap"
 )
 

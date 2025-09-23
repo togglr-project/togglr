@@ -5,9 +5,9 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/rom8726/etoggle/internal/domain"
-	"github.com/rom8726/etoggle/internal/dto"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/internal/dto"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) ListProjectChanges(

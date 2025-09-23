@@ -7,10 +7,10 @@ import (
 	"log/slog"
 	"time"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	"github.com/rom8726/etoggle/internal/contract"
-	"github.com/rom8726/etoggle/internal/domain"
-	"github.com/rom8726/etoggle/pkg/passworder"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/passworder"
 )
 
 type UsersService struct {
@@ -138,7 +138,7 @@ func (s *UsersService) GetByID(ctx context.Context, id domain.UserID) (domain.Us
 }
 
 func (s *UsersService) List(ctx context.Context) ([]domain.User, error) {
-	currUser, err := s.usersRepo.GetByID(ctx, etogglcontext.UserID(ctx))
+	currUser, err := s.usersRepo.GetByID(ctx, appcontext.UserID(ctx))
 	if err != nil {
 		return nil, fmt.Errorf("get current user by id: %w", err)
 	}
@@ -204,7 +204,7 @@ func (s *UsersService) SetSuperuserStatus(
 	isSuperuser bool,
 ) (domain.User, error) {
 	// Get the current user from context
-	currentUserID := etogglcontext.UserID(ctx)
+	currentUserID := appcontext.UserID(ctx)
 	currentUser, err := s.usersRepo.GetByID(ctx, currentUserID)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("get current user by id: %w", err)
@@ -240,7 +240,7 @@ func (s *UsersService) SetSuperuserStatus(
 // Only superusers can change the active status of users.
 func (s *UsersService) SetActiveStatus(ctx context.Context, id domain.UserID, isActive bool) (domain.User, error) {
 	// Get the current user from context
-	currentUserID := etogglcontext.UserID(ctx)
+	currentUserID := appcontext.UserID(ctx)
 	currentUser, err := s.usersRepo.GetByID(ctx, currentUserID)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("get current user by id: %w", err)
@@ -271,7 +271,7 @@ func (s *UsersService) SetActiveStatus(ctx context.Context, id domain.UserID, is
 // Only superusers can delete users, and superusers cannot be deleted.
 func (s *UsersService) Delete(ctx context.Context, id domain.UserID) error {
 	// Get the current user from context
-	currentUserID := etogglcontext.UserID(ctx)
+	currentUserID := appcontext.UserID(ctx)
 	currentUser, err := s.usersRepo.GetByID(ctx, currentUserID)
 	if err != nil {
 		return fmt.Errorf("get current user by id: %w", err)

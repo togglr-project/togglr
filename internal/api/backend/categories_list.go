@@ -6,12 +6,12 @@ import (
 
 	"github.com/google/uuid"
 
-	etogglcontext "github.com/rom8726/etoggle/internal/context"
-	generatedapi "github.com/rom8726/etoggle/internal/generated/server"
+	appcontext "github.com/togglr-project/togglr/internal/context"
+	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
 func (r *RestAPI) ListCategories(ctx context.Context) (generatedapi.ListCategoriesRes, error) {
-	userID := etogglcontext.UserID(ctx)
+	userID := appcontext.UserID(ctx)
 
 	// Get all categories
 	categories, err := r.categoriesUseCase.ListCategories(ctx)

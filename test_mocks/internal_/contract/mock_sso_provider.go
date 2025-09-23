@@ -8,8 +8,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/rom8726/etoggle/internal/domain"
 	mock "github.com/stretchr/testify/mock"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // NewMockSSOProvider creates a new instance of MockSSOProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

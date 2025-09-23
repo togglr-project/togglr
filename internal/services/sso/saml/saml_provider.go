@@ -26,8 +26,8 @@ import (
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
 
-	"github.com/rom8726/etoggle/internal/contract"
-	"github.com/rom8726/etoggle/internal/domain"
+	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 const (
@@ -400,13 +400,13 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 			NotAfter:     now.Add(365 * 24 * time.Hour),
 
 			Subject: pkix.Name{
-				CommonName:   "etoggle",
-				Organization: []string{"eToggle"},
+				CommonName:   "togglr",
+				Organization: []string{"Togglr"},
 				Country:      []string{"US"},
 			},
 			Issuer: pkix.Name{
-				CommonName:   "etoggle",
-				Organization: []string{"eToggle"},
+				CommonName:   "togglr",
+				Organization: []string{"Togglr"},
 				Country:      []string{"US"},
 			},
 

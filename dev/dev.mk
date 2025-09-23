@@ -9,11 +9,11 @@ dev-down: ## Down the environment in docker compose
 dev-clean: ## Down the environment in docker compose with image cleanup
 	${_COMPOSE} down --remove-orphans -v --rmi all
 
-dev-build-proxy: ## Building etoggle-reverse-proxy
-	${_COMPOSE} build etoggle-reverse-proxy
+dev-build-proxy: ## Building togglr-reverse-proxy
+	${_COMPOSE} build togglr-reverse-proxy
 
-dev-build-frontend: ## Building etoggle-frontend
-	${_COMPOSE} build etoggle-frontend
+dev-build-frontend: ## Building togglr-frontend
+	${_COMPOSE} build togglr-frontend
 
-dev-build-backend: ## Building etoggle-backend
-	${_COMPOSE} build etoggle-backend
+dev-build-backend: ## Building togglr-backend
+	${_COMPOSE} build togglr-backend
