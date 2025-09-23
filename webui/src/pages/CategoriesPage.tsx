@@ -18,12 +18,21 @@ import {
   CardContent,
   CardActions,
   Tooltip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Menu,
+  ListItemIcon,
+  ListItemText,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { 
   Category as CategoryIcon, 
   Add as AddIcon, 
-  Edit as EditIcon, 
-  Delete as DeleteIcon
+  Delete as DeleteIcon,
+  MoreVert as MoreVertIcon
 } from '@mui/icons-material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, Navigate } from 'react-router-dom';
@@ -32,7 +41,7 @@ import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
 import { userPermissions } from '../hooks/userPermissions';
-import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../generated/api/client';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CreateCategoryRequestCategoryTypeEnum } from '../generated/api/client';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,11 +52,15 @@ const CategoriesPage: React.FC = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuCategory, setMenuCategory] = useState<Category | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
     description: '',
     color: '#3B82F6',
+    category_type: 'user',
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -67,7 +80,7 @@ const CategoriesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setCreateOpen(false);
-      setFormData({ name: '', slug: '', description: '', color: '#3B82F6' });
+      setFormData({ name: '', slug: '', description: '', color: '#3B82F6', category_type: 'user' });
       setError(null);
     },
     onError: (err: any) => {
@@ -84,7 +97,7 @@ const CategoriesPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setEditOpen(false);
       setSelectedCategory(null);
-      setFormData({ name: '', slug: '', description: '', color: '#3B82F6' });
+      setFormData({ name: '', slug: '', description: '', color: '#3B82F6', category_type: 'user' });
       setError(null);
     },
     onError: (err: any) => {
@@ -123,6 +136,7 @@ const CategoriesPage: React.FC = () => {
       slug: formData.slug,
       description: formData.description || undefined,
       color: formData.color || undefined,
+      category_type: formData.category_type as CreateCategoryRequestCategoryTypeEnum,
     });
   };
 
@@ -133,6 +147,7 @@ const CategoriesPage: React.FC = () => {
       slug: category.slug,
       description: category.description || '',
       color: category.color || '#3B82F6',
+      category_type: category.category_type,
     });
     setEditOpen(true);
   };
@@ -149,11 +164,17 @@ const CategoriesPage: React.FC = () => {
         slug: formData.slug,
         description: formData.description || undefined,
         color: formData.color || undefined,
+        // category_type и kind нельзя обновлять
       }
     });
   };
 
   const handleDelete = (category: Category) => {
+    // Проверяем, можно ли удалить категорию
+    if ((category.kind as string) === 'system' || (category.kind as string) === 'nocopy') {
+      setError('Cannot delete system or nocopy categories');
+      return;
+    }
     setSelectedCategory(category);
     setDeleteOpen(true);
   };
@@ -164,20 +185,52 @@ const CategoriesPage: React.FC = () => {
     }
   };
 
-  const getKindColor = (kind: string) => {
-    switch (kind) {
-      case 'system': return 'primary';
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, category: Category) => {
+    setMenuAnchor(event.currentTarget);
+    setMenuCategory(category);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+    setMenuCategory(null);
+  };
+
+  const handleDeleteFromMenu = () => {
+    if (menuCategory) {
+      handleDelete(menuCategory);
+    }
+    handleMenuClose();
+  };
+
+  const getCategoryTypeColor = (categoryType: string) => {
+    switch (categoryType) {
+      case 'domain': return 'primary';
+      case 'safety': return 'error';
       case 'user': return 'secondary';
       default: return 'default';
     }
   };
 
-  const getKindLabel = (kind: string) => {
-    switch (kind) {
-      case 'system': return 'System';
+  const getCategoryTypeLabel = (categoryType: string) => {
+    switch (categoryType) {
+      case 'domain': return 'Domain';
+      case 'safety': return 'Safety';
       case 'user': return 'User';
-      default: return kind;
+      default: return categoryType;
     }
+  };
+
+  const getFilteredCategories = () => {
+    if (!categories) return [];
+    
+    const tabTypes = ['domain', 'user', 'safety'];
+    const selectedType = tabTypes[activeTab];
+    
+    return categories.filter(category => category.category_type === selectedType);
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
   return (
@@ -187,24 +240,32 @@ const CategoriesPage: React.FC = () => {
           title="Categories"
           subtitle="Manage feature tag categories"
           icon={<CategoryIcon />}
-          action={
-            isSuperuser ? (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setCreateOpen(true)}
-              >
-                Create Category
-              </Button>
-            ) : null
-          }
-        />
+        >
+          {isSuperuser && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setCreateOpen(true)}
+            >
+              Create Category
+            </Button>
+          )}
+        </PageHeader>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
+
+        {/* Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+          <Tabs value={activeTab} onChange={handleTabChange} aria-label="category type tabs">
+            <Tab label="Domain" />
+            <Tab label="User" />
+            <Tab label="Safety" />
+          </Tabs>
+        </Box>
 
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -215,66 +276,78 @@ const CategoriesPage: React.FC = () => {
             Error loading categories. Please try again.
           </Alert>
         ) : categories && categories.length > 0 ? (
-          <Grid container spacing={2}>
-            {categories.map((category) => (
-              <Grid item xs={12} sm={6} md={4} key={category.id}>
-                <Card>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Box
-                        sx={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: '50%',
-                          backgroundColor: category.color || '#3B82F6',
-                          mr: 1,
-                        }}
-                      />
-                      <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                        {category.name}
+          getFilteredCategories().length > 0 ? (
+            <Grid container spacing={2}>
+              {getFilteredCategories().map((category) => (
+                <Grid item xs={12} sm={6} md={4} key={category.id}>
+                  <Card>
+                    <CardContent sx={{ position: 'relative' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <Box
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            borderRadius: '50%',
+                            backgroundColor: category.color || '#3B82F6',
+                            mr: 1,
+                          }}
+                        />
+                        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                          {category.name}
+                        </Typography>
+                        {isSuperuser && (
+                          <IconButton
+                            size="small"
+                            onClick={(e) => handleMenuOpen(e, category)}
+                            sx={{ position: 'absolute', top: 8, right: 8 }}
+                          >
+                            <MoreVertIcon />
+                          </IconButton>
+                        )}
+                      </Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        {category.slug}
                       </Typography>
-                    </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      {category.slug}
-                    </Typography>
-                    {category.description && (
-                      <Typography variant="body2" sx={{ mb: 1 }}>
-                        {category.description}
-                      </Typography>
-                    )}
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip
-                        label={getKindLabel(category.kind)}
-                        color={getKindColor(category.kind) as any}
-                        size="small"
-                      />
-                    </Box>
-                  </CardContent>
-                  {isSuperuser && (
-                    <CardActions>
-                      <Tooltip title="Edit category">
-                        <IconButton
+                      {category.description && (
+                        <Typography variant="body2" sx={{ mb: 1 }}>
+                          {category.description}
+                        </Typography>
+                      )}
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                        <Chip
+                          label={getCategoryTypeLabel(category.category_type)}
+                          color={getCategoryTypeColor(category.category_type) as any}
                           size="small"
-                          onClick={() => handleEdit(category)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete category">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDelete(category)}
-                          color="error"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </CardActions>
-                  )}
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <CategoryIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
+                No {['Domain', 'User', 'Safety'][activeTab]} categories found
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {isSuperuser 
+                  ? 'Create your first category to get started.'
+                  : 'No categories have been created yet.'
+                }
+              </Typography>
+              {isSuperuser && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCreateOpen(true)}
+                >
+                  Create Category
+                </Button>
+              )}
+            </Paper>
+          )
         ) : (
           <Paper sx={{ p: 4, textAlign: 'center' }}>
             <CategoryIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
@@ -341,7 +414,19 @@ const CategoriesPage: React.FC = () => {
               type="color"
               value={formData.color}
               onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+              sx={{ mb: 2 }}
             />
+            <FormControl fullWidth margin="dense">
+              <InputLabel>Category Type</InputLabel>
+              <Select
+                value={formData.category_type}
+                onChange={(e) => setFormData({ ...formData, category_type: e.target.value })}
+                label="Category Type"
+              >
+                <MenuItem value="user">User</MenuItem>
+                <MenuItem value="domain">Domain</MenuItem>
+              </Select>
+            </FormControl>
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
@@ -432,6 +517,36 @@ const CategoriesPage: React.FC = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Context Menu */}
+        <Menu
+          anchorEl={menuAnchor}
+          open={Boolean(menuAnchor)}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem 
+            onClick={handleDeleteFromMenu}
+            disabled={!!(menuCategory && ((menuCategory.kind as string) === 'system' || (menuCategory.kind as string) === 'nocopy'))}
+          >
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>
+              {menuCategory && ((menuCategory.kind as string) === 'system' || (menuCategory.kind as string) === 'nocopy')
+                ? 'Cannot delete system category'
+                : 'Delete category'
+              }
+            </ListItemText>
+          </MenuItem>
+        </Menu>
       </Box>
     </AuthenticatedLayout>
   );
