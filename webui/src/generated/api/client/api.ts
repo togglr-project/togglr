@@ -40,6 +40,27 @@ export const AuditAction = {
 export type AuditAction = typeof AuditAction[keyof typeof AuditAction];
 
 
+export interface Category {
+    'id': string;
+    'name': string;
+    'slug': string;
+    'description'?: string;
+    'color'?: string;
+    'kind': CategoryKindEnum;
+    'created_at': string;
+    'updated_at': string;
+}
+
+export const CategoryKindEnum = {
+    System: 'system',
+    User: 'user'
+} as const;
+
+export type CategoryKindEnum = typeof CategoryKindEnum[keyof typeof CategoryKindEnum];
+
+export interface CategoryResponse {
+    'category': Category;
+}
 export interface Change {
     /**
      * Audit log entry ID
@@ -88,6 +109,12 @@ export interface ChangeUserPasswordRequest {
     'old_password': string;
     'new_password': string;
 }
+export interface CreateCategoryRequest {
+    'name': string;
+    'slug': string;
+    'description'?: string;
+    'color'?: string;
+}
 export interface CreateFeatureRequest {
     'key': string;
     'name': string;
@@ -131,6 +158,16 @@ export interface CreateFlagVariantInline {
 export interface CreateFlagVariantRequest {
     'name': string;
     'rollout_percent': number;
+}
+export interface CreateProjectTagRequest {
+    'name': string;
+    'slug': string;
+    'description'?: string;
+    'color'?: string;
+    /**
+     * ID of category to associate with this tag
+     */
+    'category_id'?: string;
 }
 export interface CreateRuleAttributeRequest {
     'name': string;
@@ -655,6 +692,24 @@ export interface Project {
 export interface ProjectResponse {
     'project': Project;
 }
+export interface ProjectTag {
+    'id': string;
+    'project_id': string;
+    'category_id'?: string;
+    'name': string;
+    'slug': string;
+    'description'?: string;
+    'color'?: string;
+    'created_at': string;
+    'updated_at': string;
+    /**
+     * Category this tag belongs to
+     */
+    'category'?: Category;
+}
+export interface ProjectTagResponse {
+    'tag': ProjectTag;
+}
 export interface RefreshTokenRequest {
     'refresh_token': string;
 }
@@ -879,6 +934,12 @@ export interface TwoFAVerifyResponse {
     'refresh_token': string;
     'expires_in': number;
 }
+export interface UpdateCategoryRequest {
+    'name': string;
+    'slug': string;
+    'description'?: string;
+    'color'?: string;
+}
 export interface UpdateFeatureScheduleRequest {
     'starts_at'?: string;
     'ends_at'?: string;
@@ -907,6 +968,16 @@ export interface UpdateLicenseRequest {
 export interface UpdateProjectRequest {
     'name': string;
     'description': string;
+}
+export interface UpdateProjectTagRequest {
+    'name': string;
+    'slug': string;
+    'description'?: string;
+    'color'?: string;
+    /**
+     * ID of category to associate with this tag
+     */
+    'category_id'?: string;
 }
 export interface UpdateSegmentRequest {
     'name': string;
@@ -1141,6 +1212,46 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Create new category
+         * @param {CreateCategoryRequest} createCategoryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createCategory: async (createCategoryRequest: CreateCategoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createCategoryRequest' is not null or undefined
+            assertParamExists('createCategory', 'createCategoryRequest', createCategoryRequest)
+            const localVarPath = `/api/v1/categories`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createCategoryRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create flag variant for feature
          * @param {string} featureId 
          * @param {CreateFlagVariantRequest} createFlagVariantRequest 
@@ -1361,6 +1472,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Create new tag for project
+         * @param {string} projectId 
+         * @param {CreateProjectTagRequest} createProjectTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createProjectTag: async (projectId: string, createProjectTagRequest: CreateProjectTagRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('createProjectTag', 'projectId', projectId)
+            // verify required parameter 'createProjectTagRequest' is not null or undefined
+            assertParamExists('createProjectTag', 'createProjectTagRequest', createProjectTagRequest)
+            const localVarPath = `/api/v1/projects/{project_id}/tags`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createProjectTagRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create rule attribute
          * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
          * @param {*} [options] Override http request option.
@@ -1433,6 +1588,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(createUserRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete category
+         * @param {string} categoryId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteCategory: async (categoryId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'categoryId' is not null or undefined
+            assertParamExists('deleteCategory', 'categoryId', categoryId)
+            const localVarPath = `/api/v1/categories/{category_id}`
+                .replace(`{${"category_id"}}`, encodeURIComponent(String(categoryId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -1523,6 +1716,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         deleteLDAPConfig: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/ldap/config`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete tag
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteProjectTag: async (projectId: string, tagId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('deleteProjectTag', 'projectId', projectId)
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('deleteProjectTag', 'tagId', tagId)
+            const localVarPath = `/api/v1/projects/{project_id}/tags/{tag_id}`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"tag_id"}}`, encodeURIComponent(String(tagId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1733,6 +1968,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(forgotPasswordRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get category details
+         * @param {string} categoryId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCategory: async (categoryId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'categoryId' is not null or undefined
+            assertParamExists('getCategory', 'categoryId', categoryId)
+            const localVarPath = `/api/v1/categories/{category_id}`
+                .replace(`{${"category_id"}}`, encodeURIComponent(String(categoryId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2258,6 +2531,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Get tag details
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProjectTag: async (projectId: string, tagId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('getProjectTag', 'projectId', projectId)
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('getProjectTag', 'tagId', tagId)
+            const localVarPath = `/api/v1/projects/{project_id}/tags/{tag_id}`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"tag_id"}}`, encodeURIComponent(String(tagId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get SAML metadata
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2362,6 +2677,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         listAllFeatureSchedules: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/feature-schedules`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get categories list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listCategories: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/categories`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2717,6 +3066,49 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
             if (perPage !== undefined) {
                 localVarQueryParameter['per_page'] = perPage;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get tags list for project
+         * @param {string} projectId 
+         * @param {string} [categoryId] Filter by category ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectTags: async (projectId: string, categoryId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listProjectTags', 'projectId', projectId)
+            const localVarPath = `/api/v1/projects/{project_id}/tags`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (categoryId !== undefined) {
+                localVarQueryParameter['category_id'] = categoryId;
             }
 
 
@@ -3444,6 +3836,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update category
+         * @param {string} categoryId 
+         * @param {UpdateCategoryRequest} updateCategoryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateCategory: async (categoryId: string, updateCategoryRequest: UpdateCategoryRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'categoryId' is not null or undefined
+            assertParamExists('updateCategory', 'categoryId', categoryId)
+            // verify required parameter 'updateCategoryRequest' is not null or undefined
+            assertParamExists('updateCategory', 'updateCategoryRequest', updateCategoryRequest)
+            const localVarPath = `/api/v1/categories/{category_id}`
+                .replace(`{${"category_id"}}`, encodeURIComponent(String(categoryId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCategoryRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update feature with rules and variants
          * @param {string} featureId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -3696,6 +4132,54 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update tag
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {UpdateProjectTagRequest} updateProjectTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateProjectTag: async (projectId: string, tagId: string, updateProjectTagRequest: UpdateProjectTagRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('updateProjectTag', 'projectId', projectId)
+            // verify required parameter 'tagId' is not null or undefined
+            assertParamExists('updateProjectTag', 'tagId', tagId)
+            // verify required parameter 'updateProjectTagRequest' is not null or undefined
+            assertParamExists('updateProjectTag', 'updateProjectTagRequest', updateProjectTagRequest)
+            const localVarPath = `/api/v1/projects/{project_id}/tags/{tag_id}`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"tag_id"}}`, encodeURIComponent(String(tagId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateProjectTagRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update segment
          * @param {string} segmentId 
          * @param {UpdateSegmentRequest} updateSegmentRequest 
@@ -3890,6 +4374,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create new category
+         * @param {CreateCategoryRequest} createCategoryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createCategory(createCategoryRequest: CreateCategoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoryResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createCategory(createCategoryRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createCategory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create flag variant for feature
          * @param {string} featureId 
          * @param {CreateFlagVariantRequest} createFlagVariantRequest 
@@ -3960,6 +4457,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create new tag for project
+         * @param {string} projectId 
+         * @param {CreateProjectTagRequest} createProjectTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createProjectTag(projectId: string, createProjectTagRequest: CreateProjectTagRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectTagResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createProjectTag(projectId, createProjectTagRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createProjectTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create rule attribute
          * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
          * @param {*} [options] Override http request option.
@@ -3982,6 +4493,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createUser(createUserRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.createUser']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete category
+         * @param {string} categoryId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteCategory(categoryId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteCategory(categoryId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteCategory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4020,6 +4544,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteLDAPConfig(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteLDAPConfig']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete tag
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteProjectTag(projectId: string, tagId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteProjectTag(projectId, tagId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteProjectTag']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4085,6 +4623,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.forgotPassword(forgotPasswordRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.forgotPassword']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get category details
+         * @param {string} categoryId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getCategory(categoryId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoryResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getCategory(categoryId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getCategory']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4259,6 +4810,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get tag details
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getProjectTag(projectId: string, tagId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectTagResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getProjectTag(projectId, tagId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getProjectTag']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get SAML metadata
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4304,6 +4869,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listAllFeatureSchedules(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listAllFeatureSchedules']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get categories list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listCategories(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Category>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listCategories(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listCategories']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4404,6 +4981,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectSegments(projectId, textSelector, sortBy, sortOrder, page, perPage, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectSegments']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get tags list for project
+         * @param {string} projectId 
+         * @param {string} [categoryId] Filter by category ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listProjectTags(projectId: string, categoryId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ProjectTag>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectTags(projectId, categoryId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectTags']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4645,6 +5236,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Update category
+         * @param {string} categoryId 
+         * @param {UpdateCategoryRequest} updateCategoryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateCategory(categoryId: string, updateCategoryRequest: UpdateCategoryRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CategoryResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateCategory(categoryId, updateCategoryRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateCategory']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Update feature with rules and variants
          * @param {string} featureId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -4722,6 +5327,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateProject(projectId, updateProjectRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateProject']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update tag
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {UpdateProjectTagRequest} updateProjectTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateProjectTag(projectId: string, tagId: string, updateProjectTagRequest: UpdateProjectTagRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectTagResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateProjectTag(projectId, tagId, updateProjectTagRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateProjectTag']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4825,6 +5445,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create new category
+         * @param {CreateCategoryRequest} createCategoryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createCategory(createCategoryRequest: CreateCategoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CategoryResponse> {
+            return localVarFp.createCategory(createCategoryRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create flag variant for feature
          * @param {string} featureId 
          * @param {CreateFlagVariantRequest} createFlagVariantRequest 
@@ -4880,6 +5510,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create new tag for project
+         * @param {string} projectId 
+         * @param {CreateProjectTagRequest} createProjectTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createProjectTag(projectId: string, createProjectTagRequest: CreateProjectTagRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProjectTagResponse> {
+            return localVarFp.createProjectTag(projectId, createProjectTagRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create rule attribute
          * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
          * @param {*} [options] Override http request option.
@@ -4897,6 +5538,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         createUser(createUserRequest: CreateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<CreateUserResponse> {
             return localVarFp.createUser(createUserRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete category
+         * @param {string} categoryId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteCategory(categoryId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteCategory(categoryId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4926,6 +5577,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteLDAPConfig(options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
             return localVarFp.deleteLDAPConfig(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete tag
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteProjectTag(projectId: string, tagId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteProjectTag(projectId, tagId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4976,6 +5638,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         forgotPassword(forgotPasswordRequest: ForgotPasswordRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.forgotPassword(forgotPasswordRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get category details
+         * @param {string} categoryId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getCategory(categoryId: string, options?: RawAxiosRequestConfig): AxiosPromise<CategoryResponse> {
+            return localVarFp.getCategory(categoryId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5110,6 +5782,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get tag details
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getProjectTag(projectId: string, tagId: string, options?: RawAxiosRequestConfig): AxiosPromise<ProjectTagResponse> {
+            return localVarFp.getProjectTag(projectId, tagId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get SAML metadata
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5144,6 +5827,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listAllFeatureSchedules(options?: RawAxiosRequestConfig): AxiosPromise<Array<FeatureSchedule>> {
             return localVarFp.listAllFeatureSchedules(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get categories list
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listCategories(options?: RawAxiosRequestConfig): AxiosPromise<Array<Category>> {
+            return localVarFp.listCategories(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5226,6 +5918,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listProjectSegments(projectId: string, textSelector?: string, sortBy?: ListProjectSegmentsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListSegmentsResponse> {
             return localVarFp.listProjectSegments(projectId, textSelector, sortBy, sortOrder, page, perPage, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get tags list for project
+         * @param {string} projectId 
+         * @param {string} [categoryId] Filter by category ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectTags(projectId: string, categoryId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProjectTag>> {
+            return localVarFp.listProjectTags(projectId, categoryId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5412,6 +6115,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Update category
+         * @param {string} categoryId 
+         * @param {UpdateCategoryRequest} updateCategoryRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateCategory(categoryId: string, updateCategoryRequest: UpdateCategoryRequest, options?: RawAxiosRequestConfig): AxiosPromise<CategoryResponse> {
+            return localVarFp.updateCategory(categoryId, updateCategoryRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Update feature with rules and variants
          * @param {string} featureId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -5472,6 +6186,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         updateProject(projectId: string, updateProjectRequest: UpdateProjectRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProjectResponse> {
             return localVarFp.updateProject(projectId, updateProjectRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update tag
+         * @param {string} projectId 
+         * @param {string} tagId 
+         * @param {UpdateProjectTagRequest} updateProjectTagRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateProjectTag(projectId: string, tagId: string, updateProjectTagRequest: UpdateProjectTagRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProjectTagResponse> {
+            return localVarFp.updateProjectTag(projectId, tagId, updateProjectTagRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5568,6 +6294,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create new category
+     * @param {CreateCategoryRequest} createCategoryRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createCategory(createCategoryRequest: CreateCategoryRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createCategory(createCategoryRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create flag variant for feature
      * @param {string} featureId 
      * @param {CreateFlagVariantRequest} createFlagVariantRequest 
@@ -5628,6 +6365,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create new tag for project
+     * @param {string} projectId 
+     * @param {CreateProjectTagRequest} createProjectTagRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createProjectTag(projectId: string, createProjectTagRequest: CreateProjectTagRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createProjectTag(projectId, createProjectTagRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create rule attribute
      * @param {CreateRuleAttributeRequest} createRuleAttributeRequest 
      * @param {*} [options] Override http request option.
@@ -5646,6 +6395,17 @@ export class DefaultApi extends BaseAPI {
      */
     public createUser(createUserRequest: CreateUserRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).createUser(createUserRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete category
+     * @param {string} categoryId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteCategory(categoryId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteCategory(categoryId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5678,6 +6438,18 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteLDAPConfig(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteLDAPConfig(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete tag
+     * @param {string} projectId 
+     * @param {string} tagId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteProjectTag(projectId: string, tagId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteProjectTag(projectId, tagId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5733,6 +6505,17 @@ export class DefaultApi extends BaseAPI {
      */
     public forgotPassword(forgotPasswordRequest: ForgotPasswordRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).forgotPassword(forgotPasswordRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get category details
+     * @param {string} categoryId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getCategory(categoryId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getCategory(categoryId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -5881,6 +6664,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get tag details
+     * @param {string} projectId 
+     * @param {string} tagId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getProjectTag(projectId: string, tagId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getProjectTag(projectId, tagId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get SAML metadata
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -5918,6 +6713,16 @@ export class DefaultApi extends BaseAPI {
      */
     public listAllFeatureSchedules(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listAllFeatureSchedules(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get categories list
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listCategories(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listCategories(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6006,6 +6811,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listProjectSegments(projectId: string, textSelector?: string, sortBy?: ListProjectSegmentsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listProjectSegments(projectId, textSelector, sortBy, sortOrder, page, perPage, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get tags list for project
+     * @param {string} projectId 
+     * @param {string} [categoryId] Filter by category ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listProjectTags(projectId: string, categoryId?: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectTags(projectId, categoryId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6211,6 +7028,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Update category
+     * @param {string} categoryId 
+     * @param {UpdateCategoryRequest} updateCategoryRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateCategory(categoryId: string, updateCategoryRequest: UpdateCategoryRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateCategory(categoryId, updateCategoryRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Update feature with rules and variants
      * @param {string} featureId 
      * @param {CreateFeatureRequest} createFeatureRequest 
@@ -6276,6 +7105,19 @@ export class DefaultApi extends BaseAPI {
      */
     public updateProject(projectId: string, updateProjectRequest: UpdateProjectRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).updateProject(projectId, updateProjectRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update tag
+     * @param {string} projectId 
+     * @param {string} tagId 
+     * @param {UpdateProjectTagRequest} updateProjectTagRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateProjectTag(projectId: string, tagId: string, updateProjectTagRequest: UpdateProjectTagRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateProjectTag(projectId, tagId, updateProjectTagRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
