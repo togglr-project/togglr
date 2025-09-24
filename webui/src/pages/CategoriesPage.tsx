@@ -39,6 +39,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, Navigate } from 'react-router-dom';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
+import CategoryFormDialog from '../components/categories/CategoryFormDialog';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
 import { userPermissions } from '../hooks/userPermissions';
@@ -401,151 +402,23 @@ const CategoriesPage: React.FC = () => {
         )}
 
         {/* Create Dialog */}
-        <Dialog open={createOpen} onClose={() => setCreateOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Create Category</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Name"
-              fullWidth
-              variant="outlined"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              error={!formData.name.trim()}
-              helperText={!formData.name.trim() ? 'Name is required' : undefined}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Slug"
-              fullWidth
-              variant="outlined"
-              value={formData.slug}
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              error={Boolean(!formData.slug.trim() || (formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)))}
-              helperText={
-                !formData.slug.trim() 
-                  ? 'Slug is required' 
-                  : formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)
-                    ? 'Slug can only contain lowercase letters, numbers, dashes and underscores'
-                    : undefined
-              }
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Description"
-              fullWidth
-              variant="outlined"
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Color"
-              fullWidth
-              variant="outlined"
-              type="color"
-              value={formData.color}
-              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-              sx={{ mb: 2 }}
-            />
-            <FormControl fullWidth margin="dense">
-              <InputLabel>Category Type</InputLabel>
-              <Select
-                value={formData.category_type}
-                onChange={(e) => setFormData({ ...formData, category_type: e.target.value })}
-                label="Category Type"
-              >
-                <MenuItem value="user">User</MenuItem>
-                <MenuItem value="domain">Domain</MenuItem>
-              </Select>
-            </FormControl>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setCreateOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={handleCreate} 
-              variant="contained"
-              disabled={createMutation.isPending}
-            >
-              {createMutation.isPending ? 'Creating...' : 'Create'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <CategoryFormDialog
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          onSubmit={(data) => createMutation.mutate(data)}
+          mode="create"
+          error={error}
+        />
 
         {/* Edit Dialog */}
-        <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Edit Category</DialogTitle>
-          <DialogContent>
-            <Alert severity="info" sx={{ mb: 2 }}>
-              You can only edit name, slug, description, and color. Kind and category type cannot be changed.
-            </Alert>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Name"
-              fullWidth
-              variant="outlined"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              error={!formData.name.trim()}
-              helperText={!formData.name.trim() ? 'Name is required' : undefined}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Slug"
-              fullWidth
-              variant="outlined"
-              value={formData.slug}
-              onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              error={Boolean(!formData.slug.trim() || (formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)))}
-              helperText={
-                !formData.slug.trim() 
-                  ? 'Slug is required' 
-                  : formData.slug.trim() && !/^[a-z0-9_-]+$/.test(formData.slug)
-                    ? 'Slug can only contain lowercase letters, numbers, dashes and underscores'
-                    : undefined
-              }
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Description"
-              fullWidth
-              variant="outlined"
-              multiline
-              rows={3}
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              margin="dense"
-              label="Color"
-              fullWidth
-              variant="outlined"
-              type="color"
-              value={formData.color}
-              onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={handleUpdate} 
-              variant="contained"
-              disabled={updateMutation.isPending}
-            >
-              {updateMutation.isPending ? 'Updating...' : 'Update'}
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <CategoryFormDialog
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          onSubmit={(data) => updateMutation.mutate({ id: selectedCategory?.id || 0, data })}
+          mode="edit"
+          initialData={selectedCategory}
+          error={error}
+        />
 
         {/* Delete Dialog */}
         <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
