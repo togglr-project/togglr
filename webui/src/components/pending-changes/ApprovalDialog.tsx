@@ -16,16 +16,19 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useAuth } from '../../auth/AuthContext';
+import { useMutation } from '@tanstack/react-query';
+import { apiClient } from '../../api/apiClient';
 import type { AuthCredentialsMethodEnum } from '../../generated/api/client';
 
 interface ApprovalDialogProps {
   open: boolean;
   onClose: () => void;
-  onApprove: (authMethod: AuthCredentialsMethodEnum, credential: string) => void;
+  onApprove: (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => void;
   loading?: boolean;
   error?: string;
   title?: string;
   description?: string;
+  pendingChangeId?: string;
 }
 
 const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
@@ -36,11 +39,35 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
   error,
   title = 'Confirm Action',
   description = 'This action requires additional verification. Please provide your credentials.',
+  pendingChangeId,
 }) => {
   const { user } = useAuth();
   const [authMethod, setAuthMethod] = useState<AuthCredentialsMethodEnum>('password');
   const [credential, setCredential] = useState('');
   const [localError, setLocalError] = useState('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [totpInitiated, setTotpInitiated] = useState(false);
+
+  // Mutation for initiating TOTP approval
+  const initiateTOTPMutation = useMutation({
+    mutationFn: async () => {
+      if (!pendingChangeId || !user?.id) {
+        throw new Error('Missing pending change ID or user ID');
+      }
+      const response = await apiClient.initiateTOTPApproval(pendingChangeId, {
+        approver_user_id: user.id,
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      setSessionId(data.session_id);
+      setTotpInitiated(true);
+      setLocalError('');
+    },
+    onError: (error: any) => {
+      setLocalError(error.response?.data?.error?.message || 'Failed to initiate TOTP approval');
+    },
+  });
 
   const handleSubmit = () => {
     if (!credential.trim()) {
@@ -49,12 +76,19 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
     }
 
     setLocalError('');
-    onApprove(authMethod, credential);
+    onApprove(authMethod, credential, sessionId || undefined);
+  };
+
+  const handleInitiateTOTP = () => {
+    setLocalError('');
+    initiateTOTPMutation.mutate();
   };
 
   const handleClose = () => {
     setCredential('');
     setLocalError('');
+    setSessionId(null);
+    setTotpInitiated(false);
     onClose();
   };
 
@@ -110,9 +144,28 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
         />
 
         {authMethod === 'totp' && (
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Enter the 6-digit code from your authenticator app
-          </Typography>
+          <Box sx={{ mt: 1 }}>
+            {!totpInitiated ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleInitiateTOTP}
+                  disabled={initiateTOTPMutation.isPending}
+                  startIcon={initiateTOTPMutation.isPending ? <CircularProgress size={16} /> : null}
+                >
+                  {initiateTOTPMutation.isPending ? 'Sending...' : 'Send Code'}
+                </Button>
+                <Typography variant="caption" color="text.secondary">
+                  Click to initiate TOTP approval session
+                </Typography>
+              </Box>
+            ) : (
+              <Typography variant="caption" color="success.main" sx={{ display: 'block' }}>
+                ✓ TOTP session initiated. Enter the 6-digit code from your authenticator app
+              </Typography>
+            )}
+          </Box>
         )}
       </DialogContent>
       <DialogActions>
@@ -122,7 +175,7 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
         <Button 
           onClick={handleSubmit} 
           variant="contained" 
-          disabled={loading || !credential.trim()}
+          disabled={loading || !credential.trim() || (authMethod === 'totp' && !totpInitiated)}
           startIcon={loading ? <CircularProgress size={20} /> : null}
         >
           {loading ? 'Verifying...' : 'Confirm'}

@@ -164,6 +164,8 @@ func (s *AuditAction) UnmarshalText(data []byte) error {
 type AuthCredentials struct {
 	Method     AuthCredentialsMethod `json:"method"`
 	Credential string                `json:"credential"`
+	// Session ID for TOTP approval (required when method is 'totp').
+	SessionID OptString `json:"session_id"`
 }
 
 // GetMethod returns the value of Method.
@@ -176,6 +178,11 @@ func (s *AuthCredentials) GetCredential() string {
 	return s.Credential
 }
 
+// GetSessionID returns the value of SessionID.
+func (s *AuthCredentials) GetSessionID() OptString {
+	return s.SessionID
+}
+
 // SetMethod sets the value of Method.
 func (s *AuthCredentials) SetMethod(val AuthCredentialsMethod) {
 	s.Method = val
@@ -184,6 +191,11 @@ func (s *AuthCredentials) SetMethod(val AuthCredentialsMethod) {
 // SetCredential sets the value of Credential.
 func (s *AuthCredentials) SetCredential(val string) {
 	s.Credential = val
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *AuthCredentials) SetSessionID(val OptString) {
+	s.SessionID = val
 }
 
 type AuthCredentialsMethod string
@@ -1697,6 +1709,7 @@ func (*Error) createProjectTagRes()      {}
 func (*Error) createRuleAttributeRes()   {}
 func (*Error) getLDAPConfigRes()         {}
 func (*Error) getLDAPSyncLogDetailsRes() {}
+func (*Error) initiateTOTPApprovalRes()  {}
 func (*Error) syncLDAPUsersRes()         {}
 func (*Error) updateLDAPConfigRes()      {}
 
@@ -1789,6 +1802,7 @@ func (*ErrorBadRequest) deleteUserRes()               {}
 func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
 func (*ErrorBadRequest) getFeatureTimelineRes()       {}
+func (*ErrorBadRequest) initiateTOTPApprovalRes()     {}
 func (*ErrorBadRequest) rejectPendingChangeRes()      {}
 func (*ErrorBadRequest) reset2FARes()                 {}
 func (*ErrorBadRequest) resetPasswordRes()            {}
@@ -1841,6 +1855,7 @@ func (s *ErrorConflict) SetError(val ErrorConflictError) {
 
 func (*ErrorConflict) approvePendingChangeRes() {}
 func (*ErrorConflict) cancelPendingChangeRes()  {}
+func (*ErrorConflict) initiateTOTPApprovalRes() {}
 func (*ErrorConflict) rejectPendingChangeRes()  {}
 func (*ErrorConflict) toggleFeatureRes()        {}
 
@@ -2060,6 +2075,7 @@ func (*ErrorNotFound) getProjectRes()                  {}
 func (*ErrorNotFound) getProjectTagRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
+func (*ErrorNotFound) initiateTOTPApprovalRes()        {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
@@ -2152,6 +2168,7 @@ func (*ErrorPermissionDenied) getProductInfoRes()              {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
 func (*ErrorPermissionDenied) getProjectTagRes()               {}
 func (*ErrorPermissionDenied) getSegmentRes()                  {}
+func (*ErrorPermissionDenied) initiateTOTPApprovalRes()        {}
 func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()     {}
 func (*ErrorPermissionDenied) listCategoriesRes()              {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
@@ -2314,6 +2331,7 @@ func (*ErrorUnauthorized) getProductInfoRes()              {}
 func (*ErrorUnauthorized) getProjectRes()                  {}
 func (*ErrorUnauthorized) getProjectTagRes()               {}
 func (*ErrorUnauthorized) getSegmentRes()                  {}
+func (*ErrorUnauthorized) initiateTOTPApprovalRes()        {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listCategoriesRes()              {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
@@ -3150,6 +3168,50 @@ func (s GetSAMLMetadataOK) Read(p []byte) (n int, err error) {
 }
 
 func (*GetSAMLMetadataOK) getSAMLMetadataRes() {}
+
+// Ref: #/components/schemas/InitiateTOTPApprovalRequest
+type InitiateTOTPApprovalRequest struct {
+	ApproverUserID uint `json:"approver_user_id"`
+}
+
+// GetApproverUserID returns the value of ApproverUserID.
+func (s *InitiateTOTPApprovalRequest) GetApproverUserID() uint {
+	return s.ApproverUserID
+}
+
+// SetApproverUserID sets the value of ApproverUserID.
+func (s *InitiateTOTPApprovalRequest) SetApproverUserID(val uint) {
+	s.ApproverUserID = val
+}
+
+// Ref: #/components/schemas/InitiateTOTPApprovalResponse
+type InitiateTOTPApprovalResponse struct {
+	// Session ID to use for TOTP approval.
+	SessionID string `json:"session_id"`
+	Message   string `json:"message"`
+}
+
+// GetSessionID returns the value of SessionID.
+func (s *InitiateTOTPApprovalResponse) GetSessionID() string {
+	return s.SessionID
+}
+
+// GetMessage returns the value of Message.
+func (s *InitiateTOTPApprovalResponse) GetMessage() string {
+	return s.Message
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *InitiateTOTPApprovalResponse) SetSessionID(val string) {
+	s.SessionID = val
+}
+
+// SetMessage sets the value of Message.
+func (s *InitiateTOTPApprovalResponse) SetMessage(val string) {
+	s.Message = val
+}
+
+func (*InitiateTOTPApprovalResponse) initiateTOTPApprovalRes() {}
 
 // Ref: #/components/schemas/LDAPConfig
 type LDAPConfig struct {

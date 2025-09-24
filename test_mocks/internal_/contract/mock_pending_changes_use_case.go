@@ -40,16 +40,16 @@ func (_m *MockPendingChangesUseCase) EXPECT() *MockPendingChangesUseCase_Expecte
 }
 
 // Approve provides a mock function for the type MockPendingChangesUseCase
-func (_mock *MockPendingChangesUseCase) Approve(ctx context.Context, id domain.PendingChangeID, approverUserID int, approverName string, authMethod string, credential string) error {
-	ret := _mock.Called(ctx, id, approverUserID, approverName, authMethod, credential)
+func (_mock *MockPendingChangesUseCase) Approve(ctx context.Context, id domain.PendingChangeID, approverUserID int, approverName string, authMethod string, credential string, sessionID string) error {
+	ret := _mock.Called(ctx, id, approverUserID, approverName, authMethod, credential, sessionID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Approve")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.PendingChangeID, int, string, string, string) error); ok {
-		r0 = returnFunc(ctx, id, approverUserID, approverName, authMethod, credential)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.PendingChangeID, int, string, string, string, string) error); ok {
+		r0 = returnFunc(ctx, id, approverUserID, approverName, authMethod, credential, sessionID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -68,11 +68,12 @@ type MockPendingChangesUseCase_Approve_Call struct {
 //   - approverName string
 //   - authMethod string
 //   - credential string
-func (_e *MockPendingChangesUseCase_Expecter) Approve(ctx interface{}, id interface{}, approverUserID interface{}, approverName interface{}, authMethod interface{}, credential interface{}) *MockPendingChangesUseCase_Approve_Call {
-	return &MockPendingChangesUseCase_Approve_Call{Call: _e.mock.On("Approve", ctx, id, approverUserID, approverName, authMethod, credential)}
+//   - sessionID string
+func (_e *MockPendingChangesUseCase_Expecter) Approve(ctx interface{}, id interface{}, approverUserID interface{}, approverName interface{}, authMethod interface{}, credential interface{}, sessionID interface{}) *MockPendingChangesUseCase_Approve_Call {
+	return &MockPendingChangesUseCase_Approve_Call{Call: _e.mock.On("Approve", ctx, id, approverUserID, approverName, authMethod, credential, sessionID)}
 }
 
-func (_c *MockPendingChangesUseCase_Approve_Call) Run(run func(ctx context.Context, id domain.PendingChangeID, approverUserID int, approverName string, authMethod string, credential string)) *MockPendingChangesUseCase_Approve_Call {
+func (_c *MockPendingChangesUseCase_Approve_Call) Run(run func(ctx context.Context, id domain.PendingChangeID, approverUserID int, approverName string, authMethod string, credential string, sessionID string)) *MockPendingChangesUseCase_Approve_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -98,6 +99,10 @@ func (_c *MockPendingChangesUseCase_Approve_Call) Run(run func(ctx context.Conte
 		if args[5] != nil {
 			arg5 = args[5].(string)
 		}
+		var arg6 string
+		if args[6] != nil {
+			arg6 = args[6].(string)
+		}
 		run(
 			arg0,
 			arg1,
@@ -105,6 +110,7 @@ func (_c *MockPendingChangesUseCase_Approve_Call) Run(run func(ctx context.Conte
 			arg3,
 			arg4,
 			arg5,
+			arg6,
 		)
 	})
 	return _c
@@ -115,7 +121,7 @@ func (_c *MockPendingChangesUseCase_Approve_Call) Return(err error) *MockPending
 	return _c
 }
 
-func (_c *MockPendingChangesUseCase_Approve_Call) RunAndReturn(run func(ctx context.Context, id domain.PendingChangeID, approverUserID int, approverName string, authMethod string, credential string) error) *MockPendingChangesUseCase_Approve_Call {
+func (_c *MockPendingChangesUseCase_Approve_Call) RunAndReturn(run func(ctx context.Context, id domain.PendingChangeID, approverUserID int, approverName string, authMethod string, credential string, sessionID string) error) *MockPendingChangesUseCase_Approve_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -529,6 +535,78 @@ func (_c *MockPendingChangesUseCase_GetProjectApprovers_Call) Return(projectAppr
 }
 
 func (_c *MockPendingChangesUseCase_GetProjectApprovers_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectApprover, error)) *MockPendingChangesUseCase_GetProjectApprovers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// InitiateTOTPApproval provides a mock function for the type MockPendingChangesUseCase
+func (_mock *MockPendingChangesUseCase) InitiateTOTPApproval(ctx context.Context, id domain.PendingChangeID, approverUserID int) (string, error) {
+	ret := _mock.Called(ctx, id, approverUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InitiateTOTPApproval")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.PendingChangeID, int) (string, error)); ok {
+		return returnFunc(ctx, id, approverUserID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.PendingChangeID, int) string); ok {
+		r0 = returnFunc(ctx, id, approverUserID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.PendingChangeID, int) error); ok {
+		r1 = returnFunc(ctx, id, approverUserID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPendingChangesUseCase_InitiateTOTPApproval_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InitiateTOTPApproval'
+type MockPendingChangesUseCase_InitiateTOTPApproval_Call struct {
+	*mock.Call
+}
+
+// InitiateTOTPApproval is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.PendingChangeID
+//   - approverUserID int
+func (_e *MockPendingChangesUseCase_Expecter) InitiateTOTPApproval(ctx interface{}, id interface{}, approverUserID interface{}) *MockPendingChangesUseCase_InitiateTOTPApproval_Call {
+	return &MockPendingChangesUseCase_InitiateTOTPApproval_Call{Call: _e.mock.On("InitiateTOTPApproval", ctx, id, approverUserID)}
+}
+
+func (_c *MockPendingChangesUseCase_InitiateTOTPApproval_Call) Run(run func(ctx context.Context, id domain.PendingChangeID, approverUserID int)) *MockPendingChangesUseCase_InitiateTOTPApproval_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.PendingChangeID
+		if args[1] != nil {
+			arg1 = args[1].(domain.PendingChangeID)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPendingChangesUseCase_InitiateTOTPApproval_Call) Return(s string, err error) *MockPendingChangesUseCase_InitiateTOTPApproval_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockPendingChangesUseCase_InitiateTOTPApproval_Call) RunAndReturn(run func(ctx context.Context, id domain.PendingChangeID, approverUserID int) (string, error)) *MockPendingChangesUseCase_InitiateTOTPApproval_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -58,6 +58,8 @@ docs/FeatureTimelineResponse.md
 docs/FlagVariant.md
 docs/FlagVariantResponse.md
 docs/ForgotPasswordRequest.md
+docs/InitiateTOTPApprovalRequest.md
+docs/InitiateTOTPApprovalResponse.md
 docs/LDAPConfig.md
 docs/LDAPConfigResponse.md
 docs/LDAPConnectionTest.md

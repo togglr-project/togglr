@@ -4360,6 +4360,76 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/pending_changes/{pending_change_id}/initiate-totp:
+    post:
+      summary: Initiate TOTP approval session
+      operationId: InitiateTOTPApproval
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateTOTPApprovalRequest'
+      responses:
+        '200':
+          description: TOTP approval session initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateTOTPApprovalResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /api/v1/pending_changes/{pending_change_id}/approve:
     post:
       summary: Approve a pending change
@@ -6759,7 +6829,32 @@ components:
           example: "user_password_or_totp_code"
           minLength: 1
           maxLength: 255
+        session_id:
+          type: string
+          example: "uuid-session-id"
+          description: "Session ID for TOTP approval (required when method is 'totp')"
       required: [method, credential]
+
+    InitiateTOTPApprovalRequest:
+      type: object
+      properties:
+        approver_user_id:
+          type: integer
+          format: uint
+          example: 456
+      required: [approver_user_id]
+
+    InitiateTOTPApprovalResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+          example: "uuid-session-id"
+          description: "Session ID to use for TOTP approval"
+        message:
+          type: string
+          example: "TOTP approval session initiated successfully"
+      required: [session_id, message]
 
     ErrorConflict:
       type: object

@@ -566,6 +566,72 @@ func (_c *MockUsersUseCase_GetSSOProviders_Call) RunAndReturn(run func(ctx conte
 	return _c
 }
 
+// InitiateTOTPApproval provides a mock function for the type MockUsersUseCase
+func (_mock *MockUsersUseCase) InitiateTOTPApproval(ctx context.Context, userID domain.UserID) (string, error) {
+	ret := _mock.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InitiateTOTPApproval")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserID) (string, error)); ok {
+		return returnFunc(ctx, userID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserID) string); ok {
+		r0 = returnFunc(ctx, userID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.UserID) error); ok {
+		r1 = returnFunc(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockUsersUseCase_InitiateTOTPApproval_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InitiateTOTPApproval'
+type MockUsersUseCase_InitiateTOTPApproval_Call struct {
+	*mock.Call
+}
+
+// InitiateTOTPApproval is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID domain.UserID
+func (_e *MockUsersUseCase_Expecter) InitiateTOTPApproval(ctx interface{}, userID interface{}) *MockUsersUseCase_InitiateTOTPApproval_Call {
+	return &MockUsersUseCase_InitiateTOTPApproval_Call{Call: _e.mock.On("InitiateTOTPApproval", ctx, userID)}
+}
+
+func (_c *MockUsersUseCase_InitiateTOTPApproval_Call) Run(run func(ctx context.Context, userID domain.UserID)) *MockUsersUseCase_InitiateTOTPApproval_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.UserID
+		if args[1] != nil {
+			arg1 = args[1].(domain.UserID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersUseCase_InitiateTOTPApproval_Call) Return(sessionID string, err error) *MockUsersUseCase_InitiateTOTPApproval_Call {
+	_c.Call.Return(sessionID, err)
+	return _c
+}
+
+func (_c *MockUsersUseCase_InitiateTOTPApproval_Call) RunAndReturn(run func(ctx context.Context, userID domain.UserID) (string, error)) *MockUsersUseCase_InitiateTOTPApproval_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // List provides a mock function for the type MockUsersUseCase
 func (_mock *MockUsersUseCase) List(ctx context.Context) ([]domain.User, error) {
 	ret := _mock.Called(ctx)
@@ -1659,6 +1725,69 @@ func (_c *MockUsersUseCase_VerifyPassword_Call) Return(err error) *MockUsersUseC
 }
 
 func (_c *MockUsersUseCase_VerifyPassword_Call) RunAndReturn(run func(ctx context.Context, userID domain.UserID, password string) error) *MockUsersUseCase_VerifyPassword_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// VerifyTOTP provides a mock function for the type MockUsersUseCase
+func (_mock *MockUsersUseCase) VerifyTOTP(ctx context.Context, userID domain.UserID, code string) error {
+	ret := _mock.Called(ctx, userID, code)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VerifyTOTP")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserID, string) error); ok {
+		r0 = returnFunc(ctx, userID, code)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUsersUseCase_VerifyTOTP_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VerifyTOTP'
+type MockUsersUseCase_VerifyTOTP_Call struct {
+	*mock.Call
+}
+
+// VerifyTOTP is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID domain.UserID
+//   - code string
+func (_e *MockUsersUseCase_Expecter) VerifyTOTP(ctx interface{}, userID interface{}, code interface{}) *MockUsersUseCase_VerifyTOTP_Call {
+	return &MockUsersUseCase_VerifyTOTP_Call{Call: _e.mock.On("VerifyTOTP", ctx, userID, code)}
+}
+
+func (_c *MockUsersUseCase_VerifyTOTP_Call) Run(run func(ctx context.Context, userID domain.UserID, code string)) *MockUsersUseCase_VerifyTOTP_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.UserID
+		if args[1] != nil {
+			arg1 = args[1].(domain.UserID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersUseCase_VerifyTOTP_Call) Return(err error) *MockUsersUseCase_VerifyTOTP_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUsersUseCase_VerifyTOTP_Call) RunAndReturn(run func(ctx context.Context, userID domain.UserID, code string) error) *MockUsersUseCase_VerifyTOTP_Call {
 	_c.Call.Return(run)
 	return _c
 }

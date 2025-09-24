@@ -82,6 +82,41 @@ func (s *Service) List(
 	return s.pendingChangesRepo.List(ctx, filter)
 }
 
+// InitiateTOTPApproval creates a 2FA session for TOTP approval
+func (s *Service) InitiateTOTPApproval(
+	ctx context.Context,
+	id domain.PendingChangeID,
+	approverUserID int,
+) (string, error) {
+	// Get the pending change
+	pendingChange, err := s.pendingChangesRepo.GetByID(ctx, id)
+	if err != nil {
+		return "", fmt.Errorf("get pending change: %w", err)
+	}
+
+	// Check if already processed
+	if pendingChange.Status != domain.PendingChangeStatusPending {
+		return "", fmt.Errorf("pending change %s is not in pending status", id)
+	}
+
+	// Check if user is approver
+	isApprover, err := s.IsUserApprover(ctx, pendingChange.ProjectID, approverUserID)
+	if err != nil {
+		return "", fmt.Errorf("check user approver: %w", err)
+	}
+	if !isApprover {
+		return "", domain.ErrPermissionDenied
+	}
+
+	// Create 2FA session for TOTP approval
+	sessionID, err := s.usersUseCase.InitiateTOTPApproval(ctx, domain.UserID(approverUserID))
+	if err != nil {
+		return "", fmt.Errorf("initiate TOTP approval: %w", err)
+	}
+
+	return sessionID, nil
+}
+
 // Approve approves a pending change and applies the changes
 func (s *Service) Approve(
 	ctx context.Context,
@@ -90,6 +125,7 @@ func (s *Service) Approve(
 	approverName string,
 	authMethod string,
 	credential string,
+	sessionID string, // Optional sessionID for TOTP approval
 ) error {
 	return s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		// Get the pending change
@@ -120,8 +156,14 @@ func (s *Service) Approve(
 				return fmt.Errorf("password verification failed: %w", err)
 			}
 		case "totp":
-			// TODO: Implement TOTP verification
-			return fmt.Errorf("TOTP verification not implemented yet")
+			// Verify TOTP using 2FA session
+			if sessionID == "" {
+				return fmt.Errorf("sessionID is required for TOTP approval")
+			}
+			_, _, _, err := s.usersUseCase.Verify2FA(ctx, credential, sessionID)
+			if err != nil {
+				return fmt.Errorf("TOTP verification failed: %w", err)
+			}
 		default:
 			return fmt.Errorf("unsupported auth method: %s", authMethod)
 		}

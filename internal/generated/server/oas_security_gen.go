@@ -75,6 +75,7 @@ var operationRolesBearerAuth = map[string][]string{
 	GetProjectOperation:                  []string{},
 	GetProjectTagOperation:               []string{},
 	GetSegmentOperation:                  []string{},
+	InitiateTOTPApprovalOperation:        []string{},
 	ListAllFeatureSchedulesOperation:     []string{},
 	ListCategoriesOperation:              []string{},
 	ListFeatureFlagVariantsOperation:     []string{},

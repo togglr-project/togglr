@@ -288,6 +288,12 @@ type Handler interface {
 	//
 	// GET /api/v1/segments/{segment_id}
 	GetSegment(ctx context.Context, params GetSegmentParams) (GetSegmentRes, error)
+	// InitiateTOTPApproval implements InitiateTOTPApproval operation.
+	//
+	// Initiate TOTP approval session.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+	InitiateTOTPApproval(ctx context.Context, req *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (InitiateTOTPApprovalRes, error)
 	// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 	//
 	// List all feature schedules.

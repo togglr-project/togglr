@@ -7,10 +7,6 @@ import {
   Alert,
   CircularProgress,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Paper,
 } from '@mui/material';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
@@ -131,15 +127,15 @@ const PendingChangesPage: React.FC = () => {
   const rejectedCount = pendingChanges.filter(pc => pc.status === 'rejected').length;
 
   // Debug info (remove in production)
-  console.log('PendingChangesPage debug:', {
-    projectId,
-    statusFilter,
-    totalChanges: pendingChanges.length,
-    pendingCount,
-    approvedCount,
-    rejectedCount,
-    changes: pendingChanges
-  });
+  // console.log('PendingChangesPage debug:', {
+  //   projectId,
+  //   statusFilter,
+  //   totalChanges: pendingChanges.length,
+  //   pendingCount,
+  //   approvedCount,
+  //   rejectedCount,
+  //   changes: pendingChanges
+  // });
 
   return (
     <AuthenticatedLayout>

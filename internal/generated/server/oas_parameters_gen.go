@@ -2312,6 +2312,71 @@ func decodeGetSegmentParams(args [1]string, argsEscaped bool, r *http.Request) (
 	return params, nil
 }
 
+// InitiateTOTPApprovalParams is parameters of InitiateTOTPApproval operation.
+type InitiateTOTPApprovalParams struct {
+	PendingChangeID uuid.UUID
+}
+
+func unpackInitiateTOTPApprovalParams(packed middleware.Parameters) (params InitiateTOTPApprovalParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "pending_change_id",
+			In:   "path",
+		}
+		params.PendingChangeID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeInitiateTOTPApprovalParams(args [1]string, argsEscaped bool, r *http.Request) (params InitiateTOTPApprovalParams, _ error) {
+	// Decode path: pending_change_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "pending_change_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.PendingChangeID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "pending_change_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListFeatureFlagVariantsParams is parameters of ListFeatureFlagVariants operation.
 type ListFeatureFlagVariantsParams struct {
 	FeatureID string

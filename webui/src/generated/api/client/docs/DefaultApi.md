@@ -50,6 +50,7 @@ All URIs are relative to *http://localhost*
 |[**getSAMLMetadata**](#getsamlmetadata) | **GET** /api/v1/saml/metadata | Get SAML metadata|
 |[**getSSOProviders**](#getssoproviders) | **GET** /api/v1/auth/sso/providers | Get available SSO providers|
 |[**getSegment**](#getsegment) | **GET** /api/v1/segments/{segment_id} | Get segment by ID|
+|[**initiateTOTPApproval**](#initiatetotpapproval) | **POST** /api/v1/pending_changes/{pending_change_id}/initiate-totp | Initiate TOTP approval session|
 |[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/feature-schedules | List all feature schedules|
 |[**listCategories**](#listcategories) | **GET** /api/v1/categories | Get categories list|
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
@@ -2609,6 +2610,67 @@ const { status, data } = await apiInstance.getSegment(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Segment not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **initiateTOTPApproval**
+> InitiateTOTPApprovalResponse initiateTOTPApproval(initiateTOTPApprovalRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    InitiateTOTPApprovalRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let pendingChangeId: string; // (default to undefined)
+let initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest; //
+
+const { status, data } = await apiInstance.initiateTOTPApproval(
+    pendingChangeId,
+    initiateTOTPApprovalRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **initiateTOTPApprovalRequest** | **InitiateTOTPApprovalRequest**|  | |
+| **pendingChangeId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**InitiateTOTPApprovalResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | TOTP approval session initiated successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Pending change not found |  -  |
+|**409** | Conflict - pending change is not in pending status |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

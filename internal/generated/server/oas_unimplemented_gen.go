@@ -431,6 +431,15 @@ func (UnimplementedHandler) GetSegment(ctx context.Context, params GetSegmentPar
 	return r, ht.ErrNotImplemented
 }
 
+// InitiateTOTPApproval implements InitiateTOTPApproval operation.
+//
+// Initiate TOTP approval session.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+func (UnimplementedHandler) InitiateTOTPApproval(ctx context.Context, req *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (r InitiateTOTPApprovalRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 //
 // List all feature schedules.

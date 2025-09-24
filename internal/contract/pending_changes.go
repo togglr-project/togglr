@@ -35,6 +35,13 @@ type PendingChangesUseCase interface {
 		filter PendingChangesListFilter,
 	) ([]domain.PendingChange, int, error)
 
+	// InitiateTOTPApproval creates a 2FA session for TOTP approval
+	InitiateTOTPApproval(
+		ctx context.Context,
+		id domain.PendingChangeID,
+		approverUserID int,
+	) (string, error)
+
 	// Approve approves a pending change and applies the changes
 	Approve(
 		ctx context.Context,
@@ -43,6 +50,7 @@ type PendingChangesUseCase interface {
 		approverName string,
 		authMethod string, // "password" or "totp"
 		credential string, // password or TOTP code
+		sessionID string, // Optional sessionID for TOTP approval
 	) error
 
 	// Reject rejects a pending change

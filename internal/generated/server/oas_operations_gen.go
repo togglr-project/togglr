@@ -52,6 +52,7 @@ const (
 	GetSAMLMetadataOperation             OperationName = "GetSAMLMetadata"
 	GetSSOProvidersOperation             OperationName = "GetSSOProviders"
 	GetSegmentOperation                  OperationName = "GetSegment"
+	InitiateTOTPApprovalOperation        OperationName = "InitiateTOTPApproval"
 	ListAllFeatureSchedulesOperation     OperationName = "ListAllFeatureSchedules"
 	ListCategoriesOperation              OperationName = "ListCategories"
 	ListFeatureFlagVariantsOperation     OperationName = "ListFeatureFlagVariants"

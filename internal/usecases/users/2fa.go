@@ -294,6 +294,65 @@ func (s *UsersService) Verify2FA(
 	return accessToken, refreshToken, expiresIn, nil
 }
 
+// VerifyTOTP verifies a TOTP code for a specific user without requiring a session.
+// This is used for pending changes approval where we need to verify TOTP directly.
+func (s *UsersService) VerifyTOTP(ctx context.Context, userID domain.UserID, code string) error {
+	if s.twoFARateLimiter.IsBlocked(userID) {
+		return domain.ErrTooMany2FAAttempts
+	}
+
+	user, err := s.usersRepo.GetByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("get user: %w", err)
+	}
+
+	if !user.TwoFAEnabled || user.TwoFASecret == "" {
+		return errors.New("2FA is not enabled for this user")
+	}
+
+	encKey := []byte(s.tokenizer.SecretKey())
+	encSecret, err := base64.StdEncoding.DecodeString(user.TwoFASecret)
+	if err != nil {
+		return fmt.Errorf("decode secret: %w", err)
+	}
+	plainSecret, err := crypt.DecryptAESGCM(encSecret, encKey)
+	if err != nil {
+		return fmt.Errorf("decrypt secret: %w", err)
+	}
+
+	valid := totp.Validate(code, string(plainSecret))
+	if !valid {
+		_, blocked := s.twoFARateLimiter.Inc(userID)
+		if blocked {
+			return domain.ErrTooMany2FAAttempts
+		}
+
+		return domain.ErrInvalid2FACode
+	}
+
+	s.twoFARateLimiter.Reset(userID)
+
+	return nil
+}
+
+// InitiateTOTPApproval creates a 2FA session for TOTP approval in pending changes.
+// This is similar to the login flow but specifically for approval operations.
+func (s *UsersService) InitiateTOTPApproval(ctx context.Context, userID domain.UserID) (string, error) {
+	user, err := s.usersRepo.GetByID(ctx, userID)
+	if err != nil {
+		return "", fmt.Errorf("get user: %w", err)
+	}
+
+	if !user.TwoFAEnabled || user.TwoFASecret == "" {
+		return "", errors.New("2FA is not enabled for this user")
+	}
+
+	// Create a 2FA session for approval (15 minutes TTL)
+	sessionID := generate2FASession(userID, user.Username, 15*time.Minute)
+
+	return sessionID, nil
+}
+
 func generate2FASession(userID domain.UserID, username string, ttl time.Duration) string {
 	sessionID := uuid.NewString()
 	twoFASessionStore.Lock()

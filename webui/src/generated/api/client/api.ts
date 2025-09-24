@@ -54,6 +54,10 @@ export type AuditAction = typeof AuditAction[keyof typeof AuditAction];
 export interface AuthCredentials {
     'method': AuthCredentialsMethodEnum;
     'credential': string;
+    /**
+     * Session ID for TOTP approval (required when method is \'totp\')
+     */
+    'session_id'?: string;
 }
 
 export const AuthCredentialsMethodEnum = {
@@ -450,6 +454,16 @@ export interface FlagVariantResponse {
 }
 export interface ForgotPasswordRequest {
     'email': string;
+}
+export interface InitiateTOTPApprovalRequest {
+    'approver_user_id': number;
+}
+export interface InitiateTOTPApprovalResponse {
+    /**
+     * Session ID to use for TOTP approval
+     */
+    'session_id': string;
+    'message': string;
 }
 export interface LDAPConfig {
     /**
@@ -2968,6 +2982,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Initiate TOTP approval session
+         * @param {string} pendingChangeId 
+         * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        initiateTOTPApproval: async (pendingChangeId: string, initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pendingChangeId' is not null or undefined
+            assertParamExists('initiateTOTPApproval', 'pendingChangeId', pendingChangeId)
+            // verify required parameter 'initiateTOTPApprovalRequest' is not null or undefined
+            assertParamExists('initiateTOTPApproval', 'initiateTOTPApprovalRequest', initiateTOTPApprovalRequest)
+            const localVarPath = `/api/v1/pending_changes/{pending_change_id}/initiate-totp`
+                .replace(`{${"pending_change_id"}}`, encodeURIComponent(String(pendingChangeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(initiateTOTPApprovalRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5414,6 +5472,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Initiate TOTP approval session
+         * @param {string} pendingChangeId 
+         * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async initiateTOTPApproval(pendingChangeId: string, initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<InitiateTOTPApprovalResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.initiateTOTPApproval(pendingChangeId, initiateTOTPApprovalRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.initiateTOTPApproval']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6478,6 +6550,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Initiate TOTP approval session
+         * @param {string} pendingChangeId 
+         * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        initiateTOTPApproval(pendingChangeId: string, initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest, options?: RawAxiosRequestConfig): AxiosPromise<InitiateTOTPApprovalResponse> {
+            return localVarFp.initiateTOTPApproval(pendingChangeId, initiateTOTPApprovalRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7456,6 +7539,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getSegment(segmentId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getSegment(segmentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Initiate TOTP approval session
+     * @param {string} pendingChangeId 
+     * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public initiateTOTPApproval(pendingChangeId: string, initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).initiateTOTPApproval(pendingChangeId, initiateTOTPApprovalRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

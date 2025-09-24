@@ -123,6 +123,7 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
             loading={approveLoading}
             title="Auto-Approve Change"
             description="Since you are the only active user in this project, you can approve this change immediately by verifying your credentials."
+            pendingChangeId={pendingChange.id}
           />
         )}
       </>

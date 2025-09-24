@@ -129,7 +129,7 @@ const ProjectPage: React.FC = () => {
 
 
   // Handle auto-approve for single-user projects
-  const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string) => {
+  const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
     if (!guardResponse.pendingChange?.id || !user) return;
     
     approveMutation.mutate(
@@ -141,6 +141,7 @@ const ProjectPage: React.FC = () => {
           auth: {
             method: authMethod,
             credential,
+            ...(sessionId && { session_id: sessionId }),
           },
         },
       },

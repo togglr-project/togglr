@@ -9,29 +9,19 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ApprovePendingChange handles POST /api/v1/pending_changes/{pending_change_id}/approve
-func (r *RestAPI) ApprovePendingChange(
+// InitiateTOTPApproval handles POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+func (r *RestAPI) InitiateTOTPApproval(
 	ctx context.Context,
-	req *generatedapi.ApprovePendingChangeRequest,
-	params generatedapi.ApprovePendingChangeParams,
-) (generatedapi.ApprovePendingChangeRes, error) {
+	req *generatedapi.InitiateTOTPApprovalRequest,
+	params generatedapi.InitiateTOTPApprovalParams,
+) (generatedapi.InitiateTOTPApprovalRes, error) {
 	pendingChangeID := domain.PendingChangeID(params.PendingChangeID.String())
 
-	// Get sessionID from auth if provided
-	var sessionID string
-	if req.Auth.SessionID.Set && req.Auth.SessionID.Value != "" {
-		sessionID = req.Auth.SessionID.Value
-	}
-
-	// Approve pending change
-	err := r.pendingChangesUseCase.Approve(
+	// Initiate TOTP approval session
+	sessionID, err := r.pendingChangesUseCase.InitiateTOTPApproval(
 		ctx,
 		pendingChangeID,
 		int(req.ApproverUserID),
-		req.ApproverName,
-		string(req.Auth.Method),
-		req.Auth.Credential,
-		sessionID,
 	)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
@@ -54,11 +44,13 @@ func (r *RestAPI) ApprovePendingChange(
 			}}, nil
 		}
 
-		slog.Error("approve pending change failed", "error", err)
+		slog.Error("initiate TOTP approval failed", "error", err)
+
 		return nil, err
 	}
 
-	return &generatedapi.SuccessResponse{
-		Message: generatedapi.NewOptString("pending change approved successfully"),
+	return &generatedapi.InitiateTOTPApprovalResponse{
+		SessionID: sessionID,
+		Message:   "TOTP approval session initiated successfully",
 	}, nil
 }

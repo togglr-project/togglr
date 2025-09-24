@@ -1099,6 +1099,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									return
 								}
 
+							case 'i': // Prefix: "initiate-totp"
+
+								if l := len("initiate-totp"); len(elem) >= l && elem[0:l] == "initiate-totp" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleInitiateTOTPApprovalRequest([1]string{
+											args[0],
+										}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
 							case 'r': // Prefix: "reject"
 
 								if l := len("reject"); len(elem) >= l && elem[0:l] == "reject" {
@@ -3212,6 +3234,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										r.summary = "Cancel a pending change"
 										r.operationID = "CancelPendingChange"
 										r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/cancel"
+										r.args = args
+										r.count = 1
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'i': // Prefix: "initiate-totp"
+
+								if l := len("initiate-totp"); len(elem) >= l && elem[0:l] == "initiate-totp" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = InitiateTOTPApprovalOperation
+										r.summary = "Initiate TOTP approval session"
+										r.operationID = "InitiateTOTPApproval"
+										r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/initiate-totp"
 										r.args = args
 										r.count = 1
 										return r, true

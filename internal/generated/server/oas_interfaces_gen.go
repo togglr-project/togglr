@@ -185,6 +185,10 @@ type GetSegmentRes interface {
 	getSegmentRes()
 }
 
+type InitiateTOTPApprovalRes interface {
+	initiateTOTPApprovalRes()
+}
+
 type ListAllFeatureSchedulesRes interface {
 	listAllFeatureSchedulesRes()
 }
