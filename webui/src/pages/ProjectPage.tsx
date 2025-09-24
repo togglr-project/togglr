@@ -12,6 +12,9 @@ import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
 import FeatureCard from '../components/features/FeatureCard';
 import { useAuth } from '../auth/AuthContext';
+import GuardResponseHandler from '../components/pending-changes/GuardResponseHandler';
+import { useApprovePendingChange } from '../hooks/usePendingChanges';
+import type { AuthCredentialsMethodEnum } from '../generated/api/client';
 
 interface ProjectResponse { project: Project }
 
@@ -77,21 +80,73 @@ const ProjectPage: React.FC = () => {
   // Feature preview panel state
   const [previewFeature, setPreviewFeature] = useState<FeatureExtended | null>(null);
 
+  // Guard workflow state
+  const [guardResponse, setGuardResponse] = useState<{
+    pendingChange?: any;
+    conflictError?: string;
+  }>({});
+
   // Permission to toggle features in this project (superuser can always toggle)
   const canToggleFeature = Boolean(user?.is_superuser || user?.project_permissions?.[projectId]?.includes('feature.toggle'));
+
+  const approveMutation = useApprovePendingChange();
 
   // Toggle mutation
   const toggleMutation = useMutation({
     mutationFn: async ({ featureId, enabled }: { featureId: string; enabled: boolean }) => {
-      await apiClient.toggleFeature(featureId, { enabled });
+      try {
+        const res = await apiClient.toggleFeature(featureId, { enabled });
+        return { data: res.data, status: res.status };
+      } catch (error: any) {
+        // Handle guard workflow responses
+        if (error.response?.status === 202) {
+          // Pending change created
+          setGuardResponse({ pendingChange: error.response.data });
+          return null;
+        }
+        if (error.response?.status === 409) {
+          // Conflict
+          setGuardResponse({ conflictError: error.response.data.message });
+          return null;
+        }
+        throw error;
+      }
     },
-    onSuccess: (_data, variables) => {
-      // Refresh lists and details after toggle
-      queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
-      queryClient.invalidateQueries({ queryKey: ['feature-details', variables.featureId] });
+    onSuccess: (result, variables) => {
+      if (result) {
+        // Normal success - toggle applied immediately
+        queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+        queryClient.invalidateQueries({ queryKey: ['feature-details', variables.featureId] });
+      }
+      // If result is null, guard workflow is handling the response
     },
   });
 
+
+  // Handle auto-approve for single-user projects
+  const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string) => {
+    if (!guardResponse.pendingChange?.id || !user) return;
+    
+    approveMutation.mutate(
+      {
+        id: guardResponse.pendingChange.id,
+        request: {
+          approver_user_id: user.id,
+          approver_name: user.username,
+          auth: {
+            method: authMethod,
+            credential,
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          setGuardResponse({});
+          queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+        },
+      }
+    );
+  };
 
   const openFeatureDetails = (f: FeatureExtended) => {
     setSelectedFeature(f);
@@ -285,6 +340,15 @@ const ProjectPage: React.FC = () => {
 
       {/* Create Feature Dialog */}
       <CreateFeatureDialog open={open} onClose={() => setOpen(false)} projectId={projectId} />
+
+      {/* Guard Response Handler */}
+      <GuardResponseHandler
+        pendingChange={guardResponse.pendingChange}
+        conflictError={guardResponse.conflictError}
+        onClose={() => setGuardResponse({})}
+        onApprove={handleAutoApprove}
+        approveLoading={approveMutation.isPending}
+      />
 
     </AuthenticatedLayout>
   );

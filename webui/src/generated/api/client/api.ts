@@ -33,6 +33,11 @@ export interface AddProjectRequest {
     'name': string;
     'description': string;
 }
+export interface ApprovePendingChangeRequest {
+    'approver_user_id': number;
+    'approver_name': string;
+    'auth': AuthCredentials;
+}
 /**
  * Type of action performed on entity
  */
@@ -46,6 +51,21 @@ export const AuditAction = {
 export type AuditAction = typeof AuditAction[keyof typeof AuditAction];
 
 
+export interface AuthCredentials {
+    'method': AuthCredentialsMethodEnum;
+    'credential': string;
+}
+
+export const AuthCredentialsMethodEnum = {
+    Password: 'password',
+    Totp: 'totp'
+} as const;
+
+export type AuthCredentialsMethodEnum = typeof AuthCredentialsMethodEnum[keyof typeof AuthCredentialsMethodEnum];
+
+export interface CancelPendingChangeRequest {
+    'cancelled_by': string;
+}
 export interface Category {
     'id': string;
     'name': string;
@@ -122,6 +142,10 @@ export interface ChangeGroup {
 export interface ChangeUserPasswordRequest {
     'old_password': string;
     'new_password': string;
+}
+export interface ChangeValue {
+    'old': any;
+    'new': any;
 }
 export interface CreateCategoryRequest {
     'name': string;
@@ -234,6 +258,28 @@ export interface CreateUserRequest {
 export interface CreateUserResponse {
     'user': User;
 }
+export interface EntityChange {
+    'entity': EntityChangeEntityEnum;
+    'entity_id': string;
+    'action': EntityChangeActionEnum;
+    'changes': { [key: string]: ChangeValue; };
+}
+
+export const EntityChangeEntityEnum = {
+    Feature: 'feature',
+    Rule: 'rule',
+    FeatureSchedule: 'feature_schedule'
+} as const;
+
+export type EntityChangeEntityEnum = typeof EntityChangeEntityEnum[keyof typeof EntityChangeEntityEnum];
+export const EntityChangeActionEnum = {
+    Insert: 'insert',
+    Update: 'update',
+    Delete: 'delete'
+} as const;
+
+export type EntityChangeActionEnum = typeof EntityChangeActionEnum[keyof typeof EntityChangeActionEnum];
+
 /**
  * Type of entity that was changed
  */
@@ -258,6 +304,13 @@ export interface Error2FARequiredError {
 }
 export interface ErrorBadRequest {
     'error': ErrorError;
+}
+export interface ErrorConflict {
+    'error': ErrorConflictError;
+}
+export interface ErrorConflictError {
+    'message'?: string;
+    'code'?: string;
 }
 export interface ErrorError {
     'message'?: string;
@@ -697,6 +750,44 @@ export interface Pagination {
     'page': number;
     'per_page': number;
 }
+export interface PendingChangeMeta {
+    'reason': string;
+    'client': string;
+    'origin': string;
+}
+export interface PendingChangePayload {
+    'entities': Array<EntityChange>;
+    'meta': PendingChangeMeta;
+}
+export interface PendingChangeResponse {
+    'id': string;
+    'project_id': string;
+    'requested_by': string;
+    'request_user_id'?: number;
+    'change': PendingChangePayload;
+    'status': PendingChangeResponseStatusEnum;
+    'created_at': string;
+    'approved_by'?: string;
+    'approved_user_id'?: number;
+    'approved_at'?: string;
+    'rejected_by'?: string;
+    'rejected_at'?: string;
+    'rejection_reason'?: string;
+}
+
+export const PendingChangeResponseStatusEnum = {
+    Pending: 'pending',
+    Approved: 'approved',
+    Rejected: 'rejected',
+    Cancelled: 'cancelled'
+} as const;
+
+export type PendingChangeResponseStatusEnum = typeof PendingChangeResponseStatusEnum[keyof typeof PendingChangeResponseStatusEnum];
+
+export interface PendingChangesListResponse {
+    'data': Array<PendingChangeResponse>;
+    'pagination': Pagination;
+}
 export interface ProductInfoResponse {
     /**
      * Unique client identifier for this installation
@@ -745,6 +836,10 @@ export interface RefreshTokenResponse {
     'access_token': string;
     'refresh_token': string;
     'expires_in': number;
+}
+export interface RejectPendingChangeRequest {
+    'rejected_by': string;
+    'reason': string;
 }
 export interface ResetPasswordRequest {
     'token': string;
@@ -1124,6 +1219,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Approve a pending change
+         * @param {string} pendingChangeId 
+         * @param {ApprovePendingChangeRequest} approvePendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        approvePendingChange: async (pendingChangeId: string, approvePendingChangeRequest: ApprovePendingChangeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pendingChangeId' is not null or undefined
+            assertParamExists('approvePendingChange', 'pendingChangeId', pendingChangeId)
+            // verify required parameter 'approvePendingChangeRequest' is not null or undefined
+            assertParamExists('approvePendingChange', 'approvePendingChangeRequest', approvePendingChangeRequest)
+            const localVarPath = `/api/v1/pending_changes/{pending_change_id}/approve`
+                .replace(`{${"pending_change_id"}}`, encodeURIComponent(String(pendingChangeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(approvePendingChangeRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Archive a project
          * @param {string} projectId 
          * @param {*} [options] Override http request option.
@@ -1188,6 +1327,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Cancel a pending change
+         * @param {string} pendingChangeId 
+         * @param {CancelPendingChangeRequest} cancelPendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelPendingChange: async (pendingChangeId: string, cancelPendingChangeRequest: CancelPendingChangeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pendingChangeId' is not null or undefined
+            assertParamExists('cancelPendingChange', 'pendingChangeId', pendingChangeId)
+            // verify required parameter 'cancelPendingChangeRequest' is not null or undefined
+            assertParamExists('cancelPendingChange', 'cancelPendingChangeRequest', cancelPendingChangeRequest)
+            const localVarPath = `/api/v1/pending_changes/{pending_change_id}/cancel`
+                .replace(`{${"pending_change_id"}}`, encodeURIComponent(String(pendingChangeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(cancelPendingChangeRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2531,6 +2714,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Get pending change by ID
+         * @param {string} pendingChangeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPendingChange: async (pendingChangeId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pendingChangeId' is not null or undefined
+            assertParamExists('getPendingChange', 'pendingChangeId', pendingChangeId)
+            const localVarPath = `/api/v1/pending_changes/{pending_change_id}`
+                .replace(`{${"pending_change_id"}}`, encodeURIComponent(String(pendingChangeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get product information including client ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -2949,6 +3170,75 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List pending changes
+         * @param {string} [projectId] 
+         * @param {ListPendingChangesStatusEnum} [status] 
+         * @param {number} [userId] 
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {ListPendingChangesSortByEnum} [sortBy] 
+         * @param {boolean} [sortDesc] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPendingChanges: async (projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/pending_changes`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (projectId !== undefined) {
+                localVarQueryParameter['project_id'] = projectId;
+            }
+
+            if (status !== undefined) {
+                localVarQueryParameter['status'] = status;
+            }
+
+            if (userId !== undefined) {
+                localVarQueryParameter['user_id'] = userId;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortDesc !== undefined) {
+                localVarQueryParameter['sort_desc'] = sortDesc;
+            }
 
 
     
@@ -3443,6 +3733,50 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(refreshTokenRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Reject a pending change
+         * @param {string} pendingChangeId 
+         * @param {RejectPendingChangeRequest} rejectPendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rejectPendingChange: async (pendingChangeId: string, rejectPendingChangeRequest: RejectPendingChangeRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'pendingChangeId' is not null or undefined
+            assertParamExists('rejectPendingChange', 'pendingChangeId', pendingChangeId)
+            // verify required parameter 'rejectPendingChangeRequest' is not null or undefined
+            assertParamExists('rejectPendingChange', 'rejectPendingChangeRequest', rejectPendingChangeRequest)
+            const localVarPath = `/api/v1/pending_changes/{pending_change_id}/reject`
+                .replace(`{${"pending_change_id"}}`, encodeURIComponent(String(pendingChangeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(rejectPendingChangeRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -4496,6 +4830,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Approve a pending change
+         * @param {string} pendingChangeId 
+         * @param {ApprovePendingChangeRequest} approvePendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async approvePendingChange(pendingChangeId: string, approvePendingChangeRequest: ApprovePendingChangeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.approvePendingChange(pendingChangeId, approvePendingChangeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.approvePendingChange']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Archive a project
          * @param {string} projectId 
          * @param {*} [options] Override http request option.
@@ -4517,6 +4865,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cancelLDAPSync(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.cancelLDAPSync']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Cancel a pending change
+         * @param {string} pendingChangeId 
+         * @param {CancelPendingChangeRequest} cancelPendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async cancelPendingChange(pendingChangeId: string, cancelPendingChangeRequest: CancelPendingChangeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.cancelPendingChange(pendingChangeId, cancelPendingChangeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.cancelPendingChange']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -4689,7 +5051,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteFeature(featureId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async deleteFeature(featureId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeature(featureId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeature']?.[localVarOperationServerIndex]?.url;
@@ -4959,6 +5321,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get pending change by ID
+         * @param {string} pendingChangeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getPendingChange(pendingChangeId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangeResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPendingChange(pendingChangeId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getPendingChange']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get product information including client ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -5110,6 +5485,25 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @summary List pending changes
+         * @param {string} [projectId] 
+         * @param {ListPendingChangesStatusEnum} [status] 
+         * @param {number} [userId] 
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {ListPendingChangesSortByEnum} [sortBy] 
+         * @param {boolean} [sortDesc] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listPendingChanges(projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangesListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listPendingChanges(projectId, status, userId, page, perPage, sortBy, sortDesc, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listPendingChanges']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
          * @summary Get project changes history
          * @param {string} projectId Project ID
@@ -5258,6 +5652,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.refreshToken(refreshTokenRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.refreshToken']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Reject a pending change
+         * @param {string} pendingChangeId 
+         * @param {RejectPendingChangeRequest} rejectPendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async rejectPendingChange(pendingChangeId: string, rejectPendingChangeRequest: RejectPendingChangeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SuccessResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.rejectPendingChange(pendingChangeId, rejectPendingChangeRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.rejectPendingChange']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -5618,6 +6026,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Approve a pending change
+         * @param {string} pendingChangeId 
+         * @param {ApprovePendingChangeRequest} approvePendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        approvePendingChange(pendingChangeId: string, approvePendingChangeRequest: ApprovePendingChangeRequest, options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
+            return localVarFp.approvePendingChange(pendingChangeId, approvePendingChangeRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Archive a project
          * @param {string} projectId 
          * @param {*} [options] Override http request option.
@@ -5634,6 +6053,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         cancelLDAPSync(options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
             return localVarFp.cancelLDAPSync(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Cancel a pending change
+         * @param {string} pendingChangeId 
+         * @param {CancelPendingChangeRequest} cancelPendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cancelPendingChange(pendingChangeId: string, cancelPendingChangeRequest: CancelPendingChangeRequest, options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
+            return localVarFp.cancelPendingChange(pendingChangeId, cancelPendingChangeRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -5769,7 +6199,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFeature(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        deleteFeature(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
             return localVarFp.deleteFeature(featureId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -5976,6 +6406,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get pending change by ID
+         * @param {string} pendingChangeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getPendingChange(pendingChangeId: string, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
+            return localVarFp.getPendingChange(pendingChangeId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get product information including client ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -6089,6 +6529,22 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listFeatureTags(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProjectTag>> {
             return localVarFp.listFeatureTags(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List pending changes
+         * @param {string} [projectId] 
+         * @param {ListPendingChangesStatusEnum} [status] 
+         * @param {number} [userId] 
+         * @param {number} [page] 
+         * @param {number} [perPage] 
+         * @param {ListPendingChangesSortByEnum} [sortBy] 
+         * @param {boolean} [sortDesc] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listPendingChanges(projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangesListResponse> {
+            return localVarFp.listPendingChanges(projectId, status, userId, page, perPage, sortBy, sortDesc, options).then((request) => request(axios, basePath));
         },
         /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
@@ -6210,6 +6666,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         refreshToken(refreshTokenRequest: RefreshTokenRequest, options?: RawAxiosRequestConfig): AxiosPromise<RefreshTokenResponse> {
             return localVarFp.refreshToken(refreshTokenRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Reject a pending change
+         * @param {string} pendingChangeId 
+         * @param {RejectPendingChangeRequest} rejectPendingChangeRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        rejectPendingChange(pendingChangeId: string, rejectPendingChangeRequest: RejectPendingChangeRequest, options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
+            return localVarFp.rejectPendingChange(pendingChangeId, rejectPendingChangeRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -6497,6 +6964,18 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Approve a pending change
+     * @param {string} pendingChangeId 
+     * @param {ApprovePendingChangeRequest} approvePendingChangeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public approvePendingChange(pendingChangeId: string, approvePendingChangeRequest: ApprovePendingChangeRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).approvePendingChange(pendingChangeId, approvePendingChangeRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Archive a project
      * @param {string} projectId 
      * @param {*} [options] Override http request option.
@@ -6514,6 +6993,18 @@ export class DefaultApi extends BaseAPI {
      */
     public cancelLDAPSync(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).cancelLDAPSync(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Cancel a pending change
+     * @param {string} pendingChangeId 
+     * @param {CancelPendingChangeRequest} cancelPendingChangeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public cancelPendingChange(pendingChangeId: string, cancelPendingChangeRequest: CancelPendingChangeRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).cancelPendingChange(pendingChangeId, cancelPendingChangeRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -6890,6 +7381,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get pending change by ID
+     * @param {string} pendingChangeId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getPendingChange(pendingChangeId: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getPendingChange(pendingChangeId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get product information including client ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -7014,6 +7516,23 @@ export class DefaultApi extends BaseAPI {
      */
     public listFeatureTags(featureId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listFeatureTags(featureId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List pending changes
+     * @param {string} [projectId] 
+     * @param {ListPendingChangesStatusEnum} [status] 
+     * @param {number} [userId] 
+     * @param {number} [page] 
+     * @param {number} [perPage] 
+     * @param {ListPendingChangesSortByEnum} [sortBy] 
+     * @param {boolean} [sortDesc] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listPendingChanges(projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listPendingChanges(projectId, status, userId, page, perPage, sortBy, sortDesc, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7145,6 +7664,18 @@ export class DefaultApi extends BaseAPI {
      */
     public refreshToken(refreshTokenRequest: RefreshTokenRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).refreshToken(refreshTokenRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Reject a pending change
+     * @param {string} pendingChangeId 
+     * @param {RejectPendingChangeRequest} rejectPendingChangeRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public rejectPendingChange(pendingChangeId: string, rejectPendingChangeRequest: RejectPendingChangeRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).rejectPendingChange(pendingChangeId, rejectPendingChangeRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -7432,6 +7963,19 @@ export const GetLDAPSyncLogsLevelEnum = {
     Error: 'error'
 } as const;
 export type GetLDAPSyncLogsLevelEnum = typeof GetLDAPSyncLogsLevelEnum[keyof typeof GetLDAPSyncLogsLevelEnum];
+export const ListPendingChangesStatusEnum = {
+    Pending: 'pending',
+    Approved: 'approved',
+    Rejected: 'rejected',
+    Cancelled: 'cancelled'
+} as const;
+export type ListPendingChangesStatusEnum = typeof ListPendingChangesStatusEnum[keyof typeof ListPendingChangesStatusEnum];
+export const ListPendingChangesSortByEnum = {
+    CreatedAt: 'created_at',
+    Status: 'status',
+    RequestedBy: 'requested_by'
+} as const;
+export type ListPendingChangesSortByEnum = typeof ListPendingChangesSortByEnum[keyof typeof ListPendingChangesSortByEnum];
 export const ListProjectChangesSortByEnum = {
     CreatedAt: 'created_at',
     Actor: 'actor',

@@ -35,14 +35,42 @@ import {
   InsightsOutlined as AnalyticsIcon,
   FlagOutlined as FlagOutlinedIcon,
   Schedule as ScheduleIcon,
-  PeopleOutline as PeopleIcon
+  PeopleOutline as PeopleIcon,
+  Assignment as ChangesIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { usePendingChangesCount } from '../hooks/usePendingChanges';
 import ThemeToggle from './ThemeToggle';
 import Breadcrumbs from './Breadcrumbs';
 import SkipLink from './SkipLink';
 import WardenLogo from "./WardenLogo.tsx";
+
+// Component for showing pending changes count badge
+const PendingChangesBadge: React.FC<{ projectId: string }> = ({ projectId }) => {
+  const { data: count } = usePendingChangesCount(projectId);
+  
+  if (!count || count === 0) return null;
+  
+  return (
+    <Box
+      sx={{
+        backgroundColor: 'error.main',
+        color: 'white',
+        borderRadius: '50%',
+        minWidth: 20,
+        height: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+      }}
+    >
+      {count > 99 ? '99+' : count}
+    </Box>
+  );
+};
 
 interface LayoutProps {
   children: ReactNode;
@@ -495,6 +523,59 @@ const Layout: React.FC<LayoutProps> = ({
                     primaryTypographyProps={{
                       fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 600 : 500,
                       color: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 'primary.main' : 'inherit',
+                    }}
+                    sx={{ 
+                      opacity: open ? 1 : 0,
+                      ml: 0.5,
+                    }} 
+                  />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Change Requests menu item */}
+              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    py: 1.2,
+                    borderRadius: 2,
+                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? (
+                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                    ) : 'transparent',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.06)' 
+                        : 'rgba(130, 82, 255, 0.06)',
+                    },
+                  }}
+                  onClick={() => {
+                    if (currentProjectId) navigate(`/projects/${currentProjectId}/pending-changes`);
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
+                    }}
+                  >
+                    <ChangesIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>Change Requests</span>
+                        {currentProjectId && (
+                          <PendingChangesBadge projectId={currentProjectId} />
+                        )}
+                      </Box>
+                    }
+                    primaryTypographyProps={{
+                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 600 : 500,
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
                     }}
                     sx={{ 
                       opacity: open ? 1 : 0,
