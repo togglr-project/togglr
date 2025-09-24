@@ -13,10 +13,8 @@ import {
 
 // Add Node.js types for process.env
 declare global {
-  namespace NodeJS {
-    interface ProcessEnv {
-      NODE_ENV: 'development' | 'production' | 'test';
-    }
+  interface ProcessEnv {
+    NODE_ENV: 'development' | 'production' | 'test';
   }
 }
 

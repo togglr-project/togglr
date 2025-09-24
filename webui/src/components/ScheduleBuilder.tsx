@@ -25,8 +25,8 @@ import {
   Check as CheckIcon,
   Help as HelpIcon
 } from '@mui/icons-material';
-// @ts-ignore
-import { listTimeZones, findTimeZone, getUTCOffset } from 'timezone-support';
+// @ts-expect-error - timezone-support types are not available
+import { listTimeZones } from 'timezone-support';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import {
@@ -40,14 +40,12 @@ import TimelinePreview from './TimelinePreview';
 
 interface ScheduleBuilderProps {
   open: boolean;
-  onClose: () => void;
   onSubmit: (data: ScheduleBuilderData & { cronExpression: string }) => void;
   featureId: string;
   initialData?: Partial<ScheduleBuilderData>;
   featureCreatedAt?: string; // ISO string for feature creation date
 }
 
-const allTimezones = listTimeZones();
 
   const steps = [
     'Date Range',
@@ -60,7 +58,6 @@ const allTimezones = listTimeZones();
 
 const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({ 
   open, 
-  onClose, 
   onSubmit, 
   featureId,
   initialData,
@@ -83,7 +80,6 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
 
   const [errors, setErrors] = useState<string[]>([]);
   const [cronExpression, setCronExpression] = useState<string>('');
-  const [cronDescription, setCronDescription] = useState<string>('');
 
   // Валидация и генерация cron при изменении данных
   useEffect(() => {
@@ -95,19 +91,15 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         const cron = generateCronExpression(data);
         setCronExpression(cron);
         
-        // Проверяем валидность cron и генерируем описание
-        if (isValidCron(cron, { seconds: false, allowBlankDay: true, alias: true })) {
-          setCronDescription(cronstrue.toString(cron));
-        } else {
-          setCronDescription('');
+        // Проверяем валидность cron
+        if (!isValidCron(cron, { seconds: false, allowBlankDay: true, alias: true })) {
+          setCronExpression('');
         }
-      } catch (error) {
+      } catch {
         setCronExpression('');
-        setCronDescription('');
       }
     } else {
       setCronExpression('');
-      setCronDescription('');
     }
   }, [data]);
 
@@ -215,7 +207,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return '';
         return date.toISOString().slice(0, 10);
-      } catch (error) {
+      } catch {
         return '';
       }
     };
@@ -226,7 +218,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return '00:00';
         return date.toTimeString().slice(0, 5);
-      } catch (error) {
+      } catch {
         return '00:00';
       }
     };
@@ -240,7 +232,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
         if (isNaN(date.getTime())) return '';
         return date.toISOString();
-      } catch (error) {
+      } catch {
         return '';
       }
     };

@@ -39,7 +39,6 @@ import type { FeatureSchedule, FeatureScheduleAction } from '../generated/api/cl
 
 interface EditRecurringScheduleBuilderProps {
   open: boolean;
-  onClose: () => void;
   onSubmit: (data: ScheduleBuilderData & { cronExpression: string }) => void;
   featureId: string;
   initialData?: FeatureSchedule;
@@ -129,12 +128,11 @@ const parseDuration = (duration: string): { value: number; unit: 'minutes' | 'ho
   return { value: 1, unit: 'hours' };
 };
 
-const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> = ({ 
-  open, 
-  onClose, 
-  onSubmit, 
+const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> = ({
+  open,
+  onSubmit,
   featureId,
-  initialData 
+  initialData
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [data, setData] = useState<ScheduleBuilderData>(() => {
@@ -171,7 +169,6 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
 
   const [errors, setErrors] = useState<string[]>([]);
   const [cronExpression, setCronExpression] = useState<string>('');
-  const [cronDescription, setCronDescription] = useState<string>('');
 
   // Validation and cron generation when data changes
   useEffect(() => {
@@ -183,19 +180,15 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         const cron = generateCronExpression(data);
         setCronExpression(cron);
         
-        // Check cron validity and generate description
-        if (isValidCron(cron, { seconds: false, allowBlankDay: true, alias: true })) {
-          setCronDescription(cronstrue.toString(cron));
-        } else {
-          setCronDescription('');
+        // Check cron validity
+        if (!isValidCron(cron, { seconds: false, allowBlankDay: true, alias: true })) {
+          setCronExpression('');
         }
-      } catch (error) {
+      } catch {
         setCronExpression('');
-        setCronDescription('');
       }
     } else {
       setCronExpression('');
-      setCronDescription('');
     }
   }, [data]);
 
@@ -303,7 +296,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return '';
         return date.toISOString().slice(0, 10);
-      } catch (error) {
+      } catch {
         return '';
       }
     };
@@ -314,7 +307,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         const date = new Date(isoString);
         if (isNaN(date.getTime())) return '00:00';
         return date.toTimeString().slice(0, 5);
-      } catch (error) {
+      } catch {
         return '00:00';
       }
     };
@@ -328,7 +321,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         const date = new Date(year, month - 1, day, hours, minutes, 0, 0);
         if (isNaN(date.getTime())) return '';
         return date.toISOString();
-      } catch (error) {
+      } catch {
         return '';
       }
     };

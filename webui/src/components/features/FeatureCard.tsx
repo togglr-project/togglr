@@ -8,7 +8,6 @@ import {
   Switch,
   IconButton,
   Tooltip,
-  Stack,
   LinearProgress,
   Fade,
 } from '@mui/material';
@@ -49,9 +48,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
     }
   };
 
-  const getStatusColor = (enabled: boolean) => {
-    return enabled ? 'success' : 'default';
-  };
 
 
   const handleCardClick = (e: React.MouseEvent) => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconButton, Tooltip, useTheme } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useTheme as useAppTheme } from '../theme/ThemeContext';
 
@@ -12,7 +12,6 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   size = 'medium',
   showTooltip = true
 }) => {
-  const theme = useTheme();
   const { mode, toggleTheme } = useAppTheme();
 
   const iconSize = size === 'small' ? 20 : size === 'large' ? 28 : 24;

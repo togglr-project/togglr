@@ -103,10 +103,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login failed:', error);
       // Проверяем ошибку 2FA
-      if (error?.response?.status === 403 && error?.response?.data?.error?.code === '2fa_required') {
+      if (isAxiosError(error) && error.response?.status === 403 && error.response?.data?.error?.code === '2fa_required') {
         setIs2FARequired(true);
         setSessionId(error.response.data.error.session_id || "");
         setError(null);
@@ -141,7 +141,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (isAxiosError(error) && error.response?.status === 429) {
         setError('Too many attempts. Please try again later.');
         setIs2FABlocked(true);
@@ -205,7 +205,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login with tokens failed:', error);
       if (isAxiosError(error) && error.response?.data?.message) {
         setError(error.response.data.message);
@@ -273,7 +273,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return; // Ignore subsequent calls until the current request completes
     }
 
-    handleSSOCallbackRef.current = new Promise(async (resolve, reject) => {
+    const executeCallback = async () => {
       setIsLoading(true);
       setError(null);
       try {
@@ -293,7 +293,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch (error) {
           console.error('Failed to fetch user data:', error);
         }
-        resolve();
       } catch (error: unknown) {
         console.error('SSO callback failed:', error);
         if (isAxiosError(error) && error.response?.data?.message) {
@@ -301,12 +300,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           setError('SSO authentication failed. Please try again.');
         }
-        reject(error);
+        throw error;
       } finally {
         handleSSOCallbackRef.current = null;
         setIsLoading(false);
       }
-    });
+    };
+
+    handleSSOCallbackRef.current = executeCallback();
 
     try {
       await handleSSOCallbackRef.current;

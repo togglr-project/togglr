@@ -118,11 +118,12 @@ export function generateScheduleDescription(data: ScheduleBuilderData): string {
   const durationText = formatDuration(duration);
 
   switch (scheduleType) {
-    case 'repeat_every':
+    case 'repeat_every': {
       if (!repeatEvery) return '';
       const { interval, unit } = repeatEvery;
       const unitText = unit === 'minutes' ? 'minutes' : 'hours';
       return `Repeat every ${interval} ${unitText}, ${actionText} for ${durationText}`;
+    }
 
     case 'daily':
       if (!daily) return '';
@@ -132,13 +133,14 @@ export function generateScheduleDescription(data: ScheduleBuilderData): string {
       if (!monthly) return '';
       return `Monthly on ${monthly.dayOfMonth} at ${monthly.time}, ${actionText} for ${durationText}`;
 
-    case 'yearly':
+    case 'yearly': {
       if (!yearly) return '';
       const monthNames = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
       ];
       return `Yearly on ${monthNames[yearly.month - 1]} ${yearly.day} at ${yearly.time}, ${actionText} for ${durationText}`;
+    }
 
     default:
       return '';

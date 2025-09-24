@@ -6,18 +6,7 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-  Button,
-  Box,
-  Typography,
-  TableContainer,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  IconButton,
-  Paper,
-  CircularProgress
+  Button
 } from '@mui/material';
 
 interface CreateProjectDialogProps {

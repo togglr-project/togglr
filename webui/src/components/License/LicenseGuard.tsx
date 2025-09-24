@@ -10,7 +10,7 @@ interface LicenseGuardProps {
 
 const LicenseGuard: React.FC<LicenseGuardProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  const { isLicenseValid, isLoading, licenseStatus } = useLicense();
+  const { isLicenseValid, isLoading } = useLicense();
 
   // If not authenticated, don't check license
   if (!isAuthenticated) {

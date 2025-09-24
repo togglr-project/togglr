@@ -5,8 +5,7 @@ import { useTheme as useAppTheme } from '../theme/ThemeContext';
 interface LogoImgProps {
   size?: 'small' | 'medium' | 'large';
   variant?: 'full' | 'icon' | 'gray';
-  showText?: boolean;
-  sx?: any;
+  sx?: React.CSSProperties;
 }
 
 const sizeMap = {
@@ -29,10 +28,8 @@ const getLogoPath = (variant: string, mode: string) => {
 export const LogoImg: React.FC<LogoImgProps> = ({
   size = 'medium',
   variant = 'full',
-  showText = true,
   sx
 }) => {
-  const theme = useTheme();
   const { mode } = useAppTheme();
   const {  height } = sizeMap[size];
 

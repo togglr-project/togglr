@@ -10,14 +10,12 @@ import {
   TableRow,
   TableCell,
   IconButton,
-  CircularProgress,
-  Chip
+  CircularProgress
 } from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
-  Delete as DeleteIcon,
-  PersonAdd as PersonAddIcon
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 

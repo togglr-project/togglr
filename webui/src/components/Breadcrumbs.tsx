@@ -35,7 +35,7 @@ const Breadcrumbs: React.FC = () => {
   });
 
   // Get current project data
-  const projectId = location.pathname.match(/\/projects\/([^\/]+)/)?.[1];
+  const projectId = location.pathname.match(/\/projects\/([^/]+)/)?.[1];
   const currentProject = projects?.find(p => p.id === projectId);
 
   const generateBreadcrumbs = (): BreadcrumbItem[] => {

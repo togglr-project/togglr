@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box, useTheme } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PageTransitionProps {
@@ -8,7 +7,6 @@ interface PageTransitionProps {
 }
 
 const PageTransition: React.FC<PageTransitionProps> = ({ children, className }) => {
-  const theme = useTheme();
 
   const pageVariants = {
     initial: {

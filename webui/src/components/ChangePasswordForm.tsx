@@ -49,7 +49,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({ open, onClose }
       setNewPassword('');
       setConfirmPassword('');
       onClose();
-    } catch (error) {
+    } catch {
       // Error is already handled in the AuthContext
     }
   };

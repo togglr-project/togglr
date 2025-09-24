@@ -16,7 +16,6 @@ import {
   useTheme,
   Avatar,
   Tooltip,
-  Badge,
   Tabs,
   Tab
 } from '@mui/material';
@@ -29,11 +28,9 @@ import {
   FolderOutlined as ProjectsIcon,
   Category as CategoriesIcon,
   LocalOffer as TagsIcon,
-  BugReportOutlined as IssuesIcon,
   SettingsOutlined as SettingsIcon,
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
-  NotificationsNone as NotificationsIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
   InsightsOutlined as AnalyticsIcon,
   FlagOutlined as FlagOutlinedIcon,
@@ -75,13 +72,12 @@ const Layout: React.FC<LayoutProps> = ({
     try {
       const saved = localStorage.getItem('sidebarExpanded');
       return saved !== null ? JSON.parse(saved) : true;
-    } catch (error) {
+    } catch {
       // Fallback to true if localStorage is not available (e.g., private mode)
       console.warn('localStorage not available, using default sidebar state');
       return true;
     }
   });
-  const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleDrawerToggle = () => {
     const newOpen = !open;
@@ -89,23 +85,12 @@ const Layout: React.FC<LayoutProps> = ({
     // Save state to localStorage
     try {
       localStorage.setItem('sidebarExpanded', JSON.stringify(newOpen));
-    } catch (error) {
+    } catch {
       // Ignore errors if localStorage is not available
       console.warn('Could not save sidebar state to localStorage');
     }
   };
 
-  const handleNotificationOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationAnchorEl(event.currentTarget);
-  };
-
-  const handleNotificationClose = () => {
-    setNotificationAnchorEl(null);
-  };
-
-  const handleViewAllNotifications = () => {
-    navigate('/notifications');
-  };
 
   // Define menu items based on user role
   const getMenuItems = () => {
@@ -201,24 +186,6 @@ const Layout: React.FC<LayoutProps> = ({
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Tooltip title="Notifications">
-              <IconButton
-                size="medium"
-                aria-label="notifications"
-                onClick={handleNotificationOpen}
-                sx={{ 
-                  '&:hover': {
-                    backgroundColor: theme.palette.mode === 'dark' 
-                      ? 'rgba(255, 255, 255, 0.08)' 
-                      : 'rgba(130, 82, 255, 0.08)',
-                  },
-                }}
-              >
-                <Badge badgeContent={12} color="error">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
 
 
             <ThemeToggle />
