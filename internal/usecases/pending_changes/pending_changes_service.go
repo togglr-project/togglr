@@ -242,7 +242,7 @@ func (s *Service) GetProjectApprovers(ctx context.Context, projectID domain.Proj
 
 // IsUserApprover checks if a user can approve changes for a project
 func (s *Service) IsUserApprover(ctx context.Context, projectID domain.ProjectID, userID int) (bool, error) {
-	// First check explicit approvers
+	// First, check explicit approvers
 	isExplicitApprover, err := s.projectApproversRepo.IsUserApprover(ctx, projectID, userID)
 	if err != nil {
 		return false, fmt.Errorf("check explicit approver: %w", err)
@@ -256,12 +256,10 @@ func (s *Service) IsUserApprover(ctx context.Context, projectID domain.ProjectID
 		return true, nil
 	}
 
-	// Check if user can manage the project (project owner/manager)
+	// Check if the user can manage the project (project owner/manager)
 	if err := s.permissionsService.CanManageProject(ctx, projectID); err == nil {
 		return true, nil
 	}
-
-	// TODO: Check project settings for default approvers
 
 	return false, nil
 }
