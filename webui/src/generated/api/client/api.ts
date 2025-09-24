@@ -754,6 +754,10 @@ export interface PendingChangeMeta {
     'reason': string;
     'client': string;
     'origin': string;
+    /**
+     * True if the project has only 1 active user (enables auto-approve)
+     */
+    'single_user_project'?: boolean;
 }
 export interface PendingChangePayload {
     'entities': Array<EntityChange>;

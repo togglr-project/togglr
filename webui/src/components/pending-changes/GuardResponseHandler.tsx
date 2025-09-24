@@ -44,6 +44,8 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
 
   // 202 Accepted - Change is pending approval
   if (pendingChange) {
+    const isSingleUserProject = pendingChange.change.meta?.single_user_project === true;
+    
     return (
       <>
         <Dialog open={true} onClose={onClose} maxWidth="md" fullWidth>
@@ -53,7 +55,10 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
           </DialogTitle>
           <DialogContent>
             <Alert severity="info" sx={{ mb: 2 }}>
-              Your change has been submitted and is pending approval from an authorized user.
+              {isSingleUserProject 
+                ? "Your change has been submitted. Since you are the only active user in this project, you can approve it immediately by verifying your credentials."
+                : "Your change has been submitted and is pending approval from an authorized user."
+              }
             </Alert>
             
             <Box sx={{ mb: 2 }}>
@@ -98,7 +103,7 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
             <Button onClick={onClose}>
               Close
             </Button>
-            {onApprove && (
+            {onApprove && isSingleUserProject && (
               <Button 
                 variant="contained" 
                 onClick={() => setShowApprovalDialog(true)}
@@ -110,7 +115,7 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
           </DialogActions>
         </Dialog>
 
-        {onApprove && (
+        {onApprove && isSingleUserProject && (
           <ApprovalDialog
             open={showApprovalDialog}
             onClose={() => setShowApprovalDialog(false)}

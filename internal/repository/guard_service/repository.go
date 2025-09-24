@@ -69,7 +69,7 @@ func (r *Repository) GetProjectActiveUserCount(ctx context.Context, projectID do
 
 	const query = `
 SELECT COUNT(*) FROM memberships
-WHERE project_id = $1 AND is_active = true`
+WHERE project_id = $1`
 
 	var count int
 	err := executor.QueryRow(ctx, query, projectID).Scan(&count)

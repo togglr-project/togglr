@@ -36,9 +36,10 @@ type ChangeValue struct {
 }
 
 type PendingChangeMeta struct {
-	Reason string `json:"reason,omitempty"`
-	Client string `json:"client,omitempty"` // e.g., "ui", "api"
-	Origin string `json:"origin,omitempty"` // e.g., "project-settings"
+	Reason            string `json:"reason,omitempty"`
+	Client            string `json:"client,omitempty"`              // e.g., "ui", "api"
+	Origin            string `json:"origin,omitempty"`              // e.g., "project-settings"
+	SingleUserProject bool   `json:"single_user_project,omitempty"` // true if project has only 1 active user
 }
 
 type PendingChangePayload struct {

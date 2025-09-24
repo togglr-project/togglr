@@ -6632,6 +6632,8 @@ type PendingChangeMeta struct {
 	Reason string `json:"reason"`
 	Client string `json:"client"`
 	Origin string `json:"origin"`
+	// True if the project has only 1 active user (enables auto-approve).
+	SingleUserProject OptBool `json:"single_user_project"`
 }
 
 // GetReason returns the value of Reason.
@@ -6649,6 +6651,11 @@ func (s *PendingChangeMeta) GetOrigin() string {
 	return s.Origin
 }
 
+// GetSingleUserProject returns the value of SingleUserProject.
+func (s *PendingChangeMeta) GetSingleUserProject() OptBool {
+	return s.SingleUserProject
+}
+
 // SetReason sets the value of Reason.
 func (s *PendingChangeMeta) SetReason(val string) {
 	s.Reason = val
@@ -6662,6 +6669,11 @@ func (s *PendingChangeMeta) SetClient(val string) {
 // SetOrigin sets the value of Origin.
 func (s *PendingChangeMeta) SetOrigin(val string) {
 	s.Origin = val
+}
+
+// SetSingleUserProject sets the value of SingleUserProject.
+func (s *PendingChangeMeta) SetSingleUserProject(val OptBool) {
+	s.SingleUserProject = val
 }
 
 // Ref: #/components/schemas/PendingChangePayload

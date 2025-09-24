@@ -12189,12 +12189,19 @@ func (s *PendingChangeMeta) encodeFields(e *jx.Encoder) {
 		e.FieldStart("origin")
 		e.Str(s.Origin)
 	}
+	{
+		if s.SingleUserProject.Set {
+			e.FieldStart("single_user_project")
+			s.SingleUserProject.Encode(e)
+		}
+	}
 }
 
-var jsonFieldsNameOfPendingChangeMeta = [3]string{
+var jsonFieldsNameOfPendingChangeMeta = [4]string{
 	0: "reason",
 	1: "client",
 	2: "origin",
+	3: "single_user_project",
 }
 
 // Decode decodes PendingChangeMeta from json.
@@ -12241,6 +12248,16 @@ func (s *PendingChangeMeta) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"origin\"")
+			}
+		case "single_user_project":
+			if err := func() error {
+				s.SingleUserProject.Reset()
+				if err := s.SingleUserProject.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"single_user_project\"")
 			}
 		default:
 			return d.Skip()

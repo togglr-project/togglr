@@ -266,9 +266,7 @@ func (s *Service) IsUserApprover(ctx context.Context, projectID domain.ProjectID
 
 // GetProjectActiveUserCount returns the number of active users in a project
 func (s *Service) GetProjectActiveUserCount(ctx context.Context, projectID domain.ProjectID) (int, error) {
-	// This would be implemented in the guard service repository
-	// For now, return a placeholder
-	return 1, nil
+	return s.guardService.GetProjectActiveUserCount(ctx, projectID)
 }
 
 // applyChanges applies the changes from a pending change

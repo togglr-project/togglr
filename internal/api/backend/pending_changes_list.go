@@ -113,6 +113,10 @@ func convertPendingChangeToResponse(change *domain.PendingChange) generatedapi.P
 		Reason: change.Change.Meta.Reason,
 		Client: change.Change.Meta.Client,
 		Origin: change.Change.Meta.Origin,
+		SingleUserProject: generatedapi.OptBool{
+			Value: change.Change.Meta.SingleUserProject,
+			Set:   true,
+		},
 	}
 
 	// Convert payload

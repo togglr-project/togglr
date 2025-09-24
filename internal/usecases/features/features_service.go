@@ -593,7 +593,16 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		requestUserIDPtr = &userIDInt
 	}
 
-	// Create pending change
+	// Check if this is a single-user project
+	activeUserCount, err := s.pendingChangesUseCase.GetProjectActiveUserCount(ctx, projectID)
+	if err != nil {
+		return domain.GuardedResult{
+			Error: fmt.Errorf("get project active user count: %w", err),
+		}
+	}
+
+	// For single-user projects, always create pending change but mark it as requiring auto-approve
+	// The frontend will handle showing the password/TOTP dialog
 	pendingChange, err := s.pendingChangesUseCase.Create(ctx, projectID, requestedBy, requestUserIDPtr, payload)
 	if err != nil {
 		// Check for conflict
@@ -606,6 +615,14 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		return domain.GuardedResult{
 			Error: fmt.Errorf("create pending change: %w", err),
 		}
+	}
+
+	// Add metadata about single-user project for frontend
+	// If 0 or 1 active users, treat as single-user project (empty memberships = single user scenario)
+	if activeUserCount <= 1 {
+		// For single-user projects, the frontend should show auto-approve dialog
+		// We'll add this information to the pending change response
+		pendingChange.Change.Meta.SingleUserProject = true
 	}
 
 	return domain.GuardedResult{

@@ -6631,6 +6631,10 @@ components:
           type: string
           example: "project-settings"
           maxLength: 100
+        single_user_project:
+          type: boolean
+          description: "True if the project has only 1 active user (enables auto-approve)"
+          example: false
       required: [reason, client, origin]
 
     PendingChangeResponse:

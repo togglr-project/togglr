@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **reason** | **string** |  | [default to undefined]
 **client** | **string** |  | [default to undefined]
 **origin** | **string** |  | [default to undefined]
+**single_user_project** | **boolean** | True if the project has only 1 active user (enables auto-approve) | [optional] [default to undefined]
 
 ## Example
 
@@ -18,6 +19,7 @@ const instance: PendingChangeMeta = {
     reason,
     client,
     origin,
+    single_user_project,
 };
 ```
 
