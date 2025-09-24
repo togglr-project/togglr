@@ -45,7 +45,7 @@ import ScheduleHelpDialog from '../components/ScheduleHelpDialog';
 import apiClient from '../api/apiClient';
 import { canAddRecurringSchedule, canAddOneShotSchedule, getScheduleType } from '../utils/scheduleHelpers';
 import type { ScheduleBuilderData } from '../utils/cronGenerator';
-import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent } from '../generated/api/client';
+import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent, ProjectTag } from '../generated/api/client';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
@@ -341,18 +341,20 @@ const ProjectSchedulingPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
+  const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
 
   const effectiveSearch = search.trim();
   const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
   const { data: featuresResp, isLoading: loadingFeatures } = useQuery<ListFeaturesResponse>({
-    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage }],
+    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage, selectedTags }],
     queryFn: async () => {
+      const tagIds = selectedTags.length > 0 ? selectedTags.map(tag => tag.id).join(',') : undefined;
       const res = await apiClient.listProjectFeatures(
         projectId,
         kindFilter === 'all' ? undefined : kindFilter,
         enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
         minSearch,
-        undefined, // tagIds
+        tagIds,
         sortBy,
         sortOrder,
         page,
@@ -840,6 +842,10 @@ const ProjectSchedulingPage: React.FC = () => {
             searchValue={search}
             onSearchChange={(value) => { setSearch(value); setPage(1); }}
             placeholder="Search by name or key"
+            projectId={projectId}
+            selectedTags={selectedTags}
+            onTagsChange={(tags) => { setSelectedTags(tags); setPage(1); }}
+            showTagFilter={true}
             filters={[
               {
                 key: 'enabledFilter',
@@ -1056,6 +1062,10 @@ const ProjectSchedulingPage: React.FC = () => {
             searchValue={search}
             onSearchChange={(value) => { setSearch(value); setPage(1); }}
             placeholder="Search by name or key"
+            projectId={projectId}
+            selectedTags={selectedTags}
+            onTagsChange={(tags) => { setSelectedTags(tags); setPage(1); }}
+            showTagFilter={true}
             filters={[
               {
                 key: 'enabledFilter',
