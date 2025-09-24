@@ -46,7 +46,7 @@ func (r *RestAPI) ToggleFeature(
 		}}, nil
 	}
 
-	updated, err := r.featuresUseCase.Toggle(ctx, featureID, req.Enabled)
+	updated, guardResult, err := r.featuresUseCase.Toggle(ctx, featureID, req.Enabled)
 	if err != nil {
 		slog.Error("toggle feature failed", "error", err)
 		if errors.Is(err, domain.ErrEntityNotFound) {
@@ -55,6 +55,24 @@ func (r *RestAPI) ToggleFeature(
 			}}, nil
 		}
 		return nil, err
+	}
+
+	// Handle guard result
+	if guardResult.Error != nil {
+		slog.Error("guard check failed", "error", guardResult.Error)
+		return nil, guardResult.Error
+	}
+
+	if guardResult.ChangeConflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+
+	if guardResult.Pending {
+		// Convert pending change to response
+		pendingChangeResp := convertPendingChangeToResponse(guardResult.PendingChange)
+		return &pendingChangeResp, nil
 	}
 
 	resp := &generatedapi.FeatureResponse{Feature: generatedapi.Feature{

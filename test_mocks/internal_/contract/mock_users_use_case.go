@@ -1599,3 +1599,66 @@ func (_c *MockUsersUseCase_Verify2FA_Call) RunAndReturn(run func(ctx context.Con
 	_c.Call.Return(run)
 	return _c
 }
+
+// VerifyPassword provides a mock function for the type MockUsersUseCase
+func (_mock *MockUsersUseCase) VerifyPassword(ctx context.Context, userID domain.UserID, password string) error {
+	ret := _mock.Called(ctx, userID, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VerifyPassword")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.UserID, string) error); ok {
+		r0 = returnFunc(ctx, userID, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockUsersUseCase_VerifyPassword_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'VerifyPassword'
+type MockUsersUseCase_VerifyPassword_Call struct {
+	*mock.Call
+}
+
+// VerifyPassword is a helper method to define mock.On call
+//   - ctx context.Context
+//   - userID domain.UserID
+//   - password string
+func (_e *MockUsersUseCase_Expecter) VerifyPassword(ctx interface{}, userID interface{}, password interface{}) *MockUsersUseCase_VerifyPassword_Call {
+	return &MockUsersUseCase_VerifyPassword_Call{Call: _e.mock.On("VerifyPassword", ctx, userID, password)}
+}
+
+func (_c *MockUsersUseCase_VerifyPassword_Call) Run(run func(ctx context.Context, userID domain.UserID, password string)) *MockUsersUseCase_VerifyPassword_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.UserID
+		if args[1] != nil {
+			arg1 = args[1].(domain.UserID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUsersUseCase_VerifyPassword_Call) Return(err error) *MockUsersUseCase_VerifyPassword_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockUsersUseCase_VerifyPassword_Call) RunAndReturn(run func(ctx context.Context, userID domain.UserID, password string) error) *MockUsersUseCase_VerifyPassword_Call {
+	_c.Call.Return(run)
+	return _c
+}

@@ -43,6 +43,34 @@ func encodeAddProjectRequest(
 	return nil
 }
 
+func encodeApprovePendingChangeRequest(
+	req *ApprovePendingChangeRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeCancelPendingChangeRequest(
+	req *CancelPendingChangeRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeConfirm2FARequest(
 	req *TwoFAConfirmRequest,
 	r *http.Request,
@@ -266,6 +294,20 @@ func encodeLoginRequest(
 
 func encodeRefreshTokenRequest(
 	req *RefreshTokenRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeRejectPendingChangeRequest(
+	req *RejectPendingChangeRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

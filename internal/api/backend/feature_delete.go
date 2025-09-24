@@ -47,7 +47,9 @@ func (r *RestAPI) DeleteFeature(
 		return nil, err
 	}
 
-	if err := r.featuresUseCase.Delete(ctx, featureID); err != nil {
+	// Delete feature (includes guard check)
+	guardResult, err := r.featuresUseCase.Delete(ctx, featureID)
+	if err != nil {
 		slog.Error("delete feature failed", "error", err, "feature_id", featureID)
 
 		if errors.Is(err, domain.ErrEntityNotFound) {
@@ -57,6 +59,24 @@ func (r *RestAPI) DeleteFeature(
 		}
 
 		return nil, err
+	}
+
+	// Handle guard result
+	if guardResult.Error != nil {
+		slog.Error("guard check failed", "error", guardResult.Error)
+		return nil, guardResult.Error
+	}
+
+	if guardResult.ChangeConflict {
+		return &generatedapi.ErrorInternalServerError{Error: generatedapi.ErrorInternalServerErrorError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+
+	if guardResult.Pending {
+		// Convert pending change to response
+		pendingChangeResp := convertPendingChangeToResponse(guardResult.PendingChange)
+		return &pendingChangeResp, nil
 	}
 
 	return &generatedapi.DeleteFeatureNoContent{}, nil

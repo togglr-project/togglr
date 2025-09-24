@@ -184,20 +184,29 @@ func (_c *MockFeaturesUseCase_CreateWithChildren_Call) RunAndReturn(run func(ctx
 }
 
 // Delete provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) Delete(ctx context.Context, id domain.FeatureID) error {
+func (_mock *MockFeaturesUseCase) Delete(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) error); ok {
+	var r0 domain.GuardedResult
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) (domain.GuardedResult, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) domain.GuardedResult); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(domain.GuardedResult)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockFeaturesUseCase_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
@@ -230,12 +239,12 @@ func (_c *MockFeaturesUseCase_Delete_Call) Run(run func(ctx context.Context, id 
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_Delete_Call) Return(err error) *MockFeaturesUseCase_Delete_Call {
-	_c.Call.Return(err)
+func (_c *MockFeaturesUseCase_Delete_Call) Return(guardedResult domain.GuardedResult, err error) *MockFeaturesUseCase_Delete_Call {
+	_c.Call.Return(guardedResult, err)
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_Delete_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) error) *MockFeaturesUseCase_Delete_Call {
+func (_c *MockFeaturesUseCase_Delete_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error)) *MockFeaturesUseCase_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -797,7 +806,7 @@ func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) RunAndReturn
 }
 
 // Toggle provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, error) {
+func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, domain.GuardedResult, error) {
 	ret := _mock.Called(ctx, id, enabled)
 
 	if len(ret) == 0 {
@@ -805,8 +814,9 @@ func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureI
 	}
 
 	var r0 domain.Feature
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool) (domain.Feature, error)); ok {
+	var r1 domain.GuardedResult
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool) (domain.Feature, domain.GuardedResult, error)); ok {
 		return returnFunc(ctx, id, enabled)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool) domain.Feature); ok {
@@ -814,12 +824,17 @@ func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureI
 	} else {
 		r0 = ret.Get(0).(domain.Feature)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, bool) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, bool) domain.GuardedResult); ok {
 		r1 = returnFunc(ctx, id, enabled)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(domain.GuardedResult)
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.FeatureID, bool) error); ok {
+		r2 = returnFunc(ctx, id, enabled)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
 }
 
 // MockFeaturesUseCase_Toggle_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Toggle'
@@ -858,84 +873,18 @@ func (_c *MockFeaturesUseCase_Toggle_Call) Run(run func(ctx context.Context, id 
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_Toggle_Call) Return(feature domain.Feature, err error) *MockFeaturesUseCase_Toggle_Call {
-	_c.Call.Return(feature, err)
+func (_c *MockFeaturesUseCase_Toggle_Call) Return(feature domain.Feature, guardedResult domain.GuardedResult, err error) *MockFeaturesUseCase_Toggle_Call {
+	_c.Call.Return(feature, guardedResult, err)
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_Toggle_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, error)) *MockFeaturesUseCase_Toggle_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Update provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
-	ret := _mock.Called(ctx, feature)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Update")
-	}
-
-	var r0 domain.Feature
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) (domain.Feature, error)); ok {
-		return returnFunc(ctx, feature)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) domain.Feature); ok {
-		r0 = returnFunc(ctx, feature)
-	} else {
-		r0 = ret.Get(0).(domain.Feature)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature) error); ok {
-		r1 = returnFunc(ctx, feature)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockFeaturesUseCase_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type MockFeaturesUseCase_Update_Call struct {
-	*mock.Call
-}
-
-// Update is a helper method to define mock.On call
-//   - ctx context.Context
-//   - feature domain.Feature
-func (_e *MockFeaturesUseCase_Expecter) Update(ctx interface{}, feature interface{}) *MockFeaturesUseCase_Update_Call {
-	return &MockFeaturesUseCase_Update_Call{Call: _e.mock.On("Update", ctx, feature)}
-}
-
-func (_c *MockFeaturesUseCase_Update_Call) Run(run func(ctx context.Context, feature domain.Feature)) *MockFeaturesUseCase_Update_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 domain.Feature
-		if args[1] != nil {
-			arg1 = args[1].(domain.Feature)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_Update_Call) Return(feature1 domain.Feature, err error) *MockFeaturesUseCase_Update_Call {
-	_c.Call.Return(feature1, err)
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_Update_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature) (domain.Feature, error)) *MockFeaturesUseCase_Update_Call {
+func (_c *MockFeaturesUseCase_Toggle_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, domain.GuardedResult, error)) *MockFeaturesUseCase_Toggle_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateWithChildren provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, error) {
+func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error) {
 	ret := _mock.Called(ctx, feature, variants, rules)
 
 	if len(ret) == 0 {
@@ -943,8 +892,9 @@ func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, featur
 	}
 
 	var r0 domain.FeatureExtended
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) (domain.FeatureExtended, error)); ok {
+	var r1 domain.GuardedResult
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error)); ok {
 		return returnFunc(ctx, feature, variants, rules)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.FeatureExtended); ok {
@@ -952,12 +902,17 @@ func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, featur
 	} else {
 		r0 = ret.Get(0).(domain.FeatureExtended)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.GuardedResult); ok {
 		r1 = returnFunc(ctx, feature, variants, rules)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(domain.GuardedResult)
 	}
-	return r0, r1
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) error); ok {
+		r2 = returnFunc(ctx, feature, variants, rules)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
 }
 
 // MockFeaturesUseCase_UpdateWithChildren_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateWithChildren'
@@ -1002,12 +957,12 @@ func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) Run(run func(ctx context.
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) Return(featureExtended domain.FeatureExtended, err error) *MockFeaturesUseCase_UpdateWithChildren_Call {
-	_c.Call.Return(featureExtended, err)
+func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) Return(featureExtended domain.FeatureExtended, guardedResult domain.GuardedResult, err error) *MockFeaturesUseCase_UpdateWithChildren_Call {
+	_c.Call.Return(featureExtended, guardedResult, err)
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, error)) *MockFeaturesUseCase_UpdateWithChildren_Call {
+func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error)) *MockFeaturesUseCase_UpdateWithChildren_Call {
 	_c.Call.Return(run)
 	return _c
 }

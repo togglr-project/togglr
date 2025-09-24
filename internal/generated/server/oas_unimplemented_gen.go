@@ -31,6 +31,15 @@ func (UnimplementedHandler) AddProject(ctx context.Context, req *AddProjectReque
 	return r, ht.ErrNotImplemented
 }
 
+// ApprovePendingChange implements ApprovePendingChange operation.
+//
+// Approve a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/approve
+func (UnimplementedHandler) ApprovePendingChange(ctx context.Context, req *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (r ApprovePendingChangeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ArchiveProject implements ArchiveProject operation.
 //
 // Archive a project.
@@ -46,6 +55,15 @@ func (UnimplementedHandler) ArchiveProject(ctx context.Context, params ArchivePr
 //
 // DELETE /api/v1/ldap/sync/cancel
 func (UnimplementedHandler) CancelLDAPSync(ctx context.Context) (r CancelLDAPSyncRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CancelPendingChange implements CancelPendingChange operation.
+//
+// Cancel a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/cancel
+func (UnimplementedHandler) CancelPendingChange(ctx context.Context, req *CancelPendingChangeRequest, params CancelPendingChangeParams) (r CancelPendingChangeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -350,6 +368,15 @@ func (UnimplementedHandler) GetLicenseStatus(ctx context.Context) (r GetLicenseS
 	return r, ht.ErrNotImplemented
 }
 
+// GetPendingChange implements GetPendingChange operation.
+//
+// Get pending change by ID.
+//
+// GET /api/v1/pending_changes/{pending_change_id}
+func (UnimplementedHandler) GetPendingChange(ctx context.Context, params GetPendingChangeParams) (r GetPendingChangeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetProductInfo implements GetProductInfo operation.
 //
 // Get product information including client ID.
@@ -458,6 +485,15 @@ func (UnimplementedHandler) ListFeatureTags(ctx context.Context, params ListFeat
 	return r, ht.ErrNotImplemented
 }
 
+// ListPendingChanges implements ListPendingChanges operation.
+//
+// List pending changes.
+//
+// GET /api/v1/pending_changes
+func (UnimplementedHandler) ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (r ListPendingChangesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectChanges implements ListProjectChanges operation.
 //
 // Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -545,6 +581,15 @@ func (UnimplementedHandler) Login(ctx context.Context, req *LoginRequest) (r Log
 //
 // POST /api/v1/auth/refresh
 func (UnimplementedHandler) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (r RefreshTokenRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RejectPendingChange implements RejectPendingChange operation.
+//
+// Reject a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/reject
+func (UnimplementedHandler) RejectPendingChange(ctx context.Context, req *RejectPendingChangeRequest, params RejectPendingChangeParams) (r RejectPendingChangeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

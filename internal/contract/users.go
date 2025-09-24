@@ -45,6 +45,7 @@ type UsersUseCase interface {
 	Reset2FA(ctx context.Context, userID domain.UserID, emailCode string) (secret, qrURL, qrImage string, err error)
 	Verify2FA(ctx context.Context, code, sessionID string) (accessToken, refreshToken string, expiresIn int, err error)
 	UpdateLicenseAcceptance(ctx context.Context, userID domain.UserID, accepted bool) error
+	VerifyPassword(ctx context.Context, userID domain.UserID, password string) error
 }
 
 type UsersRepository interface {

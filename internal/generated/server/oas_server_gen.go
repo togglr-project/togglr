@@ -20,6 +20,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/add
 	AddProject(ctx context.Context, req *AddProjectRequest) (AddProjectRes, error)
+	// ApprovePendingChange implements ApprovePendingChange operation.
+	//
+	// Approve a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/approve
+	ApprovePendingChange(ctx context.Context, req *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (ApprovePendingChangeRes, error)
 	// ArchiveProject implements ArchiveProject operation.
 	//
 	// Archive a project.
@@ -32,6 +38,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/sync/cancel
 	CancelLDAPSync(ctx context.Context) (CancelLDAPSyncRes, error)
+	// CancelPendingChange implements CancelPendingChange operation.
+	//
+	// Cancel a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/cancel
+	CancelPendingChange(ctx context.Context, req *CancelPendingChangeRequest, params CancelPendingChangeParams) (CancelPendingChangeRes, error)
 	// Confirm2FA implements Confirm2FA operation.
 	//
 	// Approve enable 2FA (code from app).
@@ -234,6 +246,12 @@ type Handler interface {
 	//
 	// GET /api/v1/license/status
 	GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error)
+	// GetPendingChange implements GetPendingChange operation.
+	//
+	// Get pending change by ID.
+	//
+	// GET /api/v1/pending_changes/{pending_change_id}
+	GetPendingChange(ctx context.Context, params GetPendingChangeParams) (GetPendingChangeRes, error)
 	// GetProductInfo implements GetProductInfo operation.
 	//
 	// Get product information including client ID.
@@ -306,6 +324,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}/tags
 	ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (ListFeatureTagsRes, error)
+	// ListPendingChanges implements ListPendingChanges operation.
+	//
+	// List pending changes.
+	//
+	// GET /api/v1/pending_changes
+	ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (ListPendingChangesRes, error)
 	// ListProjectChanges implements ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -366,6 +390,12 @@ type Handler interface {
 	//
 	// POST /api/v1/auth/refresh
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (RefreshTokenRes, error)
+	// RejectPendingChange implements RejectPendingChange operation.
+	//
+	// Reject a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/reject
+	RejectPendingChange(ctx context.Context, req *RejectPendingChangeRequest, params RejectPendingChangeParams) (RejectPendingChangeRes, error)
 	// RemoveFeatureTag implements RemoveFeatureTag operation.
 	//
 	// Remove tag from feature.

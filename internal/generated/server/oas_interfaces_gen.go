@@ -9,12 +9,20 @@ type AddProjectRes interface {
 	addProjectRes()
 }
 
+type ApprovePendingChangeRes interface {
+	approvePendingChangeRes()
+}
+
 type ArchiveProjectRes interface {
 	archiveProjectRes()
 }
 
 type CancelLDAPSyncRes interface {
 	cancelLDAPSyncRes()
+}
+
+type CancelPendingChangeRes interface {
+	cancelPendingChangeRes()
 }
 
 type Confirm2FARes interface {
@@ -149,6 +157,10 @@ type GetLicenseStatusRes interface {
 	getLicenseStatusRes()
 }
 
+type GetPendingChangeRes interface {
+	getPendingChangeRes()
+}
+
 type GetProductInfoRes interface {
 	getProductInfoRes()
 }
@@ -197,6 +209,10 @@ type ListFeatureTagsRes interface {
 	listFeatureTagsRes()
 }
 
+type ListPendingChangesRes interface {
+	listPendingChangesRes()
+}
+
 type ListProjectChangesRes interface {
 	listProjectChangesRes()
 }
@@ -235,6 +251,10 @@ type LoginRes interface {
 
 type RefreshTokenRes interface {
 	refreshTokenRes()
+}
+
+type RejectPendingChangeRes interface {
+	rejectPendingChangeRes()
 }
 
 type RemoveFeatureTagRes interface {

@@ -1989,6 +1989,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeatureDetailsResponse'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2039,6 +2045,12 @@ paths:
       responses:
         '204':
           description: Feature deleted successfully
+        '202':
+          description: Deletion is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '401':
           description: Unauthorized
           content:
@@ -2671,6 +2683,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeatureResponse'
+        '202':
+          description: Feature is guarded and change is pending approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2695,6 +2713,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Feature is already locked by another pending change
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -4196,6 +4220,340 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # --- Pending Changes Endpoints ---
+  /api/v1/pending_changes:
+    get:
+      summary: List pending changes
+      operationId: ListPendingChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, approved, rejected, cancelled]
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [created_at, status, requested_by]
+            default: created_at
+        - name: sort_desc
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: List of pending changes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangesListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}:
+    get:
+      summary: Get pending change by ID
+      operationId: GetPendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Pending change details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/approve:
+    post:
+      summary: Approve a pending change
+      operationId: ApprovePendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovePendingChangeRequest'
+      responses:
+        '200':
+          description: Pending change approved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/reject:
+    post:
+      summary: Reject a pending change
+      operationId: RejectPendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectPendingChangeRequest'
+      responses:
+        '200':
+          description: Pending change rejected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/cancel:
+    post:
+      summary: Cancel a pending change
+      operationId: CancelPendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelPendingChangeRequest'
+      responses:
+        '200':
+          description: Pending change cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -6209,3 +6567,206 @@ components:
           description: ID of category to associate with this tag
           nullable: true
 
+    # --- Pending Changes Schemas ---
+    PendingChangePayload:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityChange'
+        meta:
+          $ref: '#/components/schemas/PendingChangeMeta'
+      required: [entities, meta]
+
+    EntityChange:
+      type: object
+      properties:
+        entity:
+          type: string
+          example: "feature"
+          enum: [feature, rule, feature_schedule]
+        entity_id:
+          type: string
+          format: uuid
+          example: "11111111-1111-1111-1111-111111111111"
+        action:
+          type: string
+          example: "update"
+          enum: [insert, update, delete]
+        changes:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChangeValue'
+          example:
+            enabled:
+              old: true
+              new: false
+            default_variant:
+              old: "A"
+              new: "B"
+      required: [entity, entity_id, action, changes]
+
+    ChangeValue:
+      type: object
+      properties:
+        old:
+          description: Previous value
+        new:
+          description: New value
+      required: [old, new]
+
+    PendingChangeMeta:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: "Disable due to payment outage"
+          maxLength: 500
+        client:
+          type: string
+          example: "ui"
+          maxLength: 50
+        origin:
+          type: string
+          example: "project-settings"
+          maxLength: 100
+      required: [reason, client, origin]
+
+    PendingChangeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        project_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        requested_by:
+          type: string
+          example: "alice"
+        request_user_id:
+          type: integer
+          format: uint
+          example: 123
+          nullable: true
+        change:
+          $ref: '#/components/schemas/PendingChangePayload'
+        status:
+          type: string
+          example: "pending"
+          enum: [pending, approved, rejected, cancelled]
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        approved_by:
+          type: string
+          example: "bob"
+          nullable: true
+        approved_user_id:
+          type: integer
+          format: uint
+          example: 456
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T11:00:00Z"
+          nullable: true
+        rejected_by:
+          type: string
+          example: "charlie"
+          nullable: true
+        rejected_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T11:30:00Z"
+          nullable: true
+        rejection_reason:
+          type: string
+          example: "Not approved by team lead"
+          nullable: true
+      required: [id, project_id, requested_by, change, status, created_at]
+
+    PendingChangesListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingChangeResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required: [data, pagination]
+
+    ApprovePendingChangeRequest:
+      type: object
+      properties:
+        approver_user_id:
+          type: integer
+          format: uint
+          example: 456
+        approver_name:
+          type: string
+          example: "bob"
+          minLength: 1
+          maxLength: 255
+        auth:
+          $ref: '#/components/schemas/AuthCredentials'
+      required: [approver_user_id, approver_name, auth]
+
+    RejectPendingChangeRequest:
+      type: object
+      properties:
+        rejected_by:
+          type: string
+          example: "charlie"
+          minLength: 1
+          maxLength: 255
+        reason:
+          type: string
+          example: "Not approved by team lead"
+          minLength: 1
+          maxLength: 500
+      required: [rejected_by, reason]
+
+    CancelPendingChangeRequest:
+      type: object
+      properties:
+        cancelled_by:
+          type: string
+          example: "alice"
+          minLength: 1
+          maxLength: 255
+      required: [cancelled_by]
+
+    AuthCredentials:
+      type: object
+      properties:
+        method:
+          type: string
+          example: "password"
+          enum: [password, totp]
+        credential:
+          type: string
+          example: "user_password_or_totp_code"
+          minLength: 1
+          maxLength: 255
+      required: [method, credential]
+
+    ErrorConflict:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Entity is already locked by another pending change"
+            code:
+              type: string
+              example: "CONFLICT"
+      required: [error]

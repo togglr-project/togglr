@@ -101,10 +101,29 @@ func (r *RestAPI) UpdateFeature(
 		})
 	}
 
-	updated, err := r.featuresUseCase.UpdateWithChildren(ctx, feature, variants, rules)
+	// Update feature with children (includes guard check)
+	updated, guardResult, err := r.featuresUseCase.UpdateWithChildren(ctx, feature, variants, rules)
 	if err != nil {
 		slog.Error("update feature with children failed", "error", err)
 		return nil, err
+	}
+
+	// Handle guard result
+	if guardResult.Error != nil {
+		slog.Error("guard check failed", "error", guardResult.Error)
+		return nil, guardResult.Error
+	}
+
+	if guardResult.ChangeConflict {
+		return &generatedapi.ErrorInternalServerError{Error: generatedapi.ErrorInternalServerErrorError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+
+	if guardResult.Pending {
+		// Convert pending change to response
+		pendingChangeResp := convertPendingChangeToResponse(guardResult.PendingChange)
+		return &pendingChangeResp, nil
 	}
 
 	// Map to response DTO

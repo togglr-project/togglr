@@ -415,3 +415,28 @@ func (s *UsersService) UpdateLicenseAcceptance(ctx context.Context, userID domai
 
 	return nil
 }
+
+// VerifyPassword verifies that the provided password is correct for the given user
+func (s *UsersService) VerifyPassword(ctx context.Context, userID domain.UserID, password string) error {
+	// Get the user
+	user, err := s.usersRepo.GetByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// Check if user is active
+	if !user.IsActive {
+		return domain.ErrInactiveUser
+	}
+
+	// Verify the password using the passworder
+	isValid, err := passworder.ValidatePassword(password, user.PasswordHash)
+	if err != nil {
+		return fmt.Errorf("password validation error: %w", err)
+	}
+	if !isValid {
+		return domain.ErrInvalidCredentials
+	}
+
+	return nil
+}
