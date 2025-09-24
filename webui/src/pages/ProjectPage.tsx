@@ -14,6 +14,7 @@ import FeatureCard from '../components/features/FeatureCard';
 import { useAuth } from '../auth/AuthContext';
 import GuardResponseHandler from '../components/pending-changes/GuardResponseHandler';
 import { useApprovePendingChange } from '../hooks/usePendingChanges';
+import { useProjectPendingChanges } from '../hooks/useProjectPendingChanges';
 import type { AuthCredentialsMethodEnum } from '../generated/api/client';
 
 interface ProjectResponse { project: Project }
@@ -88,6 +89,9 @@ const ProjectPage: React.FC = () => {
 
   // Permission to toggle features in this project (superuser can always toggle)
   const canToggleFeature = Boolean(user?.is_superuser || user?.project_permissions?.[projectId]?.includes('feature.toggle'));
+
+  // Get pending changes for the project
+  const { data: pendingChanges } = useProjectPendingChanges(projectId);
 
   const approveMutation = useApprovePendingChange();
 
@@ -308,6 +312,7 @@ const ProjectPage: React.FC = () => {
                       canToggle={canToggleFeature}
                       isToggling={toggleMutation.isPending}
                       isSelected={previewFeature?.id === f.id}
+                      projectId={projectId}
                     />
                 ))}
               </Box>

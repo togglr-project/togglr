@@ -7,6 +7,8 @@ import type { FeatureExtended, FeatureDetailsResponse, Segment } from '../../gen
 import { useAuth } from '../../auth/AuthContext';
 import EditFeatureDialog from './EditFeatureDialog';
 import { getNextStateDescription } from '../../utils/timeUtils';
+import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
+import { Pending as PendingIcon } from '@mui/icons-material';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -112,6 +114,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   };
 
   const canToggle = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.toggle')) : false;
+  
+  // Check if feature has pending changes
+  const hasPendingChanges = useFeatureHasPendingChanges(feature?.id || '', featureDetails?.feature.project_id);
 
   const toggleMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
@@ -168,7 +173,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="h6">{featureDetails.feature.name}</Typography>
-                {canToggle ? (
+                {canToggle && !hasPendingChanges ? (
                   <Tooltip title={featureDetails.feature.enabled ? 'Disable feature' : 'Enable feature'}>
                     <FormControlLabel
                       control={
@@ -183,7 +188,11 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                     />
                   </Tooltip>
                 ) : (
-                  <Tooltip title="You don't have permission to toggle features in this project">
+                  <Tooltip title={
+                    hasPendingChanges 
+                      ? "Cannot toggle: feature has pending changes awaiting approval"
+                      : "You don't have permission to toggle features in this project"
+                  }>
                     <span>
                       <FormControlLabel
                         control={<Switch checked={featureDetails.feature.enabled} disabled />}
@@ -212,6 +221,17 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                     color={featureDetails.feature.next_state ? 'info' : 'warning'}
                     variant="outlined"
                   />
+                )}
+                {hasPendingChanges && (
+                  <Tooltip title="This feature has pending changes awaiting approval">
+                    <Chip 
+                      size="small" 
+                      icon={<PendingIcon />}
+                      label="Pending" 
+                      color="warning"
+                      variant="filled"
+                    />
+                  </Tooltip>
                 )}
               </Box>
               
@@ -373,22 +393,37 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         {featureDetails && (
           <>
             {canManage && (
-              <Button
-                onClick={() => {
-                  if (deleteMutation.isPending) return;
-                  if (window.confirm('Are you sure you want to delete this feature? This action cannot be undone.')) {
-                    deleteMutation.mutate();
-                  }
-                }}
-                color="error"
-                disabled={deleteMutation.isPending}
-                size="small"
-              >
-                {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-              </Button>
+              <Tooltip title={hasPendingChanges ? "Cannot delete: feature has pending changes awaiting approval" : ""}>
+                <span>
+                  <Button
+                    onClick={() => {
+                      if (deleteMutation.isPending) return;
+                      if (window.confirm('Are you sure you want to delete this feature? This action cannot be undone.')) {
+                        deleteMutation.mutate();
+                      }
+                    }}
+                    color="error"
+                    disabled={deleteMutation.isPending || hasPendingChanges}
+                    size="small"
+                  >
+                    {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
+                  </Button>
+                </span>
+              </Tooltip>
             )}
             {canManage && (
-              <Button onClick={() => setEditOpen(true)} color="secondary" size="small">Edit</Button>
+              <Tooltip title={hasPendingChanges ? "Cannot edit: feature has pending changes awaiting approval" : ""}>
+                <span>
+                  <Button 
+                    onClick={() => setEditOpen(true)} 
+                    color="secondary" 
+                    size="small"
+                    disabled={hasPendingChanges}
+                  >
+                    Edit
+                  </Button>
+                </span>
+              </Tooltip>
             )}
           </>
         )}

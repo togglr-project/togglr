@@ -33,6 +33,7 @@ import TagSelector from './TagSelector';
 import GuardResponseHandler from '../pending-changes/GuardResponseHandler';
 import { useApprovePendingChange } from '../../hooks/usePendingChanges';
 import { useAuth } from '../../auth/AuthContext';
+import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
 
 export interface EditFeatureDialogProps {
   open: boolean;
@@ -369,7 +370,10 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     }
   };
 
-  const disabled = !featureDetails || updateMutation.isPending;
+  // Check if feature has pending changes
+  const hasPendingChanges = useFeatureHasPendingChanges(featureDetails?.feature.id || '', featureDetails?.feature.project_id);
+  
+  const disabled = !featureDetails || updateMutation.isPending || hasPendingChanges;
 
   const hasDuplicatePriorities = [RuleActionEnum.Assign, RuleActionEnum.Include, RuleActionEnum.Exclude].some((action) => {
     const counts = rules.filter(r => r.action === action).reduce((acc, r) => {
@@ -401,6 +405,11 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            {hasPendingChanges && (
+              <Alert severity="warning">
+                This feature has pending changes awaiting approval. You cannot edit it until the pending changes are resolved.
+              </Alert>
+            )}
             {error && <Alert severity="error">{error}</Alert>}
             {updateMutation.isError && (
               <Alert severity="error">{(updateMutation.error as any)?.message || 'Failed to update feature'}</Alert>

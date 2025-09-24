@@ -15,9 +15,11 @@ import {
   Edit as EditIcon,
   Schedule as ScheduleIcon,
   Visibility as ViewIcon,
+  Pending as PendingIcon,
 } from '@mui/icons-material';
 import type { FeatureExtended } from '../../generated/api/client';
 import { getNextStateDescription } from '../../utils/timeUtils';
+import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
 
 interface FeatureCardProps {
   feature: FeatureExtended;
@@ -28,6 +30,7 @@ interface FeatureCardProps {
   canToggle?: boolean;
   isToggling?: boolean;
   isSelected?: boolean;
+  projectId?: string;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({
@@ -39,7 +42,10 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   canToggle = true,
   isToggling = false,
   isSelected = false,
+  projectId,
 }) => {
+  // Check if feature has pending changes
+  const hasPendingChanges = useFeatureHasPendingChanges(feature.id, projectId);
   const getKindColor = (kind: string) => {
     switch (kind) {
       case 'simple': return 'warning';
@@ -69,22 +75,26 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         flexDirection: 'row',
         alignItems: 'center',
         transition: 'all 0.2s ease-in-out',
-        cursor: 'pointer',
+        cursor: hasPendingChanges ? 'not-allowed' : 'pointer',
         '&:hover': {
-          boxShadow: 2,
-          transform: 'translateY(-1px)',
+          boxShadow: hasPendingChanges ? 1 : 2,
+          transform: hasPendingChanges ? 'none' : 'translateY(-1px)',
         },
         border: '2px solid',
         borderColor: isSelected 
           ? 'primary.main' 
-          : feature.enabled 
-            ? 'success.light' 
-            : 'divider',
+          : hasPendingChanges
+            ? 'warning.main'
+            : feature.enabled 
+              ? 'success.light' 
+              : 'divider',
         bgcolor: isSelected 
           ? 'primary.50' 
-          : feature.enabled 
-            ? 'success.50' 
-            : 'background.paper',
+          : hasPendingChanges
+            ? 'warning.50'
+            : feature.enabled 
+              ? 'success.50' 
+              : 'background.paper',
         minHeight: 80,
       }}
     >
@@ -163,6 +173,25 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
                 />
               </>
             )}
+
+            {hasPendingChanges && (
+              <>
+                <Box sx={{ width: 1, height: 12, bgcolor: 'divider', opacity: 0.5 }} />
+                <Tooltip title="This feature has pending changes awaiting approval">
+                  <Chip 
+                    size="small" 
+                    icon={<PendingIcon />}
+                    label="Pending" 
+                    color="warning"
+                    variant="filled"
+                    sx={{ 
+                      fontSize: '0.7rem',
+                      height: 20,
+                    }}
+                  />
+                </Tooltip>
+              </>
+            )}
           </Box>
 
           {/* Right side - Switch and actions */}
@@ -172,7 +201,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
                 size="small"
                 checked={feature.enabled}
                 onChange={() => onToggle(feature)}
-                disabled={!canToggle || isToggling}
+                disabled={!canToggle || isToggling || hasPendingChanges}
               />
               <Fade in={isToggling}>
                 <Box
@@ -207,10 +236,20 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             
             {/* Actions */}
             <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
-              <Tooltip title="Edit feature">
-                <IconButton size="small" onClick={() => onEdit(feature)}>
-                  <EditIcon fontSize="small" />
-                </IconButton>
+              <Tooltip title={hasPendingChanges ? "Cannot edit: feature has pending changes" : "Edit feature"}>
+                <span>
+                  <IconButton 
+                    size="small" 
+                    onClick={() => onEdit(feature)}
+                    disabled={hasPendingChanges}
+                    sx={{ 
+                      opacity: hasPendingChanges ? 0.5 : 1,
+                      cursor: hasPendingChanges ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </span>
               </Tooltip>
               <Tooltip title="View details">
                 <IconButton size="small" onClick={() => onView(feature)}>
