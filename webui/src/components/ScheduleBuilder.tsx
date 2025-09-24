@@ -64,22 +64,75 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
   featureCreatedAt 
 }) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [data, setData] = useState<ScheduleBuilderData>(() => ({
-    timezone: initialData?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
-    startsAt: initialData?.startsAt || featureCreatedAt,
-    endsAt: initialData?.endsAt,
-    scheduleType: initialData?.scheduleType || 'repeat_every',
-    repeatEvery: initialData?.repeatEvery || { interval: 1, unit: 'minutes' },
-    daily: initialData?.daily || { time: '09:00' },
-    monthly: initialData?.monthly || { dayOfMonth: 1, time: '09:00' },
-    yearly: initialData?.yearly || { month: 1, day: 1, time: '09:00' },
-    duration: initialData?.duration || { value: 1, unit: 'hours' },
-    action: initialData?.action || 'enable',
-    ...initialData
-  }));
+  const [data, setData] = useState<ScheduleBuilderData>(() => {
+    const defaultRepeatEvery = { interval: 1, unit: 'minutes' as const };
+    const defaultDuration = { value: 30, unit: 'minutes' as const }; // 30 minutes is less than 1 hour
+    
+    return {
+      timezone: initialData?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+      startsAt: initialData?.startsAt || featureCreatedAt,
+      endsAt: initialData?.endsAt,
+      scheduleType: initialData?.scheduleType || 'repeat_every',
+      repeatEvery: initialData?.repeatEvery || defaultRepeatEvery,
+      daily: initialData?.daily || { time: '09:00' },
+      monthly: initialData?.monthly || { dayOfMonth: 1, time: '09:00' },
+      yearly: initialData?.yearly || { month: 1, day: 1, time: '09:00' },
+      duration: initialData?.duration || defaultDuration,
+      action: initialData?.action || 'enable',
+      ...initialData
+    };
+  });
 
   const [errors, setErrors] = useState<string[]>([]);
   const [cronExpression, setCronExpression] = useState<string>('');
+
+  // Автоматическая корректировка duration при изменении repeatEvery
+  useEffect(() => {
+    if (data.scheduleType === 'repeat_every' && data.repeatEvery) {
+      const convertToMinutes = (value: number, unit: 'minutes' | 'hours' | 'days'): number => {
+        switch (unit) {
+          case 'minutes': return value;
+          case 'hours': return value * 60;
+          case 'days': return value * 24 * 60;
+          default: return value;
+        }
+      };
+
+      const repeatIntervalMinutes = convertToMinutes(data.repeatEvery.interval, data.repeatEvery.unit);
+      const currentDurationMinutes = convertToMinutes(data.duration.value, data.duration.unit);
+      
+      // Если duration больше или равна repeat interval, корректируем его
+      if (currentDurationMinutes >= repeatIntervalMinutes) {
+        const newDurationMinutes = Math.max(repeatIntervalMinutes - 1, 1);
+        
+        // Определяем подходящую единицу для нового duration
+        let newUnit: 'minutes' | 'hours' | 'days' = 'minutes';
+        let newValue = newDurationMinutes;
+        
+        if (newDurationMinutes >= 60 && newDurationMinutes % 60 === 0) {
+          newUnit = 'hours';
+          newValue = newDurationMinutes / 60;
+        } else if (newDurationMinutes >= 1440 && newDurationMinutes % 1440 === 0) {
+          newUnit = 'days';
+          newValue = newDurationMinutes / 1440;
+        }
+        
+        // Проверяем, что новая единица разрешена для данного repeatEvery
+        if (data.repeatEvery.unit === 'minutes' && newUnit !== 'minutes') {
+          newUnit = 'minutes';
+          newValue = newDurationMinutes;
+        } else if (data.repeatEvery.unit === 'hours' && newUnit === 'days') {
+          newUnit = 'hours';
+          newValue = Math.max(newDurationMinutes / 60, 1);
+        }
+        
+        setData(prev => ({
+          ...prev,
+          duration: { value: newValue, unit: newUnit }
+        }));
+      }
+    }
+  }, [data.scheduleType, data.repeatEvery?.interval, data.repeatEvery?.unit]);
 
   // Валидация и генерация cron при изменении данных
   useEffect(() => {
