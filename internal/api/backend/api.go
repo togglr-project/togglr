@@ -38,6 +38,7 @@ type RestAPI struct {
 	featureTagsUseCase      contract.FeatureTagsUseCase
 	pendingChangesUseCase   contract.PendingChangesUseCase
 	guardService            contract.GuardService
+	projectSettingsUseCase  contract.ProjectSettingsUseCase
 }
 
 func New(
@@ -63,6 +64,7 @@ func New(
 	featureTagsUseCase contract.FeatureTagsUseCase,
 	pendingChangesUseCase contract.PendingChangesUseCase,
 	guardService contract.GuardService,
+	projectSettingsUseCase contract.ProjectSettingsUseCase,
 ) *RestAPI {
 	return &RestAPI{
 		config:                  config,
@@ -87,6 +89,7 @@ func New(
 		featureTagsUseCase:      featureTagsUseCase,
 		pendingChangesUseCase:   pendingChangesUseCase,
 		guardService:            guardService,
+		projectSettingsUseCase:  projectSettingsUseCase,
 	}
 }
 

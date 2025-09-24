@@ -96,6 +96,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/segments
 	CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
+	// CreateProjectSetting implements CreateProjectSetting operation.
+	//
+	// Create project setting.
+	//
+	// POST /api/v1/projects/{project_id}/settings
+	CreateProjectSetting(ctx context.Context, req *CreateProjectSettingRequest, params CreateProjectSettingParams) (CreateProjectSettingRes, error)
 	// CreateProjectTag implements CreateProjectTag operation.
 	//
 	// Create new tag for project.
@@ -138,6 +144,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteProjectSetting implements DeleteProjectSetting operation.
+	//
+	// Delete project setting.
+	//
+	// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+	DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (DeleteProjectSettingRes, error)
 	// DeleteProjectTag implements DeleteProjectTag operation.
 	//
 	// Delete tag.
@@ -264,6 +276,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}
 	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetProjectSetting implements GetProjectSetting operation.
+	//
+	// Get project setting by name.
+	//
+	// GET /api/v1/projects/{project_id}/settings/{setting_name}
+	GetProjectSetting(ctx context.Context, params GetProjectSettingParams) (GetProjectSettingRes, error)
 	// GetProjectTag implements GetProjectTag operation.
 	//
 	// Get tag details.
@@ -354,6 +372,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/segments
 	ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (ListProjectSegmentsRes, error)
+	// ListProjectSettings implements ListProjectSettings operation.
+	//
+	// List project settings.
+	//
+	// GET /api/v1/projects/{project_id}/settings
+	ListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (ListProjectSettingsRes, error)
 	// ListProjectTags implements ListProjectTags operation.
 	//
 	// Get tags list for project.
@@ -528,6 +552,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateProjectSetting implements UpdateProjectSetting operation.
+	//
+	// Update project setting.
+	//
+	// PUT /api/v1/projects/{project_id}/settings/{setting_name}
+	UpdateProjectSetting(ctx context.Context, req *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (UpdateProjectSettingRes, error)
 	// UpdateProjectTag implements UpdateProjectTag operation.
 	//
 	// Update tag.

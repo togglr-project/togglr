@@ -174,3 +174,126 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 
 	return r.db
 }
+
+// Create creates a new project setting
+func (r *Repository) Create(ctx context.Context, setting *domain.ProjectSetting) error {
+	executor := r.getExecutor(ctx)
+
+	valueJSON, err := json.Marshal(setting.Value)
+	if err != nil {
+		return fmt.Errorf("marshal setting value: %w", err)
+	}
+
+	const query = `
+INSERT INTO project_settings (project_id, name, value)
+VALUES ($1, $2, $3)
+RETURNING id, created_at, updated_at`
+
+	err = executor.QueryRow(ctx, query, setting.ProjectID, setting.Name, valueJSON).Scan(
+		&setting.ID,
+		&setting.CreatedAt,
+		&setting.UpdatedAt,
+	)
+	if err != nil {
+		return fmt.Errorf("create project setting: %w", err)
+	}
+
+	return nil
+}
+
+// GetByName retrieves a project setting by name
+func (r *Repository) GetByName(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error) {
+	setting, err := r.Get(ctx, projectID, name)
+	if err != nil {
+		return nil, err
+	}
+	return &setting, nil
+}
+
+// Update updates a project setting
+func (r *Repository) Update(ctx context.Context, projectID domain.ProjectID, name string, value any) error {
+	executor := r.getExecutor(ctx)
+
+	valueJSON, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("marshal setting value: %w", err)
+	}
+
+	const query = `
+UPDATE project_settings
+SET value = $1, updated_at = now()
+WHERE project_id = $2 AND name = $3`
+
+	result, err := executor.Exec(ctx, query, valueJSON, projectID, name)
+	if err != nil {
+		return fmt.Errorf("update project setting: %w", err)
+	}
+
+	rowsAffected := result.RowsAffected()
+	if rowsAffected == 0 {
+		return domain.ErrEntityNotFound
+	}
+
+	return nil
+}
+
+// List retrieves project settings with pagination
+func (r *Repository) List(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	page, perPage int,
+) ([]*domain.ProjectSetting, int, error) {
+	executor := r.getExecutor(ctx)
+
+	// Get total count
+	const countQuery = `
+SELECT COUNT(*)
+FROM project_settings
+WHERE project_id = $1`
+
+	var total int
+	err := executor.QueryRow(ctx, countQuery, projectID).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("count project settings: %w", err)
+	}
+
+	// Get paginated results
+	offset := (page - 1) * perPage
+	const query = `
+SELECT id, project_id, name, value, created_at, updated_at
+FROM project_settings
+WHERE project_id = $1
+ORDER BY name
+LIMIT $2 OFFSET $3`
+
+	rows, err := executor.Query(ctx, query, projectID, perPage, offset)
+	if err != nil {
+		return nil, 0, fmt.Errorf("list project settings: %w", err)
+	}
+	defer rows.Close()
+
+	var settings []*domain.ProjectSetting
+	for rows.Next() {
+		var model projectSettingModel
+		err := rows.Scan(
+			&model.ID,
+			&model.ProjectID,
+			&model.Name,
+			&model.Value,
+			&model.CreatedAt,
+			&model.UpdatedAt,
+		)
+		if err != nil {
+			return nil, 0, fmt.Errorf("scan project setting: %w", err)
+		}
+
+		setting, err := model.toDomain()
+		if err != nil {
+			return nil, 0, err
+		}
+
+		settings = append(settings, &setting)
+	}
+
+	return settings, total, nil
+}

@@ -208,6 +208,20 @@ func encodeCreateProjectSegmentRequest(
 	return nil
 }
 
+func encodeCreateProjectSettingRequest(
+	req *CreateProjectSettingRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateProjectTagRequest(
 	req *CreateProjectTagRequest,
 	r *http.Request,
@@ -532,6 +546,20 @@ func encodeUpdateLicenseAcceptanceRequest(
 
 func encodeUpdateProjectRequest(
 	req *UpdateProjectRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateProjectSettingRequest(
+	req *UpdateProjectSettingRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

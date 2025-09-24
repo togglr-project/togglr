@@ -38,6 +38,63 @@ func (_m *MockProjectSettingsRepository) EXPECT() *MockProjectSettingsRepository
 	return &MockProjectSettingsRepository_Expecter{mock: &_m.Mock}
 }
 
+// Create provides a mock function for the type MockProjectSettingsRepository
+func (_mock *MockProjectSettingsRepository) Create(ctx context.Context, setting *domain.ProjectSetting) error {
+	ret := _mock.Called(ctx, setting)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.ProjectSetting) error); ok {
+		r0 = returnFunc(ctx, setting)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockProjectSettingsRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type MockProjectSettingsRepository_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - setting *domain.ProjectSetting
+func (_e *MockProjectSettingsRepository_Expecter) Create(ctx interface{}, setting interface{}) *MockProjectSettingsRepository_Create_Call {
+	return &MockProjectSettingsRepository_Create_Call{Call: _e.mock.On("Create", ctx, setting)}
+}
+
+func (_c *MockProjectSettingsRepository_Create_Call) Run(run func(ctx context.Context, setting *domain.ProjectSetting)) *MockProjectSettingsRepository_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *domain.ProjectSetting
+		if args[1] != nil {
+			arg1 = args[1].(*domain.ProjectSetting)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_Create_Call) Return(err error) *MockProjectSettingsRepository_Create_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_Create_Call) RunAndReturn(run func(ctx context.Context, setting *domain.ProjectSetting) error) *MockProjectSettingsRepository_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function for the type MockProjectSettingsRepository
 func (_mock *MockProjectSettingsRepository) Delete(ctx context.Context, projectID domain.ProjectID, name string) error {
 	ret := _mock.Called(ctx, projectID, name)
@@ -241,6 +298,166 @@ func (_c *MockProjectSettingsRepository_GetAll_Call) RunAndReturn(run func(ctx c
 	return _c
 }
 
+// GetByName provides a mock function for the type MockProjectSettingsRepository
+func (_mock *MockProjectSettingsRepository) GetByName(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error) {
+	ret := _mock.Called(ctx, projectID, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByName")
+	}
+
+	var r0 *domain.ProjectSetting
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) (*domain.ProjectSetting, error)); ok {
+		return returnFunc(ctx, projectID, name)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) *domain.ProjectSetting); ok {
+		r0 = returnFunc(ctx, projectID, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*domain.ProjectSetting)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string) error); ok {
+		r1 = returnFunc(ctx, projectID, name)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsRepository_GetByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByName'
+type MockProjectSettingsRepository_GetByName_Call struct {
+	*mock.Call
+}
+
+// GetByName is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - name string
+func (_e *MockProjectSettingsRepository_Expecter) GetByName(ctx interface{}, projectID interface{}, name interface{}) *MockProjectSettingsRepository_GetByName_Call {
+	return &MockProjectSettingsRepository_GetByName_Call{Call: _e.mock.On("GetByName", ctx, projectID, name)}
+}
+
+func (_c *MockProjectSettingsRepository_GetByName_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, name string)) *MockProjectSettingsRepository_GetByName_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_GetByName_Call) Return(projectSetting *domain.ProjectSetting, err error) *MockProjectSettingsRepository_GetByName_Call {
+	_c.Call.Return(projectSetting, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_GetByName_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error)) *MockProjectSettingsRepository_GetByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// List provides a mock function for the type MockProjectSettingsRepository
+func (_mock *MockProjectSettingsRepository) List(ctx context.Context, projectID domain.ProjectID, page int, perPage int) ([]*domain.ProjectSetting, int, error) {
+	ret := _mock.Called(ctx, projectID, page, perPage)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []*domain.ProjectSetting
+	var r1 int
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, int, int) ([]*domain.ProjectSetting, int, error)); ok {
+		return returnFunc(ctx, projectID, page, perPage)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, int, int) []*domain.ProjectSetting); ok {
+		r0 = returnFunc(ctx, projectID, page, perPage)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*domain.ProjectSetting)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, int, int) int); ok {
+		r1 = returnFunc(ctx, projectID, page, perPage)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, int, int) error); ok {
+		r2 = returnFunc(ctx, projectID, page, perPage)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// MockProjectSettingsRepository_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockProjectSettingsRepository_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - page int
+//   - perPage int
+func (_e *MockProjectSettingsRepository_Expecter) List(ctx interface{}, projectID interface{}, page interface{}, perPage interface{}) *MockProjectSettingsRepository_List_Call {
+	return &MockProjectSettingsRepository_List_Call{Call: _e.mock.On("List", ctx, projectID, page, perPage)}
+}
+
+func (_c *MockProjectSettingsRepository_List_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, page int, perPage int)) *MockProjectSettingsRepository_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		var arg3 int
+		if args[3] != nil {
+			arg3 = args[3].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_List_Call) Return(projectSettings []*domain.ProjectSetting, n int, err error) *MockProjectSettingsRepository_List_Call {
+	_c.Call.Return(projectSettings, n, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_List_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, page int, perPage int) ([]*domain.ProjectSetting, int, error)) *MockProjectSettingsRepository_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Set provides a mock function for the type MockProjectSettingsRepository
 func (_mock *MockProjectSettingsRepository) Set(ctx context.Context, projectID domain.ProjectID, name string, value interface{}) error {
 	ret := _mock.Called(ctx, projectID, name, value)
@@ -306,6 +523,75 @@ func (_c *MockProjectSettingsRepository_Set_Call) Return(err error) *MockProject
 }
 
 func (_c *MockProjectSettingsRepository_Set_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string, value interface{}) error) *MockProjectSettingsRepository_Set_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Update provides a mock function for the type MockProjectSettingsRepository
+func (_mock *MockProjectSettingsRepository) Update(ctx context.Context, projectID domain.ProjectID, name string, value any) error {
+	ret := _mock.Called(ctx, projectID, name, value)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, any) error); ok {
+		r0 = returnFunc(ctx, projectID, name, value)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockProjectSettingsRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockProjectSettingsRepository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - name string
+//   - value any
+func (_e *MockProjectSettingsRepository_Expecter) Update(ctx interface{}, projectID interface{}, name interface{}, value interface{}) *MockProjectSettingsRepository_Update_Call {
+	return &MockProjectSettingsRepository_Update_Call{Call: _e.mock.On("Update", ctx, projectID, name, value)}
+}
+
+func (_c *MockProjectSettingsRepository_Update_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, name string, value any)) *MockProjectSettingsRepository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 any
+		if args[3] != nil {
+			arg3 = args[3].(any)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_Update_Call) Return(err error) *MockProjectSettingsRepository_Update_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockProjectSettingsRepository_Update_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string, value any) error) *MockProjectSettingsRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

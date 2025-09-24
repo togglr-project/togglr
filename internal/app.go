@@ -59,6 +59,7 @@ import (
 	licenseusecase "github.com/togglr-project/togglr/internal/usecases/license"
 	pendingchangesusecase "github.com/togglr-project/togglr/internal/usecases/pending_changes"
 	productinfousecase "github.com/togglr-project/togglr/internal/usecases/productinfo"
+	projectsettingsusecase "github.com/togglr-project/togglr/internal/usecases/project_settings"
 	projectsusecase "github.com/togglr-project/togglr/internal/usecases/projects"
 	ruleattributesusecase "github.com/togglr-project/togglr/internal/usecases/ruleattributes"
 	rulesusecase "github.com/togglr-project/togglr/internal/usecases/rules"
@@ -243,6 +244,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(segmentsusecase.New)
 	app.registerComponent(ruleattributesusecase.New)
 	app.registerComponent(pendingchangesusecase.New)
+	app.registerComponent(projectsettingsusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

@@ -1324,30 +1324,113 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										return
 									}
 
-								case 's': // Prefix: "segments"
+								case 's': // Prefix: "se"
 
-									if l := len("segments"); len(elem) >= l && elem[0:l] == "segments" {
+									if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
 										elem = elem[l:]
 									} else {
 										break
 									}
 
 									if len(elem) == 0 {
-										// Leaf node.
-										switch r.Method {
-										case "GET":
-											s.handleListProjectSegmentsRequest([1]string{
-												args[0],
-											}, elemIsEscaped, w, r)
-										case "POST":
-											s.handleCreateProjectSegmentRequest([1]string{
-												args[0],
-											}, elemIsEscaped, w, r)
-										default:
-											s.notAllowed(w, r, "GET,POST")
+										break
+									}
+									switch elem[0] {
+									case 'g': // Prefix: "gments"
+
+										if l := len("gments"); len(elem) >= l && elem[0:l] == "gments" {
+											elem = elem[l:]
+										} else {
+											break
 										}
 
-										return
+										if len(elem) == 0 {
+											// Leaf node.
+											switch r.Method {
+											case "GET":
+												s.handleListProjectSegmentsRequest([1]string{
+													args[0],
+												}, elemIsEscaped, w, r)
+											case "POST":
+												s.handleCreateProjectSegmentRequest([1]string{
+													args[0],
+												}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "GET,POST")
+											}
+
+											return
+										}
+
+									case 't': // Prefix: "ttings"
+
+										if l := len("ttings"); len(elem) >= l && elem[0:l] == "ttings" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											switch r.Method {
+											case "GET":
+												s.handleListProjectSettingsRequest([1]string{
+													args[0],
+												}, elemIsEscaped, w, r)
+											case "POST":
+												s.handleCreateProjectSettingRequest([1]string{
+													args[0],
+												}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "GET,POST")
+											}
+
+											return
+										}
+										switch elem[0] {
+										case '/': // Prefix: "/"
+
+											if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+												elem = elem[l:]
+											} else {
+												break
+											}
+
+											// Param: "setting_name"
+											// Leaf parameter, slashes are prohibited
+											idx := strings.IndexByte(elem, '/')
+											if idx >= 0 {
+												break
+											}
+											args[1] = elem
+											elem = ""
+
+											if len(elem) == 0 {
+												// Leaf node.
+												switch r.Method {
+												case "DELETE":
+													s.handleDeleteProjectSettingRequest([2]string{
+														args[0],
+														args[1],
+													}, elemIsEscaped, w, r)
+												case "GET":
+													s.handleGetProjectSettingRequest([2]string{
+														args[0],
+														args[1],
+													}, elemIsEscaped, w, r)
+												case "PUT":
+													s.handleUpdateProjectSettingRequest([2]string{
+														args[0],
+														args[1],
+													}, elemIsEscaped, w, r)
+												default:
+													s.notAllowed(w, r, "DELETE,GET,PUT")
+												}
+
+												return
+											}
+
+										}
+
 									}
 
 								case 't': // Prefix: "tags"
@@ -3501,36 +3584,132 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										}
 									}
 
-								case 's': // Prefix: "segments"
+								case 's': // Prefix: "se"
 
-									if l := len("segments"); len(elem) >= l && elem[0:l] == "segments" {
+									if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
 										elem = elem[l:]
 									} else {
 										break
 									}
 
 									if len(elem) == 0 {
-										// Leaf node.
-										switch method {
-										case "GET":
-											r.name = ListProjectSegmentsOperation
-											r.summary = "List segments for project"
-											r.operationID = "ListProjectSegments"
-											r.pathPattern = "/api/v1/projects/{project_id}/segments"
-											r.args = args
-											r.count = 1
-											return r, true
-										case "POST":
-											r.name = CreateProjectSegmentOperation
-											r.summary = "Create segment for project"
-											r.operationID = "CreateProjectSegment"
-											r.pathPattern = "/api/v1/projects/{project_id}/segments"
-											r.args = args
-											r.count = 1
-											return r, true
-										default:
-											return
+										break
+									}
+									switch elem[0] {
+									case 'g': // Prefix: "gments"
+
+										if l := len("gments"); len(elem) >= l && elem[0:l] == "gments" {
+											elem = elem[l:]
+										} else {
+											break
 										}
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch method {
+											case "GET":
+												r.name = ListProjectSegmentsOperation
+												r.summary = "List segments for project"
+												r.operationID = "ListProjectSegments"
+												r.pathPattern = "/api/v1/projects/{project_id}/segments"
+												r.args = args
+												r.count = 1
+												return r, true
+											case "POST":
+												r.name = CreateProjectSegmentOperation
+												r.summary = "Create segment for project"
+												r.operationID = "CreateProjectSegment"
+												r.pathPattern = "/api/v1/projects/{project_id}/segments"
+												r.args = args
+												r.count = 1
+												return r, true
+											default:
+												return
+											}
+										}
+
+									case 't': // Prefix: "ttings"
+
+										if l := len("ttings"); len(elem) >= l && elem[0:l] == "ttings" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										if len(elem) == 0 {
+											switch method {
+											case "GET":
+												r.name = ListProjectSettingsOperation
+												r.summary = "List project settings"
+												r.operationID = "ListProjectSettings"
+												r.pathPattern = "/api/v1/projects/{project_id}/settings"
+												r.args = args
+												r.count = 1
+												return r, true
+											case "POST":
+												r.name = CreateProjectSettingOperation
+												r.summary = "Create project setting"
+												r.operationID = "CreateProjectSetting"
+												r.pathPattern = "/api/v1/projects/{project_id}/settings"
+												r.args = args
+												r.count = 1
+												return r, true
+											default:
+												return
+											}
+										}
+										switch elem[0] {
+										case '/': // Prefix: "/"
+
+											if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+												elem = elem[l:]
+											} else {
+												break
+											}
+
+											// Param: "setting_name"
+											// Leaf parameter, slashes are prohibited
+											idx := strings.IndexByte(elem, '/')
+											if idx >= 0 {
+												break
+											}
+											args[1] = elem
+											elem = ""
+
+											if len(elem) == 0 {
+												// Leaf node.
+												switch method {
+												case "DELETE":
+													r.name = DeleteProjectSettingOperation
+													r.summary = "Delete project setting"
+													r.operationID = "DeleteProjectSetting"
+													r.pathPattern = "/api/v1/projects/{project_id}/settings/{setting_name}"
+													r.args = args
+													r.count = 2
+													return r, true
+												case "GET":
+													r.name = GetProjectSettingOperation
+													r.summary = "Get project setting by name"
+													r.operationID = "GetProjectSetting"
+													r.pathPattern = "/api/v1/projects/{project_id}/settings/{setting_name}"
+													r.args = args
+													r.count = 2
+													return r, true
+												case "PUT":
+													r.name = UpdateProjectSettingOperation
+													r.summary = "Update project setting"
+													r.operationID = "UpdateProjectSetting"
+													r.pathPattern = "/api/v1/projects/{project_id}/settings/{setting_name}"
+													r.args = args
+													r.count = 2
+													return r, true
+												default:
+													return
+												}
+											}
+
+										}
+
 									}
 
 								case 't': // Prefix: "tags"

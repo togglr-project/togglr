@@ -129,43 +129,6 @@ type PendingChangesRepository interface {
 	) ([]domain.PendingChangeEntity, error)
 }
 
-type ProjectApproversRepository interface {
-	// Create adds a new approver to a project
-	Create(ctx context.Context, approver domain.ProjectApprover) error
-
-	// GetByProjectID retrieves all approvers for a project
-	GetByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectApprover, error)
-
-	// Delete removes an approver from a project
-	Delete(ctx context.Context, projectID domain.ProjectID, userID int) error
-
-	// IsUserApprover checks if a user is an approver for a project
-	IsUserApprover(ctx context.Context, projectID domain.ProjectID, userID int) (bool, error)
-}
-
-type ProjectSettingsRepository interface {
-	// Set sets a project setting
-	Set(
-		ctx context.Context,
-		projectID domain.ProjectID,
-		name string,
-		value interface{},
-	) error
-
-	// Get retrieves a project setting
-	Get(
-		ctx context.Context,
-		projectID domain.ProjectID,
-		name string,
-	) (domain.ProjectSetting, error)
-
-	// GetAll retrieves all settings for a project
-	GetAll(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectSetting, error)
-
-	// Delete removes a project setting
-	Delete(ctx context.Context, projectID domain.ProjectID, name string) error
-}
-
 // GuardService provides methods to check if entities are guarded
 type GuardService interface {
 	// IsFeatureGuarded checks if a feature has the guarded tag

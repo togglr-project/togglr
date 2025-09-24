@@ -57,6 +57,10 @@ type CreateProjectSegmentRes interface {
 	createProjectSegmentRes()
 }
 
+type CreateProjectSettingRes interface {
+	createProjectSettingRes()
+}
+
 type CreateProjectTagRes interface {
 	createProjectTagRes()
 }
@@ -83,6 +87,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteProjectSettingRes interface {
+	deleteProjectSettingRes()
 }
 
 type DeleteProjectTagRes interface {
@@ -169,6 +177,10 @@ type GetProjectRes interface {
 	getProjectRes()
 }
 
+type GetProjectSettingRes interface {
+	getProjectSettingRes()
+}
+
 type GetProjectTagRes interface {
 	getProjectTagRes()
 }
@@ -227,6 +239,10 @@ type ListProjectFeaturesRes interface {
 
 type ListProjectSegmentsRes interface {
 	listProjectSegmentsRes()
+}
+
+type ListProjectSettingsRes interface {
+	listProjectSettingsRes()
 }
 
 type ListProjectTagsRes interface {
@@ -343,6 +359,10 @@ type UpdateLicenseRes interface {
 
 type UpdateProjectRes interface {
 	updateProjectRes()
+}
+
+type UpdateProjectSettingRes interface {
+	updateProjectSettingRes()
 }
 
 type UpdateProjectTagRes interface {

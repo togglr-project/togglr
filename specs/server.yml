@@ -3059,6 +3059,306 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  # Project Settings CRUD endpoints
+  /api/v1/projects/{project_id}/settings:
+    get:
+      summary: List project settings
+      operationId: ListProjectSettings
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+      responses:
+        '200':
+          description: List of project settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectSettingsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create project setting
+      operationId: CreateProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectSettingRequest'
+      responses:
+        '201':
+          description: Project setting created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Setting already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/projects/{project_id}/settings/{setting_name}:
+    get:
+      summary: Get project setting by name
+      operationId: GetProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project setting details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettingResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    put:
+      summary: Update project setting
+      operationId: UpdateProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectSettingRequest'
+      responses:
+        '200':
+          description: Project setting updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete project setting
+      operationId: DeleteProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Project setting deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
   /api/v1/projects/{project_id}/segments:
     get:
       summary: List segments for project
@@ -5350,6 +5650,20 @@ components:
               code: "too_many_requests"
               message: "Too many requests"
 
+    ErrorConflict:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Entity is already locked by another pending change"
+            code:
+              type: string
+              example: "CONFLICT"
+      required: [error]
+
     # ---- /users ----
     ListUsersResponse:
       type: array
@@ -6856,16 +7170,62 @@ components:
           example: "TOTP approval session initiated successfully"
       required: [session_id, message]
 
-    ErrorConflict:
+    # ---- Project Settings ----
+    ProjectSetting:
       type: object
       properties:
-        error:
+        id:
+          type: integer
+          example: 1
+        project_id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        name:
+          type: string
+          example: "auto_approve"
+        value:
           type: object
-          properties:
-            message:
-              type: string
-              example: "Entity is already locked by another pending change"
-            code:
-              type: string
-              example: "CONFLICT"
-      required: [error]
+          example: {"enabled": true, "threshold": 5}
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T01:00:00Z"
+      required: [id, project_id, name, value, created_at, updated_at]
+
+    CreateProjectSettingRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "auto_approve"
+          maxLength: 100
+        value:
+          type: object
+          example: {"enabled": true, "threshold": 5}
+      required: [name, value]
+
+    UpdateProjectSettingRequest:
+      type: object
+      properties:
+        value:
+          type: object
+          example: {"enabled": false, "threshold": 10}
+      required: [value]
+
+    ProjectSettingResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProjectSetting'
+
+    ListProjectSettingsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectSetting'
+        pagination:
+          $ref: '#/components/schemas/Pagination'

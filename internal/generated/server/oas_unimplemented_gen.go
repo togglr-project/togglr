@@ -143,6 +143,15 @@ func (UnimplementedHandler) CreateProjectSegment(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
+// CreateProjectSetting implements CreateProjectSetting operation.
+//
+// Create project setting.
+//
+// POST /api/v1/projects/{project_id}/settings
+func (UnimplementedHandler) CreateProjectSetting(ctx context.Context, req *CreateProjectSettingRequest, params CreateProjectSettingParams) (r CreateProjectSettingRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateProjectTag implements CreateProjectTag operation.
 //
 // Create new tag for project.
@@ -203,6 +212,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteProjectSetting implements DeleteProjectSetting operation.
+//
+// Delete project setting.
+//
+// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+func (UnimplementedHandler) DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (r DeleteProjectSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -395,6 +413,15 @@ func (UnimplementedHandler) GetProject(ctx context.Context, params GetProjectPar
 	return r, ht.ErrNotImplemented
 }
 
+// GetProjectSetting implements GetProjectSetting operation.
+//
+// Get project setting by name.
+//
+// GET /api/v1/projects/{project_id}/settings/{setting_name}
+func (UnimplementedHandler) GetProjectSetting(ctx context.Context, params GetProjectSettingParams) (r GetProjectSettingRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetProjectTag implements GetProjectTag operation.
 //
 // Get tag details.
@@ -527,6 +554,15 @@ func (UnimplementedHandler) ListProjectFeatures(ctx context.Context, params List
 //
 // GET /api/v1/projects/{project_id}/segments
 func (UnimplementedHandler) ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (r ListProjectSegmentsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectSettings implements ListProjectSettings operation.
+//
+// List project settings.
+//
+// GET /api/v1/projects/{project_id}/settings
+func (UnimplementedHandler) ListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (r ListProjectSettingsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -788,6 +824,15 @@ func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *Up
 //
 // PUT /api/v1/projects/{project_id}
 func (UnimplementedHandler) UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (r UpdateProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateProjectSetting implements UpdateProjectSetting operation.
+//
+// Update project setting.
+//
+// PUT /api/v1/projects/{project_id}/settings/{setting_name}
+func (UnimplementedHandler) UpdateProjectSetting(ctx context.Context, req *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (r UpdateProjectSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
