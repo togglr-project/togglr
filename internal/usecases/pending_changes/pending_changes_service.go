@@ -231,7 +231,7 @@ func (s *Service) Cancel(
 func (s *Service) CheckEntityConflict(
 	ctx context.Context,
 	entities []domain.EntityChange,
-) error {
+) (bool, error) {
 	return s.pendingChangesRepo.CheckEntityConflict(ctx, entities)
 }
 

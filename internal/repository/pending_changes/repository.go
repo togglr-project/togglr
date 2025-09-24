@@ -93,8 +93,12 @@ func (r *Repository) Create(
 	executor := r.getExecutor(ctx)
 
 	// First check for conflicts
-	if err := r.CheckEntityConflict(ctx, change.Entities); err != nil {
+	hasConflict, err := r.CheckEntityConflict(ctx, change.Entities)
+	if err != nil {
 		return domain.PendingChange{}, err
+	}
+	if hasConflict {
+		return domain.PendingChange{}, fmt.Errorf("conflict: %w", domain.ErrEntityAlreadyExists)
 	}
 
 	// Marshal change to JSON
@@ -378,7 +382,7 @@ WHERE id = $1`
 func (r *Repository) CheckEntityConflict(
 	ctx context.Context,
 	entities []domain.EntityChange,
-) error {
+) (bool, error) {
 	executor := r.getExecutor(ctx)
 
 	for _, entity := range entities {
@@ -389,15 +393,18 @@ WHERE pce.entity = $1 AND pce.entity_id = $2 AND pc.status = 'pending'`
 
 		var exists int
 		err := executor.QueryRow(ctx, query, entity.Entity, entity.EntityID).Scan(&exists)
-		if err == nil {
-			return fmt.Errorf("entity %s %s is already locked by another pending change", entity.Entity, entity.EntityID)
+		if err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				continue
+			}
+
+			return false, fmt.Errorf("check pending change entity conflict: %w", err)
 		}
-		if !errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("check entity conflict: %w", err)
-		}
+
+		return exists > 0, nil
 	}
 
-	return nil
+	return false, nil
 }
 
 // GetEntitiesByPendingChangeID retrieves all entities for a pending change

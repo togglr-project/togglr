@@ -313,7 +313,10 @@ func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool)
 	)
 
 	// If there's a conflict or error, return early
-	if guardResult.ChangeConflict || guardResult.Error != nil {
+	if guardResult.Error != nil {
+		return domain.Feature{}, domain.GuardedResult{}, guardResult.Error
+	}
+	if guardResult.ChangeConflict {
 		return domain.Feature{}, guardResult, nil
 	}
 
@@ -601,17 +604,24 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		}
 	}
 
+	// Check for conflicts before creating pending change
+	hasConflict, err := s.pendingChangesUseCase.CheckEntityConflict(ctx, payload.Entities)
+	if err != nil {
+		return domain.GuardedResult{
+			ChangeConflict: false,
+			Error:          err,
+		}
+	}
+	if hasConflict {
+		return domain.GuardedResult{
+			ChangeConflict: true,
+		}
+	}
+
 	// For single-user projects, always create pending change but mark it as requiring auto-approve
 	// The frontend will handle showing the password/TOTP dialog
 	pendingChange, err := s.pendingChangesUseCase.Create(ctx, projectID, requestedBy, requestUserIDPtr, payload)
 	if err != nil {
-		// Check for conflict
-		if err.Error() == "entity is already locked by another pending change" {
-			return domain.GuardedResult{
-				ChangeConflict: true,
-				Error:          err,
-			}
-		}
 		return domain.GuardedResult{
 			Error: fmt.Errorf("create pending change: %w", err),
 		}

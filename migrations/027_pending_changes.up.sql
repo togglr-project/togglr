@@ -29,8 +29,8 @@ CREATE TABLE pending_change_entities (
 );
 
 -- Unique constraint: no two pending changes can affect the same entity
-CREATE UNIQUE INDEX ux_pending_entity_unique ON pending_change_entities (entity, entity_id)
-  WHERE (TRUE); -- we will enforce "only one pending state" via check function/trigger below
+-- CREATE UNIQUE INDEX ux_pending_entity_unique ON pending_change_entities (entity, entity_id)
+--   WHERE (TRUE); -- we will enforce "only one pending state" via check function/trigger below
 
 -- Indexes for performance
 CREATE INDEX idx_pending_changes_project_status ON pending_changes (project_id, status);

@@ -114,9 +114,14 @@ const ProjectPage: React.FC = () => {
     },
     onSuccess: (result, variables) => {
       if (result) {
-        // Normal success - toggle applied immediately
-        queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
-        queryClient.invalidateQueries({ queryKey: ['feature-details', variables.featureId] });
+        if (result.status === 202) {
+          // Pending change created - handle as guard workflow
+          setGuardResponse({ pendingChange: result.data });
+        } else {
+          // Normal success - toggle applied immediately
+          queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+          queryClient.invalidateQueries({ queryKey: ['feature-details', variables.featureId] });
+        }
       }
       // If result is null, guard workflow is handling the response
     },

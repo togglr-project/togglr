@@ -38,6 +38,72 @@ func (_m *MockGuardService) EXPECT() *MockGuardService_Expecter {
 	return &MockGuardService_Expecter{mock: &_m.Mock}
 }
 
+// GetProjectActiveUserCount provides a mock function for the type MockGuardService
+func (_mock *MockGuardService) GetProjectActiveUserCount(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetProjectActiveUserCount")
+	}
+
+	var r0 int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (int, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) int); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockGuardService_GetProjectActiveUserCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetProjectActiveUserCount'
+type MockGuardService_GetProjectActiveUserCount_Call struct {
+	*mock.Call
+}
+
+// GetProjectActiveUserCount is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockGuardService_Expecter) GetProjectActiveUserCount(ctx interface{}, projectID interface{}) *MockGuardService_GetProjectActiveUserCount_Call {
+	return &MockGuardService_GetProjectActiveUserCount_Call{Call: _e.mock.On("GetProjectActiveUserCount", ctx, projectID)}
+}
+
+func (_c *MockGuardService_GetProjectActiveUserCount_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockGuardService_GetProjectActiveUserCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockGuardService_GetProjectActiveUserCount_Call) Return(n int, err error) *MockGuardService_GetProjectActiveUserCount_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockGuardService_GetProjectActiveUserCount_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (int, error)) *MockGuardService_GetProjectActiveUserCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // IsEntityGuarded provides a mock function for the type MockGuardService
 func (_mock *MockGuardService) IsEntityGuarded(ctx context.Context, entities []domain.EntityChange) (bool, error) {
 	ret := _mock.Called(ctx, entities)

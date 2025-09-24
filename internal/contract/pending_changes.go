@@ -64,7 +64,7 @@ type PendingChangesUseCase interface {
 	CheckEntityConflict(
 		ctx context.Context,
 		entities []domain.EntityChange,
-	) error
+	) (bool, error)
 
 	// GetProjectApprovers returns list of users who can approve changes for a project
 	GetProjectApprovers(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectApprover, error)
@@ -112,7 +112,7 @@ type PendingChangesRepository interface {
 	CheckEntityConflict(
 		ctx context.Context,
 		entities []domain.EntityChange,
-	) error
+	) (bool, error)
 
 	// GetEntitiesByPendingChangeID retrieves all entities for a pending change
 	GetEntitiesByPendingChangeID(

@@ -184,20 +184,29 @@ func (_c *MockPendingChangesUseCase_Cancel_Call) RunAndReturn(run func(ctx conte
 }
 
 // CheckEntityConflict provides a mock function for the type MockPendingChangesUseCase
-func (_mock *MockPendingChangesUseCase) CheckEntityConflict(ctx context.Context, entities []domain.EntityChange) error {
+func (_mock *MockPendingChangesUseCase) CheckEntityConflict(ctx context.Context, entities []domain.EntityChange) (bool, error) {
 	ret := _mock.Called(ctx, entities)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CheckEntityConflict")
 	}
 
-	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, []domain.EntityChange) error); ok {
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []domain.EntityChange) (bool, error)); ok {
+		return returnFunc(ctx, entities)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []domain.EntityChange) bool); ok {
 		r0 = returnFunc(ctx, entities)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(bool)
 	}
-	return r0
+	if returnFunc, ok := ret.Get(1).(func(context.Context, []domain.EntityChange) error); ok {
+		r1 = returnFunc(ctx, entities)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
 }
 
 // MockPendingChangesUseCase_CheckEntityConflict_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckEntityConflict'
@@ -230,12 +239,12 @@ func (_c *MockPendingChangesUseCase_CheckEntityConflict_Call) Run(run func(ctx c
 	return _c
 }
 
-func (_c *MockPendingChangesUseCase_CheckEntityConflict_Call) Return(err error) *MockPendingChangesUseCase_CheckEntityConflict_Call {
-	_c.Call.Return(err)
+func (_c *MockPendingChangesUseCase_CheckEntityConflict_Call) Return(b bool, err error) *MockPendingChangesUseCase_CheckEntityConflict_Call {
+	_c.Call.Return(b, err)
 	return _c
 }
 
-func (_c *MockPendingChangesUseCase_CheckEntityConflict_Call) RunAndReturn(run func(ctx context.Context, entities []domain.EntityChange) error) *MockPendingChangesUseCase_CheckEntityConflict_Call {
+func (_c *MockPendingChangesUseCase_CheckEntityConflict_Call) RunAndReturn(run func(ctx context.Context, entities []domain.EntityChange) (bool, error)) *MockPendingChangesUseCase_CheckEntityConflict_Call {
 	_c.Call.Return(run)
 	return _c
 }
