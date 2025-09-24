@@ -3,6 +3,7 @@ package pending_changes
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -181,7 +182,7 @@ WHERE id = $1`
 		&model.RejectionReason,
 	)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.PendingChange{}, domain.ErrEntityNotFound
 		}
 		return domain.PendingChange{}, fmt.Errorf("get pending change: %w", err)
@@ -391,7 +392,7 @@ WHERE pce.entity = $1 AND pce.entity_id = $2 AND pc.status = 'pending'`
 		if err == nil {
 			return fmt.Errorf("entity %s %s is already locked by another pending change", entity.Entity, entity.EntityID)
 		}
-		if err != pgx.ErrNoRows {
+		if !errors.Is(err, pgx.ErrNoRows) {
 			return fmt.Errorf("check entity conflict: %w", err)
 		}
 	}

@@ -3,6 +3,7 @@ package project_settings
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -98,7 +99,7 @@ WHERE project_id = $1 AND name = $2`
 		&model.UpdatedAt,
 	)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.ProjectSetting{}, domain.ErrEntityNotFound
 		}
 		return domain.ProjectSetting{}, fmt.Errorf("get project setting: %w", err)

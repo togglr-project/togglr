@@ -2,6 +2,7 @@ package project_approvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -120,7 +121,7 @@ WHERE project_id = $1 AND user_id = $2`
 
 	var exists int
 	err := executor.QueryRow(ctx, query, projectID, userID).Scan(&exists)
-	if err == pgx.ErrNoRows {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
 	if err != nil {

@@ -2,6 +2,7 @@ package guard_service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -33,7 +34,7 @@ WHERE ft.feature_id = $1 AND c.slug = 'guarded'`
 
 	var exists int
 	err := executor.QueryRow(ctx, query, featureID).Scan(&exists)
-	if err == pgx.ErrNoRows {
+	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
 	if err != nil {
