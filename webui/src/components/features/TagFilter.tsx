@@ -91,13 +91,13 @@ const TagFilter: React.FC<TagFilterProps> = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            placeholder="Выберите теги..."
+            placeholder="Choose tags..."
             size="small"
             variant="outlined"
           />
         )}
-        noOptionsText="Теги не найдены"
-        loadingText="Загрузка тегов..."
+        noOptionsText="Tags not found"
+        loadingText="Loading tags..."
       />
     </Box>
   );

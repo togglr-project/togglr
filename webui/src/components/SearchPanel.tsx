@@ -184,9 +184,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
             ))}
             {showTagFilter && projectId && onTagsChange && (
               <Box>
-                <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
-                  Теги
-                </Typography>
                 <TagFilter
                   projectId={projectId}
                   selectedTags={selectedTags}
