@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Assignment as ChangesIcon } from '@mui/icons-material';
 import ApprovalDialog from './ApprovalDialog';
+import { useFeatureNames, getEntityDisplayName } from '../../hooks/useFeatureNames';
 import type { PendingChangeResponse, AuthCredentialsMethodEnum } from '../../generated/api/client';
 
 interface GuardResponseHandlerProps {
@@ -22,7 +23,7 @@ interface GuardResponseHandlerProps {
   error?: string;
   onClose: () => void;
   // Optional: allow immediate approval for single-user projects
-  onApprove?: (authMethod: AuthCredentialsMethodEnum, credential: string) => void;
+  onApprove?: (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => void;
   approveLoading?: boolean;
 }
 
@@ -36,9 +37,16 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
 }) => {
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
 
-  const handleApprove = (authMethod: AuthCredentialsMethodEnum, credential: string) => {
+  // Get feature names for display
+  const featureIds = pendingChange?.change.entities
+    ?.filter(entity => entity.entity === 'feature')
+    ?.map(entity => entity.entity_id) || [];
+  
+  const { data: featureNames } = useFeatureNames(featureIds, pendingChange?.project_id);
+
+  const handleApprove = (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
     if (onApprove) {
-      onApprove(authMethod, credential);
+      onApprove(authMethod, credential, sessionId);
     }
   };
 
@@ -83,7 +91,7 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
               {pendingChange.change.entities.map((entity, index) => (
                 <Box key={index} sx={{ mt: 1, p: 2, bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
                   <Typography variant="subtitle2">
-                    {entity.entity} ({entity.entity_id.slice(0, 8)}...)
+                    {getEntityDisplayName(entity, featureNames)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Action: {entity.action}

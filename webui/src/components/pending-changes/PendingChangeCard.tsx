@@ -30,6 +30,7 @@ import {
 import { format } from 'date-fns';
 import { useAuth } from '../../auth/AuthContext';
 import { useApprovePendingChange, useRejectPendingChange, useCancelPendingChange } from '../../hooks/usePendingChanges';
+import { useFeatureNames, getEntityDisplayName } from '../../hooks/useFeatureNames';
 import ApprovalDialog from './ApprovalDialog';
 import type { PendingChangeResponse, AuthCredentialsMethodEnum } from '../../generated/api/client';
 
@@ -49,11 +50,18 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
   const [rejectReason, setRejectReason] = useState('');
   const [authMethod, setAuthMethod] = useState<AuthCredentialsMethodEnum>('password');
 
+  // Get feature names for display
+  const featureIds = pendingChange.change.entities
+    ?.filter(entity => entity.entity === 'feature')
+    ?.map(entity => entity.entity_id) || [];
+  
+  const { data: featureNames } = useFeatureNames(featureIds, pendingChange.project_id);
+
   const approveMutation = useApprovePendingChange();
   const rejectMutation = useRejectPendingChange();
   const cancelMutation = useCancelPendingChange();
 
-  const handleApprove = (method: AuthCredentialsMethodEnum, credential: string) => {
+  const handleApprove = (method: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
     if (!user) return;
 
     approveMutation.mutate(
@@ -65,6 +73,7 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
           auth: {
             method,
             credential,
+            ...(sessionId && { session_id: sessionId }),
           },
         },
       },
@@ -222,7 +231,7 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
               {pendingChange.change.entities.map((entity, index) => (
                 <Box key={index} sx={{ mb: 2 }}>
                   <Typography variant="subtitle2" gutterBottom>
-                    {entity.entity} ({entity.entity_id.slice(0, 8)}...)
+                    {getEntityDisplayName(entity, featureNames)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                     Action: {entity.action}
@@ -287,6 +296,7 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
         error={approveMutation.error?.message}
         title="Approve Change Request"
         description="Please verify your identity to approve this change request."
+        pendingChangeId={pendingChange.id}
       />
 
       <Dialog open={showRejectDialog} onClose={() => setShowRejectDialog(false)} maxWidth="sm" fullWidth>

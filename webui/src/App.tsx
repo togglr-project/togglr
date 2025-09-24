@@ -24,6 +24,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import ProjectTagsPage from './pages/ProjectTagsPage';
 import PendingChangesPage from './pages/PendingChangesPage';
 import AdminPage from './pages/AdminPage';
+import AccountPage from './pages/AccountPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
 
@@ -107,6 +108,7 @@ function App() {
                         <Route path="/projects/:projectId/pending-changes" element={<LicenseGuard><PendingChangesPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
                         <Route path="/admin" element={<LicenseGuard><AdminPage /></LicenseGuard>} />
+                        <Route path="/account" element={<LicenseGuard><AccountPage /></LicenseGuard>} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                       </Routes>

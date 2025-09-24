@@ -221,32 +221,51 @@ const Layout: React.FC<LayoutProps> = ({
             <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 1 }} />
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Tooltip title={user?.username || 'User'}>
-                <Avatar 
+              <Tooltip title={`${user?.username || 'User'} - Go to account`}>
+                <Box 
                   sx={{ 
-                    width: 38, 
-                    height: 38, 
-                    bgcolor: 'primary.main',
-                    boxShadow: '0 2px 8px rgba(130, 82, 255, 0.3)',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1.5, 
+                    cursor: 'pointer',
+                    borderRadius: 1,
+                    px: 1,
+                    py: 0.5,
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.05)' 
+                        : 'rgba(130, 82, 255, 0.05)',
+                    }
                   }}
+                  onClick={() => navigate('/account')}
                 >
-                  {getUserInitials()}
-                </Avatar>
-              </Tooltip>
+                  <Avatar 
+                    sx={{ 
+                      width: 38, 
+                      height: 38, 
+                      bgcolor: 'primary.main',
+                      boxShadow: '0 2px 8px rgba(130, 82, 255, 0.3)',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    {getUserInitials()}
+                  </Avatar>
 
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    fontWeight: 500,
-                    color: theme.palette.mode === 'dark' ? 'inherit' : 'text.primary',
-                  }}
-                >
-                  {user?.username || 'User'}
-                </Typography>
-              </Box>
+                  <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        fontWeight: 500,
+                        color: theme.palette.mode === 'dark' ? 'inherit' : 'text.primary',
+                      }}
+                    >
+                      {user?.username || 'User'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Tooltip>
 
               <Button 
                 variant="outlined"
