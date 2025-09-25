@@ -284,8 +284,11 @@ func (s *Service) CheckEntityConflict(
 	return s.pendingChangesRepo.CheckEntityConflict(ctx, entities)
 }
 
-// GetProjectApprovers returns list of users who can approve changes for a project.
-func (s *Service) GetProjectApprovers(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectApprover, error) {
+// GetProjectApprovers returns a list of users who can approve changes for a project.
+func (s *Service) GetProjectApprovers(
+	ctx context.Context,
+	projectID domain.ProjectID,
+) ([]domain.ProjectApprover, error) {
 	return s.projectApproversRepo.GetByProjectID(ctx, projectID)
 }
 

@@ -63,7 +63,11 @@ type FeaturesRepository interface {
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)
-	ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter FeaturesListFilter) ([]domain.Feature, int, error)
+	ListByProjectIDFiltered(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		filter FeaturesListFilter,
+	) ([]domain.Feature, int, error)
 	Update(ctx context.Context, feature domain.Feature) (domain.Feature, error)
 	Delete(ctx context.Context, id domain.FeatureID) error
 }

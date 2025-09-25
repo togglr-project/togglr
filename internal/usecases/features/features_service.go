@@ -303,7 +303,11 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID) (domain.Guard
 	return domain.GuardedResult{Pending: false}, nil
 }
 
-func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, domain.GuardedResult, error) {
+func (s *Service) Toggle(
+	ctx context.Context,
+	id domain.FeatureID,
+	enabled bool,
+) (domain.Feature, domain.GuardedResult, error) {
 	// Load existing feature to check guard status
 	existing, err := s.repo.GetByID(ctx, id)
 	if err != nil {

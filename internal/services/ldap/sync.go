@@ -17,7 +17,7 @@ var (
 
 // StartManualSync starts a manual LDAP synchronization of the specified type.
 //
-//nolint:gocyclo,lll // need refactoring
+//nolint:gocyclo // need refactoring
 func (s *Service) StartManualSync(_ context.Context, syncID string, stopped chan struct{}) error {
 	s.syncMutex.Lock()
 	defer s.syncMutex.Unlock()

@@ -88,7 +88,12 @@ func (r *RestAPI) GetFeature(
 		nextStateTimePtr = &nextStateTime
 	}
 
-	featureExtended := dto.DomainFeatureExtendedToAPI(featureWithTags, r.featureProcessor.IsFeatureActive(feature), nextStatePtr, nextStateTimePtr)
+	featureExtended := dto.DomainFeatureExtendedToAPI(
+		featureWithTags,
+		r.featureProcessor.IsFeatureActive(feature),
+		nextStatePtr,
+		nextStateTimePtr,
+	)
 
 	resp := &generatedapi.FeatureDetailsResponse{
 		Feature:  featureExtended,

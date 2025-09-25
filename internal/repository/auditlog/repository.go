@@ -69,7 +69,8 @@ func (r *Repository) ListSince(ctx context.Context, since time.Time) ([]domain.A
 	exec := r.getExecutor(ctx)
 
 	const query = `
-SELECT id, project_id, feature_id, entity_id, request_id, entity, actor, username, action, old_value, new_value, created_at
+SELECT id, project_id, feature_id, entity_id, request_id, entity,
+       actor, username, action, old_value, new_value, created_at
 FROM audit_log
 WHERE created_at > $1
 ORDER BY created_at

@@ -206,7 +206,11 @@ RETURNING id, created_at, updated_at`
 }
 
 // GetByName retrieves a project setting by name.
-func (r *Repository) GetByName(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error) {
+func (r *Repository) GetByName(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	name string,
+) (*domain.ProjectSetting, error) {
 	setting, err := r.Get(ctx, projectID, name)
 	if err != nil {
 		return nil, err

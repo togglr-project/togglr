@@ -151,10 +151,16 @@ func (r *Repository) List(ctx context.Context) ([]domain.FeatureSchedule, error)
 	return items, nil
 }
 
-func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureSchedule, error) {
+func (r *Repository) ListByFeatureID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+) ([]domain.FeatureSchedule, error) {
 	exec := r.getExecutor(ctx)
 
-	const query = `SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at FROM feature_schedules WHERE feature_id = $1 ORDER BY created_at`
+	const query = `
+SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, 
+       cron_duration, timezone, action, created_at, updated_at 
+FROM feature_schedules WHERE feature_id = $1 ORDER BY created_at`
 
 	rows, err := exec.Query(ctx, query, featureID)
 	if err != nil {

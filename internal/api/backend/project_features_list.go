@@ -131,7 +131,12 @@ func (r *RestAPI) ListProjectFeatures(
 			nextStateTimePtr = &nextStateTime
 		}
 
-		featureExtended := dto.DomainFeatureExtendedToAPI(featureWithTags, r.featureProcessor.IsFeatureActive(it), nextStatePtr, nextStateTimePtr)
+		featureExtended := dto.DomainFeatureExtendedToAPI(
+			featureWithTags,
+			r.featureProcessor.IsFeatureActive(it),
+			nextStatePtr,
+			nextStateTimePtr,
+		)
 		itemsResp = append(itemsResp, featureExtended)
 	}
 

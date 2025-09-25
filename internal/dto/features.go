@@ -25,7 +25,12 @@ func DomainFeatureToAPI(feature domain.Feature) generatedapi.Feature {
 }
 
 // DomainFeatureExtendedToAPI converts domain FeatureExtended to generated API FeatureExtended.
-func DomainFeatureExtendedToAPI(feature domain.FeatureExtended, isActive bool, nextState *bool, nextStateTime *time.Time) generatedapi.FeatureExtended {
+func DomainFeatureExtendedToAPI(
+	feature domain.FeatureExtended,
+	isActive bool,
+	nextState *bool,
+	nextStateTime *time.Time,
+) generatedapi.FeatureExtended {
 	item := generatedapi.FeatureExtended{
 		ID:             feature.ID.String(),
 		ProjectID:      feature.ProjectID.String(),
