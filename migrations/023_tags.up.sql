@@ -8,7 +8,7 @@ CREATE TABLE categories (
     description varchar(300),
     color varchar(7), -- hex like #AABBCC
     kind varchar(20) DEFAULT 'user' NOT NULL
-        CHECK (kind IN ('system', 'user', 'nocopy')),
+        CHECK (kind IN ('system', 'user', 'domain')),
     created_at timestamptz DEFAULT now() NOT NULL,
     updated_at timestamptz DEFAULT now() NOT NULL
 );
@@ -64,84 +64,59 @@ JOIN feature_tags ft ON f.id = ft.feature_id
 JOIN tags t ON ft.tag_id = t.id
 JOIN categories c ON t.category_id = c.id;
 
+-- All project tags with category info
+create or replace view v_project_tags as
+select
+    t.id as tag_id,
+    t.project_id,
+    t.name as tag_name,
+    t.slug as tag_slug,
+    t.color,
+    t.description,
+    c.name as category_name,
+    c.slug as category_slug,
+    c.kind as category_kind
+from tags t
+join categories c on c.id = t.category_id;
 
-INSERT INTO categories (id, name, slug, color, description, kind) VALUES
--- special/meta
--- (gen_random_uuid(), 'User Tags', 'user-tags', '#10B981', 'User-defined tags', 'nocopy'),
+-- ======================================
+-- Preset Categories
+-- ======================================
+insert into categories (id, name, slug, color, description, kind)
+values
+    -- Safety (only one system category)
+    (gen_random_uuid(), 'Safety', 'safety', '#F59E0B', 'Safety and governance related tags', 'system'),
 
--- safety / governance
-(gen_random_uuid(), 'Critical', 'critical', '#DC2626', 'Critical feature, excluded from algorithms', 'system'),
-(gen_random_uuid(), 'Auto-Disable', 'auto-disable', '#F97316', 'Feature automatically disabled on high error rate', 'system'),
-(gen_random_uuid(), 'Guarded', 'guarded', '#F59E0B', 'Feature requires manual approval for changes', 'system')
--- (gen_random_uuid(), 'Security', 'security', '#7C3AED', 'Security or access control feature', 'system'),
+    -- Domain categories
+    (gen_random_uuid(), 'UI/UX', 'ui-ux', '#06B6D4', 'UI or UX related features', 'domain'),
+    (gen_random_uuid(), 'Backend', 'backend', '#4B5563', 'Backend logic features', 'domain'),
+    (gen_random_uuid(), 'Infra', 'infra', '#9CA3AF', 'Infrastructure features', 'domain')
+--     (gen_random_uuid(), 'Experiment', 'experiment', '#3B82F6', 'Features used in experiments (A/B, bandit, etc.)', 'system')
+on conflict (slug) do nothing;
 
--- domains
--- (gen_random_uuid(), 'UI/UX', 'ui-ux', '#06B6D4', 'UI or UX related feature', 'system'),
--- (gen_random_uuid(), 'Backend', 'backend', '#4B5563', 'Backend logic feature', 'system'),
--- (gen_random_uuid(), 'Infra', 'infra', '#9CA3AF', 'Infrastructure or DevOps feature', 'system'),
--- (gen_random_uuid(), 'Ads Campaign', 'ads-campaign', '#EC4899', 'Advertising campaign feature', 'system'),
--- (gen_random_uuid(), 'Pricing', 'pricing', '#84CC16', 'Pricing or discount related feature', 'system'),
--- (gen_random_uuid(), 'Compliance', 'compliance', '#0EA5E9', 'Regulatory or compliance-related feature', 'system')
-ON CONFLICT (slug) DO NOTHING;
+-- ======================================
+-- Functions & Triggers
+-- ======================================
 
-CREATE OR REPLACE FUNCTION init_project_tags(p_project_id uuid)
-    RETURNS void AS $$
-BEGIN
-    INSERT INTO tags (project_id, category_id, name, slug, color, description)
-    SELECT
-        p_project_id,
-        c.id,
-        c.name,
-        c.slug,
-        c.color,
-        c.description
-    FROM categories c
-    WHERE c.kind <> 'nocopy'
-    ON CONFLICT (project_id, slug) DO NOTHING;
-END;
-$$ LANGUAGE plpgsql;
+-- Insert default safety tags for each project
+create or replace function init_project_safety_tags()
+    returns trigger as $$
+declare
+    safety_id uuid;
+begin
+    select id into safety_id from categories where slug = 'safety';
 
-CREATE OR REPLACE FUNCTION trigger_init_project_tags()
-    RETURNS trigger AS $$
-BEGIN
-    PERFORM init_project_tags(NEW.id);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+    insert into tags (project_id, category_id, name, slug, color, description)
+    values
+        (new.id, safety_id, 'Critical', 'critical', '#DC2626', 'Critical feature, excluded from algorithms'),
+        (new.id, safety_id, 'Auto-Disable', 'auto-disable', '#F97316', 'Feature auto-disabled on high error rate'),
+        (new.id, safety_id, 'Guarded', 'guarded', '#F59E0B', 'Feature requires manual approval for changes');
+    return new;
+end;
+$$ language plpgsql;
 
-CREATE TRIGGER trg_init_project_tags
-    AFTER INSERT ON projects
-    FOR EACH ROW
-EXECUTE FUNCTION trigger_init_project_tags();
-
-CREATE OR REPLACE FUNCTION init_category_tags(p_category_id uuid)
-    RETURNS void AS $$
-BEGIN
-    INSERT INTO tags (project_id, category_id, name, slug, color, description)
-    SELECT
-        p.id,
-        c.id,
-        c.name,
-        c.slug,
-        c.color,
-        c.description
-    FROM projects p
-             CROSS JOIN categories c
-    WHERE c.id = p_category_id
-      AND c.kind <> 'nocopy'
-    ON CONFLICT (project_id, slug) DO NOTHING;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION trigger_init_category_tags()
-    RETURNS trigger AS $$
-BEGIN
-    PERFORM init_category_tags(NEW.id);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_init_category_tags
-    AFTER INSERT ON categories
-    FOR EACH ROW
-EXECUTE FUNCTION trigger_init_category_tags();
+-- Trigger: after project creation
+create trigger trg_init_project_safety_tags
+    after insert on projects
+    for each row
+execute function init_project_safety_tags();
