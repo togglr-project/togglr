@@ -53,9 +53,9 @@ with feature_with_category as (
     select
         f.id as feature_id,
         f.project_id,
-        c.id as category_id,
-        c.name as category_name,
-        c.slug as category_slug,
+        coalesce(c.id, '00000000-0000-0000-0000-000000000000'::uuid) as category_id,
+        coalesce(c.name, 'Uncategorized') as category_name,
+        coalesce(c.slug, 'uncategorized') as category_slug,
         f.enabled,
         exists (
             select 1
@@ -64,15 +64,7 @@ with feature_with_category as (
                      join categories c2 on t.category_id = c2.id
             where ft.feature_id = f.id
               and c2.slug = 'auto-disable'
-        ) as is_auto_disabled,
-        exists (
-            select 1
-            from feature_tags ft
-                     join tags t on ft.tag_id = t.id
-                     join categories c2 on t.category_id = c2.id
-            where ft.feature_id = f.id
-              and c2.slug = 'guarded'
-        ) as is_guarded
+        ) as under_auto_disable
     from features f
              left join feature_tags ft on ft.feature_id = f.id
              left join tags t on ft.tag_id = t.id
@@ -93,7 +85,7 @@ select
     count(distinct fwc.feature_id) as total_features,
     count(distinct case when fwc.enabled then fwc.feature_id end) as enabled_features,
     count(distinct case when not fwc.enabled then fwc.feature_id end) as disabled_features,
-    count(distinct case when fwc.is_auto_disabled then fwc.feature_id end) as auto_disabled_features,
+    count(distinct case when fwc.under_auto_disable then fwc.feature_id end) as auto_disable_managed_features,
     count(distinct case when p.feature_id is not null then fwc.feature_id end) as pending_features
 from feature_with_category fwc
          left join pending p on p.feature_id = fwc.feature_id
