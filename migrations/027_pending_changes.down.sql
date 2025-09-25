@@ -20,6 +20,7 @@ DROP INDEX IF EXISTS idx_pending_changes_project_status;
 DROP INDEX IF EXISTS ux_pending_entity_unique;
 
 -- Drop tables (in reverse order due to foreign keys)
+DROP VIEW IF EXISTS v_project_effective_settings;
 DROP TABLE IF EXISTS project_settings;
 DROP TABLE IF EXISTS project_approvers;
 DROP TABLE IF EXISTS pending_change_entities;

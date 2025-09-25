@@ -68,6 +68,17 @@ CREATE TABLE project_settings (
 
 CREATE INDEX idx_project_settings_project_id ON project_settings (project_id);
 
+create or replace view v_project_effective_settings as
+select
+    p.id as project_id,
+    coalesce(
+                    jsonb_object_agg(ps.name, ps.value) filter (where ps.name is not null),
+                    '{}'::jsonb
+    ) as settings
+from projects p
+         left join project_settings ps on ps.project_id = p.id
+group by p.id;
+
 -- ========================================
 -- Functions and Triggers
 -- ========================================
