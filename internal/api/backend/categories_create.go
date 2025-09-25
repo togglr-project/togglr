@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
-	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -43,7 +42,6 @@ func (r *RestAPI) CreateCategory(
 		req.Slug,
 		description,
 		color,
-		domain.CategoryType(req.CategoryType),
 	)
 	if err != nil {
 		slog.Error("create category failed", "error", err, "user_id", userID)

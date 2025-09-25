@@ -39,8 +39,8 @@ func (_m *MockCategoriesUseCase) EXPECT() *MockCategoriesUseCase_Expecter {
 }
 
 // CreateCategory provides a mock function for the type MockCategoriesUseCase
-func (_mock *MockCategoriesUseCase) CreateCategory(ctx context.Context, name string, slug string, description *string, color *string, categoryType domain.CategoryType) (domain.Category, error) {
-	ret := _mock.Called(ctx, name, slug, description, color, categoryType)
+func (_mock *MockCategoriesUseCase) CreateCategory(ctx context.Context, name string, slug string, description *string, color *string) (domain.Category, error) {
+	ret := _mock.Called(ctx, name, slug, description, color)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateCategory")
@@ -48,16 +48,16 @@ func (_mock *MockCategoriesUseCase) CreateCategory(ctx context.Context, name str
 
 	var r0 domain.Category
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, *string, *string, domain.CategoryType) (domain.Category, error)); ok {
-		return returnFunc(ctx, name, slug, description, color, categoryType)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, *string, *string) (domain.Category, error)); ok {
+		return returnFunc(ctx, name, slug, description, color)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, *string, *string, domain.CategoryType) domain.Category); ok {
-		r0 = returnFunc(ctx, name, slug, description, color, categoryType)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, *string, *string) domain.Category); ok {
+		r0 = returnFunc(ctx, name, slug, description, color)
 	} else {
 		r0 = ret.Get(0).(domain.Category)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, *string, *string, domain.CategoryType) error); ok {
-		r1 = returnFunc(ctx, name, slug, description, color, categoryType)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, *string, *string) error); ok {
+		r1 = returnFunc(ctx, name, slug, description, color)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -75,12 +75,11 @@ type MockCategoriesUseCase_CreateCategory_Call struct {
 //   - slug string
 //   - description *string
 //   - color *string
-//   - categoryType domain.CategoryType
-func (_e *MockCategoriesUseCase_Expecter) CreateCategory(ctx interface{}, name interface{}, slug interface{}, description interface{}, color interface{}, categoryType interface{}) *MockCategoriesUseCase_CreateCategory_Call {
-	return &MockCategoriesUseCase_CreateCategory_Call{Call: _e.mock.On("CreateCategory", ctx, name, slug, description, color, categoryType)}
+func (_e *MockCategoriesUseCase_Expecter) CreateCategory(ctx interface{}, name interface{}, slug interface{}, description interface{}, color interface{}) *MockCategoriesUseCase_CreateCategory_Call {
+	return &MockCategoriesUseCase_CreateCategory_Call{Call: _e.mock.On("CreateCategory", ctx, name, slug, description, color)}
 }
 
-func (_c *MockCategoriesUseCase_CreateCategory_Call) Run(run func(ctx context.Context, name string, slug string, description *string, color *string, categoryType domain.CategoryType)) *MockCategoriesUseCase_CreateCategory_Call {
+func (_c *MockCategoriesUseCase_CreateCategory_Call) Run(run func(ctx context.Context, name string, slug string, description *string, color *string)) *MockCategoriesUseCase_CreateCategory_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -102,17 +101,12 @@ func (_c *MockCategoriesUseCase_CreateCategory_Call) Run(run func(ctx context.Co
 		if args[4] != nil {
 			arg4 = args[4].(*string)
 		}
-		var arg5 domain.CategoryType
-		if args[5] != nil {
-			arg5 = args[5].(domain.CategoryType)
-		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
 			arg4,
-			arg5,
 		)
 	})
 	return _c
@@ -123,7 +117,7 @@ func (_c *MockCategoriesUseCase_CreateCategory_Call) Return(category domain.Cate
 	return _c
 }
 
-func (_c *MockCategoriesUseCase_CreateCategory_Call) RunAndReturn(run func(ctx context.Context, name string, slug string, description *string, color *string, categoryType domain.CategoryType) (domain.Category, error)) *MockCategoriesUseCase_CreateCategory_Call {
+func (_c *MockCategoriesUseCase_CreateCategory_Call) RunAndReturn(run func(ctx context.Context, name string, slug string, description *string, color *string) (domain.Category, error)) *MockCategoriesUseCase_CreateCategory_Call {
 	_c.Call.Return(run)
 	return _c
 }

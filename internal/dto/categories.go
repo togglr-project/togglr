@@ -10,13 +10,12 @@ import (
 // DomainCategoryToAPI converts domain Category to generated API Category.
 func DomainCategoryToAPI(category domain.Category) generatedapi.Category {
 	item := generatedapi.Category{
-		ID:           uuid.MustParse(category.ID.String()),
-		Name:         category.Name,
-		Slug:         category.Slug,
-		Kind:         generatedapi.CategoryKind(category.Kind),
-		CategoryType: generatedapi.CategoryCategoryType(category.Type),
-		CreatedAt:    category.CreatedAt,
-		UpdatedAt:    category.UpdatedAt,
+		ID:        uuid.MustParse(category.ID.String()),
+		Name:      category.Name,
+		Slug:      category.Slug,
+		Kind:      generatedapi.CategoryKind(category.Kind),
+		CreatedAt: category.CreatedAt,
+		UpdatedAt: category.UpdatedAt,
 	}
 
 	if category.Description != nil {
@@ -47,7 +46,6 @@ func APICategoryToDomain(category generatedapi.Category) domain.Category {
 		Name:      category.Name,
 		Slug:      category.Slug,
 		Kind:      domain.CategoryKind(category.Kind),
-		Type:      domain.CategoryType(category.CategoryType),
 		CreatedAt: category.CreatedAt,
 		UpdatedAt: category.UpdatedAt,
 	}

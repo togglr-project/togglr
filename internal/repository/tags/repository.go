@@ -97,7 +97,7 @@ func (r *Repository) ListByProject(
 	query := `
 		SELECT t.*, c.id as cat_id, c.name as cat_name, c.slug as cat_slug, 
 		       c.description as cat_description, c.color as cat_color, c.kind as cat_kind,
-		       c.category_type as cat_type, c.created_at as cat_created_at, c.updated_at as cat_updated_at
+		       c.created_at as cat_created_at, c.updated_at as cat_updated_at
 		FROM tags t
 		LEFT JOIN categories c ON t.category_id = c.id
 		WHERE t.project_id = $1
@@ -270,7 +270,6 @@ type tagWithCategoryModel struct {
 	CatDescription *string    `db:"cat_description"`
 	CatColor       *string    `db:"cat_color"`
 	CatKind        *string    `db:"cat_kind"`
-	CatType        *string    `db:"cat_type"`
 	CatCreatedAt   *time.Time `db:"cat_created_at"`
 	CatUpdatedAt   *time.Time `db:"cat_updated_at"`
 }
@@ -335,7 +334,6 @@ func (m *tagWithCategoryModel) toDomain() domain.Tag {
 			Description: m.CatDescription,
 			Color:       m.CatColor,
 			Kind:        domain.CategoryKind(*m.CatKind),
-			Type:        domain.CategoryType(*m.CatType),
 			CreatedAt:   *m.CatCreatedAt,
 			UpdatedAt:   *m.CatUpdatedAt,
 		}

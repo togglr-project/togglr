@@ -25,7 +25,6 @@ func (s *Service) CreateCategory(
 	name, slug string,
 	description *string,
 	color *string,
-	categoryType domain.CategoryType,
 ) (domain.Category, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
@@ -53,7 +52,6 @@ func (s *Service) CreateCategory(
 		Description: description,
 		Color:       color,
 		Kind:        domain.CategoryKindUser,
-		Type:        categoryType,
 	}
 
 	id, err := s.categoryRepo.Create(ctx, categoryDTO)
@@ -104,7 +102,7 @@ func (s *Service) UpdateCategory(
 		return domain.Category{}, errors.New("slug is required")
 	}
 
-	// Check if category exists
+	// Check if a category exists
 	existingCategory, err := s.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Category{}, fmt.Errorf("get category: %w", err)
@@ -138,7 +136,7 @@ func (s *Service) UpdateCategory(
 }
 
 func (s *Service) DeleteCategory(ctx context.Context, id domain.CategoryID) error {
-	// Check if category exists
+	// Check if a category exists
 	_, err := s.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("get category: %w", err)

@@ -306,34 +306,10 @@ func (s *Category) Validate() error {
 			Error: err,
 		})
 	}
-	if err := func() error {
-		if err := s.CategoryType.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "category_type",
-			Error: err,
-		})
-	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
-}
-
-func (s CategoryCategoryType) Validate() error {
-	switch s {
-	case "safety":
-		return nil
-	case "domain":
-		return nil
-	case "user":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
 }
 
 func (s CategoryKind) Validate() error {
@@ -590,32 +566,10 @@ func (s *CreateCategoryRequest) Validate() error {
 			Error: err,
 		})
 	}
-	if err := func() error {
-		if err := s.CategoryType.Validate(); err != nil {
-			return err
-		}
-		return nil
-	}(); err != nil {
-		failures = append(failures, validate.FieldError{
-			Name:  "category_type",
-			Error: err,
-		})
-	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
-}
-
-func (s CreateCategoryRequestCategoryType) Validate() error {
-	switch s {
-	case "user":
-		return nil
-	case "domain":
-		return nil
-	default:
-		return errors.Errorf("invalid value: %v", s)
-	}
 }
 
 func (s *CreateFeatureRequest) Validate() error {
