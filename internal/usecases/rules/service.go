@@ -2,6 +2,7 @@ package rules
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/togglr-project/togglr/internal/contract"
@@ -29,16 +30,19 @@ func New(
 
 func (s *Service) Create(ctx context.Context, rule domain.Rule) (domain.Rule, error) {
 	var created domain.Rule
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		created, err = s.repo.Create(ctx, rule)
 		if err != nil {
 			return fmt.Errorf("create rule: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.Rule{}, fmt.Errorf("tx create rule: %w", err)
 	}
+
 	return created, nil
 }
 
@@ -47,6 +51,7 @@ func (s *Service) GetByID(ctx context.Context, id domain.RuleID) (domain.Rule, e
 	if err != nil {
 		return domain.Rule{}, fmt.Errorf("get rule by id: %w", err)
 	}
+
 	return r, nil
 }
 
@@ -55,6 +60,7 @@ func (s *Service) List(ctx context.Context) ([]domain.Rule, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list rules: %w", err)
 	}
+
 	return items, nil
 }
 
@@ -63,11 +69,13 @@ func (s *Service) ListByFeatureID(ctx context.Context, featureID domain.FeatureI
 	if err != nil {
 		return nil, fmt.Errorf("list rules by featureID: %w", err)
 	}
+
 	return items, nil
 }
 
 func (s *Service) Update(ctx context.Context, rule domain.Rule) (domain.Rule, error) {
 	var updated domain.Rule
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		updated, err = s.repo.Update(ctx, rule)
@@ -79,6 +87,7 @@ func (s *Service) Update(ctx context.Context, rule domain.Rule) (domain.Rule, er
 	}); err != nil {
 		return domain.Rule{}, fmt.Errorf("tx update rule: %w", err)
 	}
+
 	return updated, nil
 }
 
@@ -87,10 +96,12 @@ func (s *Service) Delete(ctx context.Context, id domain.RuleID) error {
 		if err := s.repo.Delete(ctx, id); err != nil {
 			return fmt.Errorf("delete rule: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return fmt.Errorf("tx delete rule: %w", err)
 	}
+
 	return nil
 }
 
@@ -101,11 +112,11 @@ func (s *Service) SyncCustomized(ctx context.Context, id domain.RuleID) (domain.
 	}
 
 	if rule.SegmentID == nil {
-		return domain.Rule{}, fmt.Errorf("rule does not have a segment ID")
+		return domain.Rule{}, errors.New("rule does not have a segment ID")
 	}
 
 	if !rule.IsCustomized {
-		return domain.Rule{}, fmt.Errorf("rule is not customized")
+		return domain.Rule{}, errors.New("rule is not customized")
 	}
 
 	segment, err := s.segmentsRepo.GetByID(ctx, *rule.SegmentID)

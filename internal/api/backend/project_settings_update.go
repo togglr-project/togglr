@@ -10,7 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// UpdateProjectSetting handles PUT /api/v1/projects/{project_id}/settings/{setting_name}
+// UpdateProjectSetting handles PUT /api/v1/projects/{project_id}/settings/{setting_name}.
 func (r *RestAPI) UpdateProjectSetting(
 	ctx context.Context,
 	req *generatedapi.UpdateProjectSettingRequest,

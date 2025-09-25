@@ -104,6 +104,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.RuleID) (domain.Rule
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Rule{}, domain.ErrEntityNotFound
 		}
+
 		return domain.Rule{}, fmt.Errorf("collect rule row: %w", err)
 	}
 
@@ -173,13 +174,16 @@ func (r *Repository) ListCustomizedFeatureIDsBySegment(
 	defer rows.Close()
 
 	ids := make([]domain.FeatureID, 0)
+
 	for rows.Next() {
 		var id string
 		if err := rows.Scan(&id); err != nil {
 			return nil, fmt.Errorf("scan feature_id: %w", err)
 		}
+
 		ids = append(ids, domain.FeatureID(id))
 	}
+
 	if err := rows.Err(); err != nil {
 		return nil, fmt.Errorf("iterate feature_ids: %w", err)
 	}
@@ -226,6 +230,7 @@ func (r *Repository) Update(ctx context.Context, rule domain.Rule) (domain.Rule,
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.Rule{}, err
 		}
+
 		return domain.Rule{}, fmt.Errorf("get rule before update: %w", err)
 	}
 
@@ -265,6 +270,7 @@ RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priori
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Rule{}, domain.ErrEntityNotFound
 		}
+
 		return domain.Rule{}, fmt.Errorf("update rule: %w", err)
 	}
 
@@ -327,5 +333,6 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }

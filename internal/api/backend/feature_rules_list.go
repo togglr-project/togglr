@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ListFeatureRules handles GET /api/v1/features/{feature_id}/rules
+// ListFeatureRules handles GET /api/v1/features/{feature_id}/rules.
 func (r *RestAPI) ListFeatureRules(
 	ctx context.Context,
 	params generatedapi.ListFeatureRulesParams,
@@ -24,7 +24,9 @@ func (r *RestAPI) ListFeatureRules(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature for list rules failed", "error", err)
+
 		return nil, err
 	}
 
@@ -50,14 +52,17 @@ func (r *RestAPI) ListFeatureRules(
 	items, err := r.rulesUseCase.ListByFeatureID(ctx, featureID)
 	if err != nil {
 		slog.Error("list rules by feature failed", "error", err)
+
 		return nil, err
 	}
 
 	resp := make(generatedapi.ListRulesResponse, 0, len(items))
+
 	for _, it := range items {
 		expr, err := exprToAPI(it.Conditions)
 		if err != nil {
 			slog.Error("build rule conditions response", "error", err)
+
 			return nil, err
 		}
 

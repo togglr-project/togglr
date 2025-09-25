@@ -9,12 +9,14 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DomainChangesToAPI converts domain changes to the API response format
+// DomainChangesToAPI converts domain changes to the API response format.
 func DomainChangesToAPI(result domain.ChangesListResult) generatedapi.ListChangesResponse {
 	// Convert change groups
 	items := make([]generatedapi.ChangeGroup, 0, len(result.Items))
+
 	for _, group := range result.Items {
 		changes := make([]generatedapi.Change, 0, len(group.Changes))
+
 		for _, change := range group.Changes {
 			// Parse EntityID as UUID
 			entityID, err := uuid.Parse(change.EntityID)
@@ -71,6 +73,7 @@ func DomainChangesToAPI(result domain.ChangesListResult) generatedapi.ListChange
 
 	// Calculate pagination
 	page := 1
+
 	perPage := 20
 	if len(result.Items) > 0 {
 		// This is a simplified calculation - in real implementation,
@@ -96,7 +99,7 @@ func DomainChangesToAPI(result domain.ChangesListResult) generatedapi.ListChange
 	}
 }
 
-// APIChangesFilterToDomain converts API filter parameters to domain filter
+// APIChangesFilterToDomain converts API filter parameters to domain filter.
 func APIChangesFilterToDomain(
 	projectID domain.ProjectID,
 	params generatedapi.ListProjectChangesParams,
@@ -113,6 +116,7 @@ func APIChangesFilterToDomain(
 	if params.Page.IsSet() {
 		filter.Page = int(params.Page.Value)
 	}
+
 	if params.PerPage.IsSet() {
 		filter.PerPage = int(params.PerPage.Value)
 	}
@@ -121,6 +125,7 @@ func APIChangesFilterToDomain(
 	if params.SortBy.IsSet() {
 		filter.SortBy = string(params.SortBy.Value)
 	}
+
 	if params.SortOrder.IsSet() {
 		filter.SortDesc = params.SortOrder.Value == "desc"
 	}
@@ -129,21 +134,26 @@ func APIChangesFilterToDomain(
 	if params.Actor.IsSet() {
 		filter.Actor = &params.Actor.Value
 	}
+
 	if params.Entity.IsSet() {
 		entity := domain.EntityType(params.Entity.Value)
 		filter.Entity = &entity
 	}
+
 	if params.Action.IsSet() {
 		action := domain.AuditAction(params.Action.Value)
 		filter.Action = &action
 	}
+
 	if params.FeatureID.IsSet() {
 		featureID := domain.FeatureID(params.FeatureID.Value.String())
 		filter.FeatureID = &featureID
 	}
+
 	if params.From.IsSet() {
 		filter.From = &params.From.Value
 	}
+
 	if params.To.IsSet() {
 		filter.To = &params.To.Value
 	}

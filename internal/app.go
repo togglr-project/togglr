@@ -260,6 +260,7 @@ func (app *App) registerComponents() {
 
 	// Register LDAP service
 	app.registerComponent(ldap.New)
+
 	var ldapService contract.LDAPService
 	if err := app.container.Resolve(&ldapService); err != nil {
 		panic(err)
@@ -285,6 +286,7 @@ func (app *App) registerComponents() {
 			SkipTLSVerify:    app.Config.SAML.SkipTLSVerify,
 		},
 	})
+
 	var samlProvider *samlprovider.SAMLProvider
 	if err := app.container.Resolve(&samlProvider); err != nil {
 		panic(err)
@@ -420,6 +422,7 @@ func (app *App) newSDKServer() (*httpserver.Server, error) {
 func (app *App) newTechServer() (*httpserver.Server, error) {
 	cfg := app.Config.TechServer
 	lis, err := net.Listen("tcp", cfg.Addr)
+
 	if err != nil {
 		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
 	}

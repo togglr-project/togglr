@@ -2,6 +2,7 @@ package tags
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -31,10 +32,11 @@ func (s *Service) CreateTag(
 ) (domain.Tag, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
-		return domain.Tag{}, fmt.Errorf("name is required")
+		return domain.Tag{}, errors.New("name is required")
 	}
+
 	if strings.TrimSpace(slug) == "" {
-		return domain.Tag{}, fmt.Errorf("slug is required")
+		return domain.Tag{}, errors.New("slug is required")
 	}
 
 	// Check if tag with this slug already exists in the project
@@ -42,7 +44,8 @@ func (s *Service) CreateTag(
 	if err == nil {
 		return domain.Tag{}, fmt.Errorf("tag with slug %s already exists in project", slug)
 	}
-	if err != domain.ErrEntityNotFound {
+
+	if !errors.Is(err, domain.ErrEntityNotFound) {
 		return domain.Tag{}, fmt.Errorf("check tag existence: %w", err)
 	}
 
@@ -110,10 +113,11 @@ func (s *Service) UpdateTag(
 ) (domain.Tag, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
-		return domain.Tag{}, fmt.Errorf("name is required")
+		return domain.Tag{}, errors.New("name is required")
 	}
+
 	if strings.TrimSpace(slug) == "" {
-		return domain.Tag{}, fmt.Errorf("slug is required")
+		return domain.Tag{}, errors.New("slug is required")
 	}
 
 	// Check if tag exists
@@ -128,7 +132,8 @@ func (s *Service) UpdateTag(
 		if err == nil {
 			return domain.Tag{}, fmt.Errorf("tag with slug %s already exists in project", slug)
 		}
-		if err != domain.ErrEntityNotFound {
+
+		if !errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.Tag{}, fmt.Errorf("check tag existence: %w", err)
 		}
 	}

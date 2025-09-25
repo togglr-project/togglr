@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ApprovePendingChange handles POST /api/v1/pending_changes/{pending_change_id}/approve
+// ApprovePendingChange handles POST /api/v1/pending_changes/{pending_change_id}/approve.
 func (r *RestAPI) ApprovePendingChange(
 	ctx context.Context,
 	req *generatedapi.ApprovePendingChangeRequest,
@@ -55,6 +55,7 @@ func (r *RestAPI) ApprovePendingChange(
 		}
 
 		slog.Error("approve pending change failed", "error", err)
+
 		return nil, err
 	}
 

@@ -65,14 +65,17 @@ func (r *RestAPI) CreateProjectFeature(
 
 	// Build inline rules with structured conditions
 	rules := make([]domain.Rule, 0, len(req.Rules))
+
 	for _, rr := range req.Rules {
 		expr, err := exprFromAPI(rr.Conditions)
 		if err != nil {
 			slog.Error("build rule conditions response", "error", err)
+
 			return nil, err
 		}
 
 		var segmentIDRef *domain.SegmentID
+
 		if rr.SegmentID.IsSet() {
 			segmentID := domain.SegmentID(rr.SegmentID.Value.String())
 			segmentIDRef = &segmentID
@@ -93,6 +96,7 @@ func (r *RestAPI) CreateProjectFeature(
 	created, err := r.featuresUseCase.CreateWithChildren(ctx, feature, variants, rules)
 	if err != nil {
 		slog.Error("create project feature with children failed", "error", err)
+
 		return nil, err
 	}
 

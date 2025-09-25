@@ -49,7 +49,7 @@ func (m *projectSettingModel) toDomain() (domain.ProjectSetting, error) {
 	}, nil
 }
 
-// Set sets a project setting
+// Set sets a project setting.
 func (r *Repository) Set(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -76,7 +76,7 @@ ON CONFLICT (project_id, name) DO UPDATE SET value = EXCLUDED.value, updated_at 
 	return nil
 }
 
-// Get retrieves a project setting
+// Get retrieves a project setting.
 func (r *Repository) Get(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -90,6 +90,7 @@ FROM project_settings
 WHERE project_id = $1 AND name = $2`
 
 	var model projectSettingModel
+
 	err := executor.QueryRow(ctx, query, projectID, name).Scan(
 		&model.ID,
 		&model.ProjectID,
@@ -102,13 +103,14 @@ WHERE project_id = $1 AND name = $2`
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.ProjectSetting{}, domain.ErrEntityNotFound
 		}
+
 		return domain.ProjectSetting{}, fmt.Errorf("get project setting: %w", err)
 	}
 
 	return model.toDomain()
 }
 
-// GetAll retrieves all settings for a project
+// GetAll retrieves all settings for a project.
 func (r *Repository) GetAll(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectSetting, error) {
 	executor := r.getExecutor(ctx)
 
@@ -125,8 +127,10 @@ ORDER BY name`
 	defer rows.Close()
 
 	var settings []domain.ProjectSetting
+
 	for rows.Next() {
 		var model projectSettingModel
+
 		err := rows.Scan(
 			&model.ID,
 			&model.ProjectID,
@@ -150,7 +154,7 @@ ORDER BY name`
 	return settings, nil
 }
 
-// Delete removes a project setting
+// Delete removes a project setting.
 func (r *Repository) Delete(ctx context.Context, projectID domain.ProjectID, name string) error {
 	executor := r.getExecutor(ctx)
 
@@ -175,7 +179,7 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	return r.db
 }
 
-// Create creates a new project setting
+// Create creates a new project setting.
 func (r *Repository) Create(ctx context.Context, setting *domain.ProjectSetting) error {
 	executor := r.getExecutor(ctx)
 
@@ -201,16 +205,17 @@ RETURNING id, created_at, updated_at`
 	return nil
 }
 
-// GetByName retrieves a project setting by name
+// GetByName retrieves a project setting by name.
 func (r *Repository) GetByName(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error) {
 	setting, err := r.Get(ctx, projectID, name)
 	if err != nil {
 		return nil, err
 	}
+
 	return &setting, nil
 }
 
-// Update updates a project setting
+// Update updates a project setting.
 func (r *Repository) Update(ctx context.Context, projectID domain.ProjectID, name string, value any) error {
 	executor := r.getExecutor(ctx)
 
@@ -237,7 +242,7 @@ WHERE project_id = $2 AND name = $3`
 	return nil
 }
 
-// List retrieves project settings with pagination
+// List retrieves project settings with pagination.
 func (r *Repository) List(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -252,6 +257,7 @@ FROM project_settings
 WHERE project_id = $1`
 
 	var total int
+
 	err := executor.QueryRow(ctx, countQuery, projectID).Scan(&total)
 	if err != nil {
 		return nil, 0, fmt.Errorf("count project settings: %w", err)
@@ -259,6 +265,7 @@ WHERE project_id = $1`
 
 	// Get paginated results
 	offset := (page - 1) * perPage
+
 	const query = `
 SELECT id, project_id, name, value, created_at, updated_at
 FROM project_settings
@@ -273,8 +280,10 @@ LIMIT $2 OFFSET $3`
 	defer rows.Close()
 
 	var settings []*domain.ProjectSetting
+
 	for rows.Next() {
 		var model projectSettingModel
+
 		err := rows.Scan(
 			&model.ID,
 			&model.ProjectID,

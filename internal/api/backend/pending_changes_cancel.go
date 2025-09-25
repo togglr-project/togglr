@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// CancelPendingChange handles POST /api/v1/pending_changes/{pending_change_id}/cancel
+// CancelPendingChange handles POST /api/v1/pending_changes/{pending_change_id}/cancel.
 func (r *RestAPI) CancelPendingChange(
 	ctx context.Context,
 	req *generatedapi.CancelPendingChangeRequest,
@@ -39,6 +39,7 @@ func (r *RestAPI) CancelPendingChange(
 		}
 
 		slog.Error("cancel pending change failed", "error", err)
+
 		return nil, err
 	}
 

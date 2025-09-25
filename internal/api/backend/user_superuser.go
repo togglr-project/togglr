@@ -16,6 +16,7 @@ func (r *RestAPI) SetSuperuserStatus(
 ) (generatedapi.SetSuperuserStatusRes, error) {
 	userID := domain.UserID(params.UserID)
 	user, err := r.usersUseCase.SetSuperuserStatus(ctx, userID, req.IsSuperuser)
+
 	if err != nil {
 		slog.Error("set superuser status failed",
 			"error", err, "user_id", userID, "is_superuser", req.IsSuperuser)

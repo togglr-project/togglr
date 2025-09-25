@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// RejectPendingChange handles POST /api/v1/pending_changes/{pending_change_id}/reject
+// RejectPendingChange handles POST /api/v1/pending_changes/{pending_change_id}/reject.
 func (r *RestAPI) RejectPendingChange(
 	ctx context.Context,
 	req *generatedapi.RejectPendingChangeRequest,
@@ -40,6 +40,7 @@ func (r *RestAPI) RejectPendingChange(
 		}
 
 		slog.Error("reject pending change failed", "error", err)
+
 		return nil, err
 	}
 

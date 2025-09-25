@@ -2,6 +2,7 @@ package featuresprocessor
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"regexp"
@@ -70,7 +71,7 @@ func New(
 	}
 }
 
-// now возвращает текущее время (может быть переопределено в тестах)
+// now возвращает текущее время (может быть переопределено в тестах).
 func (s *Service) now() time.Time {
 	return s.nowFunc()
 }
@@ -97,7 +98,7 @@ func (s *Service) Stop(context.Context) error {
 
 func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	if s.featuresUC == nil || s.projectsUC == nil {
-		return fmt.Errorf("features processor: dependencies not set")
+		return errors.New("features processor: dependencies not set")
 	}
 
 	slog.Info("Start loading all features")
@@ -110,6 +111,7 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	}
 
 	newHolder := make(Holder, len(projects))
+
 	for _, project := range projects {
 		items, err := s.featuresUC.ListExtendedByProjectID(ctx, project.ID)
 		if err != nil {
@@ -136,7 +138,7 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 
 func (s *Service) Watch(ctx context.Context) error {
 	if s.auditRepo == nil || s.featuresUC == nil {
-		return fmt.Errorf("features processor: dependencies not set")
+		return errors.New("features processor: dependencies not set")
 	}
 
 	slog.Info("Start watching features")
@@ -162,6 +164,7 @@ func (s *Service) Watch(ctx context.Context) error {
 			logs, err := s.auditRepo.ListSince(ctx, last)
 			if err != nil {
 				slog.Error("Watcher: audit log list since failed", "err", err)
+
 				last = windowEnd
 
 				continue
@@ -180,12 +183,14 @@ func (s *Service) Watch(ctx context.Context) error {
 			}
 
 			changes := make(map[changeKey]domain.AuditAction)
+
 			for _, row := range logs {
 				if row.FeatureID == "" {
 					continue
 				}
 
 				key := changeKey{projectID: row.ProjectID, featureID: row.FeatureID}
+
 				if row.Entity == domain.EntityFeature && row.Action == domain.AuditActionDelete {
 					changes[key] = domain.AuditActionDelete
 
@@ -234,7 +239,9 @@ func (s *Service) Evaluate(
 	}
 
 	var bestAssign *domain.Rule
+
 	var bestInclude *domain.Rule
+
 	hasInclude := false
 
 	for _, rule := range feature.Rules {
@@ -253,6 +260,7 @@ func (s *Service) Evaluate(
 
 		case domain.RuleActionInclude:
 			hasInclude = true
+
 			if bestInclude == nil || rule.Priority < bestInclude.Priority {
 				bestInclude = &rule
 			}
@@ -374,7 +382,7 @@ func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (en
 	return next.action == domain.FeatureScheduleActionEnable, next.timestamp
 }
 
-// getNextScheduleTrigger находит следующее срабатывание для конкретного расписания
+// getNextScheduleTrigger находит следующее срабатывание для конкретного расписания.
 func (s *Service) getNextScheduleTrigger(
 	schedule domain.FeatureSchedule,
 	crons CronsMap,
@@ -384,8 +392,10 @@ func (s *Service) getNextScheduleTrigger(
 	loc, err := time.LoadLocation(schedule.Timezone)
 	if err != nil {
 		slog.Error("error loading timezone", "timezone", schedule.Timezone)
+
 		loc = time.UTC
 	}
+
 	now = now.In(loc)
 
 	// Определяем начало работы расписания
@@ -393,6 +403,7 @@ func (s *Service) getNextScheduleTrigger(
 	if schedule.StartsAt != nil {
 		scheduleStart = *schedule.StartsAt
 	}
+
 	scheduleStart = scheduleStart.In(loc)
 
 	// Если расписание еще не началось, возвращаем время начала
@@ -456,7 +467,7 @@ func (s *Service) getNextScheduleTrigger(
 	return middleCronTime, getOppositeAction(schedule.Action)
 }
 
-// getOppositeAction возвращает противоположное действие
+// getOppositeAction возвращает противоположное действие.
 func getOppositeAction(action domain.FeatureScheduleAction) domain.FeatureScheduleAction {
 	switch action {
 	case domain.FeatureScheduleActionEnable:
@@ -585,7 +596,9 @@ func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 
 	// Master Enable = ON и есть расписания → фича полностью управляется ими
 	var chosenAction *domain.FeatureScheduleAction
+
 	var chosenCreatedAt time.Time
+
 	for i := range feature.Schedules {
 		schedule := feature.Schedules[i]
 		if compatible, action := IsScheduleActive(schedule, feature.crons, now, feature.CreatedAt); compatible {
@@ -619,7 +632,7 @@ func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 	return getScheduleBaseline(feature.Schedules)
 }
 
-// getScheduleBaseline определяет baseline состояние на основе типа расписаний
+// getScheduleBaseline определяет baseline состояние на основе типа расписаний.
 func getScheduleBaseline(schedules []domain.FeatureSchedule) bool {
 	if len(schedules) == 0 {
 		return false
@@ -655,8 +668,10 @@ func IsScheduleActive(
 	loc, err := time.LoadLocation(schedule.Timezone)
 	if err != nil {
 		slog.Error("error loading timezone", "timezone", schedule.Timezone)
+
 		loc = time.UTC
 	}
+
 	now = now.In(loc)
 
 	// Определяем начало работы расписания
@@ -664,6 +679,7 @@ func IsScheduleActive(
 	if schedule.StartsAt != nil {
 		scheduleStart = *schedule.StartsAt
 	}
+
 	scheduleStart = scheduleStart.In(loc)
 
 	// Проверяем, что текущее время не раньше начала расписания
@@ -729,6 +745,7 @@ func MatchCondition(reqCtx map[domain.RuleAttribute]any, condition domain.Condit
 		return CompareNumbers(actual, condition.Value, condition.Operator)
 	case domain.OpRegex:
 		pattern := fmt.Sprint(condition.Value)
+
 		re, err := regexp.Compile(pattern)
 		if err != nil {
 			return false
@@ -764,6 +781,7 @@ func InList(actual any, value any, caseInsensitive bool) bool {
 					return true
 				}
 			}
+
 			return false
 		default:
 			return false
@@ -786,6 +804,7 @@ func InList(actual any, value any, caseInsensitive bool) bool {
 func CompareNumbers(actual any, expected any, op domain.RuleOperator) bool {
 	av, aok := ToFloat(actual)
 	ev, eok := ToFloat(expected)
+
 	if !aok || !eok {
 		return false
 	}
@@ -855,6 +874,7 @@ func StableHash(str string) int {
 
 func PickVariant(variants []domain.FlagVariant, key string, defaultVariant string) string {
 	hash := StableHash(key) % 100
+
 	acc := 0
 	for _, v := range variants {
 		acc += int(v.RolloutPercent)

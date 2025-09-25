@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ToggleFeature handles PUT /api/v1/features/{feature_id}/toggle
+// ToggleFeature handles PUT /api/v1/features/{feature_id}/toggle.
 func (r *RestAPI) ToggleFeature(
 	ctx context.Context,
 	req *generatedapi.ToggleFeatureRequest,
@@ -25,7 +25,9 @@ func (r *RestAPI) ToggleFeature(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature for toggle failed", "error", err)
+
 		return nil, err
 	}
 
@@ -33,13 +35,16 @@ func (r *RestAPI) ToggleFeature(
 	ok, perr := r.permissionsService.HasProjectPermission(ctx, feature.ProjectID, domain.PermFeatureToggle)
 	if perr != nil {
 		slog.Error("permission check failed", "error", perr, "project_id", feature.ProjectID)
+
 		if errors.Is(perr, domain.ErrUserNotFound) {
 			return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 				Message: generatedapi.NewOptString("unauthorized"),
 			}}, nil
 		}
+
 		return nil, perr
 	}
+
 	if !ok {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),
@@ -49,17 +54,20 @@ func (r *RestAPI) ToggleFeature(
 	updated, guardResult, err := r.featuresUseCase.Toggle(ctx, featureID, req.Enabled)
 	if err != nil {
 		slog.Error("toggle feature failed", "error", err)
+
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		return nil, err
 	}
 
 	// Handle guard result
 	if guardResult.Error != nil {
 		slog.Error("guard check failed", "error", guardResult.Error)
+
 		return nil, guardResult.Error
 	}
 
@@ -72,6 +80,7 @@ func (r *RestAPI) ToggleFeature(
 	if guardResult.Pending {
 		// Convert pending change to response
 		pendingChangeResp := convertPendingChangeToResponse(guardResult.PendingChange)
+
 		return &pendingChangeResp, nil
 	}
 

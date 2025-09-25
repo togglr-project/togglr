@@ -25,16 +25,19 @@ func New(
 
 func (s *Service) Create(ctx context.Context, segment domain.Segment) (domain.Segment, error) {
 	var created domain.Segment
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		created, err = s.repo.Create(ctx, segment)
 		if err != nil {
 			return fmt.Errorf("create segment: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.Segment{}, fmt.Errorf("tx create segment: %w", err)
 	}
+
 	return created, nil
 }
 
@@ -43,6 +46,7 @@ func (s *Service) GetByID(ctx context.Context, id domain.SegmentID) (domain.Segm
 	if err != nil {
 		return domain.Segment{}, fmt.Errorf("get segment by id: %w", err)
 	}
+
 	return seg, nil
 }
 
@@ -51,6 +55,7 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 	if err != nil {
 		return nil, fmt.Errorf("list segments by projectID: %w", err)
 	}
+
 	return items, nil
 }
 
@@ -63,11 +68,13 @@ func (s *Service) ListByProjectIDFiltered(
 	if err != nil {
 		return nil, 0, fmt.Errorf("list segments by projectID filtered: %w", err)
 	}
+
 	return items, total, nil
 }
 
 func (s *Service) Update(ctx context.Context, segment domain.Segment) (domain.Segment, error) {
 	var updated domain.Segment
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		updated, err = s.repo.Update(ctx, segment)
@@ -91,6 +98,7 @@ func (s *Service) Update(ctx context.Context, segment domain.Segment) (domain.Se
 	}); err != nil {
 		return domain.Segment{}, fmt.Errorf("tx update segment: %w", err)
 	}
+
 	return updated, nil
 }
 
@@ -99,10 +107,12 @@ func (s *Service) Delete(ctx context.Context, id domain.SegmentID) error {
 		if err := s.repo.Delete(ctx, id); err != nil {
 			return fmt.Errorf("delete segment: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return fmt.Errorf("tx delete segment: %w", err)
 	}
+
 	return nil
 }
 
@@ -114,5 +124,6 @@ func (s *Service) ListDesyncFeatureIDs(
 	if err != nil {
 		return nil, fmt.Errorf("list desync feature ids: %w", err)
 	}
+
 	return ids, nil
 }

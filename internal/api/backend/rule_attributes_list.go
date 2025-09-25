@@ -16,9 +16,12 @@ func (r *RestAPI) ListRuleAttributes(ctx context.Context) (generatedapi.ListRule
 	}
 
 	resp := make(generatedapi.ListRuleAttributesResponse, 0, len(list))
+
 	for i := range list {
 		item := list[i]
+
 		var description generatedapi.OptString
+
 		if item.Description != nil {
 			description = generatedapi.NewOptString(*item.Description)
 		}

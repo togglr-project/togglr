@@ -7,7 +7,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DomainFeatureToAPI converts domain Feature to generated API Feature
+// DomainFeatureToAPI converts domain Feature to generated API Feature.
 func DomainFeatureToAPI(feature domain.Feature) generatedapi.Feature {
 	return generatedapi.Feature{
 		ID:             feature.ID.String(),
@@ -24,7 +24,7 @@ func DomainFeatureToAPI(feature domain.Feature) generatedapi.Feature {
 	}
 }
 
-// DomainFeatureExtendedToAPI converts domain FeatureExtended to generated API FeatureExtended
+// DomainFeatureExtendedToAPI converts domain FeatureExtended to generated API FeatureExtended.
 func DomainFeatureExtendedToAPI(feature domain.FeatureExtended, isActive bool, nextState *bool, nextStateTime *time.Time) generatedapi.FeatureExtended {
 	item := generatedapi.FeatureExtended{
 		ID:             feature.ID.String(),
@@ -53,16 +53,17 @@ func DomainFeatureExtendedToAPI(feature domain.FeatureExtended, isActive bool, n
 	return item
 }
 
-// DomainFeaturesToAPI converts slice of domain Features to slice of generated API Features
+// DomainFeaturesToAPI converts slice of domain Features to slice of generated API Features.
 func DomainFeaturesToAPI(features []domain.Feature) []generatedapi.Feature {
 	resp := make([]generatedapi.Feature, 0, len(features))
 	for _, feature := range features {
 		resp = append(resp, DomainFeatureToAPI(feature))
 	}
+
 	return resp
 }
 
-// APIFeatureToDomain converts generated API Feature to domain Feature
+// APIFeatureToDomain converts generated API Feature to domain Feature.
 func APIFeatureToDomain(feature generatedapi.Feature) domain.Feature {
 	return domain.Feature{
 		ID:             domain.FeatureID(feature.ID),

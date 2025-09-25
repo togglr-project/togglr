@@ -74,6 +74,7 @@ func (s *Service) BuildFeatureTimeline(
 				if sched.StartsAt != nil {
 					scheduleStart = *sched.StartsAt
 				}
+
 				prevCron, found := findPrevCron(featurePrepared.crons[sched.ID], from, scheduleStart)
 				if found {
 					endOfActivePeriod := prevCron.Add(*sched.CronDuration)
@@ -91,6 +92,7 @@ func (s *Service) BuildFeatureTimeline(
 		// Если есть cron — разворачиваем его с учетом starts_at и ends_at
 		if sched.CronExpr != nil && *sched.CronExpr != "" {
 			parser := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+
 			schedule, err := parser.Parse(*sched.CronExpr)
 			if err != nil {
 				continue
@@ -98,6 +100,7 @@ func (s *Service) BuildFeatureTimeline(
 
 			// Учитываем таймзону расписания
 			loc := from.Location()
+
 			if sched.Timezone != "" {
 				if tz, err := time.LoadLocation(sched.Timezone); err == nil {
 					loc = tz
@@ -109,6 +112,7 @@ func (s *Service) BuildFeatureTimeline(
 			if sched.StartsAt != nil {
 				cronStart = *sched.StartsAt
 			}
+
 			cronStart = cronStart.In(loc)
 
 			// Определяем конец работы cron-расписания
@@ -125,6 +129,7 @@ func (s *Service) BuildFeatureTimeline(
 			if cronStart.After(effectiveFrom) {
 				effectiveFrom = cronStart
 			}
+
 			if cronEnd.Before(effectiveTo) {
 				effectiveTo = cronEnd
 			}
@@ -139,6 +144,7 @@ func (s *Service) BuildFeatureTimeline(
 			cursor := effectiveFrom.Add(-time.Nanosecond)
 
 			cnt := 0
+
 			for {
 				next := schedule.Next(cursor)
 				// effectiveTo — исключительно: отбрасываем next >= effectiveTo

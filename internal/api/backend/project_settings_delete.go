@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DeleteProjectSetting handles DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+// DeleteProjectSetting handles DELETE /api/v1/projects/{project_id}/settings/{setting_name}.
 func (r *RestAPI) DeleteProjectSetting(
 	ctx context.Context,
 	params generatedapi.DeleteProjectSettingParams,

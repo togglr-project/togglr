@@ -7,10 +7,11 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DomainProjectSettingToAPI converts domain ProjectSetting to generated API ProjectSetting
+// DomainProjectSettingToAPI converts domain ProjectSetting to generated API ProjectSetting.
 func DomainProjectSettingToAPI(setting domain.ProjectSetting) generatedapi.ProjectSetting {
 	// Convert value to any type for JSON marshaling
 	var value any
+
 	if setting.Value != nil {
 		// If Value is already json.RawMessage, unmarshal it
 		if rawMsg, ok := setting.Value.(json.RawMessage); ok {
@@ -31,16 +32,17 @@ func DomainProjectSettingToAPI(setting domain.ProjectSetting) generatedapi.Proje
 	}
 }
 
-// DomainProjectSettingsToAPI converts slice of domain ProjectSettings to slice of generated API ProjectSettings
+// DomainProjectSettingsToAPI converts slice of domain ProjectSettings to slice of generated API ProjectSettings.
 func DomainProjectSettingsToAPI(settings []*domain.ProjectSetting) []generatedapi.ProjectSetting {
 	resp := make([]generatedapi.ProjectSetting, 0, len(settings))
 	for _, setting := range settings {
 		resp = append(resp, DomainProjectSettingToAPI(*setting))
 	}
+
 	return resp
 }
 
-// APIProjectSettingToDomain converts generated API ProjectSetting to domain ProjectSetting
+// APIProjectSettingToDomain converts generated API ProjectSetting to domain ProjectSetting.
 func APIProjectSettingToDomain(setting generatedapi.ProjectSetting) domain.ProjectSetting {
 	// Convert value to any
 	// ProjectSettingValue is empty struct, so we'll just use nil

@@ -13,6 +13,7 @@ func (r *RestAPI) GetSSOProviders(ctx context.Context) (generatedapi.GetSSOProvi
 	}
 
 	apiProviders := make([]generatedapi.SSOProvider, 0, len(providers))
+
 	for i := range providers {
 		provider := providers[i]
 		apiProviders = append(apiProviders, generatedapi.SSOProvider{

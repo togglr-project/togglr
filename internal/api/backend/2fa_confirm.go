@@ -16,6 +16,7 @@ func (r *RestAPI) Confirm2FA(
 	req *generatedapi.TwoFAConfirmRequest,
 ) (generatedapi.Confirm2FARes, error) {
 	userID := appcontext.UserID(ctx)
+
 	err := r.usersUseCase.Confirm2FA(ctx, userID, req.Code)
 	if err != nil {
 		switch {

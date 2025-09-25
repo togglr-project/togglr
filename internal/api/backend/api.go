@@ -1,4 +1,3 @@
-//nolint:interfacebloat // it's ok here
 package apibackend
 
 import (

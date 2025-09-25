@@ -39,7 +39,7 @@ func (m *projectApproverModel) toDomain() domain.ProjectApprover {
 	}
 }
 
-// Create adds a new approver to a project
+// Create adds a new approver to a project.
 func (r *Repository) Create(ctx context.Context, approver domain.ProjectApprover) error {
 	executor := r.getExecutor(ctx)
 
@@ -60,7 +60,7 @@ ON CONFLICT (project_id, user_id) DO UPDATE SET role = EXCLUDED.role`
 	return nil
 }
 
-// GetByProjectID retrieves all approvers for a project
+// GetByProjectID retrieves all approvers for a project.
 func (r *Repository) GetByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectApprover, error) {
 	executor := r.getExecutor(ctx)
 
@@ -77,8 +77,10 @@ ORDER BY created_at`
 	defer rows.Close()
 
 	var approvers []domain.ProjectApprover
+
 	for rows.Next() {
 		var model projectApproverModel
+
 		err := rows.Scan(
 			&model.ProjectID,
 			&model.UserID,
@@ -95,7 +97,7 @@ ORDER BY created_at`
 	return approvers, nil
 }
 
-// Delete removes an approver from a project
+// Delete removes an approver from a project.
 func (r *Repository) Delete(ctx context.Context, projectID domain.ProjectID, userID int) error {
 	executor := r.getExecutor(ctx)
 
@@ -111,7 +113,7 @@ WHERE project_id = $1 AND user_id = $2`
 	return nil
 }
 
-// IsUserApprover checks if a user is an approver for a project
+// IsUserApprover checks if a user is an approver for a project.
 func (r *Repository) IsUserApprover(ctx context.Context, projectID domain.ProjectID, userID int) (bool, error) {
 	executor := r.getExecutor(ctx)
 
@@ -120,10 +122,12 @@ SELECT 1 FROM project_approvers
 WHERE project_id = $1 AND user_id = $2`
 
 	var exists int
+
 	err := executor.QueryRow(ctx, query, projectID, userID).Scan(&exists)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return false, nil
 	}
+
 	if err != nil {
 		return false, fmt.Errorf("check user approver: %w", err)
 	}

@@ -95,8 +95,10 @@ func (s *Service) UpdateLicense(ctx context.Context, licenseText string) (domain
 	}
 
 	var updatedLicense domain.License
+
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
+
 		updatedLicense, err = s.licenseRepo.UpdateLicense(ctx, lic)
 		if err != nil {
 			return fmt.Errorf("update license: %w", err)

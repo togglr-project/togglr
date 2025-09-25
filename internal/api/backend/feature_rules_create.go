@@ -24,6 +24,7 @@ func (r *RestAPI) CreateFeatureRule(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature for rule create failed", "error", err)
 
 		return nil, err
@@ -52,10 +53,12 @@ func (r *RestAPI) CreateFeatureRule(
 	expr, err := exprFromAPI(req.Conditions)
 	if err != nil {
 		slog.Error("parse rule conditions", "error", err)
+
 		return nil, err
 	}
 
 	var segmentIDRef *domain.SegmentID
+
 	if req.SegmentID.IsSet() {
 		segmentID := domain.SegmentID(req.SegmentID.Value.String())
 		segmentIDRef = &segmentID
@@ -75,6 +78,7 @@ func (r *RestAPI) CreateFeatureRule(
 	created, err := r.rulesUseCase.Create(ctx, rule)
 	if err != nil {
 		slog.Error("create rule failed", "error", err)
+
 		return nil, err
 	}
 

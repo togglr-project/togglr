@@ -89,6 +89,7 @@ func New(
 		if err != nil {
 			return nil, fmt.Errorf("failed to load certificate: %w", err)
 		}
+
 		provider.certificate = cert
 	}
 
@@ -98,6 +99,7 @@ func New(
 		if err != nil {
 			return nil, fmt.Errorf("failed to load private key: %w", err)
 		}
+
 		provider.privateKey = key
 	}
 
@@ -106,6 +108,7 @@ func New(
 		defer cancel()
 
 		var err error
+
 		provider.sp, err = provider.makeSP(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("create SAML service provider: %w", err)
@@ -169,12 +172,15 @@ func (p *SAMLProvider) GenerateSPMetadata() ([]byte, error) {
 	metadata := p.sp.Metadata()
 
 	var buf bytes.Buffer
+
 	buf.WriteString(xml.Header)
 	enc := xml.NewEncoder(&buf)
 	enc.Indent("", "  ")
+
 	if err := enc.Encode(metadata); err != nil {
 		return nil, err
 	}
+
 	if err := enc.Flush(); err != nil {
 		return nil, err
 	}
@@ -382,6 +388,7 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 		} else {
 			return nil, errors.New("private key is not *rsa.PrivateKey")
 		}
+
 		serviceProvider.Certificate = p.certificate
 	default:
 		// fallback – generate self-signed certificates
@@ -391,6 +398,7 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 		if err != nil {
 			return nil, err
 		}
+
 		serviceProvider.Key = key
 
 		now := time.Now()
@@ -420,6 +428,7 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 		if err != nil {
 			return nil, err
 		}
+
 		serviceProvider.Certificate, err = x509.ParseCertificate(der)
 		if err != nil {
 			return nil, err
@@ -458,6 +467,7 @@ func dumpOrStoreKeyPair(cert *x509.Certificate, key *rsa.PrivateKey, certFile, k
 		if err := os.MkdirAll(filepath.Dir(certFile), 0o750); err != nil {
 			return err
 		}
+
 		if err := os.WriteFile(certFile, certPEM, 0o600); err != nil {
 			return err
 		}
@@ -467,6 +477,7 @@ func dumpOrStoreKeyPair(cert *x509.Certificate, key *rsa.PrivateKey, certFile, k
 		if err := os.MkdirAll(filepath.Dir(keyFile), 0o750); err != nil {
 			return err
 		}
+
 		if err := os.WriteFile(keyFile, keyPEM, 0o600); err != nil {
 			return err
 		}

@@ -3,6 +3,7 @@ package project_settings
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/togglr-project/togglr/internal/contract"
@@ -30,7 +31,7 @@ func (s *Service) Create(
 ) (*domain.ProjectSetting, error) {
 	// Validate input
 	if name == "" {
-		return nil, fmt.Errorf("setting name cannot be empty")
+		return nil, errors.New("setting name cannot be empty")
 	}
 
 	// Marshal value to JSON to validate it
@@ -60,7 +61,7 @@ func (s *Service) GetByName(
 	name string,
 ) (*domain.ProjectSetting, error) {
 	if name == "" {
-		return nil, fmt.Errorf("setting name cannot be empty")
+		return nil, errors.New("setting name cannot be empty")
 	}
 
 	setting, err := s.projectSettingsRepo.GetByName(ctx, projectID, name)
@@ -80,7 +81,7 @@ func (s *Service) Update(
 ) (*domain.ProjectSetting, error) {
 	// Validate input
 	if name == "" {
-		return nil, fmt.Errorf("setting name cannot be empty")
+		return nil, errors.New("setting name cannot be empty")
 	}
 
 	// Marshal value to JSON to validate it
@@ -110,7 +111,7 @@ func (s *Service) Delete(
 	name string,
 ) error {
 	if name == "" {
-		return fmt.Errorf("setting name cannot be empty")
+		return errors.New("setting name cannot be empty")
 	}
 
 	err := s.projectSettingsRepo.Delete(ctx, projectID, name)
@@ -131,9 +132,11 @@ func (s *Service) List(
 	if page < 1 {
 		page = 1
 	}
+
 	if perPage < 1 {
 		perPage = 20
 	}
+
 	if perPage > 100 {
 		perPage = 100
 	}

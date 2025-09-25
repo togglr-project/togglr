@@ -29,10 +29,11 @@ func (s *Service) CreateCategory(
 ) (domain.Category, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
-		return domain.Category{}, fmt.Errorf("name is required")
+		return domain.Category{}, errors.New("name is required")
 	}
+
 	if strings.TrimSpace(slug) == "" {
-		return domain.Category{}, fmt.Errorf("slug is required")
+		return domain.Category{}, errors.New("slug is required")
 	}
 
 	// Check if the category with this slug already exists
@@ -40,6 +41,7 @@ func (s *Service) CreateCategory(
 	if err == nil {
 		return domain.Category{}, fmt.Errorf("category with slug %s already exists", slug)
 	}
+
 	if !errors.Is(err, domain.ErrEntityNotFound) {
 		return domain.Category{}, fmt.Errorf("check category existence: %w", err)
 	}
@@ -95,10 +97,11 @@ func (s *Service) UpdateCategory(
 ) (domain.Category, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
-		return domain.Category{}, fmt.Errorf("name is required")
+		return domain.Category{}, errors.New("name is required")
 	}
+
 	if strings.TrimSpace(slug) == "" {
-		return domain.Category{}, fmt.Errorf("slug is required")
+		return domain.Category{}, errors.New("slug is required")
 	}
 
 	// Check if category exists
@@ -113,6 +116,7 @@ func (s *Service) UpdateCategory(
 		if err == nil {
 			return domain.Category{}, fmt.Errorf("category with slug %s already exists", slug)
 		}
+
 		if !errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.Category{}, fmt.Errorf("check category existence: %w", err)
 		}

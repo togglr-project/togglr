@@ -28,7 +28,7 @@ func New(pool *pgxpool.Pool) *Repository {
 
 // Create inserts a new feature and returns the created entity.
 //
-//nolint:lll // long query string is acceptable
+
 func (r *Repository) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
@@ -204,10 +204,12 @@ func (r *Repository) ListByProjectIDFiltered(
 		builder = builder.Where(sq.Eq{"kind": *filter.Kind})
 		countBuilder = countBuilder.Where(sq.Eq{"kind": *filter.Kind})
 	}
+
 	if filter.Enabled != nil {
 		builder = builder.Where(sq.Eq{"enabled": *filter.Enabled})
 		countBuilder = countBuilder.Where(sq.Eq{"enabled": *filter.Enabled})
 	}
+
 	if filter.TextSelector != nil && *filter.TextSelector != "" {
 		pattern := fmt.Sprintf("%%%s%%", *filter.TextSelector)
 		or := sq.Or{
@@ -219,6 +221,7 @@ func (r *Repository) ListByProjectIDFiltered(
 		builder = builder.Where(or)
 		countBuilder = countBuilder.Where(or)
 	}
+
 	if len(filter.TagIDs) > 0 {
 		// Use subquery to filter by tag IDs to avoid GROUP BY issues
 		subquery := sq.Select("DISTINCT feature_id").From("feature_tags").Where(sq.Eq{"tag_id": filter.TagIDs})
@@ -230,25 +233,31 @@ func (r *Repository) ListByProjectIDFiltered(
 
 	// Sorting with whitelist
 	orderCol := "created_at"
+
 	switch filter.SortBy {
 	case "name", "key", "enabled", "kind", "created_at", "updated_at":
 		orderCol = filter.SortBy
 	}
+
 	orderDir := "DESC"
 	if !filter.SortDesc {
 		orderDir = "ASC"
 	}
+
 	builder = builder.OrderBy(fmt.Sprintf("%s %s", orderCol, orderDir))
 
 	// Pagination
 	page := filter.Page
 	perPage := filter.PerPage
+
 	if page == 0 {
 		page = 1
 	}
+
 	if perPage == 0 {
 		perPage = 20
 	}
+
 	offset := (page - 1) * perPage
 	builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
 
@@ -257,15 +266,19 @@ func (r *Repository) ListByProjectIDFiltered(
 	if err != nil {
 		return nil, 0, fmt.Errorf("build features list sql: %w", err)
 	}
+
 	rows, err := executor.Query(ctx, listSQL, listArgs...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("query features filtered: %w", err)
 	}
+
 	defer rows.Close()
+
 	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
 	if err != nil {
 		return nil, 0, fmt.Errorf("collect features rows: %w", err)
 	}
+
 	items := make([]domain.Feature, 0, len(models))
 	for _, m := range models {
 		items = append(items, m.toDomain())
@@ -276,6 +289,7 @@ func (r *Repository) ListByProjectIDFiltered(
 	if err != nil {
 		return nil, 0, fmt.Errorf("build features count sql: %w", err)
 	}
+
 	var total int
 	if err := executor.QueryRow(ctx, countSQL, countArgs...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count features: %w", err)
@@ -296,6 +310,7 @@ func (r *Repository) Update(ctx context.Context, feature domain.Feature) (domain
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.Feature{}, err
 		}
+
 		return domain.Feature{}, fmt.Errorf("get feature before update: %w", err)
 	}
 

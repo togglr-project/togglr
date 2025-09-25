@@ -92,7 +92,6 @@ func (m *Middleware) ValidateLicense(ctx context.Context) error {
 	return nil
 }
 
-//nolint:nestif // need refactoring
 func (m *Middleware) requestTrialLicense(ctx context.Context) error {
 	projectsCnt, err := m.projectsRepo.Count(ctx)
 	if err == nil {
@@ -106,6 +105,7 @@ func (m *Middleware) requestTrialLicense(ctx context.Context) error {
 	hostname, err := os.Hostname()
 	if err != nil {
 		slog.Warn("Failed to get hostname", "error", err)
+
 		hostname = ""
 	}
 

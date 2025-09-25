@@ -12,6 +12,7 @@ import (
 
 func (r *RestAPI) Setup2FA(ctx context.Context) (generatedapi.Setup2FARes, error) {
 	userID := appcontext.UserID(ctx)
+
 	secret, qrURL, qrImage, err := r.usersUseCase.Setup2FA(ctx, userID)
 	if err != nil {
 		switch {
@@ -25,6 +26,7 @@ func (r *RestAPI) Setup2FA(ctx context.Context) (generatedapi.Setup2FARes, error
 			return nil, r.NewError(ctx, err)
 		}
 	}
+
 	resp := &generatedapi.TwoFASetupResponse{
 		Secret:  secret,
 		QrURL:   qrURL,

@@ -106,6 +106,7 @@ func (r *Repository) ListByProject(
 
 	if categoryID != nil {
 		query += ` AND t.category_id = $2`
+
 		args = append(args, *categoryID)
 	}
 
@@ -140,6 +141,7 @@ func (r *Repository) Create(ctx context.Context, tag *domain.TagDTO) (domain.Tag
 	`
 
 	var id domain.TagID
+
 	err := executor.QueryRow(
 		ctx,
 		query,
@@ -225,6 +227,7 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }
 

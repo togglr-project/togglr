@@ -40,6 +40,7 @@ func (m *SSOProviderManager) GetProvider(name string) (contract.SSOProvider, boo
 // GetEnabledProviders returns all enabled providers.
 func (m *SSOProviderManager) GetEnabledProviders() []contract.SSOProvider {
 	var enabled []contract.SSOProvider
+
 	for _, provider := range m.providers {
 		if provider.IsEnabled() {
 			enabled = append(enabled, provider)

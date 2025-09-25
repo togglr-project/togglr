@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// GetSegment handles GET /api/v1/segments/{segment_id}
+// GetSegment handles GET /api/v1/segments/{segment_id}.
 func (r *RestAPI) GetSegment(
 	ctx context.Context,
 	params generatedapi.GetSegmentParams,
@@ -23,7 +23,9 @@ func (r *RestAPI) GetSegment(
 				Message: generatedapi.NewOptString("segment not found"),
 			}}, nil
 		}
+
 		slog.Error("get segment failed", "error", err)
+
 		return nil, err
 	}
 
@@ -49,6 +51,7 @@ func (r *RestAPI) GetSegment(
 	respExpr, err := exprToAPI(seg.Conditions)
 	if err != nil {
 		slog.Error("build segment conditions response", "error", err)
+
 		return nil, err
 	}
 

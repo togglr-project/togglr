@@ -42,16 +42,19 @@ func New(
 
 func (s *Service) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
 	var created domain.Feature
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		created, err = s.repo.Create(ctx, feature)
 		if err != nil {
 			return fmt.Errorf("create feature: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.Feature{}, fmt.Errorf("tx create feature: %w", err)
 	}
+
 	return created, nil
 }
 
@@ -110,6 +113,7 @@ func (s *Service) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feat
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by id: %w", err)
 	}
+
 	return f, nil
 }
 
@@ -147,6 +151,7 @@ func (s *Service) GetByKey(ctx context.Context, key string) (domain.Feature, err
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by key: %w", err)
 	}
+
 	return f, nil
 }
 
@@ -155,6 +160,7 @@ func (s *Service) List(ctx context.Context) ([]domain.Feature, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list features: %w", err)
 	}
+
 	return items, nil
 }
 
@@ -163,6 +169,7 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
+
 	return items, nil
 }
 
@@ -189,6 +196,7 @@ func (s *Service) ListExtendedByProjectID(
 	}
 
 	result := make([]domain.FeatureExtended, 0, len(features))
+
 	for _, feature := range features {
 		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
@@ -227,6 +235,7 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 	}
 
 	result := make([]domain.FeatureExtended, 0, len(features))
+
 	for _, feature := range features {
 		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
@@ -285,10 +294,12 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID) (domain.Guard
 		if err := s.repo.Delete(ctx, id); err != nil {
 			return fmt.Errorf("delete feature: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.GuardedResult{}, fmt.Errorf("tx delete feature: %w", err)
 	}
+
 	return domain.GuardedResult{Pending: false}, nil
 }
 
@@ -316,6 +327,7 @@ func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool)
 	if guardResult.Error != nil {
 		return domain.Feature{}, domain.GuardedResult{}, guardResult.Error
 	}
+
 	if guardResult.ChangeConflict {
 		return domain.Feature{}, guardResult, nil
 	}
@@ -327,15 +339,18 @@ func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool)
 
 	// Feature is not guarded, proceed with normal update
 	var updated domain.Feature
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		updated, err = s.repo.Update(ctx, newFeature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("tx toggle feature: %w", err)
 	}
+
 	return updated, domain.GuardedResult{Pending: false}, nil
 }
 
@@ -410,6 +425,7 @@ func (s *Service) UpdateWithChildren(
 						return fmt.Errorf("update flag variant: %w", uErr)
 					}
 					updatedVariants = append(updatedVariants, uv)
+
 					continue
 				}
 			}
@@ -459,6 +475,7 @@ func (s *Service) UpdateWithChildren(
 						return fmt.Errorf("update rule: %w", uErr)
 					}
 					updatedRules = append(updatedRules, ur)
+
 					continue
 				}
 			}
@@ -488,7 +505,7 @@ func (s *Service) UpdateWithChildren(
 	return result, domain.GuardedResult{Pending: false}, nil
 }
 
-// checkFeatureGuardedAndCreatePendingChange checks if a feature is guarded and creates a pending change if needed
+// checkFeatureGuardedAndCreatePendingChange checks if a feature is guarded and creates a pending change if needed.
 func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 	ctx context.Context,
 	featureID domain.FeatureID,
@@ -586,11 +603,13 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 				Error: fmt.Errorf("get feature for project ID: %w", err),
 			}
 		}
+
 		projectID = feature.ProjectID
 	}
 
 	// Convert UserID to *int
 	var requestUserIDPtr *int
+
 	if requestUserID != 0 {
 		userIDInt := int(requestUserID)
 		requestUserIDPtr = &userIDInt
@@ -612,6 +631,7 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 			Error:          err,
 		}
 	}
+
 	if hasConflict {
 		return domain.GuardedResult{
 			ChangeConflict: true,

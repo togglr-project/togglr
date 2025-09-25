@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// InitiateTOTPApproval handles POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+// InitiateTOTPApproval handles POST /api/v1/pending_changes/{pending_change_id}/initiate-totp.
 func (r *RestAPI) InitiateTOTPApproval(
 	ctx context.Context,
 	req *generatedapi.InitiateTOTPApprovalRequest,

@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// UpdateSegment handles PUT /api/v1/segments/{segment_id}
+// UpdateSegment handles PUT /api/v1/segments/{segment_id}.
 func (r *RestAPI) UpdateSegment(
 	ctx context.Context,
 	req *generatedapi.UpdateSegmentRequest,
@@ -24,7 +24,9 @@ func (r *RestAPI) UpdateSegment(
 				Message: generatedapi.NewOptString("segment not found"),
 			}}, nil
 		}
+
 		slog.Error("get segment before update failed", "error", err)
+
 		return nil, err
 	}
 
@@ -51,6 +53,7 @@ func (r *RestAPI) UpdateSegment(
 	expr, err := exprFromAPI(req.Conditions)
 	if err != nil {
 		slog.Error("parse segment conditions", "error", err)
+
 		return nil, err
 	}
 
@@ -63,12 +66,14 @@ func (r *RestAPI) UpdateSegment(
 	})
 	if err != nil {
 		slog.Error("update segment failed", "error", err)
+
 		return nil, err
 	}
 
 	respExpr, err := exprToAPI(updated.Conditions)
 	if err != nil {
 		slog.Error("build segment conditions response", "error", err)
+
 		return nil, err
 	}
 

@@ -34,6 +34,7 @@ RETURNING id, sync_session_id, start_time, end_time, duration, total_users,
     synced_users, errors, warnings, status, error_message`
 
 	var model ldapSyncStatsModel
+
 	err := executor.QueryRow(ctx, query,
 		stats.SyncSessionID,
 		stats.StartTime,
@@ -126,15 +127,18 @@ func (r *Repository) List(ctx context.Context, limit int) ([]domain.LDAPSyncStat
 	if limit <= 0 {
 		limit = 50
 	}
+
 	if limit > 1000 {
 		limit = 1000
 	}
 
 	const query = `SELECT * FROM ldap_sync_stats ORDER BY start_time DESC LIMIT $1`
+
 	rows, err := executor.Query(ctx, query, limit)
 	if err != nil {
 		return nil, fmt.Errorf("query ldap sync stats: %w", err)
 	}
+
 	defer rows.Close()
 
 	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[ldapSyncStatsModel])
@@ -156,15 +160,18 @@ func (r *Repository) ListCompleted(ctx context.Context, limit int) ([]domain.LDA
 	if limit <= 0 {
 		limit = 50
 	}
+
 	if limit > 1000 {
 		limit = 1000
 	}
 
 	const query = `SELECT * FROM ldap_sync_stats WHERE status = 'completed' ORDER BY start_time DESC LIMIT $1`
+
 	rows, err := executor.Query(ctx, query, limit)
 	if err != nil {
 		return nil, fmt.Errorf("query ldap sync stats: %w", err)
 	}
+
 	defer rows.Close()
 
 	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[ldapSyncStatsModel])
@@ -192,6 +199,7 @@ SELECT
 FROM users u`
 
 	var localUsers, activeUsers, inactiveUsers int
+
 	err := executor.QueryRow(ctx, basicQuery).Scan(&localUsers, &activeUsers, &inactiveUsers)
 	if err != nil {
 		return domain.LDAPStatistics{}, fmt.Errorf("query basic statistics: %w", err)
@@ -211,20 +219,26 @@ ORDER BY date DESC
 LIMIT 30`
 
 	thirtyDaysAgo := time.Now().AddDate(0, 0, -30)
+
 	rows, err := executor.Query(ctx, historyQuery, thirtyDaysAgo)
 	if err != nil {
 		return domain.LDAPStatistics{}, fmt.Errorf("query sync history: %w", err)
 	}
+
 	defer rows.Close()
 
 	var history []domain.LDAPStatisticsSyncHistory
+
 	for rows.Next() {
 		var syncHistory domain.LDAPStatisticsSyncHistory
+
 		var dateStr string
+
 		err := rows.Scan(&dateStr, &syncHistory.UsersSynced, &syncHistory.Errors, &syncHistory.DurationMinutes)
 		if err != nil {
 			return domain.LDAPStatistics{}, fmt.Errorf("scan sync history: %w", err)
 		}
+
 		syncHistory.Date, _ = time.Parse("2006-01-02", dateStr)
 		history = append(history, syncHistory)
 	}
@@ -265,6 +279,7 @@ ORDER BY start_time DESC
 LIMIT 1`
 
 	var ldapUsers int
+
 	err = executor.QueryRow(ctx, ldapQuery).Scan(&ldapUsers)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return domain.LDAPStatistics{}, fmt.Errorf("query LDAP counts: %w", err)

@@ -13,7 +13,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ListProjectFeatures handles GET /api/v1/projects/{project_id}/features
+// ListProjectFeatures handles GET /api/v1/projects/{project_id}/features.
 func (r *RestAPI) ListProjectFeatures(
 	ctx context.Context,
 	params generatedapi.ListProjectFeaturesParams,
@@ -41,56 +41,70 @@ func (r *RestAPI) ListProjectFeatures(
 
 	// Build filter from query params
 	filter := contract.FeaturesListFilter{SortDesc: true}
+
 	if params.Kind.Set {
 		k := domain.FeatureKind(params.Kind.Value)
 		filter.Kind = &k
 	}
+
 	if params.Enabled.Set {
 		e := params.Enabled.Value
 		filter.Enabled = &e
 	}
+
 	if params.SortBy.Set {
 		filter.SortBy = string(params.SortBy.Value)
 	}
+
 	if params.SortOrder.Set {
 		filter.SortDesc = params.SortOrder.Value == generatedapi.SortOrderDesc
 	}
+
 	if params.TextSelector.Set {
 		ts := params.TextSelector.Value
 		filter.TextSelector = &ts
 	}
+
 	if params.TagIds.Set {
 		// Parse comma-separated tag IDs
 		tagIDsStr := params.TagIds.Value
 		if tagIDsStr != "" {
 			tagIDs := make([]domain.TagID, 0)
+
 			for _, idStr := range strings.Split(tagIDsStr, ",") {
 				idStr = strings.TrimSpace(idStr)
 				if idStr != "" {
 					tagIDs = append(tagIDs, domain.TagID(idStr))
 				}
 			}
+
 			filter.TagIDs = tagIDs
 		}
 	}
+
 	page := uint(1)
 	perPage := uint(20)
+
 	if params.Page.Set {
 		page = params.Page.Value
 	}
+
 	if params.PerPage.Set {
 		perPage = params.PerPage.Value
 	}
+
 	filter.Page = page
 	filter.PerPage = perPage
 
 	items, total, err := r.featuresUseCase.ListExtendedByProjectIDFiltered(ctx, projectID, filter)
 	if err != nil {
 		slog.Error("list project features failed", "error", err)
+
 		return nil, err
 	}
 
 	itemsResp := make([]generatedapi.FeatureExtended, 0, len(items))
+
 	for _, it := range items {
 		// Get next state information
 		nextStateEnabled, nextStateTime := r.featureProcessor.NextState(it)
@@ -99,6 +113,7 @@ func (r *RestAPI) ListProjectFeatures(
 		tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, it.ID)
 		if err != nil {
 			slog.Warn("failed to load feature tags", "error", err, "feature_id", it.ID)
+
 			tags = []domain.Tag{} // Continue with empty tags
 		}
 
@@ -108,7 +123,9 @@ func (r *RestAPI) ListProjectFeatures(
 
 		// Get next state information
 		var nextStatePtr *bool
+
 		var nextStateTimePtr *time.Time
+
 		if !nextStateTime.IsZero() {
 			nextStatePtr = &nextStateEnabled
 			nextStateTimePtr = &nextStateTime

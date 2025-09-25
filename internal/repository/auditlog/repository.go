@@ -113,43 +113,54 @@ func (r *Repository) ListChanges(
 	if filter.Actor != nil {
 		builder = builder.Where(sq.Eq{"actor": *filter.Actor})
 	}
+
 	if filter.Entity != nil {
 		builder = builder.Where(sq.Eq{"entity": *filter.Entity})
 	}
+
 	if filter.Action != nil {
 		builder = builder.Where(sq.Eq{"action": *filter.Action})
 	}
+
 	if filter.FeatureID != nil {
 		builder = builder.Where(sq.Eq{"feature_id": *filter.FeatureID})
 	}
+
 	if filter.From != nil {
 		builder = builder.Where(sq.GtOrEq{"created_at": *filter.From})
 	}
+
 	if filter.To != nil {
 		builder = builder.Where(sq.LtOrEq{"created_at": *filter.To})
 	}
 
 	// Apply sorting
 	orderCol := "created_at"
+
 	switch filter.SortBy {
 	case "created_at", "actor", "entity":
 		orderCol = filter.SortBy
 	}
+
 	orderDir := "DESC"
 	if !filter.SortDesc {
 		orderDir = "ASC"
 	}
+
 	builder = builder.OrderBy(fmt.Sprintf("%s %s", orderCol, orderDir))
 
 	// Apply pagination
 	page := filter.Page
 	perPage := filter.PerPage
+
 	if page == 0 {
 		page = 1
 	}
+
 	if perPage == 0 {
 		perPage = 20
 	}
+
 	offset := (page - 1) * perPage
 	builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
 
@@ -172,6 +183,7 @@ func (r *Repository) ListChanges(
 
 	// Group changes by request_id
 	changeGroups := make(map[string]*domain.ChangeGroup)
+
 	for _, model := range models {
 		auditLog := model.toDomain()
 
@@ -222,18 +234,23 @@ func (r *Repository) ListChanges(
 	if filter.Actor != nil {
 		countBuilder = countBuilder.Where(sq.Eq{"actor": *filter.Actor})
 	}
+
 	if filter.Entity != nil {
 		countBuilder = countBuilder.Where(sq.Eq{"entity": *filter.Entity})
 	}
+
 	if filter.Action != nil {
 		countBuilder = countBuilder.Where(sq.Eq{"action": *filter.Action})
 	}
+
 	if filter.FeatureID != nil {
 		countBuilder = countBuilder.Where(sq.Eq{"feature_id": *filter.FeatureID})
 	}
+
 	if filter.From != nil {
 		countBuilder = countBuilder.Where(sq.GtOrEq{"created_at": *filter.From})
 	}
+
 	if filter.To != nil {
 		countBuilder = countBuilder.Where(sq.LtOrEq{"created_at": *filter.To})
 	}
@@ -260,5 +277,6 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }

@@ -100,7 +100,7 @@ func TestRestAPI_ListProjects(t *testing.T) {
 
 		listResp, ok := resp.(*generatedapi.ListProjectsResponse)
 		require.True(t, ok)
-		assert.Len(t, *listResp, 0)
+		assert.Empty(t, *listResp)
 	})
 
 	t.Run("get all projects failed", func(t *testing.T) {

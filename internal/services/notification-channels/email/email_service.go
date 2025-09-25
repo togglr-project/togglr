@@ -75,6 +75,7 @@ func (s *Service) Type() domain.NotificationType {
 // Send2FACodeEmail sends a 2FA confirmation code for a specific action (disable/reset).
 func (s *Service) Send2FACodeEmail(ctx context.Context, email, code, action string) error {
 	subject := "Togglr: 2FA confirmation code"
+
 	var actionText string
 	switch action {
 	case "disable":
@@ -89,7 +90,9 @@ func (s *Service) Send2FACodeEmail(ctx context.Context, email, code, action stri
 	if err != nil {
 		return err
 	}
+
 	var body bytes.Buffer
+
 	err = tmpl.Execute(&body, struct {
 		Code       string
 		ActionText string
@@ -174,6 +177,7 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 
 		return fmt.Errorf("invalid smtp host: %w", err)
 	}
+
 	port, _ := strconv.Atoi(portStr)
 
 	slog.Debug("creating SMTP dialer", "host", host, "port", port, "username", s.cfg.Username)
@@ -182,6 +186,7 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 
 	if s.cfg.UseTLS {
 		var certs []tls.Certificate
+
 		if s.cfg.CertFile != "" {
 			cert, err := tls.LoadX509KeyPair(s.cfg.CertFile, s.cfg.KeyFile)
 			if err != nil {
@@ -190,6 +195,7 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 
 				return fmt.Errorf("load TLS key pair: %w", err)
 			}
+
 			certs = []tls.Certificate{cert}
 		}
 
@@ -198,13 +204,16 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 			InsecureSkipVerify: s.cfg.AllowInsecure,
 			Certificates:       certs,
 		}
+
 		slog.Debug("using TLS for SMTP connection", "host", host, "port", port)
 	} else {
 		// For MailHog, explicitly set TLS config to nil to avoid any TLS attempts
 		if port == 1025 {
 			dialer.TLSConfig = nil
+
 			slog.Warn("explicitly set TLS config to nil for MailHog")
 		}
+
 		slog.Debug("using unencrypted SMTP connection", "host", host, "port", port)
 	}
 
@@ -214,6 +223,7 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 	// Special handling for MailHog to avoid TLS issues
 	if port == 1025 {
 		slog.Debug("using direct SMTP for MailHog")
+
 		err = s.sendEmailDirectSMTP(ctx, host, port, s.cfg.Username, from, toEmails, subject, bodyHTML)
 	} else {
 		errCh := make(chan error, 1)
@@ -281,6 +291,7 @@ func (s *Service) sendEmailsParallel(
 	// Start sending emails in goroutines
 	for _, email := range emails {
 		wg.Add(1)
+
 		go sendSingleEmail(email)
 	}
 
@@ -299,6 +310,8 @@ func (s *Service) sendEmailsParallel(
 }
 
 // emailData contains data for sending a single email.
+//
+//nolint:unused // false positive
 type emailData struct {
 	toEmails []string
 	subject  string
@@ -330,6 +343,7 @@ func (s *Service) sendEmailDirectSMTP(
 
 		return err
 	}
+
 	defer func() { _ = conn.Close() }()
 
 	// Say hello
@@ -362,6 +376,7 @@ func (s *Service) sendEmailDirectSMTP(
 
 		return err
 	}
+
 	defer func() { _ = writeCloser.Close() }()
 
 	if _, err := writeCloser.Write(msg); err != nil {

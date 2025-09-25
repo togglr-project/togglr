@@ -74,7 +74,7 @@ func TestRestAPI_AddProject(t *testing.T) {
 
 		resp, err := api.AddProject(ctx, req)
 
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, resp)
 
 		_, ok := resp.(*generatedapi.ErrorPermissionDenied)
@@ -99,7 +99,7 @@ func TestRestAPI_AddProject(t *testing.T) {
 
 		resp, err := api.AddProject(ctx, req)
 
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, resp)
 
 		_, ok := resp.(*generatedapi.ErrorUnauthorized)
@@ -133,7 +133,7 @@ func TestRestAPI_AddProject(t *testing.T) {
 
 		resp, err := api.AddProject(ctx, req)
 
-		require.Nil(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, resp)
 
 		_, ok := resp.(*generatedapi.Error)

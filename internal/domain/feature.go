@@ -44,7 +44,7 @@ func (kind FeatureKind) String() string {
 	return string(kind)
 }
 
-// GuardedResult represents the result of a guarded operation
+// GuardedResult represents the result of a guarded operation.
 type GuardedResult struct {
 	Pending        bool           // true if operation created a pending change
 	ChangeConflict bool           // true if there's a conflict with existing pending changes

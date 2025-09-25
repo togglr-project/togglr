@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DeleteFeature handles DELETE /api/v1/features/{feature_id}
+// DeleteFeature handles DELETE /api/v1/features/{feature_id}.
 func (r *RestAPI) DeleteFeature(
 	ctx context.Context,
 	params generatedapi.DeleteFeatureParams,
@@ -24,7 +24,9 @@ func (r *RestAPI) DeleteFeature(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature before delete failed", "error", err, "feature_id", featureID)
+
 		return nil, err
 	}
 
@@ -64,6 +66,7 @@ func (r *RestAPI) DeleteFeature(
 	// Handle guard result
 	if guardResult.Error != nil {
 		slog.Error("guard check failed", "error", guardResult.Error)
+
 		return nil, guardResult.Error
 	}
 
@@ -76,6 +79,7 @@ func (r *RestAPI) DeleteFeature(
 	if guardResult.Pending {
 		// Convert pending change to response
 		pendingChangeResp := convertPendingChangeToResponse(guardResult.PendingChange)
+
 		return &pendingChangeResp, nil
 	}
 

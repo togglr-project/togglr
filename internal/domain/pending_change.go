@@ -87,7 +87,7 @@ type ProjectSetting struct {
 	UpdatedAt time.Time
 }
 
-// Helper methods
+// Helper methods.
 func (id PendingChangeID) String() string {
 	return string(id)
 }

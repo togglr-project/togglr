@@ -13,7 +13,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ListPendingChanges handles GET /api/v1/pending_changes
+// ListPendingChanges handles GET /api/v1/pending_changes.
 func (r *RestAPI) ListPendingChanges(
 	ctx context.Context,
 	params generatedapi.ListPendingChangesParams,
@@ -61,11 +61,13 @@ func (r *RestAPI) ListPendingChanges(
 	changes, total, err := r.pendingChangesUseCase.List(ctx, filter)
 	if err != nil {
 		slog.Error("list pending changes failed", "error", err)
+
 		return nil, err
 	}
 
 	// Convert to response format
 	var responseChanges []generatedapi.PendingChangeResponse
+
 	for _, change := range changes {
 		responseChange := convertPendingChangeToResponse(&change)
 		responseChanges = append(responseChanges, responseChange)
@@ -81,13 +83,15 @@ func (r *RestAPI) ListPendingChanges(
 	}, nil
 }
 
-// convertPendingChangeToResponse converts domain.PendingChange to generatedapi.PendingChangeResponse
+// convertPendingChangeToResponse converts domain.PendingChange to generatedapi.PendingChangeResponse.
 func convertPendingChangeToResponse(change *domain.PendingChange) generatedapi.PendingChangeResponse {
 	// Convert entities
 	var entities []generatedapi.EntityChange
+
 	for _, entity := range change.Change.Entities {
 		// Convert changes
 		changes := make(map[string]generatedapi.ChangeValue)
+
 		for field, changeValue := range entity.Changes {
 			// Convert to JSON for storage
 			oldJSON, _ := json.Marshal(changeValue.Old)

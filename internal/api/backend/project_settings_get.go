@@ -10,7 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// GetProjectSetting handles GET /api/v1/projects/{project_id}/settings/{setting_name}
+// GetProjectSetting handles GET /api/v1/projects/{project_id}/settings/{setting_name}.
 func (r *RestAPI) GetProjectSetting(
 	ctx context.Context,
 	params generatedapi.GetProjectSettingParams,

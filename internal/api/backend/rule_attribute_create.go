@@ -27,6 +27,7 @@ func (r *RestAPI) CreateRuleAttribute(
 	}
 
 	var desc *string
+
 	if req.Description.IsSet() {
 		v, _ := req.Description.Get()
 		desc = &v

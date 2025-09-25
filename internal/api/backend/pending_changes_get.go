@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// GetPendingChange handles GET /api/v1/pending_changes/{pending_change_id}
+// GetPendingChange handles GET /api/v1/pending_changes/{pending_change_id}.
 func (r *RestAPI) GetPendingChange(
 	ctx context.Context,
 	params generatedapi.GetPendingChangeParams,
@@ -24,7 +24,9 @@ func (r *RestAPI) GetPendingChange(
 				Message: generatedapi.NewOptString("pending change not found"),
 			}}, nil
 		}
+
 		slog.Error("get pending change failed", "error", err)
+
 		return nil, err
 	}
 

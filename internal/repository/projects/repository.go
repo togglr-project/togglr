@@ -78,6 +78,7 @@ VALUES ($1, $2, $3, $4, $4)
 RETURNING id`
 
 	var id string
+
 	err := executor.QueryRow(ctx, query,
 		project.Name,
 		project.Description,
@@ -112,6 +113,7 @@ ORDER BY p.id
 	}
 
 	projects := make([]domain.Project, 0, len(listModels))
+
 	for i := range listModels {
 		model := listModels[i]
 		projects = append(projects, model.toDomain())
@@ -156,6 +158,7 @@ WHERE id = $1 AND archived_at IS NULL`
 		if err != nil {
 			return fmt.Errorf("check if project exists: %w", err)
 		}
+
 		if !exists {
 			return domain.ErrEntityNotFound
 		}
@@ -192,11 +195,13 @@ func (r *Repository) GetProjectIDs(ctx context.Context) ([]domain.ProjectID, err
 	defer rows.Close()
 
 	var projectIDs []domain.ProjectID
+
 	for rows.Next() {
 		var id string
 		if err := rows.Scan(&id); err != nil {
 			return nil, fmt.Errorf("scan project ID: %w", err)
 		}
+
 		projectIDs = append(projectIDs, domain.ProjectID(id))
 	}
 
@@ -211,7 +216,9 @@ func (r *Repository) Count(ctx context.Context) (uint, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = "SELECT COUNT(*) FROM projects"
+
 	var count uint
+
 	err := executor.QueryRow(ctx, query).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("query projects count: %w", err)

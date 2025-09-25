@@ -134,6 +134,7 @@ func (uc *UseCase) CancelSync(ctx context.Context) error {
 		stats.EndTime = &time.Time{}
 		duration := time.Since(progress.StartTime).String()
 		stats.Duration = &duration
+
 		err = uc.ldapSyncStatsRepo.Update(ctx, stats)
 		if err != nil {
 			return fmt.Errorf("failed to update sync stats: %w", err)

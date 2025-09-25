@@ -2,6 +2,7 @@ package feature_tags
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/togglr-project/togglr/internal/contract"
@@ -60,8 +61,9 @@ func (s *Service) AddFeatureTag(ctx context.Context, featureID domain.FeatureID,
 	if err != nil {
 		return fmt.Errorf("check feature tag: %w", err)
 	}
+
 	if exists {
-		return fmt.Errorf("tag already associated with feature")
+		return errors.New("tag already associated with feature")
 	}
 
 	// Add association

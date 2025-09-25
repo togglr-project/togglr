@@ -11,7 +11,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// UpdateFeature handles PUT /api/v1/features/{feature_id}
+// UpdateFeature handles PUT /api/v1/features/{feature_id}.
 func (r *RestAPI) UpdateFeature(
 	ctx context.Context,
 	req *generatedapi.CreateFeatureRequest,
@@ -27,7 +27,9 @@ func (r *RestAPI) UpdateFeature(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature failed", "error", err)
+
 		return nil, err
 	}
 
@@ -75,14 +77,17 @@ func (r *RestAPI) UpdateFeature(
 
 	// Build rules with structured conditions
 	rules := make([]domain.Rule, 0, len(req.Rules))
+
 	for _, rr := range req.Rules {
 		expr, err := exprFromAPI(rr.Conditions)
 		if err != nil {
 			slog.Error("parse rule conditions", "error", err)
+
 			return nil, err
 		}
 
 		var segmentIDRef *domain.SegmentID
+
 		if rr.SegmentID.IsSet() {
 			segmentID := domain.SegmentID(rr.SegmentID.Value.String())
 			segmentIDRef = &segmentID
@@ -105,12 +110,14 @@ func (r *RestAPI) UpdateFeature(
 	updated, guardResult, err := r.featuresUseCase.UpdateWithChildren(ctx, feature, variants, rules)
 	if err != nil {
 		slog.Error("update feature with children failed", "error", err)
+
 		return nil, err
 	}
 
 	// Handle guard result
 	if guardResult.Error != nil {
 		slog.Error("guard check failed", "error", guardResult.Error)
+
 		return nil, guardResult.Error
 	}
 
@@ -123,6 +130,7 @@ func (r *RestAPI) UpdateFeature(
 	if guardResult.Pending {
 		// Convert pending change to response
 		pendingChangeResp := convertPendingChangeToResponse(guardResult.PendingChange)
+
 		return &pendingChangeResp, nil
 	}
 
@@ -138,10 +146,12 @@ func (r *RestAPI) UpdateFeature(
 	}
 
 	respRules := make([]generatedapi.Rule, 0, len(updated.Rules))
+
 	for _, it := range updated.Rules {
 		expr, err := exprToAPI(it.Conditions)
 		if err != nil {
 			slog.Error("build rule conditions response", "error", err)
+
 			return nil, err
 		}
 
@@ -167,11 +177,13 @@ func (r *RestAPI) UpdateFeature(
 	tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, featureID)
 	if err != nil {
 		slog.Error("list feature tags failed", "error", err, "feature_id", featureID)
+
 		return nil, err
 	}
 
 	// Convert tags to response
 	respTags := make([]generatedapi.ProjectTag, len(tags))
+
 	for i, tag := range tags {
 		item := generatedapi.ProjectTag{
 			ID:        uuid.MustParse(tag.ID.String()),
@@ -185,9 +197,11 @@ func (r *RestAPI) UpdateFeature(
 		if tag.CategoryID != nil {
 			item.CategoryID = generatedapi.NewOptNilUUID(uuid.MustParse(tag.CategoryID.String()))
 		}
+
 		if tag.Description != nil {
 			item.Description = generatedapi.NewOptNilString(*tag.Description)
 		}
+
 		if tag.Color != nil {
 			item.Color = generatedapi.NewOptNilString(*tag.Color)
 		}
@@ -206,6 +220,7 @@ func (r *RestAPI) UpdateFeature(
 			if tag.Category.Description != nil {
 				catItem.Description = generatedapi.NewOptNilString(*tag.Category.Description)
 			}
+
 			if tag.Category.Color != nil {
 				catItem.Color = generatedapi.NewOptNilString(*tag.Category.Color)
 			}
@@ -220,7 +235,9 @@ func (r *RestAPI) UpdateFeature(
 	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(updated)
 
 	var nextState generatedapi.OptNilBool
+
 	var nextStateTimeOpt generatedapi.OptNilDateTime
+
 	if !nextStateTime.IsZero() {
 		nextState = generatedapi.NewOptNilBool(nextStateEnabled)
 		nextStateTimeOpt = generatedapi.NewOptNilDateTime(nextStateTime)

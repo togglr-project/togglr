@@ -15,6 +15,7 @@ func (r *RestAPI) DeleteUser(
 ) (generatedapi.DeleteUserRes, error) {
 	userID := domain.UserID(params.UserID)
 	err := r.usersUseCase.Delete(ctx, userID)
+
 	if err != nil {
 		slog.Error("delete user failed", "error", err, "user_id", userID)
 

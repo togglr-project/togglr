@@ -56,6 +56,7 @@ func optNilDateTimeToPtr(v generatedapi.OptNilDateTime) *time.Time {
 func ptrToOptNilDateTime(p *time.Time) generatedapi.OptNilDateTime {
 	if p == nil {
 		var o generatedapi.OptNilDateTime
+
 		o.SetToNull()
 
 		return o
@@ -67,6 +68,7 @@ func ptrToOptNilDateTime(p *time.Time) generatedapi.OptNilDateTime {
 func ptrToOptNilDuration(p *time.Duration) generatedapi.OptNilDuration {
 	if p == nil {
 		var o generatedapi.OptNilDuration
+
 		o.SetToNull()
 
 		return o
@@ -88,6 +90,7 @@ func optNilStringToPtr(v generatedapi.OptNilString) *string {
 func ptrToOptNilString(p *string) generatedapi.OptNilString {
 	if p == nil {
 		var o generatedapi.OptNilString
+
 		o.SetToNull()
 
 		return o

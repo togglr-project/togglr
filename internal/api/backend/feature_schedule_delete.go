@@ -23,7 +23,9 @@ func (r *RestAPI) DeleteFeatureSchedule(
 				Message: generatedapi.NewOptString("schedule not found"),
 			}}, nil
 		}
+
 		slog.Error("get schedule before delete failed", "error", err, "schedule_id", id)
+
 		return nil, err
 	}
 

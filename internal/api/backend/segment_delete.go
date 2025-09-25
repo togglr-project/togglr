@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DeleteSegment handles DELETE /api/v1/segments/{segment_id}
+// DeleteSegment handles DELETE /api/v1/segments/{segment_id}.
 func (r *RestAPI) DeleteSegment(
 	ctx context.Context,
 	params generatedapi.DeleteSegmentParams,
@@ -24,7 +24,9 @@ func (r *RestAPI) DeleteSegment(
 				Message: generatedapi.NewOptString("segment not found"),
 			}}, nil
 		}
+
 		slog.Error("get segment before delete failed", "error", err, "segment_id", id)
+
 		return nil, err
 	}
 

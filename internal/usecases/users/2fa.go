@@ -51,7 +51,8 @@ func generate2FACode() string {
 	}
 
 	otp := ""
-	for i := 0; i < 6; i++ {
+
+	for range 6 {
 		num, err := rand.Int(rand.Reader, big.NewInt(10))
 		if err != nil {
 			otp += "0"
@@ -76,10 +77,12 @@ func store2FACode(userID domain.UserID, code, action string, ttl time.Duration) 
 func validate2FACode(userID domain.UserID, code, action string) bool {
 	twoFACodeStore.Lock()
 	defer twoFACodeStore.Unlock()
+
 	entry, ok := twoFACodeStore.codes[userID]
 	if !ok || entry.Action != action || entry.Code != code || time.Now().After(entry.ExpiresAt) {
 		return false
 	}
+
 	delete(twoFACodeStore.codes, userID)
 
 	return true
@@ -103,6 +106,7 @@ func (s *UsersService) Setup2FA(ctx context.Context, userID domain.UserID) (secr
 	qrURL = key.URL()
 
 	encKey := []byte(s.tokenizer.SecretKey())
+
 	encSecret, err := crypt.EncryptAESGCM([]byte(secretStr), encKey)
 	if err != nil {
 		return "", "", "", fmt.Errorf("encrypt secret: %w", err)
@@ -118,6 +122,7 @@ func (s *UsersService) Setup2FA(ctx context.Context, userID domain.UserID) (secr
 	if err != nil {
 		return "", "", "", fmt.Errorf("generate qr: %w", err)
 	}
+
 	qrImage = base64.StdEncoding.EncodeToString(qrPNG)
 
 	return secretStr, qrURL, qrImage, nil
@@ -139,10 +144,12 @@ func (s *UsersService) Confirm2FA(ctx context.Context, userID domain.UserID, cod
 	}
 
 	encKey := []byte(s.tokenizer.SecretKey())
+
 	encSecret, err := base64.StdEncoding.DecodeString(user.TwoFASecret)
 	if err != nil {
 		return fmt.Errorf("decode secret: %w", err)
 	}
+
 	plainSecret, err := crypt.DecryptAESGCM(encSecret, encKey)
 	if err != nil {
 		return fmt.Errorf("decrypt secret: %w", err)
@@ -174,6 +181,7 @@ func (s *UsersService) Send2FACode(ctx context.Context, userID domain.UserID, ac
 	if err != nil {
 		return fmt.Errorf("get user: %w", err)
 	}
+
 	code := generate2FACode()
 	store2FACode(userID, code, action, 15*time.Minute)
 
@@ -202,9 +210,11 @@ func (s *UsersService) Reset2FA(
 	if err != nil {
 		return "", "", "", fmt.Errorf("get user: %w", err)
 	}
+
 	if !validate2FACode(userID, emailCode, "reset") {
 		return "", "", "", errors.New("invalid or expired email code")
 	}
+
 	key, err := totp.Generate(totp.GenerateOpts{
 		Issuer:      issuerName,
 		AccountName: user.Email,
@@ -212,21 +222,26 @@ func (s *UsersService) Reset2FA(
 	if err != nil {
 		return "", "", "", fmt.Errorf("generate totp secret: %w", err)
 	}
+
 	secretStr := key.Secret()
 	qrURL = key.URL()
 	encKey := []byte(s.tokenizer.SecretKey())
+
 	encSecret, err := crypt.EncryptAESGCM([]byte(secretStr), encKey)
 	if err != nil {
 		return "", "", "", fmt.Errorf("encrypt secret: %w", err)
 	}
+
 	encSecretB64 := base64.StdEncoding.EncodeToString(encSecret)
 	if err := s.usersRepo.Update2FA(ctx, userID, false, encSecretB64, nil); err != nil {
 		return "", "", "", fmt.Errorf("save user: %w", err)
 	}
+
 	qrPNG, err := qrcode.Encode(qrURL, qrcode.Medium, 256)
 	if err != nil {
 		return "", "", "", fmt.Errorf("generate qr: %w", err)
 	}
+
 	qrImage = base64.StdEncoding.EncodeToString(qrPNG)
 
 	return secretStr, qrURL, qrImage, nil
@@ -258,10 +273,12 @@ func (s *UsersService) Verify2FA(
 	}
 
 	encKey := []byte(s.tokenizer.SecretKey())
+
 	encSecret, err := base64.StdEncoding.DecodeString(user.TwoFASecret)
 	if err != nil {
 		return "", "", 0, fmt.Errorf("decode secret: %w", err)
 	}
+
 	plainSecret, err := crypt.DecryptAESGCM(encSecret, encKey)
 	if err != nil {
 		return "", "", 0, fmt.Errorf("decrypt secret: %w", err)
@@ -311,10 +328,12 @@ func (s *UsersService) VerifyTOTP(ctx context.Context, userID domain.UserID, cod
 	}
 
 	encKey := []byte(s.tokenizer.SecretKey())
+
 	encSecret, err := base64.StdEncoding.DecodeString(user.TwoFASecret)
 	if err != nil {
 		return fmt.Errorf("decode secret: %w", err)
 	}
+
 	plainSecret, err := crypt.DecryptAESGCM(encSecret, encKey)
 	if err != nil {
 		return fmt.Errorf("decrypt secret: %w", err)
@@ -355,6 +374,7 @@ func (s *UsersService) InitiateTOTPApproval(ctx context.Context, userID domain.U
 
 func generate2FASession(userID domain.UserID, username string, ttl time.Duration) string {
 	sessionID := uuid.NewString()
+
 	twoFASessionStore.Lock()
 	twoFASessionStore.sessions[sessionID] = twoFASessionEntry{
 		UserID:    userID,

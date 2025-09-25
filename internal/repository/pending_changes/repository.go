@@ -82,7 +82,7 @@ func (m *pendingChangeEntityModel) toDomain() domain.PendingChangeEntity {
 	}
 }
 
-// Create creates a new pending change and its entities
+// Create creates a new pending change and its entities.
 func (r *Repository) Create(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -97,6 +97,7 @@ func (r *Repository) Create(
 	if err != nil {
 		return domain.PendingChange{}, err
 	}
+
 	if hasConflict {
 		return domain.PendingChange{}, fmt.Errorf("conflict: %w", domain.ErrEntityAlreadyExists)
 	}
@@ -115,6 +116,7 @@ RETURNING id, project_id, requested_by, request_user_id, change, status, created
           approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason`
 
 	var model pendingChangeModel
+
 	err = executor.QueryRow(ctx, insertQuery,
 		projectID,
 		requestedBy,
@@ -159,7 +161,7 @@ VALUES ($1, $2, $3)`
 	return model.toDomain()
 }
 
-// GetByID retrieves a pending change by ID
+// GetByID retrieves a pending change by ID.
 func (r *Repository) GetByID(ctx context.Context, id domain.PendingChangeID) (domain.PendingChange, error) {
 	executor := r.getExecutor(ctx)
 
@@ -170,6 +172,7 @@ FROM pending_changes
 WHERE id = $1`
 
 	var model pendingChangeModel
+
 	err := executor.QueryRow(ctx, query, id).Scan(
 		&model.ID,
 		&model.ProjectID,
@@ -189,13 +192,16 @@ WHERE id = $1`
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.PendingChange{}, domain.ErrEntityNotFound
 		}
+
 		return domain.PendingChange{}, fmt.Errorf("get pending change: %w", err)
 	}
 
 	return model.toDomain()
 }
 
-// List retrieves pending changes with filtering
+// List retrieves pending changes with filtering.
+//
+//nolint:wastedassign // false positive
 func (r *Repository) List(
 	ctx context.Context,
 	filter contract.PendingChangesListFilter,
@@ -214,18 +220,21 @@ WHERE 1=1`
 
 	if filter.ProjectID != nil {
 		query += fmt.Sprintf(" AND project_id = $%d", argIndex)
+
 		args = append(args, *filter.ProjectID)
 		argIndex++
 	}
 
 	if filter.Status != nil {
 		query += fmt.Sprintf(" AND status = $%d", argIndex)
+
 		args = append(args, *filter.Status)
 		argIndex++
 	}
 
 	if filter.UserID != nil {
 		query += fmt.Sprintf(" AND request_user_id = $%d", argIndex)
+
 		args = append(args, *filter.UserID)
 		argIndex++
 	}
@@ -235,21 +244,25 @@ WHERE 1=1`
 	if filter.SortBy != "" {
 		sortBy = filter.SortBy
 	}
+
 	sortDir := "ASC"
 	if filter.SortDesc {
 		sortDir = "DESC"
 	}
+
 	query += fmt.Sprintf(" ORDER BY %s %s", sortBy, sortDir)
 
 	// Add pagination
 	if filter.PerPage > 0 {
 		query += fmt.Sprintf(" LIMIT $%d", argIndex)
+
 		args = append(args, filter.PerPage)
 		argIndex++
 
 		if filter.Page > 0 {
 			offset := (filter.Page - 1) * filter.PerPage
 			query += fmt.Sprintf(" OFFSET $%d", argIndex)
+
 			args = append(args, offset)
 		}
 	}
@@ -261,8 +274,10 @@ WHERE 1=1`
 	defer rows.Close()
 
 	var changes []domain.PendingChange
+
 	for rows.Next() {
 		var model pendingChangeModel
+
 		err := rows.Scan(
 			&model.ID,
 			&model.ProjectID,
@@ -301,23 +316,27 @@ WHERE 1=1`
 
 	if filter.ProjectID != nil {
 		countQuery += fmt.Sprintf(" AND project_id = $%d", countArgIndex)
+
 		countArgs = append(countArgs, *filter.ProjectID)
 		countArgIndex++
 	}
 
 	if filter.Status != nil {
 		countQuery += fmt.Sprintf(" AND status = $%d", countArgIndex)
+
 		countArgs = append(countArgs, *filter.Status)
 		countArgIndex++
 	}
 
 	if filter.UserID != nil {
 		countQuery += fmt.Sprintf(" AND request_user_id = $%d", countArgIndex)
+
 		countArgs = append(countArgs, *filter.UserID)
 		countArgIndex++
 	}
 
 	var total int
+
 	err = executor.QueryRow(ctx, countQuery, countArgs...).Scan(&total)
 	if err != nil {
 		return nil, 0, fmt.Errorf("count pending changes: %w", err)
@@ -326,7 +345,7 @@ WHERE 1=1`
 	return changes, total, nil
 }
 
-// UpdateStatus updates the status of a pending change
+// UpdateStatus updates the status of a pending change.
 func (r *Repository) UpdateStatus(
 	ctx context.Context,
 	id domain.PendingChangeID,
@@ -347,6 +366,7 @@ SET status = $2, approved_by = $3, approved_user_id = $4, approved_at = $5,
 WHERE id = $1`
 
 	var approvedAtTime *time.Time
+
 	var rejectedAtTime *time.Time
 
 	if approvedAt != nil {
@@ -378,7 +398,7 @@ WHERE id = $1`
 	return nil
 }
 
-// CheckEntityConflict checks if there are any pending changes for the given entities
+// CheckEntityConflict checks if there are any pending changes for the given entities.
 func (r *Repository) CheckEntityConflict(
 	ctx context.Context,
 	entities []domain.EntityChange,
@@ -392,6 +412,7 @@ JOIN pending_changes pc ON pc.id = pce.pending_change_id
 WHERE pce.entity = $1 AND pce.entity_id = $2 AND pc.status = 'pending'`
 
 		var exists int
+
 		err := executor.QueryRow(ctx, query, entity.Entity, entity.EntityID).Scan(&exists)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -407,7 +428,7 @@ WHERE pce.entity = $1 AND pce.entity_id = $2 AND pc.status = 'pending'`
 	return false, nil
 }
 
-// GetEntitiesByPendingChangeID retrieves all entities for a pending change
+// GetEntitiesByPendingChangeID retrieves all entities for a pending change.
 func (r *Repository) GetEntitiesByPendingChangeID(
 	ctx context.Context,
 	pendingChangeID domain.PendingChangeID,
@@ -426,8 +447,10 @@ WHERE pending_change_id = $1`
 	defer rows.Close()
 
 	var entities []domain.PendingChangeEntity
+
 	for rows.Next() {
 		var model pendingChangeEntityModel
+
 		err := rows.Scan(
 			&model.ID,
 			&model.PendingChangeID,

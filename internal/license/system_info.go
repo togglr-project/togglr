@@ -32,6 +32,7 @@ func GetIPAddress() string {
 	if err != nil {
 		return ""
 	}
+
 	defer func() { _ = conn.Close() }()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)

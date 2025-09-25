@@ -116,7 +116,7 @@ func TestRestAPI_ListUsers(t *testing.T) {
 
 		listResp, ok := resp.(*generatedapi.ListUsersResponse)
 		require.True(t, ok)
-		assert.Len(t, *listResp, 0)
+		assert.Empty(t, *listResp)
 	})
 
 	t.Run("forbidden error", func(t *testing.T) {

@@ -33,6 +33,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id, timestamp, level, message, username, details, sync_session_id, stack_trace, ldap_error_code, ldap_error_message`
 
 	var model ldapSyncLogModel
+
 	err := executor.QueryRow(ctx, query,
 		log.Timestamp,
 		log.Level,
@@ -108,15 +109,19 @@ func (r *Repository) List(ctx context.Context, filter domain.LDAPSyncLogFilter) 
 		if filter.Level != nil {
 			builder = builder.Where(sq.Eq{"level": *filter.Level})
 		}
+
 		if filter.SyncID != nil {
 			builder = builder.Where(sq.Eq{"sync_session_id": *filter.SyncID})
 		}
+
 		if filter.Username != nil {
 			builder = builder.Where(sq.Eq{"username": *filter.Username})
 		}
+
 		if filter.From != nil {
 			builder = builder.Where(sq.GtOrEq{"timestamp": *filter.From})
 		}
+
 		if filter.To != nil {
 			builder = builder.Where(sq.LtOrEq{"timestamp": *filter.To})
 		}
@@ -131,6 +136,7 @@ func (r *Repository) List(ctx context.Context, filter domain.LDAPSyncLogFilter) 
 	if filter.Limit != nil && *filter.Limit > 0 {
 		limit = *filter.Limit
 	}
+
 	builder = builder.Limit(uint64(limit)) //nolint:gosec // it's ok
 
 	sqlStr, args, err := builder.ToSql()

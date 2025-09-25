@@ -7,7 +7,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DomainCategoryToAPI converts domain Category to generated API Category
+// DomainCategoryToAPI converts domain Category to generated API Category.
 func DomainCategoryToAPI(category domain.Category) generatedapi.Category {
 	item := generatedapi.Category{
 		ID:           uuid.MustParse(category.ID.String()),
@@ -22,6 +22,7 @@ func DomainCategoryToAPI(category domain.Category) generatedapi.Category {
 	if category.Description != nil {
 		item.Description = generatedapi.NewOptNilString(*category.Description)
 	}
+
 	if category.Color != nil {
 		item.Color = generatedapi.NewOptNilString(*category.Color)
 	}
@@ -29,16 +30,17 @@ func DomainCategoryToAPI(category domain.Category) generatedapi.Category {
 	return item
 }
 
-// DomainCategoriesToAPI converts slice of domain Categories to slice of generated API Categories
+// DomainCategoriesToAPI converts slice of domain Categories to slice of generated API Categories.
 func DomainCategoriesToAPI(categories []domain.Category) []generatedapi.Category {
 	resp := make([]generatedapi.Category, 0, len(categories))
 	for _, category := range categories {
 		resp = append(resp, DomainCategoryToAPI(category))
 	}
+
 	return resp
 }
 
-// APICategoryToDomain converts generated API Category to domain Category
+// APICategoryToDomain converts generated API Category to domain Category.
 func APICategoryToDomain(category generatedapi.Category) domain.Category {
 	item := domain.Category{
 		ID:        domain.CategoryID(category.ID.String()),
@@ -53,6 +55,7 @@ func APICategoryToDomain(category generatedapi.Category) domain.Category {
 	if category.Description.IsSet() {
 		item.Description = &category.Description.Value
 	}
+
 	if category.Color.IsSet() {
 		item.Color = &category.Color.Value
 	}

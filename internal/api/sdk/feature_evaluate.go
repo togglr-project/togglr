@@ -16,8 +16,10 @@ func (s *SDKRestAPI) SdkV1FeaturesFeatureKeyEvaluatePost(
 ) (generatedapi.SdkV1FeaturesFeatureKeyEvaluatePostRes, error) {
 	projectID := appcontext.ProjectID(ctx)
 	reqCtx := make(map[domain.RuleAttribute]any, len(req))
+
 	for key, valueRaw := range req {
 		attr := domain.RuleAttribute(key)
+
 		var value any
 		if err := json.Unmarshal(valueRaw, &value); err != nil {
 			return &generatedapi.ErrorBadRequest{Error: generatedapi.ErrorBadRequestError{

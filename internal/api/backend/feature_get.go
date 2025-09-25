@@ -11,7 +11,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// GetFeature handles GET /api/v1/features/{feature_id}
+// GetFeature handles GET /api/v1/features/{feature_id}.
 func (r *RestAPI) GetFeature(
 	ctx context.Context,
 	params generatedapi.GetFeatureParams,
@@ -26,7 +26,9 @@ func (r *RestAPI) GetFeature(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature failed", "error", err)
+
 		return nil, err
 	}
 
@@ -54,6 +56,7 @@ func (r *RestAPI) GetFeature(
 	respRules, err := dto.DomainRulesToAPI(feature.Rules)
 	if err != nil {
 		slog.Error("build rule conditions response", "error", err)
+
 		return nil, err
 	}
 
@@ -61,6 +64,7 @@ func (r *RestAPI) GetFeature(
 	tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, featureID)
 	if err != nil {
 		slog.Error("list feature tags failed", "error", err, "feature_id", featureID)
+
 		return nil, err
 	}
 
@@ -76,7 +80,9 @@ func (r *RestAPI) GetFeature(
 
 	// Get next state information
 	var nextStatePtr *bool
+
 	var nextStateTimePtr *time.Time
+
 	if !nextStateTime.IsZero() {
 		nextStatePtr = &nextStateEnabled
 		nextStateTimePtr = &nextStateTime

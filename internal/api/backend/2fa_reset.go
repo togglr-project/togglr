@@ -16,6 +16,7 @@ func (r *RestAPI) Reset2FA(
 	req *generatedapi.TwoFAResetRequest,
 ) (generatedapi.Reset2FARes, error) {
 	userID := appcontext.UserID(ctx)
+
 	secret, qrURL, qrImage, err := r.usersUseCase.Reset2FA(ctx, userID, req.EmailCode)
 	if err != nil {
 		switch {
@@ -33,6 +34,7 @@ func (r *RestAPI) Reset2FA(
 			return nil, r.NewError(ctx, err)
 		}
 	}
+
 	resp := &generatedapi.TwoFASetupResponse{
 		Secret:  secret,
 		QrURL:   qrURL,

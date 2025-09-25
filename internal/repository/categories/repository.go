@@ -103,6 +103,7 @@ func (r *Repository) Create(ctx context.Context, category *domain.CategoryDTO) (
 	`
 
 	var id domain.CategoryID
+
 	err := executor.QueryRow(
 		ctx,
 		query,
@@ -168,6 +169,7 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }
 

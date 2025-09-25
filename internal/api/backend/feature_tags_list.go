@@ -35,6 +35,7 @@ func (r *RestAPI) ListFeatureTags(
 
 	// Convert to response
 	items := make([]generatedapi.ProjectTag, len(tags))
+
 	for i, tag := range tags {
 		item := generatedapi.ProjectTag{
 			ID:        uuid.MustParse(tag.ID.String()),
@@ -48,9 +49,11 @@ func (r *RestAPI) ListFeatureTags(
 		if tag.CategoryID != nil {
 			item.CategoryID = generatedapi.NewOptNilUUID(uuid.MustParse(tag.CategoryID.String()))
 		}
+
 		if tag.Description != nil {
 			item.Description = generatedapi.NewOptNilString(*tag.Description)
 		}
+
 		if tag.Color != nil {
 			item.Color = generatedapi.NewOptNilString(*tag.Color)
 		}
@@ -69,6 +72,7 @@ func (r *RestAPI) ListFeatureTags(
 			if tag.Category.Description != nil {
 				catItem.Description = generatedapi.NewOptNilString(*tag.Category.Description)
 			}
+
 			if tag.Category.Color != nil {
 				catItem.Color = generatedapi.NewOptNilString(*tag.Category.Color)
 			}

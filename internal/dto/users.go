@@ -10,7 +10,9 @@ func DomainUsersToAPI(users []domain.User) []generatedapi.User {
 
 	for i := range users {
 		user := users[i]
+
 		var lastLogin generatedapi.OptDateTime
+
 		if user.LastLogin != nil {
 			lastLogin.Value = *user.LastLogin
 			lastLogin.Set = true

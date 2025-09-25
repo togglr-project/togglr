@@ -50,8 +50,8 @@ func (s *ProjectService) CreateProject(
 	}
 
 	// Create tags from system categories
-	//err = s.tagsUseCase.CreateTagsFromCategories(ctx, id)
-	//if err != nil {
+	// err = s.tagsUseCase.CreateTagsFromCategories(ctx, id)
+	// if err != nil {
 	//	slog.Error("failed to create tags from categories", "error", err, "project_id", id)
 	//	// Don't fail project creation if tag creation fails
 	//}

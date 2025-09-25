@@ -19,6 +19,7 @@ func (r *RestAPI) DeleteCategory(
 	// Check if user is superuser
 	if !appcontext.IsSuper(ctx) {
 		slog.Error("permission denied", "user_id", userID)
+
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),
 		}}, nil
