@@ -1,31 +1,27 @@
-# Category
+# ProjectSetting
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **string** |  | [default to undefined]
+**id** | **number** |  | [default to undefined]
+**project_id** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
-**slug** | **string** |  | [default to undefined]
-**description** | **string** |  | [optional] [default to undefined]
-**color** | **string** |  | [optional] [default to undefined]
-**kind** | **string** |  | [default to undefined]
+**value** | **object** |  | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { Category } from './api';
+import { ProjectSetting } from './api';
 
-const instance: Category = {
+const instance: ProjectSetting = {
     id,
+    project_id,
     name,
-    slug,
-    description,
-    color,
-    kind,
+    value,
     created_at,
     updated_at,
 };

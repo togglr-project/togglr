@@ -376,6 +376,7 @@ type CategoryKind string
 const (
 	CategoryKindSystem CategoryKind = "system"
 	CategoryKindUser   CategoryKind = "user"
+	CategoryKindDomain CategoryKind = "domain"
 )
 
 // AllValues returns all CategoryKind values.
@@ -383,6 +384,7 @@ func (CategoryKind) AllValues() []CategoryKind {
 	return []CategoryKind{
 		CategoryKindSystem,
 		CategoryKindUser,
+		CategoryKindDomain,
 	}
 }
 
@@ -392,6 +394,8 @@ func (s CategoryKind) MarshalText() ([]byte, error) {
 	case CategoryKindSystem:
 		return []byte(s), nil
 	case CategoryKindUser:
+		return []byte(s), nil
+	case CategoryKindDomain:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -406,6 +410,9 @@ func (s *CategoryKind) UnmarshalText(data []byte) error {
 		return nil
 	case CategoryKindUser:
 		*s = CategoryKindUser
+		return nil
+	case CategoryKindDomain:
+		*s = CategoryKindDomain
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)

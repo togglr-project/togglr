@@ -891,6 +891,8 @@ func (s *CategoryKind) Decode(d *jx.Decoder) error {
 		*s = CategoryKindSystem
 	case CategoryKindUser:
 		*s = CategoryKindUser
+	case CategoryKindDomain:
+		*s = CategoryKindDomain
 	default:
 		*s = CategoryKind(v)
 	}

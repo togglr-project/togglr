@@ -6731,7 +6731,7 @@ components:
           nullable: true
         kind:
           type: string
-          enum: [system, user]
+          enum: [system, user, domain]
           example: "system"
         created_at:
           type: string

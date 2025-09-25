@@ -154,7 +154,7 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
                   disabled={initiateTOTPMutation.isPending}
                   startIcon={initiateTOTPMutation.isPending ? <CircularProgress size={16} /> : null}
                 >
-                  {initiateTOTPMutation.isPending ? 'Sending...' : 'Send Code'}
+                  {initiateTOTPMutation.isPending ? 'Sending...' : 'Initiate'}
                 </Button>
                 <Typography variant="caption" color="text.secondary">
                   Click to initiate TOTP approval session

@@ -6,20 +6,15 @@ import {
   DialogActions,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Alert,
 } from '@mui/material';
-import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CreateCategoryRequestCategoryTypeEnum } from '../../generated/api/client';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../generated/api/client';
 
 interface CategoryFormData {
   name: string;
   slug: string;
   description: string;
   color: string;
-  category_type: CreateCategoryRequestCategoryTypeEnum;
 }
 
 interface CategoryFormDialogProps {
@@ -44,7 +39,6 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
     slug: '',
     description: '',
     color: '#3B82F6',
-    category_type: 'user',
   });
 
   useEffect(() => {
@@ -54,7 +48,6 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
         slug: initialData.slug || '',
         description: initialData.description || '',
         color: initialData.color || '#3B82F6',
-        category_type: (initialData.kind as CreateCategoryRequestCategoryTypeEnum) || 'user',
       });
     } else {
       setFormData({
@@ -62,7 +55,6 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
         slug: '',
         description: '',
         color: '#3B82F6',
-        category_type: 'user',
       });
     }
   }, [mode, initialData, open]);
@@ -73,7 +65,6 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
       slug: formData.slug.trim(),
       description: formData.description.trim(),
       color: formData.color,
-      category_type: formData.category_type,
     };
 
     onSubmit(submitData);
@@ -153,18 +144,6 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
           sx={{ mb: 2 }}
         />
         
-        <FormControl fullWidth margin="dense">
-          <InputLabel>Type</InputLabel>
-          <Select
-            value={formData.category_type}
-            onChange={(e) => setFormData({ ...formData, category_type: e.target.value as CreateCategoryRequestCategoryTypeEnum })}
-            label="Type"
-            disabled={mode === 'edit'} // Don't allow changing type when editing
-          >
-            <MenuItem value="user">User</MenuItem>
-            <MenuItem value="domain">Domain</MenuItem>
-          </Select>
-        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>

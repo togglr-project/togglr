@@ -1,4 +1,4 @@
-# CreateCategoryRequest
+# CreateProjectSettingRequest
 
 
 ## Properties
@@ -6,20 +6,16 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **name** | **string** |  | [default to undefined]
-**slug** | **string** |  | [default to undefined]
-**description** | **string** |  | [optional] [default to undefined]
-**color** | **string** |  | [optional] [default to undefined]
+**value** | **object** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { CreateCategoryRequest } from './api';
+import { CreateProjectSettingRequest } from './api';
 
-const instance: CreateCategoryRequest = {
+const instance: CreateProjectSettingRequest = {
     name,
-    slug,
-    description,
-    color,
+    value,
 };
 ```
 

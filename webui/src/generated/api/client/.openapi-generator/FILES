@@ -21,6 +21,7 @@ docs/CreateFeatureRequest.md
 docs/CreateFeatureScheduleRequest.md
 docs/CreateFlagVariantInline.md
 docs/CreateFlagVariantRequest.md
+docs/CreateProjectSettingRequest.md
 docs/CreateProjectTagRequest.md
 docs/CreateRuleAttributeRequest.md
 docs/CreateRuleInline.md
@@ -79,6 +80,7 @@ docs/LicenseStatusResponseLicense.md
 docs/LicenseType.md
 docs/ListChangesResponse.md
 docs/ListFeaturesResponse.md
+docs/ListProjectSettingsResponse.md
 docs/ListSegmentsResponse.md
 docs/LogicalOperator.md
 docs/LoginRequest.md
@@ -91,6 +93,8 @@ docs/PendingChangesListResponse.md
 docs/ProductInfoResponse.md
 docs/Project.md
 docs/ProjectResponse.md
+docs/ProjectSetting.md
+docs/ProjectSettingResponse.md
 docs/ProjectTag.md
 docs/ProjectTagResponse.md
 docs/RefreshTokenRequest.md
@@ -129,6 +133,7 @@ docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
 docs/UpdateLicenseRequest.md
 docs/UpdateProjectRequest.md
+docs/UpdateProjectSettingRequest.md
 docs/UpdateProjectTagRequest.md
 docs/UpdateSegmentRequest.md
 docs/User.md

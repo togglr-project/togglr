@@ -318,6 +318,8 @@ func (s CategoryKind) Validate() error {
 		return nil
 	case "user":
 		return nil
+	case "domain":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}

@@ -8,9 +8,8 @@ SELECT
             SELECT 1
             FROM feature_tags ft
                      JOIN tags t ON ft.tag_id = t.id
-                     JOIN categories c ON t.category_id = c.id
             WHERE ft.feature_id = pce.entity_id
-              AND c.slug = 'guarded'
+              AND t.slug = 'guarded'
         )
                             THEN pc.id END) AS pending_guarded_changes,
     MIN(pc.created_at) AS oldest_request_at
@@ -27,7 +26,7 @@ SELECT
     f.id AS feature_id,
     f.name AS feature_name,
     f.enabled,
-    string_agg(DISTINCT c.slug, ', ') AS risky_tags,
+    string_agg(DISTINCT t.slug, ', ') AS risky_tags,
     CASE WHEN EXISTS (
         SELECT 1
         FROM pending_change_entities pce
@@ -39,8 +38,7 @@ SELECT
 FROM features f
          JOIN feature_tags ft ON ft.feature_id = f.id
          JOIN tags t ON ft.tag_id = t.id
-         JOIN categories c ON t.category_id = c.id
-WHERE c.slug IN ('critical','guarded','auto-disable')
+WHERE t.slug IN ('critical','guarded','auto-disable')
 GROUP BY f.project_id, f.id, f.name, f.enabled;
 
 ---

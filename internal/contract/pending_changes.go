@@ -131,7 +131,7 @@ type PendingChangesRepository interface {
 
 // GuardService provides methods to check if entities are guarded.
 type GuardService interface {
-	// IsFeatureGuarded checks if a feature has the guarded tag
+	// IsFeatureGuarded checks if a feature has the 'guarded' tag
 	IsFeatureGuarded(ctx context.Context, featureID domain.FeatureID) (bool, error)
 
 	// IsEntityGuarded checks if any entity in the list is guarded

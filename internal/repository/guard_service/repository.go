@@ -22,15 +22,14 @@ func New(pool *pgxpool.Pool) *Repository {
 	}
 }
 
-// IsFeatureGuarded checks if a feature has the guarded tag.
+// IsFeatureGuarded checks if a feature has the 'guarded' tag.
 func (r *Repository) IsFeatureGuarded(ctx context.Context, featureID domain.FeatureID) (bool, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
 SELECT 1 FROM feature_tags ft
 JOIN tags t ON ft.tag_id = t.id
-JOIN categories c ON t.category_id = c.id
-WHERE ft.feature_id = $1 AND c.slug = 'guarded'`
+WHERE ft.feature_id = $1 AND t.slug = 'guarded'`
 
 	var exists int
 

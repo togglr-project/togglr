@@ -8,23 +8,20 @@ WITH feature_with_category AS (
             SELECT 1
             FROM feature_tags ft
                      JOIN tags t ON ft.tag_id = t.id
-                     JOIN categories c2 ON t.category_id = c2.id
             WHERE ft.feature_id = f.id
-              AND c2.slug = 'auto-disable'
+              AND t.slug = 'auto-disable'
         ) AS under_auto_disable,
         EXISTS (
             SELECT 1
             FROM feature_tags ft
                      JOIN tags t ON ft.tag_id = t.id
-                     JOIN categories c2 ON t.category_id = c2.id
             WHERE ft.feature_id = f.id
-              AND c2.slug = 'guarded'
+              AND t.slug = 'guarded'
         ) AS is_guarded,
         NOT EXISTS (
             SELECT 1
             FROM feature_tags ft
                      JOIN tags t ON ft.tag_id = t.id
-                     JOIN categories c ON t.category_id = c.id
             WHERE ft.feature_id = f.id
         ) AS is_uncategorized
     FROM features f
@@ -77,17 +74,15 @@ WITH feature_with_category AS (
             SELECT 1
             FROM feature_tags ft
                      JOIN tags t ON ft.tag_id = t.id
-                     JOIN categories c2 ON t.category_id = c2.id
             WHERE ft.feature_id = f.id
-              AND c2.slug = 'auto-disable'
+              AND t.slug = 'auto-disable'
         ) AS under_auto_disable,
         EXISTS (
             SELECT 1
             FROM feature_tags ft
                      JOIN tags t ON ft.tag_id = t.id
-                     JOIN categories c2 ON t.category_id = c2.id
             WHERE ft.feature_id = f.id
-              AND c2.slug = 'guarded'
+              AND t.slug = 'guarded'
         ) AS is_guarded
     FROM features f
              LEFT JOIN feature_tags ft ON ft.feature_id = f.id

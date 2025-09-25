@@ -43,7 +43,7 @@ import CategoryFormDialog from '../components/categories/CategoryFormDialog';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
 import { userPermissions } from '../hooks/userPermissions';
-import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CreateCategoryRequestCategoryTypeEnum } from '../generated/api/client';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CategoryKindEnum } from '../generated/api/client';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -62,7 +62,6 @@ const CategoriesPage: React.FC = () => {
     slug: '',
     description: '',
     color: '#3B82F6',
-    category_type: 'user',
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -82,7 +81,7 @@ const CategoriesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setCreateOpen(false);
-      setFormData({ name: '', slug: '', description: '', color: '#3B82F6', category_type: 'user' });
+      setFormData({ name: '', slug: '', description: '', color: '#3B82F6' });
       setError(null);
     },
     onError: (err: any) => {
@@ -231,31 +230,31 @@ const CategoriesPage: React.FC = () => {
     handleMenuClose();
   };
 
-  const getCategoryTypeColor = (categoryType: string) => {
-    switch (categoryType) {
+  const getCategoryKindColor = (kind: string) => {
+    switch (kind) {
       case 'domain': return 'primary';
-      case 'safety': return 'error';
+      case 'system': return 'error';
       case 'user': return 'secondary';
       default: return 'default';
     }
   };
 
-  const getCategoryTypeLabel = (categoryType: string) => {
-    switch (categoryType) {
+  const getCategoryKindLabel = (kind: string) => {
+    switch (kind) {
       case 'domain': return 'Domain';
-      case 'safety': return 'Safety';
+      case 'system': return 'System';
       case 'user': return 'User';
-      default: return categoryType;
+      default: return kind;
     }
   };
 
   const getFilteredCategories = () => {
     if (!categories) return [];
     
-    const tabTypes = ['domain', 'user', 'safety'];
-    const selectedType = tabTypes[activeTab];
+    const tabKinds = ['domain', 'user', 'system'];
+    const selectedKind = tabKinds[activeTab];
     
-    return categories.filter(category => category.category_type === selectedType);
+    return categories.filter(category => category.kind === selectedKind);
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -289,10 +288,10 @@ const CategoriesPage: React.FC = () => {
 
         {/* Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-          <Tabs value={activeTab} onChange={handleTabChange} aria-label="category type tabs">
+          <Tabs value={activeTab} onChange={handleTabChange} aria-label="category kind tabs">
             <Tab label="Domain" />
             <Tab label="User" />
-            <Tab label="Safety" />
+            <Tab label="System" />
           </Tabs>
         </Box>
 
@@ -324,7 +323,7 @@ const CategoriesPage: React.FC = () => {
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
                           {category.name}
                         </Typography>
-                        {isSuperuser && (
+                        {isSuperuser && category.kind !== 'system' && (
                           <IconButton
                             size="small"
                             onClick={(e) => handleMenuOpen(e, category)}
@@ -344,8 +343,8 @@ const CategoriesPage: React.FC = () => {
                       )}
                       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                         <Chip
-                          label={getCategoryTypeLabel(category.category_type)}
-                          color={getCategoryTypeColor(category.category_type) as any}
+                          label={getCategoryKindLabel(category.kind)}
+                          color={getCategoryKindColor(category.kind) as any}
                           size="small"
                         />
                       </Box>
@@ -358,7 +357,7 @@ const CategoriesPage: React.FC = () => {
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <CategoryIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
               <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                No {['Domain', 'User', 'Safety'][activeTab]} categories found
+                No {['Domain', 'User', 'System'][activeTab]} categories found
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 {isSuperuser 
@@ -366,7 +365,7 @@ const CategoriesPage: React.FC = () => {
                   : 'No categories have been created yet.'
                 }
               </Typography>
-              {isSuperuser && (
+              {isSuperuser && activeTab !== 2 && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -389,7 +388,7 @@ const CategoriesPage: React.FC = () => {
                 : 'No categories are available at the moment.'
               }
             </Typography>
-            {isSuperuser && (
+            {isSuperuser && activeTab !== 2 && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}

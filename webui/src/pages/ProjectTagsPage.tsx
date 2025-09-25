@@ -166,10 +166,10 @@ const ProjectTagsPage: React.FC = () => {
       return;
     }
     
-    // Проверяем, что выбранная категория имеет правильный category_type
+    // Проверяем, что выбранная категория имеет правильный kind
     if (formData.category_id) {
       const selectedCategory = categories?.find(cat => cat.id === formData.category_id);
-      if (selectedCategory && selectedCategory.category_type !== 'domain' && selectedCategory.category_type !== 'user') {
+      if (selectedCategory && selectedCategory.kind !== 'domain' && selectedCategory.kind !== 'user') {
         setError('Can only create tags for domain or user categories');
         return;
       }
@@ -240,10 +240,10 @@ const ProjectTagsPage: React.FC = () => {
   const getFilteredTags = () => {
     if (!tags) return [];
     
-    const tabTypes = ['domain', 'user', 'safety'];
-    const selectedType = tabTypes[activeTab];
+    const tabKinds = ['domain', 'user', 'system'];
+    const selectedKind = tabKinds[activeTab];
     
-    return tags.filter(tag => tag.category?.category_type === selectedType);
+    return tags.filter(tag => tag.category?.kind === selectedKind);
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -350,7 +350,7 @@ const ProjectTagsPage: React.FC = () => {
           <Tabs value={activeTab} onChange={handleTabChange} aria-label="tag category type tabs">
             <Tab label="Domain" />
             <Tab label="User" />
-            <Tab label="Safety" />
+            <Tab label="System" />
           </Tabs>
         </Box>
 
@@ -417,7 +417,7 @@ const ProjectTagsPage: React.FC = () => {
             <Paper sx={{ p: 4, textAlign: 'center' }}>
               <TagIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
               <Typography variant="h6" color="text.secondary" sx={{ mb: 1 }}>
-                No {['Domain', 'User', 'Safety'][activeTab]} tags found
+                No {['Domain', 'User', 'System'][activeTab]} tags found
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 {canManage 
@@ -473,7 +473,7 @@ const ProjectTagsPage: React.FC = () => {
         <TagFormDialog
           open={editOpen}
           onClose={() => setEditOpen(false)}
-          onSubmit={(data) => updateMutation.mutate({ id: selectedTag?.id || 0, data })}
+          onSubmit={(data) => updateMutation.mutate({ id: selectedTag?.id || '', data })}
           categories={categories || []}
           mode="edit"
           initialData={selectedTag}
