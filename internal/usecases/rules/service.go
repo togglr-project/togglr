@@ -127,5 +127,16 @@ func (s *Service) SyncCustomized(ctx context.Context, id domain.RuleID) (domain.
 	rule.Conditions = segment.Conditions
 	rule.IsCustomized = false
 
-	return s.repo.Update(ctx, rule)
+	var updated domain.Rule
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		var err error
+		updated, err = s.repo.Update(ctx, rule)
+
+		return err
+	})
+	if err != nil {
+		return domain.Rule{}, fmt.Errorf("update rule: %w", err)
+	}
+
+	return updated, nil
 }

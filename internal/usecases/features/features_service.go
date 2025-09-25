@@ -583,7 +583,7 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		Changes:  changes,
 	}
 
-	// Create pending change payload
+	// Create a pending change payload
 	payload := domain.PendingChangePayload{
 		Entities: []domain.EntityChange{entityChange},
 		Meta: domain.PendingChangeMeta{
@@ -642,19 +642,27 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		}
 	}
 
-	// For single-user projects, always create pending change but mark it as requiring auto-approve
+	// For single-user projects, always create a pending change but mark it as requiring auto-approve
 	// The frontend will handle showing the password/TOTP dialog
-	pendingChange, err := s.pendingChangesUseCase.Create(ctx, projectID, requestedBy, requestUserIDPtr, payload)
+	var pendingChange domain.PendingChange
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		pendingChange, err = s.pendingChangesUseCase.Create(ctx, projectID, requestedBy, requestUserIDPtr, payload)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return domain.GuardedResult{
 			Error: fmt.Errorf("create pending change: %w", err),
 		}
 	}
 
-	// Add metadata about single-user project for frontend
-	// If 0 or 1 active users, treat as single-user project (empty memberships = single user scenario)
+	// Add metadata about a single-user project for frontend
+	// If 0 or 1 active users, treat as a single-user project (empty memberships = single user scenario)
 	if activeUserCount <= 1 {
-		// For single-user projects, the frontend should show auto-approve dialog
+		// For single-user projects, the frontend should show an auto-approve dialog
 		// We'll add this information to the pending change response
 		pendingChange.Change.Meta.SingleUserProject = true
 	}

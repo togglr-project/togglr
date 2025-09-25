@@ -8,15 +8,22 @@ import (
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 type Service struct {
+	txManager    db.TxManager
 	tagRepo      contract.TagsRepository
 	categoryRepo contract.CategoriesRepository
 }
 
-func New(tagRepo contract.TagsRepository, categoryRepo contract.CategoriesRepository) *Service {
+func New(
+	txManager db.TxManager,
+	tagRepo contract.TagsRepository,
+	categoryRepo contract.CategoriesRepository,
+) *Service {
 	return &Service{
+		txManager:    txManager,
 		tagRepo:      tagRepo,
 		categoryRepo: categoryRepo,
 	}
@@ -67,7 +74,13 @@ func (s *Service) CreateTag(
 		Color:       color,
 	}
 
-	id, err := s.tagRepo.Create(ctx, tagDTO)
+	var id domain.TagID
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		var err error
+		id, err = s.tagRepo.Create(ctx, tagDTO)
+
+		return err
+	})
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("create tag: %w", err)
 	}
@@ -147,7 +160,17 @@ func (s *Service) UpdateTag(
 	}
 
 	// Update tag
-	err = s.tagRepo.Update(ctx, id, categoryID, strings.TrimSpace(name), strings.TrimSpace(slug), description, color)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.tagRepo.Update(
+			ctx,
+			id,
+			categoryID,
+			strings.TrimSpace(name),
+			strings.TrimSpace(slug),
+			description,
+			color,
+		)
+	})
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("update tag: %w", err)
 	}
@@ -162,14 +185,16 @@ func (s *Service) UpdateTag(
 }
 
 func (s *Service) DeleteTag(ctx context.Context, id domain.TagID) error {
-	// Check if tag exists
+	// Check if a tag exists
 	_, err := s.tagRepo.GetByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("get tag: %w", err)
 	}
 
 	// Delete tag
-	err = s.tagRepo.Delete(ctx, id)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.tagRepo.Delete(ctx, id)
+	})
 	if err != nil {
 		return fmt.Errorf("delete tag: %w", err)
 	}

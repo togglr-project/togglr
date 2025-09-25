@@ -8,16 +8,19 @@ import (
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 // Service provides project settings management functionality.
 type Service struct {
+	txManager           db.TxManager
 	projectSettingsRepo contract.ProjectSettingsRepository
 }
 
 // New creates a new project settings use case.
-func New(projectSettingsRepo contract.ProjectSettingsRepository) *Service {
+func New(txManager db.TxManager, projectSettingsRepo contract.ProjectSettingsRepository) *Service {
 	return &Service{
+		txManager:           txManager,
 		projectSettingsRepo: projectSettingsRepo,
 	}
 }
@@ -46,7 +49,9 @@ func (s *Service) Create(
 		Value:     value,
 	}
 
-	err = s.projectSettingsRepo.Create(ctx, setting)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.projectSettingsRepo.Create(ctx, setting)
+	})
 	if err != nil {
 		return nil, fmt.Errorf("create project setting: %w", err)
 	}
@@ -90,7 +95,9 @@ func (s *Service) Update(
 		return nil, fmt.Errorf("invalid setting value: %w", err)
 	}
 
-	err = s.projectSettingsRepo.Update(ctx, projectID, name, value)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.projectSettingsRepo.Update(ctx, projectID, name, value)
+	})
 	if err != nil {
 		return nil, fmt.Errorf("update project setting: %w", err)
 	}
@@ -114,7 +121,9 @@ func (s *Service) Delete(
 		return errors.New("setting name cannot be empty")
 	}
 
-	err := s.projectSettingsRepo.Delete(ctx, projectID, name)
+	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.projectSettingsRepo.Delete(ctx, projectID, name)
+	})
 	if err != nil {
 		return fmt.Errorf("delete project setting: %w", err)
 	}

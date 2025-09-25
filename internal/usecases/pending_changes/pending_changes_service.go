@@ -330,7 +330,7 @@ func (s *Service) applyChanges(ctx context.Context, pendingChange domain.Pending
 			if err := s.applyFeatureChange(ctx, entity); err != nil {
 				return fmt.Errorf("apply feature change: %w", err)
 			}
-		// Add other entity types as needed
+		// TODO: Add other entity types
 		default:
 			return fmt.Errorf("unsupported entity type: %s", entity.Entity)
 		}

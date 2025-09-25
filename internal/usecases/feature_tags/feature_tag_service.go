@@ -7,20 +7,24 @@ import (
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 type Service struct {
+	txManager      db.TxManager
 	featureTagRepo contract.FeatureTagsRepository
 	tagRepo        contract.TagsRepository
 	featureRepo    contract.FeaturesRepository
 }
 
 func New(
+	txManager db.TxManager,
 	featureTagRepo contract.FeatureTagsRepository,
 	tagRepo contract.TagsRepository,
 	featureRepo contract.FeaturesRepository,
 ) *Service {
 	return &Service{
+		txManager:      txManager,
 		featureTagRepo: featureTagRepo,
 		tagRepo:        tagRepo,
 		featureRepo:    featureRepo,
@@ -28,7 +32,7 @@ func New(
 }
 
 func (s *Service) ListFeatureTags(ctx context.Context, featureID domain.FeatureID) ([]domain.Tag, error) {
-	// Check if feature exists
+	// Check if the feature exists
 	_, err := s.featureRepo.GetByID(ctx, featureID)
 	if err != nil {
 		return nil, fmt.Errorf("get feature: %w", err)
@@ -44,7 +48,7 @@ func (s *Service) ListFeatureTags(ctx context.Context, featureID domain.FeatureI
 }
 
 func (s *Service) AddFeatureTag(ctx context.Context, featureID domain.FeatureID, tagID domain.TagID) error {
-	// Check if feature exists
+	// Check if the feature exists
 	_, err := s.featureRepo.GetByID(ctx, featureID)
 	if err != nil {
 		return fmt.Errorf("get feature: %w", err)
@@ -56,7 +60,7 @@ func (s *Service) AddFeatureTag(ctx context.Context, featureID domain.FeatureID,
 		return fmt.Errorf("get tag: %w", err)
 	}
 
-	// Check if association already exists
+	// Check if the association already exists
 	exists, err := s.featureTagRepo.HasFeatureTag(ctx, featureID, tagID)
 	if err != nil {
 		return fmt.Errorf("check feature tag: %w", err)
@@ -67,7 +71,9 @@ func (s *Service) AddFeatureTag(ctx context.Context, featureID domain.FeatureID,
 	}
 
 	// Add association
-	err = s.featureTagRepo.AddFeatureTag(ctx, featureID, tagID)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.featureTagRepo.AddFeatureTag(ctx, featureID, tagID)
+	})
 	if err != nil {
 		return fmt.Errorf("add feature tag: %w", err)
 	}
@@ -76,20 +82,22 @@ func (s *Service) AddFeatureTag(ctx context.Context, featureID domain.FeatureID,
 }
 
 func (s *Service) RemoveFeatureTag(ctx context.Context, featureID domain.FeatureID, tagID domain.TagID) error {
-	// Check if feature exists
+	// Check if the feature exists
 	_, err := s.featureRepo.GetByID(ctx, featureID)
 	if err != nil {
 		return fmt.Errorf("get feature: %w", err)
 	}
 
-	// Check if tag exists
+	// Check if a tag exists
 	_, err = s.tagRepo.GetByID(ctx, tagID)
 	if err != nil {
 		return fmt.Errorf("get tag: %w", err)
 	}
 
 	// Remove association
-	err = s.featureTagRepo.RemoveFeatureTag(ctx, featureID, tagID)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.featureTagRepo.RemoveFeatureTag(ctx, featureID, tagID)
+	})
 	if err != nil {
 		return fmt.Errorf("remove feature tag: %w", err)
 	}
