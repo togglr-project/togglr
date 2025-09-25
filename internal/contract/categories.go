@@ -10,6 +10,7 @@ type CategoriesUseCase interface {
 	CreateCategory(
 		ctx context.Context,
 		name, slug string,
+		kind domain.CategoryKind,
 		description *string,
 		color *string,
 	) (domain.Category, error)

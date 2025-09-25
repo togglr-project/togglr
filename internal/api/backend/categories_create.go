@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/internal/dto"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -40,6 +41,7 @@ func (r *RestAPI) CreateCategory(
 		ctx,
 		req.Name,
 		req.Slug,
+		domain.CategoryKind(req.Kind),
 		description,
 		color,
 	)

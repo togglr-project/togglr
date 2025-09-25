@@ -698,10 +698,11 @@ func (s *ConsumeSAMLAssertionReq) SetRelayState(val string) {
 
 // Ref: #/components/schemas/CreateCategoryRequest
 type CreateCategoryRequest struct {
-	Name        string    `json:"name"`
-	Slug        string    `json:"slug"`
-	Description OptString `json:"description"`
-	Color       OptString `json:"color"`
+	Name        string                    `json:"name"`
+	Slug        string                    `json:"slug"`
+	Description OptString                 `json:"description"`
+	Color       OptString                 `json:"color"`
+	Kind        CreateCategoryRequestKind `json:"kind"`
 }
 
 // GetName returns the value of Name.
@@ -724,6 +725,11 @@ func (s *CreateCategoryRequest) GetColor() OptString {
 	return s.Color
 }
 
+// GetKind returns the value of Kind.
+func (s *CreateCategoryRequest) GetKind() CreateCategoryRequestKind {
+	return s.Kind
+}
+
 // SetName sets the value of Name.
 func (s *CreateCategoryRequest) SetName(val string) {
 	s.Name = val
@@ -742,6 +748,52 @@ func (s *CreateCategoryRequest) SetDescription(val OptString) {
 // SetColor sets the value of Color.
 func (s *CreateCategoryRequest) SetColor(val OptString) {
 	s.Color = val
+}
+
+// SetKind sets the value of Kind.
+func (s *CreateCategoryRequest) SetKind(val CreateCategoryRequestKind) {
+	s.Kind = val
+}
+
+type CreateCategoryRequestKind string
+
+const (
+	CreateCategoryRequestKindUser   CreateCategoryRequestKind = "user"
+	CreateCategoryRequestKindDomain CreateCategoryRequestKind = "domain"
+)
+
+// AllValues returns all CreateCategoryRequestKind values.
+func (CreateCategoryRequestKind) AllValues() []CreateCategoryRequestKind {
+	return []CreateCategoryRequestKind{
+		CreateCategoryRequestKindUser,
+		CreateCategoryRequestKindDomain,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CreateCategoryRequestKind) MarshalText() ([]byte, error) {
+	switch s {
+	case CreateCategoryRequestKindUser:
+		return []byte(s), nil
+	case CreateCategoryRequestKindDomain:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CreateCategoryRequestKind) UnmarshalText(data []byte) error {
+	switch CreateCategoryRequestKind(data) {
+	case CreateCategoryRequestKindUser:
+		*s = CreateCategoryRequestKindUser
+		return nil
+	case CreateCategoryRequestKindDomain:
+		*s = CreateCategoryRequestKindDomain
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/CreateFeatureRequest

@@ -26,6 +26,7 @@ func New(txManager db.TxManager, categoryRepo contract.CategoriesRepository) *Se
 func (s *Service) CreateCategory(
 	ctx context.Context,
 	name, slug string,
+	kind domain.CategoryKind,
 	description *string,
 	color *string,
 ) (domain.Category, error) {
@@ -54,7 +55,7 @@ func (s *Service) CreateCategory(
 		Slug:        strings.TrimSpace(slug),
 		Description: description,
 		Color:       color,
-		Kind:        domain.CategoryKindUser,
+		Kind:        kind,
 	}
 
 	var id domain.CategoryID

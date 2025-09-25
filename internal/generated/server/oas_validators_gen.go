@@ -568,10 +568,32 @@ func (s *CreateCategoryRequest) Validate() error {
 			Error: err,
 		})
 	}
+	if err := func() error {
+		if err := s.Kind.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "kind",
+			Error: err,
+		})
+	}
 	if len(failures) > 0 {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s CreateCategoryRequestKind) Validate() error {
+	switch s {
+	case "user":
+		return nil
+	case "domain":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *CreateFeatureRequest) Validate() error {

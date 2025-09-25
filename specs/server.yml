@@ -6760,6 +6760,7 @@ components:
       required:
         - name
         - slug
+        - kind
       properties:
         name:
           type: string
@@ -6779,6 +6780,10 @@ components:
           type: string
           example: "#4B5563"
           pattern: '^#[0-9A-Fa-f]{6}$'
+        kind:
+          type: string
+          enum: [user, domain]
+          example: "domain"
 
     UpdateCategoryRequest:
       type: object
