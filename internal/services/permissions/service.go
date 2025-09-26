@@ -35,6 +35,7 @@ func (s *Service) HasGlobalPermission(
 	permKey domain.PermKey,
 ) (bool, error) {
 	_ = permKey // reserved for future global-permissions storage
+
 	return s.isSuper(ctx), nil
 }
 
@@ -72,9 +73,11 @@ func (s *Service) CanAccessProject(ctx context.Context, projectID domain.Project
 	if err != nil {
 		return err
 	}
+
 	if !ok {
 		return domain.ErrPermissionDenied
 	}
+
 	return nil
 }
 
@@ -84,9 +87,11 @@ func (s *Service) CanManageProject(ctx context.Context, projectID domain.Project
 	if err != nil {
 		return err
 	}
+
 	if !ok {
 		return domain.ErrPermissionDenied
 	}
+
 	return nil
 }
 
@@ -98,17 +103,22 @@ func (s *Service) GetAccessibleProjects(
 	if s.isSuper(ctx) {
 		return projects, nil
 	}
+
 	out := make([]domain.Project, 0, len(projects))
+
 	for i := range projects {
 		project := projects[i]
+
 		ok, err := s.HasProjectPermission(ctx, project.ID, domain.PermProjectView)
 		if err != nil {
 			return nil, err
 		}
+
 		if ok {
 			out = append(out, project)
 		}
 	}
+
 	return out, nil
 }
 
@@ -139,6 +149,7 @@ func (s *Service) GetMyProjectPermissions(
 	}
 
 	result := make(map[domain.ProjectID][]domain.PermKey)
+
 	for i := range all {
 		p := all[i]
 
@@ -147,17 +158,20 @@ func (s *Service) GetMyProjectPermissions(
 		if mErr != nil {
 			return nil, mErr
 		}
+
 		if roleID == "" {
 			continue // no membership — skip this project
 		}
 
 		// Collect granted permissions for the role
 		var granted []domain.PermKey
+
 		for _, key := range permKeys {
 			has, perr := s.perms.RoleHasPermission(ctx, roleID, key)
 			if perr != nil {
 				return nil, perr
 			}
+
 			if has {
 				granted = append(granted, key)
 			}

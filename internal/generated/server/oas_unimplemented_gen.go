@@ -31,6 +31,15 @@ func (UnimplementedHandler) AddProject(ctx context.Context, req *AddProjectReque
 	return r, ht.ErrNotImplemented
 }
 
+// ApprovePendingChange implements ApprovePendingChange operation.
+//
+// Approve a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/approve
+func (UnimplementedHandler) ApprovePendingChange(ctx context.Context, req *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (r ApprovePendingChangeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ArchiveProject implements ArchiveProject operation.
 //
 // Archive a project.
@@ -46,6 +55,15 @@ func (UnimplementedHandler) ArchiveProject(ctx context.Context, params ArchivePr
 //
 // DELETE /api/v1/ldap/sync/cancel
 func (UnimplementedHandler) CancelLDAPSync(ctx context.Context) (r CancelLDAPSyncRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// CancelPendingChange implements CancelPendingChange operation.
+//
+// Cancel a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/cancel
+func (UnimplementedHandler) CancelPendingChange(ctx context.Context, req *CancelPendingChangeRequest, params CancelPendingChangeParams) (r CancelPendingChangeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -125,6 +143,15 @@ func (UnimplementedHandler) CreateProjectSegment(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
+// CreateProjectSetting implements CreateProjectSetting operation.
+//
+// Create project setting.
+//
+// POST /api/v1/projects/{project_id}/settings
+func (UnimplementedHandler) CreateProjectSetting(ctx context.Context, req *CreateProjectSettingRequest, params CreateProjectSettingParams) (r CreateProjectSettingRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateProjectTag implements CreateProjectTag operation.
 //
 // Create new tag for project.
@@ -185,6 +212,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteProjectSetting implements DeleteProjectSetting operation.
+//
+// Delete project setting.
+//
+// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+func (UnimplementedHandler) DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (r DeleteProjectSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -350,6 +386,15 @@ func (UnimplementedHandler) GetLicenseStatus(ctx context.Context) (r GetLicenseS
 	return r, ht.ErrNotImplemented
 }
 
+// GetPendingChange implements GetPendingChange operation.
+//
+// Get pending change by ID.
+//
+// GET /api/v1/pending_changes/{pending_change_id}
+func (UnimplementedHandler) GetPendingChange(ctx context.Context, params GetPendingChangeParams) (r GetPendingChangeRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetProductInfo implements GetProductInfo operation.
 //
 // Get product information including client ID.
@@ -365,6 +410,15 @@ func (UnimplementedHandler) GetProductInfo(ctx context.Context) (r GetProductInf
 //
 // GET /api/v1/projects/{project_id}
 func (UnimplementedHandler) GetProject(ctx context.Context, params GetProjectParams) (r GetProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetProjectSetting implements GetProjectSetting operation.
+//
+// Get project setting by name.
+//
+// GET /api/v1/projects/{project_id}/settings/{setting_name}
+func (UnimplementedHandler) GetProjectSetting(ctx context.Context, params GetProjectSettingParams) (r GetProjectSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -401,6 +455,15 @@ func (UnimplementedHandler) GetSSOProviders(ctx context.Context) (r GetSSOProvid
 //
 // GET /api/v1/segments/{segment_id}
 func (UnimplementedHandler) GetSegment(ctx context.Context, params GetSegmentParams) (r GetSegmentRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// InitiateTOTPApproval implements InitiateTOTPApproval operation.
+//
+// Initiate TOTP approval session.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+func (UnimplementedHandler) InitiateTOTPApproval(ctx context.Context, req *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (r InitiateTOTPApprovalRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -458,6 +521,15 @@ func (UnimplementedHandler) ListFeatureTags(ctx context.Context, params ListFeat
 	return r, ht.ErrNotImplemented
 }
 
+// ListPendingChanges implements ListPendingChanges operation.
+//
+// List pending changes.
+//
+// GET /api/v1/pending_changes
+func (UnimplementedHandler) ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (r ListPendingChangesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectChanges implements ListProjectChanges operation.
 //
 // Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -482,6 +554,15 @@ func (UnimplementedHandler) ListProjectFeatures(ctx context.Context, params List
 //
 // GET /api/v1/projects/{project_id}/segments
 func (UnimplementedHandler) ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (r ListProjectSegmentsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectSettings implements ListProjectSettings operation.
+//
+// List project settings.
+//
+// GET /api/v1/projects/{project_id}/settings
+func (UnimplementedHandler) ListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (r ListProjectSettingsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -545,6 +626,15 @@ func (UnimplementedHandler) Login(ctx context.Context, req *LoginRequest) (r Log
 //
 // POST /api/v1/auth/refresh
 func (UnimplementedHandler) RefreshToken(ctx context.Context, req *RefreshTokenRequest) (r RefreshTokenRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// RejectPendingChange implements RejectPendingChange operation.
+//
+// Reject a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/reject
+func (UnimplementedHandler) RejectPendingChange(ctx context.Context, req *RejectPendingChangeRequest, params RejectPendingChangeParams) (r RejectPendingChangeRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -734,6 +824,15 @@ func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *Up
 //
 // PUT /api/v1/projects/{project_id}
 func (UnimplementedHandler) UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (r UpdateProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateProjectSetting implements UpdateProjectSetting operation.
+//
+// Update project setting.
+//
+// PUT /api/v1/projects/{project_id}/settings/{setting_name}
+func (UnimplementedHandler) UpdateProjectSetting(ctx context.Context, req *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (r UpdateProjectSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

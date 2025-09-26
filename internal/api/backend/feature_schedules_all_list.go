@@ -8,7 +8,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ListAllFeatureSchedules handles GET /api/v1/feature-schedules
+// ListAllFeatureSchedules handles GET /api/v1/feature-schedules.
 func (r *RestAPI) ListAllFeatureSchedules(
 	ctx context.Context,
 ) (generatedapi.ListAllFeatureSchedulesRes, error) {
@@ -16,8 +16,10 @@ func (r *RestAPI) ListAllFeatureSchedules(
 	ok, err := r.permissionsService.HasGlobalPermission(ctx, domain.PermFeatureManage)
 	if err != nil {
 		slog.Error("check global permission failed", "error", err)
+
 		return nil, err
 	}
+
 	if !ok {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),
@@ -27,6 +29,7 @@ func (r *RestAPI) ListAllFeatureSchedules(
 	items, err := r.featureSchedulesUseCase.List(ctx)
 	if err != nil {
 		slog.Error("list all schedules failed", "error", err)
+
 		return nil, err
 	}
 

@@ -18,7 +18,7 @@ type Repository struct {
 	db db.Tx
 }
 
-func New(pool *pgxpool.Pool) *Repository { //nolint:ireturn // follows existing pattern
+func New(pool *pgxpool.Pool) *Repository {
 	return &Repository{db: pool}
 }
 
@@ -36,16 +36,19 @@ func (r *Repository) Create(ctx context.Context, s domain.FeatureSchedule) (doma
 		starts.Valid = true
 		starts.Time = *s.StartsAt
 	}
+
 	ends := sql.NullTime{}
 	if s.EndsAt != nil {
 		ends.Valid = true
 		ends.Time = *s.EndsAt
 	}
+
 	cron := sql.NullString{}
 	if s.CronExpr != nil {
 		cron.Valid = true
 		cron.String = *s.CronExpr
 	}
+
 	cronDuration := sql.NullString{}
 	if s.CronDuration != nil {
 		cronDuration.Valid = true
@@ -117,6 +120,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.FeatureScheduleID) (
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.FeatureSchedule{}, domain.ErrEntityNotFound
 		}
+
 		return domain.FeatureSchedule{}, fmt.Errorf("collect schedule row: %w", err)
 	}
 
@@ -147,10 +151,16 @@ func (r *Repository) List(ctx context.Context) ([]domain.FeatureSchedule, error)
 	return items, nil
 }
 
-func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureSchedule, error) {
+func (r *Repository) ListByFeatureID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+) ([]domain.FeatureSchedule, error) {
 	exec := r.getExecutor(ctx)
 
-	const query = `SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at FROM feature_schedules WHERE feature_id = $1 ORDER BY created_at`
+	const query = `
+SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, 
+       cron_duration, timezone, action, created_at, updated_at 
+FROM feature_schedules WHERE feature_id = $1 ORDER BY created_at`
 
 	rows, err := exec.Query(ctx, query, featureID)
 	if err != nil {
@@ -180,6 +190,7 @@ func (r *Repository) Update(ctx context.Context, s domain.FeatureSchedule) (doma
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.FeatureSchedule{}, err
 		}
+
 		return domain.FeatureSchedule{}, fmt.Errorf("get schedule before update: %w", err)
 	}
 
@@ -188,16 +199,19 @@ func (r *Repository) Update(ctx context.Context, s domain.FeatureSchedule) (doma
 		starts.Valid = true
 		starts.Time = *s.StartsAt
 	}
+
 	ends := sql.NullTime{}
 	if s.EndsAt != nil {
 		ends.Valid = true
 		ends.Time = *s.EndsAt
 	}
+
 	cron := sql.NullString{}
 	if s.CronExpr != nil {
 		cron.Valid = true
 		cron.String = *s.CronExpr
 	}
+
 	cronDuration := sql.NullString{}
 	if s.CronDuration != nil {
 		cronDuration.Valid = true
@@ -236,6 +250,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_durati
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.FeatureSchedule{}, domain.ErrEntityNotFound
 		}
+
 		return domain.FeatureSchedule{}, fmt.Errorf("update schedule: %w", err)
 	}
 
@@ -285,9 +300,11 @@ func (r *Repository) Delete(ctx context.Context, id domain.FeatureScheduleID) er
 	if err != nil {
 		return fmt.Errorf("delete schedule: %w", err)
 	}
+
 	if ct.RowsAffected() == 0 {
 		return domain.ErrEntityNotFound
 	}
+
 	return nil
 }
 
@@ -296,5 +313,6 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }

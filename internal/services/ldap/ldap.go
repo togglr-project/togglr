@@ -334,6 +334,7 @@ func (s *Service) backgroundSync(ctx context.Context) {
 			if err := s.SyncUsers(ctx); err != nil {
 				// Log error but continue
 				slog.Error("Error syncing users from LDAP", "error", err)
+
 				if firstErr == nil {
 					firstErr = err
 				}
@@ -345,6 +346,7 @@ func (s *Service) backgroundSync(ctx context.Context) {
 
 			level := "info"
 			message := "Background sync job completed"
+
 			if firstErr != nil {
 				level = "error"
 				message = "Error syncing users and groups from LDAP"
@@ -451,6 +453,7 @@ func (s *Service) reloadConfig(ctx context.Context, reason string) error {
 	if s.ctxCancel != nil {
 		s.ctxCancel()
 		time.Sleep(time.Millisecond * 100)
+
 		s.ctx, s.ctxCancel = context.WithCancel(context.Background())
 	}
 

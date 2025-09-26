@@ -23,6 +23,7 @@ func (r *RestAPI) UpdateProjectTag(
 	// Check if user can manage the project
 	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
 		slog.Error("permission denied", "error", err, "user_id", userID, "project_id", projectID)
+
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),
 		}}, nil
@@ -40,6 +41,7 @@ func (r *RestAPI) UpdateProjectTag(
 	}
 
 	var categoryID *domain.CategoryID
+
 	if req.CategoryID.Set {
 		str := req.CategoryID.Value.String()
 		categoryID = (*domain.CategoryID)(&str)

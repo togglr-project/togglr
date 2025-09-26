@@ -27,20 +27,26 @@ import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder
 import { Add, Delete, Sync } from '@mui/icons-material';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { CreateFeatureRequest, FeatureDetailsResponse, RuleConditionExpression, RuleAction as RuleActionType, Segment, ProjectTag } from '../../generated/api/client';
-import { FeatureKind as FeatureKindEnum, RuleAction as RuleActionEnum } from '../../generated/api/client';
+import type { CreateFeatureRequest, FeatureDetailsResponse, FeatureExtended, RuleConditionExpression, RuleAction as RuleActionType, Segment, ProjectTag } from '../../generated/api/client';
+import { FeatureKind as FeatureKindEnum, RuleAction as RuleActionEnum, AuthCredentialsMethodEnum } from '../../generated/api/client';
 import TagSelector from './TagSelector';
+import GuardResponseHandler from '../pending-changes/GuardResponseHandler';
+import { useApprovePendingChange } from '../../hooks/usePendingChanges';
+import { useAuth } from '../../auth/AuthContext';
+import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
 
 export interface EditFeatureDialogProps {
   open: boolean;
   onClose: () => void;
   featureDetails: FeatureDetailsResponse | null;
+  feature?: FeatureExtended | null;
 }
 
 const uuid = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
-const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails }) => {
+const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails, feature }) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   type VariantForm = { id: string; name: string; rollout_percent: number };
   type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; expression: RuleConditionExpression; segment_id?: string; is_customized?: boolean; baseExpressionJson?: string };
@@ -60,28 +66,91 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [syncErrors, setSyncErrors] = useState<Record<string, string | undefined>>({});
 
   const [error, setError] = useState<string | null>(null);
+  
+  // Guard workflow state
+  const [guardResponse, setGuardResponse] = useState<{
+    pendingChange?: any;
+    conflictError?: string;
+    forbiddenError?: string;
+  }>({});
 
-  // Initialize form from featureDetails
+
+  // Handle auto-approve for single-user projects
+  const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string) => {
+    if (!guardResponse.pendingChange?.id || !user) return;
+    
+    approveMutation.mutate(
+      {
+        id: guardResponse.pendingChange.id,
+        request: {
+          approver_user_id: user.id,
+          approver_name: user.username,
+          auth: {
+            method: authMethod,
+            credential,
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          setGuardResponse({});
+          
+          // Invalidate all feature-related queries
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+          
+          // Invalidate specific queries if we have IDs
+          if (featureId) {
+            queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
+          }
+          if (projectId) {
+            queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+            queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
+          }
+          
+          onClose();
+        },
+      }
+    );
+  };
+
+  const featureId = featureDetails?.feature.id || feature?.id;
+  const projectId = featureDetails?.feature.project_id || feature?.project_id;
+
+  // Load full feature details if only feature is provided
+  const { data: loadedFeatureDetails, isLoading: isLoadingDetails } = useQuery<FeatureDetailsResponse>({
+    queryKey: ['feature-details', featureId],
+    queryFn: async () => {
+      if (!featureId) throw new Error('No feature ID');
+      const response = await apiClient.getFeature(featureId);
+      return response.data;
+    },
+    enabled: !featureDetails && !!featureId,
+  });
+
+  // Use loaded details if available, otherwise use provided featureDetails
+  const effectiveFeatureDetails = featureDetails || loadedFeatureDetails;
+
+  // Initialize form from effectiveFeatureDetails or feature
   useEffect(() => {
-    if (!open || !featureDetails) return;
-    const f = featureDetails.feature;
+    if (!open || (!effectiveFeatureDetails && !feature)) return;
+    const f = effectiveFeatureDetails?.feature || feature;
     setKeyVal(f.key);
     setName(f.name);
     setDescription(f.description || '');
     setKind(f.kind);
     setRolloutKey(f.rollout_key || '');
     setEnabled(f.enabled);
-    const vars = (featureDetails.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
+    const vars = (effectiveFeatureDetails?.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
     setDefaultVariant(f.default_variant || '');
-    const rls = (featureDetails.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any, segment_id: (r as any).segment_id, is_customized: (r as any).is_customized }));
+    const rls = (effectiveFeatureDetails?.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any, segment_id: (r as any).segment_id, is_customized: (r as any).is_customized }));
     setRules(rls);
-    setSelectedTags(featureDetails.tags || []);
+    setSelectedTags(effectiveFeatureDetails?.tags || []);
     setError(null);
-  }, [open, featureDetails]);
-
-  const featureId = featureDetails?.feature.id;
-  const projectId = featureDetails?.feature.project_id;
+    setGuardResponse({}); // Reset guard response when dialog opens
+  }, [open, effectiveFeatureDetails, feature]);
 
   // Load project segments for segment templates
   const { data: segments } = useQuery<Segment[]>({
@@ -94,20 +163,73 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     enabled: Boolean(projectId),
   });
 
+  const approveMutation = useApprovePendingChange();
+
   const updateMutation = useMutation({
     mutationFn: async (body: CreateFeatureRequest) => {
       if (!featureId) throw new Error('No feature id');
-      const res = await apiClient.updateFeature(featureId, body);
-      return res.data;
+      try {
+        const res = await apiClient.updateFeature(featureId, body);
+        return { data: res.data, status: res.status };
+      } catch (error: any) {
+        // Handle guard workflow responses
+        if (error.response?.status === 202) {
+          // Pending change created
+          setGuardResponse({ pendingChange: error.response.data });
+          return null;
+        }
+        if (error.response?.status === 409) {
+          // Conflict
+          setGuardResponse({ conflictError: error.response.data.message });
+          return null;
+        }
+        throw error;
+      }
     },
-    onSuccess: () => {
-      if (featureId) {
-        queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
+    onSuccess: (result) => {
+      if (result) {
+        // Check if we got a 202 response (pending change created)
+        if (result.status === 202 && result.data) {
+          setGuardResponse({
+            pendingChange: result.data,
+          });
+          return;
+        }
+        
+        // Check if we got a 409 response (conflict)
+        if (result.status === 409) {
+          setGuardResponse({
+            conflictError: 'Feature is already locked by another pending change',
+          });
+          return;
+        }
+        
+        // Check if we got a 403 response (forbidden)
+        if (result.status === 403) {
+          setGuardResponse({
+            forbiddenError: 'You don\'t have permission to modify this guarded feature',
+          });
+          return;
+        }
+        
+        // Normal success - update applied immediately
+        // Invalidate all feature-related queries
+        queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+        queryClient.invalidateQueries({ queryKey: ['project-features'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+        
+        // Invalidate specific queries if we have IDs
+        if (featureId) {
+          queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
+        }
+        if (projectId) {
+          queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
+        }
+        
+        onClose();
       }
-      if (projectId) {
-        queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
-      }
-      onClose();
+      // If result is null, guard workflow is handling the response
     },
   });
 
@@ -184,11 +306,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         return updated;
       }));
       // refresh caches
+      // Invalidate all feature-related queries
+      await queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+      await queryClient.invalidateQueries({ queryKey: ['project-features'] });
+      await queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+      
+      // Invalidate specific queries if we have IDs
       if (featureId) {
         await queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
       }
       if (projectId) {
         await queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
+        await queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
       }
     } catch (e: any) {
       setSyncErrors(prev => ({ ...prev, [ruleId]: e?.message || 'Failed to sync rule' }));
@@ -306,7 +435,10 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     }
   };
 
-  const disabled = !featureDetails || updateMutation.isPending;
+  // Check if feature has pending changes
+  const hasPendingChanges = useFeatureHasPendingChanges(featureId || '', projectId);
+  
+  const disabled = (!effectiveFeatureDetails && !feature) || updateMutation.isPending || hasPendingChanges || isLoadingDetails;
 
   const hasDuplicatePriorities = [RuleActionEnum.Assign, RuleActionEnum.Include, RuleActionEnum.Exclude].some((action) => {
     const counts = rules.filter(r => r.action === action).reduce((acc, r) => {
@@ -329,15 +461,20 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const offId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'off')?.id, [variants]);
 
   return (
-    <Dialog open={open} onClose={disabled ? undefined : onClose} fullWidth maxWidth="md">
+    <Dialog open={open} onClose={disabled ? undefined : onClose} fullWidth maxWidth="md" disableEnforceFocus>
       <DialogTitle sx={{ color: 'primary.main' }}>Edit Feature</DialogTitle>
       <DialogContent>
-        {!featureDetails ? (
+        {(!effectiveFeatureDetails && !feature) || isLoadingDetails ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
             <CircularProgress />
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            {hasPendingChanges && (
+              <Alert severity="warning">
+                This feature has pending changes awaiting approval. You cannot edit it until the pending changes are resolved.
+              </Alert>
+            )}
             {error && <Alert severity="error">{error}</Alert>}
             {updateMutation.isError && (
               <Alert severity="error">{(updateMutation.error as any)?.message || 'Failed to update feature'}</Alert>
@@ -657,6 +794,17 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         <Button onClick={onClose} disabled={disabled} size="small">Cancel</Button>
         <Button onClick={onSave} variant="contained" disabled={disabled} size="small">{updateMutation.isPending ? 'Saving…' : 'Save'}</Button>
       </DialogActions>
+
+      {/* Guard Response Handler */}
+      <GuardResponseHandler
+        pendingChange={guardResponse.pendingChange}
+        conflictError={guardResponse.conflictError}
+        forbiddenError={guardResponse.forbiddenError}
+        onClose={() => setGuardResponse({})}
+        onParentClose={onClose}
+        onApprove={handleAutoApprove}
+        approveLoading={approveMutation.isPending}
+      />
     </Dialog>
   );
 };

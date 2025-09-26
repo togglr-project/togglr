@@ -43,6 +43,34 @@ func encodeAddProjectRequest(
 	return nil
 }
 
+func encodeApprovePendingChangeRequest(
+	req *ApprovePendingChangeRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeCancelPendingChangeRequest(
+	req *CancelPendingChangeRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeConfirm2FARequest(
 	req *TwoFAConfirmRequest,
 	r *http.Request,
@@ -180,6 +208,20 @@ func encodeCreateProjectSegmentRequest(
 	return nil
 }
 
+func encodeCreateProjectSettingRequest(
+	req *CreateProjectSettingRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateProjectTagRequest(
 	req *CreateProjectTagRequest,
 	r *http.Request,
@@ -250,6 +292,20 @@ func encodeForgotPasswordRequest(
 	return nil
 }
 
+func encodeInitiateTOTPApprovalRequest(
+	req *InitiateTOTPApprovalRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeLoginRequest(
 	req *LoginRequest,
 	r *http.Request,
@@ -266,6 +322,20 @@ func encodeLoginRequest(
 
 func encodeRefreshTokenRequest(
 	req *RefreshTokenRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeRejectPendingChangeRequest(
+	req *RejectPendingChangeRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -476,6 +546,20 @@ func encodeUpdateLicenseAcceptanceRequest(
 
 func encodeUpdateProjectRequest(
 	req *UpdateProjectRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateProjectSettingRequest(
+	req *UpdateProjectSettingRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

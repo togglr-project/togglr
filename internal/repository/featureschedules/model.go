@@ -28,16 +28,20 @@ func (m *scheduleModel) toDomain() domain.FeatureSchedule {
 		cronStr      *string
 		cronDuration *time.Duration
 	)
+
 	if m.StartsAt.Valid {
 		startsAt = &m.StartsAt.Time
 	}
+
 	if m.EndsAt.Valid {
 		endsAt = &m.EndsAt.Time
 	}
+
 	if m.CronExpr.Valid {
 		cron := m.CronExpr.String
 		cronStr = &cron
 	}
+
 	if m.CronDuration.Valid && m.CronDuration.String != "" {
 		if duration, err := time.ParseDuration(m.CronDuration.String); err == nil {
 			cronDuration = &duration

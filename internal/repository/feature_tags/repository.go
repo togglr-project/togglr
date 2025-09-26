@@ -103,6 +103,7 @@ SELECT EXISTS(
 `
 
 	var exists bool
+
 	err := executor.QueryRow(ctx, query, featureID, tagID).Scan(&exists)
 	if err != nil {
 		return false, fmt.Errorf("check feature tag: %w", err)
@@ -115,10 +116,11 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }
 
-// Reuse models from tags repository
+// Reuse models from tags repository.
 type tagWithCategoryModel struct {
 	ID             string     `db:"id"`
 	ProjectID      string     `db:"project_id"`

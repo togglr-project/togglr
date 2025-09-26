@@ -70,12 +70,14 @@ func (c *Client) RequestTrialLicense(
 	if err != nil {
 		return "", fmt.Errorf("create request: %w", err)
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("%w. send request: %w", ErrNetworkError, err)
 	}
+
 	defer func() { _ = resp.Body.Close() }()
 
 	switch resp.StatusCode {

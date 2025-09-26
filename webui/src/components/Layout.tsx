@@ -35,14 +35,42 @@ import {
   InsightsOutlined as AnalyticsIcon,
   FlagOutlined as FlagOutlinedIcon,
   Schedule as ScheduleIcon,
-  PeopleOutline as PeopleIcon
+  PeopleOutline as PeopleIcon,
+  Assignment as ChangesIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { usePendingChangesCount } from '../hooks/usePendingChanges';
 import ThemeToggle from './ThemeToggle';
 import Breadcrumbs from './Breadcrumbs';
 import SkipLink from './SkipLink';
 import WardenLogo from "./WardenLogo.tsx";
+
+// Component for showing pending changes count badge
+const PendingChangesBadge: React.FC<{ projectId: string }> = ({ projectId }) => {
+  const { data: count } = usePendingChangesCount(projectId);
+  
+  if (!count || count === 0) return null;
+  
+  return (
+    <Box
+      sx={{
+        backgroundColor: 'error.main',
+        color: 'white',
+        borderRadius: '50%',
+        minWidth: 20,
+        height: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '0.75rem',
+        fontWeight: 600,
+      }}
+    >
+      {count > 99 ? '99+' : count}
+    </Box>
+  );
+};
 
 interface LayoutProps {
   children: ReactNode;
@@ -193,32 +221,51 @@ const Layout: React.FC<LayoutProps> = ({
             <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 1 }} />
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              <Tooltip title={user?.username || 'User'}>
-                <Avatar 
+              <Tooltip title={`${user?.username || 'User'} - Go to account`}>
+                <Box 
                   sx={{ 
-                    width: 38, 
-                    height: 38, 
-                    bgcolor: 'primary.main',
-                    boxShadow: '0 2px 8px rgba(130, 82, 255, 0.3)',
-                    fontWeight: 600,
-                    fontSize: '0.9rem',
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1.5, 
+                    cursor: 'pointer',
+                    borderRadius: 1,
+                    px: 1,
+                    py: 0.5,
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.05)' 
+                        : 'rgba(130, 82, 255, 0.05)',
+                    }
                   }}
+                  onClick={() => navigate('/account')}
                 >
-                  {getUserInitials()}
-                </Avatar>
-              </Tooltip>
+                  <Avatar 
+                    sx={{ 
+                      width: 38, 
+                      height: 38, 
+                      bgcolor: 'primary.main',
+                      boxShadow: '0 2px 8px rgba(130, 82, 255, 0.3)',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    {getUserInitials()}
+                  </Avatar>
 
-              <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    fontWeight: 500,
-                    color: theme.palette.mode === 'dark' ? 'inherit' : 'text.primary',
-                  }}
-                >
-                  {user?.username || 'User'}
-                </Typography>
-              </Box>
+                  <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        fontWeight: 500,
+                        color: theme.palette.mode === 'dark' ? 'inherit' : 'text.primary',
+                      }}
+                    >
+                      {user?.username || 'User'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Tooltip>
 
               <Button 
                 variant="outlined"
@@ -495,6 +542,59 @@ const Layout: React.FC<LayoutProps> = ({
                     primaryTypographyProps={{
                       fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 600 : 500,
                       color: location.pathname.startsWith(`/projects/${currentProjectId}/tags`) ? 'primary.main' : 'inherit',
+                    }}
+                    sx={{ 
+                      opacity: open ? 1 : 0,
+                      ml: 0.5,
+                    }} 
+                  />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Change Requests menu item */}
+              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    py: 1.2,
+                    borderRadius: 2,
+                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? (
+                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                    ) : 'transparent',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.06)' 
+                        : 'rgba(130, 82, 255, 0.06)',
+                    },
+                  }}
+                  onClick={() => {
+                    if (currentProjectId) navigate(`/projects/${currentProjectId}/pending-changes`);
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
+                    }}
+                  >
+                    <ChangesIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <span>Change Requests</span>
+                        {currentProjectId && (
+                          <PendingChangesBadge projectId={currentProjectId} />
+                        )}
+                      </Box>
+                    }
+                    primaryTypographyProps={{
+                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 600 : 500,
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
                     }}
                     sx={{ 
                       opacity: open ? 1 : 0,

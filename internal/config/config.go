@@ -22,13 +22,13 @@ type Config struct {
 	TechServer       Server        `envconfig:"TECH_SERVER"`
 	Postgres         Postgres      `envconfig:"POSTGRES"`
 	Mailer           Mailer        `envconfig:"MAILER"`
-	MigrationsDir    string        `envconfig:"MIGRATIONS_DIR" default:"./migrations"`
-	FrontendURL      string        `envconfig:"FRONTEND_URL" required:"true"`
-	SecretKey        string        `envconfig:"SECRET_KEY" required:"true"`
+	MigrationsDir    string        `default:"./migrations"     envconfig:"MIGRATIONS_DIR"`
+	FrontendURL      string        `envconfig:"FRONTEND_URL"   required:"true"`
+	SecretKey        string        `envconfig:"SECRET_KEY"     required:"true"`
 	JWTSecretKey     string        `envconfig:"JWT_SECRET_KEY" required:"true"`
-	AccessTokenTTL   time.Duration `envconfig:"ACCESS_TOKEN_TTL" default:"3h"`
-	RefreshTokenTTL  time.Duration `envconfig:"REFRESH_TOKEN_TTL" default:"168h"`
-	ResetPasswordTTL time.Duration `envconfig:"RESET_PASSWORD_TTL" default:"8h"`
+	AccessTokenTTL   time.Duration `default:"3h"               envconfig:"ACCESS_TOKEN_TTL"`
+	RefreshTokenTTL  time.Duration `default:"168h"             envconfig:"REFRESH_TOKEN_TTL"`
+	ResetPasswordTTL time.Duration `default:"8h"               envconfig:"RESET_PASSWORD_TTL"`
 
 	AdminEmail       string `envconfig:"ADMIN_EMAIL"`
 	AdminTmpPassword string `envconfig:"ADMIN_TMP_PASSWORD"`
@@ -39,7 +39,7 @@ type Config struct {
 }
 
 type Logger struct {
-	Lvl string `envconfig:"LEVEL" default:"info"`
+	Lvl string `default:"info" envconfig:"LEVEL"`
 }
 
 func (l *Logger) Level() slog.Level {
@@ -59,9 +59,9 @@ func (l *Logger) Level() slog.Level {
 
 type Server struct {
 	Addr         string        `envconfig:"ADDR" required:"true"`
-	ReadTimeout  time.Duration `envconfig:"READ_TIMEOUT" default:"15s"`
-	WriteTimeout time.Duration `envconfig:"WRITE_TIMEOUT" default:"30s"`
-	IdleTimeout  time.Duration `envconfig:"IDLE_TIMEOUT" default:"60s"`
+	ReadTimeout  time.Duration `default:"15s"    envconfig:"READ_TIMEOUT"`
+	WriteTimeout time.Duration `default:"30s"    envconfig:"WRITE_TIMEOUT"`
+	IdleTimeout  time.Duration `default:"60s"    envconfig:"IDLE_TIMEOUT"`
 }
 
 // SAMLConfig holds SAML configuration.
@@ -87,14 +87,14 @@ type Mailer struct {
 }
 
 type Postgres struct {
-	User            string        `envconfig:"USER" required:"true"`
+	User            string        `envconfig:"USER"     required:"true"`
 	Password        string        `envconfig:"PASSWORD" required:"true"`
-	Host            string        `envconfig:"HOST" required:"true"`
-	Port            string        `envconfig:"PORT" default:"5432"`
+	Host            string        `envconfig:"HOST"     required:"true"`
+	Port            string        `default:"5432"       envconfig:"PORT"`
 	Database        string        `envconfig:"DATABASE" required:"true"`
-	MaxIdleConnTime time.Duration `envconfig:"MAX_IDLE_CONN_TIME" default:"5m"`
-	MaxConns        int           `envconfig:"MAX_CONNS" default:"20"`
-	ConnMaxLifetime time.Duration `envconfig:"CONN_MAX_LIFETIME" default:"10m"`
+	MaxIdleConnTime time.Duration `default:"5m"         envconfig:"MAX_IDLE_CONN_TIME"`
+	MaxConns        int           `default:"20"         envconfig:"MAX_CONNS"`
+	ConnMaxLifetime time.Duration `default:"10m"        envconfig:"CONN_MAX_LIFETIME"`
 }
 
 func (db *Postgres) ConnString() string {

@@ -23,7 +23,7 @@ func TestEmailConfig(t *testing.T) {
 
 		data, err := json.Marshal(config)
 		assert.NoError(t, err)
-		assert.Equal(t, `{"email_to":"test@example.com"}`, string(data))
+		assert.JSONEq(t, `{"email_to":"test@example.com"}`, string(data))
 	})
 
 	t.Run("unmarshal email config from json", func(t *testing.T) {
@@ -38,6 +38,6 @@ func TestEmailConfig(t *testing.T) {
 	t.Run("empty email config", func(t *testing.T) {
 		config := EmailConfig{}
 
-		assert.Equal(t, "", config.EmailTo)
+		assert.Empty(t, config.EmailTo)
 	})
 }

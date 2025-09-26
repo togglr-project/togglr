@@ -33,6 +33,7 @@ RETURNING id, username, email, password_hash, is_superuser,
     is_active, created_at, last_login, is_tmp_password, is_external`
 
 	var user userModel
+
 	err := executor.QueryRow(ctx, query,
 		userDTO.Username,
 		userDTO.Email,
@@ -147,10 +148,12 @@ func (r *Repository) FetchByIDs(ctx context.Context, ids []domain.UserID) ([]dom
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM users WHERE id = ANY($1)`
+
 	rows, err := executor.Query(ctx, query, ids)
 	if err != nil {
 		return nil, fmt.Errorf("query users by IDs: %w", err)
 	}
+
 	defer rows.Close()
 
 	listModels, err := pgx.CollectRows(rows, pgx.RowToStructByName[userModel])
@@ -159,6 +162,7 @@ func (r *Repository) FetchByIDs(ctx context.Context, ids []domain.UserID) ([]dom
 	}
 
 	users := make([]domain.User, 0, len(listModels))
+
 	for i := range listModels {
 		model := listModels[i]
 		users = append(users, model.toDomain())
@@ -231,6 +235,7 @@ func (r *Repository) List(ctx context.Context) ([]domain.User, error) {
 	}
 
 	users := make([]domain.User, 0, len(listModels))
+
 	for i := range listModels {
 		model := listModels[i]
 		users = append(users, model.toDomain())
@@ -241,6 +246,7 @@ func (r *Repository) List(ctx context.Context) ([]domain.User, error) {
 
 func (r *Repository) UpdateLastLogin(ctx context.Context, id domain.UserID) error {
 	executor := r.getExecutor(ctx)
+
 	const query = `UPDATE users SET last_login = NOW(), updated_at = NOW() WHERE id = $1;`
 
 	_, err := executor.Exec(ctx, query, id)
@@ -250,6 +256,7 @@ func (r *Repository) UpdateLastLogin(ctx context.Context, id domain.UserID) erro
 
 func (r *Repository) UpdatePassword(ctx context.Context, id domain.UserID, passwordHash string) error {
 	executor := r.getExecutor(ctx)
+
 	const query = `UPDATE users SET password_hash = $1, is_tmp_password = false, updated_at = NOW() WHERE id = $2;`
 
 	_, err := executor.Exec(ctx, query, passwordHash, id)

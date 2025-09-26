@@ -61,7 +61,8 @@ func Write(
 	}
 
 	const query = `
-		INSERT INTO audit_log (project_id, feature_id, entity_id, entity, actor, username, action, old_value, new_value, request_id)
+		INSERT INTO audit_log (project_id, feature_id, entity_id, entity, actor,
+		                       username, action, old_value, new_value, request_id)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 	`
 

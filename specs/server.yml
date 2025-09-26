@@ -1989,6 +1989,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeatureDetailsResponse'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2039,6 +2045,12 @@ paths:
       responses:
         '204':
           description: Feature deleted successfully
+        '202':
+          description: Deletion is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '401':
           description: Unauthorized
           content:
@@ -2671,6 +2683,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeatureResponse'
+        '202':
+          description: Feature is guarded and change is pending approval
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2695,6 +2713,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Feature is already locked by another pending change
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -3034,6 +3058,306 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  # Project Settings CRUD endpoints
+  /api/v1/projects/{project_id}/settings:
+    get:
+      summary: List project settings
+      operationId: ListProjectSettings
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+      responses:
+        '200':
+          description: List of project settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListProjectSettingsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    post:
+      summary: Create project setting
+      operationId: CreateProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectSettingRequest'
+      responses:
+        '201':
+          description: Project setting created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Setting already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/projects/{project_id}/settings/{setting_name}:
+    get:
+      summary: Get project setting by name
+      operationId: GetProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project setting details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettingResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    put:
+      summary: Update project setting
+      operationId: UpdateProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectSettingRequest'
+      responses:
+        '200':
+          description: Project setting updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectSettingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+    delete:
+      summary: Delete project setting
+      operationId: DeleteProjectSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Project setting deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
 
   /api/v1/projects/{project_id}/segments:
     get:
@@ -4209,6 +4533,410 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  # --- Pending Changes Endpoints ---
+  /api/v1/pending_changes:
+    get:
+      summary: List pending changes
+      operationId: ListPendingChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, approved, rejected, cancelled]
+        - name: user_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [created_at, status, requested_by]
+            default: created_at
+        - name: sort_desc
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: List of pending changes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangesListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}:
+    get:
+      summary: Get pending change by ID
+      operationId: GetPendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Pending change details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/initiate-totp:
+    post:
+      summary: Initiate TOTP approval session
+      operationId: InitiateTOTPApproval
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateTOTPApprovalRequest'
+      responses:
+        '200':
+          description: TOTP approval session initiated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitiateTOTPApprovalResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/approve:
+    post:
+      summary: Approve a pending change
+      operationId: ApprovePendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovePendingChangeRequest'
+      responses:
+        '200':
+          description: Pending change approved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/reject:
+    post:
+      summary: Reject a pending change
+      operationId: RejectPendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectPendingChangeRequest'
+      responses:
+        '200':
+          description: Pending change rejected successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/pending_changes/{pending_change_id}/cancel:
+    post:
+      summary: Cancel a pending change
+      operationId: CancelPendingChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pending_change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelPendingChangeRequest'
+      responses:
+        '200':
+          description: Pending change cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Pending change not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - pending change is not in pending status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 
 # ---------------------------------------------------
 #                Components / Schemas
@@ -4921,6 +5649,20 @@ components:
             error:
               code: "too_many_requests"
               message: "Too many requests"
+
+    ErrorConflict:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+              example: "Entity is already locked by another pending change"
+            code:
+              type: string
+              example: "CONFLICT"
+      required: [error]
 
     # ---- /users ----
     ListUsersResponse:
@@ -5989,12 +6731,8 @@ components:
           nullable: true
         kind:
           type: string
-          enum: [system, user]
+          enum: [system, user, domain]
           example: "system"
-        category_type:
-          type: string
-          enum: [safety, domain, user]
-          example: "domain"
         created_at:
           type: string
           format: date-time
@@ -6003,7 +6741,7 @@ components:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, name, slug, kind, category_type, created_at, updated_at]
+      required: [id, name, slug, kind, created_at, updated_at]
 
     ListCategoriesResponse:
       type: array
@@ -6022,7 +6760,7 @@ components:
       required:
         - name
         - slug
-        - category_type
+        - kind
       properties:
         name:
           type: string
@@ -6042,9 +6780,10 @@ components:
           type: string
           example: "#4B5563"
           pattern: '^#[0-9A-Fa-f]{6}$'
-        category_type:
+        kind:
           type: string
           enum: [user, domain]
+          example: "domain"
 
     UpdateCategoryRequest:
       type: object
@@ -6209,3 +6948,281 @@ components:
           description: ID of category to associate with this tag
           nullable: true
 
+    # --- Pending Changes Schemas ---
+    PendingChangePayload:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityChange'
+        meta:
+          $ref: '#/components/schemas/PendingChangeMeta'
+      required: [entities, meta]
+
+    EntityChange:
+      type: object
+      properties:
+        entity:
+          type: string
+          example: "feature"
+          enum: [feature, rule, feature_schedule]
+        entity_id:
+          type: string
+          format: uuid
+          example: "11111111-1111-1111-1111-111111111111"
+        action:
+          type: string
+          example: "update"
+          enum: [insert, update, delete]
+        changes:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ChangeValue'
+          example:
+            enabled:
+              old: true
+              new: false
+            default_variant:
+              old: "A"
+              new: "B"
+      required: [entity, entity_id, action, changes]
+
+    ChangeValue:
+      type: object
+      properties:
+        old:
+          description: Previous value
+        new:
+          description: New value
+      required: [old, new]
+
+    PendingChangeMeta:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: "Disable due to payment outage"
+          maxLength: 500
+        client:
+          type: string
+          example: "ui"
+          maxLength: 50
+        origin:
+          type: string
+          example: "project-settings"
+          maxLength: 100
+        single_user_project:
+          type: boolean
+          description: "True if the project has only 1 active user (enables auto-approve)"
+          example: false
+      required: [reason, client, origin]
+
+    PendingChangeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        project_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        requested_by:
+          type: string
+          example: "alice"
+        request_user_id:
+          type: integer
+          format: uint
+          example: 123
+          nullable: true
+        change:
+          $ref: '#/components/schemas/PendingChangePayload'
+        status:
+          type: string
+          example: "pending"
+          enum: [pending, approved, rejected, cancelled]
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        approved_by:
+          type: string
+          example: "bob"
+          nullable: true
+        approved_user_id:
+          type: integer
+          format: uint
+          example: 456
+          nullable: true
+        approved_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T11:00:00Z"
+          nullable: true
+        rejected_by:
+          type: string
+          example: "charlie"
+          nullable: true
+        rejected_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T11:30:00Z"
+          nullable: true
+        rejection_reason:
+          type: string
+          example: "Not approved by team lead"
+          nullable: true
+      required: [id, project_id, requested_by, change, status, created_at]
+
+    PendingChangesListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingChangeResponse'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+      required: [data, pagination]
+
+    ApprovePendingChangeRequest:
+      type: object
+      properties:
+        approver_user_id:
+          type: integer
+          format: uint
+          example: 456
+        approver_name:
+          type: string
+          example: "bob"
+          minLength: 1
+          maxLength: 255
+        auth:
+          $ref: '#/components/schemas/AuthCredentials'
+      required: [approver_user_id, approver_name, auth]
+
+    RejectPendingChangeRequest:
+      type: object
+      properties:
+        rejected_by:
+          type: string
+          example: "charlie"
+          minLength: 1
+          maxLength: 255
+        reason:
+          type: string
+          example: "Not approved by team lead"
+          minLength: 1
+          maxLength: 500
+      required: [rejected_by, reason]
+
+    CancelPendingChangeRequest:
+      type: object
+      properties:
+        cancelled_by:
+          type: string
+          example: "alice"
+          minLength: 1
+          maxLength: 255
+      required: [cancelled_by]
+
+    AuthCredentials:
+      type: object
+      properties:
+        method:
+          type: string
+          example: "password"
+          enum: [password, totp]
+        credential:
+          type: string
+          example: "user_password_or_totp_code"
+          minLength: 1
+          maxLength: 255
+        session_id:
+          type: string
+          example: "uuid-session-id"
+          description: "Session ID for TOTP approval (required when method is 'totp')"
+      required: [method, credential]
+
+    InitiateTOTPApprovalRequest:
+      type: object
+      properties:
+        approver_user_id:
+          type: integer
+          format: uint
+          example: 456
+      required: [approver_user_id]
+
+    InitiateTOTPApprovalResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+          example: "uuid-session-id"
+          description: "Session ID to use for TOTP approval"
+        message:
+          type: string
+          example: "TOTP approval session initiated successfully"
+      required: [session_id, message]
+
+    # ---- Project Settings ----
+    ProjectSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        project_id:
+          type: string
+          example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+        name:
+          type: string
+          example: "auto_approve"
+        value:
+          type: object
+          example: {"enabled": true, "threshold": 5}
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T01:00:00Z"
+      required: [id, project_id, name, value, created_at, updated_at]
+
+    CreateProjectSettingRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "auto_approve"
+          maxLength: 100
+        value:
+          type: object
+          example: {"enabled": true, "threshold": 5}
+      required: [name, value]
+
+    UpdateProjectSettingRequest:
+      type: object
+      properties:
+        value:
+          type: object
+          example: {"enabled": false, "threshold": 10}
+      required: [value]
+
+    ProjectSettingResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProjectSetting'
+
+    ListProjectSettingsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectSetting'
+        pagination:
+          $ref: '#/components/schemas/Pagination'

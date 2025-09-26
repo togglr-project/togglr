@@ -16,6 +16,7 @@ func (r *RestAPI) SetUserActiveStatus(
 ) (generatedapi.SetUserActiveStatusRes, error) {
 	userID := domain.UserID(params.UserID)
 	user, err := r.usersUseCase.SetActiveStatus(ctx, userID, req.IsActive)
+
 	if err != nil {
 		slog.Error("set user active status failed", "error", err, "user_id", userID, "is_active", req.IsActive)
 

@@ -20,12 +20,14 @@ func (r *RestAPI) ListProjectTags(
 	// Check if user can manage the project
 	if err := r.permissionsService.CanAccessProject(ctx, projectID); err != nil {
 		slog.Error("permission denied", "error", err, "user_id", userID, "project_id", projectID)
+
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),
 		}}, nil
 	}
 
 	var categoryID *domain.CategoryID
+
 	if params.CategoryID.Set {
 		str := params.CategoryID.Value.String()
 		categoryID = (*domain.CategoryID)(&str)
@@ -35,6 +37,7 @@ func (r *RestAPI) ListProjectTags(
 	tags, err := r.tagsUseCase.ListProjectTags(ctx, projectID, categoryID)
 	if err != nil {
 		slog.Error("get project tags failed", "error", err, "user_id", userID, "project_id", projectID)
+
 		return nil, err
 	}
 

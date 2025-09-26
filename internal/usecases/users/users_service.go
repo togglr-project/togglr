@@ -152,7 +152,7 @@ func (s *UsersService) List(ctx context.Context) ([]domain.User, error) {
 
 // Create creates a new user. Only superusers can create new users.
 //
-//nolint:ineffassign // skip
+
 func (s *UsersService) Create(
 	ctx context.Context,
 	currentUser domain.User,
@@ -205,6 +205,7 @@ func (s *UsersService) SetSuperuserStatus(
 ) (domain.User, error) {
 	// Get the current user from context
 	currentUserID := appcontext.UserID(ctx)
+
 	currentUser, err := s.usersRepo.GetByID(ctx, currentUserID)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("get current user by id: %w", err)
@@ -241,6 +242,7 @@ func (s *UsersService) SetSuperuserStatus(
 func (s *UsersService) SetActiveStatus(ctx context.Context, id domain.UserID, isActive bool) (domain.User, error) {
 	// Get the current user from context
 	currentUserID := appcontext.UserID(ctx)
+
 	currentUser, err := s.usersRepo.GetByID(ctx, currentUserID)
 	if err != nil {
 		return domain.User{}, fmt.Errorf("get current user by id: %w", err)
@@ -272,6 +274,7 @@ func (s *UsersService) SetActiveStatus(ctx context.Context, id domain.UserID, is
 func (s *UsersService) Delete(ctx context.Context, id domain.UserID) error {
 	// Get the current user from context
 	currentUserID := appcontext.UserID(ctx)
+
 	currentUser, err := s.usersRepo.GetByID(ctx, currentUserID)
 	if err != nil {
 		return fmt.Errorf("get current user by id: %w", err)
@@ -312,6 +315,7 @@ func (s *UsersService) UpdatePassword(ctx context.Context, id domain.UserID, old
 	if err != nil {
 		return fmt.Errorf("validate password: %w", err)
 	}
+
 	if !isValid {
 		return domain.ErrInvalidPassword
 	}
@@ -411,6 +415,32 @@ func (s *UsersService) UpdateLicenseAcceptance(ctx context.Context, userID domai
 	err = s.usersRepo.Update(ctx, &user)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
+	}
+
+	return nil
+}
+
+// VerifyPassword verifies that the provided password is correct for the given user.
+func (s *UsersService) VerifyPassword(ctx context.Context, userID domain.UserID, password string) error {
+	// Get the user
+	user, err := s.usersRepo.GetByID(ctx, userID)
+	if err != nil {
+		return fmt.Errorf("failed to get user: %w", err)
+	}
+
+	// Check if user is active
+	if !user.IsActive {
+		return domain.ErrInactiveUser
+	}
+
+	// Verify the password using the passworder
+	isValid, err := passworder.ValidatePassword(password, user.PasswordHash)
+	if err != nil {
+		return fmt.Errorf("password validation error: %w", err)
+	}
+
+	if !isValid {
+		return domain.ErrInvalidCredentials
 	}
 
 	return nil

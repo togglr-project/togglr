@@ -68,6 +68,43 @@ func (s *AddProjectRequest) SetDescription(val string) {
 	s.Description = val
 }
 
+// Ref: #/components/schemas/ApprovePendingChangeRequest
+type ApprovePendingChangeRequest struct {
+	ApproverUserID uint            `json:"approver_user_id"`
+	ApproverName   string          `json:"approver_name"`
+	Auth           AuthCredentials `json:"auth"`
+}
+
+// GetApproverUserID returns the value of ApproverUserID.
+func (s *ApprovePendingChangeRequest) GetApproverUserID() uint {
+	return s.ApproverUserID
+}
+
+// GetApproverName returns the value of ApproverName.
+func (s *ApprovePendingChangeRequest) GetApproverName() string {
+	return s.ApproverName
+}
+
+// GetAuth returns the value of Auth.
+func (s *ApprovePendingChangeRequest) GetAuth() AuthCredentials {
+	return s.Auth
+}
+
+// SetApproverUserID sets the value of ApproverUserID.
+func (s *ApprovePendingChangeRequest) SetApproverUserID(val uint) {
+	s.ApproverUserID = val
+}
+
+// SetApproverName sets the value of ApproverName.
+func (s *ApprovePendingChangeRequest) SetApproverName(val string) {
+	s.ApproverName = val
+}
+
+// SetAuth sets the value of Auth.
+func (s *ApprovePendingChangeRequest) SetAuth(val AuthCredentials) {
+	s.Auth = val
+}
+
 // ArchiveProjectNoContent is response for ArchiveProject operation.
 type ArchiveProjectNoContent struct{}
 
@@ -123,6 +160,85 @@ func (s *AuditAction) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/AuthCredentials
+type AuthCredentials struct {
+	Method     AuthCredentialsMethod `json:"method"`
+	Credential string                `json:"credential"`
+	// Session ID for TOTP approval (required when method is 'totp').
+	SessionID OptString `json:"session_id"`
+}
+
+// GetMethod returns the value of Method.
+func (s *AuthCredentials) GetMethod() AuthCredentialsMethod {
+	return s.Method
+}
+
+// GetCredential returns the value of Credential.
+func (s *AuthCredentials) GetCredential() string {
+	return s.Credential
+}
+
+// GetSessionID returns the value of SessionID.
+func (s *AuthCredentials) GetSessionID() OptString {
+	return s.SessionID
+}
+
+// SetMethod sets the value of Method.
+func (s *AuthCredentials) SetMethod(val AuthCredentialsMethod) {
+	s.Method = val
+}
+
+// SetCredential sets the value of Credential.
+func (s *AuthCredentials) SetCredential(val string) {
+	s.Credential = val
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *AuthCredentials) SetSessionID(val OptString) {
+	s.SessionID = val
+}
+
+type AuthCredentialsMethod string
+
+const (
+	AuthCredentialsMethodPassword AuthCredentialsMethod = "password"
+	AuthCredentialsMethodTotp     AuthCredentialsMethod = "totp"
+)
+
+// AllValues returns all AuthCredentialsMethod values.
+func (AuthCredentialsMethod) AllValues() []AuthCredentialsMethod {
+	return []AuthCredentialsMethod{
+		AuthCredentialsMethodPassword,
+		AuthCredentialsMethodTotp,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s AuthCredentialsMethod) MarshalText() ([]byte, error) {
+	switch s {
+	case AuthCredentialsMethodPassword:
+		return []byte(s), nil
+	case AuthCredentialsMethodTotp:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *AuthCredentialsMethod) UnmarshalText(data []byte) error {
+	switch AuthCredentialsMethod(data) {
+	case AuthCredentialsMethodPassword:
+		*s = AuthCredentialsMethodPassword
+		return nil
+	case AuthCredentialsMethodTotp:
+		*s = AuthCredentialsMethodTotp
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type BearerAuth struct {
 	Token string
 	Roles []string
@@ -148,17 +264,31 @@ func (s *BearerAuth) SetRoles(val []string) {
 	s.Roles = val
 }
 
+// Ref: #/components/schemas/CancelPendingChangeRequest
+type CancelPendingChangeRequest struct {
+	CancelledBy string `json:"cancelled_by"`
+}
+
+// GetCancelledBy returns the value of CancelledBy.
+func (s *CancelPendingChangeRequest) GetCancelledBy() string {
+	return s.CancelledBy
+}
+
+// SetCancelledBy sets the value of CancelledBy.
+func (s *CancelPendingChangeRequest) SetCancelledBy(val string) {
+	s.CancelledBy = val
+}
+
 // Ref: #/components/schemas/Category
 type Category struct {
-	ID           uuid.UUID            `json:"id"`
-	Name         string               `json:"name"`
-	Slug         string               `json:"slug"`
-	Description  OptNilString         `json:"description"`
-	Color        OptNilString         `json:"color"`
-	Kind         CategoryKind         `json:"kind"`
-	CategoryType CategoryCategoryType `json:"category_type"`
-	CreatedAt    time.Time            `json:"created_at"`
-	UpdatedAt    time.Time            `json:"updated_at"`
+	ID          uuid.UUID    `json:"id"`
+	Name        string       `json:"name"`
+	Slug        string       `json:"slug"`
+	Description OptNilString `json:"description"`
+	Color       OptNilString `json:"color"`
+	Kind        CategoryKind `json:"kind"`
+	CreatedAt   time.Time    `json:"created_at"`
+	UpdatedAt   time.Time    `json:"updated_at"`
 }
 
 // GetID returns the value of ID.
@@ -189,11 +319,6 @@ func (s *Category) GetColor() OptNilString {
 // GetKind returns the value of Kind.
 func (s *Category) GetKind() CategoryKind {
 	return s.Kind
-}
-
-// GetCategoryType returns the value of CategoryType.
-func (s *Category) GetCategoryType() CategoryCategoryType {
-	return s.CategoryType
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -236,11 +361,6 @@ func (s *Category) SetKind(val CategoryKind) {
 	s.Kind = val
 }
 
-// SetCategoryType sets the value of CategoryType.
-func (s *Category) SetCategoryType(val CategoryCategoryType) {
-	s.CategoryType = val
-}
-
 // SetCreatedAt sets the value of CreatedAt.
 func (s *Category) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
@@ -251,59 +371,12 @@ func (s *Category) SetUpdatedAt(val time.Time) {
 	s.UpdatedAt = val
 }
 
-type CategoryCategoryType string
-
-const (
-	CategoryCategoryTypeSafety CategoryCategoryType = "safety"
-	CategoryCategoryTypeDomain CategoryCategoryType = "domain"
-	CategoryCategoryTypeUser   CategoryCategoryType = "user"
-)
-
-// AllValues returns all CategoryCategoryType values.
-func (CategoryCategoryType) AllValues() []CategoryCategoryType {
-	return []CategoryCategoryType{
-		CategoryCategoryTypeSafety,
-		CategoryCategoryTypeDomain,
-		CategoryCategoryTypeUser,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s CategoryCategoryType) MarshalText() ([]byte, error) {
-	switch s {
-	case CategoryCategoryTypeSafety:
-		return []byte(s), nil
-	case CategoryCategoryTypeDomain:
-		return []byte(s), nil
-	case CategoryCategoryTypeUser:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *CategoryCategoryType) UnmarshalText(data []byte) error {
-	switch CategoryCategoryType(data) {
-	case CategoryCategoryTypeSafety:
-		*s = CategoryCategoryTypeSafety
-		return nil
-	case CategoryCategoryTypeDomain:
-		*s = CategoryCategoryTypeDomain
-		return nil
-	case CategoryCategoryTypeUser:
-		*s = CategoryCategoryTypeUser
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
 type CategoryKind string
 
 const (
 	CategoryKindSystem CategoryKind = "system"
 	CategoryKindUser   CategoryKind = "user"
+	CategoryKindDomain CategoryKind = "domain"
 )
 
 // AllValues returns all CategoryKind values.
@@ -311,6 +384,7 @@ func (CategoryKind) AllValues() []CategoryKind {
 	return []CategoryKind{
 		CategoryKindSystem,
 		CategoryKindUser,
+		CategoryKindDomain,
 	}
 }
 
@@ -320,6 +394,8 @@ func (s CategoryKind) MarshalText() ([]byte, error) {
 	case CategoryKindSystem:
 		return []byte(s), nil
 	case CategoryKindUser:
+		return []byte(s), nil
+	case CategoryKindDomain:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -334,6 +410,9 @@ func (s *CategoryKind) UnmarshalText(data []byte) error {
 		return nil
 	case CategoryKindUser:
 		*s = CategoryKindUser
+		return nil
+	case CategoryKindDomain:
+		*s = CategoryKindDomain
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -529,6 +608,34 @@ func (s *ChangeUserPasswordRequest) SetNewPassword(val string) {
 	s.NewPassword = val
 }
 
+// Ref: #/components/schemas/ChangeValue
+type ChangeValue struct {
+	// Previous value.
+	Old jx.Raw `json:"old"`
+	// New value.
+	New jx.Raw `json:"new"`
+}
+
+// GetOld returns the value of Old.
+func (s *ChangeValue) GetOld() jx.Raw {
+	return s.Old
+}
+
+// GetNew returns the value of New.
+func (s *ChangeValue) GetNew() jx.Raw {
+	return s.New
+}
+
+// SetOld sets the value of Old.
+func (s *ChangeValue) SetOld(val jx.Raw) {
+	s.Old = val
+}
+
+// SetNew sets the value of New.
+func (s *ChangeValue) SetNew(val jx.Raw) {
+	s.New = val
+}
+
 // Confirm2FANoContent is response for Confirm2FA operation.
 type Confirm2FANoContent struct{}
 
@@ -591,11 +698,11 @@ func (s *ConsumeSAMLAssertionReq) SetRelayState(val string) {
 
 // Ref: #/components/schemas/CreateCategoryRequest
 type CreateCategoryRequest struct {
-	Name         string                            `json:"name"`
-	Slug         string                            `json:"slug"`
-	Description  OptString                         `json:"description"`
-	Color        OptString                         `json:"color"`
-	CategoryType CreateCategoryRequestCategoryType `json:"category_type"`
+	Name        string                    `json:"name"`
+	Slug        string                    `json:"slug"`
+	Description OptString                 `json:"description"`
+	Color       OptString                 `json:"color"`
+	Kind        CreateCategoryRequestKind `json:"kind"`
 }
 
 // GetName returns the value of Name.
@@ -618,9 +725,9 @@ func (s *CreateCategoryRequest) GetColor() OptString {
 	return s.Color
 }
 
-// GetCategoryType returns the value of CategoryType.
-func (s *CreateCategoryRequest) GetCategoryType() CreateCategoryRequestCategoryType {
-	return s.CategoryType
+// GetKind returns the value of Kind.
+func (s *CreateCategoryRequest) GetKind() CreateCategoryRequestKind {
+	return s.Kind
 }
 
 // SetName sets the value of Name.
@@ -643,32 +750,32 @@ func (s *CreateCategoryRequest) SetColor(val OptString) {
 	s.Color = val
 }
 
-// SetCategoryType sets the value of CategoryType.
-func (s *CreateCategoryRequest) SetCategoryType(val CreateCategoryRequestCategoryType) {
-	s.CategoryType = val
+// SetKind sets the value of Kind.
+func (s *CreateCategoryRequest) SetKind(val CreateCategoryRequestKind) {
+	s.Kind = val
 }
 
-type CreateCategoryRequestCategoryType string
+type CreateCategoryRequestKind string
 
 const (
-	CreateCategoryRequestCategoryTypeUser   CreateCategoryRequestCategoryType = "user"
-	CreateCategoryRequestCategoryTypeDomain CreateCategoryRequestCategoryType = "domain"
+	CreateCategoryRequestKindUser   CreateCategoryRequestKind = "user"
+	CreateCategoryRequestKindDomain CreateCategoryRequestKind = "domain"
 )
 
-// AllValues returns all CreateCategoryRequestCategoryType values.
-func (CreateCategoryRequestCategoryType) AllValues() []CreateCategoryRequestCategoryType {
-	return []CreateCategoryRequestCategoryType{
-		CreateCategoryRequestCategoryTypeUser,
-		CreateCategoryRequestCategoryTypeDomain,
+// AllValues returns all CreateCategoryRequestKind values.
+func (CreateCategoryRequestKind) AllValues() []CreateCategoryRequestKind {
+	return []CreateCategoryRequestKind{
+		CreateCategoryRequestKindUser,
+		CreateCategoryRequestKindDomain,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s CreateCategoryRequestCategoryType) MarshalText() ([]byte, error) {
+func (s CreateCategoryRequestKind) MarshalText() ([]byte, error) {
 	switch s {
-	case CreateCategoryRequestCategoryTypeUser:
+	case CreateCategoryRequestKindUser:
 		return []byte(s), nil
-	case CreateCategoryRequestCategoryTypeDomain:
+	case CreateCategoryRequestKindDomain:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -676,13 +783,13 @@ func (s CreateCategoryRequestCategoryType) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *CreateCategoryRequestCategoryType) UnmarshalText(data []byte) error {
-	switch CreateCategoryRequestCategoryType(data) {
-	case CreateCategoryRequestCategoryTypeUser:
-		*s = CreateCategoryRequestCategoryTypeUser
+func (s *CreateCategoryRequestKind) UnmarshalText(data []byte) error {
+	switch CreateCategoryRequestKind(data) {
+	case CreateCategoryRequestKindUser:
+		*s = CreateCategoryRequestKindUser
 		return nil
-	case CreateCategoryRequestCategoryTypeDomain:
-		*s = CreateCategoryRequestCategoryTypeDomain
+	case CreateCategoryRequestKindDomain:
+		*s = CreateCategoryRequestKindDomain
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -929,6 +1036,34 @@ func (s *CreateFlagVariantRequest) SetName(val string) {
 func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 	s.RolloutPercent = val
 }
+
+// Ref: #/components/schemas/CreateProjectSettingRequest
+type CreateProjectSettingRequest struct {
+	Name  string                           `json:"name"`
+	Value CreateProjectSettingRequestValue `json:"value"`
+}
+
+// GetName returns the value of Name.
+func (s *CreateProjectSettingRequest) GetName() string {
+	return s.Name
+}
+
+// GetValue returns the value of Value.
+func (s *CreateProjectSettingRequest) GetValue() CreateProjectSettingRequestValue {
+	return s.Value
+}
+
+// SetName sets the value of Name.
+func (s *CreateProjectSettingRequest) SetName(val string) {
+	s.Name = val
+}
+
+// SetValue sets the value of Value.
+func (s *CreateProjectSettingRequest) SetValue(val CreateProjectSettingRequestValue) {
+	s.Value = val
+}
+
+type CreateProjectSettingRequestValue struct{}
 
 // Ref: #/components/schemas/CreateProjectTagRequest
 type CreateProjectTagRequest struct {
@@ -1290,6 +1425,11 @@ type DeleteFeatureScheduleNoContent struct{}
 
 func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
 
+// DeleteProjectSettingNoContent is response for DeleteProjectSetting operation.
+type DeleteProjectSettingNoContent struct{}
+
+func (*DeleteProjectSettingNoContent) deleteProjectSettingRes() {}
+
 // DeleteProjectTagNoContent is response for DeleteProjectTag operation.
 type DeleteProjectTagNoContent struct{}
 
@@ -1314,6 +1454,161 @@ func (*DeleteUserNoContent) deleteUserRes() {}
 type Disable2FANoContent struct{}
 
 func (*Disable2FANoContent) disable2FARes() {}
+
+// Ref: #/components/schemas/EntityChange
+type EntityChange struct {
+	Entity   EntityChangeEntity  `json:"entity"`
+	EntityID uuid.UUID           `json:"entity_id"`
+	Action   EntityChangeAction  `json:"action"`
+	Changes  EntityChangeChanges `json:"changes"`
+}
+
+// GetEntity returns the value of Entity.
+func (s *EntityChange) GetEntity() EntityChangeEntity {
+	return s.Entity
+}
+
+// GetEntityID returns the value of EntityID.
+func (s *EntityChange) GetEntityID() uuid.UUID {
+	return s.EntityID
+}
+
+// GetAction returns the value of Action.
+func (s *EntityChange) GetAction() EntityChangeAction {
+	return s.Action
+}
+
+// GetChanges returns the value of Changes.
+func (s *EntityChange) GetChanges() EntityChangeChanges {
+	return s.Changes
+}
+
+// SetEntity sets the value of Entity.
+func (s *EntityChange) SetEntity(val EntityChangeEntity) {
+	s.Entity = val
+}
+
+// SetEntityID sets the value of EntityID.
+func (s *EntityChange) SetEntityID(val uuid.UUID) {
+	s.EntityID = val
+}
+
+// SetAction sets the value of Action.
+func (s *EntityChange) SetAction(val EntityChangeAction) {
+	s.Action = val
+}
+
+// SetChanges sets the value of Changes.
+func (s *EntityChange) SetChanges(val EntityChangeChanges) {
+	s.Changes = val
+}
+
+type EntityChangeAction string
+
+const (
+	EntityChangeActionInsert EntityChangeAction = "insert"
+	EntityChangeActionUpdate EntityChangeAction = "update"
+	EntityChangeActionDelete EntityChangeAction = "delete"
+)
+
+// AllValues returns all EntityChangeAction values.
+func (EntityChangeAction) AllValues() []EntityChangeAction {
+	return []EntityChangeAction{
+		EntityChangeActionInsert,
+		EntityChangeActionUpdate,
+		EntityChangeActionDelete,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s EntityChangeAction) MarshalText() ([]byte, error) {
+	switch s {
+	case EntityChangeActionInsert:
+		return []byte(s), nil
+	case EntityChangeActionUpdate:
+		return []byte(s), nil
+	case EntityChangeActionDelete:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *EntityChangeAction) UnmarshalText(data []byte) error {
+	switch EntityChangeAction(data) {
+	case EntityChangeActionInsert:
+		*s = EntityChangeActionInsert
+		return nil
+	case EntityChangeActionUpdate:
+		*s = EntityChangeActionUpdate
+		return nil
+	case EntityChangeActionDelete:
+		*s = EntityChangeActionDelete
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type EntityChangeChanges map[string]ChangeValue
+
+func (s *EntityChangeChanges) init() EntityChangeChanges {
+	m := *s
+	if m == nil {
+		m = map[string]ChangeValue{}
+		*s = m
+	}
+	return m
+}
+
+type EntityChangeEntity string
+
+const (
+	EntityChangeEntityFeature         EntityChangeEntity = "feature"
+	EntityChangeEntityRule            EntityChangeEntity = "rule"
+	EntityChangeEntityFeatureSchedule EntityChangeEntity = "feature_schedule"
+)
+
+// AllValues returns all EntityChangeEntity values.
+func (EntityChangeEntity) AllValues() []EntityChangeEntity {
+	return []EntityChangeEntity{
+		EntityChangeEntityFeature,
+		EntityChangeEntityRule,
+		EntityChangeEntityFeatureSchedule,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s EntityChangeEntity) MarshalText() ([]byte, error) {
+	switch s {
+	case EntityChangeEntityFeature:
+		return []byte(s), nil
+	case EntityChangeEntityRule:
+		return []byte(s), nil
+	case EntityChangeEntityFeatureSchedule:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *EntityChangeEntity) UnmarshalText(data []byte) error {
+	switch EntityChangeEntity(data) {
+	case EntityChangeEntityFeature:
+		*s = EntityChangeEntityFeature
+		return nil
+	case EntityChangeEntityRule:
+		*s = EntityChangeEntityRule
+		return nil
+	case EntityChangeEntityFeatureSchedule:
+		*s = EntityChangeEntityFeatureSchedule
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 // Type of entity that was changed.
 // Ref: #/components/schemas/EntityType
@@ -1395,6 +1690,7 @@ func (*Error) createProjectTagRes()      {}
 func (*Error) createRuleAttributeRes()   {}
 func (*Error) getLDAPConfigRes()         {}
 func (*Error) getLDAPSyncLogDetailsRes() {}
+func (*Error) initiateTOTPApprovalRes()  {}
 func (*Error) syncLDAPUsersRes()         {}
 func (*Error) updateLDAPConfigRes()      {}
 
@@ -1469,6 +1765,8 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 
 func (*ErrorBadRequest) addFeatureTagRes()            {}
 func (*ErrorBadRequest) addProjectRes()               {}
+func (*ErrorBadRequest) approvePendingChangeRes()     {}
+func (*ErrorBadRequest) cancelPendingChangeRes()      {}
 func (*ErrorBadRequest) confirm2FARes()               {}
 func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
 func (*ErrorBadRequest) createCategoryRes()           {}
@@ -1477,6 +1775,7 @@ func (*ErrorBadRequest) createFeatureRuleRes()        {}
 func (*ErrorBadRequest) createFeatureScheduleRes()    {}
 func (*ErrorBadRequest) createProjectFeatureRes()     {}
 func (*ErrorBadRequest) createProjectSegmentRes()     {}
+func (*ErrorBadRequest) createProjectSettingRes()     {}
 func (*ErrorBadRequest) createProjectTagRes()         {}
 func (*ErrorBadRequest) createRuleAttributeRes()      {}
 func (*ErrorBadRequest) createUserRes()               {}
@@ -1485,6 +1784,8 @@ func (*ErrorBadRequest) deleteUserRes()               {}
 func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
 func (*ErrorBadRequest) getFeatureTimelineRes()       {}
+func (*ErrorBadRequest) initiateTOTPApprovalRes()     {}
+func (*ErrorBadRequest) rejectPendingChangeRes()      {}
 func (*ErrorBadRequest) reset2FARes()                 {}
 func (*ErrorBadRequest) resetPasswordRes()            {}
 func (*ErrorBadRequest) sSOCallbackRes()              {}
@@ -1500,6 +1801,7 @@ func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
 func (*ErrorBadRequest) updateLicenseRes()            {}
 func (*ErrorBadRequest) updateProjectRes()            {}
+func (*ErrorBadRequest) updateProjectSettingRes()     {}
 func (*ErrorBadRequest) updateProjectTagRes()         {}
 func (*ErrorBadRequest) updateSegmentRes()            {}
 func (*ErrorBadRequest) userChangeMyPasswordRes()     {}
@@ -1517,6 +1819,53 @@ func (s *ErrorBadRequestError) GetMessage() OptString {
 // SetMessage sets the value of Message.
 func (s *ErrorBadRequestError) SetMessage(val OptString) {
 	s.Message = val
+}
+
+// Ref: #/components/schemas/ErrorConflict
+type ErrorConflict struct {
+	Error ErrorConflictError `json:"error"`
+}
+
+// GetError returns the value of Error.
+func (s *ErrorConflict) GetError() ErrorConflictError {
+	return s.Error
+}
+
+// SetError sets the value of Error.
+func (s *ErrorConflict) SetError(val ErrorConflictError) {
+	s.Error = val
+}
+
+func (*ErrorConflict) approvePendingChangeRes() {}
+func (*ErrorConflict) cancelPendingChangeRes()  {}
+func (*ErrorConflict) createProjectSettingRes() {}
+func (*ErrorConflict) initiateTOTPApprovalRes() {}
+func (*ErrorConflict) rejectPendingChangeRes()  {}
+func (*ErrorConflict) toggleFeatureRes()        {}
+
+type ErrorConflictError struct {
+	Message OptString `json:"message"`
+	Code    OptString `json:"code"`
+}
+
+// GetMessage returns the value of Message.
+func (s *ErrorConflictError) GetMessage() OptString {
+	return s.Message
+}
+
+// GetCode returns the value of Code.
+func (s *ErrorConflictError) GetCode() OptString {
+	return s.Code
+}
+
+// SetMessage sets the value of Message.
+func (s *ErrorConflictError) SetMessage(val OptString) {
+	s.Message = val
+}
+
+// SetCode sets the value of Code.
+func (s *ErrorConflictError) SetCode(val OptString) {
+	s.Code = val
 }
 
 type ErrorError struct {
@@ -1551,7 +1900,9 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 
 func (*ErrorInternalServerError) addFeatureTagRes()               {}
 func (*ErrorInternalServerError) addProjectRes()                  {}
+func (*ErrorInternalServerError) approvePendingChangeRes()        {}
 func (*ErrorInternalServerError) archiveProjectRes()              {}
+func (*ErrorInternalServerError) cancelPendingChangeRes()         {}
 func (*ErrorInternalServerError) consumeSAMLAssertionRes()        {}
 func (*ErrorInternalServerError) createCategoryRes()              {}
 func (*ErrorInternalServerError) createFeatureFlagVariantRes()    {}
@@ -1559,12 +1910,14 @@ func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) createProjectFeatureRes()        {}
 func (*ErrorInternalServerError) createProjectSegmentRes()        {}
+func (*ErrorInternalServerError) createProjectSettingRes()        {}
 func (*ErrorInternalServerError) createProjectTagRes()            {}
 func (*ErrorInternalServerError) createRuleAttributeRes()         {}
 func (*ErrorInternalServerError) createUserRes()                  {}
 func (*ErrorInternalServerError) deleteCategoryRes()              {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
+func (*ErrorInternalServerError) deleteProjectSettingRes()        {}
 func (*ErrorInternalServerError) deleteProjectTagRes()            {}
 func (*ErrorInternalServerError) deleteRuleAttributeRes()         {}
 func (*ErrorInternalServerError) deleteSegmentRes()               {}
@@ -1576,8 +1929,10 @@ func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
 func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
 func (*ErrorInternalServerError) getLicenseStatusRes()            {}
+func (*ErrorInternalServerError) getPendingChangeRes()            {}
 func (*ErrorInternalServerError) getProductInfoRes()              {}
 func (*ErrorInternalServerError) getProjectRes()                  {}
+func (*ErrorInternalServerError) getProjectSettingRes()           {}
 func (*ErrorInternalServerError) getProjectTagRes()               {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()             {}
 func (*ErrorInternalServerError) getSSOProvidersRes()             {}
@@ -1588,9 +1943,11 @@ func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
 func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listFeatureTagsRes()             {}
+func (*ErrorInternalServerError) listPendingChangesRes()          {}
 func (*ErrorInternalServerError) listProjectChangesRes()          {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
+func (*ErrorInternalServerError) listProjectSettingsRes()         {}
 func (*ErrorInternalServerError) listProjectTagsRes()             {}
 func (*ErrorInternalServerError) listProjectsRes()                {}
 func (*ErrorInternalServerError) listRuleAttributesRes()          {}
@@ -1598,6 +1955,7 @@ func (*ErrorInternalServerError) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorInternalServerError) listUsersRes()                   {}
 func (*ErrorInternalServerError) loginRes()                       {}
 func (*ErrorInternalServerError) refreshTokenRes()                {}
+func (*ErrorInternalServerError) rejectPendingChangeRes()         {}
 func (*ErrorInternalServerError) removeFeatureTagRes()            {}
 func (*ErrorInternalServerError) resetPasswordRes()               {}
 func (*ErrorInternalServerError) sSOCallbackRes()                 {}
@@ -1613,6 +1971,7 @@ func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
 func (*ErrorInternalServerError) updateLicenseRes()               {}
 func (*ErrorInternalServerError) updateProjectRes()               {}
+func (*ErrorInternalServerError) updateProjectSettingRes()        {}
 func (*ErrorInternalServerError) updateProjectTagRes()            {}
 func (*ErrorInternalServerError) updateSegmentRes()               {}
 func (*ErrorInternalServerError) userChangeMyPasswordRes()        {}
@@ -1680,16 +2039,20 @@ func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
 }
 
 func (*ErrorNotFound) addFeatureTagRes()               {}
+func (*ErrorNotFound) approvePendingChangeRes()        {}
 func (*ErrorNotFound) archiveProjectRes()              {}
+func (*ErrorNotFound) cancelPendingChangeRes()         {}
 func (*ErrorNotFound) createFeatureFlagVariantRes()    {}
 func (*ErrorNotFound) createFeatureRuleRes()           {}
 func (*ErrorNotFound) createFeatureScheduleRes()       {}
 func (*ErrorNotFound) createProjectFeatureRes()        {}
 func (*ErrorNotFound) createProjectSegmentRes()        {}
+func (*ErrorNotFound) createProjectSettingRes()        {}
 func (*ErrorNotFound) createProjectTagRes()            {}
 func (*ErrorNotFound) deleteCategoryRes()              {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
+func (*ErrorNotFound) deleteProjectSettingRes()        {}
 func (*ErrorNotFound) deleteProjectTagRes()            {}
 func (*ErrorNotFound) deleteRuleAttributeRes()         {}
 func (*ErrorNotFound) deleteSegmentRes()               {}
@@ -1698,10 +2061,13 @@ func (*ErrorNotFound) getCategoryRes()                 {}
 func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
 func (*ErrorNotFound) getFeatureTimelineRes()          {}
+func (*ErrorNotFound) getPendingChangeRes()            {}
 func (*ErrorNotFound) getProjectRes()                  {}
+func (*ErrorNotFound) getProjectSettingRes()           {}
 func (*ErrorNotFound) getProjectTagRes()               {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
+func (*ErrorNotFound) initiateTOTPApprovalRes()        {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
@@ -1709,9 +2075,11 @@ func (*ErrorNotFound) listFeatureTagsRes()             {}
 func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
 func (*ErrorNotFound) listProjectSegmentsRes()         {}
+func (*ErrorNotFound) listProjectSettingsRes()         {}
 func (*ErrorNotFound) listProjectTagsRes()             {}
 func (*ErrorNotFound) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorNotFound) listUsersRes()                   {}
+func (*ErrorNotFound) rejectPendingChangeRes()         {}
 func (*ErrorNotFound) removeFeatureTagRes()            {}
 func (*ErrorNotFound) setSuperuserStatusRes()          {}
 func (*ErrorNotFound) setUserActiveStatusRes()         {}
@@ -1722,6 +2090,7 @@ func (*ErrorNotFound) updateCategoryRes()              {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
 func (*ErrorNotFound) updateProjectRes()               {}
+func (*ErrorNotFound) updateProjectSettingRes()        {}
 func (*ErrorNotFound) updateProjectTagRes()            {}
 func (*ErrorNotFound) updateSegmentRes()               {}
 
@@ -1757,14 +2126,17 @@ func (s *ErrorPermissionDenied) SetError(val ErrorPermissionDeniedError) {
 
 func (*ErrorPermissionDenied) addFeatureTagRes()               {}
 func (*ErrorPermissionDenied) addProjectRes()                  {}
+func (*ErrorPermissionDenied) approvePendingChangeRes()        {}
 func (*ErrorPermissionDenied) archiveProjectRes()              {}
 func (*ErrorPermissionDenied) cancelLDAPSyncRes()              {}
+func (*ErrorPermissionDenied) cancelPendingChangeRes()         {}
 func (*ErrorPermissionDenied) createCategoryRes()              {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()        {}
 func (*ErrorPermissionDenied) createProjectSegmentRes()        {}
+func (*ErrorPermissionDenied) createProjectSettingRes()        {}
 func (*ErrorPermissionDenied) createProjectTagRes()            {}
 func (*ErrorPermissionDenied) createRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) createUserRes()                  {}
@@ -1772,6 +2144,7 @@ func (*ErrorPermissionDenied) deleteCategoryRes()              {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) deleteProjectSettingRes()        {}
 func (*ErrorPermissionDenied) deleteProjectTagRes()            {}
 func (*ErrorPermissionDenied) deleteRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) deleteSegmentRes()               {}
@@ -1789,8 +2162,10 @@ func (*ErrorPermissionDenied) getLDAPSyncProgressRes()         {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()           {}
 func (*ErrorPermissionDenied) getProductInfoRes()              {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
+func (*ErrorPermissionDenied) getProjectSettingRes()           {}
 func (*ErrorPermissionDenied) getProjectTagRes()               {}
 func (*ErrorPermissionDenied) getSegmentRes()                  {}
+func (*ErrorPermissionDenied) initiateTOTPApprovalRes()        {}
 func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()     {}
 func (*ErrorPermissionDenied) listCategoriesRes()              {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
@@ -1800,9 +2175,11 @@ func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
 func (*ErrorPermissionDenied) listProjectSegmentsRes()         {}
+func (*ErrorPermissionDenied) listProjectSettingsRes()         {}
 func (*ErrorPermissionDenied) listProjectTagsRes()             {}
 func (*ErrorPermissionDenied) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorPermissionDenied) listUsersRes()                   {}
+func (*ErrorPermissionDenied) rejectPendingChangeRes()         {}
 func (*ErrorPermissionDenied) removeFeatureTagRes()            {}
 func (*ErrorPermissionDenied) setSuperuserStatusRes()          {}
 func (*ErrorPermissionDenied) setUserActiveStatusRes()         {}
@@ -1817,6 +2194,7 @@ func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}
 func (*ErrorPermissionDenied) updateLicenseRes()               {}
 func (*ErrorPermissionDenied) updateProjectRes()               {}
+func (*ErrorPermissionDenied) updateProjectSettingRes()        {}
 func (*ErrorPermissionDenied) updateProjectTagRes()            {}
 func (*ErrorPermissionDenied) updateSegmentRes()               {}
 func (*ErrorPermissionDenied) userChangeMyPasswordRes()        {}
@@ -1912,8 +2290,10 @@ func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
 
 func (*ErrorUnauthorized) addFeatureTagRes()               {}
 func (*ErrorUnauthorized) addProjectRes()                  {}
+func (*ErrorUnauthorized) approvePendingChangeRes()        {}
 func (*ErrorUnauthorized) archiveProjectRes()              {}
 func (*ErrorUnauthorized) cancelLDAPSyncRes()              {}
+func (*ErrorUnauthorized) cancelPendingChangeRes()         {}
 func (*ErrorUnauthorized) confirm2FARes()                  {}
 func (*ErrorUnauthorized) consumeSAMLAssertionRes()        {}
 func (*ErrorUnauthorized) createCategoryRes()              {}
@@ -1922,6 +2302,7 @@ func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) createProjectFeatureRes()        {}
 func (*ErrorUnauthorized) createProjectSegmentRes()        {}
+func (*ErrorUnauthorized) createProjectSettingRes()        {}
 func (*ErrorUnauthorized) createProjectTagRes()            {}
 func (*ErrorUnauthorized) createRuleAttributeRes()         {}
 func (*ErrorUnauthorized) createUserRes()                  {}
@@ -1929,6 +2310,7 @@ func (*ErrorUnauthorized) deleteCategoryRes()              {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
+func (*ErrorUnauthorized) deleteProjectSettingRes()        {}
 func (*ErrorUnauthorized) deleteProjectTagRes()            {}
 func (*ErrorUnauthorized) deleteRuleAttributeRes()         {}
 func (*ErrorUnauthorized) deleteSegmentRes()               {}
@@ -1945,25 +2327,31 @@ func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()       {}
 func (*ErrorUnauthorized) getLDAPSyncLogsRes()             {}
 func (*ErrorUnauthorized) getLDAPSyncProgressRes()         {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()           {}
+func (*ErrorUnauthorized) getPendingChangeRes()            {}
 func (*ErrorUnauthorized) getProductInfoRes()              {}
 func (*ErrorUnauthorized) getProjectRes()                  {}
+func (*ErrorUnauthorized) getProjectSettingRes()           {}
 func (*ErrorUnauthorized) getProjectTagRes()               {}
 func (*ErrorUnauthorized) getSegmentRes()                  {}
+func (*ErrorUnauthorized) initiateTOTPApprovalRes()        {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listCategoriesRes()              {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
 func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listFeatureTagsRes()             {}
+func (*ErrorUnauthorized) listPendingChangesRes()          {}
 func (*ErrorUnauthorized) listProjectChangesRes()          {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
+func (*ErrorUnauthorized) listProjectSettingsRes()         {}
 func (*ErrorUnauthorized) listProjectTagsRes()             {}
 func (*ErrorUnauthorized) listProjectsRes()                {}
 func (*ErrorUnauthorized) listRuleAttributesRes()          {}
 func (*ErrorUnauthorized) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorUnauthorized) listUsersRes()                   {}
 func (*ErrorUnauthorized) refreshTokenRes()                {}
+func (*ErrorUnauthorized) rejectPendingChangeRes()         {}
 func (*ErrorUnauthorized) removeFeatureTagRes()            {}
 func (*ErrorUnauthorized) reset2FARes()                    {}
 func (*ErrorUnauthorized) resetPasswordRes()               {}
@@ -1984,6 +2372,7 @@ func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()     {}
 func (*ErrorUnauthorized) updateLicenseRes()               {}
 func (*ErrorUnauthorized) updateProjectRes()               {}
+func (*ErrorUnauthorized) updateProjectSettingRes()        {}
 func (*ErrorUnauthorized) updateProjectTagRes()            {}
 func (*ErrorUnauthorized) updateSegmentRes()               {}
 func (*ErrorUnauthorized) userChangeMyPasswordRes()        {}
@@ -2783,6 +3172,50 @@ func (s GetSAMLMetadataOK) Read(p []byte) (n int, err error) {
 }
 
 func (*GetSAMLMetadataOK) getSAMLMetadataRes() {}
+
+// Ref: #/components/schemas/InitiateTOTPApprovalRequest
+type InitiateTOTPApprovalRequest struct {
+	ApproverUserID uint `json:"approver_user_id"`
+}
+
+// GetApproverUserID returns the value of ApproverUserID.
+func (s *InitiateTOTPApprovalRequest) GetApproverUserID() uint {
+	return s.ApproverUserID
+}
+
+// SetApproverUserID sets the value of ApproverUserID.
+func (s *InitiateTOTPApprovalRequest) SetApproverUserID(val uint) {
+	s.ApproverUserID = val
+}
+
+// Ref: #/components/schemas/InitiateTOTPApprovalResponse
+type InitiateTOTPApprovalResponse struct {
+	// Session ID to use for TOTP approval.
+	SessionID string `json:"session_id"`
+	Message   string `json:"message"`
+}
+
+// GetSessionID returns the value of SessionID.
+func (s *InitiateTOTPApprovalResponse) GetSessionID() string {
+	return s.SessionID
+}
+
+// GetMessage returns the value of Message.
+func (s *InitiateTOTPApprovalResponse) GetMessage() string {
+	return s.Message
+}
+
+// SetSessionID sets the value of SessionID.
+func (s *InitiateTOTPApprovalResponse) SetSessionID(val string) {
+	s.SessionID = val
+}
+
+// SetMessage sets the value of Message.
+func (s *InitiateTOTPApprovalResponse) SetMessage(val string) {
+	s.Message = val
+}
+
+func (*InitiateTOTPApprovalResponse) initiateTOTPApprovalRes() {}
 
 // Ref: #/components/schemas/LDAPConfig
 type LDAPConfig struct {
@@ -4148,6 +4581,109 @@ type ListFlagVariantsResponse []FlagVariant
 
 func (*ListFlagVariantsResponse) listFeatureFlagVariantsRes() {}
 
+type ListPendingChangesSortBy string
+
+const (
+	ListPendingChangesSortByCreatedAt   ListPendingChangesSortBy = "created_at"
+	ListPendingChangesSortByStatus      ListPendingChangesSortBy = "status"
+	ListPendingChangesSortByRequestedBy ListPendingChangesSortBy = "requested_by"
+)
+
+// AllValues returns all ListPendingChangesSortBy values.
+func (ListPendingChangesSortBy) AllValues() []ListPendingChangesSortBy {
+	return []ListPendingChangesSortBy{
+		ListPendingChangesSortByCreatedAt,
+		ListPendingChangesSortByStatus,
+		ListPendingChangesSortByRequestedBy,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListPendingChangesSortBy) MarshalText() ([]byte, error) {
+	switch s {
+	case ListPendingChangesSortByCreatedAt:
+		return []byte(s), nil
+	case ListPendingChangesSortByStatus:
+		return []byte(s), nil
+	case ListPendingChangesSortByRequestedBy:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListPendingChangesSortBy) UnmarshalText(data []byte) error {
+	switch ListPendingChangesSortBy(data) {
+	case ListPendingChangesSortByCreatedAt:
+		*s = ListPendingChangesSortByCreatedAt
+		return nil
+	case ListPendingChangesSortByStatus:
+		*s = ListPendingChangesSortByStatus
+		return nil
+	case ListPendingChangesSortByRequestedBy:
+		*s = ListPendingChangesSortByRequestedBy
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+type ListPendingChangesStatus string
+
+const (
+	ListPendingChangesStatusPending   ListPendingChangesStatus = "pending"
+	ListPendingChangesStatusApproved  ListPendingChangesStatus = "approved"
+	ListPendingChangesStatusRejected  ListPendingChangesStatus = "rejected"
+	ListPendingChangesStatusCancelled ListPendingChangesStatus = "cancelled"
+)
+
+// AllValues returns all ListPendingChangesStatus values.
+func (ListPendingChangesStatus) AllValues() []ListPendingChangesStatus {
+	return []ListPendingChangesStatus{
+		ListPendingChangesStatusPending,
+		ListPendingChangesStatusApproved,
+		ListPendingChangesStatusRejected,
+		ListPendingChangesStatusCancelled,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListPendingChangesStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case ListPendingChangesStatusPending:
+		return []byte(s), nil
+	case ListPendingChangesStatusApproved:
+		return []byte(s), nil
+	case ListPendingChangesStatusRejected:
+		return []byte(s), nil
+	case ListPendingChangesStatusCancelled:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListPendingChangesStatus) UnmarshalText(data []byte) error {
+	switch ListPendingChangesStatus(data) {
+	case ListPendingChangesStatusPending:
+		*s = ListPendingChangesStatusPending
+		return nil
+	case ListPendingChangesStatusApproved:
+		*s = ListPendingChangesStatusApproved
+		return nil
+	case ListPendingChangesStatusRejected:
+		*s = ListPendingChangesStatusRejected
+		return nil
+	case ListPendingChangesStatusCancelled:
+		*s = ListPendingChangesStatusCancelled
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type ListProjectChangesSortBy string
 
 const (
@@ -4353,6 +4889,34 @@ func (s *ListProjectSegmentsSortBy) UnmarshalText(data []byte) error {
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+// Ref: #/components/schemas/ListProjectSettingsResponse
+type ListProjectSettingsResponse struct {
+	Data       []ProjectSetting `json:"data"`
+	Pagination OptPagination    `json:"pagination"`
+}
+
+// GetData returns the value of Data.
+func (s *ListProjectSettingsResponse) GetData() []ProjectSetting {
+	return s.Data
+}
+
+// GetPagination returns the value of Pagination.
+func (s *ListProjectSettingsResponse) GetPagination() OptPagination {
+	return s.Pagination
+}
+
+// SetData sets the value of Data.
+func (s *ListProjectSettingsResponse) SetData(val []ProjectSetting) {
+	s.Data = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *ListProjectSettingsResponse) SetPagination(val OptPagination) {
+	s.Pagination = val
+}
+
+func (*ListProjectSettingsResponse) listProjectSettingsRes() {}
 
 type ListProjectTagsResponse []ProjectTag
 
@@ -5081,6 +5645,98 @@ func (o OptLicenseType) Or(d LicenseType) LicenseType {
 	return d
 }
 
+// NewOptListPendingChangesSortBy returns new OptListPendingChangesSortBy with value set to v.
+func NewOptListPendingChangesSortBy(v ListPendingChangesSortBy) OptListPendingChangesSortBy {
+	return OptListPendingChangesSortBy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListPendingChangesSortBy is optional ListPendingChangesSortBy.
+type OptListPendingChangesSortBy struct {
+	Value ListPendingChangesSortBy
+	Set   bool
+}
+
+// IsSet returns true if OptListPendingChangesSortBy was set.
+func (o OptListPendingChangesSortBy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListPendingChangesSortBy) Reset() {
+	var v ListPendingChangesSortBy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListPendingChangesSortBy) SetTo(v ListPendingChangesSortBy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListPendingChangesSortBy) Get() (v ListPendingChangesSortBy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListPendingChangesSortBy) Or(d ListPendingChangesSortBy) ListPendingChangesSortBy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptListPendingChangesStatus returns new OptListPendingChangesStatus with value set to v.
+func NewOptListPendingChangesStatus(v ListPendingChangesStatus) OptListPendingChangesStatus {
+	return OptListPendingChangesStatus{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListPendingChangesStatus is optional ListPendingChangesStatus.
+type OptListPendingChangesStatus struct {
+	Value ListPendingChangesStatus
+	Set   bool
+}
+
+// IsSet returns true if OptListPendingChangesStatus was set.
+func (o OptListPendingChangesStatus) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListPendingChangesStatus) Reset() {
+	var v ListPendingChangesStatus
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListPendingChangesStatus) SetTo(v ListPendingChangesStatus) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListPendingChangesStatus) Get() (v ListPendingChangesStatus, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListPendingChangesStatus) Or(d ListPendingChangesStatus) ListPendingChangesStatus {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptListProjectChangesSortBy returns new OptListProjectChangesSortBy with value set to v.
 func NewOptListProjectChangesSortBy(v ListProjectChangesSortBy) OptListProjectChangesSortBy {
 	return OptListProjectChangesSortBy{
@@ -5643,6 +6299,115 @@ func (o OptNilUUID) Or(d uuid.UUID) uuid.UUID {
 	return d
 }
 
+// NewOptNilUint returns new OptNilUint with value set to v.
+func NewOptNilUint(v uint) OptNilUint {
+	return OptNilUint{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilUint is optional nullable uint.
+type OptNilUint struct {
+	Value uint
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilUint was set.
+func (o OptNilUint) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilUint) Reset() {
+	var v uint
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilUint) SetTo(v uint) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilUint) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilUint) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v uint
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilUint) Get() (v uint, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilUint) Or(d uint) uint {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptPagination returns new OptPagination with value set to v.
+func NewOptPagination(v Pagination) OptPagination {
+	return OptPagination{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptPagination is optional Pagination.
+type OptPagination struct {
+	Value Pagination
+	Set   bool
+}
+
+// IsSet returns true if OptPagination was set.
+func (o OptPagination) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptPagination) Reset() {
+	var v Pagination
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptPagination) SetTo(v Pagination) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptPagination) Get() (v Pagination, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptPagination) Or(d Pagination) Pagination {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptRuleCondition returns new OptRuleCondition with value set to v.
 func NewOptRuleCondition(v RuleCondition) OptRuleCondition {
 	return OptRuleCondition{
@@ -6002,6 +6767,316 @@ func (s *Pagination) SetPerPage(val uint) {
 	s.PerPage = val
 }
 
+// Ref: #/components/schemas/PendingChangeMeta
+type PendingChangeMeta struct {
+	Reason string `json:"reason"`
+	Client string `json:"client"`
+	Origin string `json:"origin"`
+	// True if the project has only 1 active user (enables auto-approve).
+	SingleUserProject OptBool `json:"single_user_project"`
+}
+
+// GetReason returns the value of Reason.
+func (s *PendingChangeMeta) GetReason() string {
+	return s.Reason
+}
+
+// GetClient returns the value of Client.
+func (s *PendingChangeMeta) GetClient() string {
+	return s.Client
+}
+
+// GetOrigin returns the value of Origin.
+func (s *PendingChangeMeta) GetOrigin() string {
+	return s.Origin
+}
+
+// GetSingleUserProject returns the value of SingleUserProject.
+func (s *PendingChangeMeta) GetSingleUserProject() OptBool {
+	return s.SingleUserProject
+}
+
+// SetReason sets the value of Reason.
+func (s *PendingChangeMeta) SetReason(val string) {
+	s.Reason = val
+}
+
+// SetClient sets the value of Client.
+func (s *PendingChangeMeta) SetClient(val string) {
+	s.Client = val
+}
+
+// SetOrigin sets the value of Origin.
+func (s *PendingChangeMeta) SetOrigin(val string) {
+	s.Origin = val
+}
+
+// SetSingleUserProject sets the value of SingleUserProject.
+func (s *PendingChangeMeta) SetSingleUserProject(val OptBool) {
+	s.SingleUserProject = val
+}
+
+// Ref: #/components/schemas/PendingChangePayload
+type PendingChangePayload struct {
+	Entities []EntityChange    `json:"entities"`
+	Meta     PendingChangeMeta `json:"meta"`
+}
+
+// GetEntities returns the value of Entities.
+func (s *PendingChangePayload) GetEntities() []EntityChange {
+	return s.Entities
+}
+
+// GetMeta returns the value of Meta.
+func (s *PendingChangePayload) GetMeta() PendingChangeMeta {
+	return s.Meta
+}
+
+// SetEntities sets the value of Entities.
+func (s *PendingChangePayload) SetEntities(val []EntityChange) {
+	s.Entities = val
+}
+
+// SetMeta sets the value of Meta.
+func (s *PendingChangePayload) SetMeta(val PendingChangeMeta) {
+	s.Meta = val
+}
+
+// Ref: #/components/schemas/PendingChangeResponse
+type PendingChangeResponse struct {
+	ID              uuid.UUID                   `json:"id"`
+	ProjectID       uuid.UUID                   `json:"project_id"`
+	RequestedBy     string                      `json:"requested_by"`
+	RequestUserID   OptNilUint                  `json:"request_user_id"`
+	Change          PendingChangePayload        `json:"change"`
+	Status          PendingChangeResponseStatus `json:"status"`
+	CreatedAt       time.Time                   `json:"created_at"`
+	ApprovedBy      OptNilString                `json:"approved_by"`
+	ApprovedUserID  OptNilUint                  `json:"approved_user_id"`
+	ApprovedAt      OptNilDateTime              `json:"approved_at"`
+	RejectedBy      OptNilString                `json:"rejected_by"`
+	RejectedAt      OptNilDateTime              `json:"rejected_at"`
+	RejectionReason OptNilString                `json:"rejection_reason"`
+}
+
+// GetID returns the value of ID.
+func (s *PendingChangeResponse) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *PendingChangeResponse) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetRequestedBy returns the value of RequestedBy.
+func (s *PendingChangeResponse) GetRequestedBy() string {
+	return s.RequestedBy
+}
+
+// GetRequestUserID returns the value of RequestUserID.
+func (s *PendingChangeResponse) GetRequestUserID() OptNilUint {
+	return s.RequestUserID
+}
+
+// GetChange returns the value of Change.
+func (s *PendingChangeResponse) GetChange() PendingChangePayload {
+	return s.Change
+}
+
+// GetStatus returns the value of Status.
+func (s *PendingChangeResponse) GetStatus() PendingChangeResponseStatus {
+	return s.Status
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *PendingChangeResponse) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetApprovedBy returns the value of ApprovedBy.
+func (s *PendingChangeResponse) GetApprovedBy() OptNilString {
+	return s.ApprovedBy
+}
+
+// GetApprovedUserID returns the value of ApprovedUserID.
+func (s *PendingChangeResponse) GetApprovedUserID() OptNilUint {
+	return s.ApprovedUserID
+}
+
+// GetApprovedAt returns the value of ApprovedAt.
+func (s *PendingChangeResponse) GetApprovedAt() OptNilDateTime {
+	return s.ApprovedAt
+}
+
+// GetRejectedBy returns the value of RejectedBy.
+func (s *PendingChangeResponse) GetRejectedBy() OptNilString {
+	return s.RejectedBy
+}
+
+// GetRejectedAt returns the value of RejectedAt.
+func (s *PendingChangeResponse) GetRejectedAt() OptNilDateTime {
+	return s.RejectedAt
+}
+
+// GetRejectionReason returns the value of RejectionReason.
+func (s *PendingChangeResponse) GetRejectionReason() OptNilString {
+	return s.RejectionReason
+}
+
+// SetID sets the value of ID.
+func (s *PendingChangeResponse) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *PendingChangeResponse) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetRequestedBy sets the value of RequestedBy.
+func (s *PendingChangeResponse) SetRequestedBy(val string) {
+	s.RequestedBy = val
+}
+
+// SetRequestUserID sets the value of RequestUserID.
+func (s *PendingChangeResponse) SetRequestUserID(val OptNilUint) {
+	s.RequestUserID = val
+}
+
+// SetChange sets the value of Change.
+func (s *PendingChangeResponse) SetChange(val PendingChangePayload) {
+	s.Change = val
+}
+
+// SetStatus sets the value of Status.
+func (s *PendingChangeResponse) SetStatus(val PendingChangeResponseStatus) {
+	s.Status = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *PendingChangeResponse) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetApprovedBy sets the value of ApprovedBy.
+func (s *PendingChangeResponse) SetApprovedBy(val OptNilString) {
+	s.ApprovedBy = val
+}
+
+// SetApprovedUserID sets the value of ApprovedUserID.
+func (s *PendingChangeResponse) SetApprovedUserID(val OptNilUint) {
+	s.ApprovedUserID = val
+}
+
+// SetApprovedAt sets the value of ApprovedAt.
+func (s *PendingChangeResponse) SetApprovedAt(val OptNilDateTime) {
+	s.ApprovedAt = val
+}
+
+// SetRejectedBy sets the value of RejectedBy.
+func (s *PendingChangeResponse) SetRejectedBy(val OptNilString) {
+	s.RejectedBy = val
+}
+
+// SetRejectedAt sets the value of RejectedAt.
+func (s *PendingChangeResponse) SetRejectedAt(val OptNilDateTime) {
+	s.RejectedAt = val
+}
+
+// SetRejectionReason sets the value of RejectionReason.
+func (s *PendingChangeResponse) SetRejectionReason(val OptNilString) {
+	s.RejectionReason = val
+}
+
+func (*PendingChangeResponse) deleteFeatureRes()    {}
+func (*PendingChangeResponse) getPendingChangeRes() {}
+func (*PendingChangeResponse) toggleFeatureRes()    {}
+func (*PendingChangeResponse) updateFeatureRes()    {}
+
+type PendingChangeResponseStatus string
+
+const (
+	PendingChangeResponseStatusPending   PendingChangeResponseStatus = "pending"
+	PendingChangeResponseStatusApproved  PendingChangeResponseStatus = "approved"
+	PendingChangeResponseStatusRejected  PendingChangeResponseStatus = "rejected"
+	PendingChangeResponseStatusCancelled PendingChangeResponseStatus = "cancelled"
+)
+
+// AllValues returns all PendingChangeResponseStatus values.
+func (PendingChangeResponseStatus) AllValues() []PendingChangeResponseStatus {
+	return []PendingChangeResponseStatus{
+		PendingChangeResponseStatusPending,
+		PendingChangeResponseStatusApproved,
+		PendingChangeResponseStatusRejected,
+		PendingChangeResponseStatusCancelled,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s PendingChangeResponseStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case PendingChangeResponseStatusPending:
+		return []byte(s), nil
+	case PendingChangeResponseStatusApproved:
+		return []byte(s), nil
+	case PendingChangeResponseStatusRejected:
+		return []byte(s), nil
+	case PendingChangeResponseStatusCancelled:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *PendingChangeResponseStatus) UnmarshalText(data []byte) error {
+	switch PendingChangeResponseStatus(data) {
+	case PendingChangeResponseStatusPending:
+		*s = PendingChangeResponseStatusPending
+		return nil
+	case PendingChangeResponseStatusApproved:
+		*s = PendingChangeResponseStatusApproved
+		return nil
+	case PendingChangeResponseStatusRejected:
+		*s = PendingChangeResponseStatusRejected
+		return nil
+	case PendingChangeResponseStatusCancelled:
+		*s = PendingChangeResponseStatusCancelled
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/PendingChangesListResponse
+type PendingChangesListResponse struct {
+	Data       []PendingChangeResponse `json:"data"`
+	Pagination Pagination              `json:"pagination"`
+}
+
+// GetData returns the value of Data.
+func (s *PendingChangesListResponse) GetData() []PendingChangeResponse {
+	return s.Data
+}
+
+// GetPagination returns the value of Pagination.
+func (s *PendingChangesListResponse) GetPagination() Pagination {
+	return s.Pagination
+}
+
+// SetData sets the value of Data.
+func (s *PendingChangesListResponse) SetData(val []PendingChangeResponse) {
+	s.Data = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *PendingChangesListResponse) SetPagination(val Pagination) {
+	s.Pagination = val
+}
+
+func (*PendingChangesListResponse) listPendingChangesRes() {}
+
 // Ref: #/components/schemas/ProductInfoResponse
 type ProductInfoResponse struct {
 	// Unique client identifier for this installation.
@@ -6109,6 +7184,82 @@ func (s *ProjectResponse) SetProject(val Project) {
 
 func (*ProjectResponse) getProjectRes()    {}
 func (*ProjectResponse) updateProjectRes() {}
+
+// Ref: #/components/schemas/ProjectSetting
+type ProjectSetting struct {
+	ID        int                 `json:"id"`
+	ProjectID string              `json:"project_id"`
+	Name      string              `json:"name"`
+	Value     ProjectSettingValue `json:"value"`
+	CreatedAt time.Time           `json:"created_at"`
+	UpdatedAt time.Time           `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *ProjectSetting) GetID() int {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *ProjectSetting) GetProjectID() string {
+	return s.ProjectID
+}
+
+// GetName returns the value of Name.
+func (s *ProjectSetting) GetName() string {
+	return s.Name
+}
+
+// GetValue returns the value of Value.
+func (s *ProjectSetting) GetValue() ProjectSettingValue {
+	return s.Value
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *ProjectSetting) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *ProjectSetting) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *ProjectSetting) SetID(val int) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *ProjectSetting) SetProjectID(val string) {
+	s.ProjectID = val
+}
+
+// SetName sets the value of Name.
+func (s *ProjectSetting) SetName(val string) {
+	s.Name = val
+}
+
+// SetValue sets the value of Value.
+func (s *ProjectSetting) SetValue(val ProjectSettingValue) {
+	s.Value = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *ProjectSetting) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *ProjectSetting) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+func (*ProjectSetting) createProjectSettingRes() {}
+func (*ProjectSetting) getProjectSettingRes()    {}
+func (*ProjectSetting) updateProjectSettingRes() {}
+
+type ProjectSettingValue struct{}
 
 // Ref: #/components/schemas/ProjectTag
 type ProjectTag struct {
@@ -6297,6 +7448,32 @@ func (s *RefreshTokenResponse) SetExpiresIn(val int) {
 }
 
 func (*RefreshTokenResponse) refreshTokenRes() {}
+
+// Ref: #/components/schemas/RejectPendingChangeRequest
+type RejectPendingChangeRequest struct {
+	RejectedBy string `json:"rejected_by"`
+	Reason     string `json:"reason"`
+}
+
+// GetRejectedBy returns the value of RejectedBy.
+func (s *RejectPendingChangeRequest) GetRejectedBy() string {
+	return s.RejectedBy
+}
+
+// GetReason returns the value of Reason.
+func (s *RejectPendingChangeRequest) GetReason() string {
+	return s.Reason
+}
+
+// SetRejectedBy sets the value of RejectedBy.
+func (s *RejectPendingChangeRequest) SetRejectedBy(val string) {
+	s.RejectedBy = val
+}
+
+// SetReason sets the value of Reason.
+func (s *RejectPendingChangeRequest) SetReason(val string) {
+	s.Reason = val
+}
 
 // RemoveFeatureTagNoContent is response for RemoveFeatureTag operation.
 type RemoveFeatureTagNoContent struct{}
@@ -7090,8 +8267,11 @@ func (s *SuccessResponse) SetMessage(val OptString) {
 	s.Message = val
 }
 
-func (*SuccessResponse) cancelLDAPSyncRes()   {}
-func (*SuccessResponse) deleteLDAPConfigRes() {}
+func (*SuccessResponse) approvePendingChangeRes() {}
+func (*SuccessResponse) cancelLDAPSyncRes()       {}
+func (*SuccessResponse) cancelPendingChangeRes()  {}
+func (*SuccessResponse) deleteLDAPConfigRes()     {}
+func (*SuccessResponse) rejectPendingChangeRes()  {}
 
 // Ref: #/components/schemas/TestFeatureSchedule
 type TestFeatureSchedule struct {
@@ -7567,6 +8747,23 @@ func (s *UpdateProjectRequest) SetName(val string) {
 func (s *UpdateProjectRequest) SetDescription(val string) {
 	s.Description = val
 }
+
+// Ref: #/components/schemas/UpdateProjectSettingRequest
+type UpdateProjectSettingRequest struct {
+	Value UpdateProjectSettingRequestValue `json:"value"`
+}
+
+// GetValue returns the value of Value.
+func (s *UpdateProjectSettingRequest) GetValue() UpdateProjectSettingRequestValue {
+	return s.Value
+}
+
+// SetValue sets the value of Value.
+func (s *UpdateProjectSettingRequest) SetValue(val UpdateProjectSettingRequestValue) {
+	s.Value = val
+}
+
+type UpdateProjectSettingRequestValue struct{}
 
 // Ref: #/components/schemas/UpdateProjectTagRequest
 type UpdateProjectTagRequest struct {

@@ -50,6 +50,7 @@ type Env struct {
 
 func (e *Env) SetUp() {
 	var err error
+
 	for key, value := range e.redefinedVars {
 		if envVar := os.Getenv(key); envVar != "" {
 			e.redefinedVars[key] = envVar
@@ -57,6 +58,7 @@ func (e *Env) SetUp() {
 
 			continue
 		}
+
 		if err = os.Setenv(key, value); err != nil {
 			err = fmt.Errorf("can't clear ENV %s: %w", key, err)
 			panic(err)
@@ -66,10 +68,12 @@ func (e *Env) SetUp() {
 
 func (e *Env) CleanUp() {
 	var err error
+
 	for key := range e.redefinedVars {
 		if _, ok := e.collidedVars[key]; ok {
 			continue
 		}
+
 		err = os.Unsetenv(key)
 		if err != nil {
 			err = fmt.Errorf("can't clear ENV %s: %w", key, err)

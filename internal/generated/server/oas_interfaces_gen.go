@@ -9,12 +9,20 @@ type AddProjectRes interface {
 	addProjectRes()
 }
 
+type ApprovePendingChangeRes interface {
+	approvePendingChangeRes()
+}
+
 type ArchiveProjectRes interface {
 	archiveProjectRes()
 }
 
 type CancelLDAPSyncRes interface {
 	cancelLDAPSyncRes()
+}
+
+type CancelPendingChangeRes interface {
+	cancelPendingChangeRes()
 }
 
 type Confirm2FARes interface {
@@ -49,6 +57,10 @@ type CreateProjectSegmentRes interface {
 	createProjectSegmentRes()
 }
 
+type CreateProjectSettingRes interface {
+	createProjectSettingRes()
+}
+
 type CreateProjectTagRes interface {
 	createProjectTagRes()
 }
@@ -75,6 +87,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteProjectSettingRes interface {
+	deleteProjectSettingRes()
 }
 
 type DeleteProjectTagRes interface {
@@ -149,12 +165,20 @@ type GetLicenseStatusRes interface {
 	getLicenseStatusRes()
 }
 
+type GetPendingChangeRes interface {
+	getPendingChangeRes()
+}
+
 type GetProductInfoRes interface {
 	getProductInfoRes()
 }
 
 type GetProjectRes interface {
 	getProjectRes()
+}
+
+type GetProjectSettingRes interface {
+	getProjectSettingRes()
 }
 
 type GetProjectTagRes interface {
@@ -171,6 +195,10 @@ type GetSSOProvidersRes interface {
 
 type GetSegmentRes interface {
 	getSegmentRes()
+}
+
+type InitiateTOTPApprovalRes interface {
+	initiateTOTPApprovalRes()
 }
 
 type ListAllFeatureSchedulesRes interface {
@@ -197,6 +225,10 @@ type ListFeatureTagsRes interface {
 	listFeatureTagsRes()
 }
 
+type ListPendingChangesRes interface {
+	listPendingChangesRes()
+}
+
 type ListProjectChangesRes interface {
 	listProjectChangesRes()
 }
@@ -207,6 +239,10 @@ type ListProjectFeaturesRes interface {
 
 type ListProjectSegmentsRes interface {
 	listProjectSegmentsRes()
+}
+
+type ListProjectSettingsRes interface {
+	listProjectSettingsRes()
 }
 
 type ListProjectTagsRes interface {
@@ -235,6 +271,10 @@ type LoginRes interface {
 
 type RefreshTokenRes interface {
 	refreshTokenRes()
+}
+
+type RejectPendingChangeRes interface {
+	rejectPendingChangeRes()
 }
 
 type RemoveFeatureTagRes interface {
@@ -319,6 +359,10 @@ type UpdateLicenseRes interface {
 
 type UpdateProjectRes interface {
 	updateProjectRes()
+}
+
+type UpdateProjectSettingRes interface {
+	updateProjectSettingRes()
 }
 
 type UpdateProjectTagRes interface {

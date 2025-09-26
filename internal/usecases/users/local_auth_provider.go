@@ -24,7 +24,7 @@ func NewLocalAuthProvider(repo contract.UsersRepository) *LocalAuthProvider {
 
 // Authenticate authenticates a user with the given credentials.
 //
-//nolint:nestif // need refactoring
+
 func (p *LocalAuthProvider) Authenticate(ctx context.Context, username, password string) (*domain.User, error) {
 	// First try to find by username
 	user, err := p.repo.GetByUsername(ctx, username)
@@ -50,6 +50,7 @@ func (p *LocalAuthProvider) Authenticate(ctx context.Context, username, password
 	if err != nil {
 		return nil, fmt.Errorf("validate password: %w", err)
 	}
+
 	if !isValid {
 		return nil, domain.ErrInvalidPassword
 	}

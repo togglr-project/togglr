@@ -24,18 +24,21 @@ type ruleModel struct {
 
 func (m *ruleModel) toDomain() domain.Rule {
 	var conditions domain.BooleanExpression
+
 	err := json.Unmarshal(m.Condition, &conditions)
 	if err != nil {
 		slog.Error("unmarshal rule condition", "conditions", string(m.Condition), "error", err)
 	}
 
 	var flagVariantID *domain.FlagVariantID
+
 	if m.FlagVariantID.Valid {
 		variantID := domain.FlagVariantID(m.FlagVariantID.String)
 		flagVariantID = &variantID
 	}
 
 	var segmentIDRef *domain.SegmentID
+
 	if m.SegmentID.Valid {
 		segmentID := domain.SegmentID(m.SegmentID.String)
 		segmentIDRef = &segmentID

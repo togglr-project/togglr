@@ -79,6 +79,7 @@ func (r *Repository) GetByID(ctx context.Context, id string) (domain.License, er
 
 func (r *Repository) GetLastByExpiresAt(ctx context.Context) (domain.License, error) {
 	executor := r.getExecutor(ctx)
+
 	const query = `SELECT * FROM license ORDER BY expires_at DESC LIMIT 1`
 
 	rows, err := executor.Query(ctx, query)
@@ -133,6 +134,7 @@ func (r *Repository) List(ctx context.Context) ([]domain.License, error) {
 	}
 
 	licenses := make([]domain.License, 0, len(listModels))
+
 	for i := range listModels {
 		model := listModels[i]
 		licenses = append(licenses, model.toDomain())
@@ -157,6 +159,7 @@ func (r *Repository) UpdateLicense(ctx context.Context, license domain.License) 
 
 	// Update existing license
 	model := fromDomain(license)
+
 	const query = `
 UPDATE license 
 SET license_text = $1, issued_at = $2, expires_at = $3, client_id = $4, type = $5

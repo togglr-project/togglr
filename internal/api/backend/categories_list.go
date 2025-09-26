@@ -16,6 +16,7 @@ func (r *RestAPI) ListCategories(ctx context.Context) (generatedapi.ListCategori
 	categories, err := r.categoriesUseCase.ListCategories(ctx)
 	if err != nil {
 		slog.Error("get categories failed", "error", err, "user_id", userID)
+
 		return nil, err
 	}
 

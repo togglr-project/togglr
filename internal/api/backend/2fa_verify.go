@@ -35,6 +35,7 @@ func (r *RestAPI) Verify2FA(
 			return nil, r.NewError(ctx, err)
 		}
 	}
+
 	resp := &generatedapi.TwoFAVerifyResponse{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,

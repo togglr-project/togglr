@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// CreateProjectSegment handles POST /api/v1/projects/{project_id}/segments
+// CreateProjectSegment handles POST /api/v1/projects/{project_id}/segments.
 func (r *RestAPI) CreateProjectSegment(
 	ctx context.Context,
 	req *generatedapi.CreateSegmentRequest,
@@ -46,6 +46,7 @@ func (r *RestAPI) CreateProjectSegment(
 	expr, err := exprFromAPI(req.Conditions)
 	if err != nil {
 		slog.Error("parse segment conditions", "error", err)
+
 		return nil, err
 	}
 
@@ -59,6 +60,7 @@ func (r *RestAPI) CreateProjectSegment(
 	created, err := r.segmentsUseCase.Create(ctx, segment)
 	if err != nil {
 		slog.Error("create segment failed", "error", err)
+
 		return nil, err
 	}
 
@@ -66,6 +68,7 @@ func (r *RestAPI) CreateProjectSegment(
 	exprOut, err := exprToAPI(created.Conditions)
 	if err != nil {
 		slog.Error("build segment conditions response", "error", err)
+
 		return nil, err
 	}
 

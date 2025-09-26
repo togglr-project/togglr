@@ -10,7 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// GetFeatureTimeline handles GET /api/v1/features/{feature_id}/timeline
+// GetFeatureTimeline handles GET /api/v1/features/{feature_id}/timeline.
 func (r *RestAPI) GetFeatureTimeline(
 	ctx context.Context,
 	params generatedapi.GetFeatureTimelineParams,
@@ -25,7 +25,9 @@ func (r *RestAPI) GetFeatureTimeline(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature extended failed", "error", err)
+
 		return nil, err
 	}
 
@@ -61,6 +63,7 @@ func (r *RestAPI) GetFeatureTimeline(
 	events, err := r.featureProcessor.BuildFeatureTimeline(feature, from, to)
 	if err != nil {
 		slog.Error("build feature timeline failed", "error", err)
+
 		return nil, err
 	}
 

@@ -57,7 +57,7 @@ const TagFormDialog: React.FC<TagFormDialogProps> = ({
         slug: initialData.slug || '',
         description: initialData.description || '',
         color: initialData.color || '#3B82F6',
-        category_id: initialData.category?.id?.toString() || '',
+        category_id: initialData.category?.id || '',
       });
     } else {
       setFormData({
@@ -76,7 +76,7 @@ const TagFormDialog: React.FC<TagFormDialogProps> = ({
       slug: formData.slug.trim(),
       description: formData.description.trim(),
       color: formData.color,
-      category_id: parseInt(formData.category_id),
+      category_id: formData.category_id,
     };
 
     onSubmit(submitData);
@@ -165,12 +165,15 @@ const TagFormDialog: React.FC<TagFormDialogProps> = ({
             label="Category"
             error={!formData.category_id}
           >
+            <MenuItem value="">
+              <em>Select a category</em>
+            </MenuItem>
             {categories
               .filter(category => 
-                category.category_type === 'user' || category.category_type === 'domain'
+                category.kind === 'user' || category.kind === 'domain'
               )
               .map((category) => (
-                <MenuItem key={category.id} value={category.id?.toString()}>
+                <MenuItem key={category.id} value={category.id}>
                   <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                     <Box
                       sx={{

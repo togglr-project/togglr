@@ -20,6 +20,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/add
 	AddProject(ctx context.Context, req *AddProjectRequest) (AddProjectRes, error)
+	// ApprovePendingChange implements ApprovePendingChange operation.
+	//
+	// Approve a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/approve
+	ApprovePendingChange(ctx context.Context, req *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (ApprovePendingChangeRes, error)
 	// ArchiveProject implements ArchiveProject operation.
 	//
 	// Archive a project.
@@ -32,6 +38,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/sync/cancel
 	CancelLDAPSync(ctx context.Context) (CancelLDAPSyncRes, error)
+	// CancelPendingChange implements CancelPendingChange operation.
+	//
+	// Cancel a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/cancel
+	CancelPendingChange(ctx context.Context, req *CancelPendingChangeRequest, params CancelPendingChangeParams) (CancelPendingChangeRes, error)
 	// Confirm2FA implements Confirm2FA operation.
 	//
 	// Approve enable 2FA (code from app).
@@ -84,6 +96,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/segments
 	CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
+	// CreateProjectSetting implements CreateProjectSetting operation.
+	//
+	// Create project setting.
+	//
+	// POST /api/v1/projects/{project_id}/settings
+	CreateProjectSetting(ctx context.Context, req *CreateProjectSettingRequest, params CreateProjectSettingParams) (CreateProjectSettingRes, error)
 	// CreateProjectTag implements CreateProjectTag operation.
 	//
 	// Create new tag for project.
@@ -126,6 +144,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteProjectSetting implements DeleteProjectSetting operation.
+	//
+	// Delete project setting.
+	//
+	// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+	DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (DeleteProjectSettingRes, error)
 	// DeleteProjectTag implements DeleteProjectTag operation.
 	//
 	// Delete tag.
@@ -234,6 +258,12 @@ type Handler interface {
 	//
 	// GET /api/v1/license/status
 	GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error)
+	// GetPendingChange implements GetPendingChange operation.
+	//
+	// Get pending change by ID.
+	//
+	// GET /api/v1/pending_changes/{pending_change_id}
+	GetPendingChange(ctx context.Context, params GetPendingChangeParams) (GetPendingChangeRes, error)
 	// GetProductInfo implements GetProductInfo operation.
 	//
 	// Get product information including client ID.
@@ -246,6 +276,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}
 	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetProjectSetting implements GetProjectSetting operation.
+	//
+	// Get project setting by name.
+	//
+	// GET /api/v1/projects/{project_id}/settings/{setting_name}
+	GetProjectSetting(ctx context.Context, params GetProjectSettingParams) (GetProjectSettingRes, error)
 	// GetProjectTag implements GetProjectTag operation.
 	//
 	// Get tag details.
@@ -270,6 +306,12 @@ type Handler interface {
 	//
 	// GET /api/v1/segments/{segment_id}
 	GetSegment(ctx context.Context, params GetSegmentParams) (GetSegmentRes, error)
+	// InitiateTOTPApproval implements InitiateTOTPApproval operation.
+	//
+	// Initiate TOTP approval session.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+	InitiateTOTPApproval(ctx context.Context, req *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (InitiateTOTPApprovalRes, error)
 	// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 	//
 	// List all feature schedules.
@@ -306,6 +348,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}/tags
 	ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (ListFeatureTagsRes, error)
+	// ListPendingChanges implements ListPendingChanges operation.
+	//
+	// List pending changes.
+	//
+	// GET /api/v1/pending_changes
+	ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (ListPendingChangesRes, error)
 	// ListProjectChanges implements ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -324,6 +372,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/segments
 	ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (ListProjectSegmentsRes, error)
+	// ListProjectSettings implements ListProjectSettings operation.
+	//
+	// List project settings.
+	//
+	// GET /api/v1/projects/{project_id}/settings
+	ListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (ListProjectSettingsRes, error)
 	// ListProjectTags implements ListProjectTags operation.
 	//
 	// Get tags list for project.
@@ -366,6 +420,12 @@ type Handler interface {
 	//
 	// POST /api/v1/auth/refresh
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest) (RefreshTokenRes, error)
+	// RejectPendingChange implements RejectPendingChange operation.
+	//
+	// Reject a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/reject
+	RejectPendingChange(ctx context.Context, req *RejectPendingChangeRequest, params RejectPendingChangeParams) (RejectPendingChangeRes, error)
 	// RemoveFeatureTag implements RemoveFeatureTag operation.
 	//
 	// Remove tag from feature.
@@ -492,6 +552,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateProjectSetting implements UpdateProjectSetting operation.
+	//
+	// Update project setting.
+	//
+	// PUT /api/v1/projects/{project_id}/settings/{setting_name}
+	UpdateProjectSetting(ctx context.Context, req *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (UpdateProjectSettingRes, error)
 	// UpdateProjectTag implements UpdateProjectTag operation.
 	//
 	// Update tag.

@@ -22,7 +22,9 @@ func (r *RestAPI) GetFeatureSchedule(
 				Message: generatedapi.NewOptString("schedule not found"),
 			}}, nil
 		}
+
 		slog.Error("get schedule failed", "error", err)
+
 		return nil, err
 	}
 

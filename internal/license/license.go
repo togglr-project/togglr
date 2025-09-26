@@ -1,4 +1,3 @@
-//nolint:gosec // need refactor
 package license
 
 import (
@@ -56,21 +55,25 @@ func (l *License) Validate() error {
 	if l.ClientID == "" {
 		return errors.New("client_id is required")
 	}
+
 	if l.Type == "" {
 		return errors.New("type is required")
 	}
+
 	if l.IssuedAt.IsZero() {
 		return errors.New("issued_at is required")
 	}
+
 	if l.ExpiresAt.IsZero() {
 		return errors.New("expires_at is required")
 	}
+
 	if l.IsExpired() {
 		return ErrLicenseExpired
 	}
 
-	//fingerprint := GetMultiHostFingerprint()
-	//if l.Fingerprint != nil && *l.Fingerprint != fingerprint {
+	// fingerprint := GetMultiHostFingerprint()
+	// if l.Fingerprint != nil && *l.Fingerprint != fingerprint {
 	//	return errors.New("host fingerprint mismatch")
 	//}
 

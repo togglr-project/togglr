@@ -64,6 +64,7 @@ func (r *RestAPI) SyncCustomizedFeatureRule(
 	respExpr, err := exprToAPI(rule.Conditions)
 	if err != nil {
 		slog.Error("build rule conditions response", "error", err)
+
 		return nil, err
 	}
 

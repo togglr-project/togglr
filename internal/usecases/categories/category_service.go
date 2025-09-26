@@ -8,14 +8,17 @@ import (
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 type Service struct {
+	txManager    db.TxManager
 	categoryRepo contract.CategoriesRepository
 }
 
-func New(categoryRepo contract.CategoriesRepository) *Service {
+func New(txManager db.TxManager, categoryRepo contract.CategoriesRepository) *Service {
 	return &Service{
+		txManager:    txManager,
 		categoryRepo: categoryRepo,
 	}
 }
@@ -23,16 +26,17 @@ func New(categoryRepo contract.CategoriesRepository) *Service {
 func (s *Service) CreateCategory(
 	ctx context.Context,
 	name, slug string,
+	kind domain.CategoryKind,
 	description *string,
 	color *string,
-	categoryType domain.CategoryType,
 ) (domain.Category, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
-		return domain.Category{}, fmt.Errorf("name is required")
+		return domain.Category{}, errors.New("name is required")
 	}
+
 	if strings.TrimSpace(slug) == "" {
-		return domain.Category{}, fmt.Errorf("slug is required")
+		return domain.Category{}, errors.New("slug is required")
 	}
 
 	// Check if the category with this slug already exists
@@ -40,6 +44,7 @@ func (s *Service) CreateCategory(
 	if err == nil {
 		return domain.Category{}, fmt.Errorf("category with slug %s already exists", slug)
 	}
+
 	if !errors.Is(err, domain.ErrEntityNotFound) {
 		return domain.Category{}, fmt.Errorf("check category existence: %w", err)
 	}
@@ -50,11 +55,19 @@ func (s *Service) CreateCategory(
 		Slug:        strings.TrimSpace(slug),
 		Description: description,
 		Color:       color,
-		Kind:        domain.CategoryKindUser,
-		Type:        categoryType,
+		Kind:        kind,
 	}
 
-	id, err := s.categoryRepo.Create(ctx, categoryDTO)
+	var id domain.CategoryID
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		var err error
+		id, err = s.categoryRepo.Create(ctx, categoryDTO)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return domain.Category{}, fmt.Errorf("create category: %w", err)
 	}
@@ -95,13 +108,14 @@ func (s *Service) UpdateCategory(
 ) (domain.Category, error) {
 	// Validate inputs
 	if strings.TrimSpace(name) == "" {
-		return domain.Category{}, fmt.Errorf("name is required")
-	}
-	if strings.TrimSpace(slug) == "" {
-		return domain.Category{}, fmt.Errorf("slug is required")
+		return domain.Category{}, errors.New("name is required")
 	}
 
-	// Check if category exists
+	if strings.TrimSpace(slug) == "" {
+		return domain.Category{}, errors.New("slug is required")
+	}
+
+	// Check if a category exists
 	existingCategory, err := s.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Category{}, fmt.Errorf("get category: %w", err)
@@ -113,13 +127,16 @@ func (s *Service) UpdateCategory(
 		if err == nil {
 			return domain.Category{}, fmt.Errorf("category with slug %s already exists", slug)
 		}
+
 		if !errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.Category{}, fmt.Errorf("check category existence: %w", err)
 		}
 	}
 
 	// Update category
-	err = s.categoryRepo.Update(ctx, id, strings.TrimSpace(name), strings.TrimSpace(slug), description, color)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.categoryRepo.Update(ctx, id, strings.TrimSpace(name), strings.TrimSpace(slug), description, color)
+	})
 	if err != nil {
 		return domain.Category{}, fmt.Errorf("update category: %w", err)
 	}
@@ -134,14 +151,16 @@ func (s *Service) UpdateCategory(
 }
 
 func (s *Service) DeleteCategory(ctx context.Context, id domain.CategoryID) error {
-	// Check if category exists
+	// Check if a category exists
 	_, err := s.categoryRepo.GetByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("get category: %w", err)
 	}
 
 	// Delete category
-	err = s.categoryRepo.Delete(ctx, id)
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.categoryRepo.Delete(ctx, id)
+	})
 	if err != nil {
 		return fmt.Errorf("delete category: %w", err)
 	}

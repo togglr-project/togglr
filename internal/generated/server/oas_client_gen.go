@@ -41,6 +41,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/projects/add
 	AddProject(ctx context.Context, request *AddProjectRequest) (AddProjectRes, error)
+	// ApprovePendingChange invokes ApprovePendingChange operation.
+	//
+	// Approve a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/approve
+	ApprovePendingChange(ctx context.Context, request *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (ApprovePendingChangeRes, error)
 	// ArchiveProject invokes ArchiveProject operation.
 	//
 	// Archive a project.
@@ -53,6 +59,12 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/ldap/sync/cancel
 	CancelLDAPSync(ctx context.Context) (CancelLDAPSyncRes, error)
+	// CancelPendingChange invokes CancelPendingChange operation.
+	//
+	// Cancel a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/cancel
+	CancelPendingChange(ctx context.Context, request *CancelPendingChangeRequest, params CancelPendingChangeParams) (CancelPendingChangeRes, error)
 	// Confirm2FA invokes Confirm2FA operation.
 	//
 	// Approve enable 2FA (code from app).
@@ -105,6 +117,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/projects/{project_id}/segments
 	CreateProjectSegment(ctx context.Context, request *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
+	// CreateProjectSetting invokes CreateProjectSetting operation.
+	//
+	// Create project setting.
+	//
+	// POST /api/v1/projects/{project_id}/settings
+	CreateProjectSetting(ctx context.Context, request *CreateProjectSettingRequest, params CreateProjectSettingParams) (CreateProjectSettingRes, error)
 	// CreateProjectTag invokes CreateProjectTag operation.
 	//
 	// Create new tag for project.
@@ -147,6 +165,12 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteProjectSetting invokes DeleteProjectSetting operation.
+	//
+	// Delete project setting.
+	//
+	// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+	DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (DeleteProjectSettingRes, error)
 	// DeleteProjectTag invokes DeleteProjectTag operation.
 	//
 	// Delete tag.
@@ -255,6 +279,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/license/status
 	GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error)
+	// GetPendingChange invokes GetPendingChange operation.
+	//
+	// Get pending change by ID.
+	//
+	// GET /api/v1/pending_changes/{pending_change_id}
+	GetPendingChange(ctx context.Context, params GetPendingChangeParams) (GetPendingChangeRes, error)
 	// GetProductInfo invokes GetProductInfo operation.
 	//
 	// Get product information including client ID.
@@ -267,6 +297,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/projects/{project_id}
 	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetProjectSetting invokes GetProjectSetting operation.
+	//
+	// Get project setting by name.
+	//
+	// GET /api/v1/projects/{project_id}/settings/{setting_name}
+	GetProjectSetting(ctx context.Context, params GetProjectSettingParams) (GetProjectSettingRes, error)
 	// GetProjectTag invokes GetProjectTag operation.
 	//
 	// Get tag details.
@@ -291,6 +327,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/segments/{segment_id}
 	GetSegment(ctx context.Context, params GetSegmentParams) (GetSegmentRes, error)
+	// InitiateTOTPApproval invokes InitiateTOTPApproval operation.
+	//
+	// Initiate TOTP approval session.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+	InitiateTOTPApproval(ctx context.Context, request *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (InitiateTOTPApprovalRes, error)
 	// ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
 	//
 	// List all feature schedules.
@@ -327,6 +369,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/features/{feature_id}/tags
 	ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (ListFeatureTagsRes, error)
+	// ListPendingChanges invokes ListPendingChanges operation.
+	//
+	// List pending changes.
+	//
+	// GET /api/v1/pending_changes
+	ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (ListPendingChangesRes, error)
 	// ListProjectChanges invokes ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -345,6 +393,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/projects/{project_id}/segments
 	ListProjectSegments(ctx context.Context, params ListProjectSegmentsParams) (ListProjectSegmentsRes, error)
+	// ListProjectSettings invokes ListProjectSettings operation.
+	//
+	// List project settings.
+	//
+	// GET /api/v1/projects/{project_id}/settings
+	ListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (ListProjectSettingsRes, error)
 	// ListProjectTags invokes ListProjectTags operation.
 	//
 	// Get tags list for project.
@@ -387,6 +441,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/auth/refresh
 	RefreshToken(ctx context.Context, request *RefreshTokenRequest) (RefreshTokenRes, error)
+	// RejectPendingChange invokes RejectPendingChange operation.
+	//
+	// Reject a pending change.
+	//
+	// POST /api/v1/pending_changes/{pending_change_id}/reject
+	RejectPendingChange(ctx context.Context, request *RejectPendingChangeRequest, params RejectPendingChangeParams) (RejectPendingChangeRes, error)
 	// RemoveFeatureTag invokes RemoveFeatureTag operation.
 	//
 	// Remove tag from feature.
@@ -513,6 +573,12 @@ type Invoker interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, request *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateProjectSetting invokes UpdateProjectSetting operation.
+	//
+	// Update project setting.
+	//
+	// PUT /api/v1/projects/{project_id}/settings/{setting_name}
+	UpdateProjectSetting(ctx context.Context, request *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (UpdateProjectSettingRes, error)
 	// UpdateProjectTag invokes UpdateProjectTag operation.
 	//
 	// Update tag.
@@ -823,6 +889,133 @@ func (c *Client) sendAddProject(ctx context.Context, request *AddProjectRequest)
 	return result, nil
 }
 
+// ApprovePendingChange invokes ApprovePendingChange operation.
+//
+// Approve a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/approve
+func (c *Client) ApprovePendingChange(ctx context.Context, request *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (ApprovePendingChangeRes, error) {
+	res, err := c.sendApprovePendingChange(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendApprovePendingChange(ctx context.Context, request *ApprovePendingChangeRequest, params ApprovePendingChangeParams) (res ApprovePendingChangeRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ApprovePendingChange"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/pending_changes/{pending_change_id}/approve"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ApprovePendingChangeOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/pending_changes/"
+	{
+		// Encode "pending_change_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "pending_change_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.PendingChangeID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/approve"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeApprovePendingChangeRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ApprovePendingChangeOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeApprovePendingChangeResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ArchiveProject invokes ArchiveProject operation.
 //
 // Archive a project.
@@ -1044,6 +1237,133 @@ func (c *Client) sendCancelLDAPSync(ctx context.Context) (res CancelLDAPSyncRes,
 
 	stage = "DecodeResponse"
 	result, err := decodeCancelLDAPSyncResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CancelPendingChange invokes CancelPendingChange operation.
+//
+// Cancel a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/cancel
+func (c *Client) CancelPendingChange(ctx context.Context, request *CancelPendingChangeRequest, params CancelPendingChangeParams) (CancelPendingChangeRes, error) {
+	res, err := c.sendCancelPendingChange(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCancelPendingChange(ctx context.Context, request *CancelPendingChangeRequest, params CancelPendingChangeParams) (res CancelPendingChangeRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CancelPendingChange"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/pending_changes/{pending_change_id}/cancel"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CancelPendingChangeOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/pending_changes/"
+	{
+		// Encode "pending_change_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "pending_change_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.PendingChangeID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/cancel"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCancelPendingChangeRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, CancelPendingChangeOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCancelPendingChangeResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1981,6 +2301,133 @@ func (c *Client) sendCreateProjectSegment(ctx context.Context, request *CreateSe
 	return result, nil
 }
 
+// CreateProjectSetting invokes CreateProjectSetting operation.
+//
+// Create project setting.
+//
+// POST /api/v1/projects/{project_id}/settings
+func (c *Client) CreateProjectSetting(ctx context.Context, request *CreateProjectSettingRequest, params CreateProjectSettingParams) (CreateProjectSettingRes, error) {
+	res, err := c.sendCreateProjectSetting(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateProjectSetting(ctx context.Context, request *CreateProjectSettingRequest, params CreateProjectSettingParams) (res CreateProjectSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CreateProjectSetting"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/settings"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateProjectSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/settings"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateProjectSettingRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, CreateProjectSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateProjectSettingResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateProjectTag invokes CreateProjectTag operation.
 //
 // Create new tag for project.
@@ -2791,6 +3238,148 @@ func (c *Client) sendDeleteLDAPConfig(ctx context.Context) (res DeleteLDAPConfig
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteLDAPConfigResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteProjectSetting invokes DeleteProjectSetting operation.
+//
+// Delete project setting.
+//
+// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
+func (c *Client) DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (DeleteProjectSettingRes, error) {
+	res, err := c.sendDeleteProjectSetting(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (res DeleteProjectSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("DeleteProjectSetting"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/settings/{setting_name}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteProjectSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/settings/"
+	{
+		// Encode "setting_name" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_name",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.SettingName))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, DeleteProjectSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteProjectSettingResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -4962,6 +5551,129 @@ func (c *Client) sendGetLicenseStatus(ctx context.Context) (res GetLicenseStatus
 	return result, nil
 }
 
+// GetPendingChange invokes GetPendingChange operation.
+//
+// Get pending change by ID.
+//
+// GET /api/v1/pending_changes/{pending_change_id}
+func (c *Client) GetPendingChange(ctx context.Context, params GetPendingChangeParams) (GetPendingChangeRes, error) {
+	res, err := c.sendGetPendingChange(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetPendingChange(ctx context.Context, params GetPendingChangeParams) (res GetPendingChangeRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetPendingChange"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/pending_changes/{pending_change_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetPendingChangeOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/api/v1/pending_changes/"
+	{
+		// Encode "pending_change_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "pending_change_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.PendingChangeID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetPendingChangeOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetPendingChangeResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetProductInfo invokes GetProductInfo operation.
 //
 // Get product information including client ID.
@@ -5183,6 +5895,148 @@ func (c *Client) sendGetProject(ctx context.Context, params GetProjectParams) (r
 
 	stage = "DecodeResponse"
 	result, err := decodeGetProjectResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetProjectSetting invokes GetProjectSetting operation.
+//
+// Get project setting by name.
+//
+// GET /api/v1/projects/{project_id}/settings/{setting_name}
+func (c *Client) GetProjectSetting(ctx context.Context, params GetProjectSettingParams) (GetProjectSettingRes, error) {
+	res, err := c.sendGetProjectSetting(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetProjectSetting(ctx context.Context, params GetProjectSettingParams) (res GetProjectSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetProjectSetting"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/settings/{setting_name}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetProjectSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/settings/"
+	{
+		// Encode "setting_name" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_name",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.SettingName))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetProjectSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetProjectSettingResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -5592,6 +6446,133 @@ func (c *Client) sendGetSegment(ctx context.Context, params GetSegmentParams) (r
 
 	stage = "DecodeResponse"
 	result, err := decodeGetSegmentResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// InitiateTOTPApproval invokes InitiateTOTPApproval operation.
+//
+// Initiate TOTP approval session.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
+func (c *Client) InitiateTOTPApproval(ctx context.Context, request *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (InitiateTOTPApprovalRes, error) {
+	res, err := c.sendInitiateTOTPApproval(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendInitiateTOTPApproval(ctx context.Context, request *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (res InitiateTOTPApprovalRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("InitiateTOTPApproval"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/pending_changes/{pending_change_id}/initiate-totp"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, InitiateTOTPApprovalOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/pending_changes/"
+	{
+		// Encode "pending_change_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "pending_change_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.PendingChangeID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/initiate-totp"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeInitiateTOTPApprovalRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, InitiateTOTPApprovalOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeInitiateTOTPApprovalResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -6298,6 +7279,234 @@ func (c *Client) sendListFeatureTags(ctx context.Context, params ListFeatureTags
 
 	stage = "DecodeResponse"
 	result, err := decodeListFeatureTagsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ListPendingChanges invokes ListPendingChanges operation.
+//
+// List pending changes.
+//
+// GET /api/v1/pending_changes
+func (c *Client) ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (ListPendingChangesRes, error) {
+	res, err := c.sendListPendingChanges(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendListPendingChanges(ctx context.Context, params ListPendingChangesParams) (res ListPendingChangesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListPendingChanges"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/pending_changes"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListPendingChangesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/pending_changes"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "project_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "project_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.ProjectID.Get(); ok {
+				return e.EncodeValue(conv.UUIDToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "status" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "status",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Status.Get(); ok {
+				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "user_id" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "user_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.UserID.Get(); ok {
+				return e.EncodeValue(conv.UintToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Page.Get(); ok {
+				return e.EncodeValue(conv.UintToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "per_page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "per_page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PerPage.Get(); ok {
+				return e.EncodeValue(conv.UintToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "sort_by" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "sort_by",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.SortBy.Get(); ok {
+				return e.EncodeValue(conv.StringToString(string(val)))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "sort_desc" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "sort_desc",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.SortDesc.Get(); ok {
+				return e.EncodeValue(conv.BoolToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListPendingChangesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListPendingChangesResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -7080,6 +8289,168 @@ func (c *Client) sendListProjectSegments(ctx context.Context, params ListProject
 	return result, nil
 }
 
+// ListProjectSettings invokes ListProjectSettings operation.
+//
+// List project settings.
+//
+// GET /api/v1/projects/{project_id}/settings
+func (c *Client) ListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (ListProjectSettingsRes, error) {
+	res, err := c.sendListProjectSettings(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendListProjectSettings(ctx context.Context, params ListProjectSettingsParams) (res ListProjectSettingsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListProjectSettings"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/settings"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListProjectSettingsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/settings"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.Page.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
+		// Encode "per_page" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "per_page",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.PerPage.Get(); ok {
+				return e.EncodeValue(conv.IntToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListProjectSettingsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListProjectSettingsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListProjectTags invokes ListProjectTags operation.
 //
 // Get tags list for project.
@@ -7807,6 +9178,133 @@ func (c *Client) sendRefreshToken(ctx context.Context, request *RefreshTokenRequ
 
 	stage = "DecodeResponse"
 	result, err := decodeRefreshTokenResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// RejectPendingChange invokes RejectPendingChange operation.
+//
+// Reject a pending change.
+//
+// POST /api/v1/pending_changes/{pending_change_id}/reject
+func (c *Client) RejectPendingChange(ctx context.Context, request *RejectPendingChangeRequest, params RejectPendingChangeParams) (RejectPendingChangeRes, error) {
+	res, err := c.sendRejectPendingChange(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendRejectPendingChange(ctx context.Context, request *RejectPendingChangeRequest, params RejectPendingChangeParams) (res RejectPendingChangeRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("RejectPendingChange"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/pending_changes/{pending_change_id}/reject"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, RejectPendingChangeOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/pending_changes/"
+	{
+		// Encode "pending_change_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "pending_change_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.PendingChangeID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/reject"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeRejectPendingChangeRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, RejectPendingChangeOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeRejectPendingChangeResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -10212,6 +11710,151 @@ func (c *Client) sendUpdateProject(ctx context.Context, request *UpdateProjectRe
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateProjectResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateProjectSetting invokes UpdateProjectSetting operation.
+//
+// Update project setting.
+//
+// PUT /api/v1/projects/{project_id}/settings/{setting_name}
+func (c *Client) UpdateProjectSetting(ctx context.Context, request *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (UpdateProjectSettingRes, error) {
+	res, err := c.sendUpdateProjectSetting(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateProjectSetting(ctx context.Context, request *UpdateProjectSettingRequest, params UpdateProjectSettingParams) (res UpdateProjectSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateProjectSetting"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/settings/{setting_name}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateProjectSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/settings/"
+	{
+		// Encode "setting_name" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_name",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.SettingName))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateProjectSettingRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, UpdateProjectSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateProjectSettingResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

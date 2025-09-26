@@ -1,0 +1,451 @@
+# Шаблоны эндпоинтов для быстрого копирования
+# Используйте эти шаблоны как основу для новых эндпоинтов
+
+# ===========================================
+# ШАБЛОН 1: GET список ресурсов
+# ===========================================
+GET_LIST_TEMPLATE: |
+  /api/v1/resource:
+    get:
+      summary: List resources
+      operationId: ListResources
+      parameters:
+        - name: text_selector
+          in: query
+          required: false
+          description: Case-insensitive text search
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          required: false
+          description: Sort by field
+          schema:
+            type: string
+            enum: [name, created_at, updated_at]
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+        - name: page
+          in: query
+          required: false
+          description: Page number (starts from 1)
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          description: Items per page
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 20
+      responses:
+        '200':
+          description: List of resources
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListResourcesResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ===========================================
+# ШАБЛОН 2: POST создание ресурса
+# ===========================================
+POST_CREATE_TEMPLATE: |
+  /api/v1/resource:
+    post:
+      summary: Create resource
+      operationId: CreateResource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResourceRequest'
+      responses:
+        '201':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ===========================================
+# ШАБЛОН 3: GET получение ресурса по ID
+# ===========================================
+GET_BY_ID_TEMPLATE: |
+  /api/v1/resource/{id}:
+    get:
+      summary: Get resource by ID
+      operationId: GetResource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ===========================================
+# ШАБЛОН 4: PUT обновление ресурса
+# ===========================================
+PUT_UPDATE_TEMPLATE: |
+  /api/v1/resource/{id}:
+    put:
+      summary: Update resource
+      operationId: UpdateResource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateResourceRequest'
+      responses:
+        '200':
+          description: Resource updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ===========================================
+# ШАБЛОН 5: DELETE удаление ресурса
+# ===========================================
+DELETE_TEMPLATE: |
+  /api/v1/resource/{id}:
+    delete:
+      summary: Delete resource
+      operationId: DeleteResource
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Resource deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ===========================================
+# ШАБЛОН 6: POST с параметром в пути
+# ===========================================
+POST_WITH_PATH_PARAM_TEMPLATE: |
+  /api/v1/parent/{parent_id}/resource:
+    post:
+      summary: Create resource for parent
+      operationId: CreateParentResource
+      parameters:
+        - name: parent_id
+          in: path
+          required: true
+          description: Parent ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateResourceRequest'
+      responses:
+        '201':
+          description: Resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Parent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+# ===========================================
+# ШАБЛОНЫ СХЕМ
+# ===========================================
+
+# Базовая схема ресурса
+RESOURCE_SCHEMA_TEMPLATE: |
+  Resource:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "7D5C3985-78AB-4F74-83EA-1A963908EA04"
+      name:
+        type: string
+        example: "Resource Name"
+      description:
+        type: string
+        nullable: true
+        example: "Optional description"
+      created_at:
+        type: string
+        format: date-time
+        example: "2023-01-01T00:00:00Z"
+      updated_at:
+        type: string
+        format: date-time
+        example: "2023-01-01T01:00:00Z"
+    required: [id, name, created_at, updated_at]
+
+# Схема запроса на создание
+CREATE_REQUEST_TEMPLATE: |
+  CreateResourceRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Resource Name"
+      description:
+        type: string
+        nullable: true
+        example: "Optional description"
+    required: [name]
+
+# Схема запроса на обновление
+UPDATE_REQUEST_TEMPLATE: |
+  UpdateResourceRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "Updated Resource Name"
+      description:
+        type: string
+        nullable: true
+        example: "Updated description"
+    required: [name]
+
+# Схема ответа со списком
+LIST_RESPONSE_TEMPLATE: |
+  ListResourcesResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/components/schemas/Resource'
+      pagination:
+        $ref: '#/components/schemas/Pagination'
+
+# Схема ответа с одним ресурсом
+RESOURCE_RESPONSE_TEMPLATE: |
+  ResourceResponse:
+    allOf:
+      - $ref: '#/components/schemas/Resource'

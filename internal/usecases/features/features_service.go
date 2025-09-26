@@ -4,17 +4,20 @@ import (
 	"context"
 	"fmt"
 
+	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
 )
 
 type Service struct {
-	txManager       db.TxManager
-	repo            contract.FeaturesRepository
-	flagVariantsRep contract.FlagVariantsRepository
-	rulesRep        contract.RulesRepository
-	schedulesRep    contract.FeatureSchedulesRepository
+	txManager             db.TxManager
+	repo                  contract.FeaturesRepository
+	flagVariantsRep       contract.FlagVariantsRepository
+	rulesRep              contract.RulesRepository
+	schedulesRep          contract.FeatureSchedulesRepository
+	guardService          contract.GuardService
+	pendingChangesUseCase contract.PendingChangesUseCase
 }
 
 func New(
@@ -23,28 +26,35 @@ func New(
 	flagVariantsRep contract.FlagVariantsRepository,
 	rulesRep contract.RulesRepository,
 	schedulesRep contract.FeatureSchedulesRepository,
+	guardService contract.GuardService,
+	pendingChangesUseCase contract.PendingChangesUseCase,
 ) *Service {
 	return &Service{
-		txManager:       txManager,
-		repo:            repo,
-		flagVariantsRep: flagVariantsRep,
-		rulesRep:        rulesRep,
-		schedulesRep:    schedulesRep,
+		txManager:             txManager,
+		repo:                  repo,
+		flagVariantsRep:       flagVariantsRep,
+		rulesRep:              rulesRep,
+		schedulesRep:          schedulesRep,
+		guardService:          guardService,
+		pendingChangesUseCase: pendingChangesUseCase,
 	}
 }
 
 func (s *Service) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
 	var created domain.Feature
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		created, err = s.repo.Create(ctx, feature)
 		if err != nil {
 			return fmt.Errorf("create feature: %w", err)
 		}
+
 		return nil
 	}); err != nil {
 		return domain.Feature{}, fmt.Errorf("tx create feature: %w", err)
 	}
+
 	return created, nil
 }
 
@@ -103,6 +113,7 @@ func (s *Service) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feat
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by id: %w", err)
 	}
+
 	return f, nil
 }
 
@@ -140,6 +151,7 @@ func (s *Service) GetByKey(ctx context.Context, key string) (domain.Feature, err
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by key: %w", err)
 	}
+
 	return f, nil
 }
 
@@ -148,6 +160,7 @@ func (s *Service) List(ctx context.Context) ([]domain.Feature, error) {
 	if err != nil {
 		return nil, fmt.Errorf("list features: %w", err)
 	}
+
 	return items, nil
 }
 
@@ -156,6 +169,7 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
+
 	return items, nil
 }
 
@@ -182,6 +196,7 @@ func (s *Service) ListExtendedByProjectID(
 	}
 
 	result := make([]domain.FeatureExtended, 0, len(features))
+
 	for _, feature := range features {
 		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
@@ -220,6 +235,7 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 	}
 
 	result := make([]domain.FeatureExtended, 0, len(features))
+
 	for _, feature := range features {
 		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
 		if err != nil {
@@ -247,53 +263,99 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 	return result, total, nil
 }
 
-func (s *Service) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
-	var updated domain.Feature
-	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		var err error
-		updated, err = s.repo.Update(ctx, feature)
-		if err != nil {
-			return fmt.Errorf("update feature: %w", err)
-		}
-		return nil
-	}); err != nil {
-		return domain.Feature{}, fmt.Errorf("tx update feature: %w", err)
+func (s *Service) Delete(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error) {
+	// Load existing feature to check guard status
+	existing, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
-	return updated, nil
-}
 
-func (s *Service) Delete(ctx context.Context, id domain.FeatureID) error {
+	// Check if feature is guarded and create pending change if needed
+	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
+		ctx,
+		id,
+		domain.EntityActionDelete,
+		&existing,
+		nil, // No new feature for delete
+	)
+
+	// If there's a conflict or error, return early
+	if guardResult.ChangeConflict || guardResult.Error != nil {
+		return guardResult, nil
+	}
+
+	// If pending change was created, return it
+	if guardResult.Pending {
+		return guardResult, nil
+	}
+
+	// Feature is not guarded, proceed with normal delete
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		if err := s.repo.Delete(ctx, id); err != nil {
 			return fmt.Errorf("delete feature: %w", err)
 		}
+
 		return nil
 	}); err != nil {
-		return fmt.Errorf("tx delete feature: %w", err)
+		return domain.GuardedResult{}, fmt.Errorf("tx delete feature: %w", err)
 	}
-	return nil
+
+	return domain.GuardedResult{Pending: false}, nil
 }
 
-func (s *Service) Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, error) {
+func (s *Service) Toggle(
+	ctx context.Context,
+	id domain.FeatureID,
+	enabled bool,
+) (domain.Feature, domain.GuardedResult, error) {
+	// Load existing feature to check guard status
+	existing, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
+	}
+
+	// Create new feature with updated enabled status
+	newFeature := existing
+	newFeature.Enabled = enabled
+
+	// Check if feature is guarded and create pending change if needed
+	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
+		ctx,
+		id,
+		domain.EntityActionUpdate,
+		&existing,
+		&newFeature,
+	)
+
+	// If there's a conflict or error, return early
+	if guardResult.Error != nil {
+		return domain.Feature{}, domain.GuardedResult{}, guardResult.Error
+	}
+
+	if guardResult.ChangeConflict {
+		return domain.Feature{}, guardResult, nil
+	}
+
+	// If pending change was created, return it
+	if guardResult.Pending {
+		return domain.Feature{}, guardResult, nil
+	}
+
+	// Feature is not guarded, proceed with normal update
 	var updated domain.Feature
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		// Load existing feature to ensure it exists and to keep other fields unchanged
-		existing, err := s.repo.GetByID(ctx, id)
-		if err != nil {
-			return fmt.Errorf("get feature by id: %w", err)
-		}
-
-		existing.Enabled = enabled
-
-		updated, err = s.repo.Update(ctx, existing)
+		updated, err = s.repo.Update(ctx, newFeature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
+
 		return nil
 	}); err != nil {
-		return domain.Feature{}, fmt.Errorf("tx toggle feature: %w", err)
+		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("tx toggle feature: %w", err)
 	}
-	return updated, nil
+
+	return updated, domain.GuardedResult{Pending: false}, nil
 }
 
 // UpdateWithChildren updates feature and reconciles its child entities (variants and rules).
@@ -302,16 +364,36 @@ func (s *Service) UpdateWithChildren(
 	feature domain.Feature,
 	variants []domain.FlagVariant,
 	rules []domain.Rule,
-) (domain.FeatureExtended, error) {
+) (domain.FeatureExtended, domain.GuardedResult, error) {
 	var result domain.FeatureExtended
 
-	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		// Load to preserve immutable fields like ProjectID
-		existing, err := s.repo.GetByID(ctx, feature.ID)
-		if err != nil {
-			return fmt.Errorf("get feature by id: %w", err)
-		}
+	// Load existing feature to check guard status
+	existing, err := s.repo.GetByID(ctx, feature.ID)
+	if err != nil {
+		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
+	}
 
+	// Check if feature is guarded and create pending change if needed
+	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
+		ctx,
+		feature.ID,
+		domain.EntityActionUpdate,
+		&existing,
+		&feature,
+	)
+
+	// If there's a conflict or error, return early
+	if guardResult.ChangeConflict || guardResult.Error != nil {
+		return domain.FeatureExtended{}, guardResult, nil
+	}
+
+	// If pending change was created, return it
+	if guardResult.Pending {
+		return domain.FeatureExtended{}, guardResult, nil
+	}
+
+	// Feature is not guarded, proceed with normal update
+	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		feature.ProjectID = existing.ProjectID
 
 		updated, err := s.repo.Update(ctx, feature)
@@ -347,6 +429,7 @@ func (s *Service) UpdateWithChildren(
 						return fmt.Errorf("update flag variant: %w", uErr)
 					}
 					updatedVariants = append(updatedVariants, uv)
+
 					continue
 				}
 			}
@@ -396,6 +479,7 @@ func (s *Service) UpdateWithChildren(
 						return fmt.Errorf("update rule: %w", uErr)
 					}
 					updatedRules = append(updatedRules, ur)
+
 					continue
 				}
 			}
@@ -419,8 +503,172 @@ func (s *Service) UpdateWithChildren(
 
 		return nil
 	}); err != nil {
-		return domain.FeatureExtended{}, fmt.Errorf("tx update feature with children: %w", err)
+		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("tx update feature with children: %w", err)
 	}
 
-	return result, nil
+	return result, domain.GuardedResult{Pending: false}, nil
+}
+
+// checkFeatureGuardedAndCreatePendingChange checks if a feature is guarded and creates a pending change if needed.
+func (s *Service) checkFeatureGuardedAndCreatePendingChange(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	action domain.EntityAction,
+	oldFeature *domain.Feature,
+	newFeature *domain.Feature,
+) domain.GuardedResult {
+	// Extract user info from context
+	requestedBy := appcontext.Username(ctx)
+	requestUserID := appcontext.UserID(ctx)
+	// Check if feature is guarded
+	isGuarded, err := s.guardService.IsFeatureGuarded(ctx, featureID)
+	if err != nil {
+		return domain.GuardedResult{
+			Error: fmt.Errorf("check feature guarded: %w", err),
+		}
+	}
+
+	if !isGuarded {
+		return domain.GuardedResult{
+			Pending: false,
+		}
+	}
+
+	// Build changes diff
+	changes := make(map[string]domain.ChangeValue)
+
+	if oldFeature != nil && newFeature != nil {
+		// Compare fields and build changes
+		if oldFeature.Enabled != newFeature.Enabled {
+			changes["enabled"] = domain.ChangeValue{
+				Old: oldFeature.Enabled,
+				New: newFeature.Enabled,
+			}
+		}
+
+		if oldFeature.Name != newFeature.Name {
+			changes["name"] = domain.ChangeValue{
+				Old: oldFeature.Name,
+				New: newFeature.Name,
+			}
+		}
+
+		if oldFeature.Description != newFeature.Description {
+			changes["description"] = domain.ChangeValue{
+				Old: oldFeature.Description,
+				New: newFeature.Description,
+			}
+		}
+
+		if oldFeature.DefaultVariant != newFeature.DefaultVariant {
+			changes["default_variant"] = domain.ChangeValue{
+				Old: oldFeature.DefaultVariant,
+				New: newFeature.DefaultVariant,
+			}
+		}
+
+		if oldFeature.RolloutKey != newFeature.RolloutKey {
+			changes["rollout_key"] = domain.ChangeValue{
+				Old: oldFeature.RolloutKey.String(),
+				New: newFeature.RolloutKey.String(),
+			}
+		}
+	}
+
+	// Create entity change
+	entityChange := domain.EntityChange{
+		Entity:   "feature",
+		EntityID: featureID.String(),
+		Action:   action,
+		Changes:  changes,
+	}
+
+	// Create a pending change payload
+	payload := domain.PendingChangePayload{
+		Entities: []domain.EntityChange{entityChange},
+		Meta: domain.PendingChangeMeta{
+			Reason: "Feature update via API",
+			Client: "ui",
+			Origin: "feature-update",
+		},
+	}
+
+	// Get project ID from feature
+	var projectID domain.ProjectID
+	if oldFeature != nil {
+		projectID = oldFeature.ProjectID
+	} else if newFeature != nil {
+		projectID = newFeature.ProjectID
+	} else {
+		// Fallback: get feature to get project ID
+		feature, err := s.repo.GetByID(ctx, featureID)
+		if err != nil {
+			return domain.GuardedResult{
+				Error: fmt.Errorf("get feature for project ID: %w", err),
+			}
+		}
+
+		projectID = feature.ProjectID
+	}
+
+	// Convert UserID to *int
+	var requestUserIDPtr *int
+
+	if requestUserID != 0 {
+		userIDInt := int(requestUserID)
+		requestUserIDPtr = &userIDInt
+	}
+
+	// Check if this is a single-user project
+	activeUserCount, err := s.pendingChangesUseCase.GetProjectActiveUserCount(ctx, projectID)
+	if err != nil {
+		return domain.GuardedResult{
+			Error: fmt.Errorf("get project active user count: %w", err),
+		}
+	}
+
+	// Check for conflicts before creating pending change
+	hasConflict, err := s.pendingChangesUseCase.CheckEntityConflict(ctx, payload.Entities)
+	if err != nil {
+		return domain.GuardedResult{
+			ChangeConflict: false,
+			Error:          err,
+		}
+	}
+
+	if hasConflict {
+		return domain.GuardedResult{
+			ChangeConflict: true,
+		}
+	}
+
+	// For single-user projects, always create a pending change but mark it as requiring auto-approve
+	// The frontend will handle showing the password/TOTP dialog
+	var pendingChange domain.PendingChange
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		pendingChange, err = s.pendingChangesUseCase.Create(ctx, projectID, requestedBy, requestUserIDPtr, payload)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return domain.GuardedResult{
+			Error: fmt.Errorf("create pending change: %w", err),
+		}
+	}
+
+	// Add metadata about a single-user project for frontend
+	// If exactly 1 active user, treat as a single-user project (enables auto-approve)
+	if activeUserCount == 1 {
+		// For single-user projects, the frontend should show an auto-approve dialog
+		// We'll add this information to the pending change response
+		pendingChange.Change.Meta.SingleUserProject = true
+	}
+
+	return domain.GuardedResult{
+		Pending:       true,
+		PendingChange: &pendingChange,
+	}
 }

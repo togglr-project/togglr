@@ -89,6 +89,7 @@ func (r *Repository) Delete(ctx context.Context, name domain.RuleAttribute) erro
 
 func (r *Repository) List(ctx context.Context) ([]domain.RuleAttributeEntity, error) {
 	exec := r.getExecutor(ctx)
+
 	const query = `SELECT id, name, description FROM rule_attributes ORDER BY name`
 
 	rows, err := exec.Query(ctx, query)

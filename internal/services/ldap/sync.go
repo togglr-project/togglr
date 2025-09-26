@@ -17,7 +17,7 @@ var (
 
 // StartManualSync starts a manual LDAP synchronization of the specified type.
 //
-//nolint:gocyclo,lll // need refactoring
+//nolint:gocyclo // need refactoring
 func (s *Service) StartManualSync(_ context.Context, syncID string, stopped chan struct{}) error {
 	s.syncMutex.Lock()
 	defer s.syncMutex.Unlock()
@@ -66,7 +66,9 @@ func (s *Service) StartManualSync(_ context.Context, syncID string, stopped chan
 		time.Sleep(2 * time.Second)
 
 		startTime := time.Now()
+
 		var syncErr error
+
 		var totalUsers, syncedUsers, errs, warnings int
 
 		defer func() {
@@ -107,7 +109,9 @@ func (s *Service) StartManualSync(_ context.Context, syncID string, stopped chan
 			endTime := time.Now()
 			durationStr := duration.String()
 			status := "completed"
+
 			var errorMessage *string
+
 			if syncErr != nil {
 				status = "failed"
 				errMsg := syncErr.Error()
@@ -165,6 +169,7 @@ func (s *Service) StartManualSync(_ context.Context, syncID string, stopped chan
 		}
 
 		totalUsers = len(users)
+
 		s.syncMutex.Lock()
 		s.syncProgress.TotalItems = totalUsers
 		s.syncProgress.CurrentStep = "Syncing users"
@@ -182,9 +187,11 @@ func (s *Service) StartManualSync(_ context.Context, syncID string, stopped chan
 				return
 			default:
 				time.Sleep(time.Millisecond * 100)
+
 				if err := s.syncUser(syncCtx, username); err != nil {
 					// Log error but continue with other users
 					slog.Error("failed to sync user", "username", username, "error", err)
+
 					errs++
 				} else {
 					syncedUsers++
@@ -276,12 +283,15 @@ func (s *Service) updateSyncStats(ctx context.Context, syncID string, updates ma
 	if totalUsers, ok := updates["total_users"].(int); ok {
 		stats.TotalUsers = totalUsers
 	}
+
 	if syncedUsers, ok := updates["synced_users"].(int); ok {
 		stats.SyncedUsers = syncedUsers
 	}
+
 	if errs, ok := updates["errors"].(int); ok {
 		stats.Errors = errs
 	}
+
 	if warnings, ok := updates["warnings"].(int); ok {
 		stats.Warnings = warnings
 	}

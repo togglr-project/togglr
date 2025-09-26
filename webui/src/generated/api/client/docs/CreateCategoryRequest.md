@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **slug** | **string** |  | [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **color** | **string** |  | [optional] [default to undefined]
-**category_type** | **string** |  | [default to undefined]
+**kind** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -21,7 +21,7 @@ const instance: CreateCategoryRequest = {
     slug,
     description,
     color,
-    category_type,
+    kind,
 };
 ```
 

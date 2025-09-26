@@ -33,6 +33,7 @@ func (s *Service) GetLDAPConfig(ctx context.Context) (*domain.LDAPConfig, error)
 	}
 
 	var config domain.LDAPConfig
+
 	err = json.Unmarshal(setting.Value, &config)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal LDAP config: %w", err)

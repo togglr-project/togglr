@@ -1608,7 +1608,7 @@ func TestIsScheduleActive_SimpleCronBuilderCases(t *testing.T) {
 	}
 }
 
-// TestIsFeatureActiveNow_ScheduleBaseline тестирует правильность baseline логики согласно docs/schedule_full.md
+// TestIsFeatureActiveNow_ScheduleBaseline тестирует правильность baseline логики согласно docs/schedule_full.md.
 func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 	loc, _ := time.LoadLocation("UTC")
 	now := time.Date(2025, 9, 16, 12, 0, 0, 0, loc)
@@ -1792,7 +1792,7 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 	}
 }
 
-// TestIsScheduleActive_CronDurationBaseline тестирует правильность baseline для cron с продолжительностью
+// TestIsScheduleActive_CronDurationBaseline тестирует правильность baseline для cron с продолжительностью.
 func TestIsScheduleActive_CronDurationBaseline(t *testing.T) {
 	loc, _ := time.LoadLocation("UTC")
 	now := time.Date(2025, 9, 16, 10, 15, 0, 0, loc) // 10:15
@@ -1856,5 +1856,6 @@ func ptrDuration(d time.Duration) *time.Duration { return &d }
 
 func ptrFV(id string) *domain.FlagVariantID {
 	v := domain.FlagVariantID(id)
+
 	return &v
 }

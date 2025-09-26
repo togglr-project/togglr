@@ -10,7 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// TestFeatureTimeline handles POST /api/v1/features/{feature_id}/timeline/test
+// TestFeatureTimeline handles POST /api/v1/features/{feature_id}/timeline/test.
 func (r *RestAPI) TestFeatureTimeline(
 	ctx context.Context,
 	req *generatedapi.TestFeatureTimelineRequest,
@@ -63,6 +63,7 @@ func (r *RestAPI) TestFeatureTimeline(
 
 	// Convert test schedules to domain schedules
 	testSchedules := make([]domain.FeatureSchedule, 0, len(req.Schedules))
+
 	for _, sched := range req.Schedules {
 		schedule := domain.FeatureSchedule{
 			ProjectID: feature.ProjectID,

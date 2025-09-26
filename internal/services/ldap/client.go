@@ -60,12 +60,15 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	if config.Timeout == 0 {
 		config.Timeout = 30 * time.Second
 	}
+
 	if config.MaxOpenConns == 0 {
 		config.MaxOpenConns = 10
 	}
+
 	if config.MaxIdleConns == 0 {
 		config.MaxIdleConns = 5
 	}
+
 	if config.ConnMaxLifetime == 0 {
 		config.ConnMaxLifetime = 5 * time.Minute
 	}
@@ -78,7 +81,7 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	}
 
 	// Initialize connection pool
-	for i := 0; i < config.MaxIdleConns; i++ {
+	for range config.MaxIdleConns {
 		conn, err := client.createConnection()
 		if err != nil {
 			_ = client.Close()
@@ -102,6 +105,7 @@ func (c *Client) Authenticate(_ context.Context, username, password string) (boo
 	}
 
 	var authenticated bool
+
 	err := c.withConnection(func(conn *ldap.Conn) error {
 		// Search for the user
 		searchRequest := ldap.NewSearchRequest(
@@ -153,6 +157,7 @@ func (c *Client) GetUser(_ context.Context, username string) (map[string][]strin
 	}
 
 	var attributes map[string][]string
+
 	err := c.withConnection(func(conn *ldap.Conn) error {
 		searchRequest := ldap.NewSearchRequest(
 			c.config.UserBaseDN,
@@ -192,6 +197,7 @@ func (c *Client) GetUser(_ context.Context, username string) (map[string][]strin
 // GetAllUsers retrieves all usernames from LDAP.
 func (c *Client) GetAllUsers(_ context.Context) ([]string, error) {
 	var usernames []string
+
 	err := c.withConnection(func(conn *ldap.Conn) error {
 		searchRequest := ldap.NewSearchRequest(
 			c.config.UserBaseDN,
@@ -208,6 +214,7 @@ func (c *Client) GetAllUsers(_ context.Context) ([]string, error) {
 		}
 
 		usernames = make([]string, 0, len(searchResult.Entries))
+
 		for _, entry := range searchResult.Entries {
 			for _, attr := range entry.Attributes {
 				if attr.Name == c.config.UserNameAttr && len(attr.Values) > 0 {
@@ -239,12 +246,14 @@ func (c *Client) Close() error {
 	if c.healthTicker != nil {
 		c.healthTicker.Stop()
 	}
+
 	close(c.healthStop)
 
 	// Close the connection pool channel
 	close(c.connPool)
 
 	var errs []error
+
 	for conn := range c.connPool {
 		if conn != nil {
 			if err := conn.Close(); err != nil {
@@ -267,6 +276,7 @@ func (c *Client) Close() error {
 func (c *Client) createConnection() (*ldap.Conn, error) {
 	// Create new connection
 	var conn *ldap.Conn
+
 	var err error
 
 	if strings.HasPrefix(c.config.URL, "ldaps://") {
@@ -327,6 +337,7 @@ func (c *Client) getConnection() (*ldap.Conn, error) {
 		if conn.IsClosing() {
 			_ = conn.Close()
 			delete(c.connCreatedAt, conn)
+
 			return c.createConnection()
 		}
 
@@ -334,6 +345,7 @@ func (c *Client) getConnection() (*ldap.Conn, error) {
 		if err := c.testConnectionHealth(conn); err != nil {
 			_ = conn.Close()
 			delete(c.connCreatedAt, conn)
+
 			return c.createConnection()
 		}
 
@@ -350,6 +362,7 @@ func (c *Client) getConnection() (*ldap.Conn, error) {
 			if conn.IsClosing() {
 				_ = conn.Close()
 				delete(c.connCreatedAt, conn)
+
 				return c.createConnection()
 			}
 
@@ -357,6 +370,7 @@ func (c *Client) getConnection() (*ldap.Conn, error) {
 			if err := c.testConnectionHealth(conn); err != nil {
 				_ = conn.Close()
 				delete(c.connCreatedAt, conn)
+
 				return c.createConnection()
 			}
 
@@ -372,7 +386,7 @@ func (c *Client) getConnection() (*ldap.Conn, error) {
 	}
 }
 
-// testConnectionHealth performs a simple LDAP operation to verify the connection is still healthy
+// testConnectionHealth performs a simple LDAP operation to verify the connection is still healthy.
 func (c *Client) testConnectionHealth(conn *ldap.Conn) error {
 	// Perform a simple search to test connection health
 	searchRequest := ldap.NewSearchRequest(
@@ -385,6 +399,7 @@ func (c *Client) testConnectionHealth(conn *ldap.Conn) error {
 	)
 
 	_, err := conn.Search(searchRequest)
+
 	return err
 }
 
@@ -453,7 +468,7 @@ func (c *Client) withConnection(fn func(conn *ldap.Conn) error) error {
 	return err
 }
 
-// isConnectionError checks if the error indicates a connection problem that requires reconnection
+// isConnectionError checks if the error indicates a connection problem that requires reconnection.
 func isConnectionError(err error) bool {
 	if err == nil {
 		return false
@@ -486,8 +501,8 @@ func isConnectionError(err error) bool {
 			ldap.LDAPResultAmbiguousResponse,     // 101
 			ldap.LDAPResultTLSNotSupported,       // 112
 			ldap.LDAPResultIntermediateResponse,  // 113
-			//ldap.LDAPResultUnknownResponse,   // 114
-			//ldap.LDAPResultUnknownSaslCredentials, // 115
+			// ldap.LDAPResultUnknownResponse,   // 114
+			// ldap.LDAPResultUnknownSaslCredentials, // 115
 			ldap.LDAPResultSaslBindInProgress: // 116
 			return true
 		}
@@ -507,22 +522,7 @@ func isConnectionError(err error) bool {
 	return false
 }
 
-func extractValueFromMemberDN(memberDN, target string) (string, bool) {
-	parts := strings.Split(memberDN, ",")
-	for _, part := range parts {
-		part = strings.TrimSpace(part)
-		if strings.HasPrefix(strings.ToLower(part), target+"=") {
-			value := strings.TrimPrefix(strings.ToLower(part), target+"=")
-			if value != "" {
-				return value, true
-			}
-		}
-	}
-
-	return "", false
-}
-
-// startHealthMonitoring starts a background goroutine to monitor connection health
+// startHealthMonitoring starts a background goroutine to monitor connection health.
 func (c *Client) startHealthMonitoring() {
 	// Check connections every 30 seconds
 	c.healthTicker = time.NewTicker(30 * time.Second)
@@ -539,7 +539,7 @@ func (c *Client) startHealthMonitoring() {
 	}()
 }
 
-// cleanupStaleConnections removes stale connections from the pool
+// cleanupStaleConnections removes stale connections from the pool.
 func (c *Client) cleanupStaleConnections() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -563,7 +563,7 @@ func (c *Client) cleanupStaleConnections() {
 
 	// Drain the pool and check each connection
 poolLoop:
-	for i := 0; i < currentPoolSize; i++ {
+	for range currentPoolSize {
 		select {
 		case conn := <-c.connPool:
 			// Check if the connection is too old or unhealthy
@@ -618,7 +618,7 @@ poolLoop:
 		"final_pool_size", len(c.connPool))
 }
 
-// isConnectionStale checks if a connection is too old or unhealthy
+// isConnectionStale checks if a connection is too old or unhealthy.
 func (c *Client) isConnectionStale(conn *ldap.Conn) bool {
 	// Check if the connection is closing
 	if conn.IsClosing() {

@@ -86,6 +86,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.SegmentID) (domain.S
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Segment{}, domain.ErrEntityNotFound
 		}
+
 		return domain.Segment{}, fmt.Errorf("collect segment row: %w", err)
 	}
 
@@ -112,6 +113,7 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 	for _, m := range models {
 		items = append(items, m.toDomain())
 	}
+
 	return items, nil
 }
 
@@ -138,25 +140,31 @@ func (r *Repository) ListByProjectIDFiltered(
 
 	// Sorting with whitelist
 	orderCol := "created_at"
+
 	switch filter.SortBy {
 	case "name", "created_at", "updated_at":
 		orderCol = filter.SortBy
 	}
+
 	orderDir := "DESC"
 	if !filter.SortDesc {
 		orderDir = "ASC"
 	}
+
 	builder = builder.OrderBy(fmt.Sprintf("%s %s", orderCol, orderDir))
 
 	// Pagination
 	page := filter.Page
 	perPage := filter.PerPage
+
 	if page == 0 {
 		page = 1
 	}
+
 	if perPage == 0 {
 		perPage = 20
 	}
+
 	offset := (page - 1) * perPage
 	builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
 
@@ -165,15 +173,19 @@ func (r *Repository) ListByProjectIDFiltered(
 	if err != nil {
 		return nil, 0, fmt.Errorf("build segments list sql: %w", err)
 	}
+
 	rows, err := executor.Query(ctx, listSQL, listArgs...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("query segments filtered: %w", err)
 	}
+
 	defer rows.Close()
+
 	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[segmentModel])
 	if err != nil {
 		return nil, 0, fmt.Errorf("collect segments rows: %w", err)
 	}
+
 	items := make([]domain.Segment, 0, len(models))
 	for _, m := range models {
 		items = append(items, m.toDomain())
@@ -184,6 +196,7 @@ func (r *Repository) ListByProjectIDFiltered(
 	if err != nil {
 		return nil, 0, fmt.Errorf("build segments count sql: %w", err)
 	}
+
 	var total int
 	if err := executor.QueryRow(ctx, countSQL, countArgs...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count segments: %w", err)
@@ -194,7 +207,7 @@ func (r *Repository) ListByProjectIDFiltered(
 
 // Update updates segment fields and returns the updated row.
 //
-//nolint:lll // long query strings are acceptable
+
 func (r *Repository) Update(ctx context.Context, segment domain.Segment) (domain.Segment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -227,6 +240,7 @@ RETURNING id, project_id, name, description, conditions, created_at, updated_at`
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Segment{}, domain.ErrEntityNotFound
 		}
+
 		return domain.Segment{}, fmt.Errorf("update segment: %w", err)
 	}
 
@@ -242,9 +256,11 @@ func (r *Repository) Delete(ctx context.Context, id domain.SegmentID) error {
 	if err != nil {
 		return fmt.Errorf("delete segment: %w", err)
 	}
+
 	if ct.RowsAffected() == 0 {
 		return domain.ErrEntityNotFound
 	}
+
 	return nil
 }
 
@@ -253,5 +269,6 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }

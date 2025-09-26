@@ -36,6 +36,7 @@ func (r *InMemoryTwoFARateLimiter) Inc(userID domain.UserID) (int, bool) {
 
 	entry, ok := r.limits[userID]
 	now := time.Now()
+
 	if !ok || now.Sub(entry.firstTime) > r.window {
 		r.limits[userID] = &rateLimitEntry{count: 1, firstTime: now}
 

@@ -7,7 +7,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// DomainTagToAPI converts domain Tag to generated API ProjectTag
+// DomainTagToAPI converts domain Tag to generated API ProjectTag.
 func DomainTagToAPI(tag domain.Tag) generatedapi.ProjectTag {
 	item := generatedapi.ProjectTag{
 		ID:        uuid.MustParse(tag.ID.String()),
@@ -21,6 +21,7 @@ func DomainTagToAPI(tag domain.Tag) generatedapi.ProjectTag {
 	if tag.Description != nil {
 		item.Description = generatedapi.NewOptNilString(*tag.Description)
 	}
+
 	if tag.Color != nil {
 		item.Color = generatedapi.NewOptNilString(*tag.Color)
 	}
@@ -42,16 +43,17 @@ func DomainTagToAPI(tag domain.Tag) generatedapi.ProjectTag {
 	return item
 }
 
-// DomainTagsToAPI converts slice of domain Tags to slice of generated API ProjectTags
+// DomainTagsToAPI converts slice of domain Tags to slice of generated API ProjectTags.
 func DomainTagsToAPI(tags []domain.Tag) []generatedapi.ProjectTag {
 	resp := make([]generatedapi.ProjectTag, 0, len(tags))
 	for _, tag := range tags {
 		resp = append(resp, DomainTagToAPI(tag))
 	}
+
 	return resp
 }
 
-// APITagToDomain converts generated API ProjectTag to domain Tag
+// APITagToDomain converts generated API ProjectTag to domain Tag.
 func APITagToDomain(tag generatedapi.ProjectTag) domain.Tag {
 	item := domain.Tag{
 		ID:        domain.TagID(tag.ID.String()),
@@ -65,6 +67,7 @@ func APITagToDomain(tag generatedapi.ProjectTag) domain.Tag {
 	if tag.Description.IsSet() {
 		item.Description = &tag.Description.Value
 	}
+
 	if tag.Color.IsSet() {
 		item.Color = &tag.Color.Value
 	}

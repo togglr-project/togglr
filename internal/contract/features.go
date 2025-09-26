@@ -32,7 +32,7 @@ type FeaturesUseCase interface {
 		feature domain.Feature,
 		variants []domain.FlagVariant,
 		rules []domain.Rule,
-	) (domain.FeatureExtended, error)
+	) (domain.FeatureExtended, domain.GuardedResult, error)
 	GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error)
 	GetExtendedByID(ctx context.Context, id domain.FeatureID) (domain.FeatureExtended, error)
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
@@ -52,10 +52,9 @@ type FeaturesUseCase interface {
 		ctx context.Context,
 		projectID domain.ProjectID,
 	) ([]domain.FeatureExtended, error)
-	Update(ctx context.Context, feature domain.Feature) (domain.Feature, error)
 	// Toggle enables or disables a feature flag by its ID and returns updated entity.
-	Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, error)
-	Delete(ctx context.Context, id domain.FeatureID) error
+	Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, domain.GuardedResult, error)
+	Delete(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error)
 }
 
 type FeaturesRepository interface {
@@ -64,7 +63,11 @@ type FeaturesRepository interface {
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)
-	ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter FeaturesListFilter) ([]domain.Feature, int, error)
+	ListByProjectIDFiltered(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		filter FeaturesListFilter,
+	) ([]domain.Feature, int, error)
 	Update(ctx context.Context, feature domain.Feature) (domain.Feature, error)
 	Delete(ctx context.Context, id domain.FeatureID) error
 }

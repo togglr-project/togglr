@@ -24,7 +24,9 @@ func (r *RestAPI) UpdateFeatureSchedule(
 				Message: generatedapi.NewOptString("schedule not found"),
 			}}, nil
 		}
+
 		slog.Error("get schedule before update failed", "error", err, "schedule_id", id)
+
 		return nil, err
 	}
 

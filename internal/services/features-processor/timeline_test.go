@@ -127,7 +127,7 @@ func TestBuildFeatureTimeline(t *testing.T) {
 			svc := New(nil, nil, nil, 0)
 			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err)
-			assert.Equal(t, len(tt.wantTimes), len(got), "unexpected number of events")
+			assert.Len(t, got, len(tt.wantTimes), "unexpected number of events")
 
 			for i := range tt.wantTimes {
 				assert.Equal(t, tt.wantTimes[i], got[i].Time, "event %d time mismatch", i)
@@ -141,7 +141,7 @@ func ptrStr(s string) *string {
 	return &s
 }
 
-// TestBuildFeatureTimeline_BaselineLogic тестирует правильность baseline логики в timeline
+// TestBuildFeatureTimeline_BaselineLogic тестирует правильность baseline логики в timeline.
 func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 	now := time.Date(2025, 9, 16, 12, 0, 0, 0, time.UTC)
 
@@ -252,7 +252,7 @@ func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 			svc := New(nil, nil, nil, 0)
 			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err, tt.desc)
-			assert.Equal(t, len(tt.wantTimes), len(got), "unexpected number of events: %s", tt.desc)
+			assert.Len(t, got, len(tt.wantTimes), "unexpected number of events: %s", tt.desc)
 
 			for i := range tt.wantTimes {
 				assert.Equal(t, tt.wantTimes[i], got[i].Time, "event %d time mismatch: %s", i, tt.desc)

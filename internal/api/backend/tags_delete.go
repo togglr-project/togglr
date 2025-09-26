@@ -21,6 +21,7 @@ func (r *RestAPI) DeleteProjectTag(
 	// Check if user can manage the project
 	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
 		slog.Error("permission denied", "error", err, "user_id", userID, "project_id", projectID)
+
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("permission denied"),
 		}}, nil

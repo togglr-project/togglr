@@ -24,16 +24,20 @@ func (r *RestAPI) GetCurrentUser(ctx context.Context) (generatedapi.GetCurrentUs
 
 	// Build project permissions for projects where the user has membership
 	projectPermissions := generatedapi.UserProjectPermissions{}
+
 	permsByProject, err := r.permissionsService.GetMyProjectPermissions(ctx)
 	if err != nil {
 		slog.Error("get my project permissions failed", "error", err)
+
 		return nil, err
 	}
+
 	for projectID, keys := range permsByProject {
 		arr := make([]string, 0, len(keys))
 		for _, permKey := range keys {
 			arr = append(arr, string(permKey))
 		}
+
 		projectPermissions[string(projectID)] = arr
 	}
 

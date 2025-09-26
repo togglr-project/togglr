@@ -97,12 +97,13 @@ func (r *Repository) Create(ctx context.Context, category *domain.CategoryDTO) (
 	executor := r.getExecutor(ctx)
 
 	const query = `
-		INSERT INTO categories (name, slug, description, color, kind, category_type)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO categories (name, slug, description, color, kind)
+		VALUES ($1, $2, $3, $4, $5)
 		RETURNING id
 	`
 
 	var id domain.CategoryID
+
 	err := executor.QueryRow(
 		ctx,
 		query,
@@ -111,7 +112,6 @@ func (r *Repository) Create(ctx context.Context, category *domain.CategoryDTO) (
 		category.Description,
 		category.Color,
 		category.Kind,
-		category.Type,
 	).Scan(&id)
 	if err != nil {
 		return "", fmt.Errorf("insert category: %w", err)
@@ -168,19 +168,19 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }
 
 type categoryModel struct {
-	ID           string    `db:"id"`
-	Name         string    `db:"name"`
-	Slug         string    `db:"slug"`
-	Description  *string   `db:"description"`
-	Color        *string   `db:"color"`
-	Kind         string    `db:"kind"`
-	CategoryType string    `db:"category_type"`
-	CreatedAt    time.Time `db:"created_at"`
-	UpdatedAt    time.Time `db:"updated_at"`
+	ID          string    `db:"id"`
+	Name        string    `db:"name"`
+	Slug        string    `db:"slug"`
+	Description *string   `db:"description"`
+	Color       *string   `db:"color"`
+	Kind        string    `db:"kind"`
+	CreatedAt   time.Time `db:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at"`
 }
 
 func (m *categoryModel) toDomain() domain.Category {
@@ -191,7 +191,6 @@ func (m *categoryModel) toDomain() domain.Category {
 		Description: m.Description,
 		Color:       m.Color,
 		Kind:        domain.CategoryKind(m.Kind),
-		Type:        domain.CategoryType(m.CategoryType),
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 	}

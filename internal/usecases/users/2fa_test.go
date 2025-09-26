@@ -87,7 +87,7 @@ func TestConfirm2FA__user_blocked(t *testing.T) {
 	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
 	code, _ := totp.GenerateCode(plainSecret, time.Now())
 	err := service.Confirm2FA(ctx, userID, code)
-	require.Error(t, err, domain.ErrTooMany2FAAttempts)
+	require.ErrorIs(t, err, domain.ErrTooMany2FAAttempts)
 }
 
 func TestSend2FACode(t *testing.T) {
@@ -210,5 +210,5 @@ func TestVerify2FA__user_blocked(t *testing.T) {
 	code, _ := totp.GenerateCode(plainSecret, time.Now())
 	sessionID := generate2FASession(userID, "username", time.Minute)
 	_, _, _, err := service.Verify2FA(ctx, code, sessionID)
-	require.Error(t, err, domain.ErrTooMany2FAAttempts)
+	require.ErrorIs(t, err, domain.ErrTooMany2FAAttempts)
 }

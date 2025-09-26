@@ -9,7 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ListFeatureSchedules handles GET /api/v1/features/{feature_id}/schedules
+// ListFeatureSchedules handles GET /api/v1/features/{feature_id}/schedules.
 func (r *RestAPI) ListFeatureSchedules(
 	ctx context.Context,
 	params generatedapi.ListFeatureSchedulesParams,
@@ -24,7 +24,9 @@ func (r *RestAPI) ListFeatureSchedules(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature for list schedules failed", "error", err)
+
 		return nil, err
 	}
 
@@ -50,6 +52,7 @@ func (r *RestAPI) ListFeatureSchedules(
 	items, err := r.featureSchedulesUseCase.ListByFeatureID(ctx, featureID)
 	if err != nil {
 		slog.Error("list schedules by feature failed", "error", err)
+
 		return nil, err
 	}
 

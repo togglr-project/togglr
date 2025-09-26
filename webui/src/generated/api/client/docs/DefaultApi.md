@@ -6,8 +6,10 @@ All URIs are relative to *http://localhost*
 |------------- | ------------- | -------------|
 |[**addFeatureTag**](#addfeaturetag) | **POST** /api/v1/features/{feature_id}/tags | Add tag to feature|
 |[**addProject**](#addproject) | **POST** /api/v1/projects/add | Add new project|
+|[**approvePendingChange**](#approvependingchange) | **POST** /api/v1/pending_changes/{pending_change_id}/approve | Approve a pending change|
 |[**archiveProject**](#archiveproject) | **DELETE** /api/v1/projects/{project_id} | Archive a project|
 |[**cancelLDAPSync**](#cancelldapsync) | **DELETE** /api/v1/ldap/sync/cancel | Cancel ongoing synchronization|
+|[**cancelPendingChange**](#cancelpendingchange) | **POST** /api/v1/pending_changes/{pending_change_id}/cancel | Cancel a pending change|
 |[**confirm2FA**](#confirm2fa) | **POST** /api/v1/users/me/2fa/confirm | Approve enable 2FA (code from app)|
 |[**consumeSAMLAssertion**](#consumesamlassertion) | **POST** /api/v1/saml/acs | Assertion Consumer Service (ACS) endpoint|
 |[**createCategory**](#createcategory) | **POST** /api/v1/categories | Create new category|
@@ -16,6 +18,7 @@ All URIs are relative to *http://localhost*
 |[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
 |[**createProjectSegment**](#createprojectsegment) | **POST** /api/v1/projects/{project_id}/segments | Create segment for project|
+|[**createProjectSetting**](#createprojectsetting) | **POST** /api/v1/projects/{project_id}/settings | Create project setting|
 |[**createProjectTag**](#createprojecttag) | **POST** /api/v1/projects/{project_id}/tags | Create new tag for project|
 |[**createRuleAttribute**](#createruleattribute) | **POST** /api/v1/rule_attributes | Create rule attribute|
 |[**createUser**](#createuser) | **POST** /api/v1/users | Create a new user (superuser only)|
@@ -23,6 +26,7 @@ All URIs are relative to *http://localhost*
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
 |[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
+|[**deleteProjectSetting**](#deleteprojectsetting) | **DELETE** /api/v1/projects/{project_id}/settings/{setting_name} | Delete project setting|
 |[**deleteProjectTag**](#deleteprojecttag) | **DELETE** /api/v1/projects/{project_id}/tags/{tag_id} | Delete tag|
 |[**deleteRuleAttribute**](#deleteruleattribute) | **DELETE** /api/v1/rule_attributes/{name} | Delete rule attribute|
 |[**deleteSegment**](#deletesegment) | **DELETE** /api/v1/segments/{segment_id} | Delete segment|
@@ -41,21 +45,26 @@ All URIs are relative to *http://localhost*
 |[**getLDAPSyncProgress**](#getldapsyncprogress) | **GET** /api/v1/ldap/sync/progress | Get synchronization progress|
 |[**getLDAPSyncStatus**](#getldapsyncstatus) | **GET** /api/v1/ldap/sync/status | Get synchronization status|
 |[**getLicenseStatus**](#getlicensestatus) | **GET** /api/v1/license/status | Get license status|
+|[**getPendingChange**](#getpendingchange) | **GET** /api/v1/pending_changes/{pending_change_id} | Get pending change by ID|
 |[**getProductInfo**](#getproductinfo) | **GET** /api/v1/product/info | Get product information including client ID|
 |[**getProject**](#getproject) | **GET** /api/v1/projects/{project_id} | Get project details|
+|[**getProjectSetting**](#getprojectsetting) | **GET** /api/v1/projects/{project_id}/settings/{setting_name} | Get project setting by name|
 |[**getProjectTag**](#getprojecttag) | **GET** /api/v1/projects/{project_id}/tags/{tag_id} | Get tag details|
 |[**getSAMLMetadata**](#getsamlmetadata) | **GET** /api/v1/saml/metadata | Get SAML metadata|
 |[**getSSOProviders**](#getssoproviders) | **GET** /api/v1/auth/sso/providers | Get available SSO providers|
 |[**getSegment**](#getsegment) | **GET** /api/v1/segments/{segment_id} | Get segment by ID|
+|[**initiateTOTPApproval**](#initiatetotpapproval) | **POST** /api/v1/pending_changes/{pending_change_id}/initiate-totp | Initiate TOTP approval session|
 |[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/feature-schedules | List all feature schedules|
 |[**listCategories**](#listcategories) | **GET** /api/v1/categories | Get categories list|
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
 |[**listFeatureRules**](#listfeaturerules) | **GET** /api/v1/features/{feature_id}/rules | List rules for feature|
 |[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
 |[**listFeatureTags**](#listfeaturetags) | **GET** /api/v1/features/{feature_id}/tags | List feature tags|
+|[**listPendingChanges**](#listpendingchanges) | **GET** /api/v1/pending_changes | List pending changes|
 |[**listProjectChanges**](#listprojectchanges) | **GET** /api/v1/projects/{project_id}/changes | Get project changes history|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
 |[**listProjectSegments**](#listprojectsegments) | **GET** /api/v1/projects/{project_id}/segments | List segments for project|
+|[**listProjectSettings**](#listprojectsettings) | **GET** /api/v1/projects/{project_id}/settings | List project settings|
 |[**listProjectTags**](#listprojecttags) | **GET** /api/v1/projects/{project_id}/tags | Get tags list for project|
 |[**listProjects**](#listprojects) | **GET** /api/v1/projects | Get projects list|
 |[**listRuleAttributes**](#listruleattributes) | **GET** /api/v1/rule_attributes | List of rule attributes|
@@ -63,6 +72,7 @@ All URIs are relative to *http://localhost*
 |[**listUsers**](#listusers) | **GET** /api/v1/users | List all users (superuser only)|
 |[**login**](#login) | **POST** /api/v1/auth/login | Authenticate user and get access token|
 |[**refreshToken**](#refreshtoken) | **POST** /api/v1/auth/refresh | Refresh access token|
+|[**rejectPendingChange**](#rejectpendingchange) | **POST** /api/v1/pending_changes/{pending_change_id}/reject | Reject a pending change|
 |[**removeFeatureTag**](#removefeaturetag) | **DELETE** /api/v1/features/{feature_id}/tags | Remove tag from feature|
 |[**reset2FA**](#reset2fa) | **POST** /api/v1/users/me/2fa/reset | Reset/generate secret 2FA (using email-confirmation)|
 |[**resetPassword**](#resetpassword) | **POST** /api/v1/auth/reset-password | Reset password using token|
@@ -83,6 +93,7 @@ All URIs are relative to *http://localhost*
 |[**updateLicense**](#updatelicense) | **PUT** /api/v1/license | Update license|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
 |[**updateProject**](#updateproject) | **PUT** /api/v1/projects/{project_id} | Update project name and description|
+|[**updateProjectSetting**](#updateprojectsetting) | **PUT** /api/v1/projects/{project_id}/settings/{setting_name} | Update project setting|
 |[**updateProjectTag**](#updateprojecttag) | **PUT** /api/v1/projects/{project_id}/tags/{tag_id} | Update tag|
 |[**updateSegment**](#updatesegment) | **PUT** /api/v1/segments/{segment_id} | Update segment|
 |[**userChangeMyPassword**](#userchangemypassword) | **POST** /api/v1/users/me/change-password | Change my password|
@@ -206,6 +217,67 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **approvePendingChange**
+> SuccessResponse approvePendingChange(approvePendingChangeRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    ApprovePendingChangeRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let pendingChangeId: string; // (default to undefined)
+let approvePendingChangeRequest: ApprovePendingChangeRequest; //
+
+const { status, data } = await apiInstance.approvePendingChange(
+    pendingChangeId,
+    approvePendingChangeRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **approvePendingChangeRequest** | **ApprovePendingChangeRequest**|  | |
+| **pendingChangeId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**SuccessResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Pending change approved successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized or invalid credentials |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Pending change not found |  -  |
+|**409** | Conflict - pending change is not in pending status |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **archiveProject**
 > archiveProject()
 
@@ -304,6 +376,67 @@ This endpoint does not have any parameters.
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
 |**404** | No active synchronization |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **cancelPendingChange**
+> SuccessResponse cancelPendingChange(cancelPendingChangeRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CancelPendingChangeRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let pendingChangeId: string; // (default to undefined)
+let cancelPendingChangeRequest: CancelPendingChangeRequest; //
+
+const { status, data } = await apiInstance.cancelPendingChange(
+    pendingChangeId,
+    cancelPendingChangeRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **cancelPendingChangeRequest** | **CancelPendingChangeRequest**|  | |
+| **pendingChangeId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**SuccessResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Pending change cancelled successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Pending change not found |  -  |
+|**409** | Conflict - pending change is not in pending status |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -778,6 +911,67 @@ const { status, data } = await apiInstance.createProjectSegment(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **createProjectSetting**
+> ProjectSettingResponse createProjectSetting(createProjectSettingRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateProjectSettingRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let createProjectSettingRequest: CreateProjectSettingRequest; //
+
+const { status, data } = await apiInstance.createProjectSetting(
+    projectId,
+    createProjectSettingRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createProjectSettingRequest** | **CreateProjectSettingRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ProjectSettingResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Project setting created |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Project not found |  -  |
+|**409** | Setting already exists |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createProjectTag**
 > ProjectTagResponse createProjectTag(createProjectTagRequest)
 
@@ -1008,7 +1202,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteFeature**
-> deleteFeature()
+> PendingChangeResponse deleteFeature()
 
 
 ### Example
@@ -1038,7 +1232,7 @@ const { status, data } = await apiInstance.deleteFeature(
 
 ### Return type
 
-void (empty response body)
+**PendingChangeResponse**
 
 ### Authorization
 
@@ -1054,6 +1248,7 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | Feature deleted successfully |  -  |
+|**202** | Deletion is pending approval (for guarded features) |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
@@ -1159,6 +1354,64 @@ This endpoint does not have any parameters.
 |**200** | LDAP configuration deleted |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteProjectSetting**
+> deleteProjectSetting()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let settingName: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteProjectSetting(
+    projectId,
+    settingName
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **settingName** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Project setting deleted |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Setting not found |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -2126,6 +2379,60 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getPendingChange**
+> PendingChangeResponse getPendingChange()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let pendingChangeId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getPendingChange(
+    pendingChangeId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **pendingChangeId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**PendingChangeResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Pending change details |  -  |
+|**401** | Unauthorized |  -  |
+|**404** | Pending change not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getProductInfo**
 > ProductInfoResponse getProductInfo()
 
@@ -2223,6 +2530,64 @@ const { status, data } = await apiInstance.getProject(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getProjectSetting**
+> ProjectSettingResponse getProjectSetting()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let settingName: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getProjectSetting(
+    projectId,
+    settingName
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **settingName** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ProjectSettingResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Project setting details |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Setting not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -2427,6 +2792,67 @@ const { status, data } = await apiInstance.getSegment(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Segment not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **initiateTOTPApproval**
+> InitiateTOTPApprovalResponse initiateTOTPApproval(initiateTOTPApprovalRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    InitiateTOTPApprovalRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let pendingChangeId: string; // (default to undefined)
+let initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest; //
+
+const { status, data } = await apiInstance.initiateTOTPApproval(
+    pendingChangeId,
+    initiateTOTPApprovalRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **initiateTOTPApprovalRequest** | **InitiateTOTPApprovalRequest**|  | |
+| **pendingChangeId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**InitiateTOTPApprovalResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | TOTP approval session initiated successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Pending change not found |  -  |
+|**409** | Conflict - pending change is not in pending status |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -2746,6 +3172,77 @@ const { status, data } = await apiInstance.listFeatureTags(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **listPendingChanges**
+> PendingChangesListResponse listPendingChanges()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (optional) (default to undefined)
+let status: 'pending' | 'approved' | 'rejected' | 'cancelled'; // (optional) (default to undefined)
+let userId: number; // (optional) (default to undefined)
+let page: number; // (optional) (default to 1)
+let perPage: number; // (optional) (default to 20)
+let sortBy: 'created_at' | 'status' | 'requested_by'; // (optional) (default to 'created_at')
+let sortDesc: boolean; // (optional) (default to true)
+
+const { status, data } = await apiInstance.listPendingChanges(
+    projectId,
+    status,
+    userId,
+    page,
+    perPage,
+    sortBy,
+    sortDesc
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | (optional) defaults to undefined|
+| **status** | [**&#39;pending&#39; | &#39;approved&#39; | &#39;rejected&#39; | &#39;cancelled&#39;**]**Array<&#39;pending&#39; &#124; &#39;approved&#39; &#124; &#39;rejected&#39; &#124; &#39;cancelled&#39;>** |  | (optional) defaults to undefined|
+| **userId** | [**number**] |  | (optional) defaults to undefined|
+| **page** | [**number**] |  | (optional) defaults to 1|
+| **perPage** | [**number**] |  | (optional) defaults to 20|
+| **sortBy** | [**&#39;created_at&#39; | &#39;status&#39; | &#39;requested_by&#39;**]**Array<&#39;created_at&#39; &#124; &#39;status&#39; &#124; &#39;requested_by&#39;>** |  | (optional) defaults to 'created_at'|
+| **sortDesc** | [**boolean**] |  | (optional) defaults to true|
+
+
+### Return type
+
+**PendingChangesListResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of pending changes |  -  |
+|**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **listProjectChanges**
 > ListChangesResponse listProjectChanges()
 
@@ -2973,6 +3470,67 @@ const { status, data } = await apiInstance.listProjectSegments(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | List of segments for the project |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listProjectSettings**
+> ListProjectSettingsResponse listProjectSettings()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let page: number; // (optional) (default to 1)
+let perPage: number; // (optional) (default to 20)
+
+const { status, data } = await apiInstance.listProjectSettings(
+    projectId,
+    page,
+    perPage
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **page** | [**number**] |  | (optional) defaults to 1|
+| **perPage** | [**number**] |  | (optional) defaults to 20|
+
+
+### Return type
+
+**ListProjectSettingsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of project settings |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Project not found |  -  |
@@ -3338,6 +3896,67 @@ No authorization required
 |-------------|-------------|------------------|
 |**200** | Token refreshed successfully |  -  |
 |**401** | Invalid refresh token |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **rejectPendingChange**
+> SuccessResponse rejectPendingChange(rejectPendingChangeRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    RejectPendingChangeRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let pendingChangeId: string; // (default to undefined)
+let rejectPendingChangeRequest: RejectPendingChangeRequest; //
+
+const { status, data } = await apiInstance.rejectPendingChange(
+    pendingChangeId,
+    rejectPendingChangeRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **rejectPendingChangeRequest** | **RejectPendingChangeRequest**|  | |
+| **pendingChangeId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**SuccessResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Pending change rejected successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Pending change not found |  -  |
+|**409** | Conflict - pending change is not in pending status |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -4062,10 +4681,12 @@ const { status, data } = await apiInstance.toggleFeature(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Feature toggled successfully |  -  |
+|**202** | Feature is guarded and change is pending approval |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**409** | Feature is already locked by another pending change |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -4182,6 +4803,7 @@ const { status, data } = await apiInstance.updateFeature(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Updated feature details with rules and variants |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
@@ -4473,6 +5095,69 @@ const { status, data } = await apiInstance.updateProject(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateProjectSetting**
+> ProjectSettingResponse updateProjectSetting(updateProjectSettingRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    UpdateProjectSettingRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let settingName: string; // (default to undefined)
+let updateProjectSettingRequest: UpdateProjectSettingRequest; //
+
+const { status, data } = await apiInstance.updateProjectSetting(
+    projectId,
+    settingName,
+    updateProjectSettingRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateProjectSettingRequest** | **UpdateProjectSettingRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+| **settingName** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ProjectSettingResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Project setting updated |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Setting not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

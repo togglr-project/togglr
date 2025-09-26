@@ -20,11 +20,13 @@ func New(pool *pgxpool.Pool) *Repository {
 
 func (r *Repository) GetClientID(ctx context.Context) (string, error) {
 	executor := r.getExecutor(ctx)
+
 	const query = `SELECT value FROM product_info WHERE key = 'client_id' LIMIT 1`
 
 	row := executor.QueryRow(ctx, query)
 
 	var clientID string
+
 	err := row.Scan(&clientID)
 	if err != nil {
 		return "", err

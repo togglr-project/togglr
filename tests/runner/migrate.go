@@ -19,6 +19,7 @@ func upMigrations(connStr, migrationsDir string) error {
 	if err != nil {
 		return fmt.Errorf("open postgres connection: %w", err)
 	}
+
 	defer func() { _ = db.Close() }()
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
@@ -27,6 +28,9 @@ func upMigrations(connStr, migrationsDir string) error {
 	}
 
 	pgMigrate, err := migrate.NewWithDatabaseInstance("file://"+migrationsDir, "postgres", driver)
+	if err != nil {
+		return fmt.Errorf("create migrations: %w", err)
+	}
 	if err := pgMigrate.Up(); err != nil {
 		if errors.Is(err, migrate.ErrNoChange) {
 			slog.Info("up migrations: no changes")

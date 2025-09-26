@@ -89,6 +89,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.FlagVariantID) (doma
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.FlagVariant{}, domain.ErrEntityNotFound
 		}
+
 		return domain.FlagVariant{}, fmt.Errorf("collect flag_variant row: %w", err)
 	}
 
@@ -152,6 +153,7 @@ func (r *Repository) Update(ctx context.Context, v domain.FlagVariant) (domain.F
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.FlagVariant{}, err
 		}
+
 		return domain.FlagVariant{}, fmt.Errorf("get flag_variant before update: %w", err)
 	}
 
@@ -172,6 +174,7 @@ RETURNING id, project_id, feature_id, name, rollout_percent`
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.FlagVariant{}, domain.ErrEntityNotFound
 		}
+
 		return domain.FlagVariant{}, fmt.Errorf("update flag_variant: %w", err)
 	}
 
@@ -234,5 +237,6 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }

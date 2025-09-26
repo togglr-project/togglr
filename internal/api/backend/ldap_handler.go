@@ -17,11 +17,13 @@ func (r *RestAPI) CancelLDAPSync(ctx context.Context) (generatedapi.CancelLDAPSy
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	if err := r.ldapUseCase.CancelSync(ctx); err != nil {
 		return &generatedapi.Error{
 			Error: generatedapi.ErrorError{
@@ -42,6 +44,7 @@ func (r *RestAPI) DeleteLDAPConfig(ctx context.Context) (generatedapi.DeleteLDAP
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
@@ -60,6 +63,7 @@ func (r *RestAPI) GetLDAPConfig(ctx context.Context) (generatedapi.GetLDAPConfig
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
@@ -96,11 +100,13 @@ func (r *RestAPI) GetLDAPStatistics(ctx context.Context) (generatedapi.GetLDAPSt
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	stats, err := r.ldapUseCase.GetStatistics(ctx)
 	if err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
@@ -127,11 +133,13 @@ func (r *RestAPI) GetLDAPSyncLogDetails(
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	log, err := r.ldapUseCase.GetSyncLogDetails(ctx, params.ID)
 	if err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
@@ -163,11 +171,13 @@ func (r *RestAPI) GetLDAPSyncLogs(
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	filter := domain.LDAPSyncLogFilter{
 		Limit:    convertOptInt(params.Limit),
 		Level:    convertOptStringFromLevel(params.Level),
@@ -176,12 +186,14 @@ func (r *RestAPI) GetLDAPSyncLogs(
 		From:     convertOptDateTime(params.From),
 		To:       convertOptDateTime(params.To),
 	}
+
 	result, err := r.ldapUseCase.GetSyncLogs(ctx, filter)
 	if err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString(err.Error()),
 		}}, nil
 	}
+
 	logs := make([]generatedapi.LDAPSyncLogEntry, 0, len(result.Logs))
 	for _, syncLog := range result.Logs {
 		logs = append(logs, generatedapi.LDAPSyncLogEntry{
@@ -209,11 +221,13 @@ func (r *RestAPI) GetLDAPSyncProgress(ctx context.Context) (generatedapi.GetLDAP
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	progress, err := r.ldapUseCase.GetSyncProgress(ctx)
 	if err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
@@ -240,11 +254,13 @@ func (r *RestAPI) GetLDAPSyncStatus(ctx context.Context) (generatedapi.GetLDAPSy
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	status, err := r.ldapUseCase.GetSyncStatus(ctx)
 	if err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
@@ -271,11 +287,13 @@ func (r *RestAPI) SyncLDAPUsers(ctx context.Context) (generatedapi.SyncLDAPUsers
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	if err := r.ldapUseCase.StartManualSync(ctx); err != nil {
 		return &generatedapi.Error{
 			Error: generatedapi.ErrorError{
@@ -298,11 +316,13 @@ func (r *RestAPI) TestLDAPConnection(
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
 		}}, nil
 	}
+
 	if err := r.ldapUseCase.TestConnection(ctx); err != nil {
 		return &generatedapi.LDAPConnectionTestResponse{
 			Success: generatedapi.NewOptBool(false),
@@ -326,6 +346,7 @@ func (r *RestAPI) UpdateLDAPConfig(
 			Message: generatedapi.NewOptString("Unauthorized"),
 		}}, nil
 	}
+
 	if !appcontext.IsSuper(ctx) {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
 			Message: generatedapi.NewOptString("Superuser access required"),
@@ -419,6 +440,7 @@ func convertOptStringFromLevel(opt generatedapi.OptGetLDAPSyncLogsLevel) *string
 	if !opt.Set {
 		return nil
 	}
+
 	levelStr := string(opt.Value)
 
 	return &levelStr

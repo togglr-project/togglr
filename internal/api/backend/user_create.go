@@ -15,6 +15,7 @@ func (r *RestAPI) CreateUser(
 	req *generatedapi.CreateUserRequest,
 ) (generatedapi.CreateUserRes, error) {
 	userID := appcontext.UserID(ctx)
+
 	currentUser, err := r.usersUseCase.GetByID(ctx, userID)
 	if err != nil {
 		slog.Error("get current user failed", "error", err)

@@ -1,4 +1,3 @@
-//nolint:interfacebloat // it's ok here
 package apibackend
 
 import (
@@ -36,6 +35,9 @@ type RestAPI struct {
 	categoriesUseCase       contract.CategoriesUseCase
 	tagsUseCase             contract.TagsUseCase
 	featureTagsUseCase      contract.FeatureTagsUseCase
+	pendingChangesUseCase   contract.PendingChangesUseCase
+	guardService            contract.GuardService
+	projectSettingsUseCase  contract.ProjectSettingsUseCase
 }
 
 func New(
@@ -59,6 +61,9 @@ func New(
 	categoriesUseCase contract.CategoriesUseCase,
 	tagsUseCase contract.TagsUseCase,
 	featureTagsUseCase contract.FeatureTagsUseCase,
+	pendingChangesUseCase contract.PendingChangesUseCase,
+	guardService contract.GuardService,
+	projectSettingsUseCase contract.ProjectSettingsUseCase,
 ) *RestAPI {
 	return &RestAPI{
 		config:                  config,
@@ -81,6 +86,9 @@ func New(
 		categoriesUseCase:       categoriesUseCase,
 		tagsUseCase:             tagsUseCase,
 		featureTagsUseCase:      featureTagsUseCase,
+		pendingChangesUseCase:   pendingChangesUseCase,
+		guardService:            guardService,
+		projectSettingsUseCase:  projectSettingsUseCase,
 	}
 }
 

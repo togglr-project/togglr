@@ -1,4 +1,3 @@
-//nolint:gocritic // do not lint this code
 package db
 
 import (

@@ -10,16 +10,8 @@ type CategoryKind string
 
 const (
 	CategoryKindSystem CategoryKind = "system"
+	CategoryKindDomain CategoryKind = "domain"
 	CategoryKindUser   CategoryKind = "user"
-	CategoryKindNoCopy CategoryKind = "nocopy"
-)
-
-type CategoryType string
-
-const (
-	CategoryTypeSafety CategoryType = "safety"
-	CategoryTypeDomain CategoryType = "domain"
-	CategoryTypeUser   CategoryType = "user"
 )
 
 type Category struct {
@@ -29,7 +21,6 @@ type Category struct {
 	Description *string
 	Color       *string
 	Kind        CategoryKind
-	Type        CategoryType
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -40,7 +31,6 @@ type CategoryDTO struct {
 	Description *string
 	Color       *string
 	Kind        CategoryKind
-	Type        CategoryType
 }
 
 func (id CategoryID) String() string {
@@ -52,13 +42,5 @@ func (k CategoryKind) String() string {
 }
 
 func (k CategoryKind) IsValid() bool {
-	return k == CategoryKindSystem || k == CategoryKindUser || k == CategoryKindNoCopy
-}
-
-func (typ CategoryType) String() string {
-	return string(typ)
-}
-
-func (typ CategoryType) IsValid() bool {
-	return typ == CategoryTypeUser || typ == CategoryTypeSafety || typ == CategoryTypeDomain
+	return k == CategoryKindSystem || k == CategoryKindUser || k == CategoryKindDomain
 }

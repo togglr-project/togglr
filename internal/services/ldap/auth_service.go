@@ -56,9 +56,9 @@ func (s *AuthService) Authenticate(ctx context.Context, username, password strin
 		return nil, domain.ErrInvalidPassword
 	}
 
-	//Get or create the user in the local database
-	//user, err := s.service.syncUser(ctx, username)
-	//if err != nil {
+	// Get or create the user in the local database
+	// user, err := s.service.syncUser(ctx, username)
+	// if err != nil {
 	//	return nil, fmt.Errorf("failed to get user from LDAP: %w", err)
 	//}
 

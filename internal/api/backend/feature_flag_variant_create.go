@@ -24,7 +24,9 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature for variant create failed", "error", err)
+
 		return nil, err
 	}
 
@@ -57,6 +59,7 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 	created, err := r.flagVariantsUseCase.Create(ctx, variant)
 	if err != nil {
 		slog.Error("create flag variant failed", "error", err)
+
 		return nil, err
 	}
 

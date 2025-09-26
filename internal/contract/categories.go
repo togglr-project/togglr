@@ -10,9 +10,9 @@ type CategoriesUseCase interface {
 	CreateCategory(
 		ctx context.Context,
 		name, slug string,
+		kind domain.CategoryKind,
 		description *string,
 		color *string,
-		categoryType domain.CategoryType,
 	) (domain.Category, error)
 	GetCategory(ctx context.Context, id domain.CategoryID) (domain.Category, error)
 	ListCategories(ctx context.Context) ([]domain.Category, error)

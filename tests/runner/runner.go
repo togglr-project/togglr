@@ -45,9 +45,11 @@ func Run(t *testing.T, testCfg *Config) {
 	env := NewEnv()
 
 	var connStr string
+
 	var err error
 	// Postgres ---------------------------------------------------------------
 	dbType := pgfixtures.PostgreSQL
+
 	pgContainer, pgDown := startPostgres(t)
 	defer pgDown()
 
@@ -58,6 +60,7 @@ func Run(t *testing.T, testCfg *Config) {
 	// MailHog ----------------------------------------------------------------
 	mailC, mailDown := startMailHog(t)
 	defer mailDown()
+
 	mailPort, err := mailC.MappedPort(t.Context(), "1025")
 	require.NoError(t, err)
 	env.Set("MAILER_ADDR", "localhost:"+mailPort.Port())
@@ -121,9 +124,11 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	env := NewEnv()
 
 	var connStr string
+
 	var err error
 	// Postgres ---------------------------------------------------------------
 	dbType := pgfixtures.PostgreSQL
+
 	pgContainer, pgDown := startPostgres(t)
 	defer pgDown()
 
@@ -134,6 +139,7 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	// MailHog ----------------------------------------------------------------
 	mailC, mailDown := startMailHog(t)
 	defer mailDown()
+
 	mailPort, err := mailC.MappedPort(t.Context(), "1025")
 	require.NoError(t, err)
 	env.Set("MAILER_ADDR", "localhost:"+mailPort.Port())
@@ -191,7 +197,7 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	testy.Run(t, &testyCfg)
 }
 
-// Postgres -----------------------------------------------------------------
+// Postgres -----------------------------------------------------------------.
 func startPostgres(t *testing.T) (*postgres.PostgresContainer, func()) {
 	t.Helper()
 
@@ -215,11 +221,11 @@ func startPostgres(t *testing.T) (*postgres.PostgresContainer, func()) {
 	}
 }
 
-// MailHog ----------------------------------------------------------------
+// MailHog ----------------------------------------------------------------.
 func startMailHog(t *testing.T) (testcontainers.Container, func()) {
 	t.Helper()
 
-	c, err := testcontainers.GenericContainer(t.Context(), testcontainers.GenericContainerRequest{
+	container, err := testcontainers.GenericContainer(t.Context(), testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
 			Name:         "togglr-mailhog-test",
 			Image:        "mailhog/mailhog:latest",
@@ -230,8 +236,8 @@ func startMailHog(t *testing.T) (testcontainers.Container, func()) {
 	})
 	require.NoError(t, err)
 
-	return c, func() {
-		if err := c.Terminate(context.Background()); err != nil {
+	return container, func() {
+		if err := container.Terminate(context.Background()); err != nil {
 			t.Fatalf("terminate mailhog: %v", err)
 		}
 	}
@@ -244,6 +250,7 @@ func extractPort(connStr string) string {
 		if start == -1 {
 			return ""
 		}
+
 		start += 5 // Skip "@tcp("
 
 		end := strings.Index(connStr[start:], ")")
@@ -253,6 +260,7 @@ func extractPort(connStr string) string {
 
 		hostPort := connStr[start : start+end]
 		_, port, _ := net.SplitHostPort(hostPort)
+
 		return port
 	}
 
@@ -316,6 +324,7 @@ func setValidFASecretsInFixtures(t *testing.T, fixturesDir string) []string {
 
 			twoFA, enabled := user["two_fa_enabled"].(bool)
 			email, hasEmail := user["email"].(string)
+
 			if enabled && twoFA && hasEmail && email != "" {
 				enc := generateValid2FASecret(t, secretKey)
 				user["two_fa_secret"] = enc
@@ -327,9 +336,11 @@ func setValidFASecretsInFixtures(t *testing.T, fixturesDir string) []string {
 			var buf bytes.Buffer
 			encoder := yaml.NewEncoder(&buf)
 			encoder.SetIndent(2)
+
 			if err := encoder.Encode(data); err != nil {
 				t.Fatalf("failed to marshal YAML for %s: %v", filePath, err)
 			}
+
 			_ = encoder.Close()
 
 			if err := os.WriteFile(filePath, buf.Bytes(), 0644); err != nil {
@@ -347,6 +358,7 @@ func generateValid2FASecret(t *testing.T, secret string) string {
 	t.Helper()
 
 	generatedSecret := findOTPSecret(t, "123456")
+
 	encSecret, err := crypt.EncryptAESGCM([]byte(generatedSecret), []byte(secret))
 	if err != nil {
 		t.Fatal(err)
@@ -360,8 +372,8 @@ func findOTPSecret(t *testing.T, targetCode string) string {
 
 	now := time.Now()
 
-	for i := 0; i < 10_000_000; i++ {
-		seed := fmt.Sprintf("SECRET%d", i)
+	for attempt := range 10_000_000 {
+		seed := fmt.Sprintf("SECRET%d", attempt)
 		secret := base32.StdEncoding.EncodeToString([]byte(seed))
 		secret = strings.TrimRight(secret, "=")
 
@@ -376,7 +388,7 @@ func findOTPSecret(t *testing.T, targetCode string) string {
 		}
 
 		if code == targetCode && totp.Validate(targetCode, secret) {
-			fmt.Printf(">>> Found valid 2FA OTP secret [iteration: %d]\n", i+1)
+			fmt.Printf(">>> Found valid 2FA OTP secret [iteration: %d]\n", attempt+1)
 
 			return secret
 		}

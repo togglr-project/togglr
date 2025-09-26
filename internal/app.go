@@ -26,10 +26,14 @@ import (
 	"github.com/togglr-project/togglr/internal/repository/features"
 	"github.com/togglr-project/togglr/internal/repository/featureschedules"
 	"github.com/togglr-project/togglr/internal/repository/flagvariants"
+	"github.com/togglr-project/togglr/internal/repository/guard_service"
 	"github.com/togglr-project/togglr/internal/repository/ldapsynclogs"
 	"github.com/togglr-project/togglr/internal/repository/ldapsyncstats"
 	"github.com/togglr-project/togglr/internal/repository/licenses"
+	"github.com/togglr-project/togglr/internal/repository/pending_changes"
 	"github.com/togglr-project/togglr/internal/repository/productinfo"
+	"github.com/togglr-project/togglr/internal/repository/project_approvers"
+	"github.com/togglr-project/togglr/internal/repository/project_settings"
 	"github.com/togglr-project/togglr/internal/repository/projects"
 	"github.com/togglr-project/togglr/internal/repository/rbac"
 	ruleattributesrepo "github.com/togglr-project/togglr/internal/repository/ruleattributes"
@@ -53,7 +57,9 @@ import (
 	flagvariantsusecase "github.com/togglr-project/togglr/internal/usecases/flagvariants"
 	ldapusecase "github.com/togglr-project/togglr/internal/usecases/ldap"
 	licenseusecase "github.com/togglr-project/togglr/internal/usecases/license"
+	pendingchangesusecase "github.com/togglr-project/togglr/internal/usecases/pending_changes"
 	productinfousecase "github.com/togglr-project/togglr/internal/usecases/productinfo"
+	projectsettingsusecase "github.com/togglr-project/togglr/internal/usecases/project_settings"
 	projectsusecase "github.com/togglr-project/togglr/internal/usecases/projects"
 	ruleattributesusecase "github.com/togglr-project/togglr/internal/usecases/ruleattributes"
 	rulesusecase "github.com/togglr-project/togglr/internal/usecases/rules"
@@ -204,6 +210,10 @@ func (app *App) registerComponents() {
 	app.registerComponent(ruleattributesrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(auditlog.New).Arg(app.PostgresPool)
 	app.registerComponent(featuretagsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(pending_changes.New).Arg(app.PostgresPool)
+	app.registerComponent(project_approvers.New).Arg(app.PostgresPool)
+	app.registerComponent(project_settings.New).Arg(app.PostgresPool)
+	app.registerComponent(guard_service.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -233,6 +243,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(featureschedulesusecase.New)
 	app.registerComponent(segmentsusecase.New)
 	app.registerComponent(ruleattributesusecase.New)
+	app.registerComponent(pendingchangesusecase.New)
+	app.registerComponent(projectsettingsusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,
@@ -248,6 +260,7 @@ func (app *App) registerComponents() {
 
 	// Register LDAP service
 	app.registerComponent(ldap.New)
+
 	var ldapService contract.LDAPService
 	if err := app.container.Resolve(&ldapService); err != nil {
 		panic(err)
@@ -273,6 +286,7 @@ func (app *App) registerComponents() {
 			SkipTLSVerify:    app.Config.SAML.SkipTLSVerify,
 		},
 	})
+
 	var samlProvider *samlprovider.SAMLProvider
 	if err := app.container.Resolve(&samlProvider); err != nil {
 		panic(err)
@@ -408,6 +422,7 @@ func (app *App) newSDKServer() (*httpserver.Server, error) {
 func (app *App) newTechServer() (*httpserver.Server, error) {
 	cfg := app.Config.TechServer
 	lis, err := net.Listen("tcp", cfg.Addr)
+
 	if err != nil {
 		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
 	}

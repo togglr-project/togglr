@@ -41,9 +41,9 @@ func (r *RestAPI) CreateCategory(
 		ctx,
 		req.Name,
 		req.Slug,
+		domain.CategoryKind(req.Kind),
 		description,
 		color,
-		domain.CategoryType(req.CategoryType),
 	)
 	if err != nil {
 		slog.Error("create category failed", "error", err, "user_id", userID)

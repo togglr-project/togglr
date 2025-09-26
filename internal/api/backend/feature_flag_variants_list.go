@@ -10,7 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-// ListFeatureFlagVariants handles GET /api/v1/features/{feature_id}/variants
+// ListFeatureFlagVariants handles GET /api/v1/features/{feature_id}/variants.
 func (r *RestAPI) ListFeatureFlagVariants(
 	ctx context.Context,
 	params generatedapi.ListFeatureFlagVariantsParams,
@@ -25,7 +25,9 @@ func (r *RestAPI) ListFeatureFlagVariants(
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
+
 		slog.Error("get feature for list variants failed", "error", err)
+
 		return nil, err
 	}
 
@@ -51,11 +53,13 @@ func (r *RestAPI) ListFeatureFlagVariants(
 	items, err := r.flagVariantsUseCase.ListByFeatureID(ctx, featureID)
 	if err != nil {
 		slog.Error("list flag variants by feature failed", "error", err)
+
 		return nil, err
 	}
 
 	resp := dto.DomainFlagVariantsToAPI(items)
 
 	respSlice := generatedapi.ListFlagVariantsResponse(resp)
+
 	return &respSlice, nil
 }
