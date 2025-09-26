@@ -139,6 +139,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       }
       
       // Normal success - invalidate queries
+      queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+      queryClient.invalidateQueries({ queryKey: ['project-features'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
       queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails.feature.id] });
       queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails.feature.project_id] });
     },
@@ -170,6 +173,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       }
       
       // Normal success - invalidate queries and close dialog
+      queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+      queryClient.invalidateQueries({ queryKey: ['project-features'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
       queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails.feature.id] });
       queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails.feature.project_id] });
       onClose();
@@ -223,6 +229,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       });
 
       // Success - invalidate queries and close guard response
+      queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+      queryClient.invalidateQueries({ queryKey: ['project-features'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
       queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails?.feature.id] });
       queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails?.feature.project_id] });
       setGuardResponse({});

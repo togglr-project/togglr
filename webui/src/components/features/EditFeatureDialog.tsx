@@ -93,14 +93,21 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       {
         onSuccess: () => {
           setGuardResponse({});
+          
+          // Invalidate all feature-related queries
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+          
+          // Invalidate specific queries if we have IDs
           if (featureId) {
             queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
           }
           if (projectId) {
             queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
-            // Also invalidate the specific project features list
-            queryClient.invalidateQueries({ queryKey: ['project-features'] });
+            queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
           }
+          
           onClose();
         },
       }
@@ -189,14 +196,20 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         }
         
         // Normal success - update applied immediately
+        // Invalidate all feature-related queries
+        queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+        queryClient.invalidateQueries({ queryKey: ['project-features'] });
+        queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+        
+        // Invalidate specific queries if we have IDs
         if (featureId) {
           queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
         }
         if (projectId) {
           queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
-          // Also invalidate the specific project features list
-          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
         }
+        
         onClose();
       }
       // If result is null, guard workflow is handling the response
@@ -276,13 +289,18 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         return updated;
       }));
       // refresh caches
+      // Invalidate all feature-related queries
+      await queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+      await queryClient.invalidateQueries({ queryKey: ['project-features'] });
+      await queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+      
+      // Invalidate specific queries if we have IDs
       if (featureId) {
         await queryClient.invalidateQueries({ queryKey: ['feature-details', featureId] });
       }
       if (projectId) {
         await queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
-        // Also invalidate the specific project features list
-        await queryClient.invalidateQueries({ queryKey: ['project-features'] });
+        await queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
       }
     } catch (e: any) {
       setSyncErrors(prev => ({ ...prev, [ruleId]: e?.message || 'Failed to sync rule' }));

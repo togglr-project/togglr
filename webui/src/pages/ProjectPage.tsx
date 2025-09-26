@@ -128,6 +128,9 @@ const ProjectPage: React.FC = () => {
           setGuardResponse({ pendingChange: result.data });
         } else {
           // Normal success - toggle applied immediately
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
           queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
           queryClient.invalidateQueries({ queryKey: ['feature-details', variables.featureId] });
         }
@@ -157,6 +160,9 @@ const ProjectPage: React.FC = () => {
       {
         onSuccess: () => {
           setGuardResponse({});
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
           queryClient.invalidateQueries({ queryKey: ['project-features', projectId] });
         },
       }

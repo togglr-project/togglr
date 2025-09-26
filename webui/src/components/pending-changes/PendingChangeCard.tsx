@@ -31,6 +31,7 @@ import { format } from 'date-fns';
 import { useAuth } from '../../auth/AuthContext';
 import { useApprovePendingChange, useRejectPendingChange, useCancelPendingChange } from '../../hooks/usePendingChanges';
 import { useFeatureNames, getEntityDisplayName } from '../../hooks/useFeatureNames';
+import { useQueryClient } from '@tanstack/react-query';
 import ApprovalDialog from './ApprovalDialog';
 import type { PendingChangeResponse, AuthCredentialsMethodEnum } from '../../generated/api/client';
 
@@ -44,6 +45,7 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
   onStatusChange,
 }) => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [showDetails, setShowDetails] = useState(false);
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
@@ -80,6 +82,13 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
       {
         onSuccess: () => {
           setShowApprovalDialog(false);
+          
+          // Invalidate all related caches
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes', pendingChange.project_id] });
+          
           onStatusChange?.();
         },
       }
@@ -101,6 +110,13 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
         onSuccess: () => {
           setShowRejectDialog(false);
           setRejectReason('');
+          
+          // Invalidate all related caches
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes', pendingChange.project_id] });
+          
           onStatusChange?.();
         },
       }
@@ -119,6 +135,12 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
       },
       {
         onSuccess: () => {
+          // Invalidate all related caches
+          queryClient.invalidateQueries({ queryKey: ['feature-details'] });
+          queryClient.invalidateQueries({ queryKey: ['project-features'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes', pendingChange.project_id] });
+          
           onStatusChange?.();
         },
       }
