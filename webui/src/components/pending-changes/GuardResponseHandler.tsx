@@ -22,6 +22,8 @@ interface GuardResponseHandlerProps {
   // General error handling
   error?: string;
   onClose: () => void;
+  // Optional: close parent dialog (e.g., EditFeatureDialog)
+  onParentClose?: () => void;
   // Optional: allow immediate approval for single-user projects
   onApprove?: (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => void;
   approveLoading?: boolean;
@@ -32,6 +34,7 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
   conflictError,
   error,
   onClose,
+  onParentClose,
   onApprove,
   approveLoading = false,
 }) => {
@@ -108,7 +111,10 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
             </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={onClose}>
+            <Button onClick={() => {
+              onClose();
+              onParentClose?.();
+            }}>
               Close
             </Button>
             {onApprove && isSingleUserProject && (
@@ -158,7 +164,10 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} variant="contained">
+          <Button onClick={() => {
+            onClose();
+            onParentClose?.();
+          }} variant="contained">
             Close
           </Button>
         </DialogActions>
@@ -177,7 +186,10 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
           </Alert>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} variant="contained">
+          <Button onClick={() => {
+            onClose();
+            onParentClose?.();
+          }} variant="contained">
             Close
           </Button>
         </DialogActions>

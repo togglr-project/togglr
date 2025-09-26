@@ -791,6 +791,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         pendingChange={guardResponse.pendingChange}
         conflictError={guardResponse.conflictError}
         onClose={() => setGuardResponse({})}
+        onParentClose={onClose}
         onApprove={handleAutoApprove}
         approveLoading={approveMutation.isPending}
       />

@@ -535,6 +535,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         pendingChange={guardResponse.pendingChange}
         conflictError={guardResponse.conflictError}
         onClose={() => setGuardResponse({})}
+        onParentClose={onClose}
         onApprove={handleAutoApprove}
         approveLoading={approveMutation.isPending}
       />
