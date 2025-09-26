@@ -10,6 +10,7 @@ import apiClient from '../api/apiClient';
 import type { FeatureExtended, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, ProjectTag } from '../generated/api/client';
 import CreateFeatureDialog from '../components/features/CreateFeatureDialog';
 import FeatureDetailsDialog from '../components/features/FeatureDetailsDialog';
+import EditFeatureDialog from '../components/features/EditFeatureDialog';
 import FeatureCard from '../components/features/FeatureCard';
 import { useAuth } from '../auth/AuthContext';
 import GuardResponseHandler from '../components/pending-changes/GuardResponseHandler';
@@ -77,6 +78,10 @@ const ProjectPage: React.FC = () => {
   // Feature details dialog state & data
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<FeatureExtended | null>(null);
+  
+  // Feature edit dialog state
+  const [editFeature, setEditFeature] = useState<FeatureExtended | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   
   // Feature preview panel state
   const [previewFeature, setPreviewFeature] = useState<FeatureExtended | null>(null);
@@ -161,6 +166,11 @@ const ProjectPage: React.FC = () => {
   const openFeatureDetails = (f: FeatureExtended) => {
     setSelectedFeature(f);
     setDetailsOpen(true);
+  };
+
+  const openFeatureEdit = (f: FeatureExtended) => {
+    setEditFeature(f);
+    setEditOpen(true);
   };
 
   const handleFeatureSelect = (f: FeatureExtended) => {
@@ -298,7 +308,7 @@ const ProjectPage: React.FC = () => {
                     <FeatureCard
                       key={f.id}
                       feature={f}
-                      onEdit={openFeatureDetails}
+                      onEdit={openFeatureEdit}
                       onView={openFeatureDetails}
                       onSelect={handleFeatureSelect}
                       onToggle={(feature) => {
@@ -348,6 +358,14 @@ const ProjectPage: React.FC = () => {
 
       {/* Feature Details Dialog */}
       <FeatureDetailsDialog open={detailsOpen} onClose={() => setDetailsOpen(false)} feature={selectedFeature} />
+
+      {/* Feature Edit Dialog */}
+      <EditFeatureDialog 
+        open={editOpen} 
+        onClose={() => setEditOpen(false)} 
+        featureDetails={null}
+        feature={editFeature}
+      />
 
       {/* Create Feature Dialog */}
       <CreateFeatureDialog open={open} onClose={() => setOpen(false)} projectId={projectId} />

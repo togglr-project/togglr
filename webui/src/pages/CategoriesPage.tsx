@@ -43,7 +43,7 @@ import CategoryFormDialog from '../components/categories/CategoryFormDialog';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
 import { userPermissions } from '../hooks/userPermissions';
-import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CategoryKindEnum } from '../generated/api/client';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CategoryKindEnum, CreateCategoryRequestKindEnum } from '../generated/api/client';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -62,6 +62,7 @@ const CategoriesPage: React.FC = () => {
     slug: '',
     description: '',
     color: '#3B82F6',
+    kind: 'user' as CreateCategoryRequestKindEnum,
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -81,7 +82,7 @@ const CategoriesPage: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setCreateOpen(false);
-      setFormData({ name: '', slug: '', description: '', color: '#3B82F6' });
+      setFormData({ name: '', slug: '', description: '', color: '#3B82F6', kind: 'user' as CreateCategoryRequestKindEnum });
       setError(null);
     },
     onError: (err: any) => {
@@ -98,7 +99,7 @@ const CategoriesPage: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setEditOpen(false);
       setSelectedCategory(null);
-      setFormData({ name: '', slug: '', description: '', color: '#3B82F6', category_type: 'user' });
+      setFormData({ name: '', slug: '', description: '', color: '#3B82F6', kind: 'user' as CreateCategoryRequestKindEnum });
       setError(null);
     },
     onError: (err: any) => {
@@ -154,7 +155,7 @@ const CategoriesPage: React.FC = () => {
       slug: formData.slug,
       description: formData.description || undefined,
       color: formData.color || undefined,
-      category_type: formData.category_type as CreateCategoryRequestCategoryTypeEnum,
+      kind: formData.kind as CreateCategoryRequestKindEnum,
     });
   };
 
@@ -165,7 +166,7 @@ const CategoriesPage: React.FC = () => {
       slug: category.slug,
       description: category.description || '',
       color: category.color || '#3B82F6',
-      category_type: category.category_type,
+      kind: category.kind as CreateCategoryRequestKindEnum,
     });
     setEditOpen(true);
   };
@@ -192,8 +193,8 @@ const CategoriesPage: React.FC = () => {
 
   const handleDelete = (category: Category) => {
     // Проверяем, можно ли удалить категорию
-    if ((category.kind as string) === 'system' || (category.kind as string) === 'nocopy') {
-      setError('Cannot delete system or nocopy categories');
+    if ((category.kind as string) === 'system') {
+      setError('Cannot delete system categories');
       return;
     }
     setSelectedCategory(category);
@@ -404,7 +405,7 @@ const CategoriesPage: React.FC = () => {
         <CategoryFormDialog
           open={createOpen}
           onClose={() => setCreateOpen(false)}
-          onSubmit={(data) => createMutation.mutate(data)}
+          onSubmit={(data) => createMutation.mutate(data as CreateCategoryRequest)}
           mode="create"
           error={error}
         />
@@ -413,7 +414,7 @@ const CategoriesPage: React.FC = () => {
         <CategoryFormDialog
           open={editOpen}
           onClose={() => setEditOpen(false)}
-          onSubmit={(data) => updateMutation.mutate({ id: selectedCategory?.id || 0, data })}
+          onSubmit={(data) => updateMutation.mutate({ id: selectedCategory?.id || '', data: data as UpdateCategoryRequest })}
           mode="edit"
           initialData={selectedCategory}
           error={error}
@@ -468,13 +469,13 @@ const CategoriesPage: React.FC = () => {
           {/* Delete option */}
           <MenuItem 
             onClick={handleDeleteFromMenu}
-            disabled={!!(menuCategory && ((menuCategory.kind as string) === 'system' || (menuCategory.kind as string) === 'nocopy'))}
+            disabled={!!(menuCategory && (menuCategory.kind as string) === 'system')}
           >
             <ListItemIcon>
               <DeleteIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>
-              {menuCategory && ((menuCategory.kind as string) === 'system' || (menuCategory.kind as string) === 'nocopy')
+              {menuCategory && (menuCategory.kind as string) === 'system'
                 ? 'Cannot delete system category'
                 : 'Delete category'
               }

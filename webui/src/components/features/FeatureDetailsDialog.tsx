@@ -9,6 +9,9 @@ import EditFeatureDialog from './EditFeatureDialog';
 import { getNextStateDescription } from '../../utils/timeUtils';
 import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
 import { Pending as PendingIcon } from '@mui/icons-material';
+import GuardResponseHandler from '../pending-changes/GuardResponseHandler';
+import { useApprovePendingChange } from '../../hooks/usePendingChanges';
+import type { AuthCredentialsMethodEnum } from '../../generated/api/client';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -121,25 +124,63 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   const toggleMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
       if (!featureDetails) return;
-      await apiClient.toggleFeature(featureDetails.feature.id, { enabled });
+      const response = await apiClient.toggleFeature(featureDetails.feature.id, { enabled });
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       if (!featureDetails) return;
+      
+      // Check if we got a 202 response (pending change created)
+      if (response.status === 202 && response.data) {
+        setGuardResponse({
+          pendingChange: response.data,
+        });
+        return;
+      }
+      
+      // Normal success - invalidate queries
       queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails.feature.id] });
       queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails.feature.project_id] });
+    },
+    onError: (error: any) => {
+      // Check for conflict error
+      if (error?.response?.status === 409) {
+        setGuardResponse({
+          conflictError: error.response.data?.error?.message || 'Conflict: Another pending change exists for this feature',
+        });
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!featureDetails) return;
-      await apiClient.deleteFeature(featureDetails.feature.id);
+      const response = await apiClient.deleteFeature(featureDetails.feature.id);
+      return response;
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       if (!featureDetails) return;
+      
+      // Check if we got a 202 response (pending change created)
+      if (response.status === 202 && response.data) {
+        setGuardResponse({
+          pendingChange: response.data,
+        });
+        return;
+      }
+      
+      // Normal success - invalidate queries and close dialog
       queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails.feature.id] });
       queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails.feature.project_id] });
       onClose();
+    },
+    onError: (error: any) => {
+      // Check for conflict error
+      if (error?.response?.status === 409) {
+        setGuardResponse({
+          conflictError: error.response.data?.error?.message || 'Conflict: Another pending change exists for this feature',
+        });
+      }
     },
   });
 
@@ -149,13 +190,45 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
     include: false,
     exclude: false
   });
+  const [guardResponse, setGuardResponse] = useState<{
+    pendingChange?: any;
+    conflictError?: string;
+  }>({});
   const canManage = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.manage')) : false;
+  
+  const approveMutation = useApprovePendingChange();
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
+  };
+
+  const handleAutoApprove = async (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
+    if (!guardResponse.pendingChange?.id) return;
+
+    try {
+      await approveMutation.mutateAsync({
+        id: guardResponse.pendingChange.id,
+        request: {
+          approver_user_id: user?.id || 0,
+          approver_name: user?.username || 'Unknown',
+          auth: {
+            method: authMethod,
+            credential: credential,
+            ...(sessionId && { session_id: sessionId }),
+          },
+        },
+      });
+
+      // Success - invalidate queries and close guard response
+      queryClient.invalidateQueries({ queryKey: ['feature-details', featureDetails?.feature.id] });
+      queryClient.invalidateQueries({ queryKey: ['project-features', featureDetails?.feature.project_id] });
+      setGuardResponse({});
+    } catch (error) {
+      console.error('Auto-approve failed:', error);
+    }
   };
 
   return (
@@ -431,6 +504,15 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       </DialogActions>
       {/* Advanced edit dialog */}
       <EditFeatureDialog open={editOpen} onClose={() => setEditOpen(false)} featureDetails={featureDetails ?? null} />
+
+      {/* Guard Response Handler */}
+      <GuardResponseHandler
+        pendingChange={guardResponse.pendingChange}
+        conflictError={guardResponse.conflictError}
+        onClose={() => setGuardResponse({})}
+        onApprove={handleAutoApprove}
+        approveLoading={approveMutation.isPending}
+      />
     </Dialog>
   );
 };

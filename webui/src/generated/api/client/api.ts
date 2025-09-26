@@ -149,7 +149,16 @@ export interface CreateCategoryRequest {
     'slug': string;
     'description'?: string;
     'color'?: string;
+    'kind': CreateCategoryRequestKindEnum;
 }
+
+export const CreateCategoryRequestKindEnum = {
+    User: 'user',
+    Domain: 'domain'
+} as const;
+
+export type CreateCategoryRequestKindEnum = typeof CreateCategoryRequestKindEnum[keyof typeof CreateCategoryRequestKindEnum];
+
 export interface CreateFeatureRequest {
     'key': string;
     'name': string;

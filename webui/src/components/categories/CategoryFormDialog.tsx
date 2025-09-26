@@ -7,14 +7,19 @@ import {
   TextField,
   Button,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
-import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../generated/api/client';
+import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CreateCategoryRequestKindEnum } from '../../generated/api/client';
 
 interface CategoryFormData {
   name: string;
   slug: string;
   description: string;
   color: string;
+  kind: CreateCategoryRequestKindEnum;
 }
 
 interface CategoryFormDialogProps {
@@ -39,6 +44,7 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
     slug: '',
     description: '',
     color: '#3B82F6',
+    kind: 'user' as CreateCategoryRequestKindEnum,
   });
 
   useEffect(() => {
@@ -48,6 +54,7 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
         slug: initialData.slug || '',
         description: initialData.description || '',
         color: initialData.color || '#3B82F6',
+        kind: (initialData.kind as CreateCategoryRequestKindEnum) || 'user' as CreateCategoryRequestKindEnum,
       });
     } else {
       setFormData({
@@ -55,19 +62,30 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
         slug: '',
         description: '',
         color: '#3B82F6',
+        kind: 'user' as CreateCategoryRequestKindEnum,
       });
     }
   }, [mode, initialData, open]);
 
   const handleSubmit = () => {
-    const submitData = {
-      name: formData.name.trim(),
-      slug: formData.slug.trim(),
-      description: formData.description.trim(),
-      color: formData.color,
-    };
-
-    onSubmit(submitData);
+    if (mode === 'create') {
+      const submitData: CreateCategoryRequest = {
+        name: formData.name.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description.trim(),
+        color: formData.color,
+        kind: formData.kind,
+      };
+      onSubmit(submitData);
+    } else {
+      const submitData: UpdateCategoryRequest = {
+        name: formData.name.trim(),
+        slug: formData.slug.trim(),
+        description: formData.description.trim(),
+        color: formData.color,
+      };
+      onSubmit(submitData);
+    }
   };
 
   const isFormValid = () => {
@@ -144,6 +162,18 @@ const CategoryFormDialog: React.FC<CategoryFormDialogProps> = ({
           sx={{ mb: 2 }}
         />
         
+        <FormControl fullWidth margin="dense">
+          <InputLabel>Type</InputLabel>
+          <Select
+            value={formData.kind}
+            onChange={(e) => setFormData({ ...formData, kind: e.target.value as CreateCategoryRequestKindEnum })}
+            label="Type"
+            disabled={mode === 'edit'} // Don't allow changing type when editing
+          >
+            <MenuItem value="user">User</MenuItem>
+            <MenuItem value="domain">Domain</MenuItem>
+          </Select>
+        </FormControl>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
