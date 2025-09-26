@@ -71,6 +71,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [guardResponse, setGuardResponse] = useState<{
     pendingChange?: any;
     conflictError?: string;
+    forbiddenError?: string;
   }>({});
 
 
@@ -199,6 +200,14 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         if (result.status === 409) {
           setGuardResponse({
             conflictError: 'Feature is already locked by another pending change',
+          });
+          return;
+        }
+        
+        // Check if we got a 403 response (forbidden)
+        if (result.status === 403) {
+          setGuardResponse({
+            forbiddenError: 'You don\'t have permission to modify this guarded feature',
           });
           return;
         }
@@ -790,6 +799,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       <GuardResponseHandler
         pendingChange={guardResponse.pendingChange}
         conflictError={guardResponse.conflictError}
+        forbiddenError={guardResponse.forbiddenError}
         onClose={() => setGuardResponse({})}
         onParentClose={onClose}
         onApprove={handleAutoApprove}

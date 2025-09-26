@@ -146,6 +146,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         return;
       }
       
+      // Check if we got a 403 response (forbidden)
+      if (response.status === 403) {
+        setGuardResponse({
+          forbiddenError: 'You don\'t have permission to modify this guarded feature',
+        });
+        return;
+      }
+      
       // Normal success - invalidate queries
       queryClient.invalidateQueries({ queryKey: ['feature-details'] });
       queryClient.invalidateQueries({ queryKey: ['project-features'] });
@@ -188,6 +196,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         return;
       }
       
+      // Check if we got a 403 response (forbidden)
+      if (response.status === 403) {
+        setGuardResponse({
+          forbiddenError: 'You don\'t have permission to modify this guarded feature',
+        });
+        return;
+      }
+      
       // Normal success - invalidate queries and close dialog
       queryClient.invalidateQueries({ queryKey: ['feature-details'] });
       queryClient.invalidateQueries({ queryKey: ['project-features'] });
@@ -215,6 +231,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   const [guardResponse, setGuardResponse] = useState<{
     pendingChange?: any;
     conflictError?: string;
+    forbiddenError?: string;
   }>({});
   const canManage = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.manage')) : false;
   
@@ -534,6 +551,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       <GuardResponseHandler
         pendingChange={guardResponse.pendingChange}
         conflictError={guardResponse.conflictError}
+        forbiddenError={guardResponse.forbiddenError}
         onClose={() => setGuardResponse({})}
         onParentClose={onClose}
         onApprove={handleAutoApprove}

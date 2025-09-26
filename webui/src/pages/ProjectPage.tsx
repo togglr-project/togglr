@@ -90,6 +90,7 @@ const ProjectPage: React.FC = () => {
   const [guardResponse, setGuardResponse] = useState<{
     pendingChange?: any;
     conflictError?: string;
+    forbiddenError?: string;
   }>({});
 
   // Permission to toggle features in this project (superuser can always toggle)
@@ -129,6 +130,9 @@ const ProjectPage: React.FC = () => {
         } else if (result.status === 409) {
           // Conflict - feature locked by another pending change
           setGuardResponse({ conflictError: 'Feature is already locked by another pending change' });
+        } else if (result.status === 403) {
+          // Forbidden - user doesn't have permission to modify guarded feature
+          setGuardResponse({ forbiddenError: 'You don\'t have permission to modify this guarded feature' });
         } else {
           // Normal success - toggle applied immediately
           queryClient.invalidateQueries({ queryKey: ['feature-details'] });
@@ -383,6 +387,7 @@ const ProjectPage: React.FC = () => {
       <GuardResponseHandler
         pendingChange={guardResponse.pendingChange}
         conflictError={guardResponse.conflictError}
+        forbiddenError={guardResponse.forbiddenError}
         onClose={() => setGuardResponse({})}
         onApprove={handleAutoApprove}
         approveLoading={approveMutation.isPending}

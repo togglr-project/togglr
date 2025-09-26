@@ -19,6 +19,8 @@ interface GuardResponseHandlerProps {
   pendingChange?: PendingChangeResponse;
   // For 409 Conflict - entity locked by another pending change
   conflictError?: string;
+  // For 403 Forbidden - user doesn't have permission to modify guarded feature
+  forbiddenError?: string;
   // General error handling
   error?: string;
   onClose: () => void;
@@ -32,6 +34,7 @@ interface GuardResponseHandlerProps {
 const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
   pendingChange,
   conflictError,
+  forbiddenError,
   error,
   onClose,
   onParentClose,
@@ -161,6 +164,37 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
             Please wait for the existing pending change to be processed or contact an administrator.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            onClose();
+            onParentClose?.();
+          }} variant="contained">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  // 403 Forbidden - User doesn't have permission to modify guarded feature
+  if (forbiddenError) {
+    return (
+      <Dialog open={true} onClose={onClose} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ChangesIcon color="error" />
+          Access Denied
+        </DialogTitle>
+        <DialogContent>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            You don't have permission to modify this guarded feature.
+          </Alert>
+          <Typography variant="body1">
+            {forbiddenError}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            Contact your project administrator to request access or assign the appropriate role.
           </Typography>
         </DialogContent>
         <DialogActions>
