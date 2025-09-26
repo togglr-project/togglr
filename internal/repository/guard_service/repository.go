@@ -67,12 +67,16 @@ func (r *Repository) IsEntityGuarded(ctx context.Context, entities []domain.Enti
 }
 
 // GetProjectActiveUserCount returns the number of active users in a project.
+// This includes:
+// 1. Regular users with memberships in the project
+// 2. Superusers (who have access to all projects)
 func (r *Repository) GetProjectActiveUserCount(ctx context.Context, projectID domain.ProjectID) (int, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
-SELECT COUNT(*) FROM memberships
-WHERE project_id = $1`
+SELECT 
+    (SELECT COUNT(*) FROM memberships WHERE project_id = $1) +
+    (SELECT COUNT(*) FROM users WHERE is_superuser = true AND is_active = true)`
 
 	var count int
 

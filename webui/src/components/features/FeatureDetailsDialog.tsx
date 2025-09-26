@@ -138,6 +138,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         return;
       }
       
+      // Check if we got a 409 response (conflict)
+      if (response.status === 409) {
+        setGuardResponse({
+          conflictError: 'Feature is already locked by another pending change',
+        });
+        return;
+      }
+      
       // Normal success - invalidate queries
       queryClient.invalidateQueries({ queryKey: ['feature-details'] });
       queryClient.invalidateQueries({ queryKey: ['project-features'] });
@@ -168,6 +176,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       if (response.status === 202 && response.data) {
         setGuardResponse({
           pendingChange: response.data,
+        });
+        return;
+      }
+      
+      // Check if we got a 409 response (conflict)
+      if (response.status === 409) {
+        setGuardResponse({
+          conflictError: 'Feature is already locked by another pending change',
         });
         return;
       }

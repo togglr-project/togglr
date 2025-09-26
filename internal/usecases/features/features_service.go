@@ -660,8 +660,8 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 	}
 
 	// Add metadata about a single-user project for frontend
-	// If 0 or 1 active users, treat as a single-user project (empty memberships = single user scenario)
-	if activeUserCount <= 1 {
+	// If exactly 1 active user, treat as a single-user project (enables auto-approve)
+	if activeUserCount == 1 {
 		// For single-user projects, the frontend should show an auto-approve dialog
 		// We'll add this information to the pending change response
 		pendingChange.Change.Meta.SingleUserProject = true

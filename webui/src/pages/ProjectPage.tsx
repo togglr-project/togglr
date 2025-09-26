@@ -126,6 +126,9 @@ const ProjectPage: React.FC = () => {
         if (result.status === 202) {
           // Pending change created - handle as guard workflow
           setGuardResponse({ pendingChange: result.data });
+        } else if (result.status === 409) {
+          // Conflict - feature locked by another pending change
+          setGuardResponse({ conflictError: 'Feature is already locked by another pending change' });
         } else {
           // Normal success - toggle applied immediately
           queryClient.invalidateQueries({ queryKey: ['feature-details'] });

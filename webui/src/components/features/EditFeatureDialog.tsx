@@ -195,6 +195,14 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
           return;
         }
         
+        // Check if we got a 409 response (conflict)
+        if (result.status === 409) {
+          setGuardResponse({
+            conflictError: 'Feature is already locked by another pending change',
+          });
+          return;
+        }
+        
         // Normal success - update applied immediately
         // Invalidate all feature-related queries
         queryClient.invalidateQueries({ queryKey: ['feature-details'] });
