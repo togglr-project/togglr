@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, Box } from '@mui/material';
+import { Typography, Box, type SxProps, type Theme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './WardenLogo.css';
 import { APP_NAME } from '../constants/app';
@@ -9,7 +9,7 @@ interface WardenLogoProps {
   logoSize?: number;
   showLink?: boolean;
   className?: string;
-  sx?: any;
+  sx?: SxProps<Theme>;
 }
 
 const WardenLogo: React.FC<WardenLogoProps> = ({

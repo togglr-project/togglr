@@ -17,6 +17,7 @@ docs/ChangeGroup.md
 docs/ChangeUserPasswordRequest.md
 docs/ChangeValue.md
 docs/CreateCategoryRequest.md
+docs/CreateEnvironmentRequest.md
 docs/CreateFeatureRequest.md
 docs/CreateFeatureScheduleRequest.md
 docs/CreateFlagVariantInline.md
@@ -32,6 +33,8 @@ docs/CreateUserResponse.md
 docs/DefaultApi.md
 docs/EntityChange.md
 docs/EntityType.md
+docs/Environment.md
+docs/EnvironmentResponse.md
 docs/Error.md
 docs/Error2FARequired.md
 docs/Error2FARequiredError.md
@@ -79,6 +82,7 @@ docs/LicenseStatusResponse.md
 docs/LicenseStatusResponseLicense.md
 docs/LicenseType.md
 docs/ListChangesResponse.md
+docs/ListEnvironmentsResponse.md
 docs/ListFeaturesResponse.md
 docs/ListProjectSettingsResponse.md
 docs/ListSegmentsResponse.md
@@ -129,6 +133,7 @@ docs/TwoFASetupResponse.md
 docs/TwoFAVerifyRequest.md
 docs/TwoFAVerifyResponse.md
 docs/UpdateCategoryRequest.md
+docs/UpdateEnvironmentRequest.md
 docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
 docs/UpdateLicenseRequest.md

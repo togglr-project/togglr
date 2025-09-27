@@ -26,6 +26,7 @@ type RestAPI struct {
 	productInfoUseCase      contract.ProductInfoUseCase
 	permissionsService      contract.PermissionsService
 	featuresUseCase         contract.FeaturesUseCase
+	environmentsUseCase     contract.EnvironmentsUseCase
 	flagVariantsUseCase     contract.FlagVariantsUseCase
 	rulesUseCase            contract.RulesUseCase
 	featureSchedulesUseCase contract.FeatureSchedulesUseCase
@@ -51,6 +52,7 @@ func New(
 	licenseUseCase contract.LicenseUseCase,
 	productInfoUseCase contract.ProductInfoUseCase,
 	featuresUseCase contract.FeaturesUseCase,
+	environmentsUseCase contract.EnvironmentsUseCase,
 	flagVariantsUseCase contract.FlagVariantsUseCase,
 	rulesUseCase contract.RulesUseCase,
 	featureSchedulesUseCase contract.FeatureSchedulesUseCase,
@@ -77,6 +79,7 @@ func New(
 		productInfoUseCase:      productInfoUseCase,
 		permissionsService:      permissionsService,
 		featuresUseCase:         featuresUseCase,
+		environmentsUseCase:     environmentsUseCase,
 		flagVariantsUseCase:     flagVariantsUseCase,
 		rulesUseCase:            rulesUseCase,
 		featureSchedulesUseCase: featureSchedulesUseCase,

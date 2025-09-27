@@ -277,9 +277,75 @@ func decodeCancelPendingChangeParams(args [1]string, argsEscaped bool, r *http.R
 	return params, nil
 }
 
+// CreateEnvironmentParams is parameters of CreateEnvironment operation.
+type CreateEnvironmentParams struct {
+	ProjectID uuid.UUID
+}
+
+func unpackCreateEnvironmentParams(packed middleware.Parameters) (params CreateEnvironmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeCreateEnvironmentParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateEnvironmentParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CreateFeatureFlagVariantParams is parameters of CreateFeatureFlagVariant operation.
 type CreateFeatureFlagVariantParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackCreateFeatureFlagVariantParams(packed middleware.Parameters) (params CreateFeatureFlagVariantParams) {
@@ -290,10 +356,18 @@ func unpackCreateFeatureFlagVariantParams(packed middleware.Parameters) (params 
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeCreateFeatureFlagVariantParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateFeatureFlagVariantParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -339,12 +413,49 @@ func decodeCreateFeatureFlagVariantParams(args [1]string, argsEscaped bool, r *h
 			Err:  err,
 		}
 	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
 // CreateFeatureRuleParams is parameters of CreateFeatureRule operation.
 type CreateFeatureRuleParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackCreateFeatureRuleParams(packed middleware.Parameters) (params CreateFeatureRuleParams) {
@@ -355,10 +466,18 @@ func unpackCreateFeatureRuleParams(packed middleware.Parameters) (params CreateF
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeCreateFeatureRuleParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateFeatureRuleParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -404,12 +523,49 @@ func decodeCreateFeatureRuleParams(args [1]string, argsEscaped bool, r *http.Req
 			Err:  err,
 		}
 	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
 // CreateFeatureScheduleParams is parameters of CreateFeatureSchedule operation.
 type CreateFeatureScheduleParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackCreateFeatureScheduleParams(packed middleware.Parameters) (params CreateFeatureScheduleParams) {
@@ -420,10 +576,18 @@ func unpackCreateFeatureScheduleParams(packed middleware.Parameters) (params Cre
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeCreateFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateFeatureScheduleParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -466,6 +630,42 @@ func decodeCreateFeatureScheduleParams(args [1]string, argsEscaped bool, r *http
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -797,9 +997,75 @@ func decodeDeleteCategoryParams(args [1]string, argsEscaped bool, r *http.Reques
 	return params, nil
 }
 
+// DeleteEnvironmentParams is parameters of DeleteEnvironment operation.
+type DeleteEnvironmentParams struct {
+	EnvironmentID int64
+}
+
+func unpackDeleteEnvironmentParams(packed middleware.Parameters) (params DeleteEnvironmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeDeleteEnvironmentParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteEnvironmentParams, _ error) {
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // DeleteFeatureParams is parameters of DeleteFeature operation.
 type DeleteFeatureParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackDeleteFeatureParams(packed middleware.Parameters) (params DeleteFeatureParams) {
@@ -810,10 +1076,18 @@ func unpackDeleteFeatureParams(packed middleware.Parameters) (params DeleteFeatu
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeDeleteFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (params DeleteFeatureParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -856,6 +1130,42 @@ func decodeDeleteFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -1423,9 +1733,75 @@ func decodeGetCategoryParams(args [1]string, argsEscaped bool, r *http.Request) 
 	return params, nil
 }
 
+// GetEnvironmentParams is parameters of GetEnvironment operation.
+type GetEnvironmentParams struct {
+	EnvironmentID int64
+}
+
+func unpackGetEnvironmentParams(packed middleware.Parameters) (params GetEnvironmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeGetEnvironmentParams(args [1]string, argsEscaped bool, r *http.Request) (params GetEnvironmentParams, _ error) {
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetFeatureParams is parameters of GetFeature operation.
 type GetFeatureParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackGetFeatureParams(packed middleware.Parameters) (params GetFeatureParams) {
@@ -1436,10 +1812,18 @@ func unpackGetFeatureParams(packed middleware.Parameters) (params GetFeaturePara
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeGetFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (params GetFeatureParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -1482,6 +1866,42 @@ func decodeGetFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -1556,6 +1976,8 @@ func decodeGetFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Re
 // GetFeatureTimelineParams is parameters of GetFeatureTimeline operation.
 type GetFeatureTimelineParams struct {
 	FeatureID string
+	// Target environment key (e.g., dev, stage, prod).
+	EnvironmentKey string
 	// Start of the period (inclusive).
 	From time.Time
 	// End of the period (exclusive).
@@ -1571,6 +1993,13 @@ func unpackGetFeatureTimelineParams(packed middleware.Parameters) (params GetFea
 			In:   "path",
 		}
 		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -1640,6 +2069,42 @@ func decodeGetFeatureTimelineParams(args [1]string, argsEscaped bool, r *http.Re
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -2680,7 +3145,8 @@ func decodeInitiateTOTPApprovalParams(args [1]string, argsEscaped bool, r *http.
 
 // ListFeatureFlagVariantsParams is parameters of ListFeatureFlagVariants operation.
 type ListFeatureFlagVariantsParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackListFeatureFlagVariantsParams(packed middleware.Parameters) (params ListFeatureFlagVariantsParams) {
@@ -2691,10 +3157,18 @@ func unpackListFeatureFlagVariantsParams(packed middleware.Parameters) (params L
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeListFeatureFlagVariantsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListFeatureFlagVariantsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -2740,12 +3214,49 @@ func decodeListFeatureFlagVariantsParams(args [1]string, argsEscaped bool, r *ht
 			Err:  err,
 		}
 	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
 // ListFeatureRulesParams is parameters of ListFeatureRules operation.
 type ListFeatureRulesParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackListFeatureRulesParams(packed middleware.Parameters) (params ListFeatureRulesParams) {
@@ -2756,10 +3267,18 @@ func unpackListFeatureRulesParams(packed middleware.Parameters) (params ListFeat
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeListFeatureRulesParams(args [1]string, argsEscaped bool, r *http.Request) (params ListFeatureRulesParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -2805,12 +3324,49 @@ func decodeListFeatureRulesParams(args [1]string, argsEscaped bool, r *http.Requ
 			Err:  err,
 		}
 	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
 // ListFeatureSchedulesParams is parameters of ListFeatureSchedules operation.
 type ListFeatureSchedulesParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackListFeatureSchedulesParams(packed middleware.Parameters) (params ListFeatureSchedulesParams) {
@@ -2821,10 +3377,18 @@ func unpackListFeatureSchedulesParams(packed middleware.Parameters) (params List
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeListFeatureSchedulesParams(args [1]string, argsEscaped bool, r *http.Request) (params ListFeatureSchedulesParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -2867,6 +3431,42 @@ func decodeListFeatureSchedulesParams(args [1]string, argsEscaped bool, r *http.
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -2940,16 +3540,37 @@ func decodeListFeatureTagsParams(args [1]string, argsEscaped bool, r *http.Reque
 
 // ListPendingChangesParams is parameters of ListPendingChanges operation.
 type ListPendingChangesParams struct {
-	ProjectID OptUUID
-	Status    OptListPendingChangesStatus
-	UserID    OptUint
-	Page      OptUint
-	PerPage   OptUint
-	SortBy    OptListPendingChangesSortBy
-	SortDesc  OptBool
+	EnvironmentID OptInt64
+	// Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
+	EnvironmentKey OptString
+	ProjectID      OptUUID
+	Status         OptListPendingChangesStatus
+	UserID         OptUint
+	Page           OptUint
+	PerPage        OptUint
+	SortBy         OptListPendingChangesSortBy
+	SortDesc       OptBool
 }
 
 func unpackListPendingChangesParams(packed middleware.Parameters) (params ListPendingChangesParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.EnvironmentID = v.(OptInt64)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.EnvironmentKey = v.(OptString)
+		}
+	}
 	{
 		key := middleware.ParameterKey{
 			Name: "project_id",
@@ -3018,6 +3639,88 @@ func unpackListPendingChangesParams(packed middleware.Parameters) (params ListPe
 
 func decodeListPendingChangesParams(args [0]string, argsEscaped bool, r *http.Request) (params ListPendingChangesParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: environment_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEnvironmentIDVal int64
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt64(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEnvironmentIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.EnvironmentID.SetTo(paramsDotEnvironmentIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEnvironmentKeyVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEnvironmentKeyVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.EnvironmentKey.SetTo(paramsDotEnvironmentKeyVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	// Decode query: project_id.
 	if err := func() error {
 		cfg := uri.QueryParameterDecodingConfig{
@@ -4121,9 +4824,76 @@ func decodeListProjectChangesParams(args [1]string, argsEscaped bool, r *http.Re
 	return params, nil
 }
 
+// ListProjectEnvironmentsParams is parameters of ListProjectEnvironments operation.
+type ListProjectEnvironmentsParams struct {
+	ProjectID uuid.UUID
+}
+
+func unpackListProjectEnvironmentsParams(packed middleware.Parameters) (params ListProjectEnvironmentsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeListProjectEnvironmentsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListProjectEnvironmentsParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListProjectFeaturesParams is parameters of ListProjectFeatures operation.
 type ListProjectFeaturesParams struct {
 	ProjectID string
+	// Environment key (dev, stage, prod) to filter features.
+	EnvironmentKey string
 	// Filter by feature kind.
 	Kind OptListProjectFeaturesKind
 	// Filter by enabled state.
@@ -4149,6 +4919,13 @@ func unpackListProjectFeaturesParams(packed middleware.Parameters) (params ListP
 			In:   "path",
 		}
 		params.ProjectID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -4269,6 +5046,42 @@ func decodeListProjectFeaturesParams(args [1]string, argsEscaped bool, r *http.R
 		return params, &ogenerrors.DecodeParamError{
 			Name: "project_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -5904,8 +6717,9 @@ func decodeSetUserActiveStatusParams(args [1]string, argsEscaped bool, r *http.R
 
 // SyncCustomizedFeatureRuleParams is parameters of SyncCustomizedFeatureRule operation.
 type SyncCustomizedFeatureRuleParams struct {
-	FeatureID string
-	RuleID    string
+	FeatureID      string
+	RuleID         string
+	EnvironmentKey string
 }
 
 func unpackSyncCustomizedFeatureRuleParams(packed middleware.Parameters) (params SyncCustomizedFeatureRuleParams) {
@@ -5923,10 +6737,18 @@ func unpackSyncCustomizedFeatureRuleParams(packed middleware.Parameters) (params
 		}
 		params.RuleID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeSyncCustomizedFeatureRuleParams(args [2]string, argsEscaped bool, r *http.Request) (params SyncCustomizedFeatureRuleParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -6017,12 +6839,50 @@ func decodeSyncCustomizedFeatureRuleParams(args [2]string, argsEscaped bool, r *
 			Err:  err,
 		}
 	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
 	return params, nil
 }
 
 // TestFeatureTimelineParams is parameters of TestFeatureTimeline operation.
 type TestFeatureTimelineParams struct {
 	FeatureID string
+	// Target environment key (e.g., dev, stage, prod).
+	EnvironmentKey string
 	// Start of the period (inclusive).
 	From time.Time
 	// End of the period (exclusive).
@@ -6038,6 +6898,13 @@ func unpackTestFeatureTimelineParams(packed middleware.Parameters) (params TestF
 			In:   "path",
 		}
 		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -6107,6 +6974,42 @@ func decodeTestFeatureTimelineParams(args [1]string, argsEscaped bool, r *http.R
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -6223,7 +7126,8 @@ func decodeTestFeatureTimelineParams(args [1]string, argsEscaped bool, r *http.R
 
 // ToggleFeatureParams is parameters of ToggleFeature operation.
 type ToggleFeatureParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackToggleFeatureParams(packed middleware.Parameters) (params ToggleFeatureParams) {
@@ -6234,10 +7138,18 @@ func unpackToggleFeatureParams(packed middleware.Parameters) (params ToggleFeatu
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeToggleFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (params ToggleFeatureParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -6280,6 +7192,42 @@ func decodeToggleFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -6351,9 +7299,75 @@ func decodeUpdateCategoryParams(args [1]string, argsEscaped bool, r *http.Reques
 	return params, nil
 }
 
+// UpdateEnvironmentParams is parameters of UpdateEnvironment operation.
+type UpdateEnvironmentParams struct {
+	EnvironmentID int64
+}
+
+func unpackUpdateEnvironmentParams(packed middleware.Parameters) (params UpdateEnvironmentParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeUpdateEnvironmentParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateEnvironmentParams, _ error) {
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UpdateFeatureParams is parameters of UpdateFeature operation.
 type UpdateFeatureParams struct {
-	FeatureID string
+	FeatureID      string
+	EnvironmentKey string
 }
 
 func unpackUpdateFeatureParams(packed middleware.Parameters) (params UpdateFeatureParams) {
@@ -6364,10 +7378,18 @@ func unpackUpdateFeatureParams(packed middleware.Parameters) (params UpdateFeatu
 		}
 		params.FeatureID = packed[key].(string)
 	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
 	return params
 }
 
 func decodeUpdateFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (params UpdateFeatureParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
 	// Decode path: feature_id.
 	if err := func() error {
 		param := args[0]
@@ -6410,6 +7432,42 @@ func decodeUpdateFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}

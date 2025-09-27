@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **action** | [**RuleAction**](RuleAction.md) |  | [default to undefined]
 **flag_variant_id** | **string** |  | [optional] [default to undefined]
 **priority** | **number** |  | [optional] [default to undefined]
+**environment_key** | **string** | Environment key (dev, stage, prod) for this rule | [default to undefined]
 
 ## Example
 
@@ -26,6 +27,7 @@ const instance: CreateRuleInline = {
     action,
     flag_variant_id,
     priority,
+    environment_key,
 };
 ```
 

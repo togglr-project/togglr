@@ -37,6 +37,10 @@ type CreateCategoryRes interface {
 	createCategoryRes()
 }
 
+type CreateEnvironmentRes interface {
+	createEnvironmentRes()
+}
+
 type CreateFeatureFlagVariantRes interface {
 	createFeatureFlagVariantRes()
 }
@@ -75,6 +79,10 @@ type CreateUserRes interface {
 
 type DeleteCategoryRes interface {
 	deleteCategoryRes()
+}
+
+type DeleteEnvironmentRes interface {
+	deleteEnvironmentRes()
 }
 
 type DeleteFeatureRes interface {
@@ -123,6 +131,10 @@ type GetCategoryRes interface {
 
 type GetCurrentUserRes interface {
 	getCurrentUserRes()
+}
+
+type GetEnvironmentRes interface {
+	getEnvironmentRes()
 }
 
 type GetFeatureRes interface {
@@ -233,6 +245,10 @@ type ListProjectChangesRes interface {
 	listProjectChangesRes()
 }
 
+type ListProjectEnvironmentsRes interface {
+	listProjectEnvironmentsRes()
+}
+
 type ListProjectFeaturesRes interface {
 	listProjectFeaturesRes()
 }
@@ -335,6 +351,10 @@ type ToggleFeatureRes interface {
 
 type UpdateCategoryRes interface {
 	updateCategoryRes()
+}
+
+type UpdateEnvironmentRes interface {
+	updateEnvironmentRes()
 }
 
 type UpdateFeatureRes interface {

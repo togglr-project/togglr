@@ -138,6 +138,20 @@ func encodeCreateCategoryRequest(
 	return nil
 }
 
+func encodeCreateEnvironmentRequest(
+	req *CreateEnvironmentRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateFeatureFlagVariantRequest(
 	req *CreateFlagVariantRequest,
 	r *http.Request,
@@ -462,6 +476,20 @@ func encodeToggleFeatureRequest(
 
 func encodeUpdateCategoryRequest(
 	req *UpdateCategoryRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateEnvironmentRequest(
+	req *UpdateEnvironmentRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

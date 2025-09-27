@@ -39,6 +39,7 @@ type pendingChangeModel struct {
 	RejectedBy      *string         `db:"rejected_by"`
 	RejectedAt      *time.Time      `db:"rejected_at"`
 	RejectionReason *string         `db:"rejection_reason"`
+	EnvironmentID   int64           `db:"environment_id"`
 }
 
 func (m *pendingChangeModel) toDomain() (domain.PendingChange, error) {
@@ -61,6 +62,7 @@ func (m *pendingChangeModel) toDomain() (domain.PendingChange, error) {
 		RejectedBy:      m.RejectedBy,
 		RejectedAt:      m.RejectedAt,
 		RejectionReason: m.RejectionReason,
+		EnvironmentID:   domain.EnvironmentID(m.EnvironmentID),
 	}, nil
 }
 
@@ -86,6 +88,7 @@ func (m *pendingChangeEntityModel) toDomain() domain.PendingChangeEntity {
 func (r *Repository) Create(
 	ctx context.Context,
 	projectID domain.ProjectID,
+	environmentID domain.EnvironmentID,
 	requestedBy string,
 	requestUserID *int,
 	change domain.PendingChangePayload,
@@ -110,10 +113,10 @@ func (r *Repository) Create(
 
 	// Insert pending change
 	const insertQuery = `
-INSERT INTO pending_changes (project_id, requested_by, request_user_id, change, status)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO pending_changes (project_id, requested_by, request_user_id, change, status, environment_id)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id, project_id, requested_by, request_user_id, change, status, created_at, 
-          approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason`
+          approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason, environment_id`
 
 	var model pendingChangeModel
 
@@ -123,6 +126,7 @@ RETURNING id, project_id, requested_by, request_user_id, change, status, created
 		requestUserID,
 		changeJSON,
 		domain.PendingChangeStatusPending,
+		environmentID,
 	).Scan(
 		&model.ID,
 		&model.ProjectID,
@@ -137,6 +141,7 @@ RETURNING id, project_id, requested_by, request_user_id, change, status, created
 		&model.RejectedBy,
 		&model.RejectedAt,
 		&model.RejectionReason,
+		&model.EnvironmentID,
 	)
 	if err != nil {
 		return domain.PendingChange{}, fmt.Errorf("insert pending change: %w", err)
@@ -167,7 +172,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.PendingChangeID) (do
 
 	const query = `
 SELECT id, project_id, requested_by, request_user_id, change, status, created_at,
-       approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason
+       approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason, environment_id
 FROM pending_changes
 WHERE id = $1`
 
@@ -187,6 +192,7 @@ WHERE id = $1`
 		&model.RejectedBy,
 		&model.RejectedAt,
 		&model.RejectionReason,
+		&model.EnvironmentID,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -211,7 +217,7 @@ func (r *Repository) List(
 	// Build query
 	query := `
 SELECT id, project_id, requested_by, request_user_id, change, status, created_at,
-       approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason
+       approved_by, approved_user_id, approved_at, rejected_by, rejected_at, rejection_reason, environment_id
 FROM pending_changes
 WHERE 1=1`
 
@@ -222,6 +228,13 @@ WHERE 1=1`
 		query += fmt.Sprintf(" AND project_id = $%d", argIndex)
 
 		args = append(args, *filter.ProjectID)
+		argIndex++
+	}
+
+	if filter.EnvironmentID != nil {
+		query += fmt.Sprintf(" AND environment_id = $%d", argIndex)
+
+		args = append(args, *filter.EnvironmentID)
 		argIndex++
 	}
 
@@ -292,6 +305,7 @@ WHERE 1=1`
 			&model.RejectedBy,
 			&model.RejectedAt,
 			&model.RejectionReason,
+			&model.EnvironmentID,
 		)
 		if err != nil {
 			return nil, 0, fmt.Errorf("scan pending change: %w", err)

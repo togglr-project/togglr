@@ -10,17 +10,17 @@ import (
 // DomainFeatureToAPI converts domain Feature to generated API Feature.
 func DomainFeatureToAPI(feature domain.Feature) generatedapi.Feature {
 	return generatedapi.Feature{
-		ID:             feature.ID.String(),
-		ProjectID:      feature.ProjectID.String(),
-		Key:            feature.Key,
-		Name:           feature.Name,
-		Description:    ptrToOptNilString(&feature.Description),
-		Kind:           generatedapi.FeatureKind(feature.Kind),
-		DefaultVariant: feature.DefaultVariant,
-		Enabled:        feature.Enabled,
-		RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
-		CreatedAt:      feature.CreatedAt,
-		UpdatedAt:      feature.UpdatedAt,
+		ID:           feature.ID.String(),
+		ProjectID:    feature.ProjectID.String(),
+		Key:          feature.Key,
+		Name:         feature.Name,
+		Description:  ptrToOptNilString(&feature.Description),
+		Kind:         generatedapi.FeatureKind(feature.Kind),
+		RolloutKey:   ruleAttribute2OptString(feature.RolloutKey),
+		Enabled:      feature.Enabled,
+		DefaultValue: feature.DefaultValue,
+		CreatedAt:    feature.CreatedAt,
+		UpdatedAt:    feature.UpdatedAt,
 	}
 }
 
@@ -32,18 +32,18 @@ func DomainFeatureExtendedToAPI(
 	nextStateTime *time.Time,
 ) generatedapi.FeatureExtended {
 	item := generatedapi.FeatureExtended{
-		ID:             feature.ID.String(),
-		ProjectID:      feature.ProjectID.String(),
-		Key:            feature.Key,
-		Name:           feature.Name,
-		Description:    ptrToOptNilString(&feature.Description),
-		Kind:           generatedapi.FeatureKind(feature.Kind),
-		DefaultVariant: feature.DefaultVariant,
-		Enabled:        feature.Enabled,
-		RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
-		CreatedAt:      feature.CreatedAt,
-		UpdatedAt:      feature.UpdatedAt,
-		IsActive:       isActive,
+		ID:           feature.ID.String(),
+		ProjectID:    feature.ProjectID.String(),
+		Key:          feature.Key,
+		Name:         feature.Name,
+		Description:  ptrToOptNilString(&feature.Description),
+		Kind:         generatedapi.FeatureKind(feature.Kind),
+		RolloutKey:   ruleAttribute2OptString(feature.RolloutKey),
+		Enabled:      feature.Enabled,
+		DefaultValue: feature.DefaultValue,
+		CreatedAt:    feature.CreatedAt,
+		UpdatedAt:    feature.UpdatedAt,
+		IsActive:     isActive,
 	}
 
 	// Handle next state
@@ -56,31 +56,4 @@ func DomainFeatureExtendedToAPI(
 	item.Tags = DomainTagsToAPI(feature.Tags)
 
 	return item
-}
-
-// DomainFeaturesToAPI converts slice of domain Features to slice of generated API Features.
-func DomainFeaturesToAPI(features []domain.Feature) []generatedapi.Feature {
-	resp := make([]generatedapi.Feature, 0, len(features))
-	for _, feature := range features {
-		resp = append(resp, DomainFeatureToAPI(feature))
-	}
-
-	return resp
-}
-
-// APIFeatureToDomain converts generated API Feature to domain Feature.
-func APIFeatureToDomain(feature generatedapi.Feature) domain.Feature {
-	return domain.Feature{
-		ID:             domain.FeatureID(feature.ID),
-		ProjectID:      domain.ProjectID(feature.ProjectID),
-		Key:            feature.Key,
-		Name:           feature.Name,
-		Description:    *optNilStringToPtr(feature.Description),
-		Kind:           domain.FeatureKind(feature.Kind),
-		DefaultVariant: feature.DefaultVariant,
-		Enabled:        feature.Enabled,
-		RolloutKey:     domain.RuleAttribute(optStringToRuleAttribute(feature.RolloutKey)),
-		CreatedAt:      feature.CreatedAt,
-		UpdatedAt:      feature.UpdatedAt,
-	}
 }

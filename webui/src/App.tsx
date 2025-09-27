@@ -61,8 +61,7 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({ children })
     setNotification({ id, message, type, duration });
   };
 
-  const handleClose = (id: string) => {
-    void id;
+  const handleClose = () => {
     setNotification(null);
   };
 

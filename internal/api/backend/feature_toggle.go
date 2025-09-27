@@ -17,8 +17,11 @@ func (r *RestAPI) ToggleFeature(
 ) (generatedapi.ToggleFeatureRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
+	// Get environment key from query parameters
+	environmentKey := params.EnvironmentKey
+
 	// Ensure a feature exists and get project ID
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -51,7 +54,7 @@ func (r *RestAPI) ToggleFeature(
 		}}, nil
 	}
 
-	updated, guardResult, err := r.featuresUseCase.Toggle(ctx, featureID, req.Enabled)
+	updated, guardResult, err := r.featuresUseCase.Toggle(ctx, featureID, req.Enabled, environmentKey)
 	if err != nil {
 		slog.Error("toggle feature failed", "error", err)
 
@@ -85,16 +88,14 @@ func (r *RestAPI) ToggleFeature(
 	}
 
 	resp := &generatedapi.FeatureResponse{Feature: generatedapi.Feature{
-		ID:             updated.ID.String(),
-		ProjectID:      updated.ProjectID.String(),
-		Key:            updated.Key,
-		Name:           updated.Name,
-		Description:    generatedapi.NewOptNilString(updated.Description),
-		Kind:           generatedapi.FeatureKind(updated.Kind),
-		DefaultVariant: updated.DefaultVariant,
-		Enabled:        updated.Enabled,
-		CreatedAt:      updated.CreatedAt,
-		UpdatedAt:      updated.UpdatedAt,
+		ID:          updated.ID.String(),
+		ProjectID:   updated.ProjectID.String(),
+		Key:         updated.Key,
+		Name:        updated.Name,
+		Description: generatedapi.NewOptNilString(updated.Description),
+		Kind:        generatedapi.FeatureKind(updated.Kind),
+		CreatedAt:   updated.CreatedAt,
+		UpdatedAt:   updated.UpdatedAt,
 	}}
 
 	return resp, nil

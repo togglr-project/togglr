@@ -96,7 +96,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.SegmentID) (domain.S
 func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Segment, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM segments WHERE project_id = $1 ORDER BY name`
+	const query = `SELECT * FROM segments WHERE project_id = $1::uuid ORDER BY name`
 
 	rows, err := executor.Query(ctx, query, projectID)
 	if err != nil {

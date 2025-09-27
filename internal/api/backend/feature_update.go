@@ -19,8 +19,11 @@ func (r *RestAPI) UpdateFeature(
 ) (generatedapi.UpdateFeatureRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
+	// Get environment key from query parameters
+	environmentKey := params.EnvironmentKey
+
 	// Load feature to get a project and check permissions
-	existing, err := r.featuresUseCase.GetByID(ctx, featureID)
+	existing, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -52,15 +55,17 @@ func (r *RestAPI) UpdateFeature(
 	}
 
 	feature := domain.Feature{
-		ID:             featureID,
-		ProjectID:      existing.ProjectID,
-		Key:            req.Key,
-		Name:           req.Name,
-		Description:    req.Description.Or(""),
-		Kind:           domain.FeatureKind(req.Kind),
-		RolloutKey:     domain.RuleAttribute(req.RolloutKey.Or("")),
-		DefaultVariant: req.DefaultVariant,
-		Enabled:        req.Enabled.Or(existing.Enabled),
+		BasicFeature: domain.BasicFeature{
+			ID:          featureID,
+			ProjectID:   existing.ProjectID,
+			Key:         req.Key,
+			Name:        req.Name,
+			Description: req.Description.Or(""),
+			Kind:        domain.FeatureKind(req.Kind),
+			RolloutKey:  domain.RuleAttribute(req.RolloutKey.Or("")),
+		},
+		DefaultValue: req.DefaultValue,
+		Enabled:      req.Enabled,
 	}
 
 	// Build variants
@@ -106,8 +111,7 @@ func (r *RestAPI) UpdateFeature(
 		})
 	}
 
-	// Update feature with children (includes guard check)
-	updated, guardResult, err := r.featuresUseCase.UpdateWithChildren(ctx, feature, variants, rules)
+	updated, guardResult, err := r.featuresUseCase.UpdateWithChildren(ctx, environmentKey, feature, variants, rules)
 	if err != nil {
 		slog.Error("update feature with children failed", "error", err)
 
@@ -245,20 +249,18 @@ func (r *RestAPI) UpdateFeature(
 
 	resp := &generatedapi.FeatureDetailsResponse{
 		Feature: generatedapi.FeatureExtended{
-			ID:             updated.ID.String(),
-			ProjectID:      updated.ProjectID.String(),
-			Key:            updated.Key,
-			RolloutKey:     ruleAttribute2OptString(updated.RolloutKey),
-			Name:           updated.Name,
-			Description:    generatedapi.NewOptNilString(updated.Description),
-			Kind:           generatedapi.FeatureKind(updated.Kind),
-			DefaultVariant: updated.DefaultVariant,
-			Enabled:        updated.Enabled,
-			CreatedAt:      updated.CreatedAt,
-			UpdatedAt:      updated.UpdatedAt,
-			IsActive:       r.featureProcessor.IsFeatureActive(updated),
-			NextState:      nextState,
-			NextStateTime:  nextStateTimeOpt,
+			ID:            updated.ID.String(),
+			ProjectID:     updated.ProjectID.String(),
+			Key:           updated.Key,
+			RolloutKey:    ruleAttribute2OptString(updated.RolloutKey),
+			Name:          updated.Name,
+			Description:   generatedapi.NewOptNilString(updated.Description),
+			Kind:          generatedapi.FeatureKind(updated.Kind),
+			CreatedAt:     updated.CreatedAt,
+			UpdatedAt:     updated.UpdatedAt,
+			IsActive:      r.featureProcessor.IsFeatureActive(updated),
+			NextState:     nextState,
+			NextStateTime: nextStateTimeOpt,
 		},
 		Variants: respVariants,
 		Rules:    respRules,

@@ -40,17 +40,17 @@ func (r *Repository) Create(ctx context.Context, rule domain.Rule) (domain.Rule,
 
 	if rule.ID != "" {
 		query = `
-INSERT INTO rules (id, project_id, feature_id, condition, segment_id, is_customized, action, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, project_id, feature_id, condition, segment_id, is_customized, action, flag_variant_id, priority, created_at`
-		args = []any{rule.ID, rule.ProjectID, rule.FeatureID, conditionsData, rule.SegmentID,
+INSERT INTO rules (id, project_id, feature_id, environment_id, condition, segment_id, is_customized, action, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, project_id, feature_id, environment_id, condition, segment_id, is_customized, action, flag_variant_id, priority, created_at`
+		args = []any{rule.ID, rule.ProjectID, rule.FeatureID, int64(rule.EnvironmentID), conditionsData, rule.SegmentID,
 			rule.IsCustomized, rule.Action, rule.FlagVariantID, int(rule.Priority)}
 	} else {
 		query = `
-INSERT INTO rules (project_id, feature_id, condition, segment_id, is_customized, action, flag_variant_id, priority)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, project_id, feature_id, condition, segment_id, is_customized, action, flag_variant_id, priority, created_at`
-		args = []any{rule.ProjectID, rule.FeatureID, conditionsData, rule.SegmentID,
+INSERT INTO rules (project_id, feature_id, environment_id, condition, segment_id, is_customized, action, flag_variant_id, priority)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, project_id, feature_id, environment_id, condition, segment_id, is_customized, action, flag_variant_id, priority, created_at`
+		args = []any{rule.ProjectID, rule.FeatureID, int64(rule.EnvironmentID), conditionsData, rule.SegmentID,
 			rule.IsCustomized, rule.Action, rule.FlagVariantID, int(rule.Priority)}
 	}
 
@@ -59,6 +59,7 @@ RETURNING id, project_id, feature_id, condition, segment_id, is_customized, acti
 		&model.ID,
 		&model.ProjectID,
 		&model.FeatureID,
+		&model.EnvironmentID,
 		&model.Condition,
 		&model.SegmentID,
 		&model.IsCustomized,
@@ -81,6 +82,7 @@ RETURNING id, project_id, feature_id, condition, segment_id, is_customized, acti
 		domain.AuditActionCreate,
 		nil,
 		newRule,
+		newRule.EnvironmentID,
 	); err != nil {
 		return domain.Rule{}, fmt.Errorf("audit rule create: %w", err)
 	}
@@ -141,6 +143,34 @@ func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.Featu
 	const query = `SELECT * FROM rules WHERE feature_id = $1 ORDER BY priority`
 
 	rows, err := executor.Query(ctx, query, featureID)
+	if err != nil {
+		return nil, fmt.Errorf("query rules by feature_id: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[ruleModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect rule rows: %w", err)
+	}
+
+	items := make([]domain.Rule, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	return items, nil
+}
+
+func (r *Repository) ListByFeatureIDWithEnvID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) ([]domain.Rule, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM rules WHERE feature_id = $1 AND environment_id = $2 ORDER BY priority`
+
+	rows, err := executor.Query(ctx, query, featureID, envID)
 	if err != nil {
 		return nil, fmt.Errorf("query rules by feature_id: %w", err)
 	}
@@ -240,9 +270,9 @@ func (r *Repository) Update(ctx context.Context, rule domain.Rule) (domain.Rule,
 
 	const query = `
 UPDATE rules
-SET feature_id = $1, condition = $2, flag_variant_id = $3, priority = $4, action = $5, segment_id = $6, is_customized = $7
-WHERE id = $8
-RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priority, segment_id, is_customized, created_at`
+SET feature_id = $1, environment_id = $2, condition = $3, flag_variant_id = $4, priority = $5, action = $6, segment_id = $7, is_customized = $8
+WHERE id = $9
+RETURNING id, project_id, feature_id, environment_id, condition, action, flag_variant_id, priority, segment_id, is_customized, created_at`
 
 	conditionsData, err := json.Marshal(rule.Conditions)
 	if err != nil {
@@ -252,6 +282,7 @@ RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priori
 	var model ruleModel
 	if err := executor.QueryRow(ctx, query,
 		rule.FeatureID,
+		int64(rule.EnvironmentID),
 		conditionsData,
 		rule.FlagVariantID,
 		int(rule.Priority),
@@ -263,6 +294,7 @@ RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priori
 		&model.ID,
 		&model.ProjectID,
 		&model.FeatureID,
+		&model.EnvironmentID,
 		&model.Condition,
 		&model.Action,
 		&model.FlagVariantID,
@@ -289,6 +321,7 @@ RETURNING id, project_id, feature_id, condition, action, flag_variant_id, priori
 		domain.AuditActionUpdate,
 		oldRule,
 		newRule,
+		newRule.EnvironmentID,
 	); err != nil {
 		return domain.Rule{}, fmt.Errorf("audit rule update: %w", err)
 	}
@@ -314,6 +347,7 @@ func (r *Repository) Delete(ctx context.Context, id domain.RuleID) error {
 		domain.AuditActionDelete,
 		oldRule,
 		nil,
+		oldRule.EnvironmentID,
 	); err != nil {
 		return fmt.Errorf("audit rule delete: %w", err)
 	}

@@ -27,7 +27,7 @@ import ConditionExpressionBuilder from '../conditions/ConditionExpressionBuilder
 import { Add, Delete, Sync } from '@mui/icons-material';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { CreateFeatureRequest, FeatureDetailsResponse, FeatureExtended, RuleConditionExpression, RuleAction as RuleActionType, Segment, ProjectTag } from '../../generated/api/client';
+import type { CreateFeatureRequest, FeatureDetailsResponse, FeatureExtended, RuleConditionExpression, RuleAction as RuleActionType, Segment, ProjectTag, PendingChangeResponse } from '../../generated/api/client';
 import { FeatureKind as FeatureKindEnum, RuleAction as RuleActionEnum, AuthCredentialsMethodEnum } from '../../generated/api/client';
 import TagSelector from './TagSelector';
 import GuardResponseHandler from '../pending-changes/GuardResponseHandler';
@@ -40,11 +40,12 @@ export interface EditFeatureDialogProps {
   onClose: () => void;
   featureDetails: FeatureDetailsResponse | null;
   feature?: FeatureExtended | null;
+  environmentKey: string;
 }
 
 const uuid = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
-const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails, feature }) => {
+const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails, feature, environmentKey }) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -63,13 +64,13 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
   const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
 
   const [syncing, setSyncing] = useState<Record<string, boolean>>({});
-  const [syncErrors, setSyncErrors] = useState<Record<string, string | undefined>>({});
+  // const [syncErrors, setSyncErrors] = useState<Record<string, string | undefined>>({});
 
   const [error, setError] = useState<string | null>(null);
   
   // Guard workflow state
   const [guardResponse, setGuardResponse] = useState<{
-    pendingChange?: any;
+    pendingChange?: unknown;
     conflictError?: string;
     forbiddenError?: string;
   }>({});
@@ -77,11 +78,12 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   // Handle auto-approve for single-user projects
   const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string) => {
-    if (!guardResponse.pendingChange?.id || !user) return;
+    const pendingChange = guardResponse.pendingChange as { id?: string } | undefined;
+    if (!pendingChange?.id || !user) return;
     
     approveMutation.mutate(
       {
-        id: guardResponse.pendingChange.id,
+        id: pendingChange.id,
         request: {
           approver_user_id: user.id,
           approver_name: user.username,
@@ -93,7 +95,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       },
       {
         onSuccess: () => {
-          setGuardResponse({});
+          setGuardResponse({ pendingChange: undefined, conflictError: undefined, forbiddenError: undefined });
           
           // Invalidate all feature-related queries
           queryClient.invalidateQueries({ queryKey: ['feature-details'] });
@@ -123,7 +125,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     queryKey: ['feature-details', featureId],
     queryFn: async () => {
       if (!featureId) throw new Error('No feature ID');
-      const response = await apiClient.getFeature(featureId);
+      const response = await apiClient.getFeature(featureId, environmentKey);
       return response.data;
     },
     enabled: !featureDetails && !!featureId,
@@ -137,27 +139,20 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     if (!open || (!effectiveFeatureDetails && !feature)) return;
     const f = effectiveFeatureDetails?.feature || feature;
 
-    // @ts-ignore
       setKeyVal(f.key);
-    // @ts-ignore
       setName(f.name);
-    // @ts-ignore
       setDescription(f.description || '');
-    // @ts-ignore
       setKind(f.kind);
-    // @ts-ignore
       setRolloutKey(f.rollout_key || '');
-    // @ts-ignore
       setEnabled(f.enabled);
     const vars = (effectiveFeatureDetails?.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
-    // @ts-ignore
-      setDefaultVariant(f.default_variant || '');
-    const rls = (effectiveFeatureDetails?.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any, segment_id: (r as any).segment_id, is_customized: (r as any).is_customized }));
+      setDefaultVariant(f.default_value || '');
+    const rls = (effectiveFeatureDetails?.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as unknown, segment_id: (r as unknown as { segment_id?: string }).segment_id, is_customized: (r as unknown as { is_customized?: boolean }).is_customized }));
     setRules(rls);
     setSelectedTags(effectiveFeatureDetails?.tags || []);
     setError(null);
-    setGuardResponse({}); // Reset guard response when dialog opens
+    setGuardResponse({ pendingChange: undefined, conflictError: undefined, forbiddenError: undefined }); // Reset guard response when dialog opens
   }, [open, effectiveFeatureDetails, feature]);
 
   // Load project segments for segment templates
@@ -177,7 +172,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     mutationFn: async (body: CreateFeatureRequest) => {
       if (!featureId) throw new Error('No feature id');
       try {
-        const res = await apiClient.updateFeature(featureId, body);
+        const res = await apiClient.updateFeature(featureId, environmentKey, body);
         return { data: res.data, status: res.status };
       } catch (error: any) {
         // Handle guard workflow responses
@@ -293,10 +288,10 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   const handleSyncRule = async (ruleId: string) => {
     if (!featureId) return;
-    setSyncErrors(prev => ({ ...prev, [ruleId]: undefined }));
+        // setSyncErrors(prev => ({ ...prev, [ruleId]: undefined }));
     setSyncing(prev => ({ ...prev, [ruleId]: true }));
     try {
-      const res = await apiClient.syncCustomizedFeatureRule(featureId, ruleId);
+      const res = await apiClient.syncCustomizedFeatureRule(featureId, ruleId, environmentKey);
       const ru: any = res.data as any;
       setRules(prev => prev.map(r => {
         if (r.id !== ruleId) return r;
@@ -328,29 +323,29 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         await queryClient.invalidateQueries({ queryKey: ['pending-changes', projectId] });
       }
     } catch (e: any) {
-      setSyncErrors(prev => ({ ...prev, [ruleId]: e?.message || 'Failed to sync rule' }));
+      // setSyncErrors(prev => ({ ...prev, [ruleId]: e?.message || 'Failed to sync rule' }));
     } finally {
       setSyncing(prev => ({ ...prev, [ruleId]: false }));
     }
   };
 
-  const parseValueSmart = (input: string): any => {
-    const t = input.trim();
-    if (t === '') return '';
-    if (t === 'true') return true;
-    if (t === 'false') return false;
-    if (!isNaN(Number(t))) return Number(t);
-    try { return JSON.parse(t); } catch { return input; }
-  };
+  // const parseValueSmart = (input: string): string | number | boolean => {
+  //   const t = input.trim();
+  //   if (t === '') return '';
+  //   if (t === 'true') return true;
+  //   if (t === 'false') return false;
+  //   if (!isNaN(Number(t))) return Number(t);
+  //   try { return JSON.parse(t); } catch { return input; }
+  // };
 
   const hasValidLeaf = (e?: RuleConditionExpression): boolean => {
     if (!e) return false;
-    if ((e as any).condition) {
-      const c = (e as any).condition as { attribute?: string };
+    if ((e as unknown as { condition?: { attribute?: string } }).condition) {
+      const c = (e as unknown as { condition: { attribute?: string } }).condition;
       return Boolean(c.attribute && c.attribute.trim().length > 0);
     }
-    if ((e as any).group) {
-      const g = (e as any).group as { children?: RuleConditionExpression[] };
+    if ((e as unknown as { group?: { children?: RuleConditionExpression[] } }).group) {
+      const g = (e as unknown as { group: { children?: RuleConditionExpression[] } }).group;
       return Array.isArray(g.children) && g.children.some(ch => hasValidLeaf(ch));
     }
     return false;
@@ -385,10 +380,11 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       name,
       description: description || undefined,
       kind: kind as any,
-      default_variant: defaultVariant,
+      environment_key: environmentKey,
+      default_value: defaultVariant,
       enabled,
       rollout_key: kind === FeatureKindEnum.Multivariant ? (rolloutKey.trim() || undefined) : undefined,
-      variants: variants.map(v => ({ id: v.id, name: v.name, rollout_percent: Number(v.rollout_percent) })),
+      variants: variants.map(v => ({ id: v.id, name: v.name, rollout_percent: Number(v.rollout_percent), environment_key: environmentKey })),
       rules: rules.map(r => ({
         id: r.id,
         priority: r.priority,
@@ -397,6 +393,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         conditions: r.expression,
         segment_id: r.segment_id || undefined,
         is_customized: r.segment_id ? Boolean(r.is_customized) : true,
+        environment_key: environmentKey,
       })),
     };
 
@@ -459,14 +456,14 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     return Object.values(counts).some((c) => c > 1);
   });
 
-  const ruleOperatorOptions: any[] = [];
+  // const ruleOperatorOptions: string[] = [];
   const featureKindOptions = Object.values(FeatureKindEnum);
   const rolloutKeyOptions = ['user.id', 'user.email'];
 
   // Default variant is free text now; allow deletion unless referenced by an Assign rule
   const canDeleteVariant = (id: string) => !rules.some(r => r.action === RuleActionEnum.Assign && r.flag_variant_id === id);
-  const onId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'on')?.id, [variants]);
-  const offId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'off')?.id, [variants]);
+  // const onId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'on')?.id, [variants]);
+  // const offId = useMemo(() => variants.find(v => (v.name || v.id).toLowerCase() === 'off')?.id, [variants]);
 
   return (
     <Dialog open={open} onClose={disabled ? undefined : onClose} fullWidth maxWidth="md" disableEnforceFocus>
@@ -485,7 +482,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
             )}
             {error && <Alert severity="error">{error}</Alert>}
             {updateMutation.isError && (
-              <Alert severity="error">{(updateMutation.error as any)?.message || 'Failed to update feature'}</Alert>
+              <Alert severity="error">{(updateMutation.error as { message?: string })?.message || 'Failed to update feature'}</Alert>
             )}
 
             {/* Basic info */}
@@ -805,10 +802,10 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
       {/* Guard Response Handler */}
       <GuardResponseHandler
-        pendingChange={guardResponse.pendingChange}
+        pendingChange={guardResponse.pendingChange as PendingChangeResponse | undefined}
         conflictError={guardResponse.conflictError}
         forbiddenError={guardResponse.forbiddenError}
-        onClose={() => setGuardResponse({})}
+        onClose={() => setGuardResponse({ pendingChange: undefined, conflictError: undefined, forbiddenError: undefined })}
         onParentClose={onClose}
         onApprove={handleAutoApprove}
         approveLoading={approveMutation.isPending}

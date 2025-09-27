@@ -39,6 +39,7 @@ func Write(
 	action domain.AuditAction,
 	oldVal any,
 	newVal any,
+	environmentID domain.EnvironmentID,
 ) error {
 	var (
 		oldJSON []byte
@@ -62,8 +63,8 @@ func Write(
 
 	const query = `
 		INSERT INTO audit_log (project_id, feature_id, entity_id, entity, actor,
-		                       username, action, old_value, new_value, request_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		                       username, action, old_value, new_value, request_id, environment_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	`
 
 	actor := ActorFromContext(ctx)
@@ -82,6 +83,7 @@ func Write(
 		oldJSON,
 		newJSON,
 		RequestIDFromContext(ctx),
+		int64(environmentID),
 	); err != nil {
 		return fmt.Errorf("insert audit_log: %w", err)
 	}

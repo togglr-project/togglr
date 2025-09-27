@@ -17,15 +17,16 @@ export interface FeatureDetailsDialogProps {
   open: boolean;
   onClose: () => void;
   feature: FeatureExtended | null;
+  environmentKey: string;
 }
 
-const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClose, feature }) => {
+const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClose, feature, environmentKey }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { data: featureDetails, isLoading, error } = useQuery<FeatureDetailsResponse>({
     queryKey: ['feature-details', feature?.id],
     queryFn: async () => {
-      const res = await apiClient.getFeature(feature!.id);
+      const res = await apiClient.getFeature(feature!.id, environmentKey);
       return res.data as FeatureDetailsResponse;
     },
     enabled: open && !!feature?.id,
@@ -124,7 +125,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   const toggleMutation = useMutation({
     mutationFn: async (enabled: boolean) => {
       if (!featureDetails) return;
-      const response = await apiClient.toggleFeature(featureDetails.feature.id, { enabled });
+      const response = await apiClient.toggleFeature(featureDetails.feature.id, environmentKey, { enabled });
       return response;
     },
     onSuccess: (response) => {
@@ -174,7 +175,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   const deleteMutation = useMutation({
     mutationFn: async () => {
       if (!featureDetails) return;
-      const response = await apiClient.deleteFeature(featureDetails.feature.id);
+      const response = await apiClient.deleteFeature(featureDetails.feature.id, environmentKey);
       return response;
     },
     onSuccess: (response) => {
@@ -323,7 +324,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
               )}
               <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
-                <Chip size="small" label={`default: ${featureDetails.feature.default_variant}`} />
+                <Chip size="small" label={`default: ${featureDetails.feature.default_value}`} />
                 {featureDetails.feature.kind === 'multivariant' && (
                   <Chip size="small" label={`rollout key: ${featureDetails.feature.rollout_key || '-'}`} />
                 )}
@@ -545,7 +546,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
         <Button onClick={onClose} size="small">Close</Button>
       </DialogActions>
       {/* Advanced edit dialog */}
-      <EditFeatureDialog open={editOpen} onClose={() => setEditOpen(false)} featureDetails={featureDetails ?? null} />
+      <EditFeatureDialog open={editOpen} onClose={() => setEditOpen(false)} featureDetails={featureDetails ?? null} environmentKey={environmentKey} />
 
       {/* Guard Response Handler */}
       <GuardResponseHandler

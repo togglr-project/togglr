@@ -13,6 +13,7 @@ All URIs are relative to *http://localhost*
 |[**confirm2FA**](#confirm2fa) | **POST** /api/v1/users/me/2fa/confirm | Approve enable 2FA (code from app)|
 |[**consumeSAMLAssertion**](#consumesamlassertion) | **POST** /api/v1/saml/acs | Assertion Consumer Service (ACS) endpoint|
 |[**createCategory**](#createcategory) | **POST** /api/v1/categories | Create new category|
+|[**createEnvironment**](#createenvironment) | **POST** /api/v1/projects/{project_id}/environments | Create environment|
 |[**createFeatureFlagVariant**](#createfeatureflagvariant) | **POST** /api/v1/features/{feature_id}/variants | Create flag variant for feature|
 |[**createFeatureRule**](#createfeaturerule) | **POST** /api/v1/features/{feature_id}/rules | Create rule for feature|
 |[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
@@ -23,6 +24,7 @@ All URIs are relative to *http://localhost*
 |[**createRuleAttribute**](#createruleattribute) | **POST** /api/v1/rule_attributes | Create rule attribute|
 |[**createUser**](#createuser) | **POST** /api/v1/users | Create a new user (superuser only)|
 |[**deleteCategory**](#deletecategory) | **DELETE** /api/v1/categories/{category_id} | Delete category|
+|[**deleteEnvironment**](#deleteenvironment) | **DELETE** /api/v1/environments/{environment_id} | Delete environment|
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
 |[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
@@ -35,6 +37,7 @@ All URIs are relative to *http://localhost*
 |[**forgotPassword**](#forgotpassword) | **POST** /api/v1/auth/forgot-password | Request a password reset|
 |[**getCategory**](#getcategory) | **GET** /api/v1/categories/{category_id} | Get category details|
 |[**getCurrentUser**](#getcurrentuser) | **GET** /api/v1/users/me | Get current user information|
+|[**getEnvironment**](#getenvironment) | **GET** /api/v1/environments/{environment_id} | Get environment|
 |[**getFeature**](#getfeature) | **GET** /api/v1/features/{feature_id} | Get feature with rules and variants|
 |[**getFeatureSchedule**](#getfeatureschedule) | **GET** /api/v1/feature-schedules/{schedule_id} | Get feature schedule by ID|
 |[**getFeatureTimeline**](#getfeaturetimeline) | **GET** /api/v1/features/{feature_id}/timeline | Get feature timeline within period|
@@ -62,6 +65,7 @@ All URIs are relative to *http://localhost*
 |[**listFeatureTags**](#listfeaturetags) | **GET** /api/v1/features/{feature_id}/tags | List feature tags|
 |[**listPendingChanges**](#listpendingchanges) | **GET** /api/v1/pending_changes | List pending changes|
 |[**listProjectChanges**](#listprojectchanges) | **GET** /api/v1/projects/{project_id}/changes | Get project changes history|
+|[**listProjectEnvironments**](#listprojectenvironments) | **GET** /api/v1/projects/{project_id}/environments | List project environments|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
 |[**listProjectSegments**](#listprojectsegments) | **GET** /api/v1/projects/{project_id}/segments | List segments for project|
 |[**listProjectSettings**](#listprojectsettings) | **GET** /api/v1/projects/{project_id}/settings | List project settings|
@@ -87,6 +91,7 @@ All URIs are relative to *http://localhost*
 |[**testLDAPConnection**](#testldapconnection) | **POST** /api/v1/ldap/test-connection | Test LDAP connection|
 |[**toggleFeature**](#togglefeature) | **PUT** /api/v1/features/{feature_id}/toggle | Toggle feature enabled state|
 |[**updateCategory**](#updatecategory) | **PUT** /api/v1/categories/{category_id} | Update category|
+|[**updateEnvironment**](#updateenvironment) | **PUT** /api/v1/environments/{environment_id} | Update environment|
 |[**updateFeature**](#updatefeature) | **PUT** /api/v1/features/{feature_id} | Update feature with rules and variants|
 |[**updateFeatureSchedule**](#updatefeatureschedule) | **PUT** /api/v1/feature-schedules/{schedule_id} | Update feature schedule by ID|
 |[**updateLDAPConfig**](#updateldapconfig) | **POST** /api/v1/ldap/config | Create or update LDAP configuration|
@@ -611,6 +616,66 @@ const { status, data } = await apiInstance.createCategory(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **createEnvironment**
+> EnvironmentResponse createEnvironment(createEnvironmentRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateEnvironmentRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let createEnvironmentRequest: CreateEnvironmentRequest; //
+
+const { status, data } = await apiInstance.createEnvironment(
+    projectId,
+    createEnvironmentRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createEnvironmentRequest** | **CreateEnvironmentRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**EnvironmentResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Environment created |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**409** | Environment already exists |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createFeatureFlagVariant**
 > FlagVariantResponse createFeatureFlagVariant(createFlagVariantRequest)
 
@@ -628,10 +693,12 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 let createFlagVariantRequest: CreateFlagVariantRequest; //
 
 const { status, data } = await apiInstance.createFeatureFlagVariant(
     featureId,
+    environmentKey,
     createFlagVariantRequest
 );
 ```
@@ -642,6 +709,7 @@ const { status, data } = await apiInstance.createFeatureFlagVariant(
 |------------- | ------------- | ------------- | -------------|
 | **createFlagVariantRequest** | **CreateFlagVariantRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -688,10 +756,12 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 let createRuleRequest: CreateRuleRequest; //
 
 const { status, data } = await apiInstance.createFeatureRule(
     featureId,
+    environmentKey,
     createRuleRequest
 );
 ```
@@ -702,6 +772,7 @@ const { status, data } = await apiInstance.createFeatureRule(
 |------------- | ------------- | ------------- | -------------|
 | **createRuleRequest** | **CreateRuleRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -748,10 +819,12 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 let createFeatureScheduleRequest: CreateFeatureScheduleRequest; //
 
 const { status, data } = await apiInstance.createFeatureSchedule(
     featureId,
+    environmentKey,
     createFeatureScheduleRequest
 );
 ```
@@ -762,6 +835,7 @@ const { status, data } = await apiInstance.createFeatureSchedule(
 |------------- | ------------- | ------------- | -------------|
 | **createFeatureScheduleRequest** | **CreateFeatureScheduleRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -1201,6 +1275,61 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **deleteEnvironment**
+> deleteEnvironment()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let environmentId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteEnvironment(
+    environmentId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Environment deleted |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Environment not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **deleteFeature**
 > PendingChangeResponse deleteFeature()
 
@@ -1217,9 +1346,11 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 
 const { status, data } = await apiInstance.deleteFeature(
-    featureId
+    featureId,
+    environmentKey
 );
 ```
 
@@ -1228,6 +1359,7 @@ const { status, data } = await apiInstance.deleteFeature(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -1851,6 +1983,61 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getEnvironment**
+> EnvironmentResponse getEnvironment()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let environmentId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.getEnvironment(
+    environmentId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**EnvironmentResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Environment details |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Environment not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getFeature**
 > FeatureDetailsResponse getFeature()
 
@@ -1867,9 +2054,11 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 
 const { status, data } = await apiInstance.getFeature(
-    featureId
+    featureId,
+    environmentKey
 );
 ```
 
@@ -1878,6 +2067,7 @@ const { status, data } = await apiInstance.getFeature(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -1977,12 +2167,14 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; //Target environment key (e.g., dev, stage, prod) (default to undefined)
 let from: string; //Start of the period (inclusive) (default to undefined)
 let to: string; //End of the period (exclusive) (default to undefined)
 let location: string; //Browser\'s location string (default to undefined)
 
 const { status, data } = await apiInstance.getFeatureTimeline(
     featureId,
+    environmentKey,
     from,
     to,
     location
@@ -1994,6 +2186,7 @@ const { status, data } = await apiInstance.getFeatureTimeline(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Target environment key (e.g., dev, stage, prod) | defaults to undefined|
 | **from** | [**string**] | Start of the period (inclusive) | defaults to undefined|
 | **to** | [**string**] | End of the period (exclusive) | defaults to undefined|
 | **location** | [**string**] | Browser\&#39;s location string | defaults to undefined|
@@ -2968,9 +3161,11 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 
 const { status, data } = await apiInstance.listFeatureFlagVariants(
-    featureId
+    featureId,
+    environmentKey
 );
 ```
 
@@ -2979,6 +3174,7 @@ const { status, data } = await apiInstance.listFeatureFlagVariants(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -3023,9 +3219,11 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 
 const { status, data } = await apiInstance.listFeatureRules(
-    featureId
+    featureId,
+    environmentKey
 );
 ```
 
@@ -3034,6 +3232,7 @@ const { status, data } = await apiInstance.listFeatureRules(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -3078,9 +3277,11 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 
 const { status, data } = await apiInstance.listFeatureSchedules(
-    featureId
+    featureId,
+    environmentKey
 );
 ```
 
@@ -3089,6 +3290,7 @@ const { status, data } = await apiInstance.listFeatureSchedules(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -3187,6 +3389,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
+let environmentId: number; // (optional) (default to undefined)
 let projectId: string; // (optional) (default to undefined)
 let status: 'pending' | 'approved' | 'rejected' | 'cancelled'; // (optional) (default to undefined)
 let userId: number; // (optional) (default to undefined)
@@ -3196,6 +3399,7 @@ let sortBy: 'created_at' | 'status' | 'requested_by'; // (optional) (default to 
 let sortDesc: boolean; // (optional) (default to true)
 
 const { status, data } = await apiInstance.listPendingChanges(
+    environmentId,
     projectId,
     status,
     userId,
@@ -3210,6 +3414,7 @@ const { status, data } = await apiInstance.listPendingChanges(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
+| **environmentId** | [**number**] |  | (optional) defaults to undefined|
 | **projectId** | [**string**] |  | (optional) defaults to undefined|
 | **status** | [**&#39;pending&#39; | &#39;approved&#39; | &#39;rejected&#39; | &#39;cancelled&#39;**]**Array<&#39;pending&#39; &#124; &#39;approved&#39; &#124; &#39;rejected&#39; &#124; &#39;cancelled&#39;>** |  | (optional) defaults to undefined|
 | **userId** | [**number**] |  | (optional) defaults to undefined|
@@ -3329,6 +3534,60 @@ const { status, data } = await apiInstance.listProjectChanges(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **listProjectEnvironments**
+> ListEnvironmentsResponse listProjectEnvironments()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.listProjectEnvironments(
+    projectId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ListEnvironmentsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of environments |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **listProjectFeatures**
 > ListFeaturesResponse listProjectFeatures()
 
@@ -3345,6 +3604,7 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let projectId: string; // (default to undefined)
+let environmentKey: string; //Environment key (dev, stage, prod) to filter features (default to undefined)
 let kind: 'simple' | 'multivariant'; //Filter by feature kind (optional) (default to undefined)
 let enabled: boolean; //Filter by enabled state (optional) (default to undefined)
 let textSelector: string; //Case-insensitive text search across key, name, description, rollout_key (optional) (default to undefined)
@@ -3356,6 +3616,7 @@ let perPage: number; //Items per page (optional) (default to 20)
 
 const { status, data } = await apiInstance.listProjectFeatures(
     projectId,
+    environmentKey,
     kind,
     enabled,
     textSelector,
@@ -3372,6 +3633,7 @@ const { status, data } = await apiInstance.listProjectFeatures(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Environment key (dev, stage, prod) to filter features | defaults to undefined|
 | **kind** | [**&#39;simple&#39; | &#39;multivariant&#39;**]**Array<&#39;simple&#39; &#124; &#39;multivariant&#39;>** | Filter by feature kind | (optional) defaults to undefined|
 | **enabled** | [**boolean**] | Filter by enabled state | (optional) defaults to undefined|
 | **textSelector** | [**string**] | Case-insensitive text search across key, name, description, rollout_key | (optional) defaults to undefined|
@@ -4419,10 +4681,12 @@ const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
 let ruleId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 
 const { status, data } = await apiInstance.syncCustomizedFeatureRule(
     featureId,
-    ruleId
+    ruleId,
+    environmentKey
 );
 ```
 
@@ -4432,6 +4696,7 @@ const { status, data } = await apiInstance.syncCustomizedFeatureRule(
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
 | **ruleId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -4524,6 +4789,7 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; //Target environment key (e.g., dev, stage, prod) (default to undefined)
 let from: string; //Start of the period (inclusive) (default to undefined)
 let to: string; //End of the period (exclusive) (default to undefined)
 let location: string; //Browser\'s location string (default to undefined)
@@ -4531,6 +4797,7 @@ let testFeatureTimelineRequest: TestFeatureTimelineRequest; //
 
 const { status, data } = await apiInstance.testFeatureTimeline(
     featureId,
+    environmentKey,
     from,
     to,
     location,
@@ -4544,6 +4811,7 @@ const { status, data } = await apiInstance.testFeatureTimeline(
 |------------- | ------------- | ------------- | -------------|
 | **testFeatureTimelineRequest** | **TestFeatureTimelineRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Target environment key (e.g., dev, stage, prod) | defaults to undefined|
 | **from** | [**string**] | Start of the period (inclusive) | defaults to undefined|
 | **to** | [**string**] | End of the period (exclusive) | defaults to undefined|
 | **location** | [**string**] | Browser\&#39;s location string | defaults to undefined|
@@ -4647,10 +4915,12 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 let toggleFeatureRequest: ToggleFeatureRequest; //
 
 const { status, data } = await apiInstance.toggleFeature(
     featureId,
+    environmentKey,
     toggleFeatureRequest
 );
 ```
@@ -4661,6 +4931,7 @@ const { status, data } = await apiInstance.toggleFeature(
 |------------- | ------------- | ------------- | -------------|
 | **toggleFeatureRequest** | **ToggleFeatureRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -4752,6 +5023,66 @@ const { status, data } = await apiInstance.updateCategory(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **updateEnvironment**
+> EnvironmentResponse updateEnvironment(updateEnvironmentRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    UpdateEnvironmentRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let environmentId: number; // (default to undefined)
+let updateEnvironmentRequest: UpdateEnvironmentRequest; //
+
+const { status, data } = await apiInstance.updateEnvironment(
+    environmentId,
+    updateEnvironmentRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateEnvironmentRequest** | **UpdateEnvironmentRequest**|  | |
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**EnvironmentResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Environment updated |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Environment not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **updateFeature**
 > FeatureDetailsResponse updateFeature(createFeatureRequest)
 
@@ -4769,10 +5100,12 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
 let createFeatureRequest: CreateFeatureRequest; //
 
 const { status, data } = await apiInstance.updateFeature(
     featureId,
+    environmentKey,
     createFeatureRequest
 );
 ```
@@ -4783,6 +5116,7 @@ const { status, data } = await apiInstance.updateFeature(
 |------------- | ------------- | ------------- | -------------|
 | **createFeatureRequest** | **CreateFeatureRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type

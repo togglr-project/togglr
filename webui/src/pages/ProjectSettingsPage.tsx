@@ -114,37 +114,10 @@ const ProjectSettingsPage: React.FC = () => {
       {project && (
         <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
           <Box>
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>API Key</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-              <Typography
-                variant="body2"
-                sx={{ fontFamily: 'monospace', userSelect: 'text', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis' }}
-              >
-                {showApiKey ? project.api_key : '*'.repeat(project.api_key?.length || 8)}
-              </Typography>
-              <IconButton aria-label={showApiKey ? 'hide api key' : 'show api key'} size="small" onClick={() => setShowApiKey(v => !v)}>
-                {showApiKey ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-              </IconButton>
-              <Tooltip title={copied ? 'Copied!' : 'Copy API Key'} placement="top" onClose={() => setCopied(false)}>
-                <IconButton
-                  aria-label="copy api key"
-                  size="small"
-                  onClick={async () => {
-                    try {
-                      if (project.api_key) {
-                        await navigator.clipboard.writeText(project.api_key);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 1200);
-                      }
-                    } catch (e) {
-                      // ignore
-                    }
-                  }}
-                >
-                  <ContentCopyIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Box>
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>API Keys</Typography>
+            <Typography variant="body2" color="text.secondary">
+              API keys are now managed per environment. Use the environments section to view and manage API keys for each environment.
+            </Typography>
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

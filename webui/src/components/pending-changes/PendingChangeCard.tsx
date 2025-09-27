@@ -162,7 +162,7 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
     }
   };
 
-  const formatChanges = (changes: Record<string, any>) => {
+  const formatChanges = (changes: Record<string, { old: unknown; new: unknown }>) => {
     return Object.entries(changes).map(([field, change]) => (
       <Box key={field} sx={{ mb: 1 }}>
         <Typography variant="body2" fontWeight="medium">

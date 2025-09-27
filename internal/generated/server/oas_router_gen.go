@@ -325,6 +325,45 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'e': // Prefix: "environments/"
+
+				if l := len("environments/"); len(elem) >= l && elem[0:l] == "environments/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				// Param: "environment_id"
+				// Leaf parameter, slashes are prohibited
+				idx := strings.IndexByte(elem, '/')
+				if idx >= 0 {
+					break
+				}
+				args[0] = elem
+				elem = ""
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "DELETE":
+						s.handleDeleteEnvironmentRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					case "GET":
+						s.handleGetEnvironmentRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					case "PUT":
+						s.handleUpdateEnvironmentRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "DELETE,GET,PUT")
+					}
+
+					return
+				}
+
 			case 'f': // Prefix: "feature"
 
 				if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
@@ -1293,6 +1332,32 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 											}, elemIsEscaped, w, r)
 										default:
 											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								case 'e': // Prefix: "environments"
+
+									if l := len("environments"); len(elem) >= l && elem[0:l] == "environments" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleListProjectEnvironmentsRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										case "POST":
+											s.handleCreateEnvironmentRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET,POST")
 										}
 
 										return
@@ -2428,6 +2493,55 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
+			case 'e': // Prefix: "environments/"
+
+				if l := len("environments/"); len(elem) >= l && elem[0:l] == "environments/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				// Param: "environment_id"
+				// Leaf parameter, slashes are prohibited
+				idx := strings.IndexByte(elem, '/')
+				if idx >= 0 {
+					break
+				}
+				args[0] = elem
+				elem = ""
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "DELETE":
+						r.name = DeleteEnvironmentOperation
+						r.summary = "Delete environment"
+						r.operationID = "DeleteEnvironment"
+						r.pathPattern = "/api/v1/environments/{environment_id}"
+						r.args = args
+						r.count = 1
+						return r, true
+					case "GET":
+						r.name = GetEnvironmentOperation
+						r.summary = "Get environment"
+						r.operationID = "GetEnvironment"
+						r.pathPattern = "/api/v1/environments/{environment_id}"
+						r.args = args
+						r.count = 1
+						return r, true
+					case "PUT":
+						r.name = UpdateEnvironmentOperation
+						r.summary = "Update environment"
+						r.operationID = "UpdateEnvironment"
+						r.pathPattern = "/api/v1/environments/{environment_id}"
+						r.args = args
+						r.count = 1
+						return r, true
+					default:
+						return
+					}
+				}
+
 			case 'f': // Prefix: "feature"
 
 				if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
@@ -3544,6 +3658,38 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 											r.summary = "Get project changes history"
 											r.operationID = "ListProjectChanges"
 											r.pathPattern = "/api/v1/projects/{project_id}/changes"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'e': // Prefix: "environments"
+
+									if l := len("environments"); len(elem) >= l && elem[0:l] == "environments" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = ListProjectEnvironmentsOperation
+											r.summary = "List project environments"
+											r.operationID = "ListProjectEnvironments"
+											r.pathPattern = "/api/v1/projects/{project_id}/environments"
+											r.args = args
+											r.count = 1
+											return r, true
+										case "POST":
+											r.name = CreateEnvironmentOperation
+											r.summary = "Create environment"
+											r.operationID = "CreateEnvironment"
+											r.pathPattern = "/api/v1/projects/{project_id}/environments"
 											r.args = args
 											r.count = 1
 											return r, true

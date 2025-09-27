@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Box,
   Typography,
-  LinearProgress,
   CircularProgress,
   Alert,
 } from '@mui/material';
@@ -14,15 +13,17 @@ interface SimpleTimelinePreviewProps {
   featureId: string;
   projectId: string;
   featureEnabled: boolean;
+  environmentKey: string;
 }
 
 const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
   featureId,
   projectId,
   featureEnabled,
+  environmentKey,
 }) => {
   const { data: timeline, isLoading, error } = useQuery<FeatureTimelineResponse>({
-    queryKey: ['feature-timeline', projectId, featureId],
+    queryKey: ['feature-timeline', projectId, featureId, environmentKey],
     queryFn: async () => {
       const now = new Date();
       const from = now.toISOString();
@@ -31,6 +32,7 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
       
       const response = await apiClient.getFeatureTimeline(
         featureId,
+        environmentKey,
         from,
         to,
         location
@@ -53,7 +55,7 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
 
   if (error) {
     // Check if it's a 404 error (no schedule)
-    const is404 = (error as any)?.response?.status === 404;
+    const is404 = (error as { response?: { status?: number } })?.response?.status === 404;
     
     if (is404) {
       return (
@@ -102,7 +104,7 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
 
   // Process events into segments
   const segments: Array<{ start: number; end: number; enabled: boolean }> = [];
-  let currentState = false; // Assume feature starts as disabled
+  let currentState = featureEnabled; // Start with current enabled state from props
   let segmentStart = fromTime;
 
   for (let i = 0; i < sortedEvents.length; i++) {

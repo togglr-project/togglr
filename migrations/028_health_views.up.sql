@@ -1,9 +1,12 @@
+DROP VIEW IF EXISTS v_project_health CASCADE;
 CREATE OR REPLACE VIEW v_project_health AS
 WITH feature_with_category AS (
     SELECT
         f.id AS feature_id,
         f.project_id,
-        f.enabled,
+        fp.environment_id,
+        e.key AS environment_key,
+        fp.enabled,
         EXISTS (
             SELECT 1
             FROM feature_tags ft
@@ -25,6 +28,8 @@ WITH feature_with_category AS (
             WHERE ft.feature_id = f.id
         ) AS is_uncategorized
     FROM features f
+             JOIN feature_params fp ON fp.feature_id = f.id
+             JOIN environments e ON e.id = fp.environment_id
 ),
      pending AS (
          SELECT DISTINCT pce.entity_id AS feature_id
@@ -35,6 +40,8 @@ WITH feature_with_category AS (
      )
 SELECT
     fwc.project_id,
+    fwc.environment_id,
+    fwc.environment_key,
     COUNT(DISTINCT fwc.feature_id) AS total_features,
     COUNT(DISTINCT CASE WHEN fwc.enabled THEN fwc.feature_id END) AS enabled_features,
     COUNT(DISTINCT CASE WHEN NOT fwc.enabled THEN fwc.feature_id END) AS disabled_features,
@@ -57,19 +64,22 @@ SELECT
         END AS health_status
 FROM feature_with_category fwc
          LEFT JOIN pending p ON p.feature_id = fwc.feature_id
-GROUP BY fwc.project_id;
+GROUP BY fwc.project_id, fwc.environment_id, fwc.environment_key;
 
----
+-- ------------------------------------
 
+DROP VIEW IF EXISTS v_project_category_health CASCADE;
 CREATE OR REPLACE VIEW v_project_category_health AS
 WITH feature_with_category AS (
     SELECT
         f.id AS feature_id,
         f.project_id,
+        fp.environment_id,
+        e.key AS environment_key,
         COALESCE(c.id, '00000000-0000-0000-0000-000000000000'::uuid) AS category_id,
         COALESCE(c.name, 'Uncategorized') AS category_name,
         COALESCE(c.slug, 'uncategorized') AS category_slug,
-        f.enabled,
+        fp.enabled,
         EXISTS (
             SELECT 1
             FROM feature_tags ft
@@ -85,6 +95,8 @@ WITH feature_with_category AS (
               AND t.slug = 'guarded'
         ) AS is_guarded
     FROM features f
+             JOIN feature_params fp ON fp.feature_id = f.id
+             JOIN environments e ON e.id = fp.environment_id
              LEFT JOIN feature_tags ft ON ft.feature_id = f.id
              LEFT JOIN tags t ON ft.tag_id = t.id
              LEFT JOIN categories c ON t.category_id = c.id
@@ -98,6 +110,8 @@ WITH feature_with_category AS (
      )
 SELECT
     fwc.project_id,
+    fwc.environment_id,
+    fwc.environment_key,
     fwc.category_id,
     fwc.category_name,
     fwc.category_slug,
@@ -122,4 +136,4 @@ SELECT
         END AS health_status
 FROM feature_with_category fwc
          LEFT JOIN pending p ON p.feature_id = fwc.feature_id
-GROUP BY fwc.project_id, fwc.category_id, fwc.category_name, fwc.category_slug;
+GROUP BY fwc.project_id, fwc.environment_id, fwc.environment_key, fwc.category_id, fwc.category_name, fwc.category_slug;

@@ -12,8 +12,9 @@ export const useProjectPendingChanges = (projectId?: string) => {
 
       try {
         const response = await apiClient.listPendingChanges(
-          projectId,
-          'pending' as any,
+          undefined, // environmentId: all environments
+          projectId, // projectId
+          'pending' as any, // status
           undefined,
           undefined,
           undefined,

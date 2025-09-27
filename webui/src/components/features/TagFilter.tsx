@@ -32,7 +32,7 @@ const TagFilter: React.FC<TagFilterProps> = ({
     enabled: !!projectId,
   });
 
-  const handleTagChange = (_: any, newValue: ProjectTag[]) => {
+  const handleTagChange = (_: unknown, newValue: ProjectTag[]) => {
     onChange(newValue);
   };
 

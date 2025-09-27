@@ -18,7 +18,7 @@ func (r *RestAPI) GetFeatureTimeline(
 	featureID := domain.FeatureID(params.FeatureID)
 
 	// Load a feature with extended data (schedules needed) and check access to its project
-	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID, params.EnvironmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -54,7 +54,7 @@ func (r *RestAPI) GetFeatureTimeline(
 	if locReq, err := time.LoadLocation(params.Location); err == nil {
 		loc = locReq
 	} else {
-		slog.Error("invalid location", "location", loc)
+		slog.Error("invalid location", "location", params.Location, "error", err)
 	}
 
 	from := params.From.In(loc)

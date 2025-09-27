@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../../theme';
@@ -269,7 +269,6 @@ describe('ScheduleBuilder', () => {
         });
 
     it('does not submit when form is invalid', async () => {
-      const user = userEvent.setup();
       const mockOnSubmit = vi.fn();
       
       // Test without featureCreatedAt to ensure Next button is disabled
@@ -345,7 +344,6 @@ describe('ScheduleBuilder', () => {
       const startDateInput = dateInputs[0];
       await user.type(startDateInput, '2024-01-01');
       
-      const nextButton = screen.getByText('Next');
       await user.tab();
       await user.keyboard('{Enter}');
       

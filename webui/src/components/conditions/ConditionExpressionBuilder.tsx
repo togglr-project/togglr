@@ -16,7 +16,7 @@ export interface UiExpression { condition?: UiCondition; group?: UiGroup }
 const ruleOperatorOptions: RuleOperatorType[] = Object.values(RuleOperator);
 const logicalOperatorOptions: LogicalOperatorType[] = Object.values(LogicalOperator);
 
-const parseValueSmart = (input: string): any => {
+const parseValueSmart = (input: string): string | number | boolean => {
   const t = (input ?? '').trim();
   if (t === '') return '';
   if (t === 'true') return true;
@@ -25,7 +25,7 @@ const parseValueSmart = (input: string): any => {
   try { return JSON.parse(t); } catch { return input; }
 };
 
-const valueToString = (val: any): string => {
+const valueToString = (val: unknown): string => {
   if (val === undefined || val === null) return '';
   if (typeof val === 'string') return val;
   try { return JSON.stringify(val); } catch { return String(val); }
@@ -229,14 +229,14 @@ const ConditionExpressionBuilder: React.FC<{
 
   const rootGroup = ensureRootGroup(ui);
 
-  const { data: attrsData } = useQuery<any[]>({
+  const { data: attrsData } = useQuery<{ name: string }[]>({
     queryKey: ['rule-attributes'],
     queryFn: async () => {
       const res = await apiClient.listRuleAttributes();
-      return res.data as any[];
+      return res.data as { name: string }[];
     },
   });
-  const fetchedAttrNames = React.useMemo(() => (Array.isArray(attrsData) ? attrsData.map((a: any) => a.name).filter(Boolean) : []), [attrsData]);
+  const fetchedAttrNames = React.useMemo(() => (Array.isArray(attrsData) ? attrsData.map((a: { name: string }) => a.name).filter(Boolean) : []), [attrsData]);
   const effectiveOptions = attributeOptions ?? fetchedAttrNames;
 
   return (

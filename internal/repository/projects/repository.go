@@ -49,32 +49,27 @@ func (r *Repository) GetByID(ctx context.Context, id domain.ProjectID) (domain.P
 func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM projects WHERE api_key = $1 LIMIT 1`
+	// Use v_projects_full to find the project-by-environment API key, then load a full project
+	const query = `SELECT id FROM v_projects_full WHERE api_key = $1 LIMIT 1`
 
-	rows, err := executor.Query(ctx, query, apiKey)
-	if err != nil {
-		return domain.Project{}, fmt.Errorf("query project by API key: %w", err)
-	}
-	defer rows.Close()
-
-	project, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[projectModel])
-	if err != nil {
+	var projID string
+	if err := executor.QueryRow(ctx, query, apiKey).Scan(&projID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Project{}, domain.ErrEntityNotFound
 		}
 
-		return domain.Project{}, fmt.Errorf("collect project: %w", err)
+		return domain.Project{}, fmt.Errorf("query project by api_key: %w", err)
 	}
 
-	return project.toDomain(), nil
+	return r.GetByID(ctx, domain.ProjectID(projID))
 }
 
 func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (domain.ProjectID, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
-INSERT INTO projects (name, description, api_key, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $4)
+INSERT INTO projects (name, description, created_at, updated_at)
+VALUES ($1, $2, $3, $3)
 RETURNING id`
 
 	var id string
@@ -82,7 +77,6 @@ RETURNING id`
 	err := executor.QueryRow(ctx, query,
 		project.Name,
 		project.Description,
-		project.APIKey,
 		time.Now(),
 	).Scan(&id)
 	if err != nil {
@@ -217,14 +211,14 @@ func (r *Repository) Count(ctx context.Context) (uint, error) {
 
 	const query = "SELECT COUNT(*) FROM projects"
 
-	var count uint
+	var count64 int64
 
-	err := executor.QueryRow(ctx, query).Scan(&count)
+	err := executor.QueryRow(ctx, query).Scan(&count64)
 	if err != nil {
 		return 0, fmt.Errorf("query projects count: %w", err)
 	}
 
-	return count, nil
+	return uint(count64), nil
 }
 
 //nolint:ireturn // it's ok here

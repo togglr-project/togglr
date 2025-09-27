@@ -42,14 +42,16 @@ func (r *RestAPI) CreateProjectFeature(
 	}
 
 	feature := domain.Feature{
-		ProjectID:      projectID,
-		Key:            req.Key,
-		Name:           req.Name,
-		Description:    req.Description.Or(""),
-		Kind:           domain.FeatureKind(req.Kind),
-		DefaultVariant: req.DefaultVariant,
-		Enabled:        req.Enabled.Or(true),
-		RolloutKey:     domain.RuleAttribute(req.RolloutKey.Or("")),
+		BasicFeature: domain.BasicFeature{
+			ProjectID:   projectID,
+			Key:         req.Key,
+			Name:        req.Name,
+			Description: req.Description.Or(""),
+			Kind:        domain.FeatureKind(req.Kind),
+			RolloutKey:  domain.RuleAttribute(req.RolloutKey.Or("")),
+		},
+		DefaultValue: req.DefaultValue,
+		Enabled:      req.Enabled,
 	}
 
 	// Build inline flag variants
@@ -101,16 +103,16 @@ func (r *RestAPI) CreateProjectFeature(
 	}
 
 	resp := &generatedapi.FeatureResponse{Feature: generatedapi.Feature{
-		ID:             created.ID.String(),
-		ProjectID:      created.ProjectID.String(),
-		Key:            created.Key,
-		Name:           created.Name,
-		Description:    generatedapi.NewOptNilString(created.Description),
-		Kind:           generatedapi.FeatureKind(created.Kind),
-		DefaultVariant: created.DefaultVariant,
-		Enabled:        created.Enabled,
-		CreatedAt:      created.CreatedAt,
-		UpdatedAt:      created.UpdatedAt,
+		ID:           created.ID.String(),
+		ProjectID:    created.ProjectID.String(),
+		Key:          created.Key,
+		Name:         created.Name,
+		Description:  generatedapi.NewOptNilString(created.Description),
+		Kind:         generatedapi.FeatureKind(created.Kind),
+		DefaultValue: created.DefaultValue,
+		Enabled:      created.Enabled,
+		CreatedAt:    created.CreatedAt,
+		UpdatedAt:    created.UpdatedAt,
 	}}
 
 	return resp, nil

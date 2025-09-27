@@ -6,8 +6,6 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
@@ -16,6 +14,7 @@ import (
 type ProjectService struct {
 	txManager    db.TxManager
 	projectRepo  contract.ProjectsRepository
+	envRepo      contract.EnvironmentsRepository
 	auditLogRepo contract.AuditLogRepository
 	tagsUseCase  contract.TagsUseCase
 }
@@ -23,12 +22,14 @@ type ProjectService struct {
 func New(
 	txManager db.TxManager,
 	projectRepo contract.ProjectsRepository,
+	envRepo contract.EnvironmentsRepository,
 	auditLogRepo contract.AuditLogRepository,
 	tagsUseCase contract.TagsUseCase,
 ) *ProjectService {
 	return &ProjectService{
 		txManager:    txManager,
 		projectRepo:  projectRepo,
+		envRepo:      envRepo,
 		auditLogRepo: auditLogRepo,
 		tagsUseCase:  tagsUseCase,
 	}
@@ -45,7 +46,6 @@ func (s *ProjectService) CreateProject(
 	project := domain.ProjectDTO{
 		Name:        name,
 		Description: description,
-		APIKey:      uuid.NewString(),
 	}
 
 	var id domain.ProjectID
@@ -144,4 +144,21 @@ func (s *ProjectService) ListChanges(
 	}
 
 	return result, nil
+}
+
+func (s *ProjectService) GetAPIKeyForEnvironment(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	environmentID domain.EnvironmentID,
+) (string, error) {
+	env, err := s.envRepo.GetByID(ctx, environmentID)
+	if err != nil {
+		return "", fmt.Errorf("get environment: %w", err)
+	}
+
+	if env.ProjectID != projectID {
+		return "", fmt.Errorf("environment does not belong to project")
+	}
+
+	return env.APIKey, nil
 }

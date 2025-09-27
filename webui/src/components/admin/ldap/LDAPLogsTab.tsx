@@ -25,6 +25,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../../../api/apiClient';
+import type { GetLDAPSyncLogsLevelEnum } from '../../../generated/api/client';
 import { Visibility as VisibilityIcon } from '@mui/icons-material';
 
 const LDAPLogsTab: React.FC = () => {
@@ -54,7 +55,7 @@ const LDAPLogsTab: React.FC = () => {
       try {
         const response = await apiClient.getLDAPSyncLogs(
           filters.limit,
-          filters.level ? filters.level as any : undefined,
+          filters.level ? filters.level as GetLDAPSyncLogsLevelEnum : undefined,
           filters.syncId || undefined,
           filters.username || undefined,
           filters.from || undefined,
@@ -73,7 +74,7 @@ const LDAPLogsTab: React.FC = () => {
   });
 
   const handleFilterChange = (field: keyof typeof filters) => (
-    event: React.ChangeEvent<HTMLInputElement> | { target: { value: any } }
+    event: React.ChangeEvent<HTMLInputElement> | { target: { value: string | number } }
   ) => {
     const value = event.target.value;
     setFilters(prev => ({

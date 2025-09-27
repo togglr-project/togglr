@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import type {LoginRequest, RefreshTokenRequest, ChangeUserPasswordRequest} from '../generated/api/client';
 import type { User } from '../generated/api/client';
@@ -45,6 +45,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [is2FABlocked, setIs2FABlocked] = useState(false);
   const handleSSOCallbackRef = useRef<Promise<void> | null>(null);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    setIsAuthenticated(false);
+    setUser(null);
+    setHasTmpPassword(false);
+  }, []);
+
+  const refreshToken = useCallback(async () => {
+    const currentRefreshToken = localStorage.getItem('refreshToken');
+    if (!currentRefreshToken) {
+      setIsAuthenticated(false);
+      setUser(null);
+      return;
+    }
+
+    try {
+      const refreshRequest: RefreshTokenRequest = {
+        refresh_token: currentRefreshToken
+      };
+
+      const response = await apiClient.refreshToken(refreshRequest);
+
+      localStorage.setItem('accessToken', response.data.access_token);
+      localStorage.setItem('refreshToken', response.data.refresh_token);
+
+      setIsAuthenticated(true);
+
+      // Fetch user data
+      try {
+        const userData = await apiClient.getCurrentUser();
+        setUser(userData.data);
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+      }
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      // If refresh fails, log the user out
+      logout();
+    }
+  }, [logout]);
+
   // Check if token exists and is valid on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -80,7 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     checkAuth();
-  }, []);
+  }, [refreshToken]);
 
   const login = async (username: string, password: string) => {
     setIsLoading(true);
@@ -156,40 +198,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const refreshToken = async () => {
-    const currentRefreshToken = localStorage.getItem('refreshToken');
-    if (!currentRefreshToken) {
-      setIsAuthenticated(false);
-      setUser(null);
-      return;
-    }
-
-    try {
-      const refreshRequest: RefreshTokenRequest = {
-        refresh_token: currentRefreshToken
-      };
-
-      const response = await apiClient.refreshToken(refreshRequest);
-
-      localStorage.setItem('accessToken', response.data.access_token);
-      localStorage.setItem('refreshToken', response.data.refresh_token);
-
-      setIsAuthenticated(true);
-
-      // Fetch user data
-      try {
-        const userData = await apiClient.getCurrentUser();
-        setUser(userData.data);
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-      }
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      // If refresh fails, log the user out
-      logout();
-    }
-  };
-
   const loginWithTokens = async (accessToken: string, refreshToken: string) => {
     setIsLoading(true);
     setError(null);
@@ -215,14 +223,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
-    setUser(null);
-    setHasTmpPassword(false);
   };
 
   const changePassword = async (oldPassword: string, newPassword: string) => {

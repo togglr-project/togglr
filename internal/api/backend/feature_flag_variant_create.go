@@ -15,9 +15,9 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 	params generatedapi.CreateFeatureFlagVariantParams,
 ) (generatedapi.CreateFeatureFlagVariantRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
+	environmentKey := params.EnvironmentKey
 
-	// Ensure feature exists and get its project
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

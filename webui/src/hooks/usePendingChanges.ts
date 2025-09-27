@@ -12,17 +12,18 @@ import type {
 export const pendingChangesKeys = {
   all: ['pendingChanges'] as const,
   lists: () => [...pendingChangesKeys.all, 'list'] as const,
-  list: (projectId: string, status?: string) => [...pendingChangesKeys.lists(), { projectId, status }] as const,
+  list: (projectId: string, status?: string, environmentId?: number) => [...pendingChangesKeys.lists(), { projectId, status, environmentId }] as const,
   details: () => [...pendingChangesKeys.all, 'detail'] as const,
   detail: (id: string) => [...pendingChangesKeys.details(), id] as const,
 };
 
 // Hook for listing pending changes
-export const usePendingChanges = (projectId: string, status?: string) => {
+export const usePendingChanges = (projectId: string, status?: string, environmentId?: number) => {
   return useQuery({
-    queryKey: pendingChangesKeys.list(projectId, status),
+    queryKey: pendingChangesKeys.list(projectId, status, environmentId),
     queryFn: async (): Promise<PendingChangesListResponse> => {
       const response = await apiClient.listPendingChanges(
+        environmentId,
         projectId,
         status as any, // Cast to the correct enum type
         undefined, // userId
@@ -124,9 +125,10 @@ export const useCancelPendingChange = () => {
 // Hook for getting pending changes count (for menu indicator)
 export const usePendingChangesCount = (projectId: string) => {
   return useQuery({
-    queryKey: [...pendingChangesKeys.list(projectId, 'pending'), 'count'],
+    queryKey: [...pendingChangesKeys.list(projectId, 'pending', undefined), 'count'],
     queryFn: async (): Promise<number> => {
       const response = await apiClient.listPendingChanges(
+        undefined, // environmentId (count across all environments)
         projectId,
         'pending' as any, // Cast to the correct enum type
         undefined, // userId

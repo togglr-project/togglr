@@ -1889,6 +1889,119 @@ func (s *CreateCategoryRequestKind) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *CreateEnvironmentRequest) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CreateEnvironmentRequest) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("key")
+		e.Str(s.Key)
+	}
+	{
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+}
+
+var jsonFieldsNameOfCreateEnvironmentRequest = [2]string{
+	0: "key",
+	1: "name",
+}
+
+// Decode decodes CreateEnvironmentRequest from json.
+func (s *CreateEnvironmentRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CreateEnvironmentRequest to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "key":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Key = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CreateEnvironmentRequest")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000011,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfCreateEnvironmentRequest) {
+					name = jsonFieldsNameOfCreateEnvironmentRequest[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CreateEnvironmentRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CreateEnvironmentRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *CreateFeatureRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -1916,14 +2029,16 @@ func (s *CreateFeatureRequest) encodeFields(e *jx.Encoder) {
 		s.Kind.Encode(e)
 	}
 	{
-		e.FieldStart("default_variant")
-		e.Str(s.DefaultVariant)
+		e.FieldStart("environment_key")
+		e.Str(s.EnvironmentKey)
 	}
 	{
-		if s.Enabled.Set {
-			e.FieldStart("enabled")
-			s.Enabled.Encode(e)
-		}
+		e.FieldStart("default_value")
+		e.Str(s.DefaultValue)
+	}
+	{
+		e.FieldStart("enabled")
+		e.Bool(s.Enabled)
 	}
 	{
 		if s.RolloutKey.Set {
@@ -1953,16 +2068,17 @@ func (s *CreateFeatureRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCreateFeatureRequest = [9]string{
+var jsonFieldsNameOfCreateFeatureRequest = [10]string{
 	0: "key",
 	1: "name",
 	2: "description",
 	3: "kind",
-	4: "default_variant",
-	5: "enabled",
-	6: "rollout_key",
-	7: "variants",
-	8: "rules",
+	4: "environment_key",
+	5: "default_value",
+	6: "enabled",
+	7: "rollout_key",
+	8: "variants",
+	9: "rules",
 }
 
 // Decode decodes CreateFeatureRequest from json.
@@ -2018,22 +2134,36 @@ func (s *CreateFeatureRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"kind\"")
 			}
-		case "default_variant":
+		case "environment_key":
 			requiredBitSet[0] |= 1 << 4
 			if err := func() error {
 				v, err := d.Str()
-				s.DefaultVariant = string(v)
+				s.EnvironmentKey = string(v)
 				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"default_variant\"")
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "default_value":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := d.Str()
+				s.DefaultValue = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"default_value\"")
 			}
 		case "enabled":
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
-				s.Enabled.Reset()
-				if err := s.Enabled.Decode(d); err != nil {
+				v, err := d.Bool()
+				s.Enabled = bool(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -2094,7 +2224,7 @@ func (s *CreateFeatureRequest) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b00011011,
+		0b01111011,
 		0b00000000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
@@ -2342,12 +2472,17 @@ func (s *CreateFlagVariantInline) encodeFields(e *jx.Encoder) {
 		e.FieldStart("rollout_percent")
 		e.Int(s.RolloutPercent)
 	}
+	{
+		e.FieldStart("environment_key")
+		e.Str(s.EnvironmentKey)
+	}
 }
 
-var jsonFieldsNameOfCreateFlagVariantInline = [3]string{
+var jsonFieldsNameOfCreateFlagVariantInline = [4]string{
 	0: "id",
 	1: "name",
 	2: "rollout_percent",
+	3: "environment_key",
 }
 
 // Decode decodes CreateFlagVariantInline from json.
@@ -2395,6 +2530,18 @@ func (s *CreateFlagVariantInline) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"rollout_percent\"")
 			}
+		case "environment_key":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.EnvironmentKey = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -2405,7 +2552,7 @@ func (s *CreateFlagVariantInline) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00000111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -3039,9 +3186,13 @@ func (s *CreateRuleInline) encodeFields(e *jx.Encoder) {
 			s.Priority.Encode(e)
 		}
 	}
+	{
+		e.FieldStart("environment_key")
+		e.Str(s.EnvironmentKey)
+	}
 }
 
-var jsonFieldsNameOfCreateRuleInline = [7]string{
+var jsonFieldsNameOfCreateRuleInline = [8]string{
 	0: "id",
 	1: "conditions",
 	2: "segment_id",
@@ -3049,6 +3200,7 @@ var jsonFieldsNameOfCreateRuleInline = [7]string{
 	4: "action",
 	5: "flag_variant_id",
 	6: "priority",
+	7: "environment_key",
 }
 
 // Decode decodes CreateRuleInline from json.
@@ -3134,6 +3286,18 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"priority\"")
 			}
+		case "environment_key":
+			requiredBitSet[0] |= 1 << 7
+			if err := func() error {
+				v, err := d.Str()
+				s.EnvironmentKey = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -3144,7 +3308,7 @@ func (s *CreateRuleInline) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011011,
+		0b10011011,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -4055,6 +4219,250 @@ func (s EntityType) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *EntityType) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *Environment) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *Environment) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("id")
+		e.Int64(s.ID)
+	}
+	{
+		e.FieldStart("project_id")
+		json.EncodeUUID(e, s.ProjectID)
+	}
+	{
+		e.FieldStart("key")
+		e.Str(s.Key)
+	}
+	{
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+	{
+		e.FieldStart("api_key")
+		json.EncodeUUID(e, s.APIKey)
+	}
+	{
+		e.FieldStart("created_at")
+		json.EncodeDateTime(e, s.CreatedAt)
+	}
+}
+
+var jsonFieldsNameOfEnvironment = [6]string{
+	0: "id",
+	1: "project_id",
+	2: "key",
+	3: "name",
+	4: "api_key",
+	5: "created_at",
+}
+
+// Decode decodes Environment from json.
+func (s *Environment) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode Environment to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Int64()
+				s.ID = int64(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"id\"")
+			}
+		case "project_id":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.ProjectID = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "key":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.Key = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"key\"")
+			}
+		case "name":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		case "api_key":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				v, err := json.DecodeUUID(d)
+				s.APIKey = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"api_key\"")
+			}
+		case "created_at":
+			requiredBitSet[0] |= 1 << 5
+			if err := func() error {
+				v, err := json.DecodeDateTime(d)
+				s.CreatedAt = v
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_at\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode Environment")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00111111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfEnvironment) {
+					name = jsonFieldsNameOfEnvironment[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *Environment) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *Environment) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *EnvironmentResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *EnvironmentResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Environment.Set {
+			e.FieldStart("environment")
+			s.Environment.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfEnvironmentResponse = [1]string{
+	0: "environment",
+}
+
+// Decode decodes EnvironmentResponse from json.
+func (s *EnvironmentResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode EnvironmentResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "environment":
+			if err := func() error {
+				s.Environment.Reset()
+				if err := s.Environment.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode EnvironmentResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *EnvironmentResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *EnvironmentResponse) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -5749,18 +6157,18 @@ func (s *Feature) encodeFields(e *jx.Encoder) {
 		s.Kind.Encode(e)
 	}
 	{
-		e.FieldStart("default_variant")
-		e.Str(s.DefaultVariant)
+		if s.RolloutKey.Set {
+			e.FieldStart("rollout_key")
+			s.RolloutKey.Encode(e)
+		}
 	}
 	{
 		e.FieldStart("enabled")
 		e.Bool(s.Enabled)
 	}
 	{
-		if s.RolloutKey.Set {
-			e.FieldStart("rollout_key")
-			s.RolloutKey.Encode(e)
-		}
+		e.FieldStart("default_value")
+		e.Str(s.DefaultValue)
 	}
 	{
 		e.FieldStart("created_at")
@@ -5779,9 +6187,9 @@ var jsonFieldsNameOfFeature = [11]string{
 	3:  "name",
 	4:  "description",
 	5:  "kind",
-	6:  "default_variant",
+	6:  "rollout_key",
 	7:  "enabled",
-	8:  "rollout_key",
+	8:  "default_value",
 	9:  "created_at",
 	10: "updated_at",
 }
@@ -5863,17 +6271,15 @@ func (s *Feature) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"kind\"")
 			}
-		case "default_variant":
-			requiredBitSet[0] |= 1 << 6
+		case "rollout_key":
 			if err := func() error {
-				v, err := d.Str()
-				s.DefaultVariant = string(v)
-				if err != nil {
+				s.RolloutKey.Reset()
+				if err := s.RolloutKey.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"default_variant\"")
+				return errors.Wrap(err, "decode field \"rollout_key\"")
 			}
 		case "enabled":
 			requiredBitSet[0] |= 1 << 7
@@ -5887,15 +6293,17 @@ func (s *Feature) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"enabled\"")
 			}
-		case "rollout_key":
+		case "default_value":
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
-				s.RolloutKey.Reset()
-				if err := s.RolloutKey.Decode(d); err != nil {
+				v, err := d.Str()
+				s.DefaultValue = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"rollout_key\"")
+				return errors.Wrap(err, "decode field \"default_value\"")
 			}
 		case "created_at":
 			requiredBitSet[1] |= 1 << 1
@@ -5931,8 +6339,8 @@ func (s *Feature) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b11101111,
-		0b00000110,
+		0b10101111,
+		0b00000111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -6189,18 +6597,18 @@ func (s *FeatureExtended) encodeFields(e *jx.Encoder) {
 		s.Kind.Encode(e)
 	}
 	{
-		e.FieldStart("default_variant")
-		e.Str(s.DefaultVariant)
+		if s.RolloutKey.Set {
+			e.FieldStart("rollout_key")
+			s.RolloutKey.Encode(e)
+		}
 	}
 	{
 		e.FieldStart("enabled")
 		e.Bool(s.Enabled)
 	}
 	{
-		if s.RolloutKey.Set {
-			e.FieldStart("rollout_key")
-			s.RolloutKey.Encode(e)
-		}
+		e.FieldStart("default_value")
+		e.Str(s.DefaultValue)
 	}
 	{
 		e.FieldStart("created_at")
@@ -6245,9 +6653,9 @@ var jsonFieldsNameOfFeatureExtended = [15]string{
 	3:  "name",
 	4:  "description",
 	5:  "kind",
-	6:  "default_variant",
+	6:  "rollout_key",
 	7:  "enabled",
-	8:  "rollout_key",
+	8:  "default_value",
 	9:  "created_at",
 	10: "updated_at",
 	11: "is_active",
@@ -6333,17 +6741,15 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"kind\"")
 			}
-		case "default_variant":
-			requiredBitSet[0] |= 1 << 6
+		case "rollout_key":
 			if err := func() error {
-				v, err := d.Str()
-				s.DefaultVariant = string(v)
-				if err != nil {
+				s.RolloutKey.Reset()
+				if err := s.RolloutKey.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"default_variant\"")
+				return errors.Wrap(err, "decode field \"rollout_key\"")
 			}
 		case "enabled":
 			requiredBitSet[0] |= 1 << 7
@@ -6357,15 +6763,17 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"enabled\"")
 			}
-		case "rollout_key":
+		case "default_value":
+			requiredBitSet[1] |= 1 << 0
 			if err := func() error {
-				s.RolloutKey.Reset()
-				if err := s.RolloutKey.Decode(d); err != nil {
+				v, err := d.Str()
+				s.DefaultValue = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"rollout_key\"")
+				return errors.Wrap(err, "decode field \"default_value\"")
 			}
 		case "created_at":
 			requiredBitSet[1] |= 1 << 1
@@ -6450,8 +6858,8 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b11101111,
-		0b00001110,
+		0b10101111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -10583,6 +10991,97 @@ func (s *ListChangesResponse) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *ListEnvironmentsResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *ListEnvironmentsResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Items != nil {
+			e.FieldStart("items")
+			e.ArrStart()
+			for _, elem := range s.Items {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.Pagination.Set {
+			e.FieldStart("pagination")
+			s.Pagination.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfListEnvironmentsResponse = [2]string{
+	0: "items",
+	1: "pagination",
+}
+
+// Decode decodes ListEnvironmentsResponse from json.
+func (s *ListEnvironmentsResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ListEnvironmentsResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "items":
+			if err := func() error {
+				s.Items = make([]Environment, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem Environment
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Items = append(s.Items, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"items\"")
+			}
+		case "pagination":
+			if err := func() error {
+				s.Pagination.Reset()
+				if err := s.Pagination.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pagination\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode ListEnvironmentsResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ListEnvironmentsResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ListEnvironmentsResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes ListFeatureIDsResponse as json.
 func (s ListFeatureIDsResponse) Encode(e *jx.Encoder) {
 	unwrapped := []string(s)
@@ -11758,6 +12257,39 @@ func (s *OptDateTime) UnmarshalJSON(data []byte) error {
 	return s.Decode(d, json.DecodeDateTime)
 }
 
+// Encode encodes Environment as json.
+func (o OptEnvironment) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes Environment from json.
+func (o *OptEnvironment) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptEnvironment to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptEnvironment) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptEnvironment) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes float32 as json.
 func (o OptFloat32) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -12899,6 +13431,10 @@ func (s *PendingChangeResponse) encodeFields(e *jx.Encoder) {
 		json.EncodeUUID(e, s.ID)
 	}
 	{
+		e.FieldStart("environment_key")
+		e.Str(s.EnvironmentKey)
+	}
+	{
 		e.FieldStart("project_id")
 		json.EncodeUUID(e, s.ProjectID)
 	}
@@ -12962,20 +13498,21 @@ func (s *PendingChangeResponse) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPendingChangeResponse = [13]string{
+var jsonFieldsNameOfPendingChangeResponse = [14]string{
 	0:  "id",
-	1:  "project_id",
-	2:  "requested_by",
-	3:  "request_user_id",
-	4:  "change",
-	5:  "status",
-	6:  "created_at",
-	7:  "approved_by",
-	8:  "approved_user_id",
-	9:  "approved_at",
-	10: "rejected_by",
-	11: "rejected_at",
-	12: "rejection_reason",
+	1:  "environment_key",
+	2:  "project_id",
+	3:  "requested_by",
+	4:  "request_user_id",
+	5:  "change",
+	6:  "status",
+	7:  "created_at",
+	8:  "approved_by",
+	9:  "approved_user_id",
+	10: "approved_at",
+	11: "rejected_by",
+	12: "rejected_at",
+	13: "rejection_reason",
 }
 
 // Decode decodes PendingChangeResponse from json.
@@ -12999,8 +13536,20 @@ func (s *PendingChangeResponse) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"id\"")
 			}
-		case "project_id":
+		case "environment_key":
 			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Str()
+				s.EnvironmentKey = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "project_id":
+			requiredBitSet[0] |= 1 << 2
 			if err := func() error {
 				v, err := json.DecodeUUID(d)
 				s.ProjectID = v
@@ -13012,7 +13561,7 @@ func (s *PendingChangeResponse) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"project_id\"")
 			}
 		case "requested_by":
-			requiredBitSet[0] |= 1 << 2
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := d.Str()
 				s.RequestedBy = string(v)
@@ -13034,7 +13583,7 @@ func (s *PendingChangeResponse) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"request_user_id\"")
 			}
 		case "change":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 5
 			if err := func() error {
 				if err := s.Change.Decode(d); err != nil {
 					return err
@@ -13044,7 +13593,7 @@ func (s *PendingChangeResponse) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"change\"")
 			}
 		case "status":
-			requiredBitSet[0] |= 1 << 5
+			requiredBitSet[0] |= 1 << 6
 			if err := func() error {
 				if err := s.Status.Decode(d); err != nil {
 					return err
@@ -13054,7 +13603,7 @@ func (s *PendingChangeResponse) Decode(d *jx.Decoder) error {
 				return errors.Wrap(err, "decode field \"status\"")
 			}
 		case "created_at":
-			requiredBitSet[0] |= 1 << 6
+			requiredBitSet[0] |= 1 << 7
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -13135,7 +13684,7 @@ func (s *PendingChangeResponse) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
-		0b01110111,
+		0b11101111,
 		0b00000000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
@@ -13482,21 +14031,16 @@ func (s *Project) encodeFields(e *jx.Encoder) {
 		e.Str(s.Description)
 	}
 	{
-		e.FieldStart("api_key")
-		e.Str(s.APIKey)
-	}
-	{
 		e.FieldStart("created_at")
 		json.EncodeDateTime(e, s.CreatedAt)
 	}
 }
 
-var jsonFieldsNameOfProject = [5]string{
+var jsonFieldsNameOfProject = [4]string{
 	0: "id",
 	1: "name",
 	2: "description",
-	3: "api_key",
-	4: "created_at",
+	3: "created_at",
 }
 
 // Decode decodes Project from json.
@@ -13544,20 +14088,8 @@ func (s *Project) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"description\"")
 			}
-		case "api_key":
-			requiredBitSet[0] |= 1 << 3
-			if err := func() error {
-				v, err := d.Str()
-				s.APIKey = string(v)
-				if err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"api_key\"")
-			}
 		case "created_at":
-			requiredBitSet[0] |= 1 << 4
+			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
 				v, err := json.DecodeDateTime(d)
 				s.CreatedAt = v
@@ -13578,7 +14110,7 @@ func (s *Project) Decode(d *jx.Decoder) error {
 	// Validate required fields.
 	var failures []validate.FieldError
 	for i, mask := range [1]uint8{
-		0b00011111,
+		0b00001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.
@@ -17942,6 +18474,102 @@ func (s *UpdateCategoryRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateCategoryRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *UpdateEnvironmentRequest) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *UpdateEnvironmentRequest) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("name")
+		e.Str(s.Name)
+	}
+}
+
+var jsonFieldsNameOfUpdateEnvironmentRequest = [1]string{
+	0: "name",
+}
+
+// Decode decodes UpdateEnvironmentRequest from json.
+func (s *UpdateEnvironmentRequest) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode UpdateEnvironmentRequest to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "name":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.Name = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"name\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode UpdateEnvironmentRequest")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00000001,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfUpdateEnvironmentRequest) {
+					name = jsonFieldsNameOfUpdateEnvironmentRequest[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *UpdateEnvironmentRequest) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *UpdateEnvironmentRequest) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

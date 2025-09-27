@@ -8,7 +8,6 @@ Name | Type | Description | Notes
 **id** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
 **description** | **string** |  | [default to undefined]
-**api_key** | **string** | API key for SDK access | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 
 ## Example
@@ -20,7 +19,6 @@ const instance: Project = {
     id,
     name,
     description,
-    api_key,
     created_at,
 };
 ```

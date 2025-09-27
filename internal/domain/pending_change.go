@@ -61,6 +61,7 @@ type PendingChange struct {
 	RejectedBy      *string
 	RejectedAt      *time.Time
 	RejectionReason *string
+	EnvironmentID   EnvironmentID
 }
 
 type PendingChangeEntity struct {

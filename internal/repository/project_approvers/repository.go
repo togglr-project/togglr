@@ -67,7 +67,7 @@ func (r *Repository) GetByProjectID(ctx context.Context, projectID domain.Projec
 	const query = `
 SELECT project_id, user_id, role, created_at
 FROM project_approvers
-WHERE project_id = $1
+WHERE project_id = $1::uuid
 ORDER BY created_at`
 
 	rows, err := executor.Query(ctx, query, projectID)
@@ -103,7 +103,7 @@ func (r *Repository) Delete(ctx context.Context, projectID domain.ProjectID, use
 
 	const query = `
 DELETE FROM project_approvers
-WHERE project_id = $1 AND user_id = $2`
+WHERE project_id = $1::uuid AND user_id = $2`
 
 	_, err := executor.Exec(ctx, query, projectID, userID)
 	if err != nil {
@@ -119,7 +119,7 @@ func (r *Repository) IsUserApprover(ctx context.Context, projectID domain.Projec
 
 	const query = `
 SELECT 1 FROM project_approvers
-WHERE project_id = $1 AND user_id = $2`
+WHERE project_id = $1::uuid AND user_id = $2`
 
 	var exists int
 

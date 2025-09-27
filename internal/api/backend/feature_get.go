@@ -18,8 +18,7 @@ func (r *RestAPI) GetFeature(
 ) (generatedapi.GetFeatureRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
-	// Load feature and check access to its project
-	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID, params.EnvironmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

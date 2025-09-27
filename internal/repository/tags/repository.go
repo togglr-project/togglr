@@ -66,7 +66,7 @@ func (r *Repository) GetByProjectAndSlug(
 		       c.created_at as cat_created_at, c.updated_at as cat_updated_at
 		FROM tags t
 		LEFT JOIN categories c ON t.category_id = c.id
-		WHERE t.project_id = $1 AND t.slug = $2
+		WHERE t.project_id = $1::uuid AND t.slug = $2
 	`
 
 	rows, err := executor.Query(ctx, query, projectID, slug)
@@ -100,7 +100,7 @@ func (r *Repository) ListByProject(
 		       c.created_at as cat_created_at, c.updated_at as cat_updated_at
 		FROM tags t
 		LEFT JOIN categories c ON t.category_id = c.id
-		WHERE t.project_id = $1
+		WHERE t.project_id = $1::uuid
 	`
 	args := []interface{}{projectID}
 

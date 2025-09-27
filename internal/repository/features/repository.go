@@ -29,15 +29,19 @@ func New(pool *pgxpool.Pool) *Repository {
 // Create inserts a new feature and returns the created entity.
 //
 
-func (r *Repository) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
+func (r *Repository) Create(
+	ctx context.Context,
+	envID domain.EnvironmentID,
+	feature domain.BasicFeature,
+) (domain.BasicFeature, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
-INSERT INTO features (project_id, key, name, description, kind, default_variant, enabled, rollout_key)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, project_id, key, name, description, kind, default_variant, enabled, rollout_key, created_at, updated_at`
+INSERT INTO features (project_id, key, name, description, kind, rollout_key)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, project_id, key, name, description, kind, rollout_key, created_at, updated_at`
 
-	var model featureModel
+	var model baseFeatureModel
 
 	var desc any
 	if feature.Description != "" {
@@ -57,8 +61,6 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		feature.Name,
 		desc,
 		feature.Kind,
-		feature.DefaultVariant,
-		feature.Enabled,
 		rolloutKey,
 	).Scan(
 		&model.ID,
@@ -67,14 +69,12 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		&model.Name,
 		&model.Description,
 		&model.Kind,
-		&model.DefaultVariant,
-		&model.Enabled,
 		&model.RolloutKey,
 		&model.CreatedAt,
 		&model.UpdatedAt,
 	)
 	if err != nil {
-		return domain.Feature{}, fmt.Errorf("insert feature: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("insert feature: %w", err)
 	}
 
 	newFeature := model.toDomain()
@@ -88,30 +88,54 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		domain.AuditActionCreate,
 		nil,
 		newFeature,
+		envID,
 	); err != nil {
-		return domain.Feature{}, fmt.Errorf("audit feature create: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("audit feature create: %w", err)
 	}
 
 	return newFeature, nil
 }
 
-func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {
+func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM features WHERE id = $1 LIMIT 1`
-
-	rows, err := executor.Query(ctx, query, id)
+	// Get basic feature info first
+	const basicQuery = `SELECT * FROM features WHERE id = $1 LIMIT 1`
+	rows, err := executor.Query(ctx, basicQuery, id)
 	if err != nil {
-		return domain.Feature{}, fmt.Errorf("query feature by id: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("query feature by id: %w", err)
 	}
 	defer rows.Close()
 
-	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureModel])
+	basicModel, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[baseFeatureModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.BasicFeature{}, domain.ErrEntityNotFound
+		}
+		return domain.BasicFeature{}, fmt.Errorf("collect feature row: %w", err)
+	}
+
+	// Return basic feature without environment-specific data
+	// This is used for audit logs where we don't need enabled/default_value
+	return basicModel.toDomain(), nil
+}
+
+func (r *Repository) GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM v_features_full WHERE id = $1 AND environment_key = $2 LIMIT 1`
+
+	rows, err := executor.Query(ctx, query, id, environmentKey)
+	if err != nil {
+		return domain.Feature{}, fmt.Errorf("query feature by id with environment: %w", err)
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Feature{}, domain.ErrEntityNotFound
 		}
-
 		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
 	}
 
@@ -121,7 +145,14 @@ func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.F
 func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM features WHERE key = $1 LIMIT 1`
+	// Prefer a deterministic environment row when fetching by key without explicit environment.
+	// We choose prod if present, otherwise the first by environment_key order.
+	const query = `
+SELECT *
+FROM v_features_full
+WHERE key = $1
+ORDER BY (environment_key = 'prod') DESC, environment_key
+LIMIT 1`
 
 	rows, err := executor.Query(ctx, query, key)
 	if err != nil {
@@ -129,7 +160,7 @@ func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, 
 	}
 	defer rows.Close()
 
-	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureModel])
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Feature{}, domain.ErrEntityNotFound
@@ -141,18 +172,40 @@ func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, 
 	return model.toDomain(), nil
 }
 
-func (r *Repository) List(ctx context.Context) ([]domain.Feature, error) {
+func (r *Repository) GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM features ORDER BY created_at DESC`
+	const query = `SELECT * FROM v_features_full WHERE key = $1 AND environment_key = $2 LIMIT 1`
 
-	rows, err := executor.Query(ctx, query)
+	rows, err := executor.Query(ctx, query, key, environmentKey)
+	if err != nil {
+		return domain.Feature{}, fmt.Errorf("query feature by key with environment: %w", err)
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Feature{}, domain.ErrEntityNotFound
+		}
+		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
+	}
+
+	return model.toDomain(), nil
+}
+
+func (r *Repository) List(ctx context.Context, environmentKey string) ([]domain.Feature, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM v_features_full WHERE environment_key = $1 ORDER BY created_at DESC`
+
+	rows, err := executor.Query(ctx, query, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("query features: %w", err)
 	}
 	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		return nil, fmt.Errorf("collect feature rows: %w", err)
 	}
@@ -165,18 +218,18 @@ func (r *Repository) List(ctx context.Context) ([]domain.Feature, error) {
 	return features, nil
 }
 
-func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error) {
+func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM features WHERE project_id = $1 ORDER BY created_at DESC`
+	const query = `SELECT * FROM v_features_full WHERE project_id = $1::uuid AND environment_key = $2 ORDER BY created_at DESC`
 
-	rows, err := executor.Query(ctx, query, projectID)
+	rows, err := executor.Query(ctx, query, projectID, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("query features by project_id: %w", err)
 	}
 	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		return nil, fmt.Errorf("collect feature rows: %w", err)
 	}
@@ -193,21 +246,38 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 func (r *Repository) ListByProjectIDFiltered(
 	ctx context.Context,
 	projectID domain.ProjectID,
+	environmentKey string,
 	filter contract.FeaturesListFilter,
 ) ([]domain.Feature, int, error) {
 	executor := r.getExecutor(ctx)
 
-	builder := sq.Select("*").From("features").Where(sq.Eq{"project_id": projectID})
-	countBuilder := sq.Select("COUNT(*)").From("features").Where(sq.Eq{"project_id": projectID})
+	builder := sq.Select("*").
+		From("v_features_full vf").
+		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": environmentKey})
+
+	countBuilder := sq.Select("COUNT(*)").
+		From("v_features_full vf").
+		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": environmentKey})
 
 	if filter.Kind != nil {
-		builder = builder.Where(sq.Eq{"kind": *filter.Kind})
-		countBuilder = countBuilder.Where(sq.Eq{"kind": *filter.Kind})
+		builder = builder.Where(sq.Eq{"vf.kind": *filter.Kind})
+		countBuilder = countBuilder.Where(sq.Eq{"vf.kind": *filter.Kind})
 	}
 
 	if filter.Enabled != nil {
-		builder = builder.Where(sq.Eq{"enabled": *filter.Enabled})
-		countBuilder = countBuilder.Where(sq.Eq{"enabled": *filter.Enabled})
+		if *filter.Enabled {
+			builder = builder.Where(sq.Eq{"vf.enabled": true})
+			countBuilder = countBuilder.Where(sq.Eq{"vf.enabled": true})
+		} else {
+			builder = builder.Where(sq.Or{
+				sq.Eq{"vf.enabled": false},
+				sq.Eq{"vf.enabled": nil},
+			})
+			countBuilder = countBuilder.Where(sq.Or{
+				sq.Eq{"vf.enabled": false},
+				sq.Eq{"vf.enabled": nil},
+			})
+		}
 	}
 
 	if filter.TextSelector != nil && *filter.TextSelector != "" {
@@ -227,8 +297,8 @@ func (r *Repository) ListByProjectIDFiltered(
 		subquery := sq.Select("DISTINCT feature_id").From("feature_tags").Where(sq.Eq{"tag_id": filter.TagIDs})
 		subquerySQL, subqueryArgs, _ := subquery.PlaceholderFormat(sq.Question).ToSql()
 
-		builder = builder.Where(sq.Expr("features.id IN ("+subquerySQL+")", subqueryArgs...))
-		countBuilder = countBuilder.Where(sq.Expr("features.id IN ("+subquerySQL+")", subqueryArgs...))
+		builder = builder.Where(sq.Expr("vf.id IN ("+subquerySQL+")", subqueryArgs...))
+		countBuilder = countBuilder.Where(sq.Expr("vf.id IN ("+subquerySQL+")", subqueryArgs...))
 	}
 
 	// Sorting with whitelist
@@ -274,7 +344,7 @@ func (r *Repository) ListByProjectIDFiltered(
 
 	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		return nil, 0, fmt.Errorf("collect features rows: %w", err)
 	}
@@ -301,26 +371,30 @@ func (r *Repository) ListByProjectIDFiltered(
 // Update updates existing feature by ID and returns updated entity.
 //
 //nolint:lll // long query string is acceptable
-func (r *Repository) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
+func (r *Repository) Update(
+	ctx context.Context,
+	envID domain.EnvironmentID,
+	feature domain.BasicFeature,
+) (domain.BasicFeature, error) {
 	executor := r.getExecutor(ctx)
 
 	// Read old state for audit purposes within the same transaction.
 	oldFeature, err := r.GetByID(ctx, feature.ID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
-			return domain.Feature{}, err
+			return domain.BasicFeature{}, err
 		}
 
-		return domain.Feature{}, fmt.Errorf("get feature before update: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("get feature before update: %w", err)
 	}
 
 	const query = `
 UPDATE features
-SET project_id = $1, key = $2, name = $3, description = $4, kind = $5, default_variant = $6, enabled = $7, rollout_key = $8, updated_at = now()
-WHERE id = $9
-RETURNING id, project_id, key, name, description, kind, default_variant, enabled, rollout_key, created_at, updated_at`
+SET project_id = $1::uuid, key = $2, name = $3, description = $4, kind = $5, rollout_key = $6, updated_at = now()
+WHERE id = $7
+RETURNING id, project_id, key, name, description, kind, rollout_key, created_at, updated_at`
 
-	var model featureModel
+	var model baseFeatureModel
 
 	var desc any
 	if feature.Description != "" {
@@ -340,8 +414,6 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		feature.Name,
 		desc,
 		feature.Kind,
-		feature.DefaultVariant,
-		feature.Enabled,
 		rolloutKey,
 		feature.ID,
 	).Scan(
@@ -351,18 +423,16 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		&model.Name,
 		&model.Description,
 		&model.Kind,
-		&model.DefaultVariant,
-		&model.Enabled,
 		&model.RolloutKey,
 		&model.CreatedAt,
 		&model.UpdatedAt,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Feature{}, domain.ErrEntityNotFound
+			return domain.BasicFeature{}, domain.ErrEntityNotFound
 		}
 
-		return domain.Feature{}, fmt.Errorf("update feature: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("update feature: %w", err)
 	}
 
 	newFeature := model.toDomain()
@@ -376,14 +446,15 @@ RETURNING id, project_id, key, name, description, kind, default_variant, enabled
 		domain.AuditActionUpdate,
 		oldFeature,
 		newFeature,
+		envID,
 	); err != nil {
-		return domain.Feature{}, fmt.Errorf("audit feature update: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("audit feature update: %w", err)
 	}
 
 	return newFeature, nil
 }
 
-func (r *Repository) Delete(ctx context.Context, id domain.FeatureID) error {
+func (r *Repository) Delete(ctx context.Context, envID domain.EnvironmentID, id domain.FeatureID) error {
 	executor := r.getExecutor(ctx)
 
 	// Read old state and write audit log before deletion. Note: due to FK cascade, this audit row
@@ -403,6 +474,7 @@ func (r *Repository) Delete(ctx context.Context, id domain.FeatureID) error {
 		domain.AuditActionDelete,
 		oldFeature,
 		nil,
+		envID,
 	); err != nil {
 		return fmt.Errorf("audit feature delete: %w", err)
 	}

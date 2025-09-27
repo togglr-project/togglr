@@ -12,17 +12,18 @@ const (
 )
 
 type FeatureSchedule struct {
-	ID           FeatureScheduleID
-	ProjectID    ProjectID
-	FeatureID    FeatureID
-	StartsAt     *time.Time
-	EndsAt       *time.Time
-	CronExpr     *string
-	CronDuration *time.Duration
-	Timezone     string
-	Action       FeatureScheduleAction
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
+	ID            FeatureScheduleID
+	ProjectID     ProjectID
+	FeatureID     FeatureID
+	EnvironmentID EnvironmentID
+	StartsAt      *time.Time
+	EndsAt        *time.Time
+	CronExpr      *string
+	CronDuration  *time.Duration
+	Timezone      string
+	Action        FeatureScheduleAction
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 func (id FeatureScheduleID) String() string { return string(id) }

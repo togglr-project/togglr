@@ -21,6 +21,11 @@ type RulesRepository interface {
 	GetByID(ctx context.Context, id domain.RuleID) (domain.Rule, error)
 	List(ctx context.Context) ([]domain.Rule, error)
 	ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.Rule, error)
+	ListByFeatureIDWithEnvID(
+		ctx context.Context,
+		featureID domain.FeatureID,
+		envID domain.EnvironmentID,
+	) ([]domain.Rule, error)
 	ListCustomizedFeatureIDsBySegment(ctx context.Context, segmentID domain.SegmentID) ([]domain.FeatureID, error)
 	ListNotCustomizedRulesBySegment(
 		ctx context.Context,

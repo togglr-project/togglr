@@ -28,6 +28,8 @@ const (
 	EntityRule            EntityType = "rule"
 	EntityFlagVariant     EntityType = "flag_variant"
 	EntityFeatureSchedule EntityType = "feature_schedule"
+	EntityEnvironment     EntityType = "environment"
+	EntityFeatureParams   EntityType = "feature_params"
 )
 
 type AuditLogID uint64

@@ -15,9 +15,9 @@ func (r *RestAPI) CreateFeatureSchedule(
 	params generatedapi.CreateFeatureScheduleParams,
 ) (generatedapi.CreateFeatureScheduleRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
+	environmentKey := params.EnvironmentKey
 
-	// Ensure feature exists and get its project
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -26,6 +26,13 @@ func (r *RestAPI) CreateFeatureSchedule(
 		}
 
 		slog.Error("get feature for schedule create failed", "error", err)
+
+		return nil, err
+	}
+
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		slog.Error("get environment for schedule create failed", "error", err)
 
 		return nil, err
 	}
@@ -50,14 +57,15 @@ func (r *RestAPI) CreateFeatureSchedule(
 	}
 
 	sch := domain.FeatureSchedule{
-		ProjectID:    feature.ProjectID,
-		FeatureID:    featureID,
-		StartsAt:     optNilDateTimeToPtr(req.StartsAt),
-		EndsAt:       optNilDateTimeToPtr(req.EndsAt),
-		CronExpr:     optNilStringToPtr(req.CronExpr),
-		CronDuration: optNilDurationToPtr(req.CronDuration),
-		Timezone:     req.Timezone,
-		Action:       domain.FeatureScheduleAction(req.Action),
+		ProjectID:     feature.ProjectID,
+		FeatureID:     featureID,
+		EnvironmentID: env.ID,
+		StartsAt:      optNilDateTimeToPtr(req.StartsAt),
+		EndsAt:        optNilDateTimeToPtr(req.EndsAt),
+		CronExpr:      optNilStringToPtr(req.CronExpr),
+		CronDuration:  optNilDurationToPtr(req.CronDuration),
+		Timezone:      req.Timezone,
+		Action:        domain.FeatureScheduleAction(req.Action),
 	}
 
 	created, err := r.featureSchedulesUseCase.Create(ctx, sch)

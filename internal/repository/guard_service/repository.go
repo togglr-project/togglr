@@ -78,7 +78,7 @@ SELECT
     (SELECT COUNT(DISTINCT m.user_id) 
      FROM memberships m
      JOIN roles r ON m.role_id = r.id
-     WHERE m.project_id = $1 
+     WHERE m.project_id = $1::uuid 
        AND r.key IN ('project_owner', 'project_manager')
        AND EXISTS (SELECT 1 FROM users u WHERE u.id = m.user_id AND u.is_active = true)) +
     (SELECT COUNT(*) FROM users WHERE is_superuser = true AND is_active = true)`

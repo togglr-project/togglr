@@ -66,6 +66,12 @@ type Handler interface {
 	//
 	// POST /api/v1/categories
 	CreateCategory(ctx context.Context, req *CreateCategoryRequest) (CreateCategoryRes, error)
+	// CreateEnvironment implements CreateEnvironment operation.
+	//
+	// Create environment.
+	//
+	// POST /api/v1/projects/{project_id}/environments
+	CreateEnvironment(ctx context.Context, req *CreateEnvironmentRequest, params CreateEnvironmentParams) (CreateEnvironmentRes, error)
 	// CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
 	//
 	// Create flag variant for feature.
@@ -126,6 +132,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/categories/{category_id}
 	DeleteCategory(ctx context.Context, params DeleteCategoryParams) (DeleteCategoryRes, error)
+	// DeleteEnvironment implements DeleteEnvironment operation.
+	//
+	// Delete environment.
+	//
+	// DELETE /api/v1/environments/{environment_id}
+	DeleteEnvironment(ctx context.Context, params DeleteEnvironmentParams) (DeleteEnvironmentRes, error)
 	// DeleteFeature implements DeleteFeature operation.
 	//
 	// Delete feature.
@@ -198,6 +210,12 @@ type Handler interface {
 	//
 	// GET /api/v1/users/me
 	GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error)
+	// GetEnvironment implements GetEnvironment operation.
+	//
+	// Get environment.
+	//
+	// GET /api/v1/environments/{environment_id}
+	GetEnvironment(ctx context.Context, params GetEnvironmentParams) (GetEnvironmentRes, error)
 	// GetFeature implements GetFeature operation.
 	//
 	// Get feature with rules and variants.
@@ -360,6 +378,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/changes
 	ListProjectChanges(ctx context.Context, params ListProjectChangesParams) (ListProjectChangesRes, error)
+	// ListProjectEnvironments implements ListProjectEnvironments operation.
+	//
+	// List project environments.
+	//
+	// GET /api/v1/projects/{project_id}/environments
+	ListProjectEnvironments(ctx context.Context, params ListProjectEnvironmentsParams) (ListProjectEnvironmentsRes, error)
 	// ListProjectFeatures implements ListProjectFeatures operation.
 	//
 	// List features for project.
@@ -516,6 +540,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/categories/{category_id}
 	UpdateCategory(ctx context.Context, req *UpdateCategoryRequest, params UpdateCategoryParams) (UpdateCategoryRes, error)
+	// UpdateEnvironment implements UpdateEnvironment operation.
+	//
+	// Update environment.
+	//
+	// PUT /api/v1/environments/{environment_id}
+	UpdateEnvironment(ctx context.Context, req *UpdateEnvironmentRequest, params UpdateEnvironmentParams) (UpdateEnvironmentRes, error)
 	// UpdateFeature implements UpdateFeature operation.
 	//
 	// Update feature with rules and variants.

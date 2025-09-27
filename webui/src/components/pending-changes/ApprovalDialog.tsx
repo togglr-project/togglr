@@ -64,8 +64,9 @@ const ApprovalDialog: React.FC<ApprovalDialogProps> = ({
       setTotpInitiated(true);
       setLocalError('');
     },
-    onError: (error: any) => {
-      setLocalError(error.response?.data?.error?.message || 'Failed to initiate TOTP approval');
+    onError: (error: unknown) => {
+      const errorMessage = (error as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to initiate TOTP approval';
+      setLocalError(errorMessage);
     },
   });
 

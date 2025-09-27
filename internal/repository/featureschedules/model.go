@@ -8,17 +8,18 @@ import (
 )
 
 type scheduleModel struct {
-	ID           string         `db:"id"`
-	ProjectID    string         `db:"project_id"`
-	FeatureID    string         `db:"feature_id"`
-	StartsAt     sql.NullTime   `db:"starts_at"`
-	EndsAt       sql.NullTime   `db:"ends_at"`
-	CronExpr     sql.NullString `db:"cron_expr"`
-	CronDuration sql.NullString `db:"cron_duration"`
-	Timezone     string         `db:"timezone"`
-	Action       string         `db:"action"`
-	CreatedAt    time.Time      `db:"created_at"`
-	UpdatedAt    time.Time      `db:"updated_at"`
+	ID            string         `db:"id"`
+	ProjectID     string         `db:"project_id"`
+	FeatureID     string         `db:"feature_id"`
+	EnvironmentID int64          `db:"environment_id"`
+	StartsAt      sql.NullTime   `db:"starts_at"`
+	EndsAt        sql.NullTime   `db:"ends_at"`
+	CronExpr      sql.NullString `db:"cron_expr"`
+	CronDuration  sql.NullString `db:"cron_duration"`
+	Timezone      string         `db:"timezone"`
+	Action        string         `db:"action"`
+	CreatedAt     time.Time      `db:"created_at"`
+	UpdatedAt     time.Time      `db:"updated_at"`
 }
 
 func (m *scheduleModel) toDomain() domain.FeatureSchedule {
@@ -49,16 +50,17 @@ func (m *scheduleModel) toDomain() domain.FeatureSchedule {
 	}
 
 	return domain.FeatureSchedule{
-		ID:           domain.FeatureScheduleID(m.ID),
-		ProjectID:    domain.ProjectID(m.ProjectID),
-		FeatureID:    domain.FeatureID(m.FeatureID),
-		StartsAt:     startsAt,
-		EndsAt:       endsAt,
-		CronExpr:     cronStr,
-		CronDuration: cronDuration,
-		Timezone:     m.Timezone,
-		Action:       domain.FeatureScheduleAction(m.Action),
-		CreatedAt:    m.CreatedAt,
-		UpdatedAt:    m.UpdatedAt,
+		ID:            domain.FeatureScheduleID(m.ID),
+		ProjectID:     domain.ProjectID(m.ProjectID),
+		FeatureID:     domain.FeatureID(m.FeatureID),
+		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
+		StartsAt:      startsAt,
+		EndsAt:        endsAt,
+		CronExpr:      cronStr,
+		CronDuration:  cronDuration,
+		Timezone:      m.Timezone,
+		Action:        domain.FeatureScheduleAction(m.Action),
+		CreatedAt:     m.CreatedAt,
+		UpdatedAt:     m.UpdatedAt,
 	}
 }

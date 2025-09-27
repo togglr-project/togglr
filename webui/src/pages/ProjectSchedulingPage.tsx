@@ -21,7 +21,10 @@ import {
   Tabs,
   Tab,
   Stack,
-  Pagination
+  Pagination,
+  FormControl,
+  InputLabel,
+  Select
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
@@ -145,6 +148,7 @@ const ProjectSchedulingPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
 
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
@@ -154,6 +158,17 @@ const ProjectSchedulingPage: React.FC = () => {
     },
     enabled: !!projectId,
   });
+
+  // Get environments for the project
+  const { data: environmentsResp, isLoading: loadingEnvironments } = useQuery({
+    queryKey: ['project-environments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectEnvironments(projectId);
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+  const environments = environmentsResp?.items ?? [];
 
   // Filters, sorting and pagination state for features
   const [search, setSearch] = useState('');
@@ -173,8 +188,9 @@ const ProjectSchedulingPage: React.FC = () => {
       const tagIds = selectedTags.length > 0 ? selectedTags.map(tag => tag.id).join(',') : undefined;
       const res = await apiClient.listProjectFeatures(
         projectId,
+        environmentKey,
         kindFilter === 'all' ? undefined : kindFilter,
-        enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
+        enabledFilter === 'all' ? undefined : (enabledFilter === 'enabled'),
         minSearch,
         tagIds,
         sortBy,
@@ -249,7 +265,7 @@ const ProjectSchedulingPage: React.FC = () => {
   }, [features]);
 
   const { data: timelinesData, isLoading: loadingTimelines, error: timelinesError, refetch: refetchTimelines } = useQuery<Record<string, FeatureTimelineEvent[]>>({
-    queryKey: ['feature-timelines', projectId, selectedFeatures.map(f => f.id), timelineFrom, timelineTo, timelineError],
+    queryKey: ['feature-timelines', projectId, environmentKey, selectedFeatures.map(f => f.id), timelineFrom, timelineTo, timelineError],
     queryFn: async () => {
       if (selectedFeatures.length === 0) return {};
       
@@ -264,7 +280,7 @@ const ProjectSchedulingPage: React.FC = () => {
         try {
           // Get user's timezone
           const location = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          const res = await apiClient.getFeatureTimeline(feature.id, from, to, location);
+          const res = await apiClient.getFeatureTimeline(feature.id, environmentKey, from, to, location);
           return { featureId: feature.id, events: res.data.events };
         } catch (error) {
           console.error(`Failed to load timeline for feature ${feature.id}:`, error);
@@ -300,6 +316,7 @@ const ProjectSchedulingPage: React.FC = () => {
     try {
       const response = await apiClient.testFeatureTimeline(
         featureId,
+        environmentKey,
         from.toISOString(),
         to.toISOString(),
         Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -408,7 +425,7 @@ const ProjectSchedulingPage: React.FC = () => {
   // Mutations
   const createMut = useMutation({
     mutationFn: async ({ featureId, values }: { featureId: string; values: ScheduleFormValues }) => {
-      return apiClient.createFeatureSchedule(featureId, values);
+      return apiClient.createFeatureSchedule(featureId, environmentKey, values);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
@@ -448,7 +465,7 @@ const ProjectSchedulingPage: React.FC = () => {
         cron_expr: data.cronExpression,
         cron_duration: formatDuration(data.duration)
       };
-      return apiClient.createFeatureSchedule(featureId, payload);
+      return apiClient.createFeatureSchedule(featureId, environmentKey, payload);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
@@ -459,7 +476,7 @@ const ProjectSchedulingPage: React.FC = () => {
 
   const createOneShotScheduleMut = useMutation({
     mutationFn: async ({ featureId, data }: { featureId: string; data: { timezone: string; starts_at: string; ends_at: string; action: FeatureScheduleAction } }) => {
-      return apiClient.createFeatureSchedule(featureId, data);
+      return apiClient.createFeatureSchedule(featureId, environmentKey, data);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
@@ -511,7 +528,7 @@ const ProjectSchedulingPage: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">{f.key}</Typography>
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Chip size="small" label={`kind: ${f.kind}`} />
-                  <Chip size="small" label={`default: ${f.default_variant}`} />
+                  <Chip size="small" label={`default: ${f.default_value}`} />
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>
@@ -659,6 +676,25 @@ const ProjectSchedulingPage: React.FC = () => {
 
       {!loadingFeatures && features && features.length > 0 ? (
         <Box>
+          {/* Environment selector */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Environment</InputLabel>
+              <Select
+                label="Environment"
+                value={environmentKey}
+                onChange={(e) => setEnvironmentKey(e.target.value)}
+                disabled={loadingEnvironments}
+              >
+                {environments.map((env: any) => (
+                  <MenuItem key={env.id} value={env.key}>
+                    {env.name} ({env.key})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+
           {/* Search and filters */}
           <SearchPanel
             searchValue={search}
@@ -989,8 +1025,8 @@ const ProjectSchedulingPage: React.FC = () => {
         <DialogContent>
           <ScheduleBuilder
             open={scheduleBuilderOpen}
-            onClose={closeScheduleBuilder}
             featureId={dialogFeature?.id || ''}
+            environmentKey={environmentKey}
             onSubmit={(data) => {
               if (dialogFeature) {
                 createCronScheduleMut.mutate({ featureId: dialogFeature.id, data });
@@ -1024,8 +1060,8 @@ const ProjectSchedulingPage: React.FC = () => {
         <DialogContent>
           <EditRecurringScheduleBuilder
             open={editRecurringBuilderOpen}
-            onClose={closeEditRecurringBuilder}
             featureId={editingSchedule?.feature_id || ''}
+            environmentKey={environmentKey}
             onSubmit={(data) => {
               if (editingSchedule) {
                 editRecurringScheduleMut.mutate({ scheduleId: editingSchedule.id, data });

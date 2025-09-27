@@ -25,11 +25,6 @@ interface TimelineSegment {
   enabled: boolean;
 }
 
-interface ProcessedFeature {
-  feature: FeatureExtended;
-  segments: TimelineSegment[];
-  totalDuration: number;
-}
 
 const TimelineChart: React.FC<TimelineChartProps> = ({
   features,

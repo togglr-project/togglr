@@ -18,7 +18,6 @@ import {
   IconButton
 } from '@mui/material';
 import { Help as HelpIcon } from '@mui/icons-material';
-// @ts-expect-error - timezone-support types are not available
 import { findTimeZone, getZonedTime } from 'timezone-support';
 import type { FeatureSchedule, FeatureScheduleAction } from '../generated/api/client';
 

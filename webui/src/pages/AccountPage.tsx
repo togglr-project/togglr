@@ -175,7 +175,7 @@ const AccountPage: React.FC = () => {
             <TwoFactorAuthSection 
               userData={user}
               userLoading={isLoading}
-              userError={error}
+              userError={error ? new Error(error) : null}
             />
           </Grid>
         </Grid>

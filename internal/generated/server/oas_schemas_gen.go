@@ -796,15 +796,47 @@ func (s *CreateCategoryRequestKind) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/CreateEnvironmentRequest
+type CreateEnvironmentRequest struct {
+	// Environment key (dev, stage, prod).
+	Key string `json:"key"`
+	// Human-readable environment name.
+	Name string `json:"name"`
+}
+
+// GetKey returns the value of Key.
+func (s *CreateEnvironmentRequest) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *CreateEnvironmentRequest) GetName() string {
+	return s.Name
+}
+
+// SetKey sets the value of Key.
+func (s *CreateEnvironmentRequest) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *CreateEnvironmentRequest) SetName(val string) {
+	s.Name = val
+}
+
 // Ref: #/components/schemas/CreateFeatureRequest
 type CreateFeatureRequest struct {
-	Key            string       `json:"key"`
-	Name           string       `json:"name"`
-	Description    OptNilString `json:"description"`
-	Kind           FeatureKind  `json:"kind"`
-	DefaultVariant string       `json:"default_variant"`
-	Enabled        OptBool      `json:"enabled"`
-	RolloutKey     OptString    `json:"rollout_key"`
+	Key         string       `json:"key"`
+	Name        string       `json:"name"`
+	Description OptNilString `json:"description"`
+	Kind        FeatureKind  `json:"kind"`
+	// Environment key (dev, stage, prod) for this feature.
+	EnvironmentKey string `json:"environment_key"`
+	// Default value for the feature in the specified environment.
+	DefaultValue string `json:"default_value"`
+	// Whether the feature is enabled in the specified environment.
+	Enabled    bool      `json:"enabled"`
+	RolloutKey OptString `json:"rollout_key"`
 	// Optional list of flag variants to create along with the feature.
 	Variants []CreateFlagVariantInline `json:"variants"`
 	// Optional list of rules to create along with the feature.
@@ -831,13 +863,18 @@ func (s *CreateFeatureRequest) GetKind() FeatureKind {
 	return s.Kind
 }
 
-// GetDefaultVariant returns the value of DefaultVariant.
-func (s *CreateFeatureRequest) GetDefaultVariant() string {
-	return s.DefaultVariant
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *CreateFeatureRequest) GetEnvironmentKey() string {
+	return s.EnvironmentKey
+}
+
+// GetDefaultValue returns the value of DefaultValue.
+func (s *CreateFeatureRequest) GetDefaultValue() string {
+	return s.DefaultValue
 }
 
 // GetEnabled returns the value of Enabled.
-func (s *CreateFeatureRequest) GetEnabled() OptBool {
+func (s *CreateFeatureRequest) GetEnabled() bool {
 	return s.Enabled
 }
 
@@ -876,13 +913,18 @@ func (s *CreateFeatureRequest) SetKind(val FeatureKind) {
 	s.Kind = val
 }
 
-// SetDefaultVariant sets the value of DefaultVariant.
-func (s *CreateFeatureRequest) SetDefaultVariant(val string) {
-	s.DefaultVariant = val
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *CreateFeatureRequest) SetEnvironmentKey(val string) {
+	s.EnvironmentKey = val
+}
+
+// SetDefaultValue sets the value of DefaultValue.
+func (s *CreateFeatureRequest) SetDefaultValue(val string) {
+	s.DefaultValue = val
 }
 
 // SetEnabled sets the value of Enabled.
-func (s *CreateFeatureRequest) SetEnabled(val OptBool) {
+func (s *CreateFeatureRequest) SetEnabled(val bool) {
 	s.Enabled = val
 }
 
@@ -979,6 +1021,8 @@ type CreateFlagVariantInline struct {
 	ID             uuid.UUID `json:"id"`
 	Name           string    `json:"name"`
 	RolloutPercent int       `json:"rollout_percent"`
+	// Environment key (dev, stage, prod) for this variant.
+	EnvironmentKey string `json:"environment_key"`
 }
 
 // GetID returns the value of ID.
@@ -996,6 +1040,11 @@ func (s *CreateFlagVariantInline) GetRolloutPercent() int {
 	return s.RolloutPercent
 }
 
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *CreateFlagVariantInline) GetEnvironmentKey() string {
+	return s.EnvironmentKey
+}
+
 // SetID sets the value of ID.
 func (s *CreateFlagVariantInline) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1009,6 +1058,11 @@ func (s *CreateFlagVariantInline) SetName(val string) {
 // SetRolloutPercent sets the value of RolloutPercent.
 func (s *CreateFlagVariantInline) SetRolloutPercent(val int) {
 	s.RolloutPercent = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *CreateFlagVariantInline) SetEnvironmentKey(val string) {
+	s.EnvironmentKey = val
 }
 
 // Ref: #/components/schemas/CreateFlagVariantRequest
@@ -1166,6 +1220,8 @@ type CreateRuleInline struct {
 	Action        RuleAction              `json:"action"`
 	FlagVariantID OptUUID                 `json:"flag_variant_id"`
 	Priority      OptInt                  `json:"priority"`
+	// Environment key (dev, stage, prod) for this rule.
+	EnvironmentKey string `json:"environment_key"`
 }
 
 // GetID returns the value of ID.
@@ -1203,6 +1259,11 @@ func (s *CreateRuleInline) GetPriority() OptInt {
 	return s.Priority
 }
 
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *CreateRuleInline) GetEnvironmentKey() string {
+	return s.EnvironmentKey
+}
+
 // SetID sets the value of ID.
 func (s *CreateRuleInline) SetID(val uuid.UUID) {
 	s.ID = val
@@ -1236,6 +1297,11 @@ func (s *CreateRuleInline) SetFlagVariantID(val OptUUID) {
 // SetPriority sets the value of Priority.
 func (s *CreateRuleInline) SetPriority(val OptInt) {
 	s.Priority = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *CreateRuleInline) SetEnvironmentKey(val string) {
+	s.EnvironmentKey = val
 }
 
 // Ref: #/components/schemas/CreateRuleRequest
@@ -1414,6 +1480,11 @@ func (*CreateUserResponse) createUserRes() {}
 type DeleteCategoryNoContent struct{}
 
 func (*DeleteCategoryNoContent) deleteCategoryRes() {}
+
+// DeleteEnvironmentNoContent is response for DeleteEnvironment operation.
+type DeleteEnvironmentNoContent struct{}
+
+func (*DeleteEnvironmentNoContent) deleteEnvironmentRes() {}
 
 // DeleteFeatureNoContent is response for DeleteFeature operation.
 type DeleteFeatureNoContent struct{}
@@ -1667,6 +1738,101 @@ func (s *EntityType) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/Environment
+type Environment struct {
+	// Environment ID.
+	ID int64 `json:"id"`
+	// Project ID.
+	ProjectID uuid.UUID `json:"project_id"`
+	// Environment key (dev, stage, prod).
+	Key string `json:"key"`
+	// Human-readable environment name.
+	Name string `json:"name"`
+	// API key for this environment.
+	APIKey uuid.UUID `json:"api_key"`
+	// Creation timestamp.
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Environment) GetID() int64 {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *Environment) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetKey returns the value of Key.
+func (s *Environment) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *Environment) GetName() string {
+	return s.Name
+}
+
+// GetAPIKey returns the value of APIKey.
+func (s *Environment) GetAPIKey() uuid.UUID {
+	return s.APIKey
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Environment) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Environment) SetID(val int64) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *Environment) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetKey sets the value of Key.
+func (s *Environment) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *Environment) SetName(val string) {
+	s.Name = val
+}
+
+// SetAPIKey sets the value of APIKey.
+func (s *Environment) SetAPIKey(val uuid.UUID) {
+	s.APIKey = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Environment) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// Ref: #/components/schemas/EnvironmentResponse
+type EnvironmentResponse struct {
+	Environment OptEnvironment `json:"environment"`
+}
+
+// GetEnvironment returns the value of Environment.
+func (s *EnvironmentResponse) GetEnvironment() OptEnvironment {
+	return s.Environment
+}
+
+// SetEnvironment sets the value of Environment.
+func (s *EnvironmentResponse) SetEnvironment(val OptEnvironment) {
+	s.Environment = val
+}
+
+func (*EnvironmentResponse) createEnvironmentRes() {}
+func (*EnvironmentResponse) getEnvironmentRes()    {}
+func (*EnvironmentResponse) updateEnvironmentRes() {}
+
 // Ref: #/components/schemas/Error
 type Error struct {
 	Error ErrorError `json:"error"`
@@ -1770,6 +1936,7 @@ func (*ErrorBadRequest) cancelPendingChangeRes()      {}
 func (*ErrorBadRequest) confirm2FARes()               {}
 func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
 func (*ErrorBadRequest) createCategoryRes()           {}
+func (*ErrorBadRequest) createEnvironmentRes()        {}
 func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
 func (*ErrorBadRequest) createFeatureRuleRes()        {}
 func (*ErrorBadRequest) createFeatureScheduleRes()    {}
@@ -1785,6 +1952,7 @@ func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
 func (*ErrorBadRequest) getFeatureTimelineRes()       {}
 func (*ErrorBadRequest) initiateTOTPApprovalRes()     {}
+func (*ErrorBadRequest) listPendingChangesRes()       {}
 func (*ErrorBadRequest) rejectPendingChangeRes()      {}
 func (*ErrorBadRequest) reset2FARes()                 {}
 func (*ErrorBadRequest) resetPasswordRes()            {}
@@ -1796,6 +1964,7 @@ func (*ErrorBadRequest) setUserActiveStatusRes()      {}
 func (*ErrorBadRequest) testFeatureTimelineRes()      {}
 func (*ErrorBadRequest) toggleFeatureRes()            {}
 func (*ErrorBadRequest) updateCategoryRes()           {}
+func (*ErrorBadRequest) updateEnvironmentRes()        {}
 func (*ErrorBadRequest) updateFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
@@ -1838,6 +2007,7 @@ func (s *ErrorConflict) SetError(val ErrorConflictError) {
 
 func (*ErrorConflict) approvePendingChangeRes() {}
 func (*ErrorConflict) cancelPendingChangeRes()  {}
+func (*ErrorConflict) createEnvironmentRes()    {}
 func (*ErrorConflict) createProjectSettingRes() {}
 func (*ErrorConflict) initiateTOTPApprovalRes() {}
 func (*ErrorConflict) rejectPendingChangeRes()  {}
@@ -1905,6 +2075,7 @@ func (*ErrorInternalServerError) archiveProjectRes()              {}
 func (*ErrorInternalServerError) cancelPendingChangeRes()         {}
 func (*ErrorInternalServerError) consumeSAMLAssertionRes()        {}
 func (*ErrorInternalServerError) createCategoryRes()              {}
+func (*ErrorInternalServerError) createEnvironmentRes()           {}
 func (*ErrorInternalServerError) createFeatureFlagVariantRes()    {}
 func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
@@ -1915,6 +2086,7 @@ func (*ErrorInternalServerError) createProjectTagRes()            {}
 func (*ErrorInternalServerError) createRuleAttributeRes()         {}
 func (*ErrorInternalServerError) createUserRes()                  {}
 func (*ErrorInternalServerError) deleteCategoryRes()              {}
+func (*ErrorInternalServerError) deleteEnvironmentRes()           {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) deleteProjectSettingRes()        {}
@@ -1925,6 +2097,7 @@ func (*ErrorInternalServerError) deleteUserRes()                  {}
 func (*ErrorInternalServerError) forgotPasswordRes()              {}
 func (*ErrorInternalServerError) getCategoryRes()                 {}
 func (*ErrorInternalServerError) getCurrentUserRes()              {}
+func (*ErrorInternalServerError) getEnvironmentRes()              {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
 func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
@@ -1945,6 +2118,7 @@ func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listFeatureTagsRes()             {}
 func (*ErrorInternalServerError) listPendingChangesRes()          {}
 func (*ErrorInternalServerError) listProjectChangesRes()          {}
+func (*ErrorInternalServerError) listProjectEnvironmentsRes()     {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
 func (*ErrorInternalServerError) listProjectSettingsRes()         {}
@@ -1966,6 +2140,7 @@ func (*ErrorInternalServerError) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorInternalServerError) testFeatureTimelineRes()         {}
 func (*ErrorInternalServerError) toggleFeatureRes()               {}
 func (*ErrorInternalServerError) updateCategoryRes()              {}
+func (*ErrorInternalServerError) updateEnvironmentRes()           {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
@@ -2050,6 +2225,7 @@ func (*ErrorNotFound) createProjectSegmentRes()        {}
 func (*ErrorNotFound) createProjectSettingRes()        {}
 func (*ErrorNotFound) createProjectTagRes()            {}
 func (*ErrorNotFound) deleteCategoryRes()              {}
+func (*ErrorNotFound) deleteEnvironmentRes()           {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
 func (*ErrorNotFound) deleteProjectSettingRes()        {}
@@ -2058,6 +2234,7 @@ func (*ErrorNotFound) deleteRuleAttributeRes()         {}
 func (*ErrorNotFound) deleteSegmentRes()               {}
 func (*ErrorNotFound) deleteUserRes()                  {}
 func (*ErrorNotFound) getCategoryRes()                 {}
+func (*ErrorNotFound) getEnvironmentRes()              {}
 func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
 func (*ErrorNotFound) getFeatureTimelineRes()          {}
@@ -2087,6 +2264,7 @@ func (*ErrorNotFound) syncCustomizedFeatureRuleRes()   {}
 func (*ErrorNotFound) testFeatureTimelineRes()         {}
 func (*ErrorNotFound) toggleFeatureRes()               {}
 func (*ErrorNotFound) updateCategoryRes()              {}
+func (*ErrorNotFound) updateEnvironmentRes()           {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
 func (*ErrorNotFound) updateProjectRes()               {}
@@ -2131,6 +2309,7 @@ func (*ErrorPermissionDenied) archiveProjectRes()              {}
 func (*ErrorPermissionDenied) cancelLDAPSyncRes()              {}
 func (*ErrorPermissionDenied) cancelPendingChangeRes()         {}
 func (*ErrorPermissionDenied) createCategoryRes()              {}
+func (*ErrorPermissionDenied) createEnvironmentRes()           {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
@@ -2141,6 +2320,7 @@ func (*ErrorPermissionDenied) createProjectTagRes()            {}
 func (*ErrorPermissionDenied) createRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) createUserRes()                  {}
 func (*ErrorPermissionDenied) deleteCategoryRes()              {}
+func (*ErrorPermissionDenied) deleteEnvironmentRes()           {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
@@ -2151,6 +2331,7 @@ func (*ErrorPermissionDenied) deleteSegmentRes()               {}
 func (*ErrorPermissionDenied) deleteUserRes()                  {}
 func (*ErrorPermissionDenied) forgotPasswordRes()              {}
 func (*ErrorPermissionDenied) getCategoryRes()                 {}
+func (*ErrorPermissionDenied) getEnvironmentRes()              {}
 func (*ErrorPermissionDenied) getFeatureRes()                  {}
 func (*ErrorPermissionDenied) getFeatureScheduleRes()          {}
 func (*ErrorPermissionDenied) getFeatureTimelineRes()          {}
@@ -2173,6 +2354,7 @@ func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
 func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
+func (*ErrorPermissionDenied) listProjectEnvironmentsRes()     {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
 func (*ErrorPermissionDenied) listProjectSegmentsRes()         {}
 func (*ErrorPermissionDenied) listProjectSettingsRes()         {}
@@ -2189,6 +2371,7 @@ func (*ErrorPermissionDenied) testFeatureTimelineRes()         {}
 func (*ErrorPermissionDenied) testLDAPConnectionRes()          {}
 func (*ErrorPermissionDenied) toggleFeatureRes()               {}
 func (*ErrorPermissionDenied) updateCategoryRes()              {}
+func (*ErrorPermissionDenied) updateEnvironmentRes()           {}
 func (*ErrorPermissionDenied) updateFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}
@@ -2297,6 +2480,7 @@ func (*ErrorUnauthorized) cancelPendingChangeRes()         {}
 func (*ErrorUnauthorized) confirm2FARes()                  {}
 func (*ErrorUnauthorized) consumeSAMLAssertionRes()        {}
 func (*ErrorUnauthorized) createCategoryRes()              {}
+func (*ErrorUnauthorized) createEnvironmentRes()           {}
 func (*ErrorUnauthorized) createFeatureFlagVariantRes()    {}
 func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
@@ -2307,6 +2491,7 @@ func (*ErrorUnauthorized) createProjectTagRes()            {}
 func (*ErrorUnauthorized) createRuleAttributeRes()         {}
 func (*ErrorUnauthorized) createUserRes()                  {}
 func (*ErrorUnauthorized) deleteCategoryRes()              {}
+func (*ErrorUnauthorized) deleteEnvironmentRes()           {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
@@ -2318,6 +2503,7 @@ func (*ErrorUnauthorized) deleteUserRes()                  {}
 func (*ErrorUnauthorized) disable2FARes()                  {}
 func (*ErrorUnauthorized) getCategoryRes()                 {}
 func (*ErrorUnauthorized) getCurrentUserRes()              {}
+func (*ErrorUnauthorized) getEnvironmentRes()              {}
 func (*ErrorUnauthorized) getFeatureRes()                  {}
 func (*ErrorUnauthorized) getFeatureScheduleRes()          {}
 func (*ErrorUnauthorized) getFeatureTimelineRes()          {}
@@ -2342,6 +2528,7 @@ func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listFeatureTagsRes()             {}
 func (*ErrorUnauthorized) listPendingChangesRes()          {}
 func (*ErrorUnauthorized) listProjectChangesRes()          {}
+func (*ErrorUnauthorized) listProjectEnvironmentsRes()     {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
 func (*ErrorUnauthorized) listProjectSettingsRes()         {}
@@ -2366,6 +2553,7 @@ func (*ErrorUnauthorized) testFeatureTimelineRes()         {}
 func (*ErrorUnauthorized) testLDAPConnectionRes()          {}
 func (*ErrorUnauthorized) toggleFeatureRes()               {}
 func (*ErrorUnauthorized) updateCategoryRes()              {}
+func (*ErrorUnauthorized) updateEnvironmentRes()           {}
 func (*ErrorUnauthorized) updateFeatureRes()               {}
 func (*ErrorUnauthorized) updateFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
@@ -2394,17 +2582,19 @@ func (s *ErrorUnauthorizedError) SetMessage(val OptString) {
 
 // Ref: #/components/schemas/Feature
 type Feature struct {
-	ID             string       `json:"id"`
-	ProjectID      string       `json:"project_id"`
-	Key            string       `json:"key"`
-	Name           string       `json:"name"`
-	Description    OptNilString `json:"description"`
-	Kind           FeatureKind  `json:"kind"`
-	DefaultVariant string       `json:"default_variant"`
-	Enabled        bool         `json:"enabled"`
-	RolloutKey     OptString    `json:"rollout_key"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
+	ID          string       `json:"id"`
+	ProjectID   string       `json:"project_id"`
+	Key         string       `json:"key"`
+	Name        string       `json:"name"`
+	Description OptNilString `json:"description"`
+	Kind        FeatureKind  `json:"kind"`
+	RolloutKey  OptString    `json:"rollout_key"`
+	// Whether the feature is enabled in the specified environment.
+	Enabled bool `json:"enabled"`
+	// Default value for the feature in the specified environment.
+	DefaultValue string    `json:"default_value"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 // GetID returns the value of ID.
@@ -2437,9 +2627,9 @@ func (s *Feature) GetKind() FeatureKind {
 	return s.Kind
 }
 
-// GetDefaultVariant returns the value of DefaultVariant.
-func (s *Feature) GetDefaultVariant() string {
-	return s.DefaultVariant
+// GetRolloutKey returns the value of RolloutKey.
+func (s *Feature) GetRolloutKey() OptString {
+	return s.RolloutKey
 }
 
 // GetEnabled returns the value of Enabled.
@@ -2447,9 +2637,9 @@ func (s *Feature) GetEnabled() bool {
 	return s.Enabled
 }
 
-// GetRolloutKey returns the value of RolloutKey.
-func (s *Feature) GetRolloutKey() OptString {
-	return s.RolloutKey
+// GetDefaultValue returns the value of DefaultValue.
+func (s *Feature) GetDefaultValue() string {
+	return s.DefaultValue
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -2492,9 +2682,9 @@ func (s *Feature) SetKind(val FeatureKind) {
 	s.Kind = val
 }
 
-// SetDefaultVariant sets the value of DefaultVariant.
-func (s *Feature) SetDefaultVariant(val string) {
-	s.DefaultVariant = val
+// SetRolloutKey sets the value of RolloutKey.
+func (s *Feature) SetRolloutKey(val OptString) {
+	s.RolloutKey = val
 }
 
 // SetEnabled sets the value of Enabled.
@@ -2502,9 +2692,9 @@ func (s *Feature) SetEnabled(val bool) {
 	s.Enabled = val
 }
 
-// SetRolloutKey sets the value of RolloutKey.
-func (s *Feature) SetRolloutKey(val OptString) {
-	s.RolloutKey = val
+// SetDefaultValue sets the value of DefaultValue.
+func (s *Feature) SetDefaultValue(val string) {
+	s.DefaultValue = val
 }
 
 // SetCreatedAt sets the value of CreatedAt.
@@ -2571,17 +2761,19 @@ func (*FeatureDetailsResponse) updateFeatureRes() {}
 // Merged schema.
 // Ref: #/components/schemas/FeatureExtended
 type FeatureExtended struct {
-	ID             string       `json:"id"`
-	ProjectID      string       `json:"project_id"`
-	Key            string       `json:"key"`
-	Name           string       `json:"name"`
-	Description    OptNilString `json:"description"`
-	Kind           FeatureKind  `json:"kind"`
-	DefaultVariant string       `json:"default_variant"`
-	Enabled        bool         `json:"enabled"`
-	RolloutKey     OptString    `json:"rollout_key"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
+	ID          string       `json:"id"`
+	ProjectID   string       `json:"project_id"`
+	Key         string       `json:"key"`
+	Name        string       `json:"name"`
+	Description OptNilString `json:"description"`
+	Kind        FeatureKind  `json:"kind"`
+	RolloutKey  OptString    `json:"rollout_key"`
+	// Whether the feature is enabled in the specified environment.
+	Enabled bool `json:"enabled"`
+	// Default value for the feature in the specified environment.
+	DefaultValue string    `json:"default_value"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 	// Indicates if the feature is currently active (taking schedules).
 	IsActive bool `json:"is_active"`
 	// Indicates the next state the feature will transition to based on schedule (null if no schedule).
@@ -2622,9 +2814,9 @@ func (s *FeatureExtended) GetKind() FeatureKind {
 	return s.Kind
 }
 
-// GetDefaultVariant returns the value of DefaultVariant.
-func (s *FeatureExtended) GetDefaultVariant() string {
-	return s.DefaultVariant
+// GetRolloutKey returns the value of RolloutKey.
+func (s *FeatureExtended) GetRolloutKey() OptString {
+	return s.RolloutKey
 }
 
 // GetEnabled returns the value of Enabled.
@@ -2632,9 +2824,9 @@ func (s *FeatureExtended) GetEnabled() bool {
 	return s.Enabled
 }
 
-// GetRolloutKey returns the value of RolloutKey.
-func (s *FeatureExtended) GetRolloutKey() OptString {
-	return s.RolloutKey
+// GetDefaultValue returns the value of DefaultValue.
+func (s *FeatureExtended) GetDefaultValue() string {
+	return s.DefaultValue
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -2697,9 +2889,9 @@ func (s *FeatureExtended) SetKind(val FeatureKind) {
 	s.Kind = val
 }
 
-// SetDefaultVariant sets the value of DefaultVariant.
-func (s *FeatureExtended) SetDefaultVariant(val string) {
-	s.DefaultVariant = val
+// SetRolloutKey sets the value of RolloutKey.
+func (s *FeatureExtended) SetRolloutKey(val OptString) {
+	s.RolloutKey = val
 }
 
 // SetEnabled sets the value of Enabled.
@@ -2707,9 +2899,9 @@ func (s *FeatureExtended) SetEnabled(val bool) {
 	s.Enabled = val
 }
 
-// SetRolloutKey sets the value of RolloutKey.
-func (s *FeatureExtended) SetRolloutKey(val OptString) {
-	s.RolloutKey = val
+// SetDefaultValue sets the value of DefaultValue.
+func (s *FeatureExtended) SetDefaultValue(val string) {
+	s.DefaultValue = val
 }
 
 // SetCreatedAt sets the value of CreatedAt.
@@ -4540,6 +4732,34 @@ func (s *ListChangesResponse) SetPagination(val Pagination) {
 
 func (*ListChangesResponse) listProjectChangesRes() {}
 
+// Ref: #/components/schemas/ListEnvironmentsResponse
+type ListEnvironmentsResponse struct {
+	Items      []Environment `json:"items"`
+	Pagination OptPagination `json:"pagination"`
+}
+
+// GetItems returns the value of Items.
+func (s *ListEnvironmentsResponse) GetItems() []Environment {
+	return s.Items
+}
+
+// GetPagination returns the value of Pagination.
+func (s *ListEnvironmentsResponse) GetPagination() OptPagination {
+	return s.Pagination
+}
+
+// SetItems sets the value of Items.
+func (s *ListEnvironmentsResponse) SetItems(val []Environment) {
+	s.Items = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *ListEnvironmentsResponse) SetPagination(val OptPagination) {
+	s.Pagination = val
+}
+
+func (*ListEnvironmentsResponse) listProjectEnvironmentsRes() {}
+
 type ListFeatureIDsResponse []string
 
 func (*ListFeatureIDsResponse) listSegmentDesyncFeatureIDsRes() {}
@@ -5369,6 +5589,52 @@ func (o OptEntityType) Or(d EntityType) EntityType {
 	return d
 }
 
+// NewOptEnvironment returns new OptEnvironment with value set to v.
+func NewOptEnvironment(v Environment) OptEnvironment {
+	return OptEnvironment{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptEnvironment is optional Environment.
+type OptEnvironment struct {
+	Value Environment
+	Set   bool
+}
+
+// IsSet returns true if OptEnvironment was set.
+func (o OptEnvironment) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptEnvironment) Reset() {
+	var v Environment
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptEnvironment) SetTo(v Environment) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptEnvironment) Get() (v Environment, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptEnvironment) Or(d Environment) Environment {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptFloat32 returns new OptFloat32 with value set to v.
 func NewOptFloat32(v float32) OptFloat32 {
 	return OptFloat32{
@@ -5501,6 +5767,52 @@ func (o OptInt) Get() (v int, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptInt) Or(d int) int {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptInt64 returns new OptInt64 with value set to v.
+func NewOptInt64(v int64) OptInt64 {
+	return OptInt64{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt64 is optional int64.
+type OptInt64 struct {
+	Value int64
+	Set   bool
+}
+
+// IsSet returns true if OptInt64 was set.
+func (o OptInt64) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt64) Reset() {
+	var v int64
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt64) SetTo(v int64) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt64) Get() (v int64, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt64) Or(d int64) int64 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -6845,6 +7157,7 @@ func (s *PendingChangePayload) SetMeta(val PendingChangeMeta) {
 // Ref: #/components/schemas/PendingChangeResponse
 type PendingChangeResponse struct {
 	ID              uuid.UUID                   `json:"id"`
+	EnvironmentKey  string                      `json:"environment_key"`
 	ProjectID       uuid.UUID                   `json:"project_id"`
 	RequestedBy     string                      `json:"requested_by"`
 	RequestUserID   OptNilUint                  `json:"request_user_id"`
@@ -6862,6 +7175,11 @@ type PendingChangeResponse struct {
 // GetID returns the value of ID.
 func (s *PendingChangeResponse) GetID() uuid.UUID {
 	return s.ID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *PendingChangeResponse) GetEnvironmentKey() string {
+	return s.EnvironmentKey
 }
 
 // GetProjectID returns the value of ProjectID.
@@ -6927,6 +7245,11 @@ func (s *PendingChangeResponse) GetRejectionReason() OptNilString {
 // SetID sets the value of ID.
 func (s *PendingChangeResponse) SetID(val uuid.UUID) {
 	s.ID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *PendingChangeResponse) SetEnvironmentKey(val string) {
+	s.EnvironmentKey = val
 }
 
 // SetProjectID sets the value of ProjectID.
@@ -7109,12 +7432,10 @@ func (*ProductInfoResponse) getProductInfoRes() {}
 
 // Ref: #/components/schemas/Project
 type Project struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	// API key for SDK access.
-	APIKey    string    `json:"api_key"`
-	CreatedAt time.Time `json:"created_at"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // GetID returns the value of ID.
@@ -7130,11 +7451,6 @@ func (s *Project) GetName() string {
 // GetDescription returns the value of Description.
 func (s *Project) GetDescription() string {
 	return s.Description
-}
-
-// GetAPIKey returns the value of APIKey.
-func (s *Project) GetAPIKey() string {
-	return s.APIKey
 }
 
 // GetCreatedAt returns the value of CreatedAt.
@@ -7155,11 +7471,6 @@ func (s *Project) SetName(val string) {
 // SetDescription sets the value of Description.
 func (s *Project) SetDescription(val string) {
 	s.Description = val
-}
-
-// SetAPIKey sets the value of APIKey.
-func (s *Project) SetAPIKey(val string) {
-	s.APIKey = val
 }
 
 // SetCreatedAt sets the value of CreatedAt.
@@ -8611,6 +8922,22 @@ func (s *UpdateCategoryRequest) SetDescription(val OptString) {
 // SetColor sets the value of Color.
 func (s *UpdateCategoryRequest) SetColor(val OptString) {
 	s.Color = val
+}
+
+// Ref: #/components/schemas/UpdateEnvironmentRequest
+type UpdateEnvironmentRequest struct {
+	// Human-readable environment name.
+	Name string `json:"name"`
+}
+
+// GetName returns the value of Name.
+func (s *UpdateEnvironmentRequest) GetName() string {
+	return s.Name
+}
+
+// SetName sets the value of Name.
+func (s *UpdateEnvironmentRequest) SetName(val string) {
+	s.Name = val
 }
 
 // Ref: #/components/schemas/UpdateFeatureScheduleRequest
