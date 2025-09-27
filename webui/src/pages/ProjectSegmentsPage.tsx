@@ -74,7 +74,7 @@ const SegmentDesyncCount: React.FC<{ segmentId: string }> = ({ segmentId }) => {
 };
 
 // Dialog to batch sync customized features for a segment
-const SyncCustomizedFeaturesDialog: React.FC<{ open: boolean; onClose: () => void; segmentId: string; }> = ({ open, onClose, segmentId }) => {
+const SyncCustomizedFeaturesDialog: React.FC<{ open: boolean; onClose: () => void; segmentId: string; environmentKey: string; }> = ({ open, onClose, segmentId, environmentKey }) => {
   const queryClient = useQueryClient();
   const { data: idsData, isLoading: loadingIds, isError: idsError } = useQuery<string[]>({
     queryKey: ['segment-desync-ids', segmentId],
@@ -90,7 +90,7 @@ const SyncCustomizedFeaturesDialog: React.FC<{ open: boolean; onClose: () => voi
     queryKey: ['segment-desync-features', segmentId, ids],
     queryFn: async () => {
       const arr = await Promise.all(ids.map(async (fid) => {
-        const r = await apiClient.getFeature(fid);
+        const r = await apiClient.getFeature(fid, environmentKey);
         return r.data as any;
       }));
       return arr;
@@ -128,7 +128,7 @@ const SyncCustomizedFeaturesDialog: React.FC<{ open: boolean; onClose: () => voi
         if (!selected[fid]) return;
         const ruleId = findRuleId(fd);
         if (!ruleId) return;
-        await apiClient.syncCustomizedFeatureRule(fid, ruleId);
+        await apiClient.syncCustomizedFeatureRule(fid, ruleId, environmentKey);
         // refresh specific feature cache if used elsewhere
         await queryClient.invalidateQueries({ queryKey: ['feature-details', fid] });
       }));
@@ -191,7 +191,8 @@ const CreateEditSegmentDialog: React.FC<{
   submitting?: boolean;
   isEdit?: boolean;
   segmentId?: string;
-}> = ({ open, onClose, onSubmit, initial, title, submitting, isEdit, segmentId }) => {
+  onSyncCustomized?: (segmentId: string) => void;
+}> = ({ open, onClose, onSubmit, initial, title, submitting, isEdit, segmentId, onSyncCustomized }) => {
   const [name, setName] = useState<string>(initial?.name || '');
   const [description, setDescription] = useState<string>(initial?.description || '');
   const [expr, setExpr] = useState<RuleConditionExpression>(initial?.conditions || { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any });
@@ -266,7 +267,7 @@ const CreateEditSegmentDialog: React.FC<{
       </DialogContent>
       <DialogActions>
         {isEdit && desyncCount > 0 && (
-          <Button variant="outlined" color="secondary" onClick={() => setSyncOpen(true)} size="small">
+          <Button variant="outlined" color="secondary" onClick={() => onSyncCustomized?.(segmentId || '')} size="small">
             Sync customized features
           </Button>
         )}
@@ -274,7 +275,6 @@ const CreateEditSegmentDialog: React.FC<{
         <Button onClick={handleSubmit} disabled={!canSubmit} variant="contained" size="small">Save</Button>
       </DialogActions>
     </Dialog>
-    <SyncCustomizedFeaturesDialog open={syncOpen} onClose={() => setSyncOpen(false)} segmentId={segmentId || ''} />
   </>
   );
 };
@@ -282,6 +282,14 @@ const CreateEditSegmentDialog: React.FC<{
 const ProjectSegmentsPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const queryClient = useQueryClient();
+  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
+  const [syncOpen, setSyncOpen] = useState(false);
+  const [segmentId, setSegmentId] = useState<string>('');
+
+  const handleSyncCustomized = (segId: string) => {
+    setSegmentId(segId);
+    setSyncOpen(true);
+  };
 
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
@@ -486,6 +494,7 @@ const ProjectSegmentsPage: React.FC = () => {
         submitting={createMutation.isPending}
         isEdit={false}
         onSubmit={(values) => createMutation.mutate(values)}
+        onSyncCustomized={handleSyncCustomized}
       />
 
       {/* Edit Dialog */}
@@ -498,6 +507,7 @@ const ProjectSegmentsPage: React.FC = () => {
         segmentId={editData?.id}
         initial={editData ? { name: editData.name, description: editData.description, conditions: editData.conditions as any } : undefined}
         onSubmit={(values) => editData && updateMutation.mutate({ id: editData.id, payload: values })}
+        onSyncCustomized={handleSyncCustomized}
       />
 
       {/* Delete confirm */}
@@ -512,6 +522,7 @@ const ProjectSegmentsPage: React.FC = () => {
         </DialogActions>
       </Dialog>
 
+      <SyncCustomizedFeaturesDialog open={syncOpen} onClose={() => setSyncOpen(false)} segmentId={segmentId || ''} environmentKey={environmentKey} />
     </AuthenticatedLayout>
   );
 };

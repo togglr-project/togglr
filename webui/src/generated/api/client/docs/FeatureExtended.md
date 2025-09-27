@@ -11,9 +11,9 @@ Name | Type | Description | Notes
 **name** | **string** |  | [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **kind** | [**FeatureKind**](FeatureKind.md) |  | [default to undefined]
-**default_variant** | **string** |  | [default to undefined]
-**enabled** | **boolean** |  | [default to undefined]
 **rollout_key** | **string** |  | [optional] [default to undefined]
+**enabled** | **boolean** | Whether the feature is enabled in the specified environment | [default to undefined]
+**default_value** | **string** | Default value for the feature in the specified environment | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 **is_active** | **boolean** | Indicates if the feature is currently active (taking schedules) | [default to undefined]
@@ -33,9 +33,9 @@ const instance: FeatureExtended = {
     name,
     description,
     kind,
-    default_variant,
-    enabled,
     rollout_key,
+    enabled,
+    default_value,
     created_at,
     updated_at,
     is_active,

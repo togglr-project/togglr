@@ -16,8 +16,10 @@ func (r *RestAPI) DeleteFeature(
 ) (generatedapi.DeleteFeatureRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
 
+	// Get environment key from query parameters
+	environmentKey := params.EnvironmentKey
 	// Load feature to know project and to return 404 if it doesn't exist
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -50,7 +52,7 @@ func (r *RestAPI) DeleteFeature(
 	}
 
 	// Delete feature (includes guard check)
-	guardResult, err := r.featuresUseCase.Delete(ctx, featureID)
+	guardResult, err := r.featuresUseCase.Delete(ctx, featureID, environmentKey)
 	if err != nil {
 		slog.Error("delete feature failed", "error", err, "feature_id", featureID)
 

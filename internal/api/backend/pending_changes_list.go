@@ -19,11 +19,17 @@ func (r *RestAPI) ListPendingChanges(
 	params generatedapi.ListPendingChangesParams,
 ) (generatedapi.ListPendingChangesRes, error) {
 	// Build filter
+	var envIDRef *domain.EnvironmentID
+	if params.EnvironmentID.IsSet() {
+		envID := domain.EnvironmentID(params.EnvironmentID.Value)
+		envIDRef = &envID
+	}
 	filter := contract.PendingChangesListFilter{
-		Page:     1,
-		PerPage:  20,
-		SortBy:   "created_at",
-		SortDesc: true,
+		Page:          1,
+		PerPage:       20,
+		SortBy:        "created_at",
+		SortDesc:      true,
+		EnvironmentID: envIDRef,
 	}
 
 	if params.ProjectID.Set {

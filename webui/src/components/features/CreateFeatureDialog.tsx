@@ -50,9 +50,10 @@ export interface CreateFeatureDialogProps {
   open: boolean;
   onClose: () => void;
   projectId: string;
+  environmentKey: string;
 }
 
-const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose, projectId }) => {
+const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose, projectId, environmentKey }) => {
   const queryClient = useQueryClient();
 
   // Form state
@@ -61,7 +62,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   const [description, setDescription] = useState('');
   const [rolloutKey, setRolloutKey] = useState('');
   const [kind, setKind] = useState<FeatureKind>('simple');
-  const [defaultVariant, setDefaultVariant] = useState('');
+  const [defaultValue, setDefaultValue] = useState('');
   const [enabled, setEnabled] = useState(true);
   const [variants, setVariants] = useState<VariantFormItem[]>([{ id: genId(), name: 'control', rollout_percent: 100 }]);
   const [rules, setRules] = useState<RuleFormItem[]>([]);
@@ -87,12 +88,12 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     description,
     rolloutKey,
     kind,
-    defaultVariant,
+    defaultValue,
     enabled,
     variants,
     rules,
     selectedTags,
-  }), [keyValue, name, description, rolloutKey, kind, defaultVariant, enabled, variants, rules, selectedTags]);
+  }), [keyValue, name, description, rolloutKey, kind, defaultValue, enabled, variants, rules, selectedTags]);
 
   const {
     hasChanges,
@@ -111,7 +112,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
       setDescription('');
       setRolloutKey('');
       setKind('simple');
-      setDefaultVariant('');
+      setDefaultValue('');
       setEnabled(true);
       setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
       setRules([]);
@@ -195,7 +196,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     setDescription('');
     setRolloutKey('');
     setKind('simple');
-    setDefaultVariant('');
+    setDefaultValue('');
     setEnabled(true);
     setVariants([{ id: genId(), name: 'control', rollout_percent: 100 }]);
     setRules([]);
@@ -220,13 +221,13 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         if (!variantsValid) throw new Error('Variants must have names, rollout between 1 and 100, and total rollout must equal 100');
       }
 
-      const dv = defaultVariant.trim();
+      const dv = defaultValue.trim();
 
-      let inlineVariants: { id: string; name: string; rollout_percent: number }[] | undefined;
-      let inlineRules: { id: string; conditions: RuleConditionExpression; action: RuleActionType; flag_variant_id?: string; priority?: number }[] | undefined;
+      let inlineVariants: { id: string; name: string; rollout_percent: number; environment_key: string }[] | undefined;
+      let inlineRules: { id: string; conditions: RuleConditionExpression; action: RuleActionType; flag_variant_id?: string; priority?: number; environment_key: string }[] | undefined;
 
       if (kind === 'multivariant') {
-        inlineVariants = variants.map((v) => ({ id: v.id, name: v.name.trim(), rollout_percent: Number(v.rollout_percent) || 0 }));
+        inlineVariants = variants.map((v) => ({ id: v.id, name: v.name.trim(), rollout_percent: Number(v.rollout_percent) || 0, environment_key: environmentKey }));
       }
 
       if (rules.length > 0) {
@@ -241,6 +242,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           conditions: r.expression,
           segment_id: r.segment_id || undefined,
           is_customized: r.segment_id ? Boolean(r.is_customized) : true,
+          environment_key: environmentKey,
         }));
       }
 
@@ -249,8 +251,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         name: name.trim(),
         description: description.trim() || undefined,
         kind,
-        default_variant: dv,
+        environment_key: environmentKey,
         enabled,
+        default_value: dv || undefined,
         rollout_key: kind === 'multivariant' ? (rolloutKey.trim() || undefined) : undefined,
         variants: inlineVariants,
         rules: inlineRules,
@@ -416,25 +419,14 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
               )}
             />
           )}
-          {kind === 'simple' ? (
-            <TextField
-              label="Default value (returned when enabled)"
-              value={defaultVariant}
-              onChange={(e) => setDefaultVariant(e.target.value)}
-              fullWidth
-              size="small"
-              helperText="Any value; when feature is enabled, this exact value is returned"
-            />
-          ) : (
-            <TextField
-              label="Default variant (free text)"
-              value={defaultVariant}
-              onChange={(e) => setDefaultVariant(e.target.value)}
-              fullWidth
-              size="small"
-              helperText="May be any string; not required to match defined variants"
-            />
-          )}
+          <TextField
+            label="Default value"
+            value={defaultValue}
+            onChange={(e) => setDefaultValue(e.target.value)}
+            fullWidth
+            size="small"
+            helperText="Default value returned when feature is enabled"
+          />
           <FormControlLabel
             control={<Switch checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />}
             label="Enabled"

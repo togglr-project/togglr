@@ -7,13 +7,14 @@ import (
 )
 
 type PendingChangesListFilter struct {
-	ProjectID *domain.ProjectID
-	Status    *domain.PendingChangeStatus
-	UserID    *int
-	SortBy    string // created_at, status, requested_by
-	SortDesc  bool
-	Page      uint
-	PerPage   uint
+	ProjectID     *domain.ProjectID
+	EnvironmentID *domain.EnvironmentID
+	Status        *domain.PendingChangeStatus
+	UserID        *int
+	SortBy        string // created_at, status, requested_by
+	SortDesc      bool
+	Page          uint
+	PerPage       uint
 }
 
 type PendingChangesUseCase interface {
@@ -21,6 +22,7 @@ type PendingChangesUseCase interface {
 	Create(
 		ctx context.Context,
 		projectID domain.ProjectID,
+		environmentID domain.EnvironmentID,
 		requestedBy string,
 		requestUserID *int,
 		change domain.PendingChangePayload,
@@ -89,6 +91,7 @@ type PendingChangesRepository interface {
 	Create(
 		ctx context.Context,
 		projectID domain.ProjectID,
+		environmentID domain.EnvironmentID,
 		requestedBy string,
 		requestUserID *int,
 		change domain.PendingChangePayload,

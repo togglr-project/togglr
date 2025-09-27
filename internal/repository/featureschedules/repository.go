@@ -97,6 +97,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_durati
 		domain.AuditActionCreate,
 		nil,
 		created,
+		created.EnvironmentID,
 	); err != nil {
 		return domain.FeatureSchedule{}, fmt.Errorf("audit schedule create: %w", err)
 	}
@@ -163,6 +164,37 @@ SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr,
 FROM feature_schedules WHERE feature_id = $1 ORDER BY created_at`
 
 	rows, err := exec.Query(ctx, query, featureID)
+	if err != nil {
+		return nil, fmt.Errorf("query schedules by feature_id: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[scheduleModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect schedule rows: %w", err)
+	}
+
+	items := make([]domain.FeatureSchedule, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	return items, nil
+}
+
+func (r *Repository) ListByFeatureIDWithEnvID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) ([]domain.FeatureSchedule, error) {
+	exec := r.getExecutor(ctx)
+
+	const query = `
+SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, 
+       cron_duration, timezone, action, created_at, updated_at 
+FROM feature_schedules WHERE feature_id = $1 AND environment_id = $2 ORDER BY created_at`
+
+	rows, err := exec.Query(ctx, query, featureID, envID)
 	if err != nil {
 		return nil, fmt.Errorf("query schedules by feature_id: %w", err)
 	}
@@ -265,6 +297,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_durati
 		domain.AuditActionUpdate,
 		old,
 		updated,
+		updated.EnvironmentID,
 	); err != nil {
 		return domain.FeatureSchedule{}, fmt.Errorf("audit schedule update: %w", err)
 	}
@@ -290,6 +323,7 @@ func (r *Repository) Delete(ctx context.Context, id domain.FeatureScheduleID) er
 		domain.AuditActionDelete,
 		old,
 		nil,
+		old.EnvironmentID,
 	); err != nil {
 		return fmt.Errorf("audit schedule delete: %w", err)
 	}

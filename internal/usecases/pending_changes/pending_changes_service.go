@@ -52,6 +52,7 @@ func New(
 func (s *Service) Create(
 	ctx context.Context,
 	projectID domain.ProjectID,
+	environmentID domain.EnvironmentID,
 	requestedBy string,
 	requestUserID *int,
 	change domain.PendingChangePayload,
@@ -60,7 +61,7 @@ func (s *Service) Create(
 
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
-		created, err = s.pendingChangesRepo.Create(ctx, projectID, requestedBy, requestUserID, change)
+		created, err = s.pendingChangesRepo.Create(ctx, projectID, environmentID, requestedBy, requestUserID, change)
 		if err != nil {
 			return fmt.Errorf("create pending change: %w", err)
 		}
@@ -327,7 +328,7 @@ func (s *Service) applyChanges(ctx context.Context, pendingChange domain.Pending
 	for _, entity := range pendingChange.Change.Entities {
 		switch entity.Entity {
 		case "feature":
-			if err := s.applyFeatureChange(ctx, entity); err != nil {
+			if err := s.applyFeatureChange(ctx, pendingChange.EnvironmentID, entity); err != nil {
 				return fmt.Errorf("apply feature change: %w", err)
 			}
 		// TODO: Add other entity types
@@ -342,6 +343,7 @@ func (s *Service) applyChanges(ctx context.Context, pendingChange domain.Pending
 // applyFeatureChange applies a change to a feature.
 func (s *Service) applyFeatureChange(
 	ctx context.Context,
+	envID domain.EnvironmentID,
 	entity domain.EntityChange,
 ) error {
 	featureID := domain.FeatureID(entity.EntityID)
@@ -359,14 +361,6 @@ func (s *Service) applyFeatureChange(
 
 		for field, change := range entity.Changes {
 			switch field {
-			case "enabled":
-				if newValue, ok := change.New.(bool); ok {
-					updatedFeature.Enabled = newValue
-				}
-			case "default_variant":
-				if newValue, ok := change.New.(string); ok {
-					updatedFeature.DefaultVariant = newValue
-				}
 			case "name":
 				if newValue, ok := change.New.(string); ok {
 					updatedFeature.Name = newValue
@@ -379,14 +373,14 @@ func (s *Service) applyFeatureChange(
 		}
 
 		// Update feature
-		_, err = s.featuresRepo.Update(ctx, updatedFeature)
+		_, err = s.featuresRepo.Update(ctx, envID, updatedFeature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
 
 	case domain.EntityActionDelete:
 		// Delete feature
-		err := s.featuresRepo.Delete(ctx, featureID)
+		err := s.featuresRepo.Delete(ctx, envID, featureID)
 		if err != nil {
 			return fmt.Errorf("delete feature: %w", err)
 		}

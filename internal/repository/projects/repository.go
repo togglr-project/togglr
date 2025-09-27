@@ -47,34 +47,17 @@ func (r *Repository) GetByID(ctx context.Context, id domain.ProjectID) (domain.P
 }
 
 func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
-	executor := r.getExecutor(ctx)
-
-	const query = `SELECT * FROM projects WHERE api_key = $1 LIMIT 1`
-
-	rows, err := executor.Query(ctx, query, apiKey)
-	if err != nil {
-		return domain.Project{}, fmt.Errorf("query project by API key: %w", err)
-	}
-	defer rows.Close()
-
-	project, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[projectModel])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Project{}, domain.ErrEntityNotFound
-		}
-
-		return domain.Project{}, fmt.Errorf("collect project: %w", err)
-	}
-
-	return project.toDomain(), nil
+	// This method is deprecated - API keys are now per environment
+	// For backward compatibility, we'll return an error
+	return domain.Project{}, domain.ErrEntityNotFound
 }
 
 func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (domain.ProjectID, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
-INSERT INTO projects (name, description, api_key, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $4)
+INSERT INTO projects (name, description, created_at, updated_at)
+VALUES ($1, $2, $3, $3)
 RETURNING id`
 
 	var id string
@@ -82,7 +65,6 @@ RETURNING id`
 	err := executor.QueryRow(ctx, query,
 		project.Name,
 		project.Description,
-		project.APIKey,
 		time.Now(),
 	).Scan(&id)
 	if err != nil {

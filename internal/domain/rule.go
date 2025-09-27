@@ -8,6 +8,7 @@ type Rule struct {
 	ID            RuleID
 	ProjectID     ProjectID
 	FeatureID     FeatureID
+	EnvironmentID EnvironmentID
 	Conditions    BooleanExpression
 	SegmentID     *SegmentID
 	IsCustomized  bool

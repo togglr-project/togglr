@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **string** |  | [default to undefined]
+**environment_key** | **string** |  | [default to undefined]
 **project_id** | **string** |  | [default to undefined]
 **requested_by** | **string** |  | [default to undefined]
 **request_user_id** | **number** |  | [optional] [default to undefined]
@@ -26,6 +27,7 @@ import { PendingChangeResponse } from './api';
 
 const instance: PendingChangeResponse = {
     id,
+    environment_key,
     project_id,
     requested_by,
     request_user_id,

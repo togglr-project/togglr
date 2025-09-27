@@ -11,7 +11,6 @@ func DomainProjectToAPI(project domain.Project) generatedapi.Project {
 		ID:          project.ID.String(),
 		Name:        project.Name,
 		Description: project.Description,
-		APIKey:      project.APIKey,
 		CreatedAt:   project.CreatedAt,
 	}
 }
@@ -32,7 +31,6 @@ func APIProjectToDomain(project generatedapi.Project) domain.Project {
 		ID:          domain.ProjectID(project.ID),
 		Name:        project.Name,
 		Description: project.Description,
-		APIKey:      project.APIKey,
 		CreatedAt:   project.CreatedAt,
 	}
 }

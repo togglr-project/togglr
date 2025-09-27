@@ -52,7 +52,6 @@ func (r *RestAPI) GetProject(
 			ID:          project.ID.String(),
 			Name:        project.Name,
 			Description: project.Description,
-			APIKey:      project.APIKey,
 			CreatedAt:   project.CreatedAt,
 		},
 	}, nil

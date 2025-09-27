@@ -145,6 +145,7 @@ const ProjectSchedulingPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
 
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
@@ -173,8 +174,9 @@ const ProjectSchedulingPage: React.FC = () => {
       const tagIds = selectedTags.length > 0 ? selectedTags.map(tag => tag.id).join(',') : undefined;
       const res = await apiClient.listProjectFeatures(
         projectId,
+        environmentKey,
         kindFilter === 'all' ? undefined : kindFilter,
-        enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
+        enabledFilter === 'all' ? undefined : (enabledFilter === 'enabled'),
         minSearch,
         tagIds,
         sortBy,
@@ -408,7 +410,7 @@ const ProjectSchedulingPage: React.FC = () => {
   // Mutations
   const createMut = useMutation({
     mutationFn: async ({ featureId, values }: { featureId: string; values: ScheduleFormValues }) => {
-      return apiClient.createFeatureSchedule(featureId, values);
+      return apiClient.createFeatureSchedule(featureId, environmentKey, values);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
@@ -448,7 +450,7 @@ const ProjectSchedulingPage: React.FC = () => {
         cron_expr: data.cronExpression,
         cron_duration: formatDuration(data.duration)
       };
-      return apiClient.createFeatureSchedule(featureId, payload);
+      return apiClient.createFeatureSchedule(featureId, environmentKey, payload);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
@@ -459,7 +461,7 @@ const ProjectSchedulingPage: React.FC = () => {
 
   const createOneShotScheduleMut = useMutation({
     mutationFn: async ({ featureId, data }: { featureId: string; data: { timezone: string; starts_at: string; ends_at: string; action: FeatureScheduleAction } }) => {
-      return apiClient.createFeatureSchedule(featureId, data);
+      return apiClient.createFeatureSchedule(featureId, environmentKey, data);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
@@ -511,7 +513,7 @@ const ProjectSchedulingPage: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">{f.key}</Typography>
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Chip size="small" label={`kind: ${f.kind}`} />
-                  <Chip size="small" label={`default: ${f.default_variant}`} />
+                  <Chip size="small" label={`default: ${f.default_value}`} />
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>
@@ -989,7 +991,6 @@ const ProjectSchedulingPage: React.FC = () => {
         <DialogContent>
           <ScheduleBuilder
             open={scheduleBuilderOpen}
-            onClose={closeScheduleBuilder}
             featureId={dialogFeature?.id || ''}
             onSubmit={(data) => {
               if (dialogFeature) {
@@ -1024,7 +1025,6 @@ const ProjectSchedulingPage: React.FC = () => {
         <DialogContent>
           <EditRecurringScheduleBuilder
             open={editRecurringBuilderOpen}
-            onClose={closeEditRecurringBuilder}
             featureId={editingSchedule?.feature_id || ''}
             onSubmit={(data) => {
               if (editingSchedule) {

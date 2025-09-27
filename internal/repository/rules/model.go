@@ -13,6 +13,7 @@ type ruleModel struct {
 	ID            string         `db:"id"`
 	ProjectID     string         `db:"project_id"`
 	FeatureID     string         `db:"feature_id"`
+	EnvironmentID int64          `db:"environment_id"`
 	Condition     []byte         `db:"condition"`
 	SegmentID     sql.NullString `db:"segment_id"`
 	IsCustomized  bool           `db:"is_customized"`
@@ -48,6 +49,7 @@ func (m *ruleModel) toDomain() domain.Rule {
 		ID:            domain.RuleID(m.ID),
 		ProjectID:     domain.ProjectID(m.ProjectID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
+		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
 		Conditions:    conditions,
 		SegmentID:     segmentIDRef,
 		IsCustomized:  m.IsCustomized,

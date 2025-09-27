@@ -113,7 +113,8 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	newHolder := make(Holder, len(projects))
 
 	for _, project := range projects {
-		items, err := s.featuresUC.ListExtendedByProjectID(ctx, project.ID)
+		// TODO: Get environment_key from context or parameter
+		items, err := s.featuresUC.ListExtendedByProjectID(ctx, project.ID, "prod")
 		if err != nil {
 			return fmt.Errorf("list features for project %s: %w", project.ID, err)
 		}
@@ -275,7 +276,7 @@ func (s *Service) Evaluate(
 			}
 		}
 
-		return feature.DefaultVariant, true, true
+		return feature.DefaultValue, true, true
 	}
 
 	// если были include-правила
@@ -291,7 +292,7 @@ func (s *Service) Evaluate(
 			feature.FlagVariants,
 			feature.RolloutKey,
 			reqCtx,
-			feature.DefaultVariant,
+			feature.DefaultValue,
 		)
 
 		return value, true, true
@@ -303,7 +304,7 @@ func (s *Service) Evaluate(
 		feature.FlagVariants,
 		feature.RolloutKey,
 		reqCtx,
-		feature.DefaultVariant,
+		feature.DefaultValue,
 	)
 
 	return value, true, true
@@ -480,7 +481,8 @@ func getOppositeAction(action domain.FeatureScheduleAction) domain.FeatureSchedu
 }
 
 func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
-	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID)
+	// TODO: Get environment_key from context or parameter
+	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID, "prod")
 	if err != nil {
 		return fmt.Errorf("get feature extended by id %s: %w", featureID, err)
 	}
@@ -504,7 +506,7 @@ func (s *Service) removeFeatureFromHolder(
 	projectID domain.ProjectID,
 	featureID domain.FeatureID,
 ) {
-	feature, err := s.featuresUC.GetByID(ctx, featureID)
+	feature, err := s.featuresUC.GetByIDWithEnvironment(ctx, featureID, "prod")
 	if err != nil {
 		slog.Error("get feature by id failed", "err", err)
 

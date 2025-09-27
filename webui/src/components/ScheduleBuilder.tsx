@@ -25,7 +25,6 @@ import {
   Check as CheckIcon,
   Help as HelpIcon
 } from '@mui/icons-material';
-// @ts-expect-error - timezone-support types are not available
 import { listTimeZones } from 'timezone-support';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';

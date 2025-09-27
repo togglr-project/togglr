@@ -1761,6 +1761,13 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          description: Environment key (dev, stage, prod) to filter features
+          schema:
+            type: string
+            example: "prod"
         - name: kind
           in: query
           required: false
@@ -1928,6 +1935,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Feature details with rules and variants
@@ -1973,6 +1985,11 @@ paths:
       parameters:
         - name: feature_id
           in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
           required: true
           schema:
             type: string
@@ -2042,6 +2059,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '204':
           description: Feature deleted successfully
@@ -2093,6 +2115,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: List of rules for the feature
@@ -2138,6 +2165,11 @@ paths:
       parameters:
         - name: feature_id
           in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
           required: true
           schema:
             type: string
@@ -2208,6 +2240,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Feature rule synchronized
@@ -2258,6 +2295,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: List of schedules for the feature
@@ -2303,6 +2345,11 @@ paths:
       parameters:
         - name: feature_id
           in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
           required: true
           schema:
             type: string
@@ -2560,6 +2607,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: List of flag variants for the feature
@@ -2605,6 +2657,11 @@ paths:
       parameters:
         - name: feature_id
           in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
           required: true
           schema:
             type: string
@@ -2667,6 +2724,11 @@ paths:
       parameters:
         - name: feature_id
           in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
           required: true
           schema:
             type: string
@@ -4533,6 +4595,274 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  # --- Environment Endpoints ---
+  /api/v1/projects/{project_id}/environments:
+    get:
+      summary: List project environments
+      operationId: ListProjectEnvironments
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of environments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListEnvironmentsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create environment
+      operationId: CreateEnvironment
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnvironmentRequest'
+      responses:
+        '201':
+          description: Environment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '409':
+          description: Environment already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/environments/{environment_id}:
+    get:
+      summary: Get environment
+      operationId: GetEnvironment
+      parameters:
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Environment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Environment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update environment
+      operationId: UpdateEnvironment
+      parameters:
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEnvironmentRequest'
+      responses:
+        '200':
+          description: Environment updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Environment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete environment
+      operationId: DeleteEnvironment
+      parameters:
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Environment deleted
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Environment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+
   # --- Pending Changes Endpoints ---
   /api/v1/pending_changes:
     get:
@@ -4541,6 +4871,12 @@ paths:
       security:
         - bearerAuth: []
       parameters:
+        - name: environment_id
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
         - name: project_id
           in: query
           required: false
@@ -5683,15 +6019,11 @@ components:
           type: string
           example: Mailing system project for developers
           nullable: false
-        api_key:
-          type: string
-          description: API key for SDK access
-          example: "b7c5c0d4-5f9a-4e2a-9f3d-1f2e3d4c5b6a"
         created_at:
           type: string
           format: date-time
           example: "2023-01-01T00:00:00Z"
-      required: [id, name, description, api_key, created_at]
+      required: [id, name, description, created_at]
 
     ListProjectsResponse:
       type: array
@@ -5733,15 +6065,17 @@ components:
           example: "Optional description"
         kind:
           $ref: '#/components/schemas/FeatureKind'
-        default_variant:
-          type: string
-          example: "on"
-        enabled:
-          type: boolean
-          example: true
         rollout_key:
           type: string
           example: "user.id"
+        enabled:
+          type: boolean
+          description: Whether the feature is enabled in the specified environment
+          example: true
+        default_value:
+          type: string
+          description: Default value for the feature in the specified environment
+          example: "default"
         created_at:
           type: string
           format: date-time
@@ -5750,7 +6084,7 @@ components:
           type: string
           format: date-time
           example: "2023-01-01T01:00:00Z"
-      required: [id, project_id, key, name, kind, default_variant, enabled, created_at, updated_at]
+      required: [id, project_id, key, name, kind, enabled, default_value, created_at, updated_at]
 
     FeatureExtended:
       allOf:
@@ -5798,12 +6132,19 @@ components:
           maxLength: 300
         kind:
           $ref: '#/components/schemas/FeatureKind'
-        default_variant:
+        environment_key:
+          type: string
+          maxLength: 20
+          description: Environment key (dev, stage, prod) for this feature
+          example: "prod"
+        default_value:
           type: string
           minLength: 1
           maxLength: 128
+          description: Default value for the feature in the specified environment
         enabled:
           type: boolean
+          description: Whether the feature is enabled in the specified environment
         rollout_key:
           type: string
           maxLength: 50
@@ -5819,7 +6160,7 @@ components:
           maxItems: 100
           items:
             $ref: '#/components/schemas/CreateRuleInline'
-      required: [key, name, kind, default_variant]
+      required: [key, name, kind, environment_key, enabled, default_value]
 
     ToggleFeatureRequest:
       type: object
@@ -6063,7 +6404,12 @@ components:
           type: integer
           minimum: 1
           maximum: 100
-      required: [id, name, rollout_percent]
+        environment_key:
+          type: string
+          maxLength: 20
+          description: Environment key (dev, stage, prod) for this variant
+          example: "prod"
+      required: [id, name, rollout_percent, environment_key]
 
     FlagVariantResponse:
       type: object
@@ -6202,7 +6548,12 @@ components:
           type: integer
           minimum: 0
           maximum: 255
-      required: [id, conditions, is_customized, action]
+        environment_key:
+          type: string
+          maxLength: 20
+          description: Environment key (dev, stage, prod) for this rule
+          example: "prod"
+      required: [id, conditions, is_customized, action, environment_key]
 
     RuleResponse:
       type: object
@@ -7025,6 +7376,9 @@ components:
           type: string
           format: uuid
           example: "550e8400-e29b-41d4-a716-446655440000"
+        environment_key:
+          type: string
+          example: "prod"
         project_id:
           type: string
           format: uuid
@@ -7074,7 +7428,7 @@ components:
           type: string
           example: "Not approved by team lead"
           nullable: true
-      required: [id, project_id, requested_by, change, status, created_at]
+      required: [id, project_id, requested_by, change, status, environment_key, created_at]
 
     PendingChangesListResponse:
       type: object
@@ -7226,3 +7580,89 @@ components:
             $ref: '#/components/schemas/ProjectSetting'
         pagination:
           $ref: '#/components/schemas/Pagination'
+
+    # Environment Schemas
+    Environment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Environment ID
+        project_id:
+          type: string
+          format: uuid
+          description: Project ID
+        key:
+          type: string
+          maxLength: 20
+          description: Environment key (dev, stage, prod)
+          example: "prod"
+        name:
+          type: string
+          maxLength: 50
+          description: Human-readable environment name
+          example: "Production"
+        api_key:
+          type: string
+          format: uuid
+          description: API key for this environment
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+      required:
+        - id
+        - project_id
+        - key
+        - name
+        - api_key
+        - created_at
+
+    CreateEnvironmentRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          maxLength: 20
+          minLength: 1
+          description: Environment key (dev, stage, prod)
+          example: "prod"
+        name:
+          type: string
+          maxLength: 50
+          minLength: 1
+          description: Human-readable environment name
+          example: "Production"
+      required:
+        - key
+        - name
+
+    UpdateEnvironmentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          minLength: 1
+          description: Human-readable environment name
+          example: "Production"
+      required:
+        - name
+
+    EnvironmentResponse:
+      type: object
+      properties:
+        environment:
+          $ref: '#/components/schemas/Environment'
+
+    ListEnvironmentsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Environment'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+

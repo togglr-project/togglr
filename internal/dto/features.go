@@ -10,17 +10,17 @@ import (
 // DomainFeatureToAPI converts domain Feature to generated API Feature.
 func DomainFeatureToAPI(feature domain.Feature) generatedapi.Feature {
 	return generatedapi.Feature{
-		ID:             feature.ID.String(),
-		ProjectID:      feature.ProjectID.String(),
-		Key:            feature.Key,
-		Name:           feature.Name,
-		Description:    ptrToOptNilString(&feature.Description),
-		Kind:           generatedapi.FeatureKind(feature.Kind),
-		DefaultVariant: feature.DefaultVariant,
-		Enabled:        feature.Enabled,
-		RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
-		CreatedAt:      feature.CreatedAt,
-		UpdatedAt:      feature.UpdatedAt,
+		ID:           feature.ID.String(),
+		ProjectID:    feature.ProjectID.String(),
+		Key:          feature.Key,
+		Name:         feature.Name,
+		Description:  ptrToOptNilString(&feature.Description),
+		Kind:         generatedapi.FeatureKind(feature.Kind),
+		RolloutKey:   ruleAttribute2OptString(feature.RolloutKey),
+		Enabled:      feature.Enabled,
+		DefaultValue: feature.DefaultValue,
+		CreatedAt:    feature.CreatedAt,
+		UpdatedAt:    feature.UpdatedAt,
 	}
 }
 
@@ -32,18 +32,18 @@ func DomainFeatureExtendedToAPI(
 	nextStateTime *time.Time,
 ) generatedapi.FeatureExtended {
 	item := generatedapi.FeatureExtended{
-		ID:             feature.ID.String(),
-		ProjectID:      feature.ProjectID.String(),
-		Key:            feature.Key,
-		Name:           feature.Name,
-		Description:    ptrToOptNilString(&feature.Description),
-		Kind:           generatedapi.FeatureKind(feature.Kind),
-		DefaultVariant: feature.DefaultVariant,
-		Enabled:        feature.Enabled,
-		RolloutKey:     ruleAttribute2OptString(feature.RolloutKey),
-		CreatedAt:      feature.CreatedAt,
-		UpdatedAt:      feature.UpdatedAt,
-		IsActive:       isActive,
+		ID:           feature.ID.String(),
+		ProjectID:    feature.ProjectID.String(),
+		Key:          feature.Key,
+		Name:         feature.Name,
+		Description:  ptrToOptNilString(&feature.Description),
+		Kind:         generatedapi.FeatureKind(feature.Kind),
+		RolloutKey:   ruleAttribute2OptString(feature.RolloutKey),
+		Enabled:      feature.Enabled,
+		DefaultValue: feature.DefaultValue,
+		CreatedAt:    feature.CreatedAt,
+		UpdatedAt:    feature.UpdatedAt,
+		IsActive:     isActive,
 	}
 
 	// Handle next state
@@ -71,16 +71,29 @@ func DomainFeaturesToAPI(features []domain.Feature) []generatedapi.Feature {
 // APIFeatureToDomain converts generated API Feature to domain Feature.
 func APIFeatureToDomain(feature generatedapi.Feature) domain.Feature {
 	return domain.Feature{
-		ID:             domain.FeatureID(feature.ID),
-		ProjectID:      domain.ProjectID(feature.ProjectID),
-		Key:            feature.Key,
-		Name:           feature.Name,
-		Description:    *optNilStringToPtr(feature.Description),
-		Kind:           domain.FeatureKind(feature.Kind),
-		DefaultVariant: feature.DefaultVariant,
-		Enabled:        feature.Enabled,
-		RolloutKey:     domain.RuleAttribute(optStringToRuleAttribute(feature.RolloutKey)),
-		CreatedAt:      feature.CreatedAt,
-		UpdatedAt:      feature.UpdatedAt,
+		ID:          domain.FeatureID(feature.ID),
+		ProjectID:   domain.ProjectID(feature.ProjectID),
+		Key:         feature.Key,
+		Name:        feature.Name,
+		Description: *optNilStringToPtr(feature.Description),
+		Kind:        domain.FeatureKind(feature.Kind),
+		RolloutKey:  domain.RuleAttribute(optStringToRuleAttribute(feature.RolloutKey)),
+		CreatedAt:   feature.CreatedAt,
+		UpdatedAt:   feature.UpdatedAt,
+	}
+}
+
+// CreateFeatureRequestToDomain converts API CreateFeatureRequest to domain Feature.
+// Note: This function requires environment_id to be resolved from environment_key.
+func CreateFeatureRequestToDomain(req generatedapi.CreateFeatureRequest, projectID domain.ProjectID, environmentID domain.EnvironmentID) domain.Feature {
+	return domain.Feature{
+		ProjectID:   projectID,
+		Key:         req.Key,
+		Name:        req.Name,
+		Description: optNilStringToString(req.Description),
+		Kind:        domain.FeatureKind(req.Kind),
+		RolloutKey:  domain.RuleAttribute(optStringToString(req.RolloutKey)),
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 }

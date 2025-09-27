@@ -22,6 +22,8 @@ import (
 	"github.com/togglr-project/togglr/internal/license"
 	"github.com/togglr-project/togglr/internal/repository/auditlog"
 	"github.com/togglr-project/togglr/internal/repository/categories"
+	environmentsrepo "github.com/togglr-project/togglr/internal/repository/environments"
+	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
 	"github.com/togglr-project/togglr/internal/repository/features"
 	"github.com/togglr-project/togglr/internal/repository/featureschedules"
@@ -51,6 +53,7 @@ import (
 	samlprovider "github.com/togglr-project/togglr/internal/services/sso/saml"
 	"github.com/togglr-project/togglr/internal/services/tokenizer"
 	categoriesusecase "github.com/togglr-project/togglr/internal/usecases/categories"
+	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
 	featuretagsusecase "github.com/togglr-project/togglr/internal/usecases/feature_tags"
 	featuresusecase "github.com/togglr-project/togglr/internal/usecases/features"
 	featureschedulesusecase "github.com/togglr-project/togglr/internal/usecases/featureschedules"
@@ -214,6 +217,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(project_approvers.New).Arg(app.PostgresPool)
 	app.registerComponent(project_settings.New).Arg(app.PostgresPool)
 	app.registerComponent(guard_service.New).Arg(app.PostgresPool)
+	app.registerComponent(environmentsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(featureparamsrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -245,6 +250,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(ruleattributesusecase.New)
 	app.registerComponent(pendingchangesusecase.New)
 	app.registerComponent(projectsettingsusecase.New)
+	app.registerComponent(environmentsusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

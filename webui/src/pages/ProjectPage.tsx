@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Paper, Typography, Button, CircularProgress, Pagination } from '@mui/material';
+import { Box, Paper, Typography, Button, CircularProgress, Pagination, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
@@ -35,6 +35,18 @@ const ProjectPage: React.FC = () => {
     enabled: !!projectId,
   });
 
+  // Get environments for the project
+  const { data: environmentsResp, isLoading: loadingEnvironments } = useQuery({
+    queryKey: ['project-environments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectEnvironments(projectId);
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+
+  const environments = environmentsResp?.items ?? [];
+
   // Filters, sorting and pagination state
   const [search, setSearch] = useState('');
   const [enabledFilter, setEnabledFilter] = useState<'all' | 'enabled' | 'disabled'>('all');
@@ -44,15 +56,17 @@ const ProjectPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
+  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
 
   const effectiveSearch = search.trim();
   const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
   const { data: featuresResp, isLoading: loadingFeatures, error: featuresError } = useQuery<ListFeaturesResponse>({
-    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage, selectedTags }],
+    queryKey: ['project-features', projectId, { search: minSearch, enabledFilter, kindFilter, sortBy, sortOrder, page, perPage, selectedTags, environmentKey }],
     queryFn: async () => {
       const tagIds = selectedTags.length > 0 ? selectedTags.map(tag => tag.id).join(',') : undefined;
       const res = await apiClient.listProjectFeatures(
         projectId,
+        environmentKey,
         kindFilter === 'all' ? undefined : kindFilter,
         enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
         minSearch,
@@ -105,7 +119,7 @@ const ProjectPage: React.FC = () => {
   const toggleMutation = useMutation({
     mutationFn: async ({ featureId, enabled }: { featureId: string; enabled: boolean }) => {
       try {
-        const res = await apiClient.toggleFeature(featureId, { enabled });
+        const res = await apiClient.toggleFeature(featureId, environmentKey, { enabled });
         return { data: res.data, status: res.status };
       } catch (error: any) {
         // Handle guard workflow responses
@@ -203,6 +217,25 @@ const ProjectPage: React.FC = () => {
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)} size="small">
             Add Feature
           </Button>
+        </Box>
+
+        {/* Environment selector */}
+        <Box sx={{ mb: 2 }}>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Environment</InputLabel>
+            <Select
+              value={environmentKey}
+              label="Environment"
+              onChange={(e) => setEnvironmentKey(e.target.value)}
+              disabled={loadingEnvironments}
+            >
+              {environments.map((env) => (
+                <MenuItem key={env.id} value={env.key}>
+                  {env.name} ({env.key})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
 
         {/* Search and filters */}
@@ -345,6 +378,7 @@ const ProjectPage: React.FC = () => {
                 <FeaturePreviewPanel
                   selectedFeature={previewFeature}
                   projectId={projectId!}
+                  environmentKey={environmentKey}
                   onClose={() => setPreviewFeature(null)}
                 />
               </Box>
@@ -370,7 +404,7 @@ const ProjectPage: React.FC = () => {
       </Paper>
 
       {/* Feature Details Dialog */}
-      <FeatureDetailsDialog open={detailsOpen} onClose={() => setDetailsOpen(false)} feature={selectedFeature} />
+      <FeatureDetailsDialog open={detailsOpen} onClose={() => setDetailsOpen(false)} feature={selectedFeature} environmentKey={environmentKey} />
 
       {/* Feature Edit Dialog */}
       <EditFeatureDialog 
@@ -378,10 +412,11 @@ const ProjectPage: React.FC = () => {
         onClose={() => setEditOpen(false)} 
         featureDetails={null}
         feature={editFeature}
+        environmentKey={environmentKey}
       />
 
       {/* Create Feature Dialog */}
-      <CreateFeatureDialog open={open} onClose={() => setOpen(false)} projectId={projectId} />
+      <CreateFeatureDialog open={open} onClose={() => setOpen(false)} projectId={projectId} environmentKey={environmentKey} />
 
       {/* Guard Response Handler */}
       <GuardResponseHandler

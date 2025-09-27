@@ -28,6 +28,7 @@ import apiClient from '../../api/apiClient';
 interface FeaturePreviewPanelProps {
   selectedFeature: FeatureExtended | null;
   projectId: string;
+  environmentKey: string;
   onClose: () => void;
 }
 
@@ -87,6 +88,7 @@ const formatActionText = (action: string, entity: string) => {
 const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
   selectedFeature,
   projectId,
+  environmentKey,
   onClose,
 }) => {
   if (!selectedFeature) {
@@ -114,7 +116,7 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
   const { data: featureDetails } = useQuery<FeatureDetailsResponse>({
     queryKey: ['feature-details', selectedFeature.id],
     queryFn: async () => {
-      const response = await apiClient.getFeature(selectedFeature.id);
+      const response = await apiClient.getFeature(selectedFeature.id, environmentKey);
       return response.data;
     },
     enabled: !!selectedFeature,
@@ -202,21 +204,21 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
       )}
 
       {/* Default Variant/Value and Available Variants */}
-      {selectedFeature.default_variant && (
+      {selectedFeature.default_value && (
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
             {selectedFeature.kind === 'multivariant' ? 'Variants' : 'Default Value'}
           </Typography>
           <Stack direction="row" spacing={0.5} flexWrap="wrap" gap={0.5}>
             <Chip
-              label={`default: ${selectedFeature.default_variant}`}
+              label={`default: ${selectedFeature.default_value}`}
               variant="outlined"
               size="small"
               sx={{ fontSize: '0.7rem', height: 20 }}
             />
             {selectedFeature.kind === 'multivariant' && variants.length > 0 && (
               variants
-                .filter(v => v !== selectedFeature.default_variant)
+                .filter(v => v !== selectedFeature.default_value)
                 .map((variant) => (
                   <Chip
                     key={variant}

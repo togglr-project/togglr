@@ -98,6 +98,15 @@ func (UnimplementedHandler) CreateCategory(ctx context.Context, req *CreateCateg
 	return r, ht.ErrNotImplemented
 }
 
+// CreateEnvironment implements CreateEnvironment operation.
+//
+// Create environment.
+//
+// POST /api/v1/projects/{project_id}/environments
+func (UnimplementedHandler) CreateEnvironment(ctx context.Context, req *CreateEnvironmentRequest, params CreateEnvironmentParams) (r CreateEnvironmentRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
 //
 // Create flag variant for feature.
@@ -185,6 +194,15 @@ func (UnimplementedHandler) CreateUser(ctx context.Context, req *CreateUserReque
 //
 // DELETE /api/v1/categories/{category_id}
 func (UnimplementedHandler) DeleteCategory(ctx context.Context, params DeleteCategoryParams) (r DeleteCategoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteEnvironment implements DeleteEnvironment operation.
+//
+// Delete environment.
+//
+// DELETE /api/v1/environments/{environment_id}
+func (UnimplementedHandler) DeleteEnvironment(ctx context.Context, params DeleteEnvironmentParams) (r DeleteEnvironmentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -293,6 +311,15 @@ func (UnimplementedHandler) GetCategory(ctx context.Context, params GetCategoryP
 //
 // GET /api/v1/users/me
 func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUserRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetEnvironment implements GetEnvironment operation.
+//
+// Get environment.
+//
+// GET /api/v1/environments/{environment_id}
+func (UnimplementedHandler) GetEnvironment(ctx context.Context, params GetEnvironmentParams) (r GetEnvironmentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -539,6 +566,15 @@ func (UnimplementedHandler) ListProjectChanges(ctx context.Context, params ListP
 	return r, ht.ErrNotImplemented
 }
 
+// ListProjectEnvironments implements ListProjectEnvironments operation.
+//
+// List project environments.
+//
+// GET /api/v1/projects/{project_id}/environments
+func (UnimplementedHandler) ListProjectEnvironments(ctx context.Context, params ListProjectEnvironmentsParams) (r ListProjectEnvironmentsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectFeatures implements ListProjectFeatures operation.
 //
 // List features for project.
@@ -770,6 +806,15 @@ func (UnimplementedHandler) ToggleFeature(ctx context.Context, req *ToggleFeatur
 //
 // PUT /api/v1/categories/{category_id}
 func (UnimplementedHandler) UpdateCategory(ctx context.Context, req *UpdateCategoryRequest, params UpdateCategoryParams) (r UpdateCategoryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateEnvironment implements UpdateEnvironment operation.
+//
+// Update environment.
+//
+// PUT /api/v1/environments/{environment_id}
+func (UnimplementedHandler) UpdateEnvironment(ctx context.Context, req *UpdateEnvironmentRequest, params UpdateEnvironmentParams) (r UpdateEnvironmentRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

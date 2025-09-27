@@ -16,7 +16,10 @@ func (r *RestAPI) SyncCustomizedFeatureRule(
 	featureID := domain.FeatureID(params.FeatureID)
 
 	// Load feature and check access to its project
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	// Get environment key from query parameters
+	environmentKey := params.EnvironmentKey
+
+	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

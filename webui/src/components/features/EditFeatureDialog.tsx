@@ -40,11 +40,12 @@ export interface EditFeatureDialogProps {
   onClose: () => void;
   featureDetails: FeatureDetailsResponse | null;
   feature?: FeatureExtended | null;
+  environmentKey: string;
 }
 
 const uuid = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
-const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails, feature }) => {
+const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails, feature, environmentKey }) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -123,7 +124,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     queryKey: ['feature-details', featureId],
     queryFn: async () => {
       if (!featureId) throw new Error('No feature ID');
-      const response = await apiClient.getFeature(featureId);
+      const response = await apiClient.getFeature(featureId, environmentKey);
       return response.data;
     },
     enabled: !featureDetails && !!featureId,
@@ -152,7 +153,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     const vars = (effectiveFeatureDetails?.variants || []).map(v => ({ id: v.id, name: v.name, rollout_percent: v.rollout_percent }));
     setVariants(vars);
     // @ts-ignore
-      setDefaultVariant(f.default_variant || '');
+      setDefaultVariant(f.default_value || '');
     const rls = (effectiveFeatureDetails?.rules || []).map(r => ({ id: r.id, priority: r.priority, action: r.action as RuleActionType, flag_variant_id: r.flag_variant_id, expression: r.conditions as any, segment_id: (r as any).segment_id, is_customized: (r as any).is_customized }));
     setRules(rls);
     setSelectedTags(effectiveFeatureDetails?.tags || []);
@@ -177,7 +178,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     mutationFn: async (body: CreateFeatureRequest) => {
       if (!featureId) throw new Error('No feature id');
       try {
-        const res = await apiClient.updateFeature(featureId, body);
+        const res = await apiClient.updateFeature(featureId, environmentKey, body);
         return { data: res.data, status: res.status };
       } catch (error: any) {
         // Handle guard workflow responses
@@ -296,7 +297,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     setSyncErrors(prev => ({ ...prev, [ruleId]: undefined }));
     setSyncing(prev => ({ ...prev, [ruleId]: true }));
     try {
-      const res = await apiClient.syncCustomizedFeatureRule(featureId, ruleId);
+      const res = await apiClient.syncCustomizedFeatureRule(featureId, ruleId, environmentKey);
       const ru: any = res.data as any;
       setRules(prev => prev.map(r => {
         if (r.id !== ruleId) return r;
@@ -385,10 +386,11 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
       name,
       description: description || undefined,
       kind: kind as any,
-      default_variant: defaultVariant,
+      environment_key: environmentKey,
+      default_value: defaultVariant,
       enabled,
       rollout_key: kind === FeatureKindEnum.Multivariant ? (rolloutKey.trim() || undefined) : undefined,
-      variants: variants.map(v => ({ id: v.id, name: v.name, rollout_percent: Number(v.rollout_percent) })),
+      variants: variants.map(v => ({ id: v.id, name: v.name, rollout_percent: Number(v.rollout_percent), environment_key: environmentKey })),
       rules: rules.map(r => ({
         id: r.id,
         priority: r.priority,
@@ -397,6 +399,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         conditions: r.expression,
         segment_id: r.segment_id || undefined,
         is_customized: r.segment_id ? Boolean(r.is_customized) : true,
+        environment_key: environmentKey,
       })),
     };
 

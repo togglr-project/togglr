@@ -3,6 +3,9 @@ package features
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/google/uuid"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/contract"
@@ -16,6 +19,8 @@ type Service struct {
 	flagVariantsRep       contract.FlagVariantsRepository
 	rulesRep              contract.RulesRepository
 	schedulesRep          contract.FeatureSchedulesRepository
+	featureParamsRep      contract.FeatureParamsRepository
+	environmentsRep       contract.EnvironmentsRepository
 	guardService          contract.GuardService
 	pendingChangesUseCase contract.PendingChangesUseCase
 }
@@ -26,6 +31,8 @@ func New(
 	flagVariantsRep contract.FlagVariantsRepository,
 	rulesRep contract.RulesRepository,
 	schedulesRep contract.FeatureSchedulesRepository,
+	featureParamsRep contract.FeatureParamsRepository,
+	environmentsRep contract.EnvironmentsRepository,
 	guardService contract.GuardService,
 	pendingChangesUseCase contract.PendingChangesUseCase,
 ) *Service {
@@ -35,27 +42,11 @@ func New(
 		flagVariantsRep:       flagVariantsRep,
 		rulesRep:              rulesRep,
 		schedulesRep:          schedulesRep,
+		featureParamsRep:      featureParamsRep,
+		environmentsRep:       environmentsRep,
 		guardService:          guardService,
 		pendingChangesUseCase: pendingChangesUseCase,
 	}
-}
-
-func (s *Service) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
-	var created domain.Feature
-
-	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		var err error
-		created, err = s.repo.Create(ctx, feature)
-		if err != nil {
-			return fmt.Errorf("create feature: %w", err)
-		}
-
-		return nil
-	}); err != nil {
-		return domain.Feature{}, fmt.Errorf("tx create feature: %w", err)
-	}
-
-	return created, nil
 }
 
 func (s *Service) CreateWithChildren(
@@ -66,39 +57,114 @@ func (s *Service) CreateWithChildren(
 ) (domain.FeatureExtended, error) {
 	var result domain.FeatureExtended
 
+	envs, err := s.environmentsRep.ListByProjectID(ctx, feature.ProjectID)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("get env: %w", err)
+	}
+
+	envProd := envs[0]
+	for _, env := range envs {
+		if env.Key == "prod" {
+			envProd = env
+
+			break
+		}
+	}
+
+	ruleVariantsMap := make(map[domain.FlagVariantID][]domain.RuleID)
+	rulesEnvMap := make(map[string][]*domain.Rule)
+	for _, env := range envs {
+		rulesEnv := make([]*domain.Rule, 0, len(rules))
+		for _, rule := range rules {
+			ruleNew := rule
+			ruleNew.ID = domain.RuleID(uuid.NewString())
+			rulesEnv = append(rulesEnv, &ruleNew)
+			if rule.FlagVariantID != nil {
+				ruleIDs := ruleVariantsMap[*rule.FlagVariantID]
+				ruleIDs = append(ruleIDs, ruleNew.ID)
+				ruleVariantsMap[*rule.FlagVariantID] = ruleIDs
+			}
+		}
+
+		rulesEnvMap[env.Key] = rulesEnv
+	}
+
+	variantsEnvMap := make(map[string][]domain.FlagVariant)
+	for _, env := range envs {
+		variantEnv := make([]domain.FlagVariant, 0, len(variants))
+		for _, variant := range variants {
+			variantNew := variant
+			variantNew.ID = domain.FlagVariantID(uuid.New().String())
+			variantEnv = append(variantEnv, variantNew)
+
+			if ruleIDs, ok := ruleVariantsMap[variant.ID]; ok {
+				rulesEnv := rulesEnvMap[env.Key]
+				for _, ruleEnv := range rulesEnv {
+					for _, ruleID := range ruleIDs {
+						if ruleEnv.ID == ruleID {
+							ruleEnv.FlagVariantID = &variantNew.ID
+						}
+					}
+				}
+			}
+		}
+
+		variantsEnvMap[env.Key] = variantEnv
+	}
+
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		// Create feature first
-		createdFeature, err := s.repo.Create(ctx, feature)
+		createdFeature, err := s.repo.Create(ctx, envProd.ID, feature)
 		if err != nil {
 			return fmt.Errorf("create feature: %w", err)
 		}
 		result.Feature = createdFeature
 
-		// Create variants
-		createdVariants := make([]domain.FlagVariant, 0, len(variants))
-		for _, variant := range variants {
-			variant.ProjectID = createdFeature.ProjectID
-			variant.FeatureID = createdFeature.ID
-			cv, err := s.flagVariantsRep.Create(ctx, variant)
-			if err != nil {
-				return fmt.Errorf("create flag variant: %w", err)
+		for _, env := range envs {
+			// Create feature params for the environment
+			featureParams := domain.FeatureParams{
+				FeatureID:     createdFeature.ID,
+				EnvironmentID: env.ID,
+				Enabled:       feature.Enabled,
+				CreatedAt:     time.Now(),
+				UpdatedAt:     time.Now(),
 			}
-			createdVariants = append(createdVariants, cv)
-		}
-		result.FlagVariants = createdVariants
 
-		// Create rules
-		createdRules := make([]domain.Rule, 0, len(rules))
-		for _, rule := range rules {
-			rule.FeatureID = createdFeature.ID
-			rule.ProjectID = createdFeature.ProjectID
-			cr, err := s.rulesRep.Create(ctx, rule)
+			_, err = s.featureParamsRep.Create(ctx, feature.ProjectID, featureParams)
 			if err != nil {
-				return fmt.Errorf("create rule: %w", err)
+				return fmt.Errorf("create feature params: %w", err)
 			}
-			createdRules = append(createdRules, cr)
+
+			// Create variants
+			variantsEnv := variantsEnvMap[env.Key]
+			createdVariants := make([]domain.FlagVariant, 0, len(variantsEnv))
+			for _, variant := range variantsEnv {
+				variant.EnvironmentID = env.ID
+				variant.ProjectID = createdFeature.ProjectID
+				variant.FeatureID = createdFeature.ID
+				cv, err := s.flagVariantsRep.Create(ctx, variant)
+				if err != nil {
+					return fmt.Errorf("create flag variant: %w", err)
+				}
+				createdVariants = append(createdVariants, cv)
+			}
+			result.FlagVariants = createdVariants
+
+			// Create rules
+			rulesEnv := rulesEnvMap[env.Key]
+			createdRules := make([]domain.Rule, 0, len(rulesEnv))
+			for _, rule := range rulesEnv {
+				rule.EnvironmentID = env.ID
+				rule.FeatureID = createdFeature.ID
+				rule.ProjectID = createdFeature.ProjectID
+				cr, err := s.rulesRep.Create(ctx, *rule)
+				if err != nil {
+					return fmt.Errorf("create rule: %w", err)
+				}
+				createdRules = append(createdRules, cr)
+			}
+			result.Rules = createdRules
 		}
-		result.Rules = createdRules
 
 		return nil
 	}); err != nil {
@@ -108,32 +174,37 @@ func (s *Service) CreateWithChildren(
 	return result, nil
 }
 
-func (s *Service) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {
-	f, err := s.repo.GetByID(ctx, id)
+func (s *Service) GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error) {
+	f, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
 	if err != nil {
-		return domain.Feature{}, fmt.Errorf("get feature by id: %w", err)
+		return domain.Feature{}, fmt.Errorf("get feature by id with environment: %w", err)
 	}
 
 	return f, nil
 }
 
-func (s *Service) GetExtendedByID(ctx context.Context, id domain.FeatureID) (domain.FeatureExtended, error) {
-	feature, err := s.repo.GetByID(ctx, id)
+func (s *Service) GetExtendedByID(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.FeatureExtended, error) {
+	feature, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
 	if err != nil {
-		return domain.FeatureExtended{}, fmt.Errorf("get feature by id: %w", err)
+		return domain.FeatureExtended{}, fmt.Errorf("get feature by id with environment: %w", err)
 	}
 
-	variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("get environment: %w", err)
+	}
+
+	variants, err := s.flagVariantsRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 	if err != nil {
 		return domain.FeatureExtended{}, fmt.Errorf("list flag variants: %w", err)
 	}
 
-	rules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+	rules, err := s.rulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 	if err != nil {
 		return domain.FeatureExtended{}, fmt.Errorf("list rules: %w", err)
 	}
 
-	schedules, err := s.schedulesRep.ListByFeatureID(ctx, feature.ID)
+	schedules, err := s.schedulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 	if err != nil {
 		return domain.FeatureExtended{}, fmt.Errorf("list schedules: %w", err)
 	}
@@ -155,8 +226,8 @@ func (s *Service) GetByKey(ctx context.Context, key string) (domain.Feature, err
 	return f, nil
 }
 
-func (s *Service) List(ctx context.Context) ([]domain.Feature, error) {
-	items, err := s.repo.List(ctx)
+func (s *Service) List(ctx context.Context, environmentKey string) ([]domain.Feature, error) {
+	items, err := s.repo.List(ctx, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("list features: %w", err)
 	}
@@ -164,8 +235,8 @@ func (s *Service) List(ctx context.Context) ([]domain.Feature, error) {
 	return items, nil
 }
 
-func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error) {
-	items, err := s.repo.ListByProjectID(ctx, projectID)
+func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error) {
+	items, err := s.repo.ListByProjectID(ctx, projectID, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
@@ -176,9 +247,10 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 func (s *Service) ListByProjectIDFiltered(
 	ctx context.Context,
 	projectID domain.ProjectID,
+	environmentKey string,
 	filter contract.FeaturesListFilter,
 ) ([]domain.Feature, int, error) {
-	items, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, filter)
+	items, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, environmentKey, filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list features by projectID filtered: %w", err)
 	}
@@ -189,8 +261,9 @@ func (s *Service) ListByProjectIDFiltered(
 func (s *Service) ListExtendedByProjectID(
 	ctx context.Context,
 	projectID domain.ProjectID,
+	environmentKey string,
 ) ([]domain.FeatureExtended, error) {
-	features, err := s.repo.ListByProjectID(ctx, projectID)
+	features, err := s.repo.ListByProjectID(ctx, projectID, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
@@ -227,9 +300,10 @@ func (s *Service) ListExtendedByProjectID(
 func (s *Service) ListExtendedByProjectIDFiltered(
 	ctx context.Context,
 	projectID domain.ProjectID,
+	environmentKey string,
 	filter contract.FeaturesListFilter,
 ) ([]domain.FeatureExtended, int, error) {
-	features, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, filter)
+	features, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, environmentKey, filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list features by projectID: %w", err)
 	}
@@ -263,17 +337,23 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 	return result, total, nil
 }
 
-func (s *Service) Delete(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error) {
+func (s *Service) Delete(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.GuardedResult, error) {
 	// Load existing feature to check guard status
-	existing, err := s.repo.GetByID(ctx, id)
+	existing, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
 	if err != nil {
 		return domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
 
-	// Check if feature is guarded and create pending change if needed
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, existing.Key)
+	if err != nil {
+		return domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
+	}
+
+	// Check if a feature is guarded and create pending change if needed
 	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
 		ctx,
 		id,
+		env.ID,
 		domain.EntityActionDelete,
 		&existing,
 		nil, // No new feature for delete
@@ -291,7 +371,7 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID) (domain.Guard
 
 	// Feature is not guarded, proceed with normal delete
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		if err := s.repo.Delete(ctx, id); err != nil {
+		if err := s.repo.Delete(ctx, env.ID, id); err != nil {
 			return fmt.Errorf("delete feature: %w", err)
 		}
 
@@ -307,11 +387,17 @@ func (s *Service) Toggle(
 	ctx context.Context,
 	id domain.FeatureID,
 	enabled bool,
+	environmentKey string,
 ) (domain.Feature, domain.GuardedResult, error) {
 	// Load existing feature to check guard status
-	existing, err := s.repo.GetByID(ctx, id)
+	existing, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
 	if err != nil {
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
+	}
+
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, existing.Key)
+	if err != nil {
+		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
 
 	// Create new feature with updated enabled status
@@ -322,6 +408,7 @@ func (s *Service) Toggle(
 	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
 		ctx,
 		id,
+		env.ID,
 		domain.EntityActionUpdate,
 		&existing,
 		&newFeature,
@@ -345,7 +432,7 @@ func (s *Service) Toggle(
 	var updated domain.Feature
 
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		updated, err = s.repo.Update(ctx, newFeature)
+		updated, err = s.repo.Update(ctx, env.ID, newFeature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
@@ -361,6 +448,7 @@ func (s *Service) Toggle(
 // UpdateWithChildren updates feature and reconciles its child entities (variants and rules).
 func (s *Service) UpdateWithChildren(
 	ctx context.Context,
+	envKey string,
 	feature domain.Feature,
 	variants []domain.FlagVariant,
 	rules []domain.Rule,
@@ -368,15 +456,21 @@ func (s *Service) UpdateWithChildren(
 	var result domain.FeatureExtended
 
 	// Load existing feature to check guard status
-	existing, err := s.repo.GetByID(ctx, feature.ID)
+	existing, err := s.repo.GetByIDWithEnvironment(ctx, feature.ID, envKey)
 	if err != nil {
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
+	}
+
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, existing.Key)
+	if err != nil {
+		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
 
 	// Check if feature is guarded and create pending change if needed
 	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
 		ctx,
 		feature.ID,
+		env.ID,
 		domain.EntityActionUpdate,
 		&existing,
 		&feature,
@@ -396,7 +490,7 @@ func (s *Service) UpdateWithChildren(
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		feature.ProjectID = existing.ProjectID
 
-		updated, err := s.repo.Update(ctx, feature)
+		updated, err := s.repo.Update(ctx, env.ID, feature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
@@ -513,6 +607,7 @@ func (s *Service) UpdateWithChildren(
 func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 	ctx context.Context,
 	featureID domain.FeatureID,
+	environmentID domain.EnvironmentID,
 	action domain.EntityAction,
 	oldFeature *domain.Feature,
 	newFeature *domain.Feature,
@@ -539,13 +634,6 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 
 	if oldFeature != nil && newFeature != nil {
 		// Compare fields and build changes
-		if oldFeature.Enabled != newFeature.Enabled {
-			changes["enabled"] = domain.ChangeValue{
-				Old: oldFeature.Enabled,
-				New: newFeature.Enabled,
-			}
-		}
-
 		if oldFeature.Name != newFeature.Name {
 			changes["name"] = domain.ChangeValue{
 				Old: oldFeature.Name,
@@ -557,13 +645,6 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 			changes["description"] = domain.ChangeValue{
 				Old: oldFeature.Description,
 				New: newFeature.Description,
-			}
-		}
-
-		if oldFeature.DefaultVariant != newFeature.DefaultVariant {
-			changes["default_variant"] = domain.ChangeValue{
-				Old: oldFeature.DefaultVariant,
-				New: newFeature.DefaultVariant,
 			}
 		}
 
@@ -646,7 +727,7 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 	// The frontend will handle showing the password/TOTP dialog
 	var pendingChange domain.PendingChange
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		pendingChange, err = s.pendingChangesUseCase.Create(ctx, projectID, requestedBy, requestUserIDPtr, payload)
+		pendingChange, err = s.pendingChangesUseCase.Create(ctx, projectID, environmentID, requestedBy, requestUserIDPtr, payload)
 		if err != nil {
 			return err
 		}
@@ -671,4 +752,8 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		Pending:       true,
 		PendingChange: &pendingChange,
 	}
+}
+
+func (s *Service) GetFeatureParams(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error) {
+	return s.featureParamsRep.ListByFeatureID(ctx, featureID)
 }

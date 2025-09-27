@@ -77,6 +77,32 @@ func optNilStringToPtr(v generatedapi.OptNilString) *string {
 	return &s
 }
 
+func optNilStringToString(v generatedapi.OptNilString) string {
+	if !v.IsSet() || v.IsNull() {
+		return ""
+	}
+
+	s, _ := v.Get()
+
+	return s
+}
+
+func optStringToString(v generatedapi.OptString) string {
+	if !v.IsSet() {
+		return ""
+	}
+
+	return v.Value
+}
+
+func optStringToPtr(v generatedapi.OptString) *string {
+	if !v.IsSet() {
+		return nil
+	}
+
+	return &v.Value
+}
+
 // Boolean conversion helpers.
 func ptrToOptNilBool(p *bool) generatedapi.OptNilBool {
 	if p == nil {

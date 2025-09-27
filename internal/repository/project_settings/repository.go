@@ -87,7 +87,7 @@ func (r *Repository) Get(
 	const query = `
 SELECT id, project_id, name, value, created_at, updated_at
 FROM project_settings
-WHERE project_id = $1 AND name = $2`
+WHERE project_id = $1::uuid AND name = $2`
 
 	var model projectSettingModel
 
@@ -117,7 +117,7 @@ func (r *Repository) GetAll(ctx context.Context, projectID domain.ProjectID) ([]
 	const query = `
 SELECT id, project_id, name, value, created_at, updated_at
 FROM project_settings
-WHERE project_id = $1
+WHERE project_id = $1::uuid
 ORDER BY name`
 
 	rows, err := executor.Query(ctx, query, projectID)
@@ -160,7 +160,7 @@ func (r *Repository) Delete(ctx context.Context, projectID domain.ProjectID, nam
 
 	const query = `
 DELETE FROM project_settings
-WHERE project_id = $1 AND name = $2`
+WHERE project_id = $1::uuid::uuid AND name = $2`
 
 	_, err := executor.Exec(ctx, query, projectID, name)
 	if err != nil {
@@ -258,7 +258,7 @@ func (r *Repository) List(
 	const countQuery = `
 SELECT COUNT(*)
 FROM project_settings
-WHERE project_id = $1`
+WHERE project_id = $1::uuid`
 
 	var total int
 
@@ -273,7 +273,7 @@ WHERE project_id = $1`
 	const query = `
 SELECT id, project_id, name, value, created_at, updated_at
 FROM project_settings
-WHERE project_id = $1
+WHERE project_id = $1::uuid
 ORDER BY name
 LIMIT $2 OFFSET $3`
 

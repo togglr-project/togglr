@@ -53,7 +53,6 @@ func (r *RestAPI) UpdateProject(
 		Project: generatedapi.Project{
 			ID:          project.ID.String(),
 			Name:        project.Name,
-			APIKey:      project.APIKey,
 			Description: project.Description,
 			CreatedAt:   project.CreatedAt,
 		},

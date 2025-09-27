@@ -17,7 +17,10 @@ func (r *RestAPI) ListFeatureRules(
 	featureID := domain.FeatureID(params.FeatureID)
 
 	// Ensure feature exists and get its project to check access rights
-	feature, err := r.featuresUseCase.GetByID(ctx, featureID)
+	// Get environment key from query parameters
+	environmentKey := params.EnvironmentKey
+
+	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

@@ -111,7 +111,10 @@ CREATE OR REPLACE VIEW v_features_full AS
 SELECT f.id,
        f.project_id,
        fp.environment_id,
-       e.key AS environment_key,
+       e.key as environment_key,
+       f.key,
+       f.kind,
+       f.rollout_key,
        fp.enabled,
        fp.default_value,
        f.name,
@@ -130,3 +133,45 @@ SELECT p.id,
        p.created_at
 FROM projects p
          JOIN environments e ON e.project_id = p.id;
+
+CREATE OR REPLACE FUNCTION create_default_environments()
+    RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO environments (project_id, key, name, api_key)
+    VALUES
+        (NEW.id, 'prod',  'Production', gen_random_uuid()),
+        (NEW.id, 'stage', 'Staging',    gen_random_uuid()),
+        (NEW.id, 'dev',   'Development',gen_random_uuid());
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_create_envs_on_project_insert ON projects;
+
+CREATE TRIGGER trg_create_envs_on_project_insert
+    AFTER INSERT ON projects
+    FOR EACH ROW
+EXECUTE FUNCTION create_default_environments();
+
+CREATE OR REPLACE FUNCTION create_default_feature_params()
+    RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO feature_params (feature_id, environment_id, enabled, default_value)
+    SELECT
+        NEW.id,
+        e.id,
+        false,
+        ''
+    FROM environments e
+    WHERE e.project_id = NEW.project_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_create_params_on_feature_insert ON features;
+
+CREATE TRIGGER trg_create_params_on_feature_insert
+    AFTER INSERT ON features
+    FOR EACH ROW
+EXECUTE FUNCTION create_default_feature_params();

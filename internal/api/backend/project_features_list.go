@@ -96,7 +96,8 @@ func (r *RestAPI) ListProjectFeatures(
 	filter.Page = page
 	filter.PerPage = perPage
 
-	items, total, err := r.featuresUseCase.ListExtendedByProjectIDFiltered(ctx, projectID, filter)
+	environmentKey := params.EnvironmentKey
+	items, total, err := r.featuresUseCase.ListExtendedByProjectIDFiltered(ctx, projectID, environmentKey, filter)
 	if err != nil {
 		slog.Error("list project features failed", "error", err)
 

@@ -92,7 +92,7 @@ func (r *Memberships) GetForUserProject(
 ) (string, error) { // roleID
 	exec := getExecutor(ctx, r.db)
 
-	const q = `select role_id from memberships where project_id = $1 and user_id = $2 limit 1`
+	const q = `select role_id from memberships where project_id = $1::uuid and user_id = $2 limit 1`
 
 	var roleID string
 	if err := exec.QueryRow(ctx, q, projectID, userID).Scan(&roleID); err != nil {
