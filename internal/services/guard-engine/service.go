@@ -223,8 +223,46 @@ func (s *Service) getEntityTypeAndID(entity any) (entityType, entityID string, e
 	// FeatureTag is not a separate entity type, it's a relationship
 	// We'll handle it differently in computeFeatureTagChanges
 	default:
+		// Check if it's a FeatureTag relationship struct
+		if entityType, entityID, err := s.handleFeatureTagStruct(entity); err == nil {
+			return entityType, entityID, nil
+		}
 		return "", "", fmt.Errorf("unknown entity type: %T", entity)
 	}
+}
+
+// handleFeatureTagStruct handles anonymous structs used for FeatureTag relationships.
+// It checks if the struct has FeatureID and TagID fields and returns appropriate entity type and ID.
+func (s *Service) handleFeatureTagStruct(entity any) (entityType, entityID string, err error) {
+	// Use reflection to check if this is a FeatureTag relationship struct
+	val := reflect.ValueOf(entity)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+
+	if val.Kind() != reflect.Struct {
+		return "", "", fmt.Errorf("not a struct")
+	}
+
+	// Check if it has FeatureID and TagID fields
+	featureIDField := val.FieldByName("FeatureID")
+	tagIDField := val.FieldByName("TagID")
+
+	if !featureIDField.IsValid() || !tagIDField.IsValid() {
+		return "", "", fmt.Errorf("not a FeatureTag struct")
+	}
+
+	// Get the values
+	featureID := featureIDField.String()
+	tagID := tagIDField.String()
+
+	if featureID == "" || tagID == "" {
+		return "", "", fmt.Errorf("empty FeatureID or TagID")
+	}
+
+	// For FeatureTag relationships, we use the TagID as the entity ID
+	// and return EntityFeatureTag as the entity type
+	return string(domain.EntityFeatureTag), tagID, nil
 }
 
 // computeFeatureChanges computes changes for feature entities.

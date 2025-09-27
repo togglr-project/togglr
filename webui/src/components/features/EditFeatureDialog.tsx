@@ -161,10 +161,15 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     queryFn: async () => {
       const res = await apiClient.listProjectSegments(projectId!);
       const resp = res.data as any;
-      return Array.isArray(resp?.items) ? (resp.items as Segment[]) : (resp as Segment[]);
+      return Array.isArray(resp?.items) ? (resp.items as Segment[]) : (Array.isArray(resp) ? resp as Segment[] : []);
     },
     enabled: Boolean(projectId),
   });
+
+  // Ensure segments is always an array
+  const safeSegments = useMemo(() => {
+    return Array.isArray(segments) ? segments : [];
+  }, [segments]);
 
   const approveMutation = useApprovePendingChange();
 
@@ -275,7 +280,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   // Attach/detach a segment to a rule and copy its conditions
   const handleSelectSegment = (id: string, segId: string) => {
-    const seg = (segments || []).find(s => s.id === segId);
+    const seg = safeSegments.find(s => s.id === segId);
     setRules(prev => prev.map(r => {
       if (r.id !== id) return r;
       if (!seg) {
@@ -654,7 +659,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           sx={{ minWidth: 240 }}
                         >
                           <MenuItem value="">Custom (no segment)</MenuItem>
-                          {(segments || []).map((s) => (
+                          {safeSegments.map((s) => (
                             <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
                           ))}
                         </TextField>
@@ -712,7 +717,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           sx={{ minWidth: 240 }}
                         >
                           <MenuItem value="">Custom (no segment)</MenuItem>
-                          {(segments || []).map((s) => (
+                          {safeSegments.map((s) => (
                             <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
                           ))}
                         </TextField>
@@ -770,7 +775,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
                           sx={{ minWidth: 240 }}
                         >
                           <MenuItem value="">Custom (no segment)</MenuItem>
-                          {(segments || []).map((s) => (
+                          {safeSegments.map((s) => (
                             <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
                           ))}
                         </TextField>
