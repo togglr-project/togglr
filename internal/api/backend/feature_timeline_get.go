@@ -54,7 +54,7 @@ func (r *RestAPI) GetFeatureTimeline(
 	if locReq, err := time.LoadLocation(params.Location); err == nil {
 		loc = locReq
 	} else {
-		slog.Error("invalid location", "location", loc)
+		slog.Error("invalid location", "location", params.Location, "error", err)
 	}
 
 	from := params.From.In(loc)

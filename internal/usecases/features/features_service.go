@@ -127,6 +127,7 @@ func (s *Service) CreateWithChildren(
 				FeatureID:     createdFeature.ID,
 				EnvironmentID: env.ID,
 				Enabled:       feature.Enabled,
+				DefaultValue:  feature.DefaultValue,
 				CreatedAt:     time.Now(),
 				UpdatedAt:     time.Now(),
 			}
@@ -218,12 +219,11 @@ func (s *Service) GetExtendedByID(ctx context.Context, id domain.FeatureID, envi
 	}, nil
 }
 
-func (s *Service) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
-	f, err := s.repo.GetByKey(ctx, key)
+func (s *Service) GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error) {
+	f, err := s.repo.GetByKeyWithEnvironment(ctx, key, environmentKey)
 	if err != nil {
-		return domain.Feature{}, fmt.Errorf("get feature by key: %w", err)
+		return domain.Feature{}, fmt.Errorf("get feature by key with environment: %w", err)
 	}
-
 	return f, nil
 }
 

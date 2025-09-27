@@ -211,14 +211,14 @@ func (r *Repository) Count(ctx context.Context) (uint, error) {
 
 	const query = "SELECT COUNT(*) FROM projects"
 
-	var count uint
+	var count64 int64
 
-	err := executor.QueryRow(ctx, query).Scan(&count)
+	err := executor.QueryRow(ctx, query).Scan(&count64)
 	if err != nil {
 		return 0, fmt.Errorf("query projects count: %w", err)
 	}
 
-	return count, nil
+	return uint(count64), nil
 }
 
 //nolint:ireturn // it's ok here

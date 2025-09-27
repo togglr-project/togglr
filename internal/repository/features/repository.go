@@ -145,7 +145,14 @@ func (r *Repository) GetByIDWithEnvironment(ctx context.Context, id domain.Featu
 func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM v_features_full WHERE key = $1 LIMIT 1`
+	// Prefer a deterministic environment row when fetching by key without explicit environment.
+	// We choose prod if present, otherwise the first by environment_key order.
+	const query = `
+SELECT *
+FROM v_features_full
+WHERE key = $1
+ORDER BY (environment_key = 'prod') DESC, environment_key
+LIMIT 1`
 
 	rows, err := executor.Query(ctx, query, key)
 	if err != nil {
@@ -159,6 +166,28 @@ func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, 
 			return domain.Feature{}, domain.ErrEntityNotFound
 		}
 
+		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
+	}
+
+	return model.toDomain(), nil
+}
+
+func (r *Repository) GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM v_features_full WHERE key = $1 AND environment_key = $2 LIMIT 1`
+
+	rows, err := executor.Query(ctx, query, key, environmentKey)
+	if err != nil {
+		return domain.Feature{}, fmt.Errorf("query feature by key with environment: %w", err)
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Feature{}, domain.ErrEntityNotFound
+		}
 		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
 	}
 

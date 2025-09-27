@@ -35,7 +35,7 @@ type FeaturesUseCase interface {
 	) (domain.FeatureExtended, domain.GuardedResult, error)
 	GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error)
 	GetExtendedByID(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.FeatureExtended, error)
-	GetByKey(ctx context.Context, key string) (domain.Feature, error)
+	GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error)
 	List(ctx context.Context, environmentKey string) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error)
 	ListByProjectIDFiltered(
@@ -66,7 +66,7 @@ type FeaturesRepository interface {
 	Create(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)
 	GetByID(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error)
 	GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error)
-	GetByKey(ctx context.Context, key string) (domain.Feature, error)
+	GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error)
 	List(ctx context.Context, environmentKey string) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error)
 	ListByProjectIDFiltered(
