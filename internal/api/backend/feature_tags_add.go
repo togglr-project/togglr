@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -49,9 +50,9 @@ func (r *RestAPI) AddFeatureTag(
 		"feature_id": {New: featureID.String()},
 		"tag_id":     {New: tagID.String()},
 	}
-	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
 		ctx,
-		GuardPendingInput{
+		contract.GuardEngineInput{
 			ProjectID:       feature.ProjectID,
 			EnvironmentID:   env.ID,
 			FeatureID:       featureID,
@@ -75,8 +76,10 @@ func (r *RestAPI) AddFeatureTag(
 			},
 		}, nil
 	}
-	if pending != nil {
-		return pending, nil
+	if pc != nil {
+		resp := convertPendingChangeToResponse(pc)
+
+		return &resp, nil
 	}
 
 	// Add tag to feature

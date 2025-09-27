@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -65,9 +66,9 @@ func (r *RestAPI) UpdateFeatureSchedule(
 	changes := buildFeatureScheduleChangeDiff(current, sch)
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202
-	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
 		ctx,
-		GuardPendingInput{
+		contract.GuardEngineInput{
 			ProjectID:       sch.ProjectID,
 			EnvironmentID:   current.EnvironmentID,
 			FeatureID:       sch.FeatureID,
@@ -89,8 +90,10 @@ func (r *RestAPI) UpdateFeatureSchedule(
 			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
 		}}, nil
 	}
-	if pending != nil {
-		return pending, nil
+	if pc != nil {
+		resp := convertPendingChangeToResponse(pc)
+
+		return &resp, nil
 	}
 
 	updated, err := r.featureSchedulesUseCase.Update(ctx, sch)
