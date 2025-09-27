@@ -102,5 +102,15 @@ func (s *Service) CheckAndMaybeCreatePending(
 		return nil, false, false, fmt.Errorf("create pending change: %w", err)
 	}
 
+	// Set SingleUserProject meta-flag analogous to features_service implementation
+	activeUserCount, err := s.pendingChangesUseCase.GetProjectActiveUserCount(ctx, in.ProjectID)
+	if err != nil {
+		return nil, false, false, fmt.Errorf("get project active user count: %w", err)
+	}
+
+	if activeUserCount == 1 {
+		pc.Change.Meta.SingleUserProject = true
+	}
+
 	return &pc, false, false, nil
 }
