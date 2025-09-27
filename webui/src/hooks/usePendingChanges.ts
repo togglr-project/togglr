@@ -125,9 +125,10 @@ export const useCancelPendingChange = () => {
 // Hook for getting pending changes count (for menu indicator)
 export const usePendingChangesCount = (projectId: string) => {
   return useQuery({
-    queryKey: [...pendingChangesKeys.list(projectId, 'pending'), 'count'],
+    queryKey: [...pendingChangesKeys.list(projectId, 'pending', undefined), 'count'],
     queryFn: async (): Promise<number> => {
       const response = await apiClient.listPendingChanges(
+        undefined, // environmentId (count across all environments)
         projectId,
         'pending' as any, // Cast to the correct enum type
         undefined, // userId

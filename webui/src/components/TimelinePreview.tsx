@@ -17,6 +17,7 @@ import TimelineChart from './TimelineChart';
 
 interface TimelinePreviewProps {
   featureId: string;
+  environmentKey: string;
   schedules: Array<{
     startsAt?: string;
     endsAt?: string;
@@ -27,7 +28,7 @@ interface TimelinePreviewProps {
   }>;
 }
 
-const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, schedules }) => {
+const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmentKey, schedules }) => {
   const [timelineData, setTimelineData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +52,7 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, schedules 
 
       const response = await apiClient.testFeatureTimeline(
         featureId,
+        environmentKey,
         from.toISOString(),
         to.toISOString(),
         Intl.DateTimeFormat().resolvedOptions().timeZone,

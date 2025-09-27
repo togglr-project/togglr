@@ -41,6 +41,7 @@ interface EditRecurringScheduleBuilderProps {
   open: boolean;
   onSubmit: (data: ScheduleBuilderData & { cronExpression: string }) => void;
   featureId: string;
+  environmentKey: string;
   initialData?: FeatureSchedule;
 }
 
@@ -842,6 +843,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         {/* Timeline Preview */}
         <TimelinePreview 
           featureId={featureId}
+          environmentKey={environmentKey}
           schedules={[{
             startsAt: data.startsAt,
             endsAt: data.endsAt,

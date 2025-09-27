@@ -30,6 +30,13 @@ func (r *RestAPI) CreateFeatureSchedule(
 		return nil, err
 	}
 
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		slog.Error("get environment for schedule create failed", "error", err)
+
+		return nil, err
+	}
+
 	// Check permissions on the owning project
 	if err := r.permissionsService.CanManageProject(ctx, feature.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
@@ -50,14 +57,15 @@ func (r *RestAPI) CreateFeatureSchedule(
 	}
 
 	sch := domain.FeatureSchedule{
-		ProjectID:    feature.ProjectID,
-		FeatureID:    featureID,
-		StartsAt:     optNilDateTimeToPtr(req.StartsAt),
-		EndsAt:       optNilDateTimeToPtr(req.EndsAt),
-		CronExpr:     optNilStringToPtr(req.CronExpr),
-		CronDuration: optNilDurationToPtr(req.CronDuration),
-		Timezone:     req.Timezone,
-		Action:       domain.FeatureScheduleAction(req.Action),
+		ProjectID:     feature.ProjectID,
+		FeatureID:     featureID,
+		EnvironmentID: env.ID,
+		StartsAt:      optNilDateTimeToPtr(req.StartsAt),
+		EndsAt:        optNilDateTimeToPtr(req.EndsAt),
+		CronExpr:      optNilStringToPtr(req.CronExpr),
+		CronDuration:  optNilDurationToPtr(req.CronDuration),
+		Timezone:      req.Timezone,
+		Action:        domain.FeatureScheduleAction(req.Action),
 	}
 
 	created, err := r.featureSchedulesUseCase.Create(ctx, sch)

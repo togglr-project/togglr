@@ -8,11 +8,17 @@ import {
   CircularProgress,
   Button,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { usePendingChanges } from '../hooks/usePendingChanges';
 import PendingChangeCard from '../components/pending-changes/PendingChangeCard';
+import apiClient from '../api/apiClient';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import { Assignment as ChangesIcon } from '@mui/icons-material';
@@ -44,8 +50,22 @@ const PendingChangesPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [tabValue, setTabValue] = useState(0);
   const [statusFilter, setStatusFilter] = useState<PendingChangeResponseStatusEnum | undefined>('pending');
+  const [environmentKey, setEnvironmentKey] = useState<string>('prod');
 
-  const { data, isLoading, error, refetch } = usePendingChanges(projectId || '', statusFilter);
+  // Load environments for the project
+  const { data: environmentsResp, isLoading: loadingEnvironments } = useQuery({
+    queryKey: ['project-environments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectEnvironments(projectId || '');
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+  const environments = environmentsResp?.items ?? [];
+  const selectedEnv = environments.find((e: any) => e.key === environmentKey);
+  const environmentId = selectedEnv?.id as number | undefined;
+
+  const { data, isLoading, error, refetch } = usePendingChanges(projectId || '', statusFilter, environmentId);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -144,6 +164,23 @@ const PendingChangesPage: React.FC = () => {
         subtitle="Manage pending changes and approvals"
         icon={<ChangesIcon />}
       />
+      {/* Environment selector */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 220 }} disabled={loadingEnvironments}>
+          <InputLabel>Environment</InputLabel>
+          <Select
+            label="Environment"
+            value={environmentKey}
+            onChange={(e) => setEnvironmentKey(e.target.value)}
+          >
+            {(environments || []).map((env: any) => (
+              <MenuItem key={env.id} value={env.key}>
+                {env.name} ({env.key})
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       
       <Box sx={{ width: '100%' }}>
         <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

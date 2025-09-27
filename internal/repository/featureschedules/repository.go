@@ -57,16 +57,16 @@ func (r *Repository) Create(ctx context.Context, s domain.FeatureSchedule) (doma
 
 	if s.ID != "" {
 		query = `
-INSERT INTO feature_schedules (id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at`
-		args = []any{s.ID, s.ProjectID, s.FeatureID, starts, ends, cron, cronDuration, s.Timezone, s.Action}
+INSERT INTO feature_schedules (id, project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at`
+		args = []any{s.ID, s.ProjectID, s.FeatureID, int64(s.EnvironmentID), starts, ends, cron, cronDuration, s.Timezone, s.Action}
 	} else {
 		query = `
-INSERT INTO feature_schedules (project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at`
-		args = []any{s.ProjectID, s.FeatureID, starts, ends, cron, cronDuration, s.Timezone, s.Action}
+INSERT INTO feature_schedules (project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at`
+		args = []any{s.ProjectID, s.FeatureID, int64(s.EnvironmentID), starts, ends, cron, cronDuration, s.Timezone, s.Action}
 	}
 
 	var m scheduleModel
@@ -74,6 +74,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_durati
 		&m.ID,
 		&m.ProjectID,
 		&m.FeatureID,
+		&m.EnvironmentID,
 		&m.StartsAt,
 		&m.EndsAt,
 		&m.CronExpr,
@@ -159,7 +160,7 @@ func (r *Repository) ListByFeatureID(
 	exec := r.getExecutor(ctx)
 
 	const query = `
-SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, 
+SELECT id, project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, 
        cron_duration, timezone, action, created_at, updated_at 
 FROM feature_schedules WHERE feature_id = $1 ORDER BY created_at`
 
@@ -190,7 +191,7 @@ func (r *Repository) ListByFeatureIDWithEnvID(
 	exec := r.getExecutor(ctx)
 
 	const query = `
-SELECT id, project_id, feature_id, starts_at, ends_at, cron_expr, 
+SELECT id, project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, 
        cron_duration, timezone, action, created_at, updated_at 
 FROM feature_schedules WHERE feature_id = $1 AND environment_id = $2 ORDER BY created_at`
 
@@ -254,7 +255,7 @@ func (r *Repository) Update(ctx context.Context, s domain.FeatureSchedule) (doma
 UPDATE feature_schedules
 SET feature_id = $1, starts_at = $2, ends_at = $3, cron_expr = $4, cron_duration = $5, timezone = $6, action = $7
 WHERE id = $8
-RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at`
+RETURNING id, project_id, feature_id, environment_id, starts_at, ends_at, cron_expr, cron_duration, timezone, action, created_at, updated_at`
 
 	var m scheduleModel
 	if err := exec.QueryRow(ctx, query,
@@ -270,6 +271,7 @@ RETURNING id, project_id, feature_id, starts_at, ends_at, cron_expr, cron_durati
 		&m.ID,
 		&m.ProjectID,
 		&m.FeatureID,
+		&m.EnvironmentID,
 		&m.StartsAt,
 		&m.EndsAt,
 		&m.CronExpr,

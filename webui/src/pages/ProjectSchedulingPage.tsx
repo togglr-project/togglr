@@ -1026,6 +1026,7 @@ const ProjectSchedulingPage: React.FC = () => {
           <ScheduleBuilder
             open={scheduleBuilderOpen}
             featureId={dialogFeature?.id || ''}
+            environmentKey={environmentKey}
             onSubmit={(data) => {
               if (dialogFeature) {
                 createCronScheduleMut.mutate({ featureId: dialogFeature.id, data });
@@ -1060,6 +1061,7 @@ const ProjectSchedulingPage: React.FC = () => {
           <EditRecurringScheduleBuilder
             open={editRecurringBuilderOpen}
             featureId={editingSchedule?.feature_id || ''}
+            environmentKey={environmentKey}
             onSubmit={(data) => {
               if (editingSchedule) {
                 editRecurringScheduleMut.mutate({ scheduleId: editingSchedule.id, data });

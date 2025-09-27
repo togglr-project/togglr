@@ -41,6 +41,7 @@ interface ScheduleBuilderProps {
   open: boolean;
   onSubmit: (data: ScheduleBuilderData & { cronExpression: string }) => void;
   featureId: string;
+  environmentKey: string;
   initialData?: Partial<ScheduleBuilderData>;
   featureCreatedAt?: string; // ISO string for feature creation date
 }
@@ -805,6 +806,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         {/* Timeline Preview */}
         <TimelinePreview 
           featureId={featureId}
+          environmentKey={environmentKey}
           schedules={[{
             startsAt: data.startsAt,
             endsAt: data.endsAt,
