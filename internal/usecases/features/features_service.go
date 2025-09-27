@@ -115,11 +115,11 @@ func (s *Service) CreateWithChildren(
 
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		// Create feature first
-		createdFeature, err := s.repo.Create(ctx, envProd.ID, feature)
+		createdFeature, err := s.repo.Create(ctx, envProd.ID, feature.BasicFeature)
 		if err != nil {
 			return fmt.Errorf("create feature: %w", err)
 		}
-		result.Feature = createdFeature
+		result.Feature.BasicFeature = createdFeature
 
 		for _, env := range envs {
 			// Create feature params for the environment
@@ -518,7 +518,7 @@ func (s *Service) UpdateWithChildren(
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		feature.ProjectID = existing.ProjectID
 
-		updated, err := s.repo.Update(ctx, env.ID, feature)
+		updated, err := s.repo.Update(ctx, env.ID, feature.BasicFeature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
@@ -550,7 +550,11 @@ func (s *Service) UpdateWithChildren(
 		}
 
 		// Temporarily set updated base fields; will reload with env-specific fields later
-		result.Feature = updated
+		result.Feature = domain.Feature{
+			BasicFeature: updated,
+			Enabled:      params.Enabled,
+			DefaultValue: params.DefaultValue,
+		}
 
 		// Reconcile variants (environment-scoped)
 		existingVariants, err := s.flagVariantsRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
@@ -621,7 +625,7 @@ func (s *Service) UpdateWithChildren(
 			keepVariantIDs[cv.ID] = struct{}{}
 		}
 
-		// Delete variants not present in request after reconciliation
+		// Delete variants not present in the request after reconciliation
 		for id := range existingVByID {
 			if _, ok := keepVariantIDs[id]; !ok {
 				if dErr := s.flagVariantsRep.Delete(ctx, id); dErr != nil {

@@ -55,13 +55,15 @@ func (r *RestAPI) UpdateFeature(
 	}
 
 	feature := domain.Feature{
-		ID:           featureID,
-		ProjectID:    existing.ProjectID,
-		Key:          req.Key,
-		Name:         req.Name,
-		Description:  req.Description.Or(""),
-		Kind:         domain.FeatureKind(req.Kind),
-		RolloutKey:   domain.RuleAttribute(req.RolloutKey.Or("")),
+		BasicFeature: domain.BasicFeature{
+			ID:          featureID,
+			ProjectID:   existing.ProjectID,
+			Key:         req.Key,
+			Name:        req.Name,
+			Description: req.Description.Or(""),
+			Kind:        domain.FeatureKind(req.Kind),
+			RolloutKey:  domain.RuleAttribute(req.RolloutKey.Or("")),
+		},
 		DefaultValue: req.DefaultValue,
 		Enabled:      req.Enabled,
 	}

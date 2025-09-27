@@ -63,8 +63,8 @@ type FeaturesUseCase interface {
 }
 
 type FeaturesRepository interface {
-	Create(ctx context.Context, envID domain.EnvironmentID, feature domain.Feature) (domain.Feature, error)
-	GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error)
+	Create(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)
+	GetByID(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error)
 	GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error)
 	GetByKey(ctx context.Context, key string) (domain.Feature, error)
 	List(ctx context.Context, environmentKey string) ([]domain.Feature, error)
@@ -75,6 +75,6 @@ type FeaturesRepository interface {
 		environmentKey string,
 		filter FeaturesListFilter,
 	) ([]domain.Feature, int, error)
-	Update(ctx context.Context, envID domain.EnvironmentID, feature domain.Feature) (domain.Feature, error)
+	Update(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)
 	Delete(ctx context.Context, envID domain.EnvironmentID, id domain.FeatureID) error
 }

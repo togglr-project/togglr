@@ -42,14 +42,16 @@ func (r *RestAPI) CreateProjectFeature(
 	}
 
 	feature := domain.Feature{
-		ProjectID:    projectID,
-		Key:          req.Key,
-		Name:         req.Name,
-		Description:  req.Description.Or(""),
-		Kind:         domain.FeatureKind(req.Kind),
+		BasicFeature: domain.BasicFeature{
+			ProjectID:   projectID,
+			Key:         req.Key,
+			Name:        req.Name,
+			Description: req.Description.Or(""),
+			Kind:        domain.FeatureKind(req.Kind),
+			RolloutKey:  domain.RuleAttribute(req.RolloutKey.Or("")),
+		},
 		DefaultValue: req.DefaultValue,
 		Enabled:      req.Enabled,
-		RolloutKey:   domain.RuleAttribute(req.RolloutKey.Or("")),
 	}
 
 	// Build inline flag variants

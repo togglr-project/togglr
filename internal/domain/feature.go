@@ -13,18 +13,23 @@ const (
 	FeatureKindMultivariant FeatureKind = "multivariant"
 )
 
+type BasicFeature struct {
+	ID          FeatureID
+	ProjectID   ProjectID
+	Key         string      // machine name, e.g. "new_ui"
+	Name        string      // human readable name
+	Description string      // optional description
+	Kind        FeatureKind // "simple" | "multivariant"
+	RolloutKey  RuleAttribute
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 type Feature struct {
-	ID           FeatureID
-	ProjectID    ProjectID
-	Key          string      // machine name, e.g. "new_ui"
-	Name         string      // human readable name
-	Description  string      // optional description
-	Kind         FeatureKind // "simple" | "multivariant"
-	RolloutKey   RuleAttribute
+	BasicFeature
+
 	Enabled      bool   // whether the feature is enabled in the specified environment
 	DefaultValue string // default value for the feature in the specified environment
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
 }
 
 type FeatureExtended struct {

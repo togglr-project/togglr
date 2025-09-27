@@ -32,8 +32,8 @@ func New(pool *pgxpool.Pool) *Repository {
 func (r *Repository) Create(
 	ctx context.Context,
 	envID domain.EnvironmentID,
-	feature domain.Feature,
-) (domain.Feature, error) {
+	feature domain.BasicFeature,
+) (domain.BasicFeature, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `
@@ -41,7 +41,7 @@ INSERT INTO features (project_id, key, name, description, kind, rollout_key)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id, project_id, key, name, description, kind, rollout_key, created_at, updated_at`
 
-	var model featureModel
+	var model baseFeatureModel
 
 	var desc any
 	if feature.Description != "" {
@@ -74,7 +74,7 @@ RETURNING id, project_id, key, name, description, kind, rollout_key, created_at,
 		&model.UpdatedAt,
 	)
 	if err != nil {
-		return domain.Feature{}, fmt.Errorf("insert feature: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("insert feature: %w", err)
 	}
 
 	newFeature := model.toDomain()
@@ -90,29 +90,29 @@ RETURNING id, project_id, key, name, description, kind, rollout_key, created_at,
 		newFeature,
 		envID,
 	); err != nil {
-		return domain.Feature{}, fmt.Errorf("audit feature create: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("audit feature create: %w", err)
 	}
 
 	return newFeature, nil
 }
 
-func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {
+func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error) {
 	executor := r.getExecutor(ctx)
 
 	// Get basic feature info first
-	const basicQuery = `SELECT * FROM v_features_full WHERE id = $1 LIMIT 1`
+	const basicQuery = `SELECT * FROM features WHERE id = $1 LIMIT 1`
 	rows, err := executor.Query(ctx, basicQuery, id)
 	if err != nil {
-		return domain.Feature{}, fmt.Errorf("query feature by id: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("query feature by id: %w", err)
 	}
 	defer rows.Close()
 
-	basicModel, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
+	basicModel, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[baseFeatureModel])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Feature{}, domain.ErrEntityNotFound
+			return domain.BasicFeature{}, domain.ErrEntityNotFound
 		}
-		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("collect feature row: %w", err)
 	}
 
 	// Return basic feature without environment-specific data
@@ -123,35 +123,15 @@ func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.F
 func (r *Repository) GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	// Get environment ID by key
-	var environmentID int64
-	err := executor.QueryRow(ctx, "SELECT id FROM environments WHERE project_id = (SELECT project_id FROM features WHERE id = $1) AND key = $2", id, environmentKey).Scan(&environmentID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Feature{}, domain.ErrEntityNotFound
-		}
-		return domain.Feature{}, fmt.Errorf("get environment: %w", err)
-	}
+	const query = `SELECT * FROM v_features_full WHERE id = $1 AND environment_key = $2 LIMIT 1`
 
-	// Get feature with environment-specific data
-	const query = `
-		SELECT f.id, f.project_id, f.key, f.name, f.description, f.kind, f.rollout_key,
-		       f.created_at, f.updated_at,
-		       COALESCE(fp.enabled, false) as enabled,
-		       fp.default_value as default_value
-		FROM features f
-		LEFT JOIN feature_params fp ON f.id = fp.feature_id AND fp.environment_id = $1
-		WHERE f.id = $2
-		LIMIT 1
-	`
-
-	rows, err := executor.Query(ctx, query, environmentID, id)
+	rows, err := executor.Query(ctx, query, id, environmentKey)
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("query feature by id with environment: %w", err)
 	}
 	defer rows.Close()
 
-	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureModel])
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Feature{}, domain.ErrEntityNotFound
@@ -188,35 +168,15 @@ func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, 
 func (r *Repository) List(ctx context.Context, environmentKey string) ([]domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	// Get environment ID by key (we need to get it from any project since List doesn't have projectID)
-	// For now, we'll use a subquery to get the first available environment with this key
-	var environmentID int64
-	err := executor.QueryRow(ctx, "SELECT id FROM environments WHERE key = $1 LIMIT 1", environmentKey).Scan(&environmentID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrEntityNotFound
-		}
-		return nil, fmt.Errorf("get environment: %w", err)
-	}
+	const query = `SELECT * FROM v_features_full WHERE environment_key = $1 ORDER BY created_at DESC`
 
-	// Get features with environment-specific data
-	const query = `
-		SELECT f.id, f.project_id, f.key, f.name, f.description, f.kind, f.rollout_key,
-		       f.created_at, f.updated_at,
-		       COALESCE(fp.enabled, false) as enabled,
-		       fp.default_value as default_value
-		FROM features f
-		LEFT JOIN feature_params fp ON f.id = fp.feature_id AND fp.environment_id = $1
-		ORDER BY f.created_at DESC
-	`
-
-	rows, err := executor.Query(ctx, query, environmentID)
+	rows, err := executor.Query(ctx, query, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("query features: %w", err)
 	}
 	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		return nil, fmt.Errorf("collect feature rows: %w", err)
 	}
@@ -232,35 +192,15 @@ func (r *Repository) List(ctx context.Context, environmentKey string) ([]domain.
 func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	// Get environment ID by project and key
-	var environmentID int64
-	err := executor.QueryRow(ctx, "SELECT id FROM environments WHERE project_id = $1::uuid AND key = $2", projectID, environmentKey).Scan(&environmentID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, domain.ErrEntityNotFound
-		}
-		return nil, fmt.Errorf("get environment: %w", err)
-	}
+	const query = `SELECT * FROM v_features_full WHERE project_id = $1::uuid AND environment_key = $2 ORDER BY created_at DESC`
 
-	// Get features with environment-specific data
-	const query = `
-		SELECT f.id, f.project_id, f.key, f.name, f.description, f.kind, f.rollout_key,
-		       f.created_at, f.updated_at,
-		       COALESCE(fp.enabled, false) as enabled,
-		       fp.default_value as default_value
-		FROM features f
-		LEFT JOIN feature_params fp ON f.id = fp.feature_id AND fp.environment_id = $1
-		WHERE f.project_id = $2::uuid
-		ORDER BY f.created_at DESC
-	`
-
-	rows, err := executor.Query(ctx, query, environmentID, projectID)
+	rows, err := executor.Query(ctx, query, projectID, environmentKey)
 	if err != nil {
 		return nil, fmt.Errorf("query features by project_id: %w", err)
 	}
 	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		return nil, fmt.Errorf("collect feature rows: %w", err)
 	}
@@ -282,48 +222,31 @@ func (r *Repository) ListByProjectIDFiltered(
 ) ([]domain.Feature, int, error) {
 	executor := r.getExecutor(ctx)
 
-	// Get environment ID by key
-	var environmentID int64
-	err := executor.QueryRow(ctx, "SELECT id FROM environments WHERE project_id = $1::uuid AND key = $2", projectID, environmentKey).Scan(&environmentID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, 0, domain.ErrEntityNotFound
-		}
-		return nil, 0, fmt.Errorf("get environment: %w", err)
-	}
-
-	builder := sq.Select(
-		"f.id", "f.project_id", "f.key", "f.name", "f.description", "f.kind", "f.rollout_key",
-		"f.created_at", "f.updated_at",
-		"COALESCE(fp.enabled, false) as enabled",
-		"fp.default_value as default_value",
-	).
-		From("features f").
-		LeftJoin("feature_params fp ON f.id = fp.feature_id AND fp.environment_id = ?", environmentID).
-		Where(sq.Eq{"f.project_id": projectID})
+	builder := sq.Select("*").
+		From("v_features_full vf").
+		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": environmentKey})
 
 	countBuilder := sq.Select("COUNT(*)").
-		From("features f").
-		LeftJoin("feature_params fp ON f.id = fp.feature_id AND fp.environment_id = ?", environmentID).
-		Where(sq.Eq{"f.project_id": projectID})
+		From("v_features_full vf").
+		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": environmentKey})
 
 	if filter.Kind != nil {
-		builder = builder.Where(sq.Eq{"f.kind": *filter.Kind})
-		countBuilder = countBuilder.Where(sq.Eq{"f.kind": *filter.Kind})
+		builder = builder.Where(sq.Eq{"vf.kind": *filter.Kind})
+		countBuilder = countBuilder.Where(sq.Eq{"vf.kind": *filter.Kind})
 	}
 
 	if filter.Enabled != nil {
 		if *filter.Enabled {
-			builder = builder.Where(sq.Eq{"fp.enabled": true})
-			countBuilder = countBuilder.Where(sq.Eq{"fp.enabled": true})
+			builder = builder.Where(sq.Eq{"vf.enabled": true})
+			countBuilder = countBuilder.Where(sq.Eq{"vf.enabled": true})
 		} else {
 			builder = builder.Where(sq.Or{
-				sq.Eq{"fp.enabled": false},
-				sq.Eq{"fp.enabled": nil},
+				sq.Eq{"vf.enabled": false},
+				sq.Eq{"vf.enabled": nil},
 			})
 			countBuilder = countBuilder.Where(sq.Or{
-				sq.Eq{"fp.enabled": false},
-				sq.Eq{"fp.enabled": nil},
+				sq.Eq{"vf.enabled": false},
+				sq.Eq{"vf.enabled": nil},
 			})
 		}
 	}
@@ -345,8 +268,8 @@ func (r *Repository) ListByProjectIDFiltered(
 		subquery := sq.Select("DISTINCT feature_id").From("feature_tags").Where(sq.Eq{"tag_id": filter.TagIDs})
 		subquerySQL, subqueryArgs, _ := subquery.PlaceholderFormat(sq.Question).ToSql()
 
-		builder = builder.Where(sq.Expr("features.id IN ("+subquerySQL+")", subqueryArgs...))
-		countBuilder = countBuilder.Where(sq.Expr("features.id IN ("+subquerySQL+")", subqueryArgs...))
+		builder = builder.Where(sq.Expr("vf.id IN ("+subquerySQL+")", subqueryArgs...))
+		countBuilder = countBuilder.Where(sq.Expr("vf.id IN ("+subquerySQL+")", subqueryArgs...))
 	}
 
 	// Sorting with whitelist
@@ -392,7 +315,7 @@ func (r *Repository) ListByProjectIDFiltered(
 
 	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureModel])
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureFullModel])
 	if err != nil {
 		return nil, 0, fmt.Errorf("collect features rows: %w", err)
 	}
@@ -422,18 +345,18 @@ func (r *Repository) ListByProjectIDFiltered(
 func (r *Repository) Update(
 	ctx context.Context,
 	envID domain.EnvironmentID,
-	feature domain.Feature,
-) (domain.Feature, error) {
+	feature domain.BasicFeature,
+) (domain.BasicFeature, error) {
 	executor := r.getExecutor(ctx)
 
 	// Read old state for audit purposes within the same transaction.
 	oldFeature, err := r.GetByID(ctx, feature.ID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
-			return domain.Feature{}, err
+			return domain.BasicFeature{}, err
 		}
 
-		return domain.Feature{}, fmt.Errorf("get feature before update: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("get feature before update: %w", err)
 	}
 
 	const query = `
@@ -442,7 +365,7 @@ SET project_id = $1::uuid, key = $2, name = $3, description = $4, kind = $5, rol
 WHERE id = $7
 RETURNING id, project_id, key, name, description, kind, rollout_key, created_at, updated_at`
 
-	var model featureModel
+	var model baseFeatureModel
 
 	var desc any
 	if feature.Description != "" {
@@ -477,10 +400,10 @@ RETURNING id, project_id, key, name, description, kind, rollout_key, created_at,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Feature{}, domain.ErrEntityNotFound
+			return domain.BasicFeature{}, domain.ErrEntityNotFound
 		}
 
-		return domain.Feature{}, fmt.Errorf("update feature: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("update feature: %w", err)
 	}
 
 	newFeature := model.toDomain()
@@ -496,7 +419,7 @@ RETURNING id, project_id, key, name, description, kind, rollout_key, created_at,
 		newFeature,
 		envID,
 	); err != nil {
-		return domain.Feature{}, fmt.Errorf("audit feature update: %w", err)
+		return domain.BasicFeature{}, fmt.Errorf("audit feature update: %w", err)
 	}
 
 	return newFeature, nil
