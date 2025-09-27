@@ -2,6 +2,7 @@ package feature_params
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -36,7 +37,7 @@ func (s *Service) Update(ctx context.Context, projectID domain.ProjectID, params
 
 	existing, err := s.paramsRepo.GetByFeatureAndEnvironment(ctx, params.FeatureID, params.EnvironmentID)
 	if err != nil {
-		if err == domain.ErrEntityNotFound {
+		if errors.Is(err, domain.ErrEntityNotFound) {
 			return s.paramsRepo.Create(ctx, projectID, params)
 		}
 		return domain.FeatureParams{}, fmt.Errorf("get existing params: %w", err)

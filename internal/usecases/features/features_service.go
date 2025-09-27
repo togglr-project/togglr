@@ -2,6 +2,7 @@ package features
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -521,6 +522,34 @@ func (s *Service) UpdateWithChildren(
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
+
+		// Update environment-specific parameters (enabled, default_value)
+		params := domain.FeatureParams{
+			FeatureID:     feature.ID,
+			EnvironmentID: env.ID,
+			Enabled:       feature.Enabled,
+			DefaultValue:  feature.DefaultValue,
+			UpdatedAt:     time.Now(),
+		}
+		if _, err := s.featureParamsRep.Update(ctx, feature.ProjectID, params); err != nil {
+			// Fallback: if params row is missing (should not happen due to trigger), create it
+			if errors.Is(err, domain.ErrEntityNotFound) {
+				if _, cerr := s.featureParamsRep.Create(ctx, feature.ProjectID, domain.FeatureParams{
+					FeatureID:     feature.ID,
+					EnvironmentID: env.ID,
+					Enabled:       feature.Enabled,
+					DefaultValue:  feature.DefaultValue,
+					CreatedAt:     time.Now(),
+					UpdatedAt:     time.Now(),
+				}); cerr != nil {
+					return fmt.Errorf("create feature params: %w", cerr)
+				}
+			} else {
+				return fmt.Errorf("update feature params: %w", err)
+			}
+		}
+
+		// Temporarily set updated base fields; will reload with env-specific fields later
 		result.Feature = updated
 
 		// Reconcile variants (environment-scoped)
@@ -529,43 +558,72 @@ func (s *Service) UpdateWithChildren(
 			return fmt.Errorf("list flag variants: %w", err)
 		}
 
-		existingVMap := make(map[domain.FlagVariantID]domain.FlagVariant, len(existingVariants))
+		// Build lookup maps for existing variants by ID and by Name
+		existingVByID := make(map[domain.FlagVariantID]domain.FlagVariant, len(existingVariants))
+		existingVByName := make(map[string]domain.FlagVariant, len(existingVariants))
 		for _, v := range existingVariants {
-			existingVMap[v.ID] = v
+			existingVByID[v.ID] = v
+			existingVByName[v.Name] = v
 		}
 
-		requestedVMap := make(map[domain.FlagVariantID]domain.FlagVariant, len(variants))
+		// Map incoming variant IDs to the final IDs that will be used in this environment
+		variantIDMap := make(map[domain.FlagVariantID]domain.FlagVariantID)
+		// Track which existing IDs should be kept (to avoid deleting updated ones)
+		keepVariantIDs := make(map[domain.FlagVariantID]struct{})
 		updatedVariants := make([]domain.FlagVariant, 0, len(variants))
-		for _, variant := range variants {
-			variant.ProjectID = feature.ProjectID
-			variant.FeatureID = feature.ID
-			variant.EnvironmentID = env.ID
-			if variant.ID != "" {
-				requestedVMap[variant.ID] = variant
-			}
+		for _, incoming := range variants {
+			origID := incoming.ID
+			incoming.ProjectID = feature.ProjectID
+			incoming.FeatureID = feature.ID
+			incoming.EnvironmentID = env.ID
 
-			if variant.ID != "" {
-				if _, ok := existingVMap[variant.ID]; ok {
-					uv, uErr := s.flagVariantsRep.Update(ctx, variant)
+			if incoming.ID != "" {
+				if _, ok := existingVByID[incoming.ID]; ok {
+					// Update existing by ID in this env
+					uv, uErr := s.flagVariantsRep.Update(ctx, incoming)
 					if uErr != nil {
 						return fmt.Errorf("update flag variant: %w", uErr)
 					}
 					updatedVariants = append(updatedVariants, uv)
-
+					variantIDMap[origID] = uv.ID
+					keepVariantIDs[uv.ID] = struct{}{}
 					continue
 				}
 			}
 
-			cv, cErr := s.flagVariantsRep.Create(ctx, variant)
+			// Try match by name within env (IDs may belong to another env)
+			if exist, ok := existingVByName[incoming.Name]; ok {
+				// Update existing by name; preserve its ID
+				savedID := exist.ID
+				incoming.ID = exist.ID
+				uv, uErr := s.flagVariantsRep.Update(ctx, incoming)
+				if uErr != nil {
+					return fmt.Errorf("update flag variant (by name): %w", uErr)
+				}
+				updatedVariants = append(updatedVariants, uv)
+				if origID != "" {
+					variantIDMap[origID] = savedID
+				}
+				keepVariantIDs[savedID] = struct{}{}
+				continue
+			}
+
+			// Create new variant; clear ID to avoid PK conflicts with IDs from other envs
+			incoming.ID = ""
+			cv, cErr := s.flagVariantsRep.Create(ctx, incoming)
 			if cErr != nil {
 				return fmt.Errorf("create flag variant: %w", cErr)
 			}
 			updatedVariants = append(updatedVariants, cv)
+			if origID != "" {
+				variantIDMap[origID] = cv.ID
+			}
+			keepVariantIDs[cv.ID] = struct{}{}
 		}
 
-		// Delete variants not present in request
-		for id := range existingVMap {
-			if _, ok := requestedVMap[id]; !ok {
+		// Delete variants not present in request after reconciliation
+		for id := range existingVByID {
+			if _, ok := keepVariantIDs[id]; !ok {
 				if dErr := s.flagVariantsRep.Delete(ctx, id); dErr != nil {
 					return fmt.Errorf("delete flag variant: %w", dErr)
 				}
@@ -588,6 +646,13 @@ func (s *Service) UpdateWithChildren(
 		requestedRMap := make(map[domain.RuleID]domain.Rule, len(rules))
 		updatedRules := make([]domain.Rule, 0, len(rules))
 		for _, rule := range rules {
+			// Remap FlagVariantID if it was changed during variant reconciliation
+			if rule.FlagVariantID != nil {
+				if newID, ok := variantIDMap[*rule.FlagVariantID]; ok {
+					newIDCopy := newID
+					rule.FlagVariantID = &newIDCopy
+				}
+			}
 			rule.ProjectID = feature.ProjectID
 			rule.FeatureID = feature.ID
 			rule.EnvironmentID = env.ID
@@ -602,11 +667,12 @@ func (s *Service) UpdateWithChildren(
 						return fmt.Errorf("update rule: %w", uErr)
 					}
 					updatedRules = append(updatedRules, ur)
-
 					continue
 				}
 			}
 
+			// Create new rule: clear ID to avoid PK conflicts if client passed an external ID
+			rule.ID = ""
 			cr, cErr := s.rulesRep.Create(ctx, rule)
 			if cErr != nil {
 				return fmt.Errorf("create rule: %w", cErr)
@@ -623,6 +689,13 @@ func (s *Service) UpdateWithChildren(
 		}
 
 		result.Rules = updatedRules
+
+		// Reload feature with environment-specific fields (enabled, default_value)
+		reloaded, rErr := s.repo.GetByIDWithEnvironment(ctx, feature.ID, envKey)
+		if rErr != nil {
+			return fmt.Errorf("reload feature after update: %w", rErr)
+		}
+		result.Feature = reloaded
 
 		return nil
 	}); err != nil {
