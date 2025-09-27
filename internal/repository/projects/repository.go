@@ -47,9 +47,21 @@ func (r *Repository) GetByID(ctx context.Context, id domain.ProjectID) (domain.P
 }
 
 func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
-	// This method is deprecated - API keys are now per environment
-	// For backward compatibility, we'll return an error
-	return domain.Project{}, domain.ErrEntityNotFound
+	executor := r.getExecutor(ctx)
+
+	// Use v_projects_full to find the project-by-environment API key, then load a full project
+	const query = `SELECT id FROM v_projects_full WHERE api_key = $1 LIMIT 1`
+
+	var projID string
+	if err := executor.QueryRow(ctx, query, apiKey).Scan(&projID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Project{}, domain.ErrEntityNotFound
+		}
+
+		return domain.Project{}, fmt.Errorf("query project by api_key: %w", err)
+	}
+
+	return r.GetByID(ctx, domain.ProjectID(projID))
 }
 
 func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (domain.ProjectID, error) {
