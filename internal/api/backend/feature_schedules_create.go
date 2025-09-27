@@ -17,7 +17,7 @@ func (r *RestAPI) CreateFeatureSchedule(
 	featureID := domain.FeatureID(params.FeatureID)
 	environmentKey := params.EnvironmentKey
 
-	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
+	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

@@ -21,7 +21,7 @@ func (r *RestAPI) ToggleFeature(
 	environmentKey := params.EnvironmentKey
 
 	// Ensure a feature exists and get project ID
-	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
+	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

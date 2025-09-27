@@ -39,72 +39,6 @@ func (_m *MockFeaturesUseCase) EXPECT() *MockFeaturesUseCase_Expecter {
 	return &MockFeaturesUseCase_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
-	ret := _mock.Called(ctx, feature)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Create")
-	}
-
-	var r0 domain.Feature
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) (domain.Feature, error)); ok {
-		return returnFunc(ctx, feature)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) domain.Feature); ok {
-		r0 = returnFunc(ctx, feature)
-	} else {
-		r0 = ret.Get(0).(domain.Feature)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature) error); ok {
-		r1 = returnFunc(ctx, feature)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockFeaturesUseCase_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type MockFeaturesUseCase_Create_Call struct {
-	*mock.Call
-}
-
-// Create is a helper method to define mock.On call
-//   - ctx context.Context
-//   - feature domain.Feature
-func (_e *MockFeaturesUseCase_Expecter) Create(ctx interface{}, feature interface{}) *MockFeaturesUseCase_Create_Call {
-	return &MockFeaturesUseCase_Create_Call{Call: _e.mock.On("Create", ctx, feature)}
-}
-
-func (_c *MockFeaturesUseCase_Create_Call) Run(run func(ctx context.Context, feature domain.Feature)) *MockFeaturesUseCase_Create_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 domain.Feature
-		if args[1] != nil {
-			arg1 = args[1].(domain.Feature)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_Create_Call) Return(feature1 domain.Feature, err error) *MockFeaturesUseCase_Create_Call {
-	_c.Call.Return(feature1, err)
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_Create_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature) (domain.Feature, error)) *MockFeaturesUseCase_Create_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // CreateWithChildren provides a mock function for the type MockFeaturesUseCase
 func (_mock *MockFeaturesUseCase) CreateWithChildren(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, error) {
 	ret := _mock.Called(ctx, feature, variants, rules)
@@ -184,8 +118,8 @@ func (_c *MockFeaturesUseCase_CreateWithChildren_Call) RunAndReturn(run func(ctx
 }
 
 // Delete provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) Delete(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error) {
-	ret := _mock.Called(ctx, id)
+func (_mock *MockFeaturesUseCase) Delete(ctx context.Context, id domain.FeatureID, env string) (domain.GuardedResult, error) {
+	ret := _mock.Called(ctx, id, env)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
@@ -193,16 +127,16 @@ func (_mock *MockFeaturesUseCase) Delete(ctx context.Context, id domain.FeatureI
 
 	var r0 domain.GuardedResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) (domain.GuardedResult, error)); ok {
-		return returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) (domain.GuardedResult, error)); ok {
+		return returnFunc(ctx, id, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) domain.GuardedResult); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) domain.GuardedResult); ok {
+		r0 = returnFunc(ctx, id, env)
 	} else {
 		r0 = ret.Get(0).(domain.GuardedResult)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID) error); ok {
-		r1 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, string) error); ok {
+		r1 = returnFunc(ctx, id, env)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -217,11 +151,12 @@ type MockFeaturesUseCase_Delete_Call struct {
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id domain.FeatureID
-func (_e *MockFeaturesUseCase_Expecter) Delete(ctx interface{}, id interface{}) *MockFeaturesUseCase_Delete_Call {
-	return &MockFeaturesUseCase_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) Delete(ctx interface{}, id interface{}, env interface{}) *MockFeaturesUseCase_Delete_Call {
+	return &MockFeaturesUseCase_Delete_Call{Call: _e.mock.On("Delete", ctx, id, env)}
 }
 
-func (_c *MockFeaturesUseCase_Delete_Call) Run(run func(ctx context.Context, id domain.FeatureID)) *MockFeaturesUseCase_Delete_Call {
+func (_c *MockFeaturesUseCase_Delete_Call) Run(run func(ctx context.Context, id domain.FeatureID, env string)) *MockFeaturesUseCase_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -231,9 +166,14 @@ func (_c *MockFeaturesUseCase_Delete_Call) Run(run func(ctx context.Context, id 
 		if args[1] != nil {
 			arg1 = args[1].(domain.FeatureID)
 		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -244,50 +184,268 @@ func (_c *MockFeaturesUseCase_Delete_Call) Return(guardedResult domain.GuardedRe
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_Delete_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) (domain.GuardedResult, error)) *MockFeaturesUseCase_Delete_Call {
+func (_c *MockFeaturesUseCase_Delete_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, env string) (domain.GuardedResult, error)) *MockFeaturesUseCase_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetByID provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {
-	ret := _mock.Called(ctx, id)
+// GetByIDWithEnv provides a mock function for the type MockFeaturesUseCase
+func (_mock *MockFeaturesUseCase) GetByIDWithEnv(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error) {
+	ret := _mock.Called(ctx, id, env)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetByID")
+		panic("no return value specified for GetByIDWithEnv")
 	}
 
 	var r0 domain.Feature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) (domain.Feature, error)); ok {
-		return returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) (domain.Feature, error)); ok {
+		return returnFunc(ctx, id, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) domain.Feature); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) domain.Feature); ok {
+		r0 = returnFunc(ctx, id, env)
 	} else {
 		r0 = ret.Get(0).(domain.Feature)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID) error); ok {
-		r1 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, string) error); ok {
+		r1 = returnFunc(ctx, id, env)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockFeaturesUseCase_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
-type MockFeaturesUseCase_GetByID_Call struct {
+// MockFeaturesUseCase_GetByIDWithEnv_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDWithEnv'
+type MockFeaturesUseCase_GetByIDWithEnv_Call struct {
 	*mock.Call
 }
 
-// GetByID is a helper method to define mock.On call
+// GetByIDWithEnv is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id domain.FeatureID
-func (_e *MockFeaturesUseCase_Expecter) GetByID(ctx interface{}, id interface{}) *MockFeaturesUseCase_GetByID_Call {
-	return &MockFeaturesUseCase_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) GetByIDWithEnv(ctx interface{}, id interface{}, env interface{}) *MockFeaturesUseCase_GetByIDWithEnv_Call {
+	return &MockFeaturesUseCase_GetByIDWithEnv_Call{Call: _e.mock.On("GetByIDWithEnv", ctx, id, env)}
 }
 
-func (_c *MockFeaturesUseCase_GetByID_Call) Run(run func(ctx context.Context, id domain.FeatureID)) *MockFeaturesUseCase_GetByID_Call {
+func (_c *MockFeaturesUseCase_GetByIDWithEnv_Call) Run(run func(ctx context.Context, id domain.FeatureID, env string)) *MockFeaturesUseCase_GetByIDWithEnv_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetByIDWithEnv_Call) Return(feature domain.Feature, err error) *MockFeaturesUseCase_GetByIDWithEnv_Call {
+	_c.Call.Return(feature, err)
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetByIDWithEnv_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error)) *MockFeaturesUseCase_GetByIDWithEnv_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByKeyWithEnv provides a mock function for the type MockFeaturesUseCase
+func (_mock *MockFeaturesUseCase) GetByKeyWithEnv(ctx context.Context, key string, env string) (domain.Feature, error) {
+	ret := _mock.Called(ctx, key, env)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByKeyWithEnv")
+	}
+
+	var r0 domain.Feature
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (domain.Feature, error)); ok {
+		return returnFunc(ctx, key, env)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) domain.Feature); ok {
+		r0 = returnFunc(ctx, key, env)
+	} else {
+		r0 = ret.Get(0).(domain.Feature)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = returnFunc(ctx, key, env)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeaturesUseCase_GetByKeyWithEnv_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByKeyWithEnv'
+type MockFeaturesUseCase_GetByKeyWithEnv_Call struct {
+	*mock.Call
+}
+
+// GetByKeyWithEnv is a helper method to define mock.On call
+//   - ctx context.Context
+//   - key string
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) GetByKeyWithEnv(ctx interface{}, key interface{}, env interface{}) *MockFeaturesUseCase_GetByKeyWithEnv_Call {
+	return &MockFeaturesUseCase_GetByKeyWithEnv_Call{Call: _e.mock.On("GetByKeyWithEnv", ctx, key, env)}
+}
+
+func (_c *MockFeaturesUseCase_GetByKeyWithEnv_Call) Run(run func(ctx context.Context, key string, env string)) *MockFeaturesUseCase_GetByKeyWithEnv_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetByKeyWithEnv_Call) Return(feature domain.Feature, err error) *MockFeaturesUseCase_GetByKeyWithEnv_Call {
+	_c.Call.Return(feature, err)
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetByKeyWithEnv_Call) RunAndReturn(run func(ctx context.Context, key string, env string) (domain.Feature, error)) *MockFeaturesUseCase_GetByKeyWithEnv_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetExtendedByID provides a mock function for the type MockFeaturesUseCase
+func (_mock *MockFeaturesUseCase) GetExtendedByID(ctx context.Context, id domain.FeatureID, env string) (domain.FeatureExtended, error) {
+	ret := _mock.Called(ctx, id, env)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetExtendedByID")
+	}
+
+	var r0 domain.FeatureExtended
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) (domain.FeatureExtended, error)); ok {
+		return returnFunc(ctx, id, env)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) domain.FeatureExtended); ok {
+		r0 = returnFunc(ctx, id, env)
+	} else {
+		r0 = ret.Get(0).(domain.FeatureExtended)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, string) error); ok {
+		r1 = returnFunc(ctx, id, env)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeaturesUseCase_GetExtendedByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetExtendedByID'
+type MockFeaturesUseCase_GetExtendedByID_Call struct {
+	*mock.Call
+}
+
+// GetExtendedByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureID
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) GetExtendedByID(ctx interface{}, id interface{}, env interface{}) *MockFeaturesUseCase_GetExtendedByID_Call {
+	return &MockFeaturesUseCase_GetExtendedByID_Call{Call: _e.mock.On("GetExtendedByID", ctx, id, env)}
+}
+
+func (_c *MockFeaturesUseCase_GetExtendedByID_Call) Run(run func(ctx context.Context, id domain.FeatureID, env string)) *MockFeaturesUseCase_GetExtendedByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetExtendedByID_Call) Return(featureExtended domain.FeatureExtended, err error) *MockFeaturesUseCase_GetExtendedByID_Call {
+	_c.Call.Return(featureExtended, err)
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetExtendedByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, env string) (domain.FeatureExtended, error)) *MockFeaturesUseCase_GetExtendedByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetFeatureParams provides a mock function for the type MockFeaturesUseCase
+func (_mock *MockFeaturesUseCase) GetFeatureParams(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error) {
+	ret := _mock.Called(ctx, featureID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFeatureParams")
+	}
+
+	var r0 []domain.FeatureParams
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) ([]domain.FeatureParams, error)); ok {
+		return returnFunc(ctx, featureID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) []domain.FeatureParams); ok {
+		r0 = returnFunc(ctx, featureID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureParams)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID) error); ok {
+		r1 = returnFunc(ctx, featureID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeaturesUseCase_GetFeatureParams_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFeatureParams'
+type MockFeaturesUseCase_GetFeatureParams_Call struct {
+	*mock.Call
+}
+
+// GetFeatureParams is a helper method to define mock.On call
+//   - ctx context.Context
+//   - featureID domain.FeatureID
+func (_e *MockFeaturesUseCase_Expecter) GetFeatureParams(ctx interface{}, featureID interface{}) *MockFeaturesUseCase_GetFeatureParams_Call {
+	return &MockFeaturesUseCase_GetFeatureParams_Call{Call: _e.mock.On("GetFeatureParams", ctx, featureID)}
+}
+
+func (_c *MockFeaturesUseCase_GetFeatureParams_Call) Run(run func(ctx context.Context, featureID domain.FeatureID)) *MockFeaturesUseCase_GetFeatureParams_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -305,55 +463,57 @@ func (_c *MockFeaturesUseCase_GetByID_Call) Run(run func(ctx context.Context, id
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_GetByID_Call) Return(feature domain.Feature, err error) *MockFeaturesUseCase_GetByID_Call {
-	_c.Call.Return(feature, err)
+func (_c *MockFeaturesUseCase_GetFeatureParams_Call) Return(featureParamss []domain.FeatureParams, err error) *MockFeaturesUseCase_GetFeatureParams_Call {
+	_c.Call.Return(featureParamss, err)
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) (domain.Feature, error)) *MockFeaturesUseCase_GetByID_Call {
+func (_c *MockFeaturesUseCase_GetFeatureParams_Call) RunAndReturn(run func(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error)) *MockFeaturesUseCase_GetFeatureParams_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetByKey provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
-	ret := _mock.Called(ctx, key)
+// List provides a mock function for the type MockFeaturesUseCase
+func (_mock *MockFeaturesUseCase) List(ctx context.Context, env string) ([]domain.Feature, error) {
+	ret := _mock.Called(ctx, env)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetByKey")
+		panic("no return value specified for List")
 	}
 
-	var r0 domain.Feature
+	var r0 []domain.Feature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.Feature, error)); ok {
-		return returnFunc(ctx, key)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) ([]domain.Feature, error)); ok {
+		return returnFunc(ctx, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.Feature); ok {
-		r0 = returnFunc(ctx, key)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) []domain.Feature); ok {
+		r0 = returnFunc(ctx, env)
 	} else {
-		r0 = ret.Get(0).(domain.Feature)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Feature)
+		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, key)
+		r1 = returnFunc(ctx, env)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockFeaturesUseCase_GetByKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByKey'
-type MockFeaturesUseCase_GetByKey_Call struct {
+// MockFeaturesUseCase_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockFeaturesUseCase_List_Call struct {
 	*mock.Call
 }
 
-// GetByKey is a helper method to define mock.On call
+// List is a helper method to define mock.On call
 //   - ctx context.Context
-//   - key string
-func (_e *MockFeaturesUseCase_Expecter) GetByKey(ctx interface{}, key interface{}) *MockFeaturesUseCase_GetByKey_Call {
-	return &MockFeaturesUseCase_GetByKey_Call{Call: _e.mock.On("GetByKey", ctx, key)}
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) List(ctx interface{}, env interface{}) *MockFeaturesUseCase_List_Call {
+	return &MockFeaturesUseCase_List_Call{Call: _e.mock.On("List", ctx, env)}
 }
 
-func (_c *MockFeaturesUseCase_GetByKey_Call) Run(run func(ctx context.Context, key string)) *MockFeaturesUseCase_GetByKey_Call {
+func (_c *MockFeaturesUseCase_List_Call) Run(run func(ctx context.Context, env string)) *MockFeaturesUseCase_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -371,147 +531,19 @@ func (_c *MockFeaturesUseCase_GetByKey_Call) Run(run func(ctx context.Context, k
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_GetByKey_Call) Return(feature domain.Feature, err error) *MockFeaturesUseCase_GetByKey_Call {
-	_c.Call.Return(feature, err)
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_GetByKey_Call) RunAndReturn(run func(ctx context.Context, key string) (domain.Feature, error)) *MockFeaturesUseCase_GetByKey_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetExtendedByID provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) GetExtendedByID(ctx context.Context, id domain.FeatureID) (domain.FeatureExtended, error) {
-	ret := _mock.Called(ctx, id)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetExtendedByID")
-	}
-
-	var r0 domain.FeatureExtended
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) (domain.FeatureExtended, error)); ok {
-		return returnFunc(ctx, id)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) domain.FeatureExtended); ok {
-		r0 = returnFunc(ctx, id)
-	} else {
-		r0 = ret.Get(0).(domain.FeatureExtended)
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID) error); ok {
-		r1 = returnFunc(ctx, id)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockFeaturesUseCase_GetExtendedByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetExtendedByID'
-type MockFeaturesUseCase_GetExtendedByID_Call struct {
-	*mock.Call
-}
-
-// GetExtendedByID is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id domain.FeatureID
-func (_e *MockFeaturesUseCase_Expecter) GetExtendedByID(ctx interface{}, id interface{}) *MockFeaturesUseCase_GetExtendedByID_Call {
-	return &MockFeaturesUseCase_GetExtendedByID_Call{Call: _e.mock.On("GetExtendedByID", ctx, id)}
-}
-
-func (_c *MockFeaturesUseCase_GetExtendedByID_Call) Run(run func(ctx context.Context, id domain.FeatureID)) *MockFeaturesUseCase_GetExtendedByID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		var arg1 domain.FeatureID
-		if args[1] != nil {
-			arg1 = args[1].(domain.FeatureID)
-		}
-		run(
-			arg0,
-			arg1,
-		)
-	})
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_GetExtendedByID_Call) Return(featureExtended domain.FeatureExtended, err error) *MockFeaturesUseCase_GetExtendedByID_Call {
-	_c.Call.Return(featureExtended, err)
-	return _c
-}
-
-func (_c *MockFeaturesUseCase_GetExtendedByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) (domain.FeatureExtended, error)) *MockFeaturesUseCase_GetExtendedByID_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// List provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) List(ctx context.Context) ([]domain.Feature, error) {
-	ret := _mock.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for List")
-	}
-
-	var r0 []domain.Feature
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.Feature, error)); ok {
-		return returnFunc(ctx)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.Feature); ok {
-		r0 = returnFunc(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]domain.Feature)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = returnFunc(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockFeaturesUseCase_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
-type MockFeaturesUseCase_List_Call struct {
-	*mock.Call
-}
-
-// List is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockFeaturesUseCase_Expecter) List(ctx interface{}) *MockFeaturesUseCase_List_Call {
-	return &MockFeaturesUseCase_List_Call{Call: _e.mock.On("List", ctx)}
-}
-
-func (_c *MockFeaturesUseCase_List_Call) Run(run func(ctx context.Context)) *MockFeaturesUseCase_List_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
 func (_c *MockFeaturesUseCase_List_Call) Return(features []domain.Feature, err error) *MockFeaturesUseCase_List_Call {
 	_c.Call.Return(features, err)
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_List_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Feature, error)) *MockFeaturesUseCase_List_Call {
+func (_c *MockFeaturesUseCase_List_Call) RunAndReturn(run func(ctx context.Context, env string) ([]domain.Feature, error)) *MockFeaturesUseCase_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByProjectID provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error) {
-	ret := _mock.Called(ctx, projectID)
+func (_mock *MockFeaturesUseCase) ListByProjectID(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error) {
+	ret := _mock.Called(ctx, projectID, env)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByProjectID")
@@ -519,18 +551,18 @@ func (_mock *MockFeaturesUseCase) ListByProjectID(ctx context.Context, projectID
 
 	var r0 []domain.Feature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) ([]domain.Feature, error)); ok {
-		return returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) ([]domain.Feature, error)); ok {
+		return returnFunc(ctx, projectID, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) []domain.Feature); ok {
-		r0 = returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) []domain.Feature); ok {
+		r0 = returnFunc(ctx, projectID, env)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Feature)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
-		r1 = returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string) error); ok {
+		r1 = returnFunc(ctx, projectID, env)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -545,11 +577,12 @@ type MockFeaturesUseCase_ListByProjectID_Call struct {
 // ListByProjectID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
-func (_e *MockFeaturesUseCase_Expecter) ListByProjectID(ctx interface{}, projectID interface{}) *MockFeaturesUseCase_ListByProjectID_Call {
-	return &MockFeaturesUseCase_ListByProjectID_Call{Call: _e.mock.On("ListByProjectID", ctx, projectID)}
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) ListByProjectID(ctx interface{}, projectID interface{}, env interface{}) *MockFeaturesUseCase_ListByProjectID_Call {
+	return &MockFeaturesUseCase_ListByProjectID_Call{Call: _e.mock.On("ListByProjectID", ctx, projectID, env)}
 }
 
-func (_c *MockFeaturesUseCase_ListByProjectID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockFeaturesUseCase_ListByProjectID_Call {
+func (_c *MockFeaturesUseCase_ListByProjectID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, env string)) *MockFeaturesUseCase_ListByProjectID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -559,9 +592,14 @@ func (_c *MockFeaturesUseCase_ListByProjectID_Call) Run(run func(ctx context.Con
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -572,14 +610,14 @@ func (_c *MockFeaturesUseCase_ListByProjectID_Call) Return(features []domain.Fea
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_ListByProjectID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)) *MockFeaturesUseCase_ListByProjectID_Call {
+func (_c *MockFeaturesUseCase_ListByProjectID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error)) *MockFeaturesUseCase_ListByProjectID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByProjectIDFiltered provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter) ([]domain.Feature, int, error) {
-	ret := _mock.Called(ctx, projectID, filter)
+func (_mock *MockFeaturesUseCase) ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter) ([]domain.Feature, int, error) {
+	ret := _mock.Called(ctx, projectID, env, filter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByProjectIDFiltered")
@@ -588,23 +626,23 @@ func (_mock *MockFeaturesUseCase) ListByProjectIDFiltered(ctx context.Context, p
 	var r0 []domain.Feature
 	var r1 int
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) ([]domain.Feature, int, error)); ok {
-		return returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) ([]domain.Feature, int, error)); ok {
+		return returnFunc(ctx, projectID, env, filter)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) []domain.Feature); ok {
-		r0 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) []domain.Feature); ok {
+		r0 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Feature)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) int); ok {
-		r1 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) int); ok {
+		r1 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) error); ok {
-		r2 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) error); ok {
+		r2 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -619,12 +657,13 @@ type MockFeaturesUseCase_ListByProjectIDFiltered_Call struct {
 // ListByProjectIDFiltered is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
+//   - env string
 //   - filter contract.FeaturesListFilter
-func (_e *MockFeaturesUseCase_Expecter) ListByProjectIDFiltered(ctx interface{}, projectID interface{}, filter interface{}) *MockFeaturesUseCase_ListByProjectIDFiltered_Call {
-	return &MockFeaturesUseCase_ListByProjectIDFiltered_Call{Call: _e.mock.On("ListByProjectIDFiltered", ctx, projectID, filter)}
+func (_e *MockFeaturesUseCase_Expecter) ListByProjectIDFiltered(ctx interface{}, projectID interface{}, env interface{}, filter interface{}) *MockFeaturesUseCase_ListByProjectIDFiltered_Call {
+	return &MockFeaturesUseCase_ListByProjectIDFiltered_Call{Call: _e.mock.On("ListByProjectIDFiltered", ctx, projectID, env, filter)}
 }
 
-func (_c *MockFeaturesUseCase_ListByProjectIDFiltered_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter)) *MockFeaturesUseCase_ListByProjectIDFiltered_Call {
+func (_c *MockFeaturesUseCase_ListByProjectIDFiltered_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter)) *MockFeaturesUseCase_ListByProjectIDFiltered_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -634,14 +673,19 @@ func (_c *MockFeaturesUseCase_ListByProjectIDFiltered_Call) Run(run func(ctx con
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
-		var arg2 contract.FeaturesListFilter
+		var arg2 string
 		if args[2] != nil {
-			arg2 = args[2].(contract.FeaturesListFilter)
+			arg2 = args[2].(string)
+		}
+		var arg3 contract.FeaturesListFilter
+		if args[3] != nil {
+			arg3 = args[3].(contract.FeaturesListFilter)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -652,14 +696,14 @@ func (_c *MockFeaturesUseCase_ListByProjectIDFiltered_Call) Return(features []do
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_ListByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter) ([]domain.Feature, int, error)) *MockFeaturesUseCase_ListByProjectIDFiltered_Call {
+func (_c *MockFeaturesUseCase_ListByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter) ([]domain.Feature, int, error)) *MockFeaturesUseCase_ListByProjectIDFiltered_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListExtendedByProjectID provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) ListExtendedByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.FeatureExtended, error) {
-	ret := _mock.Called(ctx, projectID)
+func (_mock *MockFeaturesUseCase) ListExtendedByProjectID(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.FeatureExtended, error) {
+	ret := _mock.Called(ctx, projectID, env)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListExtendedByProjectID")
@@ -667,18 +711,18 @@ func (_mock *MockFeaturesUseCase) ListExtendedByProjectID(ctx context.Context, p
 
 	var r0 []domain.FeatureExtended
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) ([]domain.FeatureExtended, error)); ok {
-		return returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) ([]domain.FeatureExtended, error)); ok {
+		return returnFunc(ctx, projectID, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) []domain.FeatureExtended); ok {
-		r0 = returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) []domain.FeatureExtended); ok {
+		r0 = returnFunc(ctx, projectID, env)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.FeatureExtended)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
-		r1 = returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string) error); ok {
+		r1 = returnFunc(ctx, projectID, env)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -693,11 +737,12 @@ type MockFeaturesUseCase_ListExtendedByProjectID_Call struct {
 // ListExtendedByProjectID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
-func (_e *MockFeaturesUseCase_Expecter) ListExtendedByProjectID(ctx interface{}, projectID interface{}) *MockFeaturesUseCase_ListExtendedByProjectID_Call {
-	return &MockFeaturesUseCase_ListExtendedByProjectID_Call{Call: _e.mock.On("ListExtendedByProjectID", ctx, projectID)}
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) ListExtendedByProjectID(ctx interface{}, projectID interface{}, env interface{}) *MockFeaturesUseCase_ListExtendedByProjectID_Call {
+	return &MockFeaturesUseCase_ListExtendedByProjectID_Call{Call: _e.mock.On("ListExtendedByProjectID", ctx, projectID, env)}
 }
 
-func (_c *MockFeaturesUseCase_ListExtendedByProjectID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockFeaturesUseCase_ListExtendedByProjectID_Call {
+func (_c *MockFeaturesUseCase_ListExtendedByProjectID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, env string)) *MockFeaturesUseCase_ListExtendedByProjectID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -707,9 +752,14 @@ func (_c *MockFeaturesUseCase_ListExtendedByProjectID_Call) Run(run func(ctx con
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -720,14 +770,14 @@ func (_c *MockFeaturesUseCase_ListExtendedByProjectID_Call) Return(featureExtend
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_ListExtendedByProjectID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) ([]domain.FeatureExtended, error)) *MockFeaturesUseCase_ListExtendedByProjectID_Call {
+func (_c *MockFeaturesUseCase_ListExtendedByProjectID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.FeatureExtended, error)) *MockFeaturesUseCase_ListExtendedByProjectID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListExtendedByProjectIDFiltered provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) ListExtendedByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter) ([]domain.FeatureExtended, int, error) {
-	ret := _mock.Called(ctx, projectID, filter)
+func (_mock *MockFeaturesUseCase) ListExtendedByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter) ([]domain.FeatureExtended, int, error) {
+	ret := _mock.Called(ctx, projectID, env, filter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListExtendedByProjectIDFiltered")
@@ -736,23 +786,23 @@ func (_mock *MockFeaturesUseCase) ListExtendedByProjectIDFiltered(ctx context.Co
 	var r0 []domain.FeatureExtended
 	var r1 int
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) ([]domain.FeatureExtended, int, error)); ok {
-		return returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) ([]domain.FeatureExtended, int, error)); ok {
+		return returnFunc(ctx, projectID, env, filter)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) []domain.FeatureExtended); ok {
-		r0 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) []domain.FeatureExtended); ok {
+		r0 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.FeatureExtended)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) int); ok {
-		r1 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) int); ok {
+		r1 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) error); ok {
-		r2 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) error); ok {
+		r2 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -767,12 +817,13 @@ type MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call struct {
 // ListExtendedByProjectIDFiltered is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
+//   - env string
 //   - filter contract.FeaturesListFilter
-func (_e *MockFeaturesUseCase_Expecter) ListExtendedByProjectIDFiltered(ctx interface{}, projectID interface{}, filter interface{}) *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call {
-	return &MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call{Call: _e.mock.On("ListExtendedByProjectIDFiltered", ctx, projectID, filter)}
+func (_e *MockFeaturesUseCase_Expecter) ListExtendedByProjectIDFiltered(ctx interface{}, projectID interface{}, env interface{}, filter interface{}) *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call {
+	return &MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call{Call: _e.mock.On("ListExtendedByProjectIDFiltered", ctx, projectID, env, filter)}
 }
 
-func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter)) *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call {
+func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter)) *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -782,14 +833,19 @@ func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) Run(run func
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
-		var arg2 contract.FeaturesListFilter
+		var arg2 string
 		if args[2] != nil {
-			arg2 = args[2].(contract.FeaturesListFilter)
+			arg2 = args[2].(string)
+		}
+		var arg3 contract.FeaturesListFilter
+		if args[3] != nil {
+			arg3 = args[3].(contract.FeaturesListFilter)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -800,14 +856,14 @@ func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) Return(featu
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter) ([]domain.FeatureExtended, int, error)) *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call {
+func (_c *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter) ([]domain.FeatureExtended, int, error)) *MockFeaturesUseCase_ListExtendedByProjectIDFiltered_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Toggle provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, domain.GuardedResult, error) {
-	ret := _mock.Called(ctx, id, enabled)
+func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureID, enabled bool, env string) (domain.Feature, domain.GuardedResult, error) {
+	ret := _mock.Called(ctx, id, enabled, env)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Toggle")
@@ -816,21 +872,21 @@ func (_mock *MockFeaturesUseCase) Toggle(ctx context.Context, id domain.FeatureI
 	var r0 domain.Feature
 	var r1 domain.GuardedResult
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool) (domain.Feature, domain.GuardedResult, error)); ok {
-		return returnFunc(ctx, id, enabled)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool, string) (domain.Feature, domain.GuardedResult, error)); ok {
+		return returnFunc(ctx, id, enabled, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool) domain.Feature); ok {
-		r0 = returnFunc(ctx, id, enabled)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, bool, string) domain.Feature); ok {
+		r0 = returnFunc(ctx, id, enabled, env)
 	} else {
 		r0 = ret.Get(0).(domain.Feature)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, bool) domain.GuardedResult); ok {
-		r1 = returnFunc(ctx, id, enabled)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, bool, string) domain.GuardedResult); ok {
+		r1 = returnFunc(ctx, id, enabled, env)
 	} else {
 		r1 = ret.Get(1).(domain.GuardedResult)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.FeatureID, bool) error); ok {
-		r2 = returnFunc(ctx, id, enabled)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.FeatureID, bool, string) error); ok {
+		r2 = returnFunc(ctx, id, enabled, env)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -846,11 +902,12 @@ type MockFeaturesUseCase_Toggle_Call struct {
 //   - ctx context.Context
 //   - id domain.FeatureID
 //   - enabled bool
-func (_e *MockFeaturesUseCase_Expecter) Toggle(ctx interface{}, id interface{}, enabled interface{}) *MockFeaturesUseCase_Toggle_Call {
-	return &MockFeaturesUseCase_Toggle_Call{Call: _e.mock.On("Toggle", ctx, id, enabled)}
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) Toggle(ctx interface{}, id interface{}, enabled interface{}, env interface{}) *MockFeaturesUseCase_Toggle_Call {
+	return &MockFeaturesUseCase_Toggle_Call{Call: _e.mock.On("Toggle", ctx, id, enabled, env)}
 }
 
-func (_c *MockFeaturesUseCase_Toggle_Call) Run(run func(ctx context.Context, id domain.FeatureID, enabled bool)) *MockFeaturesUseCase_Toggle_Call {
+func (_c *MockFeaturesUseCase_Toggle_Call) Run(run func(ctx context.Context, id domain.FeatureID, enabled bool, env string)) *MockFeaturesUseCase_Toggle_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -864,10 +921,15 @@ func (_c *MockFeaturesUseCase_Toggle_Call) Run(run func(ctx context.Context, id 
 		if args[2] != nil {
 			arg2 = args[2].(bool)
 		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -878,14 +940,14 @@ func (_c *MockFeaturesUseCase_Toggle_Call) Return(feature domain.Feature, guarde
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_Toggle_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, enabled bool) (domain.Feature, domain.GuardedResult, error)) *MockFeaturesUseCase_Toggle_Call {
+func (_c *MockFeaturesUseCase_Toggle_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, enabled bool, env string) (domain.Feature, domain.GuardedResult, error)) *MockFeaturesUseCase_Toggle_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // UpdateWithChildren provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error) {
-	ret := _mock.Called(ctx, feature, variants, rules)
+func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, envKey string, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error) {
+	ret := _mock.Called(ctx, envKey, feature, variants, rules)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateWithChildren")
@@ -894,21 +956,21 @@ func (_mock *MockFeaturesUseCase) UpdateWithChildren(ctx context.Context, featur
 	var r0 domain.FeatureExtended
 	var r1 domain.GuardedResult
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error)); ok {
-		return returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, domain.Feature, []domain.FlagVariant, []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error)); ok {
+		return returnFunc(ctx, envKey, feature, variants, rules)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.FeatureExtended); ok {
-		r0 = returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.FeatureExtended); ok {
+		r0 = returnFunc(ctx, envKey, feature, variants, rules)
 	} else {
 		r0 = ret.Get(0).(domain.FeatureExtended)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.GuardedResult); ok {
-		r1 = returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.GuardedResult); ok {
+		r1 = returnFunc(ctx, envKey, feature, variants, rules)
 	} else {
 		r1 = ret.Get(1).(domain.GuardedResult)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) error); ok {
-		r2 = returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, string, domain.Feature, []domain.FlagVariant, []domain.Rule) error); ok {
+		r2 = returnFunc(ctx, envKey, feature, variants, rules)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -922,36 +984,42 @@ type MockFeaturesUseCase_UpdateWithChildren_Call struct {
 
 // UpdateWithChildren is a helper method to define mock.On call
 //   - ctx context.Context
+//   - envKey string
 //   - feature domain.Feature
 //   - variants []domain.FlagVariant
 //   - rules []domain.Rule
-func (_e *MockFeaturesUseCase_Expecter) UpdateWithChildren(ctx interface{}, feature interface{}, variants interface{}, rules interface{}) *MockFeaturesUseCase_UpdateWithChildren_Call {
-	return &MockFeaturesUseCase_UpdateWithChildren_Call{Call: _e.mock.On("UpdateWithChildren", ctx, feature, variants, rules)}
+func (_e *MockFeaturesUseCase_Expecter) UpdateWithChildren(ctx interface{}, envKey interface{}, feature interface{}, variants interface{}, rules interface{}) *MockFeaturesUseCase_UpdateWithChildren_Call {
+	return &MockFeaturesUseCase_UpdateWithChildren_Call{Call: _e.mock.On("UpdateWithChildren", ctx, envKey, feature, variants, rules)}
 }
 
-func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) Run(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule)) *MockFeaturesUseCase_UpdateWithChildren_Call {
+func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) Run(run func(ctx context.Context, envKey string, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule)) *MockFeaturesUseCase_UpdateWithChildren_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.Feature
+		var arg1 string
 		if args[1] != nil {
-			arg1 = args[1].(domain.Feature)
+			arg1 = args[1].(string)
 		}
-		var arg2 []domain.FlagVariant
+		var arg2 domain.Feature
 		if args[2] != nil {
-			arg2 = args[2].([]domain.FlagVariant)
+			arg2 = args[2].(domain.Feature)
 		}
-		var arg3 []domain.Rule
+		var arg3 []domain.FlagVariant
 		if args[3] != nil {
-			arg3 = args[3].([]domain.Rule)
+			arg3 = args[3].([]domain.FlagVariant)
+		}
+		var arg4 []domain.Rule
+		if args[4] != nil {
+			arg4 = args[4].([]domain.Rule)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
+			arg4,
 		)
 	})
 	return _c
@@ -962,7 +1030,7 @@ func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) Return(featureExtended do
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error)) *MockFeaturesUseCase_UpdateWithChildren_Call {
+func (_c *MockFeaturesUseCase_UpdateWithChildren_Call) RunAndReturn(run func(ctx context.Context, envKey string, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, domain.GuardedResult, error)) *MockFeaturesUseCase_UpdateWithChildren_Call {
 	_c.Call.Return(run)
 	return _c
 }

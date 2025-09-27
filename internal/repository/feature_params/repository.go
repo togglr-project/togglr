@@ -76,7 +76,7 @@ RETURNING feature_id, environment_id, enabled, default_value, created_at, update
 	return newParams, nil
 }
 
-func (r *Repository) GetByFeatureAndEnvironment(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error) {
+func (r *Repository) GetByFeatureWithEnv(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM feature_params WHERE feature_id = $1 AND environment_id = $2 LIMIT 1`
@@ -151,7 +151,7 @@ func (r *Repository) Update(ctx context.Context, projectID domain.ProjectID, par
 	executor := r.getExecutor(ctx)
 
 	// Read old state for audit within the same transaction.
-	oldParams, err := r.GetByFeatureAndEnvironment(ctx, params.FeatureID, params.EnvironmentID)
+	oldParams, err := r.GetByFeatureWithEnv(ctx, params.FeatureID, params.EnvironmentID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return domain.FeatureParams{}, err
@@ -211,7 +211,7 @@ RETURNING feature_id, environment_id, enabled, default_value, created_at, update
 func (r *Repository) Delete(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID, envID domain.EnvironmentID) error {
 	executor := r.getExecutor(ctx)
 
-	oldParams, err := r.GetByFeatureAndEnvironment(ctx, featureID, envID)
+	oldParams, err := r.GetByFeatureWithEnv(ctx, featureID, envID)
 	if err != nil {
 		return err
 	}

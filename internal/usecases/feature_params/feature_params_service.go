@@ -20,22 +20,26 @@ func New(paramsRepo contract.FeatureParamsRepository) *Service {
 	}
 }
 
-func (s *Service) GetByFeatureAndEnvironment(
+func (s *Service) GetByFeatureWithEnv(
 	ctx context.Context,
 	featureID domain.FeatureID,
-	environmentID domain.EnvironmentID,
+	envID domain.EnvironmentID,
 ) (domain.FeatureParams, error) {
-	return s.paramsRepo.GetByFeatureAndEnvironment(ctx, featureID, environmentID)
+	return s.paramsRepo.GetByFeatureWithEnv(ctx, featureID, envID)
 }
 
 func (s *Service) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error) {
 	return s.paramsRepo.ListByFeatureID(ctx, featureID)
 }
 
-func (s *Service) Update(ctx context.Context, projectID domain.ProjectID, params domain.FeatureParams) (domain.FeatureParams, error) {
+func (s *Service) Update(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	params domain.FeatureParams,
+) (domain.FeatureParams, error) {
 	params.UpdatedAt = time.Now()
 
-	existing, err := s.paramsRepo.GetByFeatureAndEnvironment(ctx, params.FeatureID, params.EnvironmentID)
+	existing, err := s.paramsRepo.GetByFeatureWithEnv(ctx, params.FeatureID, params.EnvironmentID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return s.paramsRepo.Create(ctx, projectID, params)
@@ -54,7 +58,7 @@ func (s *Service) Delete(
 	ctx context.Context,
 	projectID domain.ProjectID,
 	featureID domain.FeatureID,
-	environmentID domain.EnvironmentID,
+	envID domain.EnvironmentID,
 ) error {
-	return s.paramsRepo.Delete(ctx, projectID, featureID, environmentID)
+	return s.paramsRepo.Delete(ctx, projectID, featureID, envID)
 }

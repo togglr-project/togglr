@@ -106,8 +106,8 @@ func (_c *MockPendingChangesRepository_CheckEntityConflict_Call) RunAndReturn(ru
 }
 
 // Create provides a mock function for the type MockPendingChangesRepository
-func (_mock *MockPendingChangesRepository) Create(ctx context.Context, projectID domain.ProjectID, requestedBy string, requestUserID *int, change domain.PendingChangePayload) (domain.PendingChange, error) {
-	ret := _mock.Called(ctx, projectID, requestedBy, requestUserID, change)
+func (_mock *MockPendingChangesRepository) Create(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID, requestedBy string, requestUserID *int, change domain.PendingChangePayload) (domain.PendingChange, error) {
+	ret := _mock.Called(ctx, projectID, environmentID, requestedBy, requestUserID, change)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -115,16 +115,16 @@ func (_mock *MockPendingChangesRepository) Create(ctx context.Context, projectID
 
 	var r0 domain.PendingChange
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, *int, domain.PendingChangePayload) (domain.PendingChange, error)); ok {
-		return returnFunc(ctx, projectID, requestedBy, requestUserID, change)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID, string, *int, domain.PendingChangePayload) (domain.PendingChange, error)); ok {
+		return returnFunc(ctx, projectID, environmentID, requestedBy, requestUserID, change)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, *int, domain.PendingChangePayload) domain.PendingChange); ok {
-		r0 = returnFunc(ctx, projectID, requestedBy, requestUserID, change)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID, string, *int, domain.PendingChangePayload) domain.PendingChange); ok {
+		r0 = returnFunc(ctx, projectID, environmentID, requestedBy, requestUserID, change)
 	} else {
 		r0 = ret.Get(0).(domain.PendingChange)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, *int, domain.PendingChangePayload) error); ok {
-		r1 = returnFunc(ctx, projectID, requestedBy, requestUserID, change)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.EnvironmentID, string, *int, domain.PendingChangePayload) error); ok {
+		r1 = returnFunc(ctx, projectID, environmentID, requestedBy, requestUserID, change)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -139,14 +139,15 @@ type MockPendingChangesRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
+//   - environmentID domain.EnvironmentID
 //   - requestedBy string
 //   - requestUserID *int
 //   - change domain.PendingChangePayload
-func (_e *MockPendingChangesRepository_Expecter) Create(ctx interface{}, projectID interface{}, requestedBy interface{}, requestUserID interface{}, change interface{}) *MockPendingChangesRepository_Create_Call {
-	return &MockPendingChangesRepository_Create_Call{Call: _e.mock.On("Create", ctx, projectID, requestedBy, requestUserID, change)}
+func (_e *MockPendingChangesRepository_Expecter) Create(ctx interface{}, projectID interface{}, environmentID interface{}, requestedBy interface{}, requestUserID interface{}, change interface{}) *MockPendingChangesRepository_Create_Call {
+	return &MockPendingChangesRepository_Create_Call{Call: _e.mock.On("Create", ctx, projectID, environmentID, requestedBy, requestUserID, change)}
 }
 
-func (_c *MockPendingChangesRepository_Create_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, requestedBy string, requestUserID *int, change domain.PendingChangePayload)) *MockPendingChangesRepository_Create_Call {
+func (_c *MockPendingChangesRepository_Create_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID, requestedBy string, requestUserID *int, change domain.PendingChangePayload)) *MockPendingChangesRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -156,17 +157,21 @@ func (_c *MockPendingChangesRepository_Create_Call) Run(run func(ctx context.Con
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
-		var arg2 string
+		var arg2 domain.EnvironmentID
 		if args[2] != nil {
-			arg2 = args[2].(string)
+			arg2 = args[2].(domain.EnvironmentID)
 		}
-		var arg3 *int
+		var arg3 string
 		if args[3] != nil {
-			arg3 = args[3].(*int)
+			arg3 = args[3].(string)
 		}
-		var arg4 domain.PendingChangePayload
+		var arg4 *int
 		if args[4] != nil {
-			arg4 = args[4].(domain.PendingChangePayload)
+			arg4 = args[4].(*int)
+		}
+		var arg5 domain.PendingChangePayload
+		if args[5] != nil {
+			arg5 = args[5].(domain.PendingChangePayload)
 		}
 		run(
 			arg0,
@@ -174,6 +179,7 @@ func (_c *MockPendingChangesRepository_Create_Call) Run(run func(ctx context.Con
 			arg2,
 			arg3,
 			arg4,
+			arg5,
 		)
 	})
 	return _c
@@ -184,7 +190,7 @@ func (_c *MockPendingChangesRepository_Create_Call) Return(pendingChange domain.
 	return _c
 }
 
-func (_c *MockPendingChangesRepository_Create_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, requestedBy string, requestUserID *int, change domain.PendingChangePayload) (domain.PendingChange, error)) *MockPendingChangesRepository_Create_Call {
+func (_c *MockPendingChangesRepository_Create_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID, requestedBy string, requestUserID *int, change domain.PendingChangePayload) (domain.PendingChange, error)) *MockPendingChangesRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -33,31 +33,31 @@ type FeaturesUseCase interface {
 		variants []domain.FlagVariant,
 		rules []domain.Rule,
 	) (domain.FeatureExtended, domain.GuardedResult, error)
-	GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error)
-	GetExtendedByID(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.FeatureExtended, error)
-	GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error)
-	List(ctx context.Context, environmentKey string) ([]domain.Feature, error)
-	ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error)
+	GetByIDWithEnv(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error)
+	GetExtendedByID(ctx context.Context, id domain.FeatureID, env string) (domain.FeatureExtended, error)
+	GetByKeyWithEnv(ctx context.Context, key, env string) (domain.Feature, error)
+	List(ctx context.Context, env string) ([]domain.Feature, error)
+	ListByProjectID(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error)
 	ListByProjectIDFiltered(
 		ctx context.Context,
 		projectID domain.ProjectID,
-		environmentKey string,
+		env string,
 		filter FeaturesListFilter,
 	) ([]domain.Feature, int, error)
 	ListExtendedByProjectIDFiltered(
 		ctx context.Context,
 		projectID domain.ProjectID,
-		environmentKey string,
+		env string,
 		filter FeaturesListFilter,
 	) ([]domain.FeatureExtended, int, error)
 	ListExtendedByProjectID(
 		ctx context.Context,
 		projectID domain.ProjectID,
-		environmentKey string,
+		env string,
 	) ([]domain.FeatureExtended, error)
 	// Toggle enables or disables a feature flag by its ID and returns updated entity.
-	Toggle(ctx context.Context, id domain.FeatureID, enabled bool, environmentKey string) (domain.Feature, domain.GuardedResult, error)
-	Delete(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.GuardedResult, error)
+	Toggle(ctx context.Context, id domain.FeatureID, enabled bool, env string) (domain.Feature, domain.GuardedResult, error)
+	Delete(ctx context.Context, id domain.FeatureID, env string) (domain.GuardedResult, error)
 	// GetFeatureParams returns feature parameters for all environments
 	GetFeatureParams(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error)
 }
@@ -65,14 +65,14 @@ type FeaturesUseCase interface {
 type FeaturesRepository interface {
 	Create(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)
 	GetByID(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error)
-	GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error)
-	GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error)
-	List(ctx context.Context, environmentKey string) ([]domain.Feature, error)
-	ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error)
+	GetByIDWithEnv(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error)
+	GetByKeyWithEnv(ctx context.Context, key, env string) (domain.Feature, error)
+	List(ctx context.Context, env string) ([]domain.Feature, error)
+	ListByProjectID(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error)
 	ListByProjectIDFiltered(
 		ctx context.Context,
 		projectID domain.ProjectID,
-		environmentKey string,
+		env string,
 		filter FeaturesListFilter,
 	) ([]domain.Feature, int, error)
 	Update(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)

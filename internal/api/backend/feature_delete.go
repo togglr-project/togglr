@@ -19,7 +19,7 @@ func (r *RestAPI) DeleteFeature(
 	// Get environment key from query parameters
 	environmentKey := params.EnvironmentKey
 	// Load feature to know project and to return 404 if it doesn't exist
-	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
+	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

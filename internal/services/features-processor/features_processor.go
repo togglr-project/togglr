@@ -506,7 +506,7 @@ func (s *Service) removeFeatureFromHolder(
 	projectID domain.ProjectID,
 	featureID domain.FeatureID,
 ) {
-	feature, err := s.featuresUC.GetByIDWithEnvironment(ctx, featureID, "prod")
+	feature, err := s.featuresUC.GetByIDWithEnv(ctx, featureID, "prod")
 	if err != nil {
 		slog.Error("get feature by id failed", "err", err)
 

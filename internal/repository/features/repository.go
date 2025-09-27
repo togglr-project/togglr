@@ -120,12 +120,12 @@ func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.B
 	return basicModel.toDomain(), nil
 }
 
-func (r *Repository) GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error) {
+func (r *Repository) GetByIDWithEnv(ctx context.Context, id domain.FeatureID, envKey string) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM v_features_full WHERE id = $1 AND environment_key = $2 LIMIT 1`
 
-	rows, err := executor.Query(ctx, query, id, environmentKey)
+	rows, err := executor.Query(ctx, query, id, envKey)
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("query feature by id with environment: %w", err)
 	}
@@ -142,42 +142,12 @@ func (r *Repository) GetByIDWithEnvironment(ctx context.Context, id domain.Featu
 	return model.toDomain(), nil
 }
 
-func (r *Repository) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
-	executor := r.getExecutor(ctx)
-
-	// Prefer a deterministic environment row when fetching by key without explicit environment.
-	// We choose prod if present, otherwise the first by environment_key order.
-	const query = `
-SELECT *
-FROM v_features_full
-WHERE key = $1
-ORDER BY (environment_key = 'prod') DESC, environment_key
-LIMIT 1`
-
-	rows, err := executor.Query(ctx, query, key)
-	if err != nil {
-		return domain.Feature{}, fmt.Errorf("query feature by key: %w", err)
-	}
-	defer rows.Close()
-
-	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureFullModel])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Feature{}, domain.ErrEntityNotFound
-		}
-
-		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
-	}
-
-	return model.toDomain(), nil
-}
-
-func (r *Repository) GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error) {
+func (r *Repository) GetByKeyWithEnv(ctx context.Context, key, envKey string) (domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM v_features_full WHERE key = $1 AND environment_key = $2 LIMIT 1`
 
-	rows, err := executor.Query(ctx, query, key, environmentKey)
+	rows, err := executor.Query(ctx, query, key, envKey)
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("query feature by key with environment: %w", err)
 	}
@@ -194,12 +164,12 @@ func (r *Repository) GetByKeyWithEnvironment(ctx context.Context, key, environme
 	return model.toDomain(), nil
 }
 
-func (r *Repository) List(ctx context.Context, environmentKey string) ([]domain.Feature, error) {
+func (r *Repository) List(ctx context.Context, envKey string) ([]domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM v_features_full WHERE environment_key = $1 ORDER BY created_at DESC`
 
-	rows, err := executor.Query(ctx, query, environmentKey)
+	rows, err := executor.Query(ctx, query, envKey)
 	if err != nil {
 		return nil, fmt.Errorf("query features: %w", err)
 	}
@@ -218,12 +188,12 @@ func (r *Repository) List(ctx context.Context, environmentKey string) ([]domain.
 	return features, nil
 }
 
-func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error) {
+func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID, envKey string) ([]domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM v_features_full WHERE project_id = $1::uuid AND environment_key = $2 ORDER BY created_at DESC`
 
-	rows, err := executor.Query(ctx, query, projectID, environmentKey)
+	rows, err := executor.Query(ctx, query, projectID, envKey)
 	if err != nil {
 		return nil, fmt.Errorf("query features by project_id: %w", err)
 	}
@@ -246,18 +216,18 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 func (r *Repository) ListByProjectIDFiltered(
 	ctx context.Context,
 	projectID domain.ProjectID,
-	environmentKey string,
+	envKey string,
 	filter contract.FeaturesListFilter,
 ) ([]domain.Feature, int, error) {
 	executor := r.getExecutor(ctx)
 
 	builder := sq.Select("*").
 		From("v_features_full vf").
-		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": environmentKey})
+		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": envKey})
 
 	countBuilder := sq.Select("COUNT(*)").
 		From("v_features_full vf").
-		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": environmentKey})
+		Where(sq.Eq{"vf.project_id": projectID, "vf.environment_key": envKey})
 
 	if filter.Kind != nil {
 		builder = builder.Where(sq.Eq{"vf.kind": *filter.Kind})

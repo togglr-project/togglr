@@ -355,7 +355,7 @@ func (s *Service) applyFeatureParamsChange(
 	featureID := domain.FeatureID(entity.EntityID)
 
 	// Get current params
-	current, err := s.featureParamsRepo.GetByFeatureAndEnvironment(ctx, featureID, envID)
+	current, err := s.featureParamsRepo.GetByFeatureWithEnv(ctx, featureID, envID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			// If not found, create baseline params with defaults before applying updates

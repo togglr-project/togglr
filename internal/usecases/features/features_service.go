@@ -176,8 +176,8 @@ func (s *Service) CreateWithChildren(
 	return result, nil
 }
 
-func (s *Service) GetByIDWithEnvironment(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.Feature, error) {
-	f, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
+func (s *Service) GetByIDWithEnv(ctx context.Context, id domain.FeatureID, envKey string) (domain.Feature, error) {
+	f, err := s.repo.GetByIDWithEnv(ctx, id, envKey)
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by id with environment: %w", err)
 	}
@@ -185,13 +185,17 @@ func (s *Service) GetByIDWithEnvironment(ctx context.Context, id domain.FeatureI
 	return f, nil
 }
 
-func (s *Service) GetExtendedByID(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.FeatureExtended, error) {
-	feature, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
+func (s *Service) GetExtendedByID(
+	ctx context.Context,
+	id domain.FeatureID,
+	envKey string,
+) (domain.FeatureExtended, error) {
+	feature, err := s.repo.GetByIDWithEnv(ctx, id, envKey)
 	if err != nil {
 		return domain.FeatureExtended{}, fmt.Errorf("get feature by id with environment: %w", err)
 	}
 
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, feature.ProjectID, envKey)
 	if err != nil {
 		return domain.FeatureExtended{}, fmt.Errorf("get environment: %w", err)
 	}
@@ -219,16 +223,16 @@ func (s *Service) GetExtendedByID(ctx context.Context, id domain.FeatureID, envi
 	}, nil
 }
 
-func (s *Service) GetByKeyWithEnvironment(ctx context.Context, key, environmentKey string) (domain.Feature, error) {
-	f, err := s.repo.GetByKeyWithEnvironment(ctx, key, environmentKey)
+func (s *Service) GetByKeyWithEnv(ctx context.Context, key, envKey string) (domain.Feature, error) {
+	f, err := s.repo.GetByKeyWithEnv(ctx, key, envKey)
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by key with environment: %w", err)
 	}
 	return f, nil
 }
 
-func (s *Service) List(ctx context.Context, environmentKey string) ([]domain.Feature, error) {
-	items, err := s.repo.List(ctx, environmentKey)
+func (s *Service) List(ctx context.Context, envKey string) ([]domain.Feature, error) {
+	items, err := s.repo.List(ctx, envKey)
 	if err != nil {
 		return nil, fmt.Errorf("list features: %w", err)
 	}
@@ -236,8 +240,12 @@ func (s *Service) List(ctx context.Context, environmentKey string) ([]domain.Fea
 	return items, nil
 }
 
-func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectID, environmentKey string) ([]domain.Feature, error) {
-	items, err := s.repo.ListByProjectID(ctx, projectID, environmentKey)
+func (s *Service) ListByProjectID(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envKey string,
+) ([]domain.Feature, error) {
+	items, err := s.repo.ListByProjectID(ctx, projectID, envKey)
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
@@ -248,10 +256,10 @@ func (s *Service) ListByProjectID(ctx context.Context, projectID domain.ProjectI
 func (s *Service) ListByProjectIDFiltered(
 	ctx context.Context,
 	projectID domain.ProjectID,
-	environmentKey string,
+	envKey string,
 	filter contract.FeaturesListFilter,
 ) ([]domain.Feature, int, error) {
-	items, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, environmentKey, filter)
+	items, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, envKey, filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list features by projectID filtered: %w", err)
 	}
@@ -262,15 +270,15 @@ func (s *Service) ListByProjectIDFiltered(
 func (s *Service) ListExtendedByProjectID(
 	ctx context.Context,
 	projectID domain.ProjectID,
-	environmentKey string,
+	envKey string,
 ) ([]domain.FeatureExtended, error) {
-	features, err := s.repo.ListByProjectID(ctx, projectID, environmentKey)
+	features, err := s.repo.ListByProjectID(ctx, projectID, envKey)
 	if err != nil {
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
 
 	// Resolve environment to ensure child entities are scoped correctly
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, projectID, environmentKey)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, projectID, envKey)
 	if err != nil {
 		return nil, fmt.Errorf("get environment: %w", err)
 	}
@@ -307,16 +315,16 @@ func (s *Service) ListExtendedByProjectID(
 func (s *Service) ListExtendedByProjectIDFiltered(
 	ctx context.Context,
 	projectID domain.ProjectID,
-	environmentKey string,
+	envKey string,
 	filter contract.FeaturesListFilter,
 ) ([]domain.FeatureExtended, int, error) {
-	features, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, environmentKey, filter)
+	features, total, err := s.repo.ListByProjectIDFiltered(ctx, projectID, envKey, filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list features by projectID: %w", err)
 	}
 
 	// Resolve environment to ensure child entities are scoped correctly
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, projectID, environmentKey)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, projectID, envKey)
 	if err != nil {
 		return nil, 0, fmt.Errorf("get environment: %w", err)
 	}
@@ -350,14 +358,14 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 	return result, total, nil
 }
 
-func (s *Service) Delete(ctx context.Context, id domain.FeatureID, environmentKey string) (domain.GuardedResult, error) {
+func (s *Service) Delete(ctx context.Context, id domain.FeatureID, envKey string) (domain.GuardedResult, error) {
 	// Load existing feature to check guard status
-	existing, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
+	existing, err := s.repo.GetByIDWithEnv(ctx, id, envKey)
 	if err != nil {
 		return domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
 
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, environmentKey)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, envKey)
 	if err != nil {
 		return domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
@@ -400,15 +408,15 @@ func (s *Service) Toggle(
 	ctx context.Context,
 	id domain.FeatureID,
 	enabled bool,
-	environmentKey string,
+	envKey string,
 ) (domain.Feature, domain.GuardedResult, error) {
 	// Load existing feature to check guard status
-	existing, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
+	existing, err := s.repo.GetByIDWithEnv(ctx, id, envKey)
 	if err != nil {
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
 
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, environmentKey)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, envKey)
 	if err != nil {
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
@@ -459,7 +467,7 @@ func (s *Service) Toggle(
 		}
 
 		// Reload feature with environment-specific fields
-		reloaded, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
+		reloaded, err := s.repo.GetByIDWithEnv(ctx, id, envKey)
 		if err != nil {
 			return fmt.Errorf("reload feature after toggle: %w", err)
 		}
@@ -473,7 +481,7 @@ func (s *Service) Toggle(
 	return updated, domain.GuardedResult{Pending: false}, nil
 }
 
-// UpdateWithChildren updates feature and reconciles its child entities (variants and rules).
+// UpdateWithChildren updates the feature and reconciles its child entities (variants and rules).
 func (s *Service) UpdateWithChildren(
 	ctx context.Context,
 	envKey string,
@@ -484,7 +492,7 @@ func (s *Service) UpdateWithChildren(
 	var result domain.FeatureExtended
 
 	// Load existing feature to check guard status
-	existing, err := s.repo.GetByIDWithEnvironment(ctx, feature.ID, envKey)
+	existing, err := s.repo.GetByIDWithEnv(ctx, feature.ID, envKey)
 	if err != nil {
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
@@ -494,7 +502,7 @@ func (s *Service) UpdateWithChildren(
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
 
-	// Check if feature is guarded and create pending change if needed
+	// Check if a feature is guarded and create pending change if needed
 	guardResult := s.checkFeatureGuardedAndCreatePendingChange(
 		ctx,
 		feature.ID,
@@ -515,7 +523,7 @@ func (s *Service) UpdateWithChildren(
 	}
 
 	// Feature is not guarded, proceed with normal update
-	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		feature.ProjectID = existing.ProjectID
 
 		updated, err := s.repo.Update(ctx, env.ID, feature.BasicFeature)
@@ -695,15 +703,18 @@ func (s *Service) UpdateWithChildren(
 		result.Rules = updatedRules
 
 		// Reload feature with environment-specific fields (enabled, default_value)
-		reloaded, rErr := s.repo.GetByIDWithEnvironment(ctx, feature.ID, envKey)
+		reloaded, rErr := s.repo.GetByIDWithEnv(ctx, feature.ID, envKey)
 		if rErr != nil {
 			return fmt.Errorf("reload feature after update: %w", rErr)
 		}
 		result.Feature = reloaded
 
 		return nil
-	}); err != nil {
-		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("tx update feature with children: %w", err)
+	})
+	if err != nil {
+		err = fmt.Errorf("tx update feature with children: %w", err)
+
+		return domain.FeatureExtended{}, domain.GuardedResult{}, err
 	}
 
 	return result, domain.GuardedResult{Pending: false}, nil
@@ -721,7 +732,7 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 	// Extract user info from context
 	requestedBy := appcontext.Username(ctx)
 	requestUserID := appcontext.UserID(ctx)
-	// Check if feature is guarded
+	// Check if a feature is guarded
 	isGuarded, err := s.guardService.IsFeatureGuarded(ctx, featureID)
 	if err != nil {
 		return domain.GuardedResult{
@@ -864,7 +875,14 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 	// The frontend will handle showing the password/TOTP dialog
 	var pendingChange domain.PendingChange
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		pendingChange, err = s.pendingChangesUseCase.Create(ctx, projectID, environmentID, requestedBy, requestUserIDPtr, payload)
+		pendingChange, err = s.pendingChangesUseCase.Create(
+			ctx,
+			projectID,
+			environmentID,
+			requestedBy,
+			requestUserIDPtr,
+			payload,
+		)
 		if err != nil {
 			return err
 		}

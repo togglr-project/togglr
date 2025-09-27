@@ -167,6 +167,78 @@ func (_c *MockProjectsUseCase_CreateProject_Call) RunAndReturn(run func(ctx cont
 	return _c
 }
 
+// GetAPIKeyForEnvironment provides a mock function for the type MockProjectsUseCase
+func (_mock *MockProjectsUseCase) GetAPIKeyForEnvironment(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID) (string, error) {
+	ret := _mock.Called(ctx, projectID, environmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAPIKeyForEnvironment")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID) (string, error)); ok {
+		return returnFunc(ctx, projectID, environmentID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID) string); ok {
+		r0 = returnFunc(ctx, projectID, environmentID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, projectID, environmentID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectsUseCase_GetAPIKeyForEnvironment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAPIKeyForEnvironment'
+type MockProjectsUseCase_GetAPIKeyForEnvironment_Call struct {
+	*mock.Call
+}
+
+// GetAPIKeyForEnvironment is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - environmentID domain.EnvironmentID
+func (_e *MockProjectsUseCase_Expecter) GetAPIKeyForEnvironment(ctx interface{}, projectID interface{}, environmentID interface{}) *MockProjectsUseCase_GetAPIKeyForEnvironment_Call {
+	return &MockProjectsUseCase_GetAPIKeyForEnvironment_Call{Call: _e.mock.On("GetAPIKeyForEnvironment", ctx, projectID, environmentID)}
+}
+
+func (_c *MockProjectsUseCase_GetAPIKeyForEnvironment_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID)) *MockProjectsUseCase_GetAPIKeyForEnvironment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectsUseCase_GetAPIKeyForEnvironment_Call) Return(s string, err error) *MockProjectsUseCase_GetAPIKeyForEnvironment_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockProjectsUseCase_GetAPIKeyForEnvironment_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID) (string, error)) *MockProjectsUseCase_GetAPIKeyForEnvironment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetProject provides a mock function for the type MockProjectsUseCase
 func (_mock *MockProjectsUseCase) GetProject(ctx context.Context, id domain.ProjectID) (domain.Project, error) {
 	ret := _mock.Called(ctx, id)

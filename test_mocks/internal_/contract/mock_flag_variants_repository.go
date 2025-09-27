@@ -357,6 +357,80 @@ func (_c *MockFlagVariantsRepository_ListByFeatureID_Call) RunAndReturn(run func
 	return _c
 }
 
+// ListByFeatureIDWithEnvID provides a mock function for the type MockFlagVariantsRepository
+func (_mock *MockFlagVariantsRepository) ListByFeatureIDWithEnvID(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) ([]domain.FlagVariant, error) {
+	ret := _mock.Called(ctx, featureID, envID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListByFeatureIDWithEnvID")
+	}
+
+	var r0 []domain.FlagVariant
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) ([]domain.FlagVariant, error)); ok {
+		return returnFunc(ctx, featureID, envID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) []domain.FlagVariant); ok {
+		r0 = returnFunc(ctx, featureID, envID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FlagVariant)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, featureID, envID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListByFeatureIDWithEnvID'
+type MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call struct {
+	*mock.Call
+}
+
+// ListByFeatureIDWithEnvID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - featureID domain.FeatureID
+//   - envID domain.EnvironmentID
+func (_e *MockFlagVariantsRepository_Expecter) ListByFeatureIDWithEnvID(ctx interface{}, featureID interface{}, envID interface{}) *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call {
+	return &MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call{Call: _e.mock.On("ListByFeatureIDWithEnvID", ctx, featureID, envID)}
+}
+
+func (_c *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call) Run(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID)) *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call) Return(flagVariants []domain.FlagVariant, err error) *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call {
+	_c.Call.Return(flagVariants, err)
+	return _c
+}
+
+func (_c *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call) RunAndReturn(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) ([]domain.FlagVariant, error)) *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function for the type MockFlagVariantsRepository
 func (_mock *MockFlagVariantsRepository) Update(ctx context.Context, variant domain.FlagVariant) (domain.FlagVariant, error) {
 	ret := _mock.Called(ctx, variant)

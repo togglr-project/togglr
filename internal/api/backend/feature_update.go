@@ -23,7 +23,7 @@ func (r *RestAPI) UpdateFeature(
 	environmentKey := params.EnvironmentKey
 
 	// Load feature to get a project and check permissions
-	existing, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)
+	existing, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, environmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

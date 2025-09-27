@@ -40,25 +40,25 @@ func (_m *MockFeaturesRepository) EXPECT() *MockFeaturesRepository_Expecter {
 }
 
 // Create provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) Create(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
-	ret := _mock.Called(ctx, feature)
+func (_mock *MockFeaturesRepository) Create(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error) {
+	ret := _mock.Called(ctx, envID, feature)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
 	}
 
-	var r0 domain.Feature
+	var r0 domain.BasicFeature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) (domain.Feature, error)); ok {
-		return returnFunc(ctx, feature)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, domain.BasicFeature) (domain.BasicFeature, error)); ok {
+		return returnFunc(ctx, envID, feature)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) domain.Feature); ok {
-		r0 = returnFunc(ctx, feature)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, domain.BasicFeature) domain.BasicFeature); ok {
+		r0 = returnFunc(ctx, envID, feature)
 	} else {
-		r0 = ret.Get(0).(domain.Feature)
+		r0 = ret.Get(0).(domain.BasicFeature)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature) error); ok {
-		r1 = returnFunc(ctx, feature)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.EnvironmentID, domain.BasicFeature) error); ok {
+		r1 = returnFunc(ctx, envID, feature)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -72,50 +72,56 @@ type MockFeaturesRepository_Create_Call struct {
 
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
-//   - feature domain.Feature
-func (_e *MockFeaturesRepository_Expecter) Create(ctx interface{}, feature interface{}) *MockFeaturesRepository_Create_Call {
-	return &MockFeaturesRepository_Create_Call{Call: _e.mock.On("Create", ctx, feature)}
+//   - envID domain.EnvironmentID
+//   - feature domain.BasicFeature
+func (_e *MockFeaturesRepository_Expecter) Create(ctx interface{}, envID interface{}, feature interface{}) *MockFeaturesRepository_Create_Call {
+	return &MockFeaturesRepository_Create_Call{Call: _e.mock.On("Create", ctx, envID, feature)}
 }
 
-func (_c *MockFeaturesRepository_Create_Call) Run(run func(ctx context.Context, feature domain.Feature)) *MockFeaturesRepository_Create_Call {
+func (_c *MockFeaturesRepository_Create_Call) Run(run func(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature)) *MockFeaturesRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.Feature
+		var arg1 domain.EnvironmentID
 		if args[1] != nil {
-			arg1 = args[1].(domain.Feature)
+			arg1 = args[1].(domain.EnvironmentID)
+		}
+		var arg2 domain.BasicFeature
+		if args[2] != nil {
+			arg2 = args[2].(domain.BasicFeature)
 		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
 }
 
-func (_c *MockFeaturesRepository_Create_Call) Return(feature1 domain.Feature, err error) *MockFeaturesRepository_Create_Call {
-	_c.Call.Return(feature1, err)
+func (_c *MockFeaturesRepository_Create_Call) Return(basicFeature domain.BasicFeature, err error) *MockFeaturesRepository_Create_Call {
+	_c.Call.Return(basicFeature, err)
 	return _c
 }
 
-func (_c *MockFeaturesRepository_Create_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature) (domain.Feature, error)) *MockFeaturesRepository_Create_Call {
+func (_c *MockFeaturesRepository_Create_Call) RunAndReturn(run func(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)) *MockFeaturesRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Delete provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) Delete(ctx context.Context, id domain.FeatureID) error {
-	ret := _mock.Called(ctx, id)
+func (_mock *MockFeaturesRepository) Delete(ctx context.Context, envID domain.EnvironmentID, id domain.FeatureID) error {
+	ret := _mock.Called(ctx, envID, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) error); ok {
-		r0 = returnFunc(ctx, id)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, domain.FeatureID) error); ok {
+		r0 = returnFunc(ctx, envID, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -129,24 +135,30 @@ type MockFeaturesRepository_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
+//   - envID domain.EnvironmentID
 //   - id domain.FeatureID
-func (_e *MockFeaturesRepository_Expecter) Delete(ctx interface{}, id interface{}) *MockFeaturesRepository_Delete_Call {
-	return &MockFeaturesRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+func (_e *MockFeaturesRepository_Expecter) Delete(ctx interface{}, envID interface{}, id interface{}) *MockFeaturesRepository_Delete_Call {
+	return &MockFeaturesRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, envID, id)}
 }
 
-func (_c *MockFeaturesRepository_Delete_Call) Run(run func(ctx context.Context, id domain.FeatureID)) *MockFeaturesRepository_Delete_Call {
+func (_c *MockFeaturesRepository_Delete_Call) Run(run func(ctx context.Context, envID domain.EnvironmentID, id domain.FeatureID)) *MockFeaturesRepository_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.FeatureID
+		var arg1 domain.EnvironmentID
 		if args[1] != nil {
-			arg1 = args[1].(domain.FeatureID)
+			arg1 = args[1].(domain.EnvironmentID)
+		}
+		var arg2 domain.FeatureID
+		if args[2] != nil {
+			arg2 = args[2].(domain.FeatureID)
 		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -157,28 +169,28 @@ func (_c *MockFeaturesRepository_Delete_Call) Return(err error) *MockFeaturesRep
 	return _c
 }
 
-func (_c *MockFeaturesRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) error) *MockFeaturesRepository_Delete_Call {
+func (_c *MockFeaturesRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, envID domain.EnvironmentID, id domain.FeatureID) error) *MockFeaturesRepository_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // GetByID provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) GetByID(ctx context.Context, id domain.FeatureID) (domain.Feature, error) {
+func (_mock *MockFeaturesRepository) GetByID(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error) {
 	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
 	}
 
-	var r0 domain.Feature
+	var r0 domain.BasicFeature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) (domain.Feature, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) (domain.BasicFeature, error)); ok {
 		return returnFunc(ctx, id)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) domain.Feature); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID) domain.BasicFeature); ok {
 		r0 = returnFunc(ctx, id)
 	} else {
-		r0 = ret.Get(0).(domain.Feature)
+		r0 = ret.Get(0).(domain.BasicFeature)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID) error); ok {
 		r1 = returnFunc(ctx, id)
@@ -218,55 +230,201 @@ func (_c *MockFeaturesRepository_GetByID_Call) Run(run func(ctx context.Context,
 	return _c
 }
 
-func (_c *MockFeaturesRepository_GetByID_Call) Return(feature domain.Feature, err error) *MockFeaturesRepository_GetByID_Call {
-	_c.Call.Return(feature, err)
+func (_c *MockFeaturesRepository_GetByID_Call) Return(basicFeature domain.BasicFeature, err error) *MockFeaturesRepository_GetByID_Call {
+	_c.Call.Return(basicFeature, err)
 	return _c
 }
 
-func (_c *MockFeaturesRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) (domain.Feature, error)) *MockFeaturesRepository_GetByID_Call {
+func (_c *MockFeaturesRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID) (domain.BasicFeature, error)) *MockFeaturesRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetByKey provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) GetByKey(ctx context.Context, key string) (domain.Feature, error) {
-	ret := _mock.Called(ctx, key)
+// GetByIDWithEnv provides a mock function for the type MockFeaturesRepository
+func (_mock *MockFeaturesRepository) GetByIDWithEnv(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error) {
+	ret := _mock.Called(ctx, id, env)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetByKey")
+		panic("no return value specified for GetByIDWithEnv")
 	}
 
 	var r0 domain.Feature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.Feature, error)); ok {
-		return returnFunc(ctx, key)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) (domain.Feature, error)); ok {
+		return returnFunc(ctx, id, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.Feature); ok {
-		r0 = returnFunc(ctx, key)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, string) domain.Feature); ok {
+		r0 = returnFunc(ctx, id, env)
 	} else {
 		r0 = ret.Get(0).(domain.Feature)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = returnFunc(ctx, key)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, string) error); ok {
+		r1 = returnFunc(ctx, id, env)
 	} else {
 		r1 = ret.Error(1)
 	}
 	return r0, r1
 }
 
-// MockFeaturesRepository_GetByKey_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByKey'
-type MockFeaturesRepository_GetByKey_Call struct {
+// MockFeaturesRepository_GetByIDWithEnv_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDWithEnv'
+type MockFeaturesRepository_GetByIDWithEnv_Call struct {
 	*mock.Call
 }
 
-// GetByKey is a helper method to define mock.On call
+// GetByIDWithEnv is a helper method to define mock.On call
 //   - ctx context.Context
-//   - key string
-func (_e *MockFeaturesRepository_Expecter) GetByKey(ctx interface{}, key interface{}) *MockFeaturesRepository_GetByKey_Call {
-	return &MockFeaturesRepository_GetByKey_Call{Call: _e.mock.On("GetByKey", ctx, key)}
+//   - id domain.FeatureID
+//   - env string
+func (_e *MockFeaturesRepository_Expecter) GetByIDWithEnv(ctx interface{}, id interface{}, env interface{}) *MockFeaturesRepository_GetByIDWithEnv_Call {
+	return &MockFeaturesRepository_GetByIDWithEnv_Call{Call: _e.mock.On("GetByIDWithEnv", ctx, id, env)}
 }
 
-func (_c *MockFeaturesRepository_GetByKey_Call) Run(run func(ctx context.Context, key string)) *MockFeaturesRepository_GetByKey_Call {
+func (_c *MockFeaturesRepository_GetByIDWithEnv_Call) Run(run func(ctx context.Context, id domain.FeatureID, env string)) *MockFeaturesRepository_GetByIDWithEnv_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeaturesRepository_GetByIDWithEnv_Call) Return(feature domain.Feature, err error) *MockFeaturesRepository_GetByIDWithEnv_Call {
+	_c.Call.Return(feature, err)
+	return _c
+}
+
+func (_c *MockFeaturesRepository_GetByIDWithEnv_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error)) *MockFeaturesRepository_GetByIDWithEnv_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByKeyWithEnv provides a mock function for the type MockFeaturesRepository
+func (_mock *MockFeaturesRepository) GetByKeyWithEnv(ctx context.Context, key string, env string) (domain.Feature, error) {
+	ret := _mock.Called(ctx, key, env)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByKeyWithEnv")
+	}
+
+	var r0 domain.Feature
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (domain.Feature, error)); ok {
+		return returnFunc(ctx, key, env)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) domain.Feature); ok {
+		r0 = returnFunc(ctx, key, env)
+	} else {
+		r0 = ret.Get(0).(domain.Feature)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = returnFunc(ctx, key, env)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeaturesRepository_GetByKeyWithEnv_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByKeyWithEnv'
+type MockFeaturesRepository_GetByKeyWithEnv_Call struct {
+	*mock.Call
+}
+
+// GetByKeyWithEnv is a helper method to define mock.On call
+//   - ctx context.Context
+//   - key string
+//   - env string
+func (_e *MockFeaturesRepository_Expecter) GetByKeyWithEnv(ctx interface{}, key interface{}, env interface{}) *MockFeaturesRepository_GetByKeyWithEnv_Call {
+	return &MockFeaturesRepository_GetByKeyWithEnv_Call{Call: _e.mock.On("GetByKeyWithEnv", ctx, key, env)}
+}
+
+func (_c *MockFeaturesRepository_GetByKeyWithEnv_Call) Run(run func(ctx context.Context, key string, env string)) *MockFeaturesRepository_GetByKeyWithEnv_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeaturesRepository_GetByKeyWithEnv_Call) Return(feature domain.Feature, err error) *MockFeaturesRepository_GetByKeyWithEnv_Call {
+	_c.Call.Return(feature, err)
+	return _c
+}
+
+func (_c *MockFeaturesRepository_GetByKeyWithEnv_Call) RunAndReturn(run func(ctx context.Context, key string, env string) (domain.Feature, error)) *MockFeaturesRepository_GetByKeyWithEnv_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// List provides a mock function for the type MockFeaturesRepository
+func (_mock *MockFeaturesRepository) List(ctx context.Context, env string) ([]domain.Feature, error) {
+	ret := _mock.Called(ctx, env)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []domain.Feature
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) ([]domain.Feature, error)); ok {
+		return returnFunc(ctx, env)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) []domain.Feature); ok {
+		r0 = returnFunc(ctx, env)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Feature)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, env)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeaturesRepository_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockFeaturesRepository_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+//   - env string
+func (_e *MockFeaturesRepository_Expecter) List(ctx interface{}, env interface{}) *MockFeaturesRepository_List_Call {
+	return &MockFeaturesRepository_List_Call{Call: _e.mock.On("List", ctx, env)}
+}
+
+func (_c *MockFeaturesRepository_List_Call) Run(run func(ctx context.Context, env string)) *MockFeaturesRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -284,81 +442,19 @@ func (_c *MockFeaturesRepository_GetByKey_Call) Run(run func(ctx context.Context
 	return _c
 }
 
-func (_c *MockFeaturesRepository_GetByKey_Call) Return(feature domain.Feature, err error) *MockFeaturesRepository_GetByKey_Call {
-	_c.Call.Return(feature, err)
-	return _c
-}
-
-func (_c *MockFeaturesRepository_GetByKey_Call) RunAndReturn(run func(ctx context.Context, key string) (domain.Feature, error)) *MockFeaturesRepository_GetByKey_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// List provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) List(ctx context.Context) ([]domain.Feature, error) {
-	ret := _mock.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for List")
-	}
-
-	var r0 []domain.Feature
-	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.Feature, error)); ok {
-		return returnFunc(ctx)
-	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.Feature); ok {
-		r0 = returnFunc(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]domain.Feature)
-		}
-	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = returnFunc(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-	return r0, r1
-}
-
-// MockFeaturesRepository_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
-type MockFeaturesRepository_List_Call struct {
-	*mock.Call
-}
-
-// List is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockFeaturesRepository_Expecter) List(ctx interface{}) *MockFeaturesRepository_List_Call {
-	return &MockFeaturesRepository_List_Call{Call: _e.mock.On("List", ctx)}
-}
-
-func (_c *MockFeaturesRepository_List_Call) Run(run func(ctx context.Context)) *MockFeaturesRepository_List_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 context.Context
-		if args[0] != nil {
-			arg0 = args[0].(context.Context)
-		}
-		run(
-			arg0,
-		)
-	})
-	return _c
-}
-
 func (_c *MockFeaturesRepository_List_Call) Return(features []domain.Feature, err error) *MockFeaturesRepository_List_Call {
 	_c.Call.Return(features, err)
 	return _c
 }
 
-func (_c *MockFeaturesRepository_List_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Feature, error)) *MockFeaturesRepository_List_Call {
+func (_c *MockFeaturesRepository_List_Call) RunAndReturn(run func(ctx context.Context, env string) ([]domain.Feature, error)) *MockFeaturesRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByProjectID provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error) {
-	ret := _mock.Called(ctx, projectID)
+func (_mock *MockFeaturesRepository) ListByProjectID(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error) {
+	ret := _mock.Called(ctx, projectID, env)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByProjectID")
@@ -366,18 +462,18 @@ func (_mock *MockFeaturesRepository) ListByProjectID(ctx context.Context, projec
 
 	var r0 []domain.Feature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) ([]domain.Feature, error)); ok {
-		return returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) ([]domain.Feature, error)); ok {
+		return returnFunc(ctx, projectID, env)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) []domain.Feature); ok {
-		r0 = returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) []domain.Feature); ok {
+		r0 = returnFunc(ctx, projectID, env)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Feature)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
-		r1 = returnFunc(ctx, projectID)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string) error); ok {
+		r1 = returnFunc(ctx, projectID, env)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -392,11 +488,12 @@ type MockFeaturesRepository_ListByProjectID_Call struct {
 // ListByProjectID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
-func (_e *MockFeaturesRepository_Expecter) ListByProjectID(ctx interface{}, projectID interface{}) *MockFeaturesRepository_ListByProjectID_Call {
-	return &MockFeaturesRepository_ListByProjectID_Call{Call: _e.mock.On("ListByProjectID", ctx, projectID)}
+//   - env string
+func (_e *MockFeaturesRepository_Expecter) ListByProjectID(ctx interface{}, projectID interface{}, env interface{}) *MockFeaturesRepository_ListByProjectID_Call {
+	return &MockFeaturesRepository_ListByProjectID_Call{Call: _e.mock.On("ListByProjectID", ctx, projectID, env)}
 }
 
-func (_c *MockFeaturesRepository_ListByProjectID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockFeaturesRepository_ListByProjectID_Call {
+func (_c *MockFeaturesRepository_ListByProjectID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, env string)) *MockFeaturesRepository_ListByProjectID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -406,9 +503,14 @@ func (_c *MockFeaturesRepository_ListByProjectID_Call) Run(run func(ctx context.
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
@@ -419,14 +521,14 @@ func (_c *MockFeaturesRepository_ListByProjectID_Call) Return(features []domain.
 	return _c
 }
 
-func (_c *MockFeaturesRepository_ListByProjectID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) ([]domain.Feature, error)) *MockFeaturesRepository_ListByProjectID_Call {
+func (_c *MockFeaturesRepository_ListByProjectID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error)) *MockFeaturesRepository_ListByProjectID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // ListByProjectIDFiltered provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter) ([]domain.Feature, int, error) {
-	ret := _mock.Called(ctx, projectID, filter)
+func (_mock *MockFeaturesRepository) ListByProjectIDFiltered(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter) ([]domain.Feature, int, error) {
+	ret := _mock.Called(ctx, projectID, env, filter)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListByProjectIDFiltered")
@@ -435,23 +537,23 @@ func (_mock *MockFeaturesRepository) ListByProjectIDFiltered(ctx context.Context
 	var r0 []domain.Feature
 	var r1 int
 	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) ([]domain.Feature, int, error)); ok {
-		return returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) ([]domain.Feature, int, error)); ok {
+		return returnFunc(ctx, projectID, env, filter)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) []domain.Feature); ok {
-		r0 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) []domain.Feature); ok {
+		r0 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Feature)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) int); ok {
-		r1 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) int); ok {
+		r1 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, contract.FeaturesListFilter) error); ok {
-		r2 = returnFunc(ctx, projectID, filter)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, string, contract.FeaturesListFilter) error); ok {
+		r2 = returnFunc(ctx, projectID, env, filter)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -466,12 +568,13 @@ type MockFeaturesRepository_ListByProjectIDFiltered_Call struct {
 // ListByProjectIDFiltered is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
+//   - env string
 //   - filter contract.FeaturesListFilter
-func (_e *MockFeaturesRepository_Expecter) ListByProjectIDFiltered(ctx interface{}, projectID interface{}, filter interface{}) *MockFeaturesRepository_ListByProjectIDFiltered_Call {
-	return &MockFeaturesRepository_ListByProjectIDFiltered_Call{Call: _e.mock.On("ListByProjectIDFiltered", ctx, projectID, filter)}
+func (_e *MockFeaturesRepository_Expecter) ListByProjectIDFiltered(ctx interface{}, projectID interface{}, env interface{}, filter interface{}) *MockFeaturesRepository_ListByProjectIDFiltered_Call {
+	return &MockFeaturesRepository_ListByProjectIDFiltered_Call{Call: _e.mock.On("ListByProjectIDFiltered", ctx, projectID, env, filter)}
 }
 
-func (_c *MockFeaturesRepository_ListByProjectIDFiltered_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter)) *MockFeaturesRepository_ListByProjectIDFiltered_Call {
+func (_c *MockFeaturesRepository_ListByProjectIDFiltered_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter)) *MockFeaturesRepository_ListByProjectIDFiltered_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -481,14 +584,19 @@ func (_c *MockFeaturesRepository_ListByProjectIDFiltered_Call) Run(run func(ctx 
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
-		var arg2 contract.FeaturesListFilter
+		var arg2 string
 		if args[2] != nil {
-			arg2 = args[2].(contract.FeaturesListFilter)
+			arg2 = args[2].(string)
+		}
+		var arg3 contract.FeaturesListFilter
+		if args[3] != nil {
+			arg3 = args[3].(contract.FeaturesListFilter)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -499,31 +607,31 @@ func (_c *MockFeaturesRepository_ListByProjectIDFiltered_Call) Return(features [
 	return _c
 }
 
-func (_c *MockFeaturesRepository_ListByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, filter contract.FeaturesListFilter) ([]domain.Feature, int, error)) *MockFeaturesRepository_ListByProjectIDFiltered_Call {
+func (_c *MockFeaturesRepository_ListByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, env string, filter contract.FeaturesListFilter) ([]domain.Feature, int, error)) *MockFeaturesRepository_ListByProjectIDFiltered_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // Update provides a mock function for the type MockFeaturesRepository
-func (_mock *MockFeaturesRepository) Update(ctx context.Context, feature domain.Feature) (domain.Feature, error) {
-	ret := _mock.Called(ctx, feature)
+func (_mock *MockFeaturesRepository) Update(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error) {
+	ret := _mock.Called(ctx, envID, feature)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
 	}
 
-	var r0 domain.Feature
+	var r0 domain.BasicFeature
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) (domain.Feature, error)); ok {
-		return returnFunc(ctx, feature)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, domain.BasicFeature) (domain.BasicFeature, error)); ok {
+		return returnFunc(ctx, envID, feature)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature) domain.Feature); ok {
-		r0 = returnFunc(ctx, feature)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, domain.BasicFeature) domain.BasicFeature); ok {
+		r0 = returnFunc(ctx, envID, feature)
 	} else {
-		r0 = ret.Get(0).(domain.Feature)
+		r0 = ret.Get(0).(domain.BasicFeature)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature) error); ok {
-		r1 = returnFunc(ctx, feature)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.EnvironmentID, domain.BasicFeature) error); ok {
+		r1 = returnFunc(ctx, envID, feature)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -537,35 +645,41 @@ type MockFeaturesRepository_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - feature domain.Feature
-func (_e *MockFeaturesRepository_Expecter) Update(ctx interface{}, feature interface{}) *MockFeaturesRepository_Update_Call {
-	return &MockFeaturesRepository_Update_Call{Call: _e.mock.On("Update", ctx, feature)}
+//   - envID domain.EnvironmentID
+//   - feature domain.BasicFeature
+func (_e *MockFeaturesRepository_Expecter) Update(ctx interface{}, envID interface{}, feature interface{}) *MockFeaturesRepository_Update_Call {
+	return &MockFeaturesRepository_Update_Call{Call: _e.mock.On("Update", ctx, envID, feature)}
 }
 
-func (_c *MockFeaturesRepository_Update_Call) Run(run func(ctx context.Context, feature domain.Feature)) *MockFeaturesRepository_Update_Call {
+func (_c *MockFeaturesRepository_Update_Call) Run(run func(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature)) *MockFeaturesRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.Feature
+		var arg1 domain.EnvironmentID
 		if args[1] != nil {
-			arg1 = args[1].(domain.Feature)
+			arg1 = args[1].(domain.EnvironmentID)
+		}
+		var arg2 domain.BasicFeature
+		if args[2] != nil {
+			arg2 = args[2].(domain.BasicFeature)
 		}
 		run(
 			arg0,
 			arg1,
+			arg2,
 		)
 	})
 	return _c
 }
 
-func (_c *MockFeaturesRepository_Update_Call) Return(feature1 domain.Feature, err error) *MockFeaturesRepository_Update_Call {
-	_c.Call.Return(feature1, err)
+func (_c *MockFeaturesRepository_Update_Call) Return(basicFeature domain.BasicFeature, err error) *MockFeaturesRepository_Update_Call {
+	_c.Call.Return(basicFeature, err)
 	return _c
 }
 
-func (_c *MockFeaturesRepository_Update_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature) (domain.Feature, error)) *MockFeaturesRepository_Update_Call {
+func (_c *MockFeaturesRepository_Update_Call) RunAndReturn(run func(ctx context.Context, envID domain.EnvironmentID, feature domain.BasicFeature) (domain.BasicFeature, error)) *MockFeaturesRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }
