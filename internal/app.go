@@ -46,7 +46,7 @@ import (
 	"github.com/togglr-project/togglr/internal/repository/users"
 	ratelimiter2fa "github.com/togglr-project/togglr/internal/services/2fa/ratelimiter"
 	featuresprocessor "github.com/togglr-project/togglr/internal/services/features-processor"
-	guardengine "github.com/togglr-project/togglr/internal/services/guard_engine"
+	guardengine "github.com/togglr-project/togglr/internal/services/guard-engine"
 	"github.com/togglr-project/togglr/internal/services/ldap"
 	"github.com/togglr-project/togglr/internal/services/notification-channels/email"
 	"github.com/togglr-project/togglr/internal/services/permissions"
