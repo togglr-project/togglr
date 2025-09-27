@@ -19,6 +19,7 @@ type Service struct {
 	projectSettingsRepo  contract.ProjectSettingsRepository
 	guardService         contract.GuardService
 	featuresRepo         contract.FeaturesRepository
+	featureParamsRepo    contract.FeatureParamsRepository
 	auditLogRepo         contract.AuditLogRepository
 	usersUseCase         contract.UsersUseCase
 	permissionsService   contract.PermissionsService
@@ -31,6 +32,7 @@ func New(
 	projectSettingsRepo contract.ProjectSettingsRepository,
 	guardService contract.GuardService,
 	featuresRepo contract.FeaturesRepository,
+	featureParamsRepo contract.FeatureParamsRepository,
 	auditLogRepo contract.AuditLogRepository,
 	usersUseCase contract.UsersUseCase,
 	permissionsService contract.PermissionsService,
@@ -42,6 +44,7 @@ func New(
 		projectSettingsRepo:  projectSettingsRepo,
 		guardService:         guardService,
 		featuresRepo:         featuresRepo,
+		featureParamsRepo:    featureParamsRepo,
 		auditLogRepo:         auditLogRepo,
 		usersUseCase:         usersUseCase,
 		permissionsService:   permissionsService,
@@ -327,14 +330,77 @@ func (s *Service) GetProjectActiveUserCount(ctx context.Context, projectID domai
 func (s *Service) applyChanges(ctx context.Context, pendingChange domain.PendingChange) error {
 	for _, entity := range pendingChange.Change.Entities {
 		switch entity.Entity {
-		case "feature":
+		case string(domain.EntityFeature):
 			if err := s.applyFeatureChange(ctx, pendingChange.EnvironmentID, entity); err != nil {
 				return fmt.Errorf("apply feature change: %w", err)
 			}
-		// TODO: Add other entity types
+		case string(domain.EntityFeatureParams):
+			if err := s.applyFeatureParamsChange(ctx, pendingChange.EnvironmentID, entity); err != nil {
+				return fmt.Errorf("apply feature_params change: %w", err)
+			}
 		default:
 			return fmt.Errorf("unsupported entity type: %s", entity.Entity)
 		}
+	}
+
+	return nil
+}
+
+// applyFeatureParamsChange applies a change to feature_params (enabled, default_value) for the given env.
+func (s *Service) applyFeatureParamsChange(
+	ctx context.Context,
+	envID domain.EnvironmentID,
+	entity domain.EntityChange,
+) error {
+	featureID := domain.FeatureID(entity.EntityID)
+
+	// Get current params
+	current, err := s.featureParamsRepo.GetByFeatureAndEnvironment(ctx, featureID, envID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			// If not found, create baseline params with defaults before applying updates
+			current = domain.FeatureParams{
+				FeatureID:     featureID,
+				EnvironmentID: envID,
+			}
+		} else {
+			return fmt.Errorf("get current feature_params: %w", err)
+		}
+	}
+
+	updated := current
+	for field, change := range entity.Changes {
+		switch field {
+		case "enabled":
+			if newVal, ok := change.New.(bool); ok {
+				updated.Enabled = newVal
+			}
+		case "default_value":
+			if newVal, ok := change.New.(string); ok {
+				updated.DefaultValue = newVal
+			}
+		}
+	}
+
+	// We need project ID for audit when updating feature_params
+	feature, ferr := s.featuresRepo.GetByID(ctx, featureID)
+	if ferr != nil {
+		return fmt.Errorf("get feature for project id: %w", ferr)
+	}
+
+	// Persist
+	_, err = s.featureParamsRepo.Update(ctx, feature.ProjectID, updated)
+	if err != nil {
+		// If update failed because not found (when created baseline), try Create
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			_, cerr := s.featureParamsRepo.Create(ctx, feature.ProjectID, updated)
+			if cerr != nil {
+				return fmt.Errorf("create feature_params: %w", cerr)
+			}
+			return nil
+		}
+
+		return fmt.Errorf("update feature_params: %w", err)
 	}
 
 	return nil

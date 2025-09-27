@@ -356,7 +356,7 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID, environmentKe
 		return domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
 
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, existing.Key)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, environmentKey)
 	if err != nil {
 		return domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
@@ -407,7 +407,7 @@ func (s *Service) Toggle(
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
 
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, existing.Key)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, environmentKey)
 	if err != nil {
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
@@ -488,7 +488,7 @@ func (s *Service) UpdateWithChildren(
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get feature by id: %w", err)
 	}
 
-	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, existing.Key)
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, existing.ProjectID, envKey)
 	if err != nil {
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
@@ -658,44 +658,75 @@ func (s *Service) checkFeatureGuardedAndCreatePendingChange(
 		}
 	}
 
-	// Build changes diff
-	changes := make(map[string]domain.ChangeValue)
+	// Build changes diff for base feature fields
+	featureChanges := make(map[string]domain.ChangeValue)
+	// Build changes for environment-scoped feature_params
+	paramsChanges := make(map[string]domain.ChangeValue)
 
 	if oldFeature != nil && newFeature != nil {
 		// Compare fields and build changes
 		if oldFeature.Name != newFeature.Name {
-			changes["name"] = domain.ChangeValue{
+			featureChanges["name"] = domain.ChangeValue{
 				Old: oldFeature.Name,
 				New: newFeature.Name,
 			}
 		}
 
 		if oldFeature.Description != newFeature.Description {
-			changes["description"] = domain.ChangeValue{
+			featureChanges["description"] = domain.ChangeValue{
 				Old: oldFeature.Description,
 				New: newFeature.Description,
 			}
 		}
 
 		if oldFeature.RolloutKey != newFeature.RolloutKey {
-			changes["rollout_key"] = domain.ChangeValue{
+			featureChanges["rollout_key"] = domain.ChangeValue{
 				Old: oldFeature.RolloutKey.String(),
 				New: newFeature.RolloutKey.String(),
 			}
 		}
+
+		// Environment-scoped fields come from feature_params now
+		if oldFeature.Enabled != newFeature.Enabled {
+			paramsChanges["enabled"] = domain.ChangeValue{
+				Old: oldFeature.Enabled,
+				New: newFeature.Enabled,
+			}
+		}
+
+		if oldFeature.DefaultValue != newFeature.DefaultValue {
+			paramsChanges["default_value"] = domain.ChangeValue{
+				Old: oldFeature.DefaultValue,
+				New: newFeature.DefaultValue,
+			}
+		}
 	}
 
-	// Create entity change
-	entityChange := domain.EntityChange{
-		Entity:   "feature",
-		EntityID: featureID.String(),
-		Action:   action,
-		Changes:  changes,
+	entities := make([]domain.EntityChange, 0, 2)
+
+	// Add feature entity only if delete action or there are real changes
+	if action == domain.EntityActionDelete || len(featureChanges) > 0 {
+		entities = append(entities, domain.EntityChange{
+			Entity:   string(domain.EntityFeature),
+			EntityID: featureID.String(),
+			Action:   action,
+			Changes:  featureChanges,
+		})
+	}
+
+	// Add feature_params entity for env-scoped fields when changed and action is update
+	if action == domain.EntityActionUpdate && len(paramsChanges) > 0 {
+		entities = append(entities, domain.EntityChange{
+			Entity:   string(domain.EntityFeatureParams),
+			EntityID: featureID.String(),
+			Action:   domain.EntityActionUpdate,
+			Changes:  paramsChanges,
+		})
 	}
 
 	// Create a pending change payload
 	payload := domain.PendingChangePayload{
-		Entities: []domain.EntityChange{entityChange},
+		Entities: entities,
 		Meta: domain.PendingChangeMeta{
 			Reason: "Feature update via API",
 			Client: "ui",
