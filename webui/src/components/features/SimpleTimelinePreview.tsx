@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Box,
   Typography,
-  LinearProgress,
   CircularProgress,
   Alert,
 } from '@mui/material';
@@ -105,7 +104,7 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
 
   // Process events into segments
   const segments: Array<{ start: number; end: number; enabled: boolean }> = [];
-  let currentState = false; // Assume feature starts as disabled
+  let currentState = featureEnabled; // Start with current enabled state from props
   let segmentStart = fromTime;
 
   for (let i = 0; i < sortedEvents.length; i++) {

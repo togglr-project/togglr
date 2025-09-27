@@ -4889,6 +4889,12 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: environment_key
+          in: query
+          required: false
+          description: Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
+          schema:
+            type: string
         - name: project_id
           in: query
           required: false
@@ -4944,6 +4950,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PendingChangesListResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
         '401':
           description: Unauthorized
           content:

@@ -11511,6 +11511,10 @@ func (s *Server) handleListPendingChangesRequest(args [0]string, argsEscaped boo
 					In:   "query",
 				}: params.EnvironmentID,
 				{
+					Name: "environment_key",
+					In:   "query",
+				}: params.EnvironmentKey,
+				{
 					Name: "project_id",
 					In:   "query",
 				}: params.ProjectID,

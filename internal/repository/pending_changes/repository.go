@@ -141,6 +141,7 @@ RETURNING id, project_id, requested_by, request_user_id, change, status, created
 		&model.RejectedBy,
 		&model.RejectedAt,
 		&model.RejectionReason,
+		&model.EnvironmentID,
 	)
 	if err != nil {
 		return domain.PendingChange{}, fmt.Errorf("insert pending change: %w", err)

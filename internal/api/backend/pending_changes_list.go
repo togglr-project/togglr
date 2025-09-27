@@ -20,10 +20,23 @@ func (r *RestAPI) ListPendingChanges(
 ) (generatedapi.ListPendingChangesRes, error) {
 	// Build filter
 	var envIDRef *domain.EnvironmentID
-	if params.EnvironmentID.IsSet() {
+
+	// Prefer environment_key over environment_id when provided
+	if params.EnvironmentKey.Set {
+		// Resolve environment by project_id + environment_key
+		projectID := domain.ProjectID(params.ProjectID.Value.String())
+		env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, projectID, params.EnvironmentKey.Value)
+		if err != nil {
+			slog.Error("get environment by key failed", "error", err, "project_id", projectID, "environment_key", params.EnvironmentKey.Value)
+			return nil, err
+		}
+		resolved := env.ID
+		envIDRef = &resolved
+	} else if params.EnvironmentID.IsSet() {
 		envID := domain.EnvironmentID(params.EnvironmentID.Value)
 		envIDRef = &envID
 	}
+
 	filter := contract.PendingChangesListFilter{
 		Page:          1,
 		PerPage:       20,

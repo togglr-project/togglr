@@ -1952,6 +1952,7 @@ func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
 func (*ErrorBadRequest) getFeatureTimelineRes()       {}
 func (*ErrorBadRequest) initiateTOTPApprovalRes()     {}
+func (*ErrorBadRequest) listPendingChangesRes()       {}
 func (*ErrorBadRequest) rejectPendingChangeRes()      {}
 func (*ErrorBadRequest) reset2FARes()                 {}
 func (*ErrorBadRequest) resetPasswordRes()            {}

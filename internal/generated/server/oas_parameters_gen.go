@@ -3541,13 +3541,15 @@ func decodeListFeatureTagsParams(args [1]string, argsEscaped bool, r *http.Reque
 // ListPendingChangesParams is parameters of ListPendingChanges operation.
 type ListPendingChangesParams struct {
 	EnvironmentID OptInt64
-	ProjectID     OptUUID
-	Status        OptListPendingChangesStatus
-	UserID        OptUint
-	Page          OptUint
-	PerPage       OptUint
-	SortBy        OptListPendingChangesSortBy
-	SortDesc      OptBool
+	// Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
+	EnvironmentKey OptString
+	ProjectID      OptUUID
+	Status         OptListPendingChangesStatus
+	UserID         OptUint
+	Page           OptUint
+	PerPage        OptUint
+	SortBy         OptListPendingChangesSortBy
+	SortDesc       OptBool
 }
 
 func unpackListPendingChangesParams(packed middleware.Parameters) (params ListPendingChangesParams) {
@@ -3558,6 +3560,15 @@ func unpackListPendingChangesParams(packed middleware.Parameters) (params ListPe
 		}
 		if v, ok := packed[key]; ok {
 			params.EnvironmentID = v.(OptInt64)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.EnvironmentKey = v.(OptString)
 		}
 	}
 	{
@@ -3665,6 +3676,47 @@ func decodeListPendingChangesParams(args [0]string, argsEscaped bool, r *http.Re
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "environment_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotEnvironmentKeyVal string
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToString(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotEnvironmentKeyVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.EnvironmentKey.SetTo(paramsDotEnvironmentKeyVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
 			In:   "query",
 			Err:  err,
 		}

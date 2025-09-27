@@ -11,7 +11,6 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import { useQuery } from '@tanstack/react-query';
 import apiClient from '../api/apiClient';
 import TimelineChart from './TimelineChart';
 
@@ -45,10 +44,6 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
       const to = new Date();
       to.setDate(to.getDate() + timeRange);
 
-      console.log('Generating timeline for feature:', featureId);
-      console.log('Schedules:', schedules);
-      console.log('From:', from.toISOString());
-      console.log('To:', to.toISOString());
 
       const response = await apiClient.testFeatureTimeline(
         featureId,
@@ -91,7 +86,7 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
 
   useEffect(() => {
     generateTimeline();
-  }, [featureId, schedules, timeRange]);
+  }, [featureId, environmentKey, schedules, timeRange]);
 
   if (isLoading) {
     return (

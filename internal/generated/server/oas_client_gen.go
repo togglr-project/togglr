@@ -7917,6 +7917,23 @@ func (c *Client) sendListPendingChanges(ctx context.Context, params ListPendingC
 		}
 	}
 	{
+		// Encode "environment_key" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			if val, ok := params.EnvironmentKey.Get(); ok {
+				return e.EncodeValue(conv.StringToString(val))
+			}
+			return nil
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
 		// Encode "project_id" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "project_id",
