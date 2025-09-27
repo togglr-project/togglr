@@ -63,6 +63,12 @@ func (s *Service) CheckAndMaybeCreatePending(
 		})
 	}
 
+	// Get project active user count before creating pending change
+	activeUserCount, err := s.pendingChangesUseCase.GetProjectActiveUserCount(ctx, in.ProjectID)
+	if err != nil {
+		return nil, false, false, fmt.Errorf("get project active user count: %w", err)
+	}
+
 	// Check conflicts for the entities
 	hasConflict, err := s.pendingChangesUseCase.CheckEntityConflict(ctx, entities)
 	if err != nil {
@@ -103,11 +109,7 @@ func (s *Service) CheckAndMaybeCreatePending(
 	}
 
 	// Set SingleUserProject meta-flag analogous to features_service implementation
-	activeUserCount, err := s.pendingChangesUseCase.GetProjectActiveUserCount(ctx, in.ProjectID)
-	if err != nil {
-		return nil, false, false, fmt.Errorf("get project active user count: %w", err)
-	}
-
+	// If exactly 1 active user, treat as a single-user project (enables auto-approve)
 	if activeUserCount == 1 {
 		pc.Change.Meta.SingleUserProject = true
 	}

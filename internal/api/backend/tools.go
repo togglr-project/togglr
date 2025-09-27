@@ -104,7 +104,7 @@ func timePtrString(p *time.Time) interface{} {
 		return nil
 	}
 
-	return p.String()
+	return p.Format(time.RFC3339)
 }
 
 // durationPtrString converts *time.Duration to string (e.g., "30m0s"), or nil if pointer is nil.
