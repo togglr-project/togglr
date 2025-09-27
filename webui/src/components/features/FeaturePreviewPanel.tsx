@@ -239,6 +239,7 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
           featureId={selectedFeature.id}
           projectId={projectId}
           featureEnabled={selectedFeature.enabled}
+          environmentKey={environmentKey}
         />
       </Box>
 

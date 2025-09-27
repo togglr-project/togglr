@@ -14,15 +14,17 @@ interface SimpleTimelinePreviewProps {
   featureId: string;
   projectId: string;
   featureEnabled: boolean;
+  environmentKey: string;
 }
 
 const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
   featureId,
   projectId,
   featureEnabled,
+  environmentKey,
 }) => {
   const { data: timeline, isLoading, error } = useQuery<FeatureTimelineResponse>({
-    queryKey: ['feature-timeline', projectId, featureId],
+    queryKey: ['feature-timeline', projectId, featureId, environmentKey],
     queryFn: async () => {
       const now = new Date();
       const from = now.toISOString();
@@ -31,6 +33,7 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
       
       const response = await apiClient.getFeatureTimeline(
         featureId,
+        environmentKey,
         from,
         to,
         location

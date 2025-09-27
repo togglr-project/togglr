@@ -2736,15 +2736,18 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Get feature timeline within period
          * @param {string} featureId 
+         * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
          * @param {string} location Browser\&#39;s location string
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFeatureTimeline: async (featureId: string, from: string, to: string, location: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getFeatureTimeline: async (featureId: string, environmentKey: string, from: string, to: string, location: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'featureId' is not null or undefined
             assertParamExists('getFeatureTimeline', 'featureId', featureId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('getFeatureTimeline', 'environmentKey', environmentKey)
             // verify required parameter 'from' is not null or undefined
             assertParamExists('getFeatureTimeline', 'from', from)
             // verify required parameter 'to' is not null or undefined
@@ -2767,6 +2770,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (environmentKey !== undefined) {
+                localVarQueryParameter['environment_key'] = environmentKey;
+            }
 
             if (from !== undefined) {
                 localVarQueryParameter['from'] = (from as any instanceof Date) ?
@@ -4746,6 +4753,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary Test feature timeline with mock schedules
          * @param {string} featureId 
+         * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
          * @param {string} location Browser\&#39;s location string
@@ -4753,9 +4761,11 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        testFeatureTimeline: async (featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        testFeatureTimeline: async (featureId: string, environmentKey: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'featureId' is not null or undefined
             assertParamExists('testFeatureTimeline', 'featureId', featureId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('testFeatureTimeline', 'environmentKey', environmentKey)
             // verify required parameter 'from' is not null or undefined
             assertParamExists('testFeatureTimeline', 'from', from)
             // verify required parameter 'to' is not null or undefined
@@ -4780,6 +4790,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (environmentKey !== undefined) {
+                localVarQueryParameter['environment_key'] = environmentKey;
+            }
 
             if (from !== undefined) {
                 localVarQueryParameter['from'] = (from as any instanceof Date) ?
@@ -5962,14 +5976,15 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 
          * @summary Get feature timeline within period
          * @param {string} featureId 
+         * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
          * @param {string} location Browser\&#39;s location string
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getFeatureTimeline(featureId: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeatureTimeline(featureId, from, to, location, options);
+        async getFeatureTimeline(featureId: string, environmentKey: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeatureTimeline(featureId, environmentKey, from, to, location, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeatureTimeline']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -6612,6 +6627,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 
          * @summary Test feature timeline with mock schedules
          * @param {string} featureId 
+         * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
          * @param {string} location Browser\&#39;s location string
@@ -6619,8 +6635,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async testFeatureTimeline(featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.testFeatureTimeline(featureId, from, to, location, testFeatureTimelineRequest, options);
+        async testFeatureTimeline(featureId: string, environmentKey: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureTimelineResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.testFeatureTimeline(featureId, environmentKey, from, to, location, testFeatureTimelineRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.testFeatureTimeline']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7222,14 +7238,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Get feature timeline within period
          * @param {string} featureId 
+         * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
          * @param {string} location Browser\&#39;s location string
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFeatureTimeline(featureId: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
-            return localVarFp.getFeatureTimeline(featureId, from, to, location, options).then((request) => request(axios, basePath));
+        getFeatureTimeline(featureId: string, environmentKey: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
+            return localVarFp.getFeatureTimeline(featureId, environmentKey, from, to, location, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -7731,6 +7748,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary Test feature timeline with mock schedules
          * @param {string} featureId 
+         * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
          * @param {string} from Start of the period (inclusive)
          * @param {string} to End of the period (exclusive)
          * @param {string} location Browser\&#39;s location string
@@ -7738,8 +7756,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        testFeatureTimeline(featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
-            return localVarFp.testFeatureTimeline(featureId, from, to, location, testFeatureTimelineRequest, options).then((request) => request(axios, basePath));
+        testFeatureTimeline(featureId: string, environmentKey: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureTimelineResponse> {
+            return localVarFp.testFeatureTimeline(featureId, environmentKey, from, to, location, testFeatureTimelineRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8327,14 +8345,15 @@ export class DefaultApi extends BaseAPI {
      * 
      * @summary Get feature timeline within period
      * @param {string} featureId 
+     * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
      * @param {string} from Start of the period (inclusive)
      * @param {string} to End of the period (exclusive)
      * @param {string} location Browser\&#39;s location string
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getFeatureTimeline(featureId: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getFeatureTimeline(featureId, from, to, location, options).then((request) => request(this.axios, this.basePath));
+    public getFeatureTimeline(featureId: string, environmentKey: string, from: string, to: string, location: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getFeatureTimeline(featureId, environmentKey, from, to, location, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8883,6 +8902,7 @@ export class DefaultApi extends BaseAPI {
      * 
      * @summary Test feature timeline with mock schedules
      * @param {string} featureId 
+     * @param {string} environmentKey Target environment key (e.g., dev, stage, prod)
      * @param {string} from Start of the period (inclusive)
      * @param {string} to End of the period (exclusive)
      * @param {string} location Browser\&#39;s location string
@@ -8890,8 +8910,8 @@ export class DefaultApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public testFeatureTimeline(featureId: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).testFeatureTimeline(featureId, from, to, location, testFeatureTimelineRequest, options).then((request) => request(this.axios, this.basePath));
+    public testFeatureTimeline(featureId: string, environmentKey: string, from: string, to: string, location: string, testFeatureTimelineRequest: TestFeatureTimelineRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).testFeatureTimeline(featureId, environmentKey, from, to, location, testFeatureTimelineRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

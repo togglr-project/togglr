@@ -2167,12 +2167,14 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; //Target environment key (e.g., dev, stage, prod) (default to undefined)
 let from: string; //Start of the period (inclusive) (default to undefined)
 let to: string; //End of the period (exclusive) (default to undefined)
 let location: string; //Browser\'s location string (default to undefined)
 
 const { status, data } = await apiInstance.getFeatureTimeline(
     featureId,
+    environmentKey,
     from,
     to,
     location
@@ -2184,6 +2186,7 @@ const { status, data } = await apiInstance.getFeatureTimeline(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Target environment key (e.g., dev, stage, prod) | defaults to undefined|
 | **from** | [**string**] | Start of the period (inclusive) | defaults to undefined|
 | **to** | [**string**] | End of the period (exclusive) | defaults to undefined|
 | **location** | [**string**] | Browser\&#39;s location string | defaults to undefined|
@@ -4786,6 +4789,7 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let featureId: string; // (default to undefined)
+let environmentKey: string; //Target environment key (e.g., dev, stage, prod) (default to undefined)
 let from: string; //Start of the period (inclusive) (default to undefined)
 let to: string; //End of the period (exclusive) (default to undefined)
 let location: string; //Browser\'s location string (default to undefined)
@@ -4793,6 +4797,7 @@ let testFeatureTimelineRequest: TestFeatureTimelineRequest; //
 
 const { status, data } = await apiInstance.testFeatureTimeline(
     featureId,
+    environmentKey,
     from,
     to,
     location,
@@ -4806,6 +4811,7 @@ const { status, data } = await apiInstance.testFeatureTimeline(
 |------------- | ------------- | ------------- | -------------|
 | **testFeatureTimelineRequest** | **TestFeatureTimelineRequest**|  | |
 | **featureId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Target environment key (e.g., dev, stage, prod) | defaults to undefined|
 | **from** | [**string**] | Start of the period (inclusive) | defaults to undefined|
 | **to** | [**string**] | End of the period (exclusive) | defaults to undefined|
 | **location** | [**string**] | Browser\&#39;s location string | defaults to undefined|
