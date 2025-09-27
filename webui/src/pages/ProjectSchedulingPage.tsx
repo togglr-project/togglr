@@ -41,6 +41,7 @@ import GuardResponseHandler from '../components/pending-changes/GuardResponseHan
 import { useApprovePendingChange } from '../hooks/usePendingChanges';
 import type { AuthCredentialsMethodEnum } from '../generated/api/client';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
+import { useAuth } from '../auth/AuthContext';
 import SearchPanel from '../components/SearchPanel';
 import TimelineChart from '../components/TimelineChart';
 import ScheduleBuilder from '../components/ScheduleBuilder';
@@ -151,6 +152,7 @@ const ProjectSchedulingPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
 
   const { data: projectResp, isLoading: loadingProject } = useQuery({
@@ -425,6 +427,25 @@ const ProjectSchedulingPage: React.FC = () => {
   const closeEditRecurringBuilder = () => setEditRecurringBuilderOpen(false);
   const closeEditOneShotDialog = () => setEditOneShotDialogOpen(false);
 
+  // Function to close any open dialog when guard response is handled
+  const closeAnyOpenDialog = () => {
+    if (editRecurringBuilderOpen) {
+      setEditRecurringBuilderOpen(false);
+    }
+    if (editOneShotDialogOpen) {
+      setEditOneShotDialogOpen(false);
+    }
+    if (scheduleBuilderOpen) {
+      setScheduleBuilderOpen(false);
+    }
+    if (oneShotDialogOpen) {
+      setOneShotDialogOpen(false);
+    }
+    if (dialogOpen) {
+      setDialogOpen(false);
+    }
+  };
+
     // Guard workflow state
     const [guardResponse, setGuardResponse] = useState<{
       pendingChange?: any;
@@ -440,12 +461,26 @@ const ProjectSchedulingPage: React.FC = () => {
       sessionId?: string,
     ) => {
       if (!guardResponse.pendingChange?.id) return;
+      if (!user?.id || !user?.username) {
+        console.error('User ID or username missing in ProjectSchedulingPage:', user);
+        return;
+      }
+
+      console.log('Approving pending change in ProjectSchedulingPage:', {
+        id: guardResponse.pendingChange.id,
+        approver_user_id: user.id,
+        approver_name: user.username,
+        method: authMethod,
+        sessionId,
+        userObject: user
+      });
+
       approveMutation.mutate(
         {
           id: guardResponse.pendingChange.id,
           request: {
-            approver_user_id: (projectResp as any)?.current_user?.id, // fallback, backend validates
-            approver_name: (projectResp as any)?.current_user?.username || 'me',
+            approver_user_id: user.id,
+            approver_name: user.username,
             auth: {
               method: authMethod,
               credential,
@@ -1199,8 +1234,11 @@ const ProjectSchedulingPage: React.FC = () => {
       <GuardResponseHandler
         pendingChange={guardResponse.pendingChange}
         conflictError={guardResponse.conflictError}
+        forbiddenError={guardResponse.forbiddenError}
         onClose={() => setGuardResponse({})}
+        onParentClose={closeAnyOpenDialog}
         onApprove={handleAutoApprove}
+        approveLoading={approveMutation.isPending}
       />
     </AuthenticatedLayout>
   );

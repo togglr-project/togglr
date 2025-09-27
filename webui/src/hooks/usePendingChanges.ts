@@ -24,6 +24,7 @@ export const usePendingChanges = (projectId: string, status?: string, environmen
     queryFn: async (): Promise<PendingChangesListResponse> => {
       const response = await apiClient.listPendingChanges(
         environmentId,
+        undefined, // environmentKey
         projectId,
         status as any, // Cast to the correct enum type
         undefined, // userId
@@ -129,6 +130,7 @@ export const usePendingChangesCount = (projectId: string) => {
     queryFn: async (): Promise<number> => {
       const response = await apiClient.listPendingChanges(
         undefined, // environmentId (count across all environments)
+        undefined, // environmentKey
         projectId,
         'pending' as any, // Cast to the correct enum type
         undefined, // userId

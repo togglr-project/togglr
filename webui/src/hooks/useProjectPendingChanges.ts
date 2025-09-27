@@ -13,13 +13,14 @@ export const useProjectPendingChanges = (projectId?: string) => {
       try {
         const response = await apiClient.listPendingChanges(
           undefined, // environmentId: all environments
+          undefined, // environmentKey
           projectId, // projectId
           'pending' as any, // status
-          undefined,
-          undefined,
-          undefined,
-          undefined,
-          undefined
+          undefined, // userId
+          undefined, // page
+          undefined, // perPage
+          undefined, // sortBy
+          undefined  // sortDesc
         );
         
         return response.data.data || [];

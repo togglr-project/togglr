@@ -66,6 +66,14 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
   const handleApprove = (method: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
     if (!user) return;
 
+    console.log('Approving pending change:', {
+      id: pendingChange.id,
+      approver_user_id: user.id,
+      approver_name: user.username,
+      method,
+      sessionId
+    });
+
     approveMutation.mutate(
       {
         id: pendingChange.id,
