@@ -15,9 +15,6 @@ func (r *RestAPI) CreateFeatureRule(
 	params generatedapi.CreateFeatureRuleParams,
 ) (generatedapi.CreateFeatureRuleRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
-
-	// Ensure feature exists and get its project
-	// Get environment key from query parameters
 	environmentKey := params.EnvironmentKey
 
 	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)

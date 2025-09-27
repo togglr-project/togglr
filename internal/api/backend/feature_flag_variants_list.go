@@ -16,9 +16,6 @@ func (r *RestAPI) ListFeatureFlagVariants(
 	params generatedapi.ListFeatureFlagVariantsParams,
 ) (generatedapi.ListFeatureFlagVariantsRes, error) {
 	featureID := domain.FeatureID(params.FeatureID)
-
-	// Ensure feature exists and get its project to check access rights
-	// Get environment key from query parameters
 	environmentKey := params.EnvironmentKey
 
 	feature, err := r.featuresUseCase.GetByIDWithEnvironment(ctx, featureID, environmentKey)

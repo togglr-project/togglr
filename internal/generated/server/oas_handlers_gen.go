@@ -7255,6 +7255,10 @@ func (s *Server) handleGetFeatureTimelineRequest(args [1]string, argsEscaped boo
 					In:   "path",
 				}: params.FeatureID,
 				{
+					Name: "environment_key",
+					In:   "query",
+				}: params.EnvironmentKey,
+				{
 					Name: "from",
 					In:   "query",
 				}: params.From,
@@ -16219,6 +16223,10 @@ func (s *Server) handleTestFeatureTimelineRequest(args [1]string, argsEscaped bo
 					Name: "feature_id",
 					In:   "path",
 				}: params.FeatureID,
+				{
+					Name: "environment_key",
+					In:   "query",
+				}: params.EnvironmentKey,
 				{
 					Name: "from",
 					In:   "query",

@@ -268,20 +268,26 @@ func (s *Service) ListExtendedByProjectID(
 		return nil, fmt.Errorf("list features by projectID: %w", err)
 	}
 
+	// Resolve environment to ensure child entities are scoped correctly
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, projectID, environmentKey)
+	if err != nil {
+		return nil, fmt.Errorf("get environment: %w", err)
+	}
+
 	result := make([]domain.FeatureExtended, 0, len(features))
 
 	for _, feature := range features {
-		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+		variants, err := s.flagVariantsRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list flag variants: %w", err)
 		}
 
-		rules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+		rules, err := s.rulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list rules: %w", err)
 		}
 
-		schedules, err := s.schedulesRep.ListByFeatureID(ctx, feature.ID)
+		schedules, err := s.schedulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return nil, fmt.Errorf("list schedules: %w", err)
 		}
@@ -308,20 +314,26 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 		return nil, 0, fmt.Errorf("list features by projectID: %w", err)
 	}
 
+	// Resolve environment to ensure child entities are scoped correctly
+	env, err := s.environmentsRep.GetByProjectIDAndKey(ctx, projectID, environmentKey)
+	if err != nil {
+		return nil, 0, fmt.Errorf("get environment: %w", err)
+	}
+
 	result := make([]domain.FeatureExtended, 0, len(features))
 
 	for _, feature := range features {
-		variants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+		variants, err := s.flagVariantsRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return nil, 0, fmt.Errorf("list flag variants: %w", err)
 		}
 
-		rules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+		rules, err := s.rulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return nil, 0, fmt.Errorf("list rules: %w", err)
 		}
 
-		schedules, err := s.schedulesRep.ListByFeatureID(ctx, feature.ID)
+		schedules, err := s.schedulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return nil, 0, fmt.Errorf("list schedules: %w", err)
 		}
@@ -428,14 +440,29 @@ func (s *Service) Toggle(
 		return domain.Feature{}, guardResult, nil
 	}
 
-	// Feature is not guarded, proceed with normal update
+	// Feature is not guarded, proceed with normal update of environment-specific params
 	var updated domain.Feature
 
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		updated, err = s.repo.Update(ctx, env.ID, newFeature)
-		if err != nil {
-			return fmt.Errorf("update feature: %w", err)
+		// Update feature_params for this environment (enabled flag)
+		params := domain.FeatureParams{
+			FeatureID:     existing.ID,
+			EnvironmentID: env.ID,
+			Enabled:       enabled,
+			DefaultValue:  existing.DefaultValue,
+			UpdatedAt:     time.Now(),
 		}
+
+		if _, err := s.featureParamsRep.Update(ctx, existing.ProjectID, params); err != nil {
+			return fmt.Errorf("update feature params: %w", err)
+		}
+
+		// Reload feature with environment-specific fields
+		reloaded, err := s.repo.GetByIDWithEnvironment(ctx, id, environmentKey)
+		if err != nil {
+			return fmt.Errorf("reload feature after toggle: %w", err)
+		}
+		updated = reloaded
 
 		return nil
 	}); err != nil {
@@ -496,8 +523,8 @@ func (s *Service) UpdateWithChildren(
 		}
 		result.Feature = updated
 
-		// Reconcile variants
-		existingVariants, err := s.flagVariantsRep.ListByFeatureID(ctx, feature.ID)
+		// Reconcile variants (environment-scoped)
+		existingVariants, err := s.flagVariantsRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return fmt.Errorf("list flag variants: %w", err)
 		}
@@ -512,6 +539,7 @@ func (s *Service) UpdateWithChildren(
 		for _, variant := range variants {
 			variant.ProjectID = feature.ProjectID
 			variant.FeatureID = feature.ID
+			variant.EnvironmentID = env.ID
 			if variant.ID != "" {
 				requestedVMap[variant.ID] = variant
 			}
@@ -546,8 +574,8 @@ func (s *Service) UpdateWithChildren(
 
 		result.FlagVariants = updatedVariants
 
-		// Reconcile rules
-		existingRules, err := s.rulesRep.ListByFeatureID(ctx, feature.ID)
+		// Reconcile rules (environment-scoped)
+		existingRules, err := s.rulesRep.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
 		if err != nil {
 			return fmt.Errorf("list rules: %w", err)
 		}
@@ -562,6 +590,7 @@ func (s *Service) UpdateWithChildren(
 		for _, rule := range rules {
 			rule.ProjectID = feature.ProjectID
 			rule.FeatureID = feature.ID
+			rule.EnvironmentID = env.ID
 			if rule.ID != "" {
 				requestedRMap[rule.ID] = rule
 			}

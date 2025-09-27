@@ -1976,6 +1976,8 @@ func decodeGetFeatureScheduleParams(args [1]string, argsEscaped bool, r *http.Re
 // GetFeatureTimelineParams is parameters of GetFeatureTimeline operation.
 type GetFeatureTimelineParams struct {
 	FeatureID string
+	// Target environment key (e.g., dev, stage, prod).
+	EnvironmentKey string
 	// Start of the period (inclusive).
 	From time.Time
 	// End of the period (exclusive).
@@ -1991,6 +1993,13 @@ func unpackGetFeatureTimelineParams(packed middleware.Parameters) (params GetFea
 			In:   "path",
 		}
 		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -2060,6 +2069,42 @@ func decodeGetFeatureTimelineParams(args [1]string, argsEscaped bool, r *http.Re
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -6784,6 +6829,8 @@ func decodeSyncCustomizedFeatureRuleParams(args [2]string, argsEscaped bool, r *
 // TestFeatureTimelineParams is parameters of TestFeatureTimeline operation.
 type TestFeatureTimelineParams struct {
 	FeatureID string
+	// Target environment key (e.g., dev, stage, prod).
+	EnvironmentKey string
 	// Start of the period (inclusive).
 	From time.Time
 	// End of the period (exclusive).
@@ -6799,6 +6846,13 @@ func unpackTestFeatureTimelineParams(packed middleware.Parameters) (params TestF
 			In:   "path",
 		}
 		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
@@ -6868,6 +6922,42 @@ func decodeTestFeatureTimelineParams(args [1]string, argsEscaped bool, r *http.R
 		return params, &ogenerrors.DecodeParamError{
 			Name: "feature_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}

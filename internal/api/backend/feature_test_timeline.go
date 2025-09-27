@@ -19,8 +19,7 @@ func (r *RestAPI) TestFeatureTimeline(
 	featureID := domain.FeatureID(params.FeatureID)
 
 	// Load a feature and check access to its project
-	// TODO: Get environment_key from request parameters
-	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID, "prod")
+	feature, err := r.featuresUseCase.GetExtendedByID(ctx, featureID, params.EnvironmentKey)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{

@@ -2806,6 +2806,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: environment_key
+          in: query
+          required: true
+          description: Target environment key (e.g., dev, stage, prod)
+          schema:
+            type: string
         - name: from
           in: query
           required: true
@@ -2880,6 +2886,12 @@ paths:
         - name: feature_id
           in: path
           required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
+          required: true
+          description: Target environment key (e.g., dev, stage, prod)
           schema:
             type: string
         - name: from

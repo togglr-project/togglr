@@ -5120,6 +5120,20 @@ func (c *Client) sendGetFeatureTimeline(ctx context.Context, params GetFeatureTi
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
 	{
+		// Encode "environment_key" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	{
 		// Encode "from" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
 			Name:    "from",
@@ -11272,6 +11286,20 @@ func (c *Client) sendTestFeatureTimeline(ctx context.Context, request *TestFeatu
 
 	stage = "EncodeQueryParams"
 	q := uri.NewQueryEncoder()
+	{
+		// Encode "environment_key" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
 	{
 		// Encode "from" parameter.
 		cfg := uri.QueryParameterEncodingConfig{
