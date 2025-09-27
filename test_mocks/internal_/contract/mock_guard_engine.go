@@ -39,67 +39,67 @@ func (_m *MockGuardEngine) EXPECT() *MockGuardEngine_Expecter {
 	return &MockGuardEngine_Expecter{mock: &_m.Mock}
 }
 
-// CheckAndMaybeCreatePending provides a mock function for the type MockGuardEngine
-func (_mock *MockGuardEngine) CheckAndMaybeCreatePending(ctx context.Context, in contract.GuardEngineInput) (*domain.PendingChange, bool, bool, error) {
-	ret := _mock.Called(ctx, in)
+// CheckGuardedOperation provides a mock function for the type MockGuardEngine
+func (_mock *MockGuardEngine) CheckGuardedOperation(ctx context.Context, req contract.GuardRequest) (*domain.PendingChange, bool, bool, error) {
+	ret := _mock.Called(ctx, req)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CheckAndMaybeCreatePending")
+		panic("no return value specified for CheckGuardedOperation")
 	}
 
 	var r0 *domain.PendingChange
 	var r1 bool
 	var r2 bool
 	var r3 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, contract.GuardEngineInput) (*domain.PendingChange, bool, bool, error)); ok {
-		return returnFunc(ctx, in)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, contract.GuardRequest) (*domain.PendingChange, bool, bool, error)); ok {
+		return returnFunc(ctx, req)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, contract.GuardEngineInput) *domain.PendingChange); ok {
-		r0 = returnFunc(ctx, in)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, contract.GuardRequest) *domain.PendingChange); ok {
+		r0 = returnFunc(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.PendingChange)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, contract.GuardEngineInput) bool); ok {
-		r1 = returnFunc(ctx, in)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, contract.GuardRequest) bool); ok {
+		r1 = returnFunc(ctx, req)
 	} else {
 		r1 = ret.Get(1).(bool)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, contract.GuardEngineInput) bool); ok {
-		r2 = returnFunc(ctx, in)
+	if returnFunc, ok := ret.Get(2).(func(context.Context, contract.GuardRequest) bool); ok {
+		r2 = returnFunc(ctx, req)
 	} else {
 		r2 = ret.Get(2).(bool)
 	}
-	if returnFunc, ok := ret.Get(3).(func(context.Context, contract.GuardEngineInput) error); ok {
-		r3 = returnFunc(ctx, in)
+	if returnFunc, ok := ret.Get(3).(func(context.Context, contract.GuardRequest) error); ok {
+		r3 = returnFunc(ctx, req)
 	} else {
 		r3 = ret.Error(3)
 	}
 	return r0, r1, r2, r3
 }
 
-// MockGuardEngine_CheckAndMaybeCreatePending_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckAndMaybeCreatePending'
-type MockGuardEngine_CheckAndMaybeCreatePending_Call struct {
+// MockGuardEngine_CheckGuardedOperation_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckGuardedOperation'
+type MockGuardEngine_CheckGuardedOperation_Call struct {
 	*mock.Call
 }
 
-// CheckAndMaybeCreatePending is a helper method to define mock.On call
+// CheckGuardedOperation is a helper method to define mock.On call
 //   - ctx context.Context
-//   - in contract.GuardEngineInput
-func (_e *MockGuardEngine_Expecter) CheckAndMaybeCreatePending(ctx interface{}, in interface{}) *MockGuardEngine_CheckAndMaybeCreatePending_Call {
-	return &MockGuardEngine_CheckAndMaybeCreatePending_Call{Call: _e.mock.On("CheckAndMaybeCreatePending", ctx, in)}
+//   - req contract.GuardRequest
+func (_e *MockGuardEngine_Expecter) CheckGuardedOperation(ctx interface{}, req interface{}) *MockGuardEngine_CheckGuardedOperation_Call {
+	return &MockGuardEngine_CheckGuardedOperation_Call{Call: _e.mock.On("CheckGuardedOperation", ctx, req)}
 }
 
-func (_c *MockGuardEngine_CheckAndMaybeCreatePending_Call) Run(run func(ctx context.Context, in contract.GuardEngineInput)) *MockGuardEngine_CheckAndMaybeCreatePending_Call {
+func (_c *MockGuardEngine_CheckGuardedOperation_Call) Run(run func(ctx context.Context, req contract.GuardRequest)) *MockGuardEngine_CheckGuardedOperation_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 contract.GuardEngineInput
+		var arg1 contract.GuardRequest
 		if args[1] != nil {
-			arg1 = args[1].(contract.GuardEngineInput)
+			arg1 = args[1].(contract.GuardRequest)
 		}
 		run(
 			arg0,
@@ -109,12 +109,12 @@ func (_c *MockGuardEngine_CheckAndMaybeCreatePending_Call) Run(run func(ctx cont
 	return _c
 }
 
-func (_c *MockGuardEngine_CheckAndMaybeCreatePending_Call) Return(pendingChange *domain.PendingChange, conflict bool, proceed bool, err error) *MockGuardEngine_CheckAndMaybeCreatePending_Call {
+func (_c *MockGuardEngine_CheckGuardedOperation_Call) Return(pendingChange *domain.PendingChange, conflict bool, proceed bool, err error) *MockGuardEngine_CheckGuardedOperation_Call {
 	_c.Call.Return(pendingChange, conflict, proceed, err)
 	return _c
 }
 
-func (_c *MockGuardEngine_CheckAndMaybeCreatePending_Call) RunAndReturn(run func(ctx context.Context, in contract.GuardEngineInput) (*domain.PendingChange, bool, bool, error)) *MockGuardEngine_CheckAndMaybeCreatePending_Call {
+func (_c *MockGuardEngine_CheckGuardedOperation_Call) RunAndReturn(run func(ctx context.Context, req contract.GuardRequest) (*domain.PendingChange, bool, bool, error)) *MockGuardEngine_CheckGuardedOperation_Call {
 	_c.Call.Return(run)
 	return _c
 }

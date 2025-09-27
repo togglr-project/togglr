@@ -50,18 +50,18 @@ func (r *RestAPI) DeleteFeatureSchedule(
 	}
 
 	// Guarded flow: if a feature is guarded, create a pending change and return 202
-	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
+	// The guard engine will automatically handle the delete operation
+	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
-		contract.GuardEngineInput{
-			ProjectID:       schedule.ProjectID,
-			EnvironmentID:   schedule.EnvironmentID,
-			FeatureID:       schedule.FeatureID,
-			Reason:          "Delete schedule via API",
-			Origin:          "feature-schedule-delete",
-			PrimaryEntity:   string(domain.EntityFeatureSchedule),
-			PrimaryEntityID: string(id),
-			Action:          domain.EntityActionDelete,
-			ExtraChanges:    nil,
+		contract.GuardRequest{
+			ProjectID:     schedule.ProjectID,
+			EnvironmentID: schedule.EnvironmentID,
+			FeatureID:     schedule.FeatureID,
+			Reason:        "Delete schedule via API",
+			Origin:        "feature-schedule-delete",
+			Action:        domain.EntityActionDelete,
+			OldEntity:     schedule, // For delete, we need the old entity
+			NewEntity:     nil,      // No new entity for delete
 		},
 	)
 	if err != nil {

@@ -6,35 +6,41 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
-// GuardEngineInput describes a request to create a pending change for a guarded operation.
-// It is intentionally small and HTTP-agnostic to keep it usable from different layers.
-type GuardEngineInput struct {
-	ProjectID       domain.ProjectID
-	EnvironmentID   domain.EnvironmentID
-	FeatureID       domain.FeatureID
-	Reason          string
-	Origin          string
-	PrimaryEntity   string
-	PrimaryEntityID string
-	Action          domain.EntityAction
-	ExtraChanges    map[string]domain.ChangeValue
+// GuardRequest represents a high-level request for guard checking.
+// The engine will automatically determine entity type and compute changes.
+type GuardRequest struct {
+	ProjectID     domain.ProjectID
+	EnvironmentID domain.EnvironmentID
+	FeatureID     domain.FeatureID
+	Reason        string
+	Origin        string
+	Action        domain.EntityAction
+
+	// Entity data - the engine will determine type and compute changes
+	OldEntity any
+	NewEntity any // nil for delete operations
 }
 
 // GuardEngine encapsulates guard checks and pending change creation.
 // It centralizes the guarded workflow so that outer layers (API) don't need to
 // know how to assemble payloads or handle conflicts.
 type GuardEngine interface {
-	// CheckAndMaybeCreatePending checks guarded state and potential conflicts
-	// for the involved entities and, when guarded and no conflict exists,
-	// creates a pending change.
+	// CheckGuardedOperation is a high-level method that automatically determines
+	// entity type and computes changes by comparing old and new entities.
+	//
+	// The method will:
+	// 1. Determine entity type from the provided entities
+	// 2. Compute changes by comparing old and new entities
+	// 3. Check if the feature is guarded
+	// 4. Create pending change if needed
 	//
 	// Returns:
 	//   - pendingChange (non-nil) when a pending change was created and 202 should be returned
 	//   - conflict = true when there is an active conflicting pending change and 409 should be returned
 	//   - proceed = true when operation can be applied immediately (not guarded)
 	//   - err on unexpected failures
-	CheckAndMaybeCreatePending(
+	CheckGuardedOperation(
 		ctx context.Context,
-		in GuardEngineInput,
+		req GuardRequest,
 	) (pendingChange *domain.PendingChange, conflict bool, proceed bool, err error)
 }

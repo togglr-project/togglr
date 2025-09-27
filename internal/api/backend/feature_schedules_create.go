@@ -70,18 +70,18 @@ func (r *RestAPI) CreateFeatureSchedule(
 	}
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202
-	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
+	// The guard engine will automatically compute changes for the new schedule
+	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
-		contract.GuardEngineInput{
-			ProjectID:       feature.ProjectID,
-			EnvironmentID:   env.ID,
-			FeatureID:       featureID,
-			Reason:          "Create schedule via API",
-			Origin:          "feature-schedule-create",
-			PrimaryEntity:   string(domain.EntityFeatureSchedule),
-			PrimaryEntityID: "",
-			Action:          domain.EntityActionInsert,
-			ExtraChanges:    nil,
+		contract.GuardRequest{
+			ProjectID:     feature.ProjectID,
+			EnvironmentID: env.ID,
+			FeatureID:     featureID,
+			Reason:        "Create schedule via API",
+			Origin:        "feature-schedule-create",
+			Action:        domain.EntityActionInsert,
+			OldEntity:     nil, // No old entity for insert
+			NewEntity:     sch, // The new schedule entity
 		},
 	)
 	if err != nil {

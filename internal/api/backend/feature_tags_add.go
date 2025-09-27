@@ -46,22 +46,26 @@ func (r *RestAPI) AddFeatureTag(
 	}
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202
-	changes := map[string]domain.ChangeValue{
-		"feature_id": {New: featureID.String()},
-		"tag_id":     {New: tagID.String()},
+	// Create a simple struct for feature tag relationship
+	featureTagData := struct {
+		FeatureID string
+		TagID     string
+	}{
+		FeatureID: featureID.String(),
+		TagID:     tagID.String(),
 	}
-	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
+
+	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
-		contract.GuardEngineInput{
-			ProjectID:       feature.ProjectID,
-			EnvironmentID:   env.ID,
-			FeatureID:       featureID,
-			Reason:          "Add tag to feature via API",
-			Origin:          "feature-tag-add",
-			PrimaryEntity:   string(domain.EntityFeatureTag),
-			PrimaryEntityID: tagID.String(),
-			Action:          domain.EntityActionInsert,
-			ExtraChanges:    changes,
+		contract.GuardRequest{
+			ProjectID:     feature.ProjectID,
+			EnvironmentID: env.ID,
+			FeatureID:     featureID,
+			Reason:        "Add tag to feature via API",
+			Origin:        "feature-tag-add",
+			Action:        domain.EntityActionInsert,
+			OldEntity:     nil, // No old entity for insert
+			NewEntity:     featureTagData,
 		},
 	)
 	if err != nil {

@@ -66,18 +66,18 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 	}
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202
-	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
+	// The guard engine will automatically compute changes for the new flag variant
+	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
-		contract.GuardEngineInput{
-			ProjectID:       feature.ProjectID,
-			EnvironmentID:   env.ID,
-			FeatureID:       featureID,
-			Reason:          "Create flag variant via API",
-			Origin:          "flag-variant-create",
-			PrimaryEntity:   string(domain.EntityFlagVariant),
-			PrimaryEntityID: "",
-			Action:          domain.EntityActionInsert,
-			ExtraChanges:    nil,
+		contract.GuardRequest{
+			ProjectID:     feature.ProjectID,
+			EnvironmentID: env.ID,
+			FeatureID:     featureID,
+			Reason:        "Create flag variant via API",
+			Origin:        "flag-variant-create",
+			Action:        domain.EntityActionInsert,
+			OldEntity:     nil,     // No old entity for insert
+			NewEntity:     variant, // The new flag variant entity
 		},
 	)
 	if err != nil {

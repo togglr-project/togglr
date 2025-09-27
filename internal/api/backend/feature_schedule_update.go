@@ -62,22 +62,19 @@ func (r *RestAPI) UpdateFeatureSchedule(
 		Action:       domain.FeatureScheduleAction(req.Action),
 	}
 
-	// Build changes diff for pending change payload
-	changes := buildFeatureScheduleChangeDiff(current, sch)
-
 	// Guarded flow: if feature is guarded, create a pending change and return 202
-	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
+	// The guard engine will automatically compute changes by comparing old and new entities
+	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
-		contract.GuardEngineInput{
-			ProjectID:       sch.ProjectID,
-			EnvironmentID:   current.EnvironmentID,
-			FeatureID:       sch.FeatureID,
-			Reason:          "Update schedule via API",
-			Origin:          "feature-schedule-update",
-			PrimaryEntity:   string(domain.EntityFeatureSchedule),
-			PrimaryEntityID: string(id),
-			Action:          domain.EntityActionUpdate,
-			ExtraChanges:    changes,
+		contract.GuardRequest{
+			ProjectID:     sch.ProjectID,
+			EnvironmentID: current.EnvironmentID,
+			FeatureID:     sch.FeatureID,
+			Reason:        "Update schedule via API",
+			Origin:        "feature-schedule-update",
+			Action:        domain.EntityActionUpdate,
+			OldEntity:     current,
+			NewEntity:     sch,
 		},
 	)
 	if err != nil {

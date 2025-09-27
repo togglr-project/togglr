@@ -42,22 +42,26 @@ func (r *RestAPI) RemoveFeatureTag(
 	}
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202
-	changes := map[string]domain.ChangeValue{
-		"feature_id": {New: featureID.String()},
-		"tag_id":     {New: tagID.String()},
+	// Create a simple struct for feature tag relationship
+	featureTagData := struct {
+		FeatureID string
+		TagID     string
+	}{
+		FeatureID: featureID.String(),
+		TagID:     tagID.String(),
 	}
-	pc, conflict, _, err := r.guardEngine.CheckAndMaybeCreatePending(
+
+	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
-		contract.GuardEngineInput{
-			ProjectID:       feature.ProjectID,
-			EnvironmentID:   env.ID,
-			FeatureID:       featureID,
-			Reason:          "Remove tag from feature via API",
-			Origin:          "feature-tag-remove",
-			PrimaryEntity:   string(domain.EntityFeatureTag),
-			PrimaryEntityID: tagID.String(),
-			Action:          domain.EntityActionDelete,
-			ExtraChanges:    changes,
+		contract.GuardRequest{
+			ProjectID:     feature.ProjectID,
+			EnvironmentID: env.ID,
+			FeatureID:     featureID,
+			Reason:        "Remove tag from feature via API",
+			Origin:        "feature-tag-remove",
+			Action:        domain.EntityActionDelete,
+			OldEntity:     featureTagData, // For delete, we need the old entity
+			NewEntity:     nil,            // No new entity for delete
 		},
 	)
 	if err != nil {
