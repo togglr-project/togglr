@@ -3,9 +3,10 @@ CREATE TABLE environments (
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     key VARCHAR(20) NOT NULL, -- dev, stage, prod
     name VARCHAR(50) NOT NULL,
-    api_key UUID NOT NULL,
+    api_key UUID NOT NULL DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (project_id, key)
+    UNIQUE (project_id, key),
+    UNIQUE (api_key)
 );
 
 ALTER TABLE projects DROP COLUMN api_key; -- in environments for a project now.
@@ -14,7 +15,7 @@ CREATE TABLE feature_params (
     feature_id UUID NOT NULL REFERENCES features(id) ON DELETE CASCADE,
     environment_id BIGINT NOT NULL REFERENCES environments(id) ON DELETE CASCADE,
     enabled BOOLEAN NOT NULL DEFAULT false,
-    default_value VARCHAR(128),
+    default_value VARCHAR(128) NOT NULL DEFAULT '',
     created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
     PRIMARY KEY (feature_id, environment_id)
@@ -105,3 +106,27 @@ ALTER TABLE pending_changes ADD COLUMN environment_id BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE pending_changes
     ADD CONSTRAINT pending_changes_environment_id_fkey
         FOREIGN KEY (environment_id) REFERENCES environments(id) ON DELETE CASCADE;
+
+CREATE OR REPLACE VIEW v_features_full AS
+SELECT f.id,
+       f.project_id,
+       fp.environment_id,
+       e.key AS environment_key,
+       fp.enabled,
+       fp.default_value,
+       f.name,
+       f.description,
+       f.created_at,
+       f.updated_at
+FROM features f
+         JOIN feature_params fp ON fp.feature_id = f.id
+         JOIN environments e ON e.id = fp.environment_id;
+
+CREATE OR REPLACE VIEW v_projects_full AS
+SELECT p.id,
+       p.name,
+       e.key as environment_key,
+       e.api_key,
+       p.created_at
+FROM projects p
+         JOIN environments e ON e.project_id = p.id;
