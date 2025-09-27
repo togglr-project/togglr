@@ -18,8 +18,65 @@ func (r *RestAPI) RemoveFeatureTag(
 	featureID := domain.FeatureID(params.FeatureID.String())
 	tagID := domain.TagID(params.TagID.String())
 
-	// Remove tag from feature
-	err := r.featureTagsUseCase.RemoveFeatureTag(ctx, featureID, tagID)
+	// Resolve feature and environment scope for pending changes.
+	// Tags are environment-agnostic; use 'prod' environment for guarded workflow context.
+	const envKey = "prod"
+	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, envKey)
+	if err != nil {
+		slog.Error("get feature for tag remove failed", "error", err, "feature_id", featureID)
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString("feature not found"),
+			}}, nil
+		}
+
+		return nil, err
+	}
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, envKey)
+	if err != nil {
+		slog.Error("get environment for tag remove failed",
+			"error", err, "project_id", feature.ProjectID, "environment_key", envKey)
+
+		return nil, err
+	}
+
+	// Guarded flow: if feature is guarded, create a pending change and return 202
+	changes := map[string]domain.ChangeValue{
+		"feature_id": {New: featureID.String()},
+		"tag_id":     {New: tagID.String()},
+	}
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       feature.ProjectID,
+			EnvironmentID:   env.ID,
+			FeatureID:       featureID,
+			Reason:          "Remove tag from feature via API",
+			Origin:          "feature-tag-remove",
+			PrimaryEntity:   string(domain.EntityFeatureTag),
+			PrimaryEntityID: tagID.String(),
+			Action:          domain.EntityActionDelete,
+			ExtraChanges:    changes,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for tag remove failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{
+			Error: generatedapi.ErrorConflictError{
+				Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+			},
+		}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
+	// Remove tag from the feature
+	err = r.featureTagsUseCase.RemoveFeatureTag(ctx, featureID, tagID)
 	if err != nil {
 		slog.Error("remove feature tag failed", "error", err, "user_id", userID, "feature_id", featureID, "tag_id", tagID)
 

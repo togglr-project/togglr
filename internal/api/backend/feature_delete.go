@@ -73,7 +73,7 @@ func (r *RestAPI) DeleteFeature(
 	}
 
 	if guardResult.ChangeConflict {
-		return &generatedapi.ErrorInternalServerError{Error: generatedapi.ErrorInternalServerErrorError{
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
 			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
 		}}, nil
 	}

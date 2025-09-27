@@ -44,6 +44,7 @@ func (s *Service) Update(
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return s.paramsRepo.Create(ctx, projectID, params)
 		}
+
 		return domain.FeatureParams{}, fmt.Errorf("get existing params: %w", err)
 	}
 

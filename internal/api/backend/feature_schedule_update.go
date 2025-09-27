@@ -61,6 +61,38 @@ func (r *RestAPI) UpdateFeatureSchedule(
 		Action:       domain.FeatureScheduleAction(req.Action),
 	}
 
+	// Build changes diff for pending change payload
+	changes := buildFeatureScheduleChangeDiff(current, sch)
+
+	// Guarded flow: if feature is guarded, create a pending change and return 202
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       sch.ProjectID,
+			EnvironmentID:   current.EnvironmentID,
+			FeatureID:       sch.FeatureID,
+			Reason:          "Update schedule via API",
+			Origin:          "feature-schedule-update",
+			PrimaryEntity:   string(domain.EntityFeatureSchedule),
+			PrimaryEntityID: string(id),
+			Action:          domain.EntityActionUpdate,
+			ExtraChanges:    changes,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for schedule update failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
 	updated, err := r.featureSchedulesUseCase.Update(ctx, sch)
 	if err != nil {
 		slog.Error("update schedule failed", "error", err, "schedule_id", id)

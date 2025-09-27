@@ -27,7 +27,9 @@ func (r *RestAPI) ListPendingChanges(
 		projectID := domain.ProjectID(params.ProjectID.Value.String())
 		env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, projectID, params.EnvironmentKey.Value)
 		if err != nil {
-			slog.Error("get environment by key failed", "error", err, "project_id", projectID, "environment_key", params.EnvironmentKey.Value)
+			slog.Error("get environment by key failed",
+				"error", err, "project_id", projectID, "environment_key", params.EnvironmentKey.Value)
+
 			return nil, err
 		}
 		resolved := env.ID

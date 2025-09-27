@@ -1848,7 +1848,6 @@ func (s *Error) SetError(val ErrorError) {
 	s.Error = val
 }
 
-func (*Error) addFeatureTagRes()         {}
 func (*Error) addProjectRes()            {}
 func (*Error) cancelLDAPSyncRes()        {}
 func (*Error) createCategoryRes()        {}
@@ -2005,13 +2004,22 @@ func (s *ErrorConflict) SetError(val ErrorConflictError) {
 	s.Error = val
 }
 
-func (*ErrorConflict) approvePendingChangeRes() {}
-func (*ErrorConflict) cancelPendingChangeRes()  {}
-func (*ErrorConflict) createEnvironmentRes()    {}
-func (*ErrorConflict) createProjectSettingRes() {}
-func (*ErrorConflict) initiateTOTPApprovalRes() {}
-func (*ErrorConflict) rejectPendingChangeRes()  {}
-func (*ErrorConflict) toggleFeatureRes()        {}
+func (*ErrorConflict) addFeatureTagRes()            {}
+func (*ErrorConflict) approvePendingChangeRes()     {}
+func (*ErrorConflict) cancelPendingChangeRes()      {}
+func (*ErrorConflict) createEnvironmentRes()        {}
+func (*ErrorConflict) createFeatureFlagVariantRes() {}
+func (*ErrorConflict) createFeatureRuleRes()        {}
+func (*ErrorConflict) createFeatureScheduleRes()    {}
+func (*ErrorConflict) createProjectSettingRes()     {}
+func (*ErrorConflict) deleteFeatureRes()            {}
+func (*ErrorConflict) deleteFeatureScheduleRes()    {}
+func (*ErrorConflict) initiateTOTPApprovalRes()     {}
+func (*ErrorConflict) rejectPendingChangeRes()      {}
+func (*ErrorConflict) removeFeatureTagRes()         {}
+func (*ErrorConflict) toggleFeatureRes()            {}
+func (*ErrorConflict) updateFeatureRes()            {}
+func (*ErrorConflict) updateFeatureScheduleRes()    {}
 
 type ErrorConflictError struct {
 	Message OptString `json:"message"`
@@ -7312,10 +7320,17 @@ func (s *PendingChangeResponse) SetRejectionReason(val OptNilString) {
 	s.RejectionReason = val
 }
 
-func (*PendingChangeResponse) deleteFeatureRes()    {}
-func (*PendingChangeResponse) getPendingChangeRes() {}
-func (*PendingChangeResponse) toggleFeatureRes()    {}
-func (*PendingChangeResponse) updateFeatureRes()    {}
+func (*PendingChangeResponse) addFeatureTagRes()            {}
+func (*PendingChangeResponse) createFeatureFlagVariantRes() {}
+func (*PendingChangeResponse) createFeatureRuleRes()        {}
+func (*PendingChangeResponse) createFeatureScheduleRes()    {}
+func (*PendingChangeResponse) deleteFeatureRes()            {}
+func (*PendingChangeResponse) deleteFeatureScheduleRes()    {}
+func (*PendingChangeResponse) getPendingChangeRes()         {}
+func (*PendingChangeResponse) removeFeatureTagRes()         {}
+func (*PendingChangeResponse) toggleFeatureRes()            {}
+func (*PendingChangeResponse) updateFeatureRes()            {}
+func (*PendingChangeResponse) updateFeatureScheduleRes()    {}
 
 type PendingChangeResponseStatus string
 

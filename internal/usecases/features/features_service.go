@@ -119,7 +119,7 @@ func (s *Service) CreateWithChildren(
 		if err != nil {
 			return fmt.Errorf("create feature: %w", err)
 		}
-		result.Feature.BasicFeature = createdFeature
+		result.BasicFeature = createdFeature
 
 		for _, env := range envs {
 			// Create feature params for the environment
@@ -228,6 +228,7 @@ func (s *Service) GetByKeyWithEnv(ctx context.Context, key, envKey string) (doma
 	if err != nil {
 		return domain.Feature{}, fmt.Errorf("get feature by key with environment: %w", err)
 	}
+
 	return f, nil
 }
 
@@ -599,6 +600,7 @@ func (s *Service) UpdateWithChildren(
 					updatedVariants = append(updatedVariants, uv)
 					variantIDMap[origID] = uv.ID
 					keepVariantIDs[uv.ID] = struct{}{}
+
 					continue
 				}
 			}
@@ -617,6 +619,7 @@ func (s *Service) UpdateWithChildren(
 					variantIDMap[origID] = savedID
 				}
 				keepVariantIDs[savedID] = struct{}{}
+
 				continue
 			}
 
@@ -679,6 +682,7 @@ func (s *Service) UpdateWithChildren(
 						return fmt.Errorf("update rule: %w", uErr)
 					}
 					updatedRules = append(updatedRules, ur)
+
 					continue
 				}
 			}

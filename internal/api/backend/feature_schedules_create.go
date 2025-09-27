@@ -68,6 +68,35 @@ func (r *RestAPI) CreateFeatureSchedule(
 		Action:        domain.FeatureScheduleAction(req.Action),
 	}
 
+	// Guarded flow: if feature is guarded, create a pending change and return 202
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       feature.ProjectID,
+			EnvironmentID:   env.ID,
+			FeatureID:       featureID,
+			Reason:          "Create schedule via API",
+			Origin:          "feature-schedule-create",
+			PrimaryEntity:   string(domain.EntityFeatureSchedule),
+			PrimaryEntityID: "",
+			Action:          domain.EntityActionInsert,
+			ExtraChanges:    nil,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for schedule create failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
 	created, err := r.featureSchedulesUseCase.Create(ctx, sch)
 	if err != nil {
 		slog.Error("create feature schedule failed", "error", err)

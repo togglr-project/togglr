@@ -48,6 +48,35 @@ func (r *RestAPI) DeleteFeatureSchedule(
 		return nil, err
 	}
 
+	// Guarded flow: if a feature is guarded, create a pending change and return 202
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       schedule.ProjectID,
+			EnvironmentID:   schedule.EnvironmentID,
+			FeatureID:       schedule.FeatureID,
+			Reason:          "Delete schedule via API",
+			Origin:          "feature-schedule-delete",
+			PrimaryEntity:   string(domain.EntityFeatureSchedule),
+			PrimaryEntityID: string(id),
+			Action:          domain.EntityActionDelete,
+			ExtraChanges:    nil,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for schedule delete failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
 	if err := r.featureSchedulesUseCase.Delete(ctx, id); err != nil {
 		slog.Error("delete schedule failed", "error", err, "schedule_id", id)
 

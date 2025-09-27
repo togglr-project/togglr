@@ -112,6 +112,7 @@ func (r *Repository) GetByID(ctx context.Context, id domain.FeatureID) (domain.B
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.BasicFeature{}, domain.ErrEntityNotFound
 		}
+
 		return domain.BasicFeature{}, fmt.Errorf("collect feature row: %w", err)
 	}
 
@@ -136,6 +137,7 @@ func (r *Repository) GetByIDWithEnv(ctx context.Context, id domain.FeatureID, en
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Feature{}, domain.ErrEntityNotFound
 		}
+
 		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
 	}
 
@@ -158,6 +160,7 @@ func (r *Repository) GetByKeyWithEnv(ctx context.Context, key, envKey string) (d
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Feature{}, domain.ErrEntityNotFound
 		}
+
 		return domain.Feature{}, fmt.Errorf("collect feature row: %w", err)
 	}
 
@@ -340,7 +343,7 @@ func (r *Repository) ListByProjectIDFiltered(
 
 // Update updates existing feature by ID and returns updated entity.
 //
-//nolint:lll // long query string is acceptable
+
 func (r *Repository) Update(
 	ctx context.Context,
 	envID domain.EnvironmentID,

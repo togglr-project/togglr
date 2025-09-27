@@ -19,10 +19,71 @@ func (r *RestAPI) AddFeatureTag(
 	featureID := domain.FeatureID(params.FeatureID.String())
 	tagID := domain.TagID(req.TagID.String())
 
-	// Add tag to feature
-	err := r.featureTagsUseCase.AddFeatureTag(ctx, featureID, tagID)
+	// Resolve feature and environment scope for pending changes.
+	// Tags are environment-agnostic; use 'prod' environment for guarded workflow context per guidelines.
+	const envKey = "prod"
+	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, envKey)
 	if err != nil {
-		slog.Error("add feature tag failed", "error", err, "user_id", userID, "feature_id", featureID, "tag_id", tagID)
+		slog.Error("get feature for tag add failed", "error", err, "feature_id", featureID)
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{
+				Error: generatedapi.ErrorNotFoundError{
+					Message: generatedapi.NewOptString("feature not found"),
+				},
+			}, nil
+		}
+
+		return nil, err
+	}
+	// Get environment by key within the project's scope
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, envKey)
+	if err != nil {
+		slog.Error("get environment for tag add failed",
+			"error", err, "project_id", feature.ProjectID, "environment_key", envKey)
+
+		return nil, err
+	}
+
+	// Guarded flow: if feature is guarded, create a pending change and return 202
+	changes := map[string]domain.ChangeValue{
+		"feature_id": {New: featureID.String()},
+		"tag_id":     {New: tagID.String()},
+	}
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       feature.ProjectID,
+			EnvironmentID:   env.ID,
+			FeatureID:       featureID,
+			Reason:          "Add tag to feature via API",
+			Origin:          "feature-tag-add",
+			PrimaryEntity:   string(domain.EntityFeatureTag),
+			PrimaryEntityID: tagID.String(),
+			Action:          domain.EntityActionInsert,
+			ExtraChanges:    changes,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for tag add failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{
+			Error: generatedapi.ErrorConflictError{
+				Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+			},
+		}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
+	// Add tag to feature
+	err = r.featureTagsUseCase.AddFeatureTag(ctx, featureID, tagID)
+	if err != nil {
+		slog.Error("add feature tag failed",
+			"error", err, "user_id", userID, "feature_id", featureID, "tag_id", tagID)
 
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
@@ -30,9 +91,9 @@ func (r *RestAPI) AddFeatureTag(
 			}}, nil
 		}
 
-		// Check for the "already associated" error
+		// Check for the "already associated" error -> 409
 		if err.Error() == "tag already associated with feature" {
-			return &generatedapi.Error{Error: generatedapi.ErrorError{
+			return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
 				Message: generatedapi.NewOptString("tag already associated with feature"),
 			}}, nil
 		}

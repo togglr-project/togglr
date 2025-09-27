@@ -56,6 +56,43 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 		RolloutPercent: uint8(req.RolloutPercent),
 	}
 
+	// Resolve environment
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		slog.Error("get environment for flag variant create failed", "error", err)
+
+		return nil, err
+	}
+
+	// Guarded flow: if feature is guarded, create a pending change and return 202
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       feature.ProjectID,
+			EnvironmentID:   env.ID,
+			FeatureID:       featureID,
+			Reason:          "Create flag variant via API",
+			Origin:          "flag-variant-create",
+			PrimaryEntity:   string(domain.EntityFlagVariant),
+			PrimaryEntityID: "",
+			Action:          domain.EntityActionInsert,
+			ExtraChanges:    nil,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for flag variant create failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
 	created, err := r.flagVariantsUseCase.Create(ctx, variant)
 	if err != nil {
 		slog.Error("create flag variant failed", "error", err)

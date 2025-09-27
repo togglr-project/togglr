@@ -2036,6 +2036,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -2091,6 +2097,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -2186,6 +2198,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RuleResponse'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2210,6 +2228,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -2366,6 +2390,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeatureScheduleResponse'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2390,6 +2420,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -2514,6 +2550,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeatureScheduleResponse'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2538,6 +2580,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -2564,6 +2612,12 @@ paths:
       responses:
         '204':
           description: Feature schedule deleted
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '401':
           description: Unauthorized
           content:
@@ -2582,6 +2636,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -2678,6 +2738,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FlagVariantResponse'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -2702,6 +2768,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -3038,6 +3110,12 @@ paths:
       responses:
         '201':
           description: Tag added to feature
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '400':
           description: Bad request
           content:
@@ -3063,11 +3141,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
         '409':
-          description: Tag already associated with feature
+          description: Conflict - tag already associated or change cannot be applied due to pending change or lock
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:
@@ -3102,6 +3180,12 @@ paths:
       responses:
         '204':
           description: Tag removed from feature
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
         '401':
           description: Unauthorized
           content:
@@ -3120,6 +3204,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Conflict - change cannot be applied due to existing pending change or lock
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
         '500':
           description: Internal server error
           content:

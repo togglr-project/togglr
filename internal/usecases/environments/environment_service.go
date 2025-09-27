@@ -62,6 +62,7 @@ func (s *Service) Update(ctx context.Context, id domain.EnvironmentID, name stri
 	}
 
 	env.Name = name
+
 	return s.envRepo.Update(ctx, env)
 }
 

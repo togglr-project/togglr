@@ -424,8 +424,16 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     // Add new tags
     for (const tag of tagsToAdd) {
       try {
-        await apiClient.addFeatureTag(featureId, { tag_id: tag.id });
-      } catch (err) {
+        const res = await apiClient.addFeatureTag(featureId, { tag_id: tag.id });
+        if ((res as any)?.status === 202 && (res as any)?.data) {
+          setGuardResponse({ pendingChange: (res as any).data });
+          return; // stop further tag operations; guarded flow will proceed
+        }
+      } catch (err: any) {
+        if (err?.response?.status === 409) {
+          setGuardResponse({ conflictError: err.response.data?.error?.message || 'Feature is already locked by another pending change' });
+          return; // stop further operations
+        }
         console.warn('Failed to add tag to feature:', err);
       }
     }
@@ -433,8 +441,16 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
     // Remove old tags
     for (const tag of tagsToRemove) {
       try {
-        await apiClient.removeFeatureTag(featureId, tag.id);
-      } catch (err) {
+        const res = await apiClient.removeFeatureTag(featureId, tag.id);
+        if ((res as any)?.status === 202 && (res as any)?.data) {
+          setGuardResponse({ pendingChange: (res as any).data });
+          return;
+        }
+      } catch (err: any) {
+        if (err?.response?.status === 409) {
+          setGuardResponse({ conflictError: err.response.data?.error?.message || 'Feature is already locked by another pending change' });
+          return;
+        }
         console.warn('Failed to remove tag from feature:', err);
       }
     }

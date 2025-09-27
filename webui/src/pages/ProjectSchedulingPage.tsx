@@ -37,6 +37,9 @@ import {
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import GuardResponseHandler from '../components/pending-changes/GuardResponseHandler';
+import { useApprovePendingChange } from '../hooks/usePendingChanges';
+import type { AuthCredentialsMethodEnum } from '../generated/api/client';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import SearchPanel from '../components/SearchPanel';
 import TimelineChart from '../components/TimelineChart';
@@ -422,15 +425,62 @@ const ProjectSchedulingPage: React.FC = () => {
   const closeEditRecurringBuilder = () => setEditRecurringBuilderOpen(false);
   const closeEditOneShotDialog = () => setEditOneShotDialogOpen(false);
 
+    // Guard workflow state
+    const [guardResponse, setGuardResponse] = useState<{
+      pendingChange?: any;
+      conflictError?: string;
+      forbiddenError?: string;
+    }>({});
+
+    const approveMutation = useApprovePendingChange();
+
+    const handleAutoApprove = (
+      authMethod: AuthCredentialsMethodEnum,
+      credential: string,
+      sessionId?: string,
+    ) => {
+      if (!guardResponse.pendingChange?.id) return;
+      approveMutation.mutate(
+        {
+          id: guardResponse.pendingChange.id,
+          request: {
+            approver_user_id: (projectResp as any)?.current_user?.id, // fallback, backend validates
+            approver_name: (projectResp as any)?.current_user?.username || 'me',
+            auth: {
+              method: authMethod,
+              credential,
+              ...(sessionId && { session_id: sessionId }),
+            },
+          },
+        },
+        {
+          onSuccess: () => {
+            setGuardResponse({});
+            qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+            qc.invalidateQueries({ queryKey: ['pending-changes'] });
+          },
+        },
+      );
+    };
+
   // Mutations
   const createMut = useMutation({
     mutationFn: async ({ featureId, values }: { featureId: string; values: ScheduleFormValues }) => {
       return apiClient.createFeatureSchedule(featureId, environmentKey, values);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
       // Switch to "with schedules" tab after creating a schedule
       setActiveTab(0);
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -438,8 +488,17 @@ const ProjectSchedulingPage: React.FC = () => {
     mutationFn: async ({ scheduleId, values }: { scheduleId: string; values: ScheduleFormValues }) => {
       return apiClient.updateFeatureSchedule(scheduleId, values);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -447,10 +506,19 @@ const ProjectSchedulingPage: React.FC = () => {
     mutationFn: async ({ scheduleId }: { scheduleId: string }) => {
       return apiClient.deleteFeatureSchedule(scheduleId);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
       // After deleting, check if we need to switch tabs
       // This will be handled by the useMemo that recalculates the feature lists
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -467,10 +535,19 @@ const ProjectSchedulingPage: React.FC = () => {
       };
       return apiClient.createFeatureSchedule(featureId, environmentKey, payload);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
       setScheduleBuilderOpen(false);
       setActiveTab(0);
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -478,10 +555,19 @@ const ProjectSchedulingPage: React.FC = () => {
     mutationFn: async ({ featureId, data }: { featureId: string; data: { timezone: string; starts_at: string; ends_at: string; action: FeatureScheduleAction } }) => {
       return apiClient.createFeatureSchedule(featureId, environmentKey, data);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
       setOneShotDialogOpen(false);
       setActiveTab(0);
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -498,9 +584,18 @@ const ProjectSchedulingPage: React.FC = () => {
       };
       return apiClient.updateFeatureSchedule(scheduleId, payload);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
       setEditRecurringBuilderOpen(false);
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -508,9 +603,18 @@ const ProjectSchedulingPage: React.FC = () => {
     mutationFn: async ({ scheduleId, data }: { scheduleId: string; data: { timezone: string; starts_at: string; ends_at: string; action: FeatureScheduleAction } }) => {
       return apiClient.updateFeatureSchedule(scheduleId, data);
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
+      if (response.status === 202 && response.data) {
+        setGuardResponse({ pendingChange: response.data });
+        return;
+      }
       qc.invalidateQueries({ queryKey: ['feature-schedules', projectId] });
       setEditOneShotDialogOpen(false);
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data?.error?.message || 'Feature is already locked by another pending change' });
+      }
     }
   });
 
@@ -1089,6 +1193,14 @@ const ProjectSchedulingPage: React.FC = () => {
       <ScheduleHelpDialog
         open={helpDialogOpen}
         onClose={() => setHelpDialogOpen(false)}
+      />
+
+      {/* Guarded workflow handler */}
+      <GuardResponseHandler
+        pendingChange={guardResponse.pendingChange}
+        conflictError={guardResponse.conflictError}
+        onClose={() => setGuardResponse({})}
+        onApprove={handleAutoApprove}
       />
     </AuthenticatedLayout>
   );

@@ -26,6 +26,7 @@ func DomainEnvironmentsToAPI(environments []domain.Environment) []generatedapi.E
 	for i, env := range environments {
 		result[i] = DomainEnvironmentToAPI(env)
 	}
+
 	return result
 }
 

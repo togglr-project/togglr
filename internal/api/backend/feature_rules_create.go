@@ -75,6 +75,43 @@ func (r *RestAPI) CreateFeatureRule(
 		Priority:      uint8(req.Priority.Or(0)),
 	}
 
+	// Resolve environment
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		slog.Error("get environment for rule create failed", "error", err)
+
+		return nil, err
+	}
+
+	// Guarded flow: if feature is guarded, create a pending change and return 202
+	pending, conflict, _, err := r.guardCheckAndMaybeCreatePending(
+		ctx,
+		GuardPendingInput{
+			ProjectID:       feature.ProjectID,
+			EnvironmentID:   env.ID,
+			FeatureID:       featureID,
+			Reason:          "Create rule via API",
+			Origin:          "rule-create",
+			PrimaryEntity:   string(domain.EntityRule),
+			PrimaryEntityID: "",
+			Action:          domain.EntityActionInsert,
+			ExtraChanges:    nil,
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for rule create failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+	if pending != nil {
+		return pending, nil
+	}
+
 	created, err := r.rulesUseCase.Create(ctx, rule)
 	if err != nil {
 		slog.Error("create rule failed", "error", err)

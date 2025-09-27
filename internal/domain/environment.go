@@ -17,7 +17,7 @@ type Environment struct {
 }
 
 type EnvironmentDTO struct {
-	Key  string `json:"key" validate:"required,min=1,max=20"`
+	Key  string `json:"key"  validate:"required,min=1,max=20"`
 	Name string `json:"name" validate:"required,min=1,max=50"`
 }
 

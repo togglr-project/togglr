@@ -155,11 +155,12 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Tag added to feature |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature or tag not found |  -  |
-|**409** | Tag already associated with feature |  -  |
+|**409** | Conflict - tag already associated or change cannot be applied due to pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -730,10 +731,12 @@ const { status, data } = await apiInstance.createFeatureFlagVariant(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Flag variant created |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -793,10 +796,12 @@ const { status, data } = await apiInstance.createFeatureRule(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Rule created |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature or related resource not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -856,10 +861,12 @@ const { status, data } = await apiInstance.createFeatureSchedule(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Schedule created |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature or related resource not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -1384,13 +1391,14 @@ const { status, data } = await apiInstance.deleteFeature(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteFeatureSchedule**
-> deleteFeatureSchedule()
+> PendingChangeResponse deleteFeatureSchedule()
 
 
 ### Example
@@ -1420,7 +1428,7 @@ const { status, data } = await apiInstance.deleteFeatureSchedule(
 
 ### Return type
 
-void (empty response body)
+**PendingChangeResponse**
 
 ### Authorization
 
@@ -1436,9 +1444,11 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | Feature schedule deleted |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Schedule not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -3390,6 +3400,7 @@ const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
 let environmentId: number; // (optional) (default to undefined)
+let environmentKey: string; //Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id. (optional) (default to undefined)
 let projectId: string; // (optional) (default to undefined)
 let status: 'pending' | 'approved' | 'rejected' | 'cancelled'; // (optional) (default to undefined)
 let userId: number; // (optional) (default to undefined)
@@ -3400,6 +3411,7 @@ let sortDesc: boolean; // (optional) (default to true)
 
 const { status, data } = await apiInstance.listPendingChanges(
     environmentId,
+    environmentKey,
     projectId,
     status,
     userId,
@@ -3415,6 +3427,7 @@ const { status, data } = await apiInstance.listPendingChanges(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **environmentId** | [**number**] |  | (optional) defaults to undefined|
+| **environmentKey** | [**string**] | Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id. | (optional) defaults to undefined|
 | **projectId** | [**string**] |  | (optional) defaults to undefined|
 | **status** | [**&#39;pending&#39; | &#39;approved&#39; | &#39;rejected&#39; | &#39;cancelled&#39;**]**Array<&#39;pending&#39; &#124; &#39;approved&#39; &#124; &#39;rejected&#39; &#124; &#39;cancelled&#39;>** |  | (optional) defaults to undefined|
 | **userId** | [**number**] |  | (optional) defaults to undefined|
@@ -3442,6 +3455,7 @@ const { status, data } = await apiInstance.listPendingChanges(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | List of pending changes |  -  |
+|**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
@@ -4225,7 +4239,7 @@ const { status, data } = await apiInstance.rejectPendingChange(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **removeFeatureTag**
-> removeFeatureTag()
+> PendingChangeResponse removeFeatureTag()
 
 
 ### Example
@@ -4258,7 +4272,7 @@ const { status, data } = await apiInstance.removeFeatureTag(
 
 ### Return type
 
-void (empty response body)
+**PendingChangeResponse**
 
 ### Authorization
 
@@ -4274,9 +4288,11 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | Tag removed from feature |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature or tag not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -5142,6 +5158,7 @@ const { status, data } = await apiInstance.updateFeature(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -5198,10 +5215,12 @@ const { status, data } = await apiInstance.updateFeatureSchedule(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Feature schedule updated |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Schedule not found |  -  |
+|**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

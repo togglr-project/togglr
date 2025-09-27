@@ -25,12 +25,13 @@ func (id ProjectID) String() string {
 }
 
 // GetAPIKeyForEnvironment returns the API key for a specific environment
-// This method will be implemented in the repository layer
+// This method will be implemented in the repository layer.
 func (p *Project) GetAPIKeyForEnvironment(envID EnvironmentID, environments []Environment) string {
 	for _, env := range environments {
 		if env.ID == envID && env.ProjectID == p.ID {
 			return env.APIKey
 		}
 	}
+
 	return ""
 }

@@ -30,6 +30,7 @@ const (
 	EntityFeatureSchedule EntityType = "feature_schedule"
 	EntityEnvironment     EntityType = "environment"
 	EntityFeatureParams   EntityType = "feature_params"
+	EntityFeatureTag      EntityType = "feature_tag"
 )
 
 type AuditLogID uint64

@@ -3655,6 +3655,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * 
          * @summary List pending changes
          * @param {number} [environmentId] 
+         * @param {string} [environmentKey] Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
          * @param {string} [projectId] 
          * @param {ListPendingChangesStatusEnum} [status] 
          * @param {number} [userId] 
@@ -3665,7 +3666,7 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listPendingChanges: async (environmentId?: number, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listPendingChanges: async (environmentId?: number, environmentKey?: string, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/pending_changes`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -3684,6 +3685,10 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
 
             if (environmentId !== undefined) {
                 localVarQueryParameter['environment_id'] = environmentId;
+            }
+
+            if (environmentKey !== undefined) {
+                localVarQueryParameter['environment_key'] = environmentKey;
             }
 
             if (projectId !== undefined) {
@@ -5796,7 +5801,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeatureSchedule(scheduleId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeatureSchedule']?.[localVarOperationServerIndex]?.url;
@@ -6280,6 +6285,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * 
          * @summary List pending changes
          * @param {number} [environmentId] 
+         * @param {string} [environmentKey] Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
          * @param {string} [projectId] 
          * @param {ListPendingChangesStatusEnum} [status] 
          * @param {number} [userId] 
@@ -6290,8 +6296,8 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listPendingChanges(environmentId?: number, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangesListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listPendingChanges(environmentId, projectId, status, userId, page, perPage, sortBy, sortDesc, options);
+        async listPendingChanges(environmentId?: number, environmentKey?: string, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangesListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listPendingChanges(environmentId, environmentKey, projectId, status, userId, page, perPage, sortBy, sortDesc, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listPendingChanges']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -6498,7 +6504,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.removeFeatureTag(featureId, tagId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.removeFeatureTag']?.[localVarOperationServerIndex]?.url;
@@ -7100,7 +7106,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        deleteFeatureSchedule(scheduleId: string, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
             return localVarFp.deleteFeatureSchedule(scheduleId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -7473,6 +7479,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * 
          * @summary List pending changes
          * @param {number} [environmentId] 
+         * @param {string} [environmentKey] Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
          * @param {string} [projectId] 
          * @param {ListPendingChangesStatusEnum} [status] 
          * @param {number} [userId] 
@@ -7483,8 +7490,8 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listPendingChanges(environmentId?: number, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangesListResponse> {
-            return localVarFp.listPendingChanges(environmentId, projectId, status, userId, page, perPage, sortBy, sortDesc, options).then((request) => request(axios, basePath));
+        listPendingChanges(environmentId?: number, environmentKey?: string, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangesListResponse> {
+            return localVarFp.listPendingChanges(environmentId, environmentKey, projectId, status, userId, page, perPage, sortBy, sortDesc, options).then((request) => request(axios, basePath));
         },
         /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
@@ -7649,7 +7656,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        removeFeatureTag(featureId: string, tagId: string, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
             return localVarFp.removeFeatureTag(featureId, tagId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -8603,6 +8610,7 @@ export class DefaultApi extends BaseAPI {
      * 
      * @summary List pending changes
      * @param {number} [environmentId] 
+     * @param {string} [environmentKey] Target environment key (e.g., dev, stage, prod). If provided, takes precedence over environment_id.
      * @param {string} [projectId] 
      * @param {ListPendingChangesStatusEnum} [status] 
      * @param {number} [userId] 
@@ -8613,8 +8621,8 @@ export class DefaultApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public listPendingChanges(environmentId?: number, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listPendingChanges(environmentId, projectId, status, userId, page, perPage, sortBy, sortDesc, options).then((request) => request(this.axios, this.basePath));
+    public listPendingChanges(environmentId?: number, environmentKey?: string, projectId?: string, status?: ListPendingChangesStatusEnum, userId?: number, page?: number, perPage?: number, sortBy?: ListPendingChangesSortByEnum, sortDesc?: boolean, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listPendingChanges(environmentId, environmentKey, projectId, status, userId, page, perPage, sortBy, sortDesc, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

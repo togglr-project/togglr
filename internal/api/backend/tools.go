@@ -98,3 +98,76 @@ func ptrToOptNilString(p *string) generatedapi.OptNilString {
 
 	return generatedapi.NewOptNilString(*p)
 }
+
+func timePtrString(p *time.Time) interface{} {
+	if p == nil {
+		return nil
+	}
+
+	return p.String()
+}
+
+// durationPtrString converts *time.Duration to string (e.g., "30m0s"), or nil if pointer is nil.
+func durationPtrString(p *time.Duration) interface{} {
+	if p == nil {
+		return nil
+	}
+
+	return p.String()
+}
+
+// stringPtrValue dereferences *string into its value, or nil if pointer is nil.
+func stringPtrValue(p *string) interface{} {
+	if p == nil {
+		return nil
+	}
+
+	return *p
+}
+
+// buildFeatureScheduleChangeDiff compares two FeatureSchedule values and returns a map of changed fields
+// formatted for pending-change payloads. Values are converted to JSON-friendly representations.
+func buildFeatureScheduleChangeDiff(
+	oldSch domain.FeatureSchedule,
+	newSch domain.FeatureSchedule,
+) map[string]domain.ChangeValue {
+	changes := make(map[string]domain.ChangeValue)
+
+	if timePtrString(oldSch.StartsAt) != timePtrString(newSch.StartsAt) {
+		changes["starts_at"] = domain.ChangeValue{
+			Old: timePtrString(oldSch.StartsAt),
+			New: timePtrString(newSch.StartsAt),
+		}
+	}
+
+	if timePtrString(oldSch.EndsAt) != timePtrString(newSch.EndsAt) {
+		changes["ends_at"] = domain.ChangeValue{
+			Old: timePtrString(oldSch.EndsAt),
+			New: timePtrString(newSch.EndsAt),
+		}
+	}
+
+	if stringPtrValue(oldSch.CronExpr) != stringPtrValue(newSch.CronExpr) {
+		changes["cron_expr"] = domain.ChangeValue{
+			Old: stringPtrValue(oldSch.CronExpr),
+			New: stringPtrValue(newSch.CronExpr),
+		}
+	}
+
+	if durationPtrString(oldSch.CronDuration) != durationPtrString(newSch.CronDuration) {
+		changes["cron_duration"] = domain.ChangeValue{
+			Old: durationPtrString(oldSch.CronDuration),
+			New: durationPtrString(newSch.CronDuration),
+		}
+	}
+
+	if oldSch.Timezone != newSch.Timezone {
+		changes["timezone"] = domain.ChangeValue{Old: oldSch.Timezone, New: newSch.Timezone}
+	}
+
+	if oldSch.Action != newSch.Action {
+		changes["action"] = domain.ChangeValue{Old: oldSch.Action.String(), New: newSch.Action.String()}
+	}
+
+	return changes
+}

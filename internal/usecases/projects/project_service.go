@@ -2,6 +2,7 @@ package projects
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -157,7 +158,7 @@ func (s *ProjectService) GetAPIKeyForEnvironment(
 	}
 
 	if env.ProjectID != projectID {
-		return "", fmt.Errorf("environment does not belong to project")
+		return "", errors.New("environment does not belong to project")
 	}
 
 	return env.APIKey, nil

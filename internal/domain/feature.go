@@ -58,12 +58,13 @@ type GuardedResult struct {
 }
 
 // GetParamsForEnvironment returns the feature parameters for a specific environment
-// This method will be implemented in the repository layer
+// This method will be implemented in the repository layer.
 func (f *Feature) GetParamsForEnvironment(envID EnvironmentID, params []FeatureParams) *FeatureParams {
 	for _, p := range params {
 		if p.EnvironmentID == envID {
 			return &p
 		}
 	}
+
 	return nil
 }
