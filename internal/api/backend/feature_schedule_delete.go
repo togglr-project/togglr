@@ -51,7 +51,7 @@ func (r *RestAPI) DeleteFeatureSchedule(
 
 	// Guarded flow: if a feature is guarded, create a pending change and return 202
 	// The guard engine will automatically handle the delete operation
-	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
+	pendingChange, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
 		contract.GuardRequest{
 			ProjectID:     schedule.ProjectID,
@@ -74,8 +74,8 @@ func (r *RestAPI) DeleteFeatureSchedule(
 			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
 		}}, nil
 	}
-	if pc != nil {
-		resp := convertPendingChangeToResponse(pc)
+	if pendingChange != nil {
+		resp := convertPendingChangeToResponse(pendingChange)
 
 		return &resp, nil
 	}

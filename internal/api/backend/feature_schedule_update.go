@@ -62,9 +62,9 @@ func (r *RestAPI) UpdateFeatureSchedule(
 		Action:       domain.FeatureScheduleAction(req.Action),
 	}
 
-	// Guarded flow: if feature is guarded, create a pending change and return 202
+	// Guarded flow: if a feature is guarded, create a pending change and return 202
 	// The guard engine will automatically compute changes by comparing old and new entities
-	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
+	pendingChange, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
 		contract.GuardRequest{
 			ProjectID:     sch.ProjectID,
@@ -87,8 +87,8 @@ func (r *RestAPI) UpdateFeatureSchedule(
 			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
 		}}, nil
 	}
-	if pc != nil {
-		resp := convertPendingChangeToResponse(pc)
+	if pendingChange != nil {
+		resp := convertPendingChangeToResponse(pendingChange)
 
 		return &resp, nil
 	}

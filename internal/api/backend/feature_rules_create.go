@@ -86,7 +86,7 @@ func (r *RestAPI) CreateFeatureRule(
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202
 	// The guard engine will automatically compute changes for the new rule
-	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
+	pendingChange, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
 		contract.GuardRequest{
 			ProjectID:     feature.ProjectID,
@@ -109,8 +109,8 @@ func (r *RestAPI) CreateFeatureRule(
 			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
 		}}, nil
 	}
-	if pc != nil {
-		resp := convertPendingChangeToResponse(pc)
+	if pendingChange != nil {
+		resp := convertPendingChangeToResponse(pendingChange)
 
 		return &resp, nil
 	}

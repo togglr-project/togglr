@@ -55,7 +55,7 @@ func (r *RestAPI) AddFeatureTag(
 		TagID:     tagID.String(),
 	}
 
-	pc, conflict, _, err := r.guardEngine.CheckGuardedOperation(
+	pendingChange, conflict, _, err := r.guardEngine.CheckGuardedOperation(
 		ctx,
 		contract.GuardRequest{
 			ProjectID:     feature.ProjectID,
@@ -80,8 +80,8 @@ func (r *RestAPI) AddFeatureTag(
 			},
 		}, nil
 	}
-	if pc != nil {
-		resp := convertPendingChangeToResponse(pc)
+	if pendingChange != nil {
+		resp := convertPendingChangeToResponse(pendingChange)
 
 		return &resp, nil
 	}
