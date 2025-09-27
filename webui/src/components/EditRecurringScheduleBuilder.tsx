@@ -26,7 +26,6 @@ import {
   Help as HelpIcon
 } from '@mui/icons-material';
 import { isValidCron } from 'cron-validator';
-import cronstrue from 'cronstrue';
 import {
   type ScheduleBuilderData,
   type ScheduleType,
@@ -133,6 +132,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
   open,
   onSubmit,
   featureId,
+  environmentKey,
   initialData
 }) => {
   const [activeStep, setActiveStep] = useState(0);
@@ -683,7 +683,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
         allowedUnits = ['minutes', 'hours'];
       }
 
-      return { maxValue: maxDurationMinutesForDisplay, allowedUnits, repeatIntervalMinutes } as any;
+      return { maxValue: maxDurationMinutesForDisplay, allowedUnits, repeatIntervalMinutes };
     };
 
     const { maxValue, allowedUnits, repeatIntervalMinutes } = getMaxDurationForRepeatEvery() as unknown as { maxValue: number; allowedUnits: ('minutes'|'hours'|'days')[]; repeatIntervalMinutes?: number };

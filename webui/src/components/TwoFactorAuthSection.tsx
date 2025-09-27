@@ -9,15 +9,15 @@ import { useTheme } from '@mui/material/styles';
 import { useConfig } from '../config/ConfigContext';
 
 interface TwoFactorAuthSectionProps {
-  userData: any;
+  userData: { two_fa_enabled?: boolean } | null;
   userLoading: boolean;
-  userError: any;
+  userError: Error | null;
 }
 
 const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, userLoading, userError }) => {
   const twoFAEnabled = Boolean(userData?.two_fa_enabled);
   const [openSetup, setOpenSetup] = useState(false);
-  const [setupData, setSetupData] = useState<any>(null);
+  const [setupData, setSetupData] = useState<{ qr_code: string; secret: string } | null>(null);
   const [code, setCode] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,9 +47,13 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
     setLoading(true);
     try {
       const resp = await apiClient.setup2FA();
-      setSetupData(resp.data);
-    } catch (e: any) {
-      setError(e?.response?.data?.error?.message || 'Failed to start 2FA setup');
+      setSetupData({
+        qr_code: `data:image/png;base64,${resp.data.qr_image}`,
+        secret: resp.data.secret
+      });
+    } catch (e: unknown) {
+      const errorMessage = (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to start 2FA setup';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -89,8 +93,8 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
         handleCloseSetup();
         window.location.reload(); // refresh userData
       }, 1200);
-    } catch (e: any) {
-      const msg = e?.response?.data?.error?.message || 'Invalid code';
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Invalid code';
       setError(msg);
       if (msg.includes('Слишком много попыток')) {
         setIs2FABlocked(true);
@@ -133,8 +137,9 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
         handleCloseDisable();
         window.location.reload();
       }, 1200);
-    } catch (e: any) {
-      setDisableError(e?.response?.data?.error?.message || 'Invalid code');
+    } catch (e: unknown) {
+      const errorMessage = (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Invalid code';
+      setDisableError(errorMessage);
     } finally {
       setDisableLoading(false);
       isDisableSubmittingRef.current = false;
@@ -149,8 +154,9 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
       const usersApi = new UsersApi(apiConfiguration, apiConfiguration.basePath, axiosInstance);
       await usersApi.send2FACode();
       setSendCodeSuccess(true);
-    } catch (e: any) {
-      setSendCodeError(e?.response?.data?.error?.message || 'Failed to send code');
+    } catch (e: unknown) {
+      const errorMessage = (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Failed to send code';
+      setSendCodeError(errorMessage);
     } finally {
       setSendCodeLoading(false);
     }
@@ -238,9 +244,9 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
               ) : setupData ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                   {/* QR-код */}
-                  {setupData.qr_image ? (
+                  {setupData.qr_code ? (
                     <img
-                      src={`data:image/png;base64,${setupData.qr_image}`}
+                      src={setupData.qr_code}
                       alt="QR code"
                       style={{ width: 180, height: 180, marginBottom: 8, borderRadius: 8 }}
                     />

@@ -44,9 +44,10 @@ const LicenseExpiredPage: React.FC = () => {
       
       // Refresh license status
       await checkLicenseStatus();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update license:', err);
-      setSubmitError(err.response?.data?.message || 'Failed to update license');
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update license';
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -55,7 +55,7 @@ const SimpleTimelinePreview: React.FC<SimpleTimelinePreviewProps> = ({
 
   if (error) {
     // Check if it's a 404 error (no schedule)
-    const is404 = (error as any)?.response?.status === 404;
+    const is404 = (error as { response?: { status?: number } })?.response?.status === 404;
     
     if (is404) {
       return (

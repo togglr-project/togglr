@@ -6,7 +6,6 @@ import {
   Paper,
   Grid,
   CircularProgress,
-  LinearProgress,
   Alert,
   Card,
   CardContent,
@@ -28,8 +27,7 @@ const LDAPSyncTab: React.FC = () => {
   const {
     data: syncStatus,
     isLoading: isLoadingStatus,
-    error: statusError,
-    refetch: refetchStatus
+    error: statusError
   } = useQuery({
     queryKey: ['ldapSyncStatus'],
     queryFn: async () => {
@@ -56,8 +54,7 @@ const LDAPSyncTab: React.FC = () => {
   // Fetch LDAP sync progress when sync is running or just started
   const {
     data: syncProgress,
-    isLoading: isLoadingProgress,
-    refetch: refetchProgress
+    isLoading: isLoadingProgress
   } = useQuery({
     queryKey: ['ldapSyncProgress'],
     queryFn: async () => {
@@ -152,7 +149,7 @@ const LDAPSyncTab: React.FC = () => {
         return 'Never';
       }
       return date.toLocaleString();
-    } catch (error) {
+    } catch {
       return 'Never';
     }
   };
@@ -221,8 +218,7 @@ const LDAPSyncTab: React.FC = () => {
     );
   }
 
-  // @ts-ignore
-    return (
+  return (
     <>
       <Box 
         sx={{ 

@@ -74,7 +74,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       }}>
         {React.cloneElement(displayIcon as React.ReactElement, { 
           sx: { fontSize: 40 } 
-        } as any)}
+        } as React.Attributes)}
       </Box>
       
       <Typography 

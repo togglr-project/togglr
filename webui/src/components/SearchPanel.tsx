@@ -26,16 +26,16 @@ import TagFilter from './features/TagFilter';
 export interface FilterOption {
   key: string;
   label: string;
-  value: any;
-  options: { value: any; label: string }[];
-  onChange: (value: any) => void;
+  value: string | number | boolean;
+  options: { value: string | number | boolean; label: string }[];
+  onChange: (value: string | number | boolean) => void;
 }
 
 export interface SearchPanelProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   filters?: FilterOption[];
-  quickFilters?: { label: string; value: any; active: boolean; onClick: () => void }[];
+  quickFilters?: { label: string; value: string | number | boolean; active: boolean; onClick: () => void }[];
   placeholder?: string;
   showAdvancedFilters?: boolean;
   onToggleAdvanced?: (expanded: boolean) => void;
@@ -175,7 +175,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({
                   size="small"
                 >
                   {filter.options.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
+                    <MenuItem key={String(option.value)} value={String(option.value)}>
                       {option.label}
                     </MenuItem>
                   ))}

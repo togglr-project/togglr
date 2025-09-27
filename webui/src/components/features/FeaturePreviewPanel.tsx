@@ -11,11 +11,8 @@ import {
   ListItemText,
   ListItemIcon,
   Avatar,
-  Tooltip,
 } from '@mui/material';
 import {
-  AccessTime as TimeIcon,
-  Person as PersonIcon,
   Edit as EditIcon,
   Add as AddIcon,
   Schedule as ScheduleIcon,
@@ -89,8 +86,41 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
   selectedFeature,
   projectId,
   environmentKey,
-  onClose,
 }) => {
+  // Load feature details to get variants and tags
+  const { data: featureDetails } = useQuery<FeatureDetailsResponse>({
+    queryKey: ['feature-details', selectedFeature?.id],
+    queryFn: async () => {
+      if (!selectedFeature) return null;
+      const response = await apiClient.getFeature(selectedFeature.id, environmentKey);
+      return response.data;
+    },
+    enabled: !!selectedFeature,
+  });
+
+  // Load feature changes history
+  const { data: changesData } = useQuery<ListChangesResponse>({
+    queryKey: ['feature-changes', selectedFeature?.id, projectId],
+    queryFn: async () => {
+      if (!selectedFeature) return null;
+      const response = await apiClient.listProjectChanges(
+        projectId,
+        1, // page
+        3, // perPage - limit to 3 events as requested
+        undefined, // sortBy
+        'desc', // sortOrder - newest first
+        undefined, // actor
+        undefined, // entity
+        undefined, // action
+        selectedFeature.id, // featureId - filter by specific feature
+        undefined, // from
+        undefined  // to
+      );
+      return response.data;
+    },
+    enabled: !!selectedFeature,
+  });
+
   if (!selectedFeature) {
     return (
       <Paper
@@ -111,38 +141,6 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
       </Paper>
     );
   }
-
-  // Load feature details to get variants and tags
-  const { data: featureDetails } = useQuery<FeatureDetailsResponse>({
-    queryKey: ['feature-details', selectedFeature.id],
-    queryFn: async () => {
-      const response = await apiClient.getFeature(selectedFeature.id, environmentKey);
-      return response.data;
-    },
-    enabled: !!selectedFeature,
-  });
-
-  // Load feature changes history
-  const { data: changesData } = useQuery<ListChangesResponse>({
-    queryKey: ['feature-changes', selectedFeature.id, projectId],
-    queryFn: async () => {
-      const response = await apiClient.listProjectChanges(
-        projectId,
-        1, // page
-        3, // perPage - limit to 3 events as requested
-        undefined, // sortBy
-        'desc', // sortOrder - newest first
-        undefined, // actor
-        undefined, // entity
-        undefined, // action
-        selectedFeature.id, // featureId - filter by specific feature
-        undefined, // from
-        undefined  // to
-      );
-      return response.data;
-    },
-    enabled: !!selectedFeature,
-  });
 
   // Use real tags from API response
   const tags = featureDetails?.tags || [];

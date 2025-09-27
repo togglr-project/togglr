@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -28,12 +28,12 @@ interface TimelinePreviewProps {
 }
 
 const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmentKey, schedules }) => {
-  const [timelineData, setTimelineData] = useState<any>(null);
+  const [timelineData, setTimelineData] = useState<{ events: Array<{ timestamp: string; enabled: boolean }> } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<1 | 3 | 7>(1);
 
-  const generateTimeline = async () => {
+  const generateTimeline = useCallback(async () => {
     if (!featureId || schedules.length === 0) return;
 
     setIsLoading(true);
@@ -68,25 +68,26 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
       );
 
       console.log('Timeline response:', response);
-      setTimelineData(response.data);
-    } catch (err: any) {
+      setTimelineData((response.data as unknown) as { events: Array<{ timestamp: string; enabled: boolean }> });
+    } catch (err: unknown) {
       console.error('Failed to generate timeline:', err);
+      const error = err as { message?: string; code?: string; response?: { status?: number; statusText?: string; data?: unknown } };
       console.error('Error details:', {
-        message: err.message,
-        code: err.code,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        data: err.response?.data
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
       });
-      setError(`Failed to generate timeline preview: ${err.message}`);
+      setError(`Failed to generate timeline preview: ${error.message || 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [featureId, environmentKey, schedules, timeRange]);
 
   useEffect(() => {
     generateTimeline();
-  }, [featureId, environmentKey, schedules, timeRange]);
+  }, [featureId, environmentKey, schedules, timeRange, generateTimeline]);
 
   if (isLoading) {
     return (
@@ -134,12 +135,13 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     default_variant: '',
+    default_value: '',
     is_active: true
   };
 
   // Convert timeline events to the format expected by TimelineChart
-  const timelineEvents = timelineData.events.map((event: any) => ({
-    time: event.time,
+  const timelineEvents = timelineData.events.map((event: { timestamp: string; enabled: boolean }) => ({
+    time: event.timestamp,
     enabled: event.enabled
   }));
 

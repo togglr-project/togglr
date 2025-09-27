@@ -71,10 +71,11 @@ const LicenseTab: React.FC = () => {
       setNewLicense('');
       queryClient.invalidateQueries({ queryKey: ['licenseStatus'] });
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Failed to update license:', error);
+      const errorMessage = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to update license';
       showNotification(
-        error.response?.data?.message || 'Failed to update license',
+        errorMessage,
         'error'
       );
     },

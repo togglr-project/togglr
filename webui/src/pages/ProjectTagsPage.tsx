@@ -68,10 +68,6 @@ const ProjectTagsPage: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
 
-  if (!projectId) {
-    return <Navigate to="/projects" replace />;
-  }
-
   const { data: tags, isLoading, error: queryError } = useQuery<ProjectTag[]>({
     queryKey: ['project-tags', projectId],
     queryFn: async () => {
@@ -136,6 +132,10 @@ const ProjectTagsPage: React.FC = () => {
       setError(err.response?.data?.error?.message || 'Failed to delete tag');
     },
   });
+
+  if (!projectId) {
+    return <Navigate to="/projects" replace />;
+  }
 
   const canManage = user?.is_superuser || (projectId && canManageProject(parseInt(projectId)));
 

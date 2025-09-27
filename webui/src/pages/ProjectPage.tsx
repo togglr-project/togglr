@@ -283,7 +283,7 @@ const ProjectPage: React.FC = () => {
                 { value: 'enabled', label: 'Enabled' },
                 { value: 'disabled', label: 'Disabled' },
               ],
-              onChange: (value) => { setEnabledFilter(value); setPage(1); }
+              onChange: (value) => { setEnabledFilter(value as "disabled" | "all" | "enabled"); setPage(1); }
             },
             {
               key: 'kind',
@@ -294,7 +294,7 @@ const ProjectPage: React.FC = () => {
                 { value: 'simple', label: 'Simple' },
                 { value: 'multivariant', label: 'Multivariant' },
               ],
-              onChange: (value) => { setKindFilter(value); setPage(1); }
+              onChange: (value) => { setKindFilter(value as "all" | ListProjectFeaturesKindEnum); setPage(1); }
             },
             {
               key: 'sortBy',
@@ -308,7 +308,7 @@ const ProjectPage: React.FC = () => {
                 { value: 'created_at', label: 'Created' },
                 { value: 'updated_at', label: 'Updated' },
               ],
-              onChange: (value) => { setSortBy(value); setPage(1); }
+              onChange: (value) => { setSortBy(value as ListProjectFeaturesSortByEnum); setPage(1); }
             },
             {
               key: 'sortOrder',
@@ -318,7 +318,7 @@ const ProjectPage: React.FC = () => {
                 { value: 'asc', label: 'Ascending' },
                 { value: 'desc', label: 'Descending' },
               ],
-              onChange: (value) => { setSortOrder(value); setPage(1); }
+              onChange: (value) => { setSortOrder(value as SortOrder); setPage(1); }
             },
             {
               key: 'perPage',

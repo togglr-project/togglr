@@ -25,9 +25,7 @@ import {
   Check as CheckIcon,
   Help as HelpIcon
 } from '@mui/icons-material';
-import { listTimeZones } from 'timezone-support';
 import { isValidCron } from 'cron-validator';
-import cronstrue from 'cronstrue';
 import {
   type ScheduleBuilderData,
   type ScheduleType,
@@ -60,8 +58,9 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
   open, 
   onSubmit, 
   featureId,
+  environmentKey,
   initialData,
-  featureCreatedAt 
+  featureCreatedAt
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [data, setData] = useState<ScheduleBuilderData>(() => {
@@ -132,7 +131,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         }));
       }
     }
-  }, [data.scheduleType, data.repeatEvery?.interval, data.repeatEvery?.unit]);
+  }, [data.scheduleType, data.repeatEvery?.interval, data.repeatEvery?.unit, data.duration.unit, data.duration.value, data.repeatEvery]);
 
   // Валидация и генерация cron при изменении данных
   useEffect(() => {
@@ -646,7 +645,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         allowedUnits = ['minutes', 'hours'];
       }
 
-      return { maxValue: maxDurationMinutesForDisplay, allowedUnits, repeatIntervalMinutes } as any;
+      return { maxValue: maxDurationMinutesForDisplay, allowedUnits, repeatIntervalMinutes };
     };
 
     const { maxValue, allowedUnits, repeatIntervalMinutes } = getMaxDurationForRepeatEvery() as unknown as { maxValue: number; allowedUnits: ('minutes'|'hours'|'days')[]; repeatIntervalMinutes?: number };

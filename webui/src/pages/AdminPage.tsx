@@ -47,24 +47,6 @@ const AdminPage: React.FC = () => {
     severity: 'success' | 'error' | 'info' | 'warning';
   }>({ open: false, message: '', severity: 'info' });
 
-  // Check if user is superuser
-  if (!isSuperuser()) {
-    return (
-      <Layout>
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-          <Alert severity="error" sx={{ maxWidth: 600 }}>
-            <Typography variant="h6" gutterBottom>
-              Access Denied
-            </Typography>
-            <Typography>
-              You don't have permission to access the admin panel. Only superusers can access this page.
-            </Typography>
-          </Alert>
-        </Box>
-      </Layout>
-    );
-  }
-
   // Fetch users data
   const {
     data: users,
@@ -92,6 +74,24 @@ const AdminPage: React.FC = () => {
       return response.data;
     },
   });
+
+  // Check if user is superuser
+  if (!isSuperuser()) {
+    return (
+      <Layout>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <Alert severity="error" sx={{ maxWidth: 600 }}>
+            <Typography variant="h6" gutterBottom>
+              Access Denied
+            </Typography>
+            <Typography>
+              You don't have permission to access the admin panel. Only superusers can access this page.
+            </Typography>
+          </Alert>
+        </Box>
+      </Layout>
+    );
+  }
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

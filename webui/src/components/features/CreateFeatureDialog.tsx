@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControlLabel,
-  Grid,
   IconButton,
   MenuItem,
   Switch,
@@ -28,8 +27,8 @@ import TagSelector from './TagSelector';
 
 // UUID generator (uses crypto.randomUUID when available)
 const genId = (): string => {
-  const g = (typeof crypto !== 'undefined' && typeof (crypto as any).randomUUID === 'function')
-    ? (crypto as any).randomUUID()
+  const g = (typeof crypto !== 'undefined' && typeof (crypto as { randomUUID?: () => string }).randomUUID === 'function')
+    ? (crypto as { randomUUID: () => string }).randomUUID()
     : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
         const r = Math.random() * 16 | 0;
         const v = c === 'x' ? r : (r & 0x3) | 0x8;
@@ -41,8 +40,6 @@ const genId = (): string => {
 const kindOptions: FeatureKind[] = ['simple', 'multivariant'];
 const rolloutKeyOptions = ['user.id', 'user.email'];
 
-type OperatorOption = 'eq' | 'neq' | 'in' | 'not_in' | 'gt' | 'gte' | 'lt' | 'lte' | 'regex' | 'percentage';
-interface RuleConditionItem { attribute: string; operator: OperatorOption; value: string }
 interface RuleFormItem { id: string; action: RuleActionType; flag_variant_id?: string; priority: number | ''; expression: RuleConditionExpression; segment_id?: string; is_customized: boolean; baseExpressionJson?: string }
 interface VariantFormItem { id: string; name: string; rollout_percent: number }
 
@@ -73,8 +70,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     queryKey: ['project-segments', projectId],
     queryFn: async () => {
       const res = await apiClient.listProjectSegments(projectId);
-      const resp = res.data as any;
-      return Array.isArray(resp?.items) ? (resp.items as Segment[]) : (resp as Segment[]);
+      return (res.data as unknown) as Segment[];
     },
     enabled: !!projectId,
   });
@@ -96,10 +92,8 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
   }), [keyValue, name, description, rolloutKey, kind, defaultValue, enabled, variants, rules, selectedTags]);
 
   const {
-    hasChanges,
     showDiscardDialog,
     checkForChanges,
-    markAsChanged,
     resetChanges,
     handleDiscard,
     showDiscardConfirmation,
@@ -129,8 +123,8 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
 
   // Derived validation helpers
   // Feature key: allowed characters a-z, A-Z, 0-9, hyphen (-), underscore (_), colon (:), @, !, #, $, dot (.)
-  const keyRegex = /^[A-Za-z0-9_:@!#$.-]+$/; // hyphen and dot are safe here; no spaces allowed
   const keyValid = useMemo(() => {
+    const keyRegex = /^[A-Za-z0-9_:@!#$.-]+$/; // hyphen and dot are safe here; no spaces allowed
     const v = keyValue.trim();
     return v.length > 0 && keyRegex.test(v);
   }, [keyValue]);
@@ -155,12 +149,12 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
 
   const hasValidLeaf = (e?: RuleConditionExpression): boolean => {
     if (!e) return false;
-    if ((e as any).condition) {
-      const c = (e as any).condition as { attribute?: string };
+    if ((e as { condition?: { attribute?: string } }).condition) {
+      const c = (e as { condition: { attribute?: string } }).condition;
       return Boolean(c.attribute && c.attribute.trim().length > 0);
     }
-    if ((e as any).group) {
-      const g = (e as any).group as { children?: RuleConditionExpression[] };
+    if ((e as { group?: { children?: RuleConditionExpression[] } }).group) {
+      const g = (e as { group: { children?: RuleConditionExpression[] } }).group;
       return Array.isArray(g.children) && g.children.some(ch => hasValidLeaf(ch));
     }
     return false;
@@ -224,7 +218,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
       const dv = defaultValue.trim();
 
       let inlineVariants: { id: string; name: string; rollout_percent: number; environment_key: string }[] | undefined;
-      let inlineRules: { id: string; conditions: RuleConditionExpression; action: RuleActionType; flag_variant_id?: string; priority?: number; environment_key: string }[] | undefined;
+      let inlineRules: { id: string; conditions: RuleConditionExpression; action: RuleActionType; flag_variant_id?: string; priority?: number; environment_key: string; is_customized: boolean }[] | undefined;
 
       if (kind === 'multivariant') {
         inlineVariants = variants.map((v) => ({ id: v.id, name: v.name.trim(), rollout_percent: Number(v.rollout_percent) || 0, environment_key: environmentKey }));
@@ -241,7 +235,7 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
           priority: r.priority === '' ? 0 : Number(r.priority),
           conditions: r.expression,
           segment_id: r.segment_id || undefined,
-          is_customized: r.segment_id ? Boolean(r.is_customized) : true,
+          is_customized: r.segment_id ? Boolean(r.is_customized ?? false) : true,
           environment_key: environmentKey,
         }));
       }
@@ -253,11 +247,11 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         kind,
         environment_key: environmentKey,
         enabled,
-        default_value: dv || undefined,
+        default_value: dv,
         rollout_key: kind === 'multivariant' ? (rolloutKey.trim() || undefined) : undefined,
         variants: inlineVariants,
         rules: inlineRules,
-      } as any);
+      });
       const feature = (featureRes.data as { feature: Feature }).feature;
       
       // Add selected tags to the feature
@@ -296,14 +290,13 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     setVariants((prev) => prev.map((v, i) => (i === index ? { ...v, [field]: field === 'rollout_percent' ? Number(value) : value } : v)));
   };
 
-  const ruleOperatorOptions: OperatorOption[] = ['eq','neq','in','not_in','gt','gte','lt','lte','regex','percentage'];
 
   const addRule = (action: RuleActionType) => setRules((prev) => {
     const nums = prev.map((r) => (typeof r.priority === 'number' ? r.priority : 0));
     const next = nums.length ? Math.min(255, Math.max(...nums) + 1) : 0;
     return [
       ...prev,
-      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, expression: { group: { operator: 'and', children: [{ condition: { attribute: '', operator: 'eq', value: '' } }] } as any }, segment_id: undefined, is_customized: true, baseExpressionJson: undefined }
+      { id: genId(), action, flag_variant_id: action === RuleActionEnum.Assign ? (variants[0]?.id || '') : undefined, priority: next, expression: { group: { operator: 'and' as const, children: [{ condition: { attribute: '', operator: 'eq' as const, value: '' } }] } }, segment_id: undefined, is_customized: true, baseExpressionJson: undefined }
     ];
   });
   const removeRuleById = (id: string) => setRules((prev) => prev.filter((r) => r.id !== id));
@@ -325,46 +318,17 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
     }
     return next;
   }));
-  const setRuleExpression = (id: string, expr: RuleConditionExpression) => {
-    setRules(prev => prev.map(r => {
-      if (r.id !== id) return r;
-      const next: RuleFormItem = { ...r, expression: expr };
-      if (next.segment_id) {
-        const base = next.baseExpressionJson;
-        try {
-          const exprJson = JSON.stringify(expr || {});
-          next.is_customized = !base || base !== exprJson;
-        } catch {
-          next.is_customized = true;
-        }
-      } else {
-        next.is_customized = true;
-      }
-      return next;
-    }));
-  };
   const handleSelectSegment = (id: string, segId: string) => {
-    const seg = (segments || []).find(s => s.id === segId);
+    const seg = Array.isArray(segments) ? segments.find(s => s.id === segId) : undefined;
     setRules(prev => prev.map(r => {
       if (r.id !== id) return r;
       if (!seg) {
         return { ...r, segment_id: undefined, baseExpressionJson: undefined, is_customized: true };
       }
       const baseJson = JSON.stringify(seg.conditions || {});
-      return { ...r, segment_id: seg.id, expression: seg.conditions as any, baseExpressionJson: baseJson, is_customized: false };
+      return { ...r, segment_id: seg.id, expression: seg.conditions as RuleConditionExpression, baseExpressionJson: baseJson, is_customized: false };
     }));
   };
-  const addRuleCondition = (ruleId: string) => setRules((prev) => prev.map((r) => (
-    r.id === ruleId ? { ...r, expression: { condition: { attribute: '', operator: 'eq', value: '' } } } : r
-  )));
-  const removeRuleCondition = (ruleId: string, condIndex: number) => setRules((prev) => prev.map((r) => (
-    r.id === ruleId ? { ...r, expression: { condition: { attribute: '', operator: 'eq', value: '' } } } : r
-  )));
-  const changeRuleCondition = (ruleId: string, condIndex: number, field: keyof RuleConditionItem, value: string) => setRules((prev) => prev.map((r) => (
-    r.id === ruleId
-      ? { ...r, expression: { condition: { attribute: '', operator: 'eq', value: '' } } }
-      : r
-  )));
 
 
   const canCreate = useMemo(() => {
@@ -537,9 +501,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                         size="small"
                      >
                         <MenuItem value="">Custom (no segment)</MenuItem>
-                        {(segments || []).map((s) => (
+                        {Array.isArray(segments) ? segments.map((s) => (
                           <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
-                        ))}
+                        )) : null}
                       </TextField>
                       {r.segment_id && (
                         <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
@@ -592,9 +556,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       size="small"
                     >
                       <MenuItem value="">Custom (no segment)</MenuItem>
-                      {(segments || []).map((s) => (
+                      {Array.isArray(segments) ? segments.map((s) => (
                         <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
-                      ))}
+                      )) : null}
                     </TextField>
                     {r.segment_id && (
                       <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />
@@ -645,9 +609,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
                       size="small"
                     >
                       <MenuItem value="">Custom (no segment)</MenuItem>
-                      {(segments || []).map((s) => (
+                      {Array.isArray(segments) ? segments.map((s) => (
                         <MenuItem key={s.id} value={s.id}>{s.name}</MenuItem>
-                      ))}
+                      )) : null}
                     </TextField>
                     {r.segment_id && (
                       <Chip size="small" color={r.is_customized ? 'warning' : 'success'} label={r.is_customized ? 'Customized' : 'From segment'} />

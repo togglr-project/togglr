@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import apiClient from '../api/apiClient';
 import type { LicenseStatusResponse } from '../generated/api/client';
@@ -23,7 +23,7 @@ export const LicenseProvider: React.FC<LicenseProviderProps> = ({ children }) =>
   const [error, setError] = useState<string | null>(null);
   const { isAuthenticated } = useAuth();
 
-  const checkLicenseStatus = async () => {
+  const checkLicenseStatus = useCallback(async () => {
     if (!isAuthenticated) {
       return;
     }
@@ -40,7 +40,7 @@ export const LicenseProvider: React.FC<LicenseProviderProps> = ({ children }) =>
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated]);
 
   // Check license status when user becomes authenticated
   useEffect(() => {
@@ -50,7 +50,7 @@ export const LicenseProvider: React.FC<LicenseProviderProps> = ({ children }) =>
       setLicenseStatus(null);
       setError(null);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, checkLicenseStatus]);
 
   // Determine if license is valid
   const isLicenseValid = licenseStatus?.license?.is_valid ?? false;
