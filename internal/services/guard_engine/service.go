@@ -2,6 +2,7 @@ package guard_engine
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -166,7 +167,7 @@ func (s *Service) determineEntityTypeAndChanges(
 	} else if newEntity != nil {
 		entity = newEntity
 	} else {
-		return "", "", nil, fmt.Errorf("both old and new entities are nil")
+		return "", "", nil, errors.New("both old and new entities are nil")
 	}
 
 	// Get entity type and ID
@@ -238,6 +239,7 @@ func (s *Service) computeFeatureChanges(oldEntity, newEntity any, action domain.
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFeatureChangeDiff(oldFeature, newFeature), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
@@ -258,12 +260,14 @@ func (s *Service) computeFeatureParamsChanges(oldEntity, newEntity any, action d
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFeatureParamsChangeDiff(oldParams, newParams), nil
 	case domain.EntityActionInsert:
 		newParams, err := s.convertToFeatureParamsPtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFeatureParamsInsertChanges(newParams), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
@@ -284,12 +288,14 @@ func (s *Service) computeRuleChanges(oldEntity, newEntity any, action domain.Ent
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildRuleChangeDiff(oldRule, newRule), nil
 	case domain.EntityActionInsert:
 		newRule, err := s.convertToRulePtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildRuleInsertChanges(newRule), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
@@ -310,12 +316,14 @@ func (s *Service) computeFlagVariantChanges(oldEntity, newEntity any, action dom
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFlagVariantChangeDiff(oldVariant, newVariant), nil
 	case domain.EntityActionInsert:
 		newVariant, err := s.convertToFlagVariantPtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFlagVariantInsertChanges(newVariant), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
@@ -336,12 +344,14 @@ func (s *Service) computeFeatureScheduleChanges(oldEntity, newEntity any, action
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFeatureScheduleChangeDiff(oldSchedule, newSchedule), nil
 	case domain.EntityActionInsert:
 		newSchedule, err := s.convertToFeatureSchedulePtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
+
 		return s.buildFeatureScheduleInsertChanges(newSchedule), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
@@ -371,7 +381,7 @@ func (s *Service) computeFeatureTagChanges(oldEntity, newEntity any, action doma
 		}
 
 		if featureID == "" || tagID == "" {
-			return nil, fmt.Errorf("feature_id and tag_id are required for feature tag changes")
+			return nil, errors.New("feature_id and tag_id are required for feature tag changes")
 		}
 
 		return map[string]domain.ChangeValue{
@@ -604,6 +614,7 @@ func (s *Service) ruleFlagVariantIDChanged(old, new *domain.FlagVariantID) bool 
 	if old == nil || new == nil {
 		return true
 	}
+
 	return *old != *new
 }
 
@@ -611,6 +622,7 @@ func (s *Service) ruleFlagVariantIDString(id *domain.FlagVariantID) interface{} 
 	if id == nil {
 		return nil
 	}
+
 	return string(*id)
 }
 
@@ -621,6 +633,7 @@ func (s *Service) ruleSegmentIDChanged(old, new *domain.SegmentID) bool {
 	if old == nil || new == nil {
 		return true
 	}
+
 	return *old != *new
 }
 
@@ -628,6 +641,7 @@ func (s *Service) ruleSegmentIDString(id *domain.SegmentID) interface{} {
 	if id == nil {
 		return nil
 	}
+
 	return string(*id)
 }
 
@@ -639,6 +653,7 @@ func (s *Service) timePtrString(p *time.Time) interface{} {
 	if p == nil {
 		return nil
 	}
+
 	return p.Format(time.RFC3339)
 }
 
@@ -650,6 +665,7 @@ func (s *Service) stringPtrString(p *string) interface{} {
 	if p == nil {
 		return nil
 	}
+
 	return *p
 }
 
@@ -661,6 +677,7 @@ func (s *Service) durationPtrString(p *time.Duration) interface{} {
 	if p == nil {
 		return nil
 	}
+
 	return p.String()
 }
 
