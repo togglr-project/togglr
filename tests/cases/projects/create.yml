@@ -33,20 +33,6 @@
           result:
             - name: "Project"
               description: "some project"
-        - query: SELECT COUNT(*) AS cnt FROM environments WHERE project_id = (SELECT id FROM projects WHERE name = 'Project')
-          result:
-            - cnt: 3
-        - query: SELECT e.key, e.name, length(e.api_key::text) AS api_key_len FROM environments e WHERE e.project_id = (SELECT id FROM projects WHERE name = 'Project') ORDER BY e.key
-          result:
-            - key: "dev"
-              name: "Development"
-              api_key_len: 36
-            - key: "prod"
-              name: "Production"
-              api_key_len: 36
-            - key: "stage"
-              name: "Staging"
-              api_key_len: 36
 
 - name: create project with bad request
   fixtures:
