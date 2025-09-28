@@ -18,11 +18,11 @@
     - name: update_feature
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "key": "updated_ui", "name": "Updated UI", "description": "Updated user interface feature", "kind": "simple", "default_variant": "off", "enabled": false }
+        body: { "key": "updated_ui", "name": "Updated UI", "description": "Updated user interface feature", "kind": "simple", "default_value": "off", "enabled": false, "environment_key": "prod" }
       response:
         status: 200
         headers:
@@ -36,17 +36,18 @@
               "name": "Updated UI",
               "description": "Updated user interface feature",
               "kind": "simple",
-              "default_variant": "off",
+              "default_value": "off",
               "enabled": false,
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
               "is_active": false
             },
             "variants": [],
-            "rules": []
+            "rules": [],
+            "tags": []
           }
       dbChecks:
-        - query: SELECT key, name, description, enabled FROM features WHERE id = '22222222-2222-2222-2222-222222222222'
+        - query: SELECT key, name, description, enabled FROM v_features_full WHERE id = '22222222-2222-2222-2222-222222222222' AND environment_key = 'prod'
           result:
             - key: "updated_ui"
               name: "Updated UI"
@@ -73,11 +74,11 @@
     - name: update_feature_with_variants_and_rules
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "key": "updated_multivariant", "name": "Updated Multivariant Feature", "description": "Updated feature with multiple variants", "kind": "multivariant", "default_variant": "treatment", "enabled": true, "rollout_key": "user.country" }
+        body: { "key": "updated_multivariant", "name": "Updated Multivariant Feature", "description": "Updated feature with multiple variants", "kind": "multivariant", "default_value": "treatment", "enabled": true, "rollout_key": "user.country", "environment_key": "prod" }
       response:
         status: 200
         headers:
@@ -91,7 +92,7 @@
               "name": "Updated Multivariant Feature",
               "description": "Updated feature with multiple variants",
               "kind": "multivariant",
-              "default_variant": "treatment",
+              "default_value": "treatment",
               "enabled": true,
               "rollout_key": "user.country",
               "created_at": "<<PRESENCE>>",
@@ -99,10 +100,11 @@
               "is_active": true
             },
             "variants": "<<PRESENCE>>",
-            "rules": "<<PRESENCE>>"
+            "rules": "<<PRESENCE>>",
+            "tags": []
           }
       dbChecks:
-        - query: SELECT key, name, description, enabled, rollout_key FROM features WHERE id = '22222222-2222-2222-2222-222222222222'
+        - query: SELECT key, name, description, enabled, rollout_key FROM v_features_full WHERE id = '22222222-2222-2222-2222-222222222222' AND environment_key = 'prod'
           result:
             - key: "updated_multivariant"
               name: "Updated Multivariant Feature"
@@ -118,10 +120,10 @@
     - name: update_feature_no_auth
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
-        body: { "key": "unauthorized_update", "name": "Unauthorized Update", "kind": "simple", "default_variant": "on" }
+        body: { "key": "unauthorized_update", "name": "Unauthorized Update", "kind": "simple", "default_value": "on", "enabled": true, "environment_key": "prod" }
       response:
         status: 401
         json: |
@@ -151,11 +153,11 @@
     - name: update_feature_no_permissions
       request:
         method: PUT
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "key": "no_permissions_update", "name": "No Permissions Update", "kind": "simple", "default_variant": "on" }
+        body: { "key": "no_permissions_update", "name": "No Permissions Update", "kind": "simple", "default_value": "on", "enabled": true, "environment_key": "prod" }
       response:
         status: 403
         json: |
@@ -185,11 +187,11 @@
     - name: update_non_existent_feature
       request:
         method: PUT
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "key": "non_existent", "name": "Non Existent Feature", "kind": "simple", "default_variant": "on" }
+        body: { "key": "non_existent", "name": "Non Existent Feature", "kind": "simple", "default_value": "on", "enabled": true, "environment_key": "prod" }
       response:
         status: 404
         json: |
@@ -219,11 +221,11 @@
     - name: update_feature_empty_name
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: '{ "key": "empty_name", "name": "", "kind": "simple", "default_variant": "on" }'
+        body: '{ "key": "empty_name", "name": "", "kind": "simple", "default_value": "on", "enabled": true, "environment_key": "prod" }'
       response:
         status: 400
         json: |
@@ -251,7 +253,7 @@
     - name: update_feature_missing_fields
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -283,11 +285,11 @@
     - name: update_feature_invalid_json
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: '{ "key": "invalid_json", "name": "Invalid JSON", "kind": "simple", "default_variant": "invalid json here" }'
+        body: '{ "key": "invalid_json", "name": "Invalid JSON", "kind": "simple", "default_value": "invalid json here", "enabled": true, "environment_key": "prod" }'
       response:
         status: 400
         json: |

@@ -18,7 +18,7 @@
     - name: create_feature_schedule
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -68,7 +68,7 @@
     - name: create_feature_schedule_with_cron
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -108,7 +108,7 @@
     - name: create_feature_schedule_no_auth
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules?environment_key=prod
         headers:
           Content-Type: application/json
         body: { "timezone": "UTC", "action": "enable" }
@@ -141,7 +141,7 @@
     - name: create_feature_schedule_no_permissions
       request:
         method: POST
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333/schedules
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/schedules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -175,7 +175,7 @@
     - name: create_feature_schedule_non_existent
       request:
         method: POST
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999/schedules
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/schedules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -209,7 +209,7 @@
     - name: create_feature_schedule_missing_fields
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -241,7 +241,7 @@
     - name: create_feature_schedule_invalid_json
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/schedules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'

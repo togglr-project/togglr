@@ -18,7 +18,7 @@
     - name: sync_customized_feature_rule
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/55555555-5555-5555-5555-555555555555/sync
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/55555555-5555-5555-5555-555555555555/sync?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -49,7 +49,7 @@
     - name: sync_customized_feature_rule_no_auth
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/55555555-5555-5555-5555-555555555555/sync
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/55555555-5555-5555-5555-555555555555/sync?environment_key=prod
         headers:
           Content-Type: application/json
       response:
@@ -81,7 +81,7 @@
     - name: sync_customized_feature_rule_no_permissions
       request:
         method: PUT
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333/rules/55555555-5555-5555-5555-555555555555/sync
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/rules/55555555-5555-5555-5555-555555555555/sync?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -114,7 +114,7 @@
     - name: sync_customized_feature_rule_non_existent_feature
       request:
         method: PUT
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999/rules/55555555-5555-5555-5555-555555555555/sync
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/rules/55555555-5555-5555-5555-555555555555/sync?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -147,7 +147,7 @@
     - name: sync_customized_feature_rule_non_existent_rule
       request:
         method: PUT
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/99999999-9999-9999-9999-999999999999/sync
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules/99999999-9999-9999-9999-999999999999/sync?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'

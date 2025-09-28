@@ -18,7 +18,7 @@
     - name: delete_feature
       request:
         method: DELETE
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -33,7 +33,7 @@
     - name: delete_feature_no_auth
       request:
         method: DELETE
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
       response:
@@ -65,7 +65,7 @@
     - name: delete_feature_no_permissions
       request:
         method: DELETE
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -98,7 +98,7 @@
     - name: delete_non_existent_feature
       request:
         method: DELETE
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -131,7 +131,7 @@
     - name: delete_one_feature
       request:
         method: DELETE
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -158,7 +158,7 @@
     - name: delete_feature_first_time
       request:
         method: DELETE
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -168,7 +168,7 @@
     - name: delete_feature_second_time
       request:
         method: DELETE
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'

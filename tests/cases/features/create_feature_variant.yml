@@ -18,11 +18,11 @@
     - name: create_feature_variant
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "variant_a", "rollout_percent": 30 }
+        body: { "name": "variant_a", "rollout_percent": 30, "environment_key": "prod" }
       response:
         status: 201
         headers:
@@ -62,11 +62,11 @@
     - name: create_first_variant
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "control", "rollout_percent": 50 }
+        body: { "name": "control", "rollout_percent": 50, "environment_key": "prod" }
       response:
         status: 201
         headers:
@@ -84,11 +84,11 @@
     - name: create_second_variant
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "treatment", "rollout_percent": 50 }
+        body: { "name": "treatment", "rollout_percent": 50, "environment_key": "prod" }
       response:
         status: 201
         headers:
@@ -115,10 +115,10 @@
     - name: create_feature_variant_no_auth
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
-        body: { "name": "unauthorized_variant", "rollout_percent": 100 }
+        body: { "name": "unauthorized_variant", "rollout_percent": 100, "environment_key": "prod" }
       response:
         status: 401
         json: |
@@ -148,11 +148,11 @@
     - name: create_feature_variant_no_permissions
       request:
         method: POST
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333/variants
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "no_permissions_variant", "rollout_percent": 100 }
+        body: { "name": "no_permissions_variant", "rollout_percent": 100, "environment_key": "prod" }
       response:
         status: 403
         json: |
@@ -182,11 +182,11 @@
     - name: create_feature_variant_non_existent
       request:
         method: POST
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999/variants
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "non_existent_variant", "rollout_percent": 100 }
+        body: { "name": "non_existent_variant", "rollout_percent": 100, "environment_key": "prod" }
       response:
         status: 404
         json: |
@@ -216,7 +216,7 @@
     - name: create_feature_variant_missing_fields
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -248,11 +248,11 @@
     - name: create_feature_variant_invalid_rollout
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "invalid_rollout", "rollout_percent": 150 }
+        body: { "name": "invalid_rollout", "rollout_percent": 150, "environment_key": "prod" }
       response:
         status: 400
         json: |
@@ -280,11 +280,11 @@
     - name: create_feature_variant_invalid_json
       request:
         method: POST
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
-        body: { "name": "invalid_json", "rollout_percent": "not a number" }
+        body: { "name": "invalid_json", "rollout_percent": "not a number", "environment_key": "prod" }
       response:
         status: 400
         json: |

@@ -29,10 +29,23 @@
         - query: SELECT COUNT(*) AS cnt FROM projects
           result:
             - cnt: 1
-        - query: SELECT name, description, length(api_key::text) AS api_key_len FROM projects ORDER BY id
+        - query: SELECT name, description FROM projects ORDER BY id
           result:
             - name: "Project"
               description: "some project"
+        - query: SELECT COUNT(*) AS cnt FROM environments WHERE project_id = (SELECT id FROM projects WHERE name = 'Project')
+          result:
+            - cnt: 3
+        - query: SELECT e.key, e.name, length(e.api_key::text) AS api_key_len FROM environments e WHERE e.project_id = (SELECT id FROM projects WHERE name = 'Project') ORDER BY e.key
+          result:
+            - key: "dev"
+              name: "Development"
+              api_key_len: 36
+            - key: "prod"
+              name: "Production"
+              api_key_len: 36
+            - key: "stage"
+              name: "Staging"
               api_key_len: 36
 
 - name: create project with bad request
@@ -67,6 +80,9 @@
             - cnt: 0
         - query: SELECT name FROM projects WHERE name IS NULL
           result: []
+        - query: SELECT COUNT(*) AS cnt FROM environments
+          result:
+            - cnt: 0
 
 - name: create project without auth
   fixtures:
@@ -94,6 +110,9 @@
             - cnt: 0
         - query: SELECT name FROM projects WHERE name = 'Test Project'
           result: []
+        - query: SELECT COUNT(*) AS cnt FROM environments
+          result:
+            - cnt: 0
 
 - name: create project with empty name
   fixtures:
@@ -127,6 +146,9 @@
             - cnt: 0
         - query: SELECT name FROM projects WHERE name = ''
           result: []
+        - query: SELECT COUNT(*) AS cnt FROM environments
+          result:
+            - cnt: 0
 
 - name: create project with short name
   fixtures:
@@ -160,6 +182,9 @@
             - cnt: 0
         - query: SELECT name FROM projects WHERE name = 'A'
           result: []
+        - query: SELECT COUNT(*) AS cnt FROM environments
+          result:
+            - cnt: 0
 
 - name: create project with invalid JSON
   fixtures:
@@ -193,3 +218,6 @@
             - cnt: 0
         - query: SELECT name FROM projects WHERE name = 'Test Project'
           result: []
+        - query: SELECT COUNT(*) AS cnt FROM environments
+          result:
+            - cnt: 0

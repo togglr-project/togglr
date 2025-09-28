@@ -28,9 +28,9 @@
           name: "New UI"
           description: "New user interface feature"
           kind: "simple"
-          default_variant: "on"
+          environment_key: "prod"
+          default_value: "on"
           enabled: true
-          rollout_key: "user.id"
       response:
         status: 201
         headers:
@@ -44,22 +44,22 @@
               "name": "New UI",
               "description": "New user interface feature",
               "kind": "simple",
-              "default_variant": "on",
+              "default_value": "on",
               "enabled": true,
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>"
             }
           }
       dbChecks:
-        - query: SELECT key, name, description, kind, default_variant, enabled, rollout_key FROM features WHERE key = 'new_ui'
+        - query: SELECT key, name, description, kind, enabled, default_value, environment_key FROM v_features_full WHERE key = 'new_ui' AND project_id = '11111111-1111-1111-1111-111111111111' AND environment_key = 'prod'
           result:
             - key: "new_ui"
               name: "New UI"
               description: "New user interface feature"
               kind: "simple"
-              default_variant: "on"
+              default_value: "on"
               enabled: true
-              rollout_key: "user.id"
+              environment_key: "prod"
 
 - name: success create multivariant feature with variants and rules
   fixtures:
@@ -91,16 +91,19 @@
           name: "A/B Test Feature"
           description: "A/B testing feature for user experience"
           kind: "multivariant"
-          default_variant: "control"
+          default_value: "control"
           enabled: true
           rollout_key: "user.id"
+          environment_key: "prod"
           variants:
             - id: "33333333-3333-3333-3333-333333333333"
               name: "control"
               rollout_percent: 50
+              environment_key: "prod"
             - id: "44444444-4444-4444-4444-444444444444"
               name: "treatment"
               rollout_percent: 50
+              environment_key: "prod"
           rules:
             - id: "55555555-5555-5555-5555-555555555555"
               conditions:
@@ -112,6 +115,7 @@
               priority: 10
               is_customized: false
               action: "assign"
+              environment_key: "prod"
       response:
         status: 201
         headers:
@@ -125,29 +129,29 @@
               "name": "A/B Test Feature",
               "description": "A/B testing feature for user experience",
               "kind": "multivariant",
-              "default_variant": "control",
+              "default_value": "control",
               "enabled": true,
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>"
             }
           }
       dbChecks:
-        - query: SELECT key, name, description, kind, default_variant, enabled, rollout_key FROM features WHERE key = 'ab_test'
+        - query: SELECT key, name, description, kind, default_value, enabled, rollout_key FROM v_features_full WHERE key = 'ab_test' AND environment_key = 'prod' AND project_id = '11111111-1111-1111-1111-111111111111'
           result:
             - key: "ab_test"
               name: "A/B Test Feature"
               description: "A/B testing feature for user experience"
               kind: "multivariant"
-              default_variant: "control"
+              default_value: "control"
               enabled: true
               rollout_key: "user.id"
-        - query: SELECT name, rollout_percent FROM flag_variants WHERE feature_id = (SELECT id FROM features WHERE key = 'ab_test')
+        - query: SELECT name, rollout_percent FROM flag_variants WHERE feature_id = (SELECT id FROM v_features_full WHERE key = 'ab_test' AND environment_key = 'prod' AND project_id = '11111111-1111-1111-1111-111111111111') AND environment_id = (SELECT id FROM environments WHERE key = 'prod' AND project_id = '11111111-1111-1111-1111-111111111111')
           result:
             - name: "control"
               rollout_percent: 50
             - name: "treatment"
               rollout_percent: 50
-        - query: SELECT priority, is_customized, action::text FROM rules WHERE feature_id = (SELECT id FROM features WHERE key = 'ab_test')
+        - query: SELECT priority, is_customized, action::text FROM rules WHERE feature_id = (SELECT id FROM v_features_full WHERE key = 'ab_test' AND environment_key = 'prod' AND project_id = '11111111-1111-1111-1111-111111111111') AND environment_id = (SELECT id FROM environments WHERE key = 'prod' AND project_id = '11111111-1111-1111-1111-111111111111')
           result:
             - priority: 10
               is_customized: false
@@ -169,7 +173,9 @@
           key: "new_ui"
           name: "New UI"
           kind: "simple"
-          default_variant: "on"
+          environment_key: "prod"
+          default_value: "on"
+          enabled: true
       response:
         status: 401
         json: |
@@ -208,7 +214,9 @@
           key: "new_ui"
           name: "New UI"
           kind: "simple"
-          default_variant: "on"
+          environment_key: "prod"
+          default_value: "on"
+          enabled: true
       response:
         status: 403
         json: |
@@ -247,7 +255,9 @@
           key: "new_ui"
           name: "New UI"
           kind: "simple"
-          default_variant: "on"
+          environment_key: "prod"
+          default_value: "on"
+          enabled: true
       response:
         status: 500
 
@@ -280,7 +290,9 @@
           key: "a"
           name: "New UI"
           kind: "simple"
-          default_variant: "on"
+          environment_key: "prod"
+          default_value: "on"
+          enabled: true
       response:
         status: 400
 
@@ -313,7 +325,9 @@
           key: "new_ui"
           name: "A"
           kind: "simple"
-          default_variant: "on"
+          environment_key: "prod"
+          default_value: "on"
+          enabled: true
       response:
         status: 400
 
@@ -345,5 +359,7 @@
         body:
           key: "new_ui"
           name: "New UI"
+          default_value: "on"
+          enabled: true
       response:
         status: 400

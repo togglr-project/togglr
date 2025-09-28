@@ -27,7 +27,26 @@ public.projects:
   - id: 11111111-1111-1111-1111-111111111111
     name: Test Project
     description: Project for testing schedules
+    created_at: $eval(SELECT NOW())
+
+public.environments:
+  - id: 10
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: prod
+    name: Production
     api_key: 545C3E6A-8B17-4204-9558-9106D33B56F7
+    created_at: $eval(SELECT NOW())
+  - id: 11
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: stage
+    name: Staging
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F8
+    created_at: $eval(SELECT NOW())
+  - id: 12
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: dev
+    name: Development
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F9
     created_at: $eval(SELECT NOW())
 
 public.features:
@@ -36,8 +55,6 @@ public.features:
     name: Test Feature
     description: Feature for testing schedules
     kind: simple
-    default_variant: on
-    enabled: true
     created_at: $eval(SELECT NOW())
     updated_at: $eval(SELECT NOW())
     project_id: 11111111-1111-1111-1111-111111111111
@@ -48,18 +65,55 @@ public.features:
     name: Another Feature
     description: Another feature for testing
     kind: simple
-    default_variant: off
-    enabled: false
     created_at: $eval(SELECT NOW())
     updated_at: $eval(SELECT NOW())
     project_id: 11111111-1111-1111-1111-111111111111
     rollout_key: user.id
+
+public.feature_params:
+  - feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 10
+    enabled: true
+    default_value: on
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 11
+    enabled: false
+    default_value: off
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 12
+    enabled: true
+    default_value: on
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 33333333-3333-3333-3333-333333333333
+    environment_id: 10
+    enabled: false
+    default_value: off
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 33333333-3333-3333-3333-333333333333
+    environment_id: 11
+    enabled: false
+    default_value: off
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 33333333-3333-3333-3333-333333333333
+    environment_id: 12
+    enabled: false
+    default_value: off
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
 
 public.feature_schedules:
   # One-shot schedule (enable)
   - id: 44444444-4444-4444-4444-444444444444
     project_id: 11111111-1111-1111-1111-111111111111
     feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 10
     starts_at: $eval(SELECT NOW() + INTERVAL '1 hour')
     ends_at: $eval(SELECT NOW() + INTERVAL '2 hours')
     cron_expr: null
@@ -73,6 +127,7 @@ public.feature_schedules:
   - id: 55555555-5555-5555-5555-555555555555
     project_id: 11111111-1111-1111-1111-111111111111
     feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 10
     starts_at: $eval(SELECT NOW() + INTERVAL '3 hours')
     ends_at: $eval(SELECT NOW() + INTERVAL '4 hours')
     cron_expr: null
@@ -86,6 +141,7 @@ public.feature_schedules:
   - id: 66666666-6666-6666-6666-666666666666
     project_id: 11111111-1111-1111-1111-111111111111
     feature_id: 33333333-3333-3333-3333-333333333333
+    environment_id: 10
     starts_at: null
     ends_at: null
     cron_expr: "0 9 * * *"

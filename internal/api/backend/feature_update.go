@@ -239,7 +239,6 @@ func (r *RestAPI) UpdateFeature(
 	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(updated)
 
 	var nextState generatedapi.OptNilBool
-
 	var nextStateTimeOpt generatedapi.OptNilDateTime
 
 	if !nextStateTime.IsZero() {
@@ -261,6 +260,8 @@ func (r *RestAPI) UpdateFeature(
 			IsActive:      r.featureProcessor.IsFeatureActive(updated),
 			NextState:     nextState,
 			NextStateTime: nextStateTimeOpt,
+			Enabled:       updated.Enabled,
+			DefaultValue:  updated.DefaultValue,
 		},
 		Variants: respVariants,
 		Rules:    respRules,

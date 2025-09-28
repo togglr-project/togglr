@@ -18,7 +18,7 @@
     - name: list_feature_rules
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -67,7 +67,7 @@
     - name: list_feature_rules_empty
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -85,7 +85,7 @@
     - name: list_feature_rules_no_auth
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/rules?environment_key=prod
         headers:
           Content-Type: application/json
       response:
@@ -117,7 +117,7 @@
     - name: list_feature_rules_no_permissions
       request:
         method: GET
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333/rules
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/rules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -150,7 +150,7 @@
     - name: list_feature_rules_non_existent
       request:
         method: GET
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999/rules
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/rules?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'

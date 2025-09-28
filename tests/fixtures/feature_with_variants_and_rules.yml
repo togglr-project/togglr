@@ -15,7 +15,26 @@ public.projects:
   - id: 11111111-1111-1111-1111-111111111111
     name: Project
     description: Some project
+    created_at: $eval(SELECT NOW())
+
+public.environments:
+  - id: 1
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: prod
+    name: Production
     api_key: 545C3E6A-8B17-4204-9558-9106D33B56F7
+    created_at: $eval(SELECT NOW())
+  - id: 2
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: stage
+    name: Staging
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F8
+    created_at: $eval(SELECT NOW())
+  - id: 3
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: dev
+    name: Development
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F9
     created_at: $eval(SELECT NOW())
 
 public.features:
@@ -24,12 +43,30 @@ public.features:
     name: Multivariant Feature
     description: A feature with multiple variants
     kind: multivariant
-    default_variant: control
-    enabled: true
     created_at: $eval(SELECT NOW())
     updated_at: $eval(SELECT NOW())
     project_id: 11111111-1111-1111-1111-111111111111
     rollout_key: user.id
+
+public.feature_params:
+  - feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 1
+    enabled: true
+    default_value: control
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 2
+    enabled: false
+    default_value: control
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - feature_id: 22222222-2222-2222-2222-222222222222
+    environment_id: 3
+    enabled: true
+    default_value: control
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
 
 public.flag_variants:
   - id: 33333333-3333-3333-3333-333333333333
@@ -37,11 +74,13 @@ public.flag_variants:
     name: control
     rollout_percent: 50
     project_id: 11111111-1111-1111-1111-111111111111
+    environment_id: 1
   - id: 44444444-4444-4444-4444-444444444444
     feature_id: 22222222-2222-2222-2222-222222222222
     name: treatment
     rollout_percent: 50
     project_id: 11111111-1111-1111-1111-111111111111
+    environment_id: 1
 
 public.segments:
   - id: 66666666-6666-6666-6666-666666666666
@@ -77,3 +116,4 @@ public.rules:
     action: assign
     is_customized: true
     segment_id: 66666666-6666-6666-6666-666666666666
+    environment_id: 1

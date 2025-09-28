@@ -63,6 +63,10 @@ func (s *Service) CreateWithChildren(
 		return domain.FeatureExtended{}, fmt.Errorf("get env: %w", err)
 	}
 
+	if len(envs) == 0 {
+		return domain.FeatureExtended{}, fmt.Errorf("no environments found: %w", domain.ErrEntityNotFound)
+	}
+
 	envProd := envs[0]
 	for _, env := range envs {
 		if env.Key == "prod" {
@@ -120,6 +124,8 @@ func (s *Service) CreateWithChildren(
 			return fmt.Errorf("create feature: %w", err)
 		}
 		result.BasicFeature = createdFeature
+		result.Enabled = feature.Enabled
+		result.DefaultValue = feature.DefaultValue
 
 		for _, env := range envs {
 			// Create feature params for the environment

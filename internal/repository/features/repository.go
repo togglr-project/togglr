@@ -342,8 +342,6 @@ func (r *Repository) ListByProjectIDFiltered(
 }
 
 // Update updates existing feature by ID and returns updated entity.
-//
-
 func (r *Repository) Update(
 	ctx context.Context,
 	envID domain.EnvironmentID,

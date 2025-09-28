@@ -43,5 +43,43 @@ func upMigrations(connStr, migrationsDir string) error {
 
 	slog.Info("up migrations: done")
 
+	// Disable triggers for test environment
+	if err := disableTriggersForTests(db); err != nil {
+		return fmt.Errorf("disable triggers: %w", err)
+	}
+
 	return nil
+}
+
+func disableTriggersForTests(db *sql.DB) error {
+	slog.Info("disabling triggers for test environment...")
+
+	triggers := []string{
+		"trg_create_envs_on_project_insert",
+		"trg_create_params_on_feature_insert",
+		"trg_create_feature_params_on_env_insert",
+	}
+
+	for _, trigger := range triggers {
+		query := fmt.Sprintf("DROP TRIGGER IF EXISTS %s ON %s", trigger, getTableName(trigger))
+		if _, err := db.Exec(query); err != nil {
+			return fmt.Errorf("drop trigger %s: %w", trigger, err)
+		}
+	}
+
+	slog.Info("triggers disabled for test environment")
+	return nil
+}
+
+func getTableName(triggerName string) string {
+	switch triggerName {
+	case "trg_create_envs_on_project_insert":
+		return "projects"
+	case "trg_create_params_on_feature_insert":
+		return "features"
+	case "trg_create_feature_params_on_env_insert":
+		return "environments"
+	default:
+		return ""
+	}
 }

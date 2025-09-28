@@ -31,6 +31,14 @@ func (r *RestAPI) CreateFeatureRule(
 		return nil, err
 	}
 
+	// Resolve environment
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		slog.Error("get environment for rule create failed", "error", err)
+
+		return nil, err
+	}
+
 	// Check permissions on the owning project
 	if err := r.permissionsService.CanManageProject(ctx, feature.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
@@ -74,14 +82,7 @@ func (r *RestAPI) CreateFeatureRule(
 		Action:        domain.RuleAction(req.Action),
 		FlagVariantID: optString2FlagVariantIDRef(req.FlagVariantID),
 		Priority:      uint8(req.Priority.Or(0)),
-	}
-
-	// Resolve environment
-	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
-	if err != nil {
-		slog.Error("get environment for rule create failed", "error", err)
-
-		return nil, err
+		EnvironmentID: env.ID,
 	}
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202

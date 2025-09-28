@@ -20,13 +20,26 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 
 	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, environmentKey)
 	if err != nil {
+		slog.Error("get feature for variant create failed", "error", err)
+
 		if errors.Is(err, domain.ErrEntityNotFound) {
 			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
 				Message: generatedapi.NewOptString("feature not found"),
 			}}, nil
 		}
 
-		slog.Error("get feature for variant create failed", "error", err)
+		return nil, err
+	}
+
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
+	if err != nil {
+		slog.Error("get environment for variant create failed", "error", err)
+
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString("environment not found"),
+			}}, nil
+		}
 
 		return nil, err
 	}
@@ -55,14 +68,7 @@ func (r *RestAPI) CreateFeatureFlagVariant(
 		FeatureID:      featureID,
 		Name:           req.Name,
 		RolloutPercent: uint8(req.RolloutPercent),
-	}
-
-	// Resolve environment
-	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, environmentKey)
-	if err != nil {
-		slog.Error("get environment for flag variant create failed", "error", err)
-
-		return nil, err
+		EnvironmentID:  env.ID,
 	}
 
 	// Guarded flow: if feature is guarded, create a pending change and return 202

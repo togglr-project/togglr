@@ -101,6 +101,12 @@ func (r *RestAPI) ListProjectFeatures(
 	if err != nil {
 		slog.Error("list project features failed", "error", err)
 
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString(err.Error()),
+			}}, nil
+		}
+
 		return nil, err
 	}
 
@@ -124,7 +130,6 @@ func (r *RestAPI) ListProjectFeatures(
 
 		// Get next state information
 		var nextStatePtr *bool
-
 		var nextStateTimePtr *time.Time
 
 		if !nextStateTime.IsZero() {

@@ -14,5 +14,24 @@ public.projects:
   - id: 11111111-1111-1111-1111-111111111111
     name: Project
     description: Some project
+    created_at: $eval(SELECT NOW())
+
+public.environments:
+  - id: 1
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: prod
+    name: Production
     api_key: 545C3E6A-8B17-4204-9558-9106D33B56F7
+    created_at: $eval(SELECT NOW())
+  - id: 2
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: stage
+    name: Staging
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F8
+    created_at: $eval(SELECT NOW())
+  - id: 3
+    project_id: 11111111-1111-1111-1111-111111111111
+    key: dev
+    name: Development
+    api_key: 545C3E6A-8B17-4204-9558-9106D33B56F9
     created_at: $eval(SELECT NOW())

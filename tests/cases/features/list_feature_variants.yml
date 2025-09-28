@@ -18,7 +18,7 @@
     - name: list_feature_variants
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -62,7 +62,7 @@
     - name: list_feature_variants_empty
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -80,7 +80,7 @@
     - name: list_feature_variants_no_auth
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222/variants?environment_key=prod
         headers:
           Content-Type: application/json
       response:
@@ -112,7 +112,7 @@
     - name: list_feature_variants_no_permissions
       request:
         method: GET
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333/variants
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -145,7 +145,7 @@
     - name: list_feature_variants_non_existent
       request:
         method: GET
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999/variants
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999/variants?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'

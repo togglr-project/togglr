@@ -88,14 +88,16 @@ func (r *RestAPI) ToggleFeature(
 	}
 
 	resp := &generatedapi.FeatureResponse{Feature: generatedapi.Feature{
-		ID:          updated.ID.String(),
-		ProjectID:   updated.ProjectID.String(),
-		Key:         updated.Key,
-		Name:        updated.Name,
-		Description: generatedapi.NewOptNilString(updated.Description),
-		Kind:        generatedapi.FeatureKind(updated.Kind),
-		CreatedAt:   updated.CreatedAt,
-		UpdatedAt:   updated.UpdatedAt,
+		ID:           updated.ID.String(),
+		ProjectID:    updated.ProjectID.String(),
+		Key:          updated.Key,
+		Name:         updated.Name,
+		Enabled:      updated.Enabled,
+		DefaultValue: updated.DefaultValue,
+		Description:  generatedapi.NewOptNilString(updated.Description),
+		Kind:         generatedapi.FeatureKind(updated.Kind),
+		CreatedAt:    updated.CreatedAt,
+		UpdatedAt:    updated.UpdatedAt,
 	}}
 
 	return resp, nil

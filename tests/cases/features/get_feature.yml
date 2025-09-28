@@ -19,7 +19,7 @@
     - name: get_feature
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -36,12 +36,13 @@
               "name": "Multivariant Feature",
               "description": "A feature with multiple variants",
               "kind": "multivariant",
-              "default_variant": "control",
+              "default_value": "control",
               "enabled": true,
               "rollout_key": "user.id",
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
-              "is_active": true
+              "is_active": true,
+              "tags": []
             },
             "variants": [
               {
@@ -75,7 +76,8 @@
                 "is_customized": true,
                 "action": "assign"
               }
-            ]
+            ],
+            "tags": []
           }
 
 - name: success get simple feature
@@ -99,7 +101,7 @@
     - name: get_feature
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -116,15 +118,17 @@
               "name": "New UI",
               "description": "New user interface feature",
               "kind": "simple",
-              "default_variant": "on",
+              "default_value": "on",
               "enabled": true,
               "rollout_key": "user.id",
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
-              "is_active": true
+              "is_active": true,
+              "tags": []
             },
             "variants": [],
-            "rules": []
+            "rules": [],
+            "tags": []
           }
 
 - name: get feature without auth
@@ -136,7 +140,7 @@
     - name: get_feature_unauthorized
       request:
         method: GET
-        path: /api/v1/features/22222222-2222-2222-2222-222222222222
+        path: /api/v1/features/22222222-2222-2222-2222-222222222222?environment_key=prod
         headers:
           Content-Type: application/json
       response:
@@ -169,7 +173,7 @@
     - name: get_feature
       request:
         method: GET
-        path: /api/v1/features/33333333-3333-3333-3333-333333333333
+        path: /api/v1/features/33333333-3333-3333-3333-333333333333?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
@@ -203,7 +207,7 @@
     - name: get_feature_not_found
       request:
         method: GET
-        path: /api/v1/features/99999999-9999-9999-9999-999999999999
+        path: /api/v1/features/99999999-9999-9999-9999-999999999999?environment_key=prod
         headers:
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
