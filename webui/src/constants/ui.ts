@@ -126,18 +126,6 @@ export const THEME_CONSTANTS = {
     TEXT_PRIMARY: 'rgb(245, 245, 250)',
     TEXT_SECONDARY: 'rgba(220, 220, 230, 0.7)',
   },
-  BLUE: {
-    BACKGROUND: 'rgba(16, 42, 66, 0.95)',
-    PAPER: 'rgba(25, 55, 84, 0.9)',
-    TEXT_PRIMARY: 'rgb(240, 245, 255)',
-    TEXT_SECONDARY: 'rgba(220, 230, 255, 0.7)',
-  },
-  GREEN: {
-    BACKGROUND: 'rgba(40, 85, 50, 0.9)',
-    PAPER: 'rgba(50, 95, 65, 0.85)',
-    TEXT_PRIMARY: 'rgb(240, 255, 245)',
-    TEXT_SECONDARY: 'rgba(220, 255, 230, 0.7)',
-  },
 } as const;
 
 // Issue level colors

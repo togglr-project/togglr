@@ -16,7 +16,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
   const iconSize = size === 'small' ? 20 : size === 'large' ? 28 : 24;
   
-  // Определяем, является ли текущая тема темной (dark, blue, green считаются темными)
+  // Определяем, является ли текущая тема темной (только 'dark' считается темной)
   const isDarkTheme = mode !== 'light';
 
   const button = (
