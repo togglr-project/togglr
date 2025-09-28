@@ -151,8 +151,8 @@ export const COMMON_STYLES = {
   // Paper styles
   paper: {
     borderRadius: UI_CONSTANTS.BORDER_RADIUS.LG,
-    backdropFilter: 'blur(12px)',
-    boxShadow: '0 8px 24px 0 rgba(0, 0, 0, 0.08)',
+    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
+    border: '1px solid rgba(0, 0, 0, 0.06)',
   },
 
   // Button styles
@@ -165,10 +165,10 @@ export const COMMON_STYLES = {
   // Card styles
   card: {
     borderRadius: UI_CONSTANTS.BORDER_RADIUS.LG,
-    transition: 'all 0.2s ease-in-out',
+    transition: 'box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out',
     '&:hover': {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 12px 32px 0 rgba(0, 0, 0, 0.12)',
+      transform: 'translateY(-1px)',
+      boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
     },
   },
 

@@ -110,19 +110,20 @@ export const getTheme = (mode: ThemeMode) => {
             padding: '6px 12px',
             fontWeight: 500,
             color: '#ffffff',
-            boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.1)',
-            background: 'linear-gradient(45deg, rgba(130, 82, 255, 0.9) 30%, rgba(150, 110, 255, 0.9) 90%)',
-            transition: 'all 0.2s ease-in-out',
+            boxShadow: 'none',
+            backgroundColor: primaryMain,
+            transition: 'background-color 0.15s ease, color 0.15s ease',
             '&:hover': {
-              background: 'linear-gradient(45deg, rgba(130, 82, 255, 1) 30%, rgba(150, 110, 255, 1) 90%)',
-              boxShadow: '0 4px 12px 0 rgba(0, 0, 0, 0.2)',
-              transform: 'translateY(-1px)',
+              backgroundColor: mode === 'light' ? 'rgba(130, 82, 255, 0.9)' : 'rgba(130, 82, 255, 0.85)',
+            },
+            '&:active': {
+              backgroundColor: mode === 'light' ? 'rgba(130, 82, 255, 0.85)' : 'rgba(130, 82, 255, 0.8)',
             },
           },
           outlined: {
-            borderWidth: 2,
+            borderWidth: 1,
             '&:hover': {
-              borderWidth: 2,
+              borderWidth: 1,
             },
           },
         },
@@ -131,26 +132,18 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           root: {
             borderRadius: 8,
-            backgroundImage: mode === 'dark'
-              ? 'linear-gradient(to bottom, rgba(45, 48, 56, 0.7), rgba(35, 38, 46, 0.85))'
-              : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.9), rgba(248, 249, 252, 0.85))',
-            backdropFilter: 'blur(12px)',
-            boxShadow: mode !== 'light'
-              ? '0 8px 24px 0 rgba(0, 0, 0, 0.2)'
-              : '0 8px 24px 0 rgba(0, 0, 0, 0.08)',
+            backgroundColor: paperColor,
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
+            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
           },
         },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            background: mode === 'dark'
-              ? 'linear-gradient(90deg, rgba(28, 30, 35, 0.95) 0%, rgba(35, 38, 46, 0.95) 100%)'
-              : 'linear-gradient(90deg, rgba(248, 249, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: mode !== 'light'
-              ? '0 2px 12px 0 rgba(0, 0, 0, 0.2)'
-              : '0 2px 12px 0 rgba(0, 0, 0, 0.06)',
+            backgroundColor: mode === 'dark' ? 'rgba(28, 30, 35, 0.95)' : 'rgba(255, 255, 255, 0.9)',
+            boxShadow: '0 1px 1px rgba(0, 0, 0, 0.06)',
+            borderBottom: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)'}`,
           },
         },
       },
@@ -158,19 +151,23 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           root: {
             borderRadius: 8,
-            background: mode === 'dark'
-              ? 'linear-gradient(135deg, rgba(45, 48, 56, 0.85) 0%, rgba(35, 38, 46, 0.85) 100%)'
-              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 252, 0.9) 100%)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: mode !== 'light'
-              ? '0 4px 20px 0 rgba(0, 0, 0, 0.2)'
-              : '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
-            transition: 'all 0.3s ease-in-out',
+            backgroundColor: paperColor,
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
+            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
+            transition: 'box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out',
             '&:hover': {
-              boxShadow: mode !== 'light'
-                ? '0 8px 30px 0 rgba(0, 0, 0, 0.3)'
-                : '0 8px 30px 0 rgba(0, 0, 0, 0.1)',
+              transform: 'translateY(-1px)',
+              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
             },
+          },
+        },
+      },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: mode === 'dark' ? 'rgba(16, 18, 22, 0.98)' : paperColor,
+            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)'}`,
+            boxShadow: mode === 'dark' ? '0 10px 24px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.18)' : '0 6px 16px rgba(0, 0, 0, 0.08)',
           },
         },
       },
@@ -255,7 +252,7 @@ export const getTheme = (mode: ThemeMode) => {
             borderRadius: 4,
             margin: '1px 2px',
             '&:hover': {
-              backgroundColor: mode === 'dark' ? 'rgba(130, 82, 255, 0.1)' : 'rgba(130, 82, 255, 0.05)',
+              backgroundColor: mode === 'dark' ? 'rgba(130, 82, 255, 0.08)' : 'rgba(130, 82, 255, 0.04)',
             },
           },
         },
@@ -266,7 +263,7 @@ export const getTheme = (mode: ThemeMode) => {
             borderRadius: 6,
             margin: '1px 2px',
             '&:hover': {
-              backgroundColor: mode === 'dark' ? 'rgba(130, 82, 255, 0.1)' : 'rgba(130, 82, 255, 0.05)',
+              backgroundColor: mode === 'dark' ? 'rgba(130, 82, 255, 0.08)' : 'rgba(130, 82, 255, 0.04)',
             },
           },
         },
