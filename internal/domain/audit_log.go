@@ -36,18 +36,20 @@ const (
 type AuditLogID uint64
 
 type AuditLog struct {
-	ID        AuditLogID
-	ProjectID ProjectID
-	FeatureID FeatureID
-	EntityID  string
-	RequestID string
-	Entity    EntityType
-	Actor     string
-	Username  string
-	Action    AuditAction
-	OldValue  json.RawMessage
-	NewValue  json.RawMessage
-	CreatedAt time.Time
+	ID            AuditLogID
+	ProjectID     ProjectID
+	FeatureID     FeatureID
+	EntityID      string
+	RequestID     string
+	Entity        EntityType
+	Actor         string
+	Username      string
+	Action        AuditAction
+	OldValue      json.RawMessage
+	NewValue      json.RawMessage
+	EnvironmentID EnvironmentID
+	EnvKey        string
+	CreatedAt     time.Time
 }
 
 func (id AuditLogID) Uint64() uint64 {

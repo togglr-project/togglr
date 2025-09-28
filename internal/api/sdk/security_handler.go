@@ -33,6 +33,7 @@ func (r *SecurityHandler) HandleApiKeyAuth(
 	}
 
 	ctx = appcontext.WithProjectID(ctx, project.ID)
+	ctx = appcontext.WithEnvKey(ctx, project.EnvKey)
 
 	return ctx, nil
 }

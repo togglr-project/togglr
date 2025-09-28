@@ -32,17 +32,18 @@ type CronsMap map[domain.FeatureScheduleID]cron.Schedule
 
 type ProjectFeatures map[string]FeaturePrepared // key of map is feature.key
 
-type Holder map[domain.ProjectID]ProjectFeatures
+type Holder map[string]ProjectFeatures
 
 type Service struct {
 	holder Holder
 	mu     sync.RWMutex
 
-	featuresUC   contract.FeaturesUseCase
-	projectsUC   contract.ProjectsUseCase
-	auditRepo    contract.AuditLogRepository
-	pollInterval time.Duration
-	lastSeen     time.Time
+	featuresUC       contract.FeaturesUseCase
+	projectsUC       contract.ProjectsUseCase
+	environmentsRepo contract.EnvironmentsRepository
+	auditRepo        contract.AuditLogRepository
+	pollInterval     time.Duration
+	lastSeen         time.Time
 
 	stopChan chan struct{}
 
@@ -53,6 +54,7 @@ type Service struct {
 func New(
 	featuresUC contract.FeaturesUseCase,
 	projectsUC contract.ProjectsUseCase,
+	environmentsRepo contract.EnvironmentsRepository,
 	auditRepo contract.AuditLogRepository,
 	pollInterval time.Duration,
 ) *Service {
@@ -61,13 +63,14 @@ func New(
 	}
 
 	return &Service{
-		holder:       Holder{},
-		featuresUC:   featuresUC,
-		projectsUC:   projectsUC,
-		auditRepo:    auditRepo,
-		pollInterval: pollInterval,
-		stopChan:     make(chan struct{}),
-		nowFunc:      time.Now, // дефолтная функция времени
+		holder:           Holder{},
+		featuresUC:       featuresUC,
+		projectsUC:       projectsUC,
+		environmentsRepo: environmentsRepo,
+		auditRepo:        auditRepo,
+		pollInterval:     pollInterval,
+		stopChan:         make(chan struct{}),
+		nowFunc:          time.Now, // дефолтная функция времени
 	}
 }
 
@@ -113,18 +116,24 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	newHolder := make(Holder, len(projects))
 
 	for _, project := range projects {
-		// TODO: Get environment_key from context or parameter
-		items, err := s.featuresUC.ListExtendedByProjectID(ctx, project.ID, "prod")
+		envs, err := s.environmentsRepo.ListByProjectID(ctx, project.ID)
 		if err != nil {
-			return fmt.Errorf("list features for project %s: %w", project.ID, err)
+			return fmt.Errorf("list environments: %w", err)
 		}
 
-		features := make(ProjectFeatures, len(items))
-		for _, it := range items {
-			features[it.Key] = MakeFeaturePrepared(it)
-		}
+		for _, env := range envs {
+			items, err := s.featuresUC.ListExtendedByProjectID(ctx, project.ID, env.Key)
+			if err != nil {
+				return fmt.Errorf("list features for project %s: %w", project.ID, err)
+			}
 
-		newHolder[project.ID] = features
+			features := make(ProjectFeatures, len(items))
+			for _, it := range items {
+				features[it.Key] = MakeFeaturePrepared(it)
+			}
+
+			newHolder[makeHolderKey(project.ID, env.Key)] = features
+		}
 	}
 
 	s.mu.Lock()
@@ -181,6 +190,7 @@ func (s *Service) Watch(ctx context.Context) error {
 			type changeKey struct {
 				projectID domain.ProjectID
 				featureID domain.FeatureID
+				envKey    string
 			}
 
 			changes := make(map[changeKey]domain.AuditAction)
@@ -190,7 +200,11 @@ func (s *Service) Watch(ctx context.Context) error {
 					continue
 				}
 
-				key := changeKey{projectID: row.ProjectID, featureID: row.FeatureID}
+				key := changeKey{
+					projectID: row.ProjectID,
+					featureID: row.FeatureID,
+					envKey:    row.EnvKey,
+				}
 
 				if row.Entity == domain.EntityFeature && row.Action == domain.AuditActionDelete {
 					changes[key] = domain.AuditActionDelete
@@ -208,13 +222,13 @@ func (s *Service) Watch(ctx context.Context) error {
 					ctxRm, cancel := context.WithTimeout(ctx, time.Second*5)
 					defer cancel() // TODO: refactor
 
-					s.removeFeatureFromHolder(ctxRm, key.projectID, key.featureID)
+					s.removeFeatureFromHolder(ctxRm, key.projectID, key.featureID, key.envKey)
 
 					continue
 				}
 
 				// refresh feature by loading from repo
-				if err := s.refreshFeature(ctx, key.projectID, key.featureID); err != nil {
+				if err := s.refreshFeature(ctx, key.projectID, key.featureID, key.envKey); err != nil {
 					slog.Error("Watcher: refresh feature failed",
 						"project", key.projectID, "feature", key.featureID, "err", err)
 				}
@@ -228,9 +242,10 @@ func (s *Service) Watch(ctx context.Context) error {
 func (s *Service) Evaluate(
 	projectID domain.ProjectID,
 	featureKey string,
+	envKey string,
 	reqCtx map[domain.RuleAttribute]any,
 ) (value string, enabled bool, found bool) {
-	feature, ok := s.fetchFeature(projectID, featureKey)
+	feature, ok := s.fetchFeature(projectID, featureKey, envKey)
 	if !ok {
 		return "", false, false
 	}
@@ -324,7 +339,7 @@ func (s *Service) NextState(feature domain.FeatureExtended) (enabled bool, times
 
 // NextStateAt вычисляет следующее состояние фичи на основе расписания в указанное время.
 // Если у фичи нет расписания, возвращает нулевые значения.
-func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (enabled bool, timestamp time.Time) {
+func (*Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (enabled bool, timestamp time.Time) {
 	if !feature.Enabled {
 		return false, time.Time{}
 	}
@@ -344,7 +359,7 @@ func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (en
 	}
 
 	for _, schedule := range feature.Schedules {
-		nextTime, action := s.getNextScheduleTrigger(schedule, featurePrepared.crons, now, feature.CreatedAt)
+		nextTime, action := getNextScheduleTrigger(schedule, featurePrepared.crons, now, feature.CreatedAt)
 		if !nextTime.IsZero() {
 			nextTriggers = append(nextTriggers, struct {
 				action    domain.FeatureScheduleAction
@@ -384,7 +399,7 @@ func (s *Service) NextStateAt(feature domain.FeatureExtended, now time.Time) (en
 }
 
 // getNextScheduleTrigger находит следующее срабатывание для конкретного расписания.
-func (s *Service) getNextScheduleTrigger(
+func getNextScheduleTrigger(
 	schedule domain.FeatureSchedule,
 	crons CronsMap,
 	now time.Time,
@@ -480,9 +495,14 @@ func getOppositeAction(action domain.FeatureScheduleAction) domain.FeatureSchedu
 	}
 }
 
-func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID) error {
+func (s *Service) refreshFeature(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	featureID domain.FeatureID,
+	envKey string,
+) error {
 	// TODO: Get environment_key from context or parameter
-	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID, "prod")
+	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID, envKey)
 	if err != nil {
 		return fmt.Errorf("get feature extended by id %s: %w", featureID, err)
 	}
@@ -490,10 +510,12 @@ func (s *Service) refreshFeature(ctx context.Context, projectID domain.ProjectID
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	featuresMap, ok := s.holder[projectID]
+	holderKey := makeHolderKey(projectID, envKey)
+
+	featuresMap, ok := s.holder[holderKey]
 	if !ok {
 		featuresMap = ProjectFeatures{}
-		s.holder[projectID] = featuresMap
+		s.holder[holderKey] = featuresMap
 	}
 
 	featuresMap[featureExtended.Key] = MakeFeaturePrepared(featureExtended)
@@ -505,6 +527,7 @@ func (s *Service) removeFeatureFromHolder(
 	ctx context.Context,
 	projectID domain.ProjectID,
 	featureID domain.FeatureID,
+	envKey string,
 ) {
 	feature, err := s.featuresUC.GetByIDWithEnv(ctx, featureID, "prod")
 	if err != nil {
@@ -514,7 +537,7 @@ func (s *Service) removeFeatureFromHolder(
 		s.mu.Lock()
 		defer s.mu.Unlock()
 
-		if featuresMap, ok := s.holder[projectID]; ok {
+		if featuresMap, ok := s.holder[makeHolderKey(projectID, envKey)]; ok {
 			for key, feat := range featuresMap {
 				if feat.ID == featureID {
 					delete(featuresMap, key)
@@ -528,16 +551,16 @@ func (s *Service) removeFeatureFromHolder(
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if featuresMap, ok := s.holder[projectID]; ok {
+	if featuresMap, ok := s.holder[makeHolderKey(projectID, envKey)]; ok {
 		delete(featuresMap, feature.Key)
 	}
 }
 
-func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey string) (FeaturePrepared, bool) {
+func (s *Service) fetchFeature(projectID domain.ProjectID, featureKey, envKey string) (FeaturePrepared, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	features, ok := s.holder[projectID]
+	features, ok := s.holder[makeHolderKey(projectID, envKey)]
 	if !ok {
 		return FeaturePrepared{}, false
 	}
@@ -993,4 +1016,8 @@ func findPrevCron(sched cron.Schedule, now, scheduleStart time.Time) (time.Time,
 	}
 
 	return prev, true
+}
+
+func makeHolderKey(projectID domain.ProjectID, envKey string) string {
+	return projectID.String() + "_" + envKey
 }

@@ -22,18 +22,20 @@ func New(pool *pgxpool.Pool) *Repository {
 }
 
 type auditLogModel struct {
-	ID        uint64    `db:"id"`
-	ProjectID string    `db:"project_id"`
-	FeatureID string    `db:"feature_id"`
-	EntityID  *string   `db:"entity_id"`
-	RequestID string    `db:"request_id"`
-	Entity    string    `db:"entity"`
-	Actor     string    `db:"actor"`
-	Username  *string   `db:"username"`
-	Action    string    `db:"action"`
-	OldValue  []byte    `db:"old_value"`
-	NewValue  []byte    `db:"new_value"`
-	CreatedAt time.Time `db:"created_at"`
+	ID            uint64    `db:"id"`
+	ProjectID     string    `db:"project_id"`
+	FeatureID     string    `db:"feature_id"`
+	EntityID      *string   `db:"entity_id"`
+	RequestID     string    `db:"request_id"`
+	Entity        string    `db:"entity"`
+	Actor         string    `db:"actor"`
+	Username      *string   `db:"username"`
+	Action        string    `db:"action"`
+	OldValue      []byte    `db:"old_value"`
+	NewValue      []byte    `db:"new_value"`
+	EnvironmentID int64     `db:"environment_id"`
+	EnvKey        string    `db:"env_key"`
+	CreatedAt     time.Time `db:"created_at"`
 }
 
 func (m auditLogModel) toDomain() domain.AuditLog {
@@ -48,18 +50,20 @@ func (m auditLogModel) toDomain() domain.AuditLog {
 	}
 
 	return domain.AuditLog{
-		ID:        domain.AuditLogID(m.ID),
-		ProjectID: domain.ProjectID(m.ProjectID),
-		FeatureID: domain.FeatureID(m.FeatureID),
-		EntityID:  entityID,
-		RequestID: m.RequestID,
-		Entity:    domain.EntityType(m.Entity),
-		Actor:     m.Actor,
-		Username:  username,
-		Action:    domain.AuditAction(m.Action),
-		OldValue:  m.OldValue,
-		NewValue:  m.NewValue,
-		CreatedAt: m.CreatedAt,
+		ID:            domain.AuditLogID(m.ID),
+		ProjectID:     domain.ProjectID(m.ProjectID),
+		FeatureID:     domain.FeatureID(m.FeatureID),
+		EntityID:      entityID,
+		RequestID:     m.RequestID,
+		Entity:        domain.EntityType(m.Entity),
+		Actor:         m.Actor,
+		Username:      username,
+		Action:        domain.AuditAction(m.Action),
+		OldValue:      m.OldValue,
+		NewValue:      m.NewValue,
+		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
+		EnvKey:        m.EnvKey,
+		CreatedAt:     m.CreatedAt,
 	}
 }
 
@@ -69,10 +73,11 @@ func (r *Repository) ListSince(ctx context.Context, since time.Time) ([]domain.A
 	exec := r.getExecutor(ctx)
 
 	const query = `
-SELECT id, project_id, feature_id, entity_id, request_id, entity,
-       actor, username, action, old_value, new_value, created_at
+SELECT audit_log.id, audit_log.project_id, feature_id, entity_id, request_id, entity,
+       actor, username, action, old_value, new_value, environment_id, envs.key AS env_key, audit_log.created_at
 FROM audit_log
-WHERE created_at > $1
+LEFT JOIN environments envs ON audit_log.environment_id = envs.id
+WHERE audit_log.created_at > $1
 ORDER BY created_at
 `
 
@@ -104,43 +109,45 @@ func (r *Repository) ListChanges(
 
 	// Build base query for changes
 	builder := sq.Select(
-		"id", "project_id", "feature_id", "entity_id", "request_id", "entity", "actor", "username", "action",
-		"old_value", "new_value", "created_at",
-	).From("audit_log")
+		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
+		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "envs.key AS env_key", "audit_log.created_at",
+	).From("audit_log").
+		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
 
 	// Apply filters
-	builder = builder.Where(sq.Eq{"project_id": filter.ProjectID})
+	builder = builder.Where(sq.Eq{"audit_log.project_id": filter.ProjectID})
 
 	if filter.Actor != nil {
-		builder = builder.Where(sq.Eq{"actor": *filter.Actor})
+		builder = builder.Where(sq.Eq{"audit_log.actor": *filter.Actor})
 	}
 
 	if filter.Entity != nil {
-		builder = builder.Where(sq.Eq{"entity": *filter.Entity})
+		builder = builder.Where(sq.Eq{"audit_log.entity": *filter.Entity})
 	}
 
 	if filter.Action != nil {
-		builder = builder.Where(sq.Eq{"action": *filter.Action})
+		builder = builder.Where(sq.Eq{"audit_log.action": *filter.Action})
 	}
 
 	if filter.FeatureID != nil {
-		builder = builder.Where(sq.Eq{"feature_id": *filter.FeatureID})
+		builder = builder.Where(sq.Eq{"audit_log.feature_id": *filter.FeatureID})
 	}
 
 	if filter.From != nil {
-		builder = builder.Where(sq.GtOrEq{"created_at": *filter.From})
+		builder = builder.Where(sq.GtOrEq{"audit_log.created_at": *filter.From})
 	}
 
 	if filter.To != nil {
-		builder = builder.Where(sq.LtOrEq{"created_at": *filter.To})
+		builder = builder.Where(sq.LtOrEq{"audit_log.created_at": *filter.To})
 	}
 
 	// Apply sorting
-	orderCol := "created_at"
+	orderCol := "audit_log.created_at"
 
 	switch filter.SortBy {
 	case "created_at", "actor", "entity":
-		orderCol = filter.SortBy
+		orderCol = fmt.Sprintf("audit_log.%s", filter.SortBy)
 	}
 
 	orderDir := "DESC"
@@ -229,31 +236,32 @@ func (r *Repository) ListChanges(
 	}
 
 	// Get total count
-	countBuilder := sq.Select("COUNT(DISTINCT request_id)").From("audit_log")
-	countBuilder = countBuilder.Where(sq.Eq{"project_id": filter.ProjectID})
+	countBuilder := sq.Select("COUNT(DISTINCT audit_log.request_id)").From("audit_log").
+		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
+	countBuilder = countBuilder.Where(sq.Eq{"audit_log.project_id": filter.ProjectID})
 
 	if filter.Actor != nil {
-		countBuilder = countBuilder.Where(sq.Eq{"actor": *filter.Actor})
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.actor": *filter.Actor})
 	}
 
 	if filter.Entity != nil {
-		countBuilder = countBuilder.Where(sq.Eq{"entity": *filter.Entity})
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.entity": *filter.Entity})
 	}
 
 	if filter.Action != nil {
-		countBuilder = countBuilder.Where(sq.Eq{"action": *filter.Action})
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.action": *filter.Action})
 	}
 
 	if filter.FeatureID != nil {
-		countBuilder = countBuilder.Where(sq.Eq{"feature_id": *filter.FeatureID})
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.feature_id": *filter.FeatureID})
 	}
 
 	if filter.From != nil {
-		countBuilder = countBuilder.Where(sq.GtOrEq{"created_at": *filter.From})
+		countBuilder = countBuilder.Where(sq.GtOrEq{"audit_log.created_at": *filter.From})
 	}
 
 	if filter.To != nil {
-		countBuilder = countBuilder.Where(sq.LtOrEq{"created_at": *filter.To})
+		countBuilder = countBuilder.Where(sq.LtOrEq{"audit_log.created_at": *filter.To})
 	}
 
 	countQuery, countArgs, err := countBuilder.PlaceholderFormat(sq.Dollar).ToSql()

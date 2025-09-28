@@ -15,6 +15,7 @@ func (s *SDKRestAPI) SdkV1FeaturesFeatureKeyEvaluatePost(
 	params generatedapi.SdkV1FeaturesFeatureKeyEvaluatePostParams,
 ) (generatedapi.SdkV1FeaturesFeatureKeyEvaluatePostRes, error) {
 	projectID := appcontext.ProjectID(ctx)
+	envKey := appcontext.EnvKey(ctx)
 	reqCtx := make(map[domain.RuleAttribute]any, len(req))
 
 	for key, valueRaw := range req {
@@ -30,7 +31,7 @@ func (s *SDKRestAPI) SdkV1FeaturesFeatureKeyEvaluatePost(
 		reqCtx[attr] = value
 	}
 
-	variant, enabled, found := s.featureProcessor.Evaluate(projectID, params.FeatureKey, reqCtx)
+	variant, enabled, found := s.featureProcessor.Evaluate(projectID, params.FeatureKey, envKey, reqCtx)
 	if !found {
 		return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
 			Message: generatedapi.NewOptString("feature not found"),

@@ -18,6 +18,7 @@ const (
 	ctxKeyRequestID  contextKey = "request_id"
 	ctxKeyActorID    contextKey = "actor"
 	ctxKeyUsername   contextKey = "username"
+	ctxKeyEnvKey     contextKey = "env_key"
 )
 
 func WithProjectID(ctx context.Context, id domain.ProjectID) context.Context {
@@ -91,6 +92,19 @@ func WithUsername(ctx context.Context, username string) context.Context {
 
 func Username(ctx context.Context) string {
 	v, ok := ctx.Value(ctxKeyUsername).(string)
+	if ok {
+		return v
+	}
+
+	return ""
+}
+
+func WithEnvKey(ctx context.Context, key string) context.Context {
+	return context.WithValue(ctx, ctxKeyEnvKey, key)
+}
+
+func EnvKey(ctx context.Context) string {
+	v, ok := ctx.Value(ctxKeyEnvKey).(string)
 	if ok {
 		return v
 	}

@@ -15,6 +15,12 @@ type Project struct {
 	ArchivedAt  *time.Time
 }
 
+type ProjectWithEnv struct {
+	Project
+
+	EnvKey string
+}
+
 type ProjectDTO struct {
 	Name        string
 	Description string
@@ -22,16 +28,4 @@ type ProjectDTO struct {
 
 func (id ProjectID) String() string {
 	return string(id)
-}
-
-// GetAPIKeyForEnvironment returns the API key for a specific environment
-// This method will be implemented in the repository layer.
-func (p *Project) GetAPIKeyForEnvironment(envID EnvironmentID, environments []Environment) string {
-	for _, env := range environments {
-		if env.ID == envID && env.ProjectID == p.ID {
-			return env.APIKey
-		}
-	}
-
-	return ""
 }

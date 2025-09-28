@@ -10,6 +10,7 @@ type FeatureProcessor interface {
 	Evaluate(
 		projectID domain.ProjectID,
 		featureKey string,
+		env string,
 		reqCtx map[domain.RuleAttribute]any,
 	) (value string, enabled bool, found bool)
 	IsFeatureActive(feature domain.FeatureExtended) bool

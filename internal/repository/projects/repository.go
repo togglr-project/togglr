@@ -46,22 +46,30 @@ func (r *Repository) GetByID(ctx context.Context, id domain.ProjectID) (domain.P
 	return project.toDomain(), nil
 }
 
-func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
+func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.ProjectWithEnv, error) {
 	executor := r.getExecutor(ctx)
 
 	// Use v_projects_full to find the project-by-environment API key, then load a full project
-	const query = `SELECT id FROM v_projects_full WHERE api_key = $1 LIMIT 1`
+	const query = `SELECT id, environment_key FROM v_projects_full WHERE api_key = $1 LIMIT 1`
 
-	var projID string
-	if err := executor.QueryRow(ctx, query, apiKey).Scan(&projID); err != nil {
+	var projID, envKey string
+	if err := executor.QueryRow(ctx, query, apiKey).Scan(&projID, &envKey); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Project{}, domain.ErrEntityNotFound
+			return domain.ProjectWithEnv{}, domain.ErrEntityNotFound
 		}
 
-		return domain.Project{}, fmt.Errorf("query project by api_key: %w", err)
+		return domain.ProjectWithEnv{}, fmt.Errorf("query project by api_key: %w", err)
 	}
 
-	return r.GetByID(ctx, domain.ProjectID(projID))
+	project, err := r.GetByID(ctx, domain.ProjectID(projID))
+	if err != nil {
+		return domain.ProjectWithEnv{}, err
+	}
+
+	return domain.ProjectWithEnv{
+		Project: project,
+		EnvKey:  envKey,
+	}, nil
 }
 
 func (r *Repository) Create(ctx context.Context, project *domain.ProjectDTO) (domain.ProjectID, error) {
