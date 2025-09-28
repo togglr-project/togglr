@@ -314,6 +314,21 @@ func (UnimplementedHandler) GetCurrentUser(ctx context.Context) (r GetCurrentUse
 	return r, ht.ErrNotImplemented
 }
 
+// GetDashboardOverview implements GetDashboardOverview operation.
+//
+// Returns aggregated dashboard data for a project:
+// - project health
+// - category health
+// - feature activity (upcoming & recent)
+// - recent activity (batched by request_id)
+// - risky features
+// - pending summary.
+//
+// GET /api/v1/dashboard/overview
+func (UnimplementedHandler) GetDashboardOverview(ctx context.Context, params GetDashboardOverviewParams) (r GetDashboardOverviewRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetEnvironment implements GetEnvironment operation.
 //
 // Get environment.

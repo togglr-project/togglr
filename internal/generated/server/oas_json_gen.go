@@ -871,6 +871,332 @@ func (s *Category) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode implements json.Marshaler.
+func (s *CategoryHealth) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *CategoryHealth) encodeFields(e *jx.Encoder) {
+	{
+		if s.ProjectID.Set {
+			e.FieldStart("project_id")
+			s.ProjectID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentID.Set {
+			e.FieldStart("environment_id")
+			s.EnvironmentID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentKey.Set {
+			e.FieldStart("environment_key")
+			s.EnvironmentKey.Encode(e)
+		}
+	}
+	{
+		if s.CategoryID.Set {
+			e.FieldStart("category_id")
+			s.CategoryID.Encode(e)
+		}
+	}
+	{
+		if s.CategoryName.Set {
+			e.FieldStart("category_name")
+			s.CategoryName.Encode(e)
+		}
+	}
+	{
+		if s.CategorySlug.Set {
+			e.FieldStart("category_slug")
+			s.CategorySlug.Encode(e)
+		}
+	}
+	{
+		if s.TotalFeatures.Set {
+			e.FieldStart("total_features")
+			s.TotalFeatures.Encode(e)
+		}
+	}
+	{
+		if s.EnabledFeatures.Set {
+			e.FieldStart("enabled_features")
+			s.EnabledFeatures.Encode(e)
+		}
+	}
+	{
+		if s.DisabledFeatures.Set {
+			e.FieldStart("disabled_features")
+			s.DisabledFeatures.Encode(e)
+		}
+	}
+	{
+		if s.PendingFeatures.Set {
+			e.FieldStart("pending_features")
+			s.PendingFeatures.Encode(e)
+		}
+	}
+	{
+		if s.GuardedFeatures.Set {
+			e.FieldStart("guarded_features")
+			s.GuardedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.AutoDisableManagedFeatures.Set {
+			e.FieldStart("auto_disable_managed_features")
+			s.AutoDisableManagedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.PendingGuardedFeatures.Set {
+			e.FieldStart("pending_guarded_features")
+			s.PendingGuardedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.HealthStatus.Set {
+			e.FieldStart("health_status")
+			s.HealthStatus.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfCategoryHealth = [14]string{
+	0:  "project_id",
+	1:  "environment_id",
+	2:  "environment_key",
+	3:  "category_id",
+	4:  "category_name",
+	5:  "category_slug",
+	6:  "total_features",
+	7:  "enabled_features",
+	8:  "disabled_features",
+	9:  "pending_features",
+	10: "guarded_features",
+	11: "auto_disable_managed_features",
+	12: "pending_guarded_features",
+	13: "health_status",
+}
+
+// Decode decodes CategoryHealth from json.
+func (s *CategoryHealth) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CategoryHealth to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "project_id":
+			if err := func() error {
+				s.ProjectID.Reset()
+				if err := s.ProjectID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "environment_id":
+			if err := func() error {
+				s.EnvironmentID.Reset()
+				if err := s.EnvironmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_id\"")
+			}
+		case "environment_key":
+			if err := func() error {
+				s.EnvironmentKey.Reset()
+				if err := s.EnvironmentKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "category_id":
+			if err := func() error {
+				s.CategoryID.Reset()
+				if err := s.CategoryID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"category_id\"")
+			}
+		case "category_name":
+			if err := func() error {
+				s.CategoryName.Reset()
+				if err := s.CategoryName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"category_name\"")
+			}
+		case "category_slug":
+			if err := func() error {
+				s.CategorySlug.Reset()
+				if err := s.CategorySlug.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"category_slug\"")
+			}
+		case "total_features":
+			if err := func() error {
+				s.TotalFeatures.Reset()
+				if err := s.TotalFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"total_features\"")
+			}
+		case "enabled_features":
+			if err := func() error {
+				s.EnabledFeatures.Reset()
+				if err := s.EnabledFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled_features\"")
+			}
+		case "disabled_features":
+			if err := func() error {
+				s.DisabledFeatures.Reset()
+				if err := s.DisabledFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"disabled_features\"")
+			}
+		case "pending_features":
+			if err := func() error {
+				s.PendingFeatures.Reset()
+				if err := s.PendingFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_features\"")
+			}
+		case "guarded_features":
+			if err := func() error {
+				s.GuardedFeatures.Reset()
+				if err := s.GuardedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"guarded_features\"")
+			}
+		case "auto_disable_managed_features":
+			if err := func() error {
+				s.AutoDisableManagedFeatures.Reset()
+				if err := s.AutoDisableManagedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"auto_disable_managed_features\"")
+			}
+		case "pending_guarded_features":
+			if err := func() error {
+				s.PendingGuardedFeatures.Reset()
+				if err := s.PendingGuardedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_guarded_features\"")
+			}
+		case "health_status":
+			if err := func() error {
+				s.HealthStatus.Reset()
+				if err := s.HealthStatus.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"health_status\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode CategoryHealth")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *CategoryHealth) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CategoryHealth) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes CategoryHealthHealthStatus as json.
+func (s CategoryHealthHealthStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes CategoryHealthHealthStatus from json.
+func (s *CategoryHealthHealthStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode CategoryHealthHealthStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch CategoryHealthHealthStatus(v) {
+	case CategoryHealthHealthStatusGreen:
+		*s = CategoryHealthHealthStatusGreen
+	case CategoryHealthHealthStatusYellow:
+		*s = CategoryHealthHealthStatusYellow
+	case CategoryHealthHealthStatusRed:
+		*s = CategoryHealthHealthStatusRed
+	default:
+		*s = CategoryHealthHealthStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s CategoryHealthHealthStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *CategoryHealthHealthStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes CategoryKind as json.
 func (s CategoryKind) Encode(e *jx.Encoder) {
 	e.Str(string(s))
@@ -3896,6 +4222,311 @@ func (s *CreateUserResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateUserResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *DashboardOverviewResponse) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *DashboardOverviewResponse) encodeFields(e *jx.Encoder) {
+	{
+		if s.Projects != nil {
+			e.FieldStart("projects")
+			e.ArrStart()
+			for _, elem := range s.Projects {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.Categories != nil {
+			e.FieldStart("categories")
+			e.ArrStart()
+			for _, elem := range s.Categories {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.FeatureActivity.Set {
+			e.FieldStart("feature_activity")
+			s.FeatureActivity.Encode(e)
+		}
+	}
+	{
+		if s.RecentActivity != nil {
+			e.FieldStart("recent_activity")
+			e.ArrStart()
+			for _, elem := range s.RecentActivity {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.RiskyFeatures != nil {
+			e.FieldStart("risky_features")
+			e.ArrStart()
+			for _, elem := range s.RiskyFeatures {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.PendingSummary != nil {
+			e.FieldStart("pending_summary")
+			e.ArrStart()
+			for _, elem := range s.PendingSummary {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfDashboardOverviewResponse = [6]string{
+	0: "projects",
+	1: "categories",
+	2: "feature_activity",
+	3: "recent_activity",
+	4: "risky_features",
+	5: "pending_summary",
+}
+
+// Decode decodes DashboardOverviewResponse from json.
+func (s *DashboardOverviewResponse) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DashboardOverviewResponse to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "projects":
+			if err := func() error {
+				s.Projects = make([]ProjectHealth, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem ProjectHealth
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Projects = append(s.Projects, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"projects\"")
+			}
+		case "categories":
+			if err := func() error {
+				s.Categories = make([]CategoryHealth, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem CategoryHealth
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Categories = append(s.Categories, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"categories\"")
+			}
+		case "feature_activity":
+			if err := func() error {
+				s.FeatureActivity.Reset()
+				if err := s.FeatureActivity.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_activity\"")
+			}
+		case "recent_activity":
+			if err := func() error {
+				s.RecentActivity = make([]RecentActivity, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RecentActivity
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.RecentActivity = append(s.RecentActivity, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"recent_activity\"")
+			}
+		case "risky_features":
+			if err := func() error {
+				s.RiskyFeatures = make([]RiskyFeature, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RiskyFeature
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.RiskyFeatures = append(s.RiskyFeatures, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"risky_features\"")
+			}
+		case "pending_summary":
+			if err := func() error {
+				s.PendingSummary = make([]PendingSummary, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem PendingSummary
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.PendingSummary = append(s.PendingSummary, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_summary\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode DashboardOverviewResponse")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DashboardOverviewResponse) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DashboardOverviewResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *DashboardOverviewResponseFeatureActivity) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *DashboardOverviewResponseFeatureActivity) encodeFields(e *jx.Encoder) {
+	{
+		if s.Upcoming != nil {
+			e.FieldStart("upcoming")
+			e.ArrStart()
+			for _, elem := range s.Upcoming {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+	{
+		if s.Recent != nil {
+			e.FieldStart("recent")
+			e.ArrStart()
+			for _, elem := range s.Recent {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfDashboardOverviewResponseFeatureActivity = [2]string{
+	0: "upcoming",
+	1: "recent",
+}
+
+// Decode decodes DashboardOverviewResponseFeatureActivity from json.
+func (s *DashboardOverviewResponseFeatureActivity) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode DashboardOverviewResponseFeatureActivity to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "upcoming":
+			if err := func() error {
+				s.Upcoming = make([]FeatureUpcoming, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem FeatureUpcoming
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Upcoming = append(s.Upcoming, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"upcoming\"")
+			}
+		case "recent":
+			if err := func() error {
+				s.Recent = make([]FeatureRecent, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem FeatureRecent
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Recent = append(s.Recent, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"recent\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode DashboardOverviewResponseFeatureActivity")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *DashboardOverviewResponseFeatureActivity) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *DashboardOverviewResponseFeatureActivity) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -6946,6 +7577,137 @@ func (s *FeatureKind) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *FeatureRecent) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *FeatureRecent) encodeFields(e *jx.Encoder) {
+	{
+		if s.FeatureID.Set {
+			e.FieldStart("feature_id")
+			s.FeatureID.Encode(e)
+		}
+	}
+	{
+		if s.FeatureName.Set {
+			e.FieldStart("feature_name")
+			s.FeatureName.Encode(e)
+		}
+	}
+	{
+		if s.Action.Set {
+			e.FieldStart("action")
+			s.Action.Encode(e)
+		}
+	}
+	{
+		if s.Actor.Set {
+			e.FieldStart("actor")
+			s.Actor.Encode(e)
+		}
+	}
+	{
+		if s.At.Set {
+			e.FieldStart("at")
+			s.At.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfFeatureRecent = [5]string{
+	0: "feature_id",
+	1: "feature_name",
+	2: "action",
+	3: "actor",
+	4: "at",
+}
+
+// Decode decodes FeatureRecent from json.
+func (s *FeatureRecent) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode FeatureRecent to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "feature_id":
+			if err := func() error {
+				s.FeatureID.Reset()
+				if err := s.FeatureID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_id\"")
+			}
+		case "feature_name":
+			if err := func() error {
+				s.FeatureName.Reset()
+				if err := s.FeatureName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_name\"")
+			}
+		case "action":
+			if err := func() error {
+				s.Action.Reset()
+				if err := s.Action.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"action\"")
+			}
+		case "actor":
+			if err := func() error {
+				s.Actor.Reset()
+				if err := s.Actor.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"actor\"")
+			}
+		case "at":
+			if err := func() error {
+				s.At.Reset()
+				if err := s.At.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"at\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode FeatureRecent")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *FeatureRecent) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *FeatureRecent) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *FeatureResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -7636,6 +8398,160 @@ func (s *FeatureTimelineResponse) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *FeatureTimelineResponse) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *FeatureUpcoming) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *FeatureUpcoming) encodeFields(e *jx.Encoder) {
+	{
+		if s.FeatureID.Set {
+			e.FieldStart("feature_id")
+			s.FeatureID.Encode(e)
+		}
+	}
+	{
+		if s.FeatureName.Set {
+			e.FieldStart("feature_name")
+			s.FeatureName.Encode(e)
+		}
+	}
+	{
+		if s.NextState.Set {
+			e.FieldStart("next_state")
+			s.NextState.Encode(e)
+		}
+	}
+	{
+		if s.At.Set {
+			e.FieldStart("at")
+			s.At.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfFeatureUpcoming = [4]string{
+	0: "feature_id",
+	1: "feature_name",
+	2: "next_state",
+	3: "at",
+}
+
+// Decode decodes FeatureUpcoming from json.
+func (s *FeatureUpcoming) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode FeatureUpcoming to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "feature_id":
+			if err := func() error {
+				s.FeatureID.Reset()
+				if err := s.FeatureID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_id\"")
+			}
+		case "feature_name":
+			if err := func() error {
+				s.FeatureName.Reset()
+				if err := s.FeatureName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_name\"")
+			}
+		case "next_state":
+			if err := func() error {
+				s.NextState.Reset()
+				if err := s.NextState.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"next_state\"")
+			}
+		case "at":
+			if err := func() error {
+				s.At.Reset()
+				if err := s.At.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"at\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode FeatureUpcoming")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *FeatureUpcoming) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *FeatureUpcoming) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes FeatureUpcomingNextState as json.
+func (s FeatureUpcomingNextState) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes FeatureUpcomingNextState from json.
+func (s *FeatureUpcomingNextState) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode FeatureUpcomingNextState to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch FeatureUpcomingNextState(v) {
+	case FeatureUpcomingNextStateEnabled:
+		*s = FeatureUpcomingNextStateEnabled
+	case FeatureUpcomingNextStateDisabled:
+		*s = FeatureUpcomingNextStateDisabled
+	default:
+		*s = FeatureUpcomingNextState(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s FeatureUpcomingNextState) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *FeatureUpcomingNextState) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -12187,6 +13103,72 @@ func (s *OptCategory) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes CategoryHealthHealthStatus as json.
+func (o OptCategoryHealthHealthStatus) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes CategoryHealthHealthStatus from json.
+func (o *OptCategoryHealthHealthStatus) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptCategoryHealthHealthStatus to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptCategoryHealthHealthStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptCategoryHealthHealthStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes DashboardOverviewResponseFeatureActivity as json.
+func (o OptDashboardOverviewResponseFeatureActivity) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	o.Value.Encode(e)
+}
+
+// Decode decodes DashboardOverviewResponseFeatureActivity from json.
+func (o *OptDashboardOverviewResponseFeatureActivity) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptDashboardOverviewResponseFeatureActivity to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptDashboardOverviewResponseFeatureActivity) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptDashboardOverviewResponseFeatureActivity) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes time.Time as json.
 func (o OptDate) Encode(e *jx.Encoder, format func(*jx.Encoder, time.Time)) {
 	if !o.Set {
@@ -12286,6 +13268,39 @@ func (s OptEnvironment) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptEnvironment) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes FeatureUpcomingNextState as json.
+func (o OptFeatureUpcomingNextState) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes FeatureUpcomingNextState from json.
+func (o *OptFeatureUpcomingNextState) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptFeatureUpcomingNextState to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptFeatureUpcomingNextState) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptFeatureUpcomingNextState) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -12849,6 +13864,72 @@ func (s *OptPagination) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
+// Encode encodes ProjectHealthHealthStatus as json.
+func (o OptProjectHealthHealthStatus) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes ProjectHealthHealthStatus from json.
+func (o *OptProjectHealthHealthStatus) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptProjectHealthHealthStatus to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptProjectHealthHealthStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptProjectHealthHealthStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RecentActivityStatus as json.
+func (o OptRecentActivityStatus) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.Str(string(o.Value))
+}
+
+// Decode decodes RecentActivityStatus from json.
+func (o *OptRecentActivityStatus) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptRecentActivityStatus to nil")
+	}
+	o.Set = true
+	if err := o.Value.Decode(d); err != nil {
+		return err
+	}
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptRecentActivityStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptRecentActivityStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
 // Encode encodes RuleCondition as json.
 func (o OptRuleCondition) Encode(e *jx.Encoder) {
 	if !o.Set {
@@ -12981,6 +14062,41 @@ func (s OptUUID) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *OptUUID) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes uint as json.
+func (o OptUint) Encode(e *jx.Encoder) {
+	if !o.Set {
+		return
+	}
+	e.UInt(uint(o.Value))
+}
+
+// Decode decodes uint from json.
+func (o *OptUint) Decode(d *jx.Decoder) error {
+	if o == nil {
+		return errors.New("invalid: unable to decode OptUint to nil")
+	}
+	o.Set = true
+	v, err := d.UInt()
+	if err != nil {
+		return err
+	}
+	o.Value = uint(v)
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s OptUint) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *OptUint) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -13897,6 +15013,171 @@ func (s *PendingChangesListResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *PendingSummary) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *PendingSummary) encodeFields(e *jx.Encoder) {
+	{
+		if s.ProjectID.Set {
+			e.FieldStart("project_id")
+			s.ProjectID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentID.Set {
+			e.FieldStart("environment_id")
+			s.EnvironmentID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentKey.Set {
+			e.FieldStart("environment_key")
+			s.EnvironmentKey.Encode(e)
+		}
+	}
+	{
+		if s.TotalPending.Set {
+			e.FieldStart("total_pending")
+			s.TotalPending.Encode(e)
+		}
+	}
+	{
+		if s.PendingFeatureChanges.Set {
+			e.FieldStart("pending_feature_changes")
+			s.PendingFeatureChanges.Encode(e)
+		}
+	}
+	{
+		if s.PendingGuardedChanges.Set {
+			e.FieldStart("pending_guarded_changes")
+			s.PendingGuardedChanges.Encode(e)
+		}
+	}
+	{
+		if s.OldestRequestAt.Set {
+			e.FieldStart("oldest_request_at")
+			s.OldestRequestAt.Encode(e, json.EncodeDateTime)
+		}
+	}
+}
+
+var jsonFieldsNameOfPendingSummary = [7]string{
+	0: "project_id",
+	1: "environment_id",
+	2: "environment_key",
+	3: "total_pending",
+	4: "pending_feature_changes",
+	5: "pending_guarded_changes",
+	6: "oldest_request_at",
+}
+
+// Decode decodes PendingSummary from json.
+func (s *PendingSummary) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode PendingSummary to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "project_id":
+			if err := func() error {
+				s.ProjectID.Reset()
+				if err := s.ProjectID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "environment_id":
+			if err := func() error {
+				s.EnvironmentID.Reset()
+				if err := s.EnvironmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_id\"")
+			}
+		case "environment_key":
+			if err := func() error {
+				s.EnvironmentKey.Reset()
+				if err := s.EnvironmentKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "total_pending":
+			if err := func() error {
+				s.TotalPending.Reset()
+				if err := s.TotalPending.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"total_pending\"")
+			}
+		case "pending_feature_changes":
+			if err := func() error {
+				s.PendingFeatureChanges.Reset()
+				if err := s.PendingFeatureChanges.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_feature_changes\"")
+			}
+		case "pending_guarded_changes":
+			if err := func() error {
+				s.PendingGuardedChanges.Reset()
+				if err := s.PendingGuardedChanges.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_guarded_changes\"")
+			}
+		case "oldest_request_at":
+			if err := func() error {
+				s.OldestRequestAt.Reset()
+				if err := s.OldestRequestAt.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"oldest_request_at\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode PendingSummary")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *PendingSummary) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *PendingSummary) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *ProductInfoResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -14152,6 +15433,298 @@ func (s *Project) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *Project) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *ProjectHealth) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *ProjectHealth) encodeFields(e *jx.Encoder) {
+	{
+		if s.ProjectID.Set {
+			e.FieldStart("project_id")
+			s.ProjectID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentID.Set {
+			e.FieldStart("environment_id")
+			s.EnvironmentID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentKey.Set {
+			e.FieldStart("environment_key")
+			s.EnvironmentKey.Encode(e)
+		}
+	}
+	{
+		if s.TotalFeatures.Set {
+			e.FieldStart("total_features")
+			s.TotalFeatures.Encode(e)
+		}
+	}
+	{
+		if s.EnabledFeatures.Set {
+			e.FieldStart("enabled_features")
+			s.EnabledFeatures.Encode(e)
+		}
+	}
+	{
+		if s.DisabledFeatures.Set {
+			e.FieldStart("disabled_features")
+			s.DisabledFeatures.Encode(e)
+		}
+	}
+	{
+		if s.AutoDisableManagedFeatures.Set {
+			e.FieldStart("auto_disable_managed_features")
+			s.AutoDisableManagedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.UncategorizedFeatures.Set {
+			e.FieldStart("uncategorized_features")
+			s.UncategorizedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.GuardedFeatures.Set {
+			e.FieldStart("guarded_features")
+			s.GuardedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.PendingFeatures.Set {
+			e.FieldStart("pending_features")
+			s.PendingFeatures.Encode(e)
+		}
+	}
+	{
+		if s.PendingGuardedFeatures.Set {
+			e.FieldStart("pending_guarded_features")
+			s.PendingGuardedFeatures.Encode(e)
+		}
+	}
+	{
+		if s.HealthStatus.Set {
+			e.FieldStart("health_status")
+			s.HealthStatus.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfProjectHealth = [12]string{
+	0:  "project_id",
+	1:  "environment_id",
+	2:  "environment_key",
+	3:  "total_features",
+	4:  "enabled_features",
+	5:  "disabled_features",
+	6:  "auto_disable_managed_features",
+	7:  "uncategorized_features",
+	8:  "guarded_features",
+	9:  "pending_features",
+	10: "pending_guarded_features",
+	11: "health_status",
+}
+
+// Decode decodes ProjectHealth from json.
+func (s *ProjectHealth) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ProjectHealth to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "project_id":
+			if err := func() error {
+				s.ProjectID.Reset()
+				if err := s.ProjectID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "environment_id":
+			if err := func() error {
+				s.EnvironmentID.Reset()
+				if err := s.EnvironmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_id\"")
+			}
+		case "environment_key":
+			if err := func() error {
+				s.EnvironmentKey.Reset()
+				if err := s.EnvironmentKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "total_features":
+			if err := func() error {
+				s.TotalFeatures.Reset()
+				if err := s.TotalFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"total_features\"")
+			}
+		case "enabled_features":
+			if err := func() error {
+				s.EnabledFeatures.Reset()
+				if err := s.EnabledFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled_features\"")
+			}
+		case "disabled_features":
+			if err := func() error {
+				s.DisabledFeatures.Reset()
+				if err := s.DisabledFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"disabled_features\"")
+			}
+		case "auto_disable_managed_features":
+			if err := func() error {
+				s.AutoDisableManagedFeatures.Reset()
+				if err := s.AutoDisableManagedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"auto_disable_managed_features\"")
+			}
+		case "uncategorized_features":
+			if err := func() error {
+				s.UncategorizedFeatures.Reset()
+				if err := s.UncategorizedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"uncategorized_features\"")
+			}
+		case "guarded_features":
+			if err := func() error {
+				s.GuardedFeatures.Reset()
+				if err := s.GuardedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"guarded_features\"")
+			}
+		case "pending_features":
+			if err := func() error {
+				s.PendingFeatures.Reset()
+				if err := s.PendingFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_features\"")
+			}
+		case "pending_guarded_features":
+			if err := func() error {
+				s.PendingGuardedFeatures.Reset()
+				if err := s.PendingGuardedFeatures.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"pending_guarded_features\"")
+			}
+		case "health_status":
+			if err := func() error {
+				s.HealthStatus.Reset()
+				if err := s.HealthStatus.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"health_status\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode ProjectHealth")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *ProjectHealth) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ProjectHealth) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes ProjectHealthHealthStatus as json.
+func (s ProjectHealthHealthStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes ProjectHealthHealthStatus from json.
+func (s *ProjectHealthHealthStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode ProjectHealthHealthStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch ProjectHealthHealthStatus(v) {
+	case ProjectHealthHealthStatusGreen:
+		*s = ProjectHealthHealthStatusGreen
+	case ProjectHealthHealthStatusYellow:
+		*s = ProjectHealthHealthStatusYellow
+	case ProjectHealthHealthStatusRed:
+		*s = ProjectHealthHealthStatusRed
+	default:
+		*s = ProjectHealthHealthStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s ProjectHealthHealthStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *ProjectHealthHealthStatus) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -14818,6 +16391,355 @@ func (s *ProjectTagResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *RecentActivity) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RecentActivity) encodeFields(e *jx.Encoder) {
+	{
+		if s.ProjectID.Set {
+			e.FieldStart("project_id")
+			s.ProjectID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentID.Set {
+			e.FieldStart("environment_id")
+			s.EnvironmentID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentKey.Set {
+			e.FieldStart("environment_key")
+			s.EnvironmentKey.Encode(e)
+		}
+	}
+	{
+		if s.ProjectName.Set {
+			e.FieldStart("project_name")
+			s.ProjectName.Encode(e)
+		}
+	}
+	{
+		if s.RequestID.Set {
+			e.FieldStart("request_id")
+			s.RequestID.Encode(e)
+		}
+	}
+	{
+		if s.Actor.Set {
+			e.FieldStart("actor")
+			s.Actor.Encode(e)
+		}
+	}
+	{
+		if s.CreatedAt.Set {
+			e.FieldStart("created_at")
+			s.CreatedAt.Encode(e, json.EncodeDateTime)
+		}
+	}
+	{
+		if s.Status.Set {
+			e.FieldStart("status")
+			s.Status.Encode(e)
+		}
+	}
+	{
+		if s.Changes != nil {
+			e.FieldStart("changes")
+			e.ArrStart()
+			for _, elem := range s.Changes {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
+}
+
+var jsonFieldsNameOfRecentActivity = [9]string{
+	0: "project_id",
+	1: "environment_id",
+	2: "environment_key",
+	3: "project_name",
+	4: "request_id",
+	5: "actor",
+	6: "created_at",
+	7: "status",
+	8: "changes",
+}
+
+// Decode decodes RecentActivity from json.
+func (s *RecentActivity) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RecentActivity to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "project_id":
+			if err := func() error {
+				s.ProjectID.Reset()
+				if err := s.ProjectID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "environment_id":
+			if err := func() error {
+				s.EnvironmentID.Reset()
+				if err := s.EnvironmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_id\"")
+			}
+		case "environment_key":
+			if err := func() error {
+				s.EnvironmentKey.Reset()
+				if err := s.EnvironmentKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "project_name":
+			if err := func() error {
+				s.ProjectName.Reset()
+				if err := s.ProjectName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_name\"")
+			}
+		case "request_id":
+			if err := func() error {
+				s.RequestID.Reset()
+				if err := s.RequestID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"request_id\"")
+			}
+		case "actor":
+			if err := func() error {
+				s.Actor.Reset()
+				if err := s.Actor.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"actor\"")
+			}
+		case "created_at":
+			if err := func() error {
+				s.CreatedAt.Reset()
+				if err := s.CreatedAt.Decode(d, json.DecodeDateTime); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"created_at\"")
+			}
+		case "status":
+			if err := func() error {
+				s.Status.Reset()
+				if err := s.Status.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"status\"")
+			}
+		case "changes":
+			if err := func() error {
+				s.Changes = make([]RecentActivityChangesItem, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem RecentActivityChangesItem
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Changes = append(s.Changes, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"changes\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RecentActivity")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RecentActivity) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RecentActivity) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *RecentActivityChangesItem) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RecentActivityChangesItem) encodeFields(e *jx.Encoder) {
+	{
+		if s.Entity.Set {
+			e.FieldStart("entity")
+			s.Entity.Encode(e)
+		}
+	}
+	{
+		if s.EntityID.Set {
+			e.FieldStart("entity_id")
+			s.EntityID.Encode(e)
+		}
+	}
+	{
+		if s.Action.Set {
+			e.FieldStart("action")
+			s.Action.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfRecentActivityChangesItem = [3]string{
+	0: "entity",
+	1: "entity_id",
+	2: "action",
+}
+
+// Decode decodes RecentActivityChangesItem from json.
+func (s *RecentActivityChangesItem) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RecentActivityChangesItem to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "entity":
+			if err := func() error {
+				s.Entity.Reset()
+				if err := s.Entity.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"entity\"")
+			}
+		case "entity_id":
+			if err := func() error {
+				s.EntityID.Reset()
+				if err := s.EntityID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"entity_id\"")
+			}
+		case "action":
+			if err := func() error {
+				s.Action.Reset()
+				if err := s.Action.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"action\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RecentActivityChangesItem")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RecentActivityChangesItem) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RecentActivityChangesItem) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes RecentActivityStatus as json.
+func (s RecentActivityStatus) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes RecentActivityStatus from json.
+func (s *RecentActivityStatus) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RecentActivityStatus to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch RecentActivityStatus(v) {
+	case RecentActivityStatusApplied:
+		*s = RecentActivityStatusApplied
+	case RecentActivityStatusPending:
+		*s = RecentActivityStatusPending
+	case RecentActivityStatusRejected:
+		*s = RecentActivityStatusRejected
+	default:
+		*s = RecentActivityStatus(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s RecentActivityStatus) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RecentActivityStatus) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *RefreshTokenRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -15265,6 +17187,188 @@ func (s *ResetPasswordRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ResetPasswordRequest) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s *RiskyFeature) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *RiskyFeature) encodeFields(e *jx.Encoder) {
+	{
+		if s.ProjectID.Set {
+			e.FieldStart("project_id")
+			s.ProjectID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentID.Set {
+			e.FieldStart("environment_id")
+			s.EnvironmentID.Encode(e)
+		}
+	}
+	{
+		if s.EnvironmentKey.Set {
+			e.FieldStart("environment_key")
+			s.EnvironmentKey.Encode(e)
+		}
+	}
+	{
+		if s.FeatureID.Set {
+			e.FieldStart("feature_id")
+			s.FeatureID.Encode(e)
+		}
+	}
+	{
+		if s.FeatureName.Set {
+			e.FieldStart("feature_name")
+			s.FeatureName.Encode(e)
+		}
+	}
+	{
+		if s.Enabled.Set {
+			e.FieldStart("enabled")
+			s.Enabled.Encode(e)
+		}
+	}
+	{
+		if s.HasPending.Set {
+			e.FieldStart("has_pending")
+			s.HasPending.Encode(e)
+		}
+	}
+	{
+		if s.RiskyTags.Set {
+			e.FieldStart("risky_tags")
+			s.RiskyTags.Encode(e)
+		}
+	}
+}
+
+var jsonFieldsNameOfRiskyFeature = [8]string{
+	0: "project_id",
+	1: "environment_id",
+	2: "environment_key",
+	3: "feature_id",
+	4: "feature_name",
+	5: "enabled",
+	6: "has_pending",
+	7: "risky_tags",
+}
+
+// Decode decodes RiskyFeature from json.
+func (s *RiskyFeature) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode RiskyFeature to nil")
+	}
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "project_id":
+			if err := func() error {
+				s.ProjectID.Reset()
+				if err := s.ProjectID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "environment_id":
+			if err := func() error {
+				s.EnvironmentID.Reset()
+				if err := s.EnvironmentID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_id\"")
+			}
+		case "environment_key":
+			if err := func() error {
+				s.EnvironmentKey.Reset()
+				if err := s.EnvironmentKey.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_key\"")
+			}
+		case "feature_id":
+			if err := func() error {
+				s.FeatureID.Reset()
+				if err := s.FeatureID.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_id\"")
+			}
+		case "feature_name":
+			if err := func() error {
+				s.FeatureName.Reset()
+				if err := s.FeatureName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_name\"")
+			}
+		case "enabled":
+			if err := func() error {
+				s.Enabled.Reset()
+				if err := s.Enabled.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled\"")
+			}
+		case "has_pending":
+			if err := func() error {
+				s.HasPending.Reset()
+				if err := s.HasPending.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"has_pending\"")
+			}
+		case "risky_tags":
+			if err := func() error {
+				s.RiskyTags.Reset()
+				if err := s.RiskyTags.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"risky_tags\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode RiskyFeature")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *RiskyFeature) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *RiskyFeature) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

@@ -22,6 +22,7 @@ import (
 	"github.com/togglr-project/togglr/internal/license"
 	"github.com/togglr-project/togglr/internal/repository/auditlog"
 	"github.com/togglr-project/togglr/internal/repository/categories"
+	dashboardrepo "github.com/togglr-project/togglr/internal/repository/dashboard"
 	environmentsrepo "github.com/togglr-project/togglr/internal/repository/environments"
 	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
@@ -54,6 +55,7 @@ import (
 	samlprovider "github.com/togglr-project/togglr/internal/services/sso/saml"
 	"github.com/togglr-project/togglr/internal/services/tokenizer"
 	categoriesusecase "github.com/togglr-project/togglr/internal/usecases/categories"
+	dashboardusecase "github.com/togglr-project/togglr/internal/usecases/dashboard"
 	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
 	featuretagsusecase "github.com/togglr-project/togglr/internal/usecases/feature-tags"
 	featuresusecase "github.com/togglr-project/togglr/internal/usecases/features"
@@ -220,6 +222,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(guard_service.New).Arg(app.PostgresPool)
 	app.registerComponent(environmentsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(featureparamsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(dashboardrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -252,6 +255,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(pendingchangesusecase.New)
 	app.registerComponent(projectsettingsusecase.New)
 	app.registerComponent(environmentsusecase.New)
+	app.registerComponent(dashboardusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

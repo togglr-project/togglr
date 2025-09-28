@@ -37,6 +37,7 @@ All URIs are relative to *http://localhost*
 |[**forgotPassword**](#forgotpassword) | **POST** /api/v1/auth/forgot-password | Request a password reset|
 |[**getCategory**](#getcategory) | **GET** /api/v1/categories/{category_id} | Get category details|
 |[**getCurrentUser**](#getcurrentuser) | **GET** /api/v1/users/me | Get current user information|
+|[**getDashboardOverview**](#getdashboardoverview) | **GET** /api/v1/dashboard/overview | Project Dashboard overview|
 |[**getEnvironment**](#getenvironment) | **GET** /api/v1/environments/{environment_id} | Get environment|
 |[**getFeature**](#getfeature) | **GET** /api/v1/features/{feature_id} | Get feature with rules and variants|
 |[**getFeatureSchedule**](#getfeatureschedule) | **GET** /api/v1/feature-schedules/{schedule_id} | Get feature schedule by ID|
@@ -1988,6 +1989,68 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | User information |  -  |
 |**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getDashboardOverview**
+> DashboardOverviewResponse getDashboardOverview()
+
+Returns aggregated dashboard data for a project: - project health - category health - feature activity (upcoming & recent) - recent activity (batched by request_id) - risky features - pending summary 
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let environmentKey: string; //Environment key (prod/stage/dev) (default to undefined)
+let projectId: string; //Optional project ID to filter results (optional) (default to undefined)
+let limit: number; //Limit for recent activity entries (optional) (default to 20)
+
+const { status, data } = await apiInstance.getDashboardOverview(
+    environmentKey,
+    projectId,
+    limit
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **environmentKey** | [**string**] | Environment key (prod/stage/dev) | defaults to undefined|
+| **projectId** | [**string**] | Optional project ID to filter results | (optional) defaults to undefined|
+| **limit** | [**number**] | Limit for recent activity entries | (optional) defaults to 20|
+
+
+### Return type
+
+**DashboardOverviewResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Dashboard data |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

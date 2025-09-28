@@ -133,6 +133,10 @@ type GetCurrentUserRes interface {
 	getCurrentUserRes()
 }
 
+type GetDashboardOverviewRes interface {
+	getDashboardOverviewRes()
+}
+
 type GetEnvironmentRes interface {
 	getEnvironmentRes()
 }

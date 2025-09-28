@@ -1733,6 +1733,173 @@ func decodeGetCategoryParams(args [1]string, argsEscaped bool, r *http.Request) 
 	return params, nil
 }
 
+// GetDashboardOverviewParams is parameters of GetDashboardOverview operation.
+type GetDashboardOverviewParams struct {
+	// Environment key (prod/stage/dev).
+	EnvironmentKey string
+	// Optional project ID to filter results.
+	ProjectID OptUUID
+	// Limit for recent activity entries.
+	Limit OptUint
+}
+
+func unpackGetDashboardOverviewParams(packed middleware.Parameters) (params GetDashboardOverviewParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.ProjectID = v.(OptUUID)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "limit",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Limit = v.(OptUint)
+		}
+	}
+	return params
+}
+
+func decodeGetDashboardOverviewParams(args [0]string, argsEscaped bool, r *http.Request) (params GetDashboardOverviewParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Decode query: project_id.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "project_id",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotProjectIDVal uuid.UUID
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToUUID(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotProjectIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ProjectID.SetTo(paramsDotProjectIDVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Set default value for query: limit.
+	{
+		val := uint(20)
+		params.Limit.SetTo(val)
+	}
+	// Decode query: limit.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "limit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotLimitVal uint
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToUint(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotLimitVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Limit.SetTo(paramsDotLimitVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "limit",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetEnvironmentParams is parameters of GetEnvironment operation.
 type GetEnvironmentParams struct {
 	EnvironmentID int64

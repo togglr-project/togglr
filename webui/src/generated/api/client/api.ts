@@ -89,6 +89,31 @@ export const CategoryKindEnum = {
 
 export type CategoryKindEnum = typeof CategoryKindEnum[keyof typeof CategoryKindEnum];
 
+export interface CategoryHealth {
+    'project_id'?: string;
+    'environment_id'?: string;
+    'environment_key'?: string;
+    'category_id'?: string;
+    'category_name'?: string;
+    'category_slug'?: string;
+    'total_features'?: number;
+    'enabled_features'?: number;
+    'disabled_features'?: number;
+    'pending_features'?: number;
+    'guarded_features'?: number;
+    'auto_disable_managed_features'?: number;
+    'pending_guarded_features'?: number;
+    'health_status'?: CategoryHealthHealthStatusEnum;
+}
+
+export const CategoryHealthHealthStatusEnum = {
+    Green: 'green',
+    Yellow: 'yellow',
+    Red: 'red'
+} as const;
+
+export type CategoryHealthHealthStatusEnum = typeof CategoryHealthHealthStatusEnum[keyof typeof CategoryHealthHealthStatusEnum];
+
 export interface CategoryResponse {
     'category': Category;
 }
@@ -287,6 +312,36 @@ export interface CreateUserRequest {
 export interface CreateUserResponse {
     'user': User;
 }
+export interface DashboardOverviewResponse {
+    /**
+     * Project-level health overview
+     */
+    'projects'?: Array<ProjectHealth>;
+    /**
+     * Per-category health
+     */
+    'categories'?: Array<CategoryHealth>;
+    'feature_activity'?: DashboardOverviewResponseFeatureActivity;
+    /**
+     * Recent batched changes
+     */
+    'recent_activity'?: Array<RecentActivity>;
+    /**
+     * Features with risky tags (critical, guarded, auto-disable)
+     */
+    'risky_features'?: Array<RiskyFeature>;
+    /**
+     * Summary of pending changes
+     */
+    'pending_summary'?: Array<PendingSummary>;
+}
+/**
+ * Feature-level upcoming and recent changes
+ */
+export interface DashboardOverviewResponseFeatureActivity {
+    'upcoming'?: Array<FeatureUpcoming>;
+    'recent'?: Array<FeatureRecent>;
+}
 export interface EntityChange {
     'entity': EntityChangeEntityEnum;
     'entity_id': string;
@@ -467,6 +522,13 @@ export const FeatureKind = {
 export type FeatureKind = typeof FeatureKind[keyof typeof FeatureKind];
 
 
+export interface FeatureRecent {
+    'feature_id'?: string;
+    'feature_name'?: string;
+    'action'?: string;
+    'actor'?: string;
+    'at'?: string;
+}
 export interface FeatureResponse {
     'feature': Feature;
 }
@@ -509,6 +571,20 @@ export interface FeatureTimelineEvent {
 export interface FeatureTimelineResponse {
     'events': Array<FeatureTimelineEvent>;
 }
+export interface FeatureUpcoming {
+    'feature_id'?: string;
+    'feature_name'?: string;
+    'next_state'?: FeatureUpcomingNextStateEnum;
+    'at'?: string;
+}
+
+export const FeatureUpcomingNextStateEnum = {
+    Enabled: 'enabled',
+    Disabled: 'disabled'
+} as const;
+
+export type FeatureUpcomingNextStateEnum = typeof FeatureUpcomingNextStateEnum[keyof typeof FeatureUpcomingNextStateEnum];
+
 export interface FlagVariant {
     'id': string;
     'feature_id': string;
@@ -881,6 +957,15 @@ export interface PendingChangesListResponse {
     'data': Array<PendingChangeResponse>;
     'pagination': Pagination;
 }
+export interface PendingSummary {
+    'project_id'?: string;
+    'environment_id'?: string;
+    'environment_key'?: string;
+    'total_pending'?: number;
+    'pending_feature_changes'?: number;
+    'pending_guarded_changes'?: number;
+    'oldest_request_at'?: string;
+}
 export interface ProductInfoResponse {
     /**
      * Unique client identifier for this installation
@@ -897,6 +982,29 @@ export interface Project {
     'description': string;
     'created_at': string;
 }
+export interface ProjectHealth {
+    'project_id'?: string;
+    'environment_id'?: string;
+    'environment_key'?: string;
+    'total_features'?: number;
+    'enabled_features'?: number;
+    'disabled_features'?: number;
+    'auto_disable_managed_features'?: number;
+    'uncategorized_features'?: number;
+    'guarded_features'?: number;
+    'pending_features'?: number;
+    'pending_guarded_features'?: number;
+    'health_status'?: ProjectHealthHealthStatusEnum;
+}
+
+export const ProjectHealthHealthStatusEnum = {
+    Green: 'green',
+    Yellow: 'yellow',
+    Red: 'red'
+} as const;
+
+export type ProjectHealthHealthStatusEnum = typeof ProjectHealthHealthStatusEnum[keyof typeof ProjectHealthHealthStatusEnum];
+
 export interface ProjectResponse {
     'project': Project;
 }
@@ -934,6 +1042,31 @@ export interface ProjectTag {
 export interface ProjectTagResponse {
     'tag': ProjectTag;
 }
+export interface RecentActivity {
+    'project_id'?: string;
+    'environment_id'?: string;
+    'environment_key'?: string;
+    'project_name'?: string;
+    'request_id'?: string;
+    'actor'?: string;
+    'created_at'?: string;
+    'status'?: RecentActivityStatusEnum;
+    'changes'?: Array<RecentActivityChangesInner>;
+}
+
+export const RecentActivityStatusEnum = {
+    Applied: 'applied',
+    Pending: 'pending',
+    Rejected: 'rejected'
+} as const;
+
+export type RecentActivityStatusEnum = typeof RecentActivityStatusEnum[keyof typeof RecentActivityStatusEnum];
+
+export interface RecentActivityChangesInner {
+    'entity'?: string;
+    'entity_id'?: string;
+    'action'?: string;
+}
 export interface RefreshTokenRequest {
     'refresh_token': string;
 }
@@ -949,6 +1082,16 @@ export interface RejectPendingChangeRequest {
 export interface ResetPasswordRequest {
     'token': string;
     'new_password': string;
+}
+export interface RiskyFeature {
+    'project_id'?: string;
+    'environment_id'?: string;
+    'environment_key'?: string;
+    'feature_id'?: string;
+    'feature_name'?: string;
+    'enabled'?: boolean;
+    'has_pending'?: boolean;
+    'risky_tags'?: string;
 }
 export interface Rule {
     'id': string;
@@ -2599,6 +2742,57 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Returns aggregated dashboard data for a project: - project health - category health - feature activity (upcoming & recent) - recent activity (batched by request_id) - risky features - pending summary 
+         * @summary Project Dashboard overview
+         * @param {string} environmentKey Environment key (prod/stage/dev)
+         * @param {string} [projectId] Optional project ID to filter results
+         * @param {number} [limit] Limit for recent activity entries
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDashboardOverview: async (environmentKey: string, projectId?: string, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('getDashboardOverview', 'environmentKey', environmentKey)
+            const localVarPath = `/api/v1/dashboard/overview`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (environmentKey !== undefined) {
+                localVarQueryParameter['environment_key'] = environmentKey;
+            }
+
+            if (projectId !== undefined) {
+                localVarQueryParameter['project_id'] = projectId;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
 
 
     
@@ -5938,6 +6132,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * Returns aggregated dashboard data for a project: - project health - category health - feature activity (upcoming & recent) - recent activity (batched by request_id) - risky features - pending summary 
+         * @summary Project Dashboard overview
+         * @param {string} environmentKey Environment key (prod/stage/dev)
+         * @param {string} [projectId] Optional project ID to filter results
+         * @param {number} [limit] Limit for recent activity entries
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getDashboardOverview(environmentKey: string, projectId?: string, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DashboardOverviewResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDashboardOverview(environmentKey, projectId, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getDashboardOverview']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 
          * @summary Get environment
          * @param {number} environmentId 
@@ -7210,6 +7419,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getCurrentUser(options).then((request) => request(axios, basePath));
         },
         /**
+         * Returns aggregated dashboard data for a project: - project health - category health - feature activity (upcoming & recent) - recent activity (batched by request_id) - risky features - pending summary 
+         * @summary Project Dashboard overview
+         * @param {string} environmentKey Environment key (prod/stage/dev)
+         * @param {string} [projectId] Optional project ID to filter results
+         * @param {number} [limit] Limit for recent activity entries
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getDashboardOverview(environmentKey: string, projectId?: string, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<DashboardOverviewResponse> {
+            return localVarFp.getDashboardOverview(environmentKey, projectId, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 
          * @summary Get environment
          * @param {number} environmentId 
@@ -8312,6 +8533,19 @@ export class DefaultApi extends BaseAPI {
      */
     public getCurrentUser(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getCurrentUser(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * Returns aggregated dashboard data for a project: - project health - category health - feature activity (upcoming & recent) - recent activity (batched by request_id) - risky features - pending summary 
+     * @summary Project Dashboard overview
+     * @param {string} environmentKey Environment key (prod/stage/dev)
+     * @param {string} [projectId] Optional project ID to filter results
+     * @param {number} [limit] Limit for recent activity entries
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getDashboardOverview(environmentKey: string, projectId?: string, limit?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getDashboardOverview(environmentKey, projectId, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

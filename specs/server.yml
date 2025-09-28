@@ -5388,6 +5388,80 @@ paths:
                 $ref: '#/components/schemas/Error'
 
 
+  /api/v1/dashboard/overview:
+    get:
+      summary: Project Dashboard overview
+      description: |
+        Returns aggregated dashboard data for a project:
+        - project health
+        - category health
+        - feature activity (upcoming & recent)
+        - recent activity (batched by request_id)
+        - risky features
+        - pending summary
+      operationId: GetDashboardOverview
+      parameters:
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Environment key (prod/stage/dev)
+        - name: project_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Optional project ID to filter results
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: uint
+            default: 20
+          description: Limit for recent activity entries
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardOverviewResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -7780,3 +7854,237 @@ components:
         pagination:
           $ref: '#/components/schemas/Pagination'
 
+    # Dashboard Overview Schemas
+    DashboardOverviewResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          description: Project-level health overview
+          items:
+            $ref: '#/components/schemas/ProjectHealth'
+        categories:
+          type: array
+          description: Per-category health
+          items:
+            $ref: '#/components/schemas/CategoryHealth'
+        feature_activity:
+          type: object
+          description: Feature-level upcoming and recent changes
+          properties:
+            upcoming:
+              type: array
+              items:
+                $ref: '#/components/schemas/FeatureUpcoming'
+            recent:
+              type: array
+              items:
+                $ref: '#/components/schemas/FeatureRecent'
+        recent_activity:
+          type: array
+          description: Recent batched changes
+          items:
+            $ref: '#/components/schemas/RecentActivity'
+        risky_features:
+          type: array
+          description: Features with risky tags (critical, guarded, auto-disable)
+          items:
+            $ref: '#/components/schemas/RiskyFeature'
+        pending_summary:
+          type: array
+          description: Summary of pending changes
+          items:
+            $ref: '#/components/schemas/PendingSummary'
+
+    ProjectHealth:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: string
+          format: uuid
+        environment_key:
+          type: string
+        total_features:
+          type: integer
+          format: uint
+        enabled_features:
+          type: integer
+          format: uint
+        disabled_features:
+          type: integer
+          format: uint
+        auto_disable_managed_features:
+          type: integer
+          format: uint
+        uncategorized_features:
+          type: integer
+          format: uint
+        guarded_features:
+          type: integer
+          format: uint
+        pending_features:
+          type: integer
+          format: uint
+        pending_guarded_features:
+          type: integer
+          format: uint
+        health_status:
+          type: string
+          enum: [green, yellow, red]
+
+    CategoryHealth:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: string
+          format: uuid
+        environment_key:
+          type: string
+        category_id:
+          type: string
+          format: uuid
+        category_name:
+          type: string
+        category_slug:
+          type: string
+        total_features:
+          type: integer
+          format: uint
+        enabled_features:
+          type: integer
+          format: uint
+        disabled_features:
+          type: integer
+          format: uint
+        pending_features:
+          type: integer
+          format: uint
+        guarded_features:
+          type: integer
+          format: uint
+        auto_disable_managed_features:
+          type: integer
+          format: uint
+        pending_guarded_features:
+          type: integer
+          format: uint
+        health_status:
+          type: string
+          enum: [green, yellow, red]
+
+    FeatureUpcoming:
+      type: object
+      properties:
+        feature_id:
+          type: string
+          format: uuid
+        feature_name:
+          type: string
+        next_state:
+          type: string
+          enum: [enabled, disabled]
+        at:
+          type: string
+          format: date-time
+
+    FeatureRecent:
+      type: object
+      properties:
+        feature_id:
+          type: string
+          format: uuid
+        feature_name:
+          type: string
+        action:
+          type: string
+        actor:
+          type: string
+        at:
+          type: string
+          format: date-time
+
+    RecentActivity:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: string
+          format: uuid
+        environment_key:
+          type: string
+        project_name:
+          type: string
+        request_id:
+          type: string
+          format: uuid
+        actor:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [applied, pending, rejected]
+        changes:
+          type: array
+          items:
+            type: object
+            properties:
+              entity: { type: string }
+              entity_id: { type: string, format: uuid }
+              action: { type: string }
+
+    RiskyFeature:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: string
+          format: uuid
+        environment_key:
+          type: string
+        feature_id:
+          type: string
+          format: uuid
+        feature_name:
+          type: string
+        enabled:
+          type: boolean
+        has_pending:
+          type: boolean
+        risky_tags:
+          type: string
+
+    PendingSummary:
+      type: object
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: string
+          format: uuid
+        environment_key:
+          type: string
+        total_pending:
+          type: integer
+          format: uint
+        pending_feature_changes:
+          type: integer
+          format: uint
+        pending_guarded_changes:
+          type: integer
+          format: uint
+        oldest_request_at:
+          type: string
+          format: date-time

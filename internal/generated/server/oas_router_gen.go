@@ -325,6 +325,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'd': // Prefix: "dashboard/overview"
+
+				if l := len("dashboard/overview"); len(elem) >= l && elem[0:l] == "dashboard/overview" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handleGetDashboardOverviewRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+
 			case 'e': // Prefix: "environments/"
 
 				if l := len("environments/"); len(elem) >= l && elem[0:l] == "environments/" {
@@ -2491,6 +2511,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 
+				}
+
+			case 'd': // Prefix: "dashboard/overview"
+
+				if l := len("dashboard/overview"); len(elem) >= l && elem[0:l] == "dashboard/overview" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "GET":
+						r.name = GetDashboardOverviewOperation
+						r.summary = "Project Dashboard overview"
+						r.operationID = "GetDashboardOverview"
+						r.pathPattern = "/api/v1/dashboard/overview"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
 				}
 
 			case 'e': // Prefix: "environments/"

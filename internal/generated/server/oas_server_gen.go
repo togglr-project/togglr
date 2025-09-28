@@ -210,6 +210,18 @@ type Handler interface {
 	//
 	// GET /api/v1/users/me
 	GetCurrentUser(ctx context.Context) (GetCurrentUserRes, error)
+	// GetDashboardOverview implements GetDashboardOverview operation.
+	//
+	// Returns aggregated dashboard data for a project:
+	// - project health
+	// - category health
+	// - feature activity (upcoming & recent)
+	// - recent activity (batched by request_id)
+	// - risky features
+	// - pending summary.
+	//
+	// GET /api/v1/dashboard/overview
+	GetDashboardOverview(ctx context.Context, params GetDashboardOverviewParams) (GetDashboardOverviewRes, error)
 	// GetEnvironment implements GetEnvironment operation.
 	//
 	// Get environment.

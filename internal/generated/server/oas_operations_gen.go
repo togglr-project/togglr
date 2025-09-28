@@ -39,6 +39,7 @@ const (
 	ForgotPasswordOperation              OperationName = "ForgotPassword"
 	GetCategoryOperation                 OperationName = "GetCategory"
 	GetCurrentUserOperation              OperationName = "GetCurrentUser"
+	GetDashboardOverviewOperation        OperationName = "GetDashboardOverview"
 	GetEnvironmentOperation              OperationName = "GetEnvironment"
 	GetFeatureOperation                  OperationName = "GetFeature"
 	GetFeatureScheduleOperation          OperationName = "GetFeatureSchedule"

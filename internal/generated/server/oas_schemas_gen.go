@@ -371,6 +371,212 @@ func (s *Category) SetUpdatedAt(val time.Time) {
 	s.UpdatedAt = val
 }
 
+// Ref: #/components/schemas/CategoryHealth
+type CategoryHealth struct {
+	ProjectID                  OptUUID                       `json:"project_id"`
+	EnvironmentID              OptUUID                       `json:"environment_id"`
+	EnvironmentKey             OptString                     `json:"environment_key"`
+	CategoryID                 OptUUID                       `json:"category_id"`
+	CategoryName               OptString                     `json:"category_name"`
+	CategorySlug               OptString                     `json:"category_slug"`
+	TotalFeatures              OptUint                       `json:"total_features"`
+	EnabledFeatures            OptUint                       `json:"enabled_features"`
+	DisabledFeatures           OptUint                       `json:"disabled_features"`
+	PendingFeatures            OptUint                       `json:"pending_features"`
+	GuardedFeatures            OptUint                       `json:"guarded_features"`
+	AutoDisableManagedFeatures OptUint                       `json:"auto_disable_managed_features"`
+	PendingGuardedFeatures     OptUint                       `json:"pending_guarded_features"`
+	HealthStatus               OptCategoryHealthHealthStatus `json:"health_status"`
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *CategoryHealth) GetProjectID() OptUUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *CategoryHealth) GetEnvironmentID() OptUUID {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *CategoryHealth) GetEnvironmentKey() OptString {
+	return s.EnvironmentKey
+}
+
+// GetCategoryID returns the value of CategoryID.
+func (s *CategoryHealth) GetCategoryID() OptUUID {
+	return s.CategoryID
+}
+
+// GetCategoryName returns the value of CategoryName.
+func (s *CategoryHealth) GetCategoryName() OptString {
+	return s.CategoryName
+}
+
+// GetCategorySlug returns the value of CategorySlug.
+func (s *CategoryHealth) GetCategorySlug() OptString {
+	return s.CategorySlug
+}
+
+// GetTotalFeatures returns the value of TotalFeatures.
+func (s *CategoryHealth) GetTotalFeatures() OptUint {
+	return s.TotalFeatures
+}
+
+// GetEnabledFeatures returns the value of EnabledFeatures.
+func (s *CategoryHealth) GetEnabledFeatures() OptUint {
+	return s.EnabledFeatures
+}
+
+// GetDisabledFeatures returns the value of DisabledFeatures.
+func (s *CategoryHealth) GetDisabledFeatures() OptUint {
+	return s.DisabledFeatures
+}
+
+// GetPendingFeatures returns the value of PendingFeatures.
+func (s *CategoryHealth) GetPendingFeatures() OptUint {
+	return s.PendingFeatures
+}
+
+// GetGuardedFeatures returns the value of GuardedFeatures.
+func (s *CategoryHealth) GetGuardedFeatures() OptUint {
+	return s.GuardedFeatures
+}
+
+// GetAutoDisableManagedFeatures returns the value of AutoDisableManagedFeatures.
+func (s *CategoryHealth) GetAutoDisableManagedFeatures() OptUint {
+	return s.AutoDisableManagedFeatures
+}
+
+// GetPendingGuardedFeatures returns the value of PendingGuardedFeatures.
+func (s *CategoryHealth) GetPendingGuardedFeatures() OptUint {
+	return s.PendingGuardedFeatures
+}
+
+// GetHealthStatus returns the value of HealthStatus.
+func (s *CategoryHealth) GetHealthStatus() OptCategoryHealthHealthStatus {
+	return s.HealthStatus
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *CategoryHealth) SetProjectID(val OptUUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *CategoryHealth) SetEnvironmentID(val OptUUID) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *CategoryHealth) SetEnvironmentKey(val OptString) {
+	s.EnvironmentKey = val
+}
+
+// SetCategoryID sets the value of CategoryID.
+func (s *CategoryHealth) SetCategoryID(val OptUUID) {
+	s.CategoryID = val
+}
+
+// SetCategoryName sets the value of CategoryName.
+func (s *CategoryHealth) SetCategoryName(val OptString) {
+	s.CategoryName = val
+}
+
+// SetCategorySlug sets the value of CategorySlug.
+func (s *CategoryHealth) SetCategorySlug(val OptString) {
+	s.CategorySlug = val
+}
+
+// SetTotalFeatures sets the value of TotalFeatures.
+func (s *CategoryHealth) SetTotalFeatures(val OptUint) {
+	s.TotalFeatures = val
+}
+
+// SetEnabledFeatures sets the value of EnabledFeatures.
+func (s *CategoryHealth) SetEnabledFeatures(val OptUint) {
+	s.EnabledFeatures = val
+}
+
+// SetDisabledFeatures sets the value of DisabledFeatures.
+func (s *CategoryHealth) SetDisabledFeatures(val OptUint) {
+	s.DisabledFeatures = val
+}
+
+// SetPendingFeatures sets the value of PendingFeatures.
+func (s *CategoryHealth) SetPendingFeatures(val OptUint) {
+	s.PendingFeatures = val
+}
+
+// SetGuardedFeatures sets the value of GuardedFeatures.
+func (s *CategoryHealth) SetGuardedFeatures(val OptUint) {
+	s.GuardedFeatures = val
+}
+
+// SetAutoDisableManagedFeatures sets the value of AutoDisableManagedFeatures.
+func (s *CategoryHealth) SetAutoDisableManagedFeatures(val OptUint) {
+	s.AutoDisableManagedFeatures = val
+}
+
+// SetPendingGuardedFeatures sets the value of PendingGuardedFeatures.
+func (s *CategoryHealth) SetPendingGuardedFeatures(val OptUint) {
+	s.PendingGuardedFeatures = val
+}
+
+// SetHealthStatus sets the value of HealthStatus.
+func (s *CategoryHealth) SetHealthStatus(val OptCategoryHealthHealthStatus) {
+	s.HealthStatus = val
+}
+
+type CategoryHealthHealthStatus string
+
+const (
+	CategoryHealthHealthStatusGreen  CategoryHealthHealthStatus = "green"
+	CategoryHealthHealthStatusYellow CategoryHealthHealthStatus = "yellow"
+	CategoryHealthHealthStatusRed    CategoryHealthHealthStatus = "red"
+)
+
+// AllValues returns all CategoryHealthHealthStatus values.
+func (CategoryHealthHealthStatus) AllValues() []CategoryHealthHealthStatus {
+	return []CategoryHealthHealthStatus{
+		CategoryHealthHealthStatusGreen,
+		CategoryHealthHealthStatusYellow,
+		CategoryHealthHealthStatusRed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s CategoryHealthHealthStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case CategoryHealthHealthStatusGreen:
+		return []byte(s), nil
+	case CategoryHealthHealthStatusYellow:
+		return []byte(s), nil
+	case CategoryHealthHealthStatusRed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *CategoryHealthHealthStatus) UnmarshalText(data []byte) error {
+	switch CategoryHealthHealthStatus(data) {
+	case CategoryHealthHealthStatusGreen:
+		*s = CategoryHealthHealthStatusGreen
+		return nil
+	case CategoryHealthHealthStatusYellow:
+		*s = CategoryHealthHealthStatusYellow
+		return nil
+	case CategoryHealthHealthStatusRed:
+		*s = CategoryHealthHealthStatusRed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type CategoryKind string
 
 const (
@@ -1476,6 +1682,110 @@ func (s *CreateUserResponse) SetUser(val User) {
 
 func (*CreateUserResponse) createUserRes() {}
 
+// Ref: #/components/schemas/DashboardOverviewResponse
+type DashboardOverviewResponse struct {
+	// Project-level health overview.
+	Projects []ProjectHealth `json:"projects"`
+	// Per-category health.
+	Categories []CategoryHealth `json:"categories"`
+	// Feature-level upcoming and recent changes.
+	FeatureActivity OptDashboardOverviewResponseFeatureActivity `json:"feature_activity"`
+	// Recent batched changes.
+	RecentActivity []RecentActivity `json:"recent_activity"`
+	// Features with risky tags (critical, guarded, auto-disable).
+	RiskyFeatures []RiskyFeature `json:"risky_features"`
+	// Summary of pending changes.
+	PendingSummary []PendingSummary `json:"pending_summary"`
+}
+
+// GetProjects returns the value of Projects.
+func (s *DashboardOverviewResponse) GetProjects() []ProjectHealth {
+	return s.Projects
+}
+
+// GetCategories returns the value of Categories.
+func (s *DashboardOverviewResponse) GetCategories() []CategoryHealth {
+	return s.Categories
+}
+
+// GetFeatureActivity returns the value of FeatureActivity.
+func (s *DashboardOverviewResponse) GetFeatureActivity() OptDashboardOverviewResponseFeatureActivity {
+	return s.FeatureActivity
+}
+
+// GetRecentActivity returns the value of RecentActivity.
+func (s *DashboardOverviewResponse) GetRecentActivity() []RecentActivity {
+	return s.RecentActivity
+}
+
+// GetRiskyFeatures returns the value of RiskyFeatures.
+func (s *DashboardOverviewResponse) GetRiskyFeatures() []RiskyFeature {
+	return s.RiskyFeatures
+}
+
+// GetPendingSummary returns the value of PendingSummary.
+func (s *DashboardOverviewResponse) GetPendingSummary() []PendingSummary {
+	return s.PendingSummary
+}
+
+// SetProjects sets the value of Projects.
+func (s *DashboardOverviewResponse) SetProjects(val []ProjectHealth) {
+	s.Projects = val
+}
+
+// SetCategories sets the value of Categories.
+func (s *DashboardOverviewResponse) SetCategories(val []CategoryHealth) {
+	s.Categories = val
+}
+
+// SetFeatureActivity sets the value of FeatureActivity.
+func (s *DashboardOverviewResponse) SetFeatureActivity(val OptDashboardOverviewResponseFeatureActivity) {
+	s.FeatureActivity = val
+}
+
+// SetRecentActivity sets the value of RecentActivity.
+func (s *DashboardOverviewResponse) SetRecentActivity(val []RecentActivity) {
+	s.RecentActivity = val
+}
+
+// SetRiskyFeatures sets the value of RiskyFeatures.
+func (s *DashboardOverviewResponse) SetRiskyFeatures(val []RiskyFeature) {
+	s.RiskyFeatures = val
+}
+
+// SetPendingSummary sets the value of PendingSummary.
+func (s *DashboardOverviewResponse) SetPendingSummary(val []PendingSummary) {
+	s.PendingSummary = val
+}
+
+func (*DashboardOverviewResponse) getDashboardOverviewRes() {}
+
+// Feature-level upcoming and recent changes.
+type DashboardOverviewResponseFeatureActivity struct {
+	Upcoming []FeatureUpcoming `json:"upcoming"`
+	Recent   []FeatureRecent   `json:"recent"`
+}
+
+// GetUpcoming returns the value of Upcoming.
+func (s *DashboardOverviewResponseFeatureActivity) GetUpcoming() []FeatureUpcoming {
+	return s.Upcoming
+}
+
+// GetRecent returns the value of Recent.
+func (s *DashboardOverviewResponseFeatureActivity) GetRecent() []FeatureRecent {
+	return s.Recent
+}
+
+// SetUpcoming sets the value of Upcoming.
+func (s *DashboardOverviewResponseFeatureActivity) SetUpcoming(val []FeatureUpcoming) {
+	s.Upcoming = val
+}
+
+// SetRecent sets the value of Recent.
+func (s *DashboardOverviewResponseFeatureActivity) SetRecent(val []FeatureRecent) {
+	s.Recent = val
+}
+
 // DeleteCategoryNoContent is response for DeleteCategory operation.
 type DeleteCategoryNoContent struct{}
 
@@ -1949,6 +2259,7 @@ func (*ErrorBadRequest) deleteRuleAttributeRes()      {}
 func (*ErrorBadRequest) deleteUserRes()               {}
 func (*ErrorBadRequest) disable2FARes()               {}
 func (*ErrorBadRequest) forgotPasswordRes()           {}
+func (*ErrorBadRequest) getDashboardOverviewRes()     {}
 func (*ErrorBadRequest) getFeatureTimelineRes()       {}
 func (*ErrorBadRequest) initiateTOTPApprovalRes()     {}
 func (*ErrorBadRequest) listPendingChangesRes()       {}
@@ -2105,6 +2416,7 @@ func (*ErrorInternalServerError) deleteUserRes()                  {}
 func (*ErrorInternalServerError) forgotPasswordRes()              {}
 func (*ErrorInternalServerError) getCategoryRes()                 {}
 func (*ErrorInternalServerError) getCurrentUserRes()              {}
+func (*ErrorInternalServerError) getDashboardOverviewRes()        {}
 func (*ErrorInternalServerError) getEnvironmentRes()              {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
@@ -2339,6 +2651,7 @@ func (*ErrorPermissionDenied) deleteSegmentRes()               {}
 func (*ErrorPermissionDenied) deleteUserRes()                  {}
 func (*ErrorPermissionDenied) forgotPasswordRes()              {}
 func (*ErrorPermissionDenied) getCategoryRes()                 {}
+func (*ErrorPermissionDenied) getDashboardOverviewRes()        {}
 func (*ErrorPermissionDenied) getEnvironmentRes()              {}
 func (*ErrorPermissionDenied) getFeatureRes()                  {}
 func (*ErrorPermissionDenied) getFeatureScheduleRes()          {}
@@ -2511,6 +2824,7 @@ func (*ErrorUnauthorized) deleteUserRes()                  {}
 func (*ErrorUnauthorized) disable2FARes()                  {}
 func (*ErrorUnauthorized) getCategoryRes()                 {}
 func (*ErrorUnauthorized) getCurrentUserRes()              {}
+func (*ErrorUnauthorized) getDashboardOverviewRes()        {}
 func (*ErrorUnauthorized) getEnvironmentRes()              {}
 func (*ErrorUnauthorized) getFeatureRes()                  {}
 func (*ErrorUnauthorized) getFeatureScheduleRes()          {}
@@ -2984,6 +3298,65 @@ func (s *FeatureKind) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/FeatureRecent
+type FeatureRecent struct {
+	FeatureID   OptUUID     `json:"feature_id"`
+	FeatureName OptString   `json:"feature_name"`
+	Action      OptString   `json:"action"`
+	Actor       OptString   `json:"actor"`
+	At          OptDateTime `json:"at"`
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *FeatureRecent) GetFeatureID() OptUUID {
+	return s.FeatureID
+}
+
+// GetFeatureName returns the value of FeatureName.
+func (s *FeatureRecent) GetFeatureName() OptString {
+	return s.FeatureName
+}
+
+// GetAction returns the value of Action.
+func (s *FeatureRecent) GetAction() OptString {
+	return s.Action
+}
+
+// GetActor returns the value of Actor.
+func (s *FeatureRecent) GetActor() OptString {
+	return s.Actor
+}
+
+// GetAt returns the value of At.
+func (s *FeatureRecent) GetAt() OptDateTime {
+	return s.At
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *FeatureRecent) SetFeatureID(val OptUUID) {
+	s.FeatureID = val
+}
+
+// SetFeatureName sets the value of FeatureName.
+func (s *FeatureRecent) SetFeatureName(val OptString) {
+	s.FeatureName = val
+}
+
+// SetAction sets the value of Action.
+func (s *FeatureRecent) SetAction(val OptString) {
+	s.Action = val
+}
+
+// SetActor sets the value of Actor.
+func (s *FeatureRecent) SetActor(val OptString) {
+	s.Actor = val
+}
+
+// SetAt sets the value of At.
+func (s *FeatureRecent) SetAt(val OptDateTime) {
+	s.At = val
+}
+
 // Ref: #/components/schemas/FeatureResponse
 type FeatureResponse struct {
 	Feature Feature `json:"feature"`
@@ -3223,6 +3596,95 @@ func (s *FeatureTimelineResponse) SetEvents(val []FeatureTimelineEvent) {
 
 func (*FeatureTimelineResponse) getFeatureTimelineRes()  {}
 func (*FeatureTimelineResponse) testFeatureTimelineRes() {}
+
+// Ref: #/components/schemas/FeatureUpcoming
+type FeatureUpcoming struct {
+	FeatureID   OptUUID                     `json:"feature_id"`
+	FeatureName OptString                   `json:"feature_name"`
+	NextState   OptFeatureUpcomingNextState `json:"next_state"`
+	At          OptDateTime                 `json:"at"`
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *FeatureUpcoming) GetFeatureID() OptUUID {
+	return s.FeatureID
+}
+
+// GetFeatureName returns the value of FeatureName.
+func (s *FeatureUpcoming) GetFeatureName() OptString {
+	return s.FeatureName
+}
+
+// GetNextState returns the value of NextState.
+func (s *FeatureUpcoming) GetNextState() OptFeatureUpcomingNextState {
+	return s.NextState
+}
+
+// GetAt returns the value of At.
+func (s *FeatureUpcoming) GetAt() OptDateTime {
+	return s.At
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *FeatureUpcoming) SetFeatureID(val OptUUID) {
+	s.FeatureID = val
+}
+
+// SetFeatureName sets the value of FeatureName.
+func (s *FeatureUpcoming) SetFeatureName(val OptString) {
+	s.FeatureName = val
+}
+
+// SetNextState sets the value of NextState.
+func (s *FeatureUpcoming) SetNextState(val OptFeatureUpcomingNextState) {
+	s.NextState = val
+}
+
+// SetAt sets the value of At.
+func (s *FeatureUpcoming) SetAt(val OptDateTime) {
+	s.At = val
+}
+
+type FeatureUpcomingNextState string
+
+const (
+	FeatureUpcomingNextStateEnabled  FeatureUpcomingNextState = "enabled"
+	FeatureUpcomingNextStateDisabled FeatureUpcomingNextState = "disabled"
+)
+
+// AllValues returns all FeatureUpcomingNextState values.
+func (FeatureUpcomingNextState) AllValues() []FeatureUpcomingNextState {
+	return []FeatureUpcomingNextState{
+		FeatureUpcomingNextStateEnabled,
+		FeatureUpcomingNextStateDisabled,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s FeatureUpcomingNextState) MarshalText() ([]byte, error) {
+	switch s {
+	case FeatureUpcomingNextStateEnabled:
+		return []byte(s), nil
+	case FeatureUpcomingNextStateDisabled:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *FeatureUpcomingNextState) UnmarshalText(data []byte) error {
+	switch FeatureUpcomingNextState(data) {
+	case FeatureUpcomingNextStateEnabled:
+		*s = FeatureUpcomingNextStateEnabled
+		return nil
+	case FeatureUpcomingNextStateDisabled:
+		*s = FeatureUpcomingNextStateDisabled
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
 
 // Ref: #/components/schemas/FlagVariant
 type FlagVariant struct {
@@ -5459,6 +5921,98 @@ func (o OptCategory) Or(d Category) Category {
 	return d
 }
 
+// NewOptCategoryHealthHealthStatus returns new OptCategoryHealthHealthStatus with value set to v.
+func NewOptCategoryHealthHealthStatus(v CategoryHealthHealthStatus) OptCategoryHealthHealthStatus {
+	return OptCategoryHealthHealthStatus{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptCategoryHealthHealthStatus is optional CategoryHealthHealthStatus.
+type OptCategoryHealthHealthStatus struct {
+	Value CategoryHealthHealthStatus
+	Set   bool
+}
+
+// IsSet returns true if OptCategoryHealthHealthStatus was set.
+func (o OptCategoryHealthHealthStatus) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptCategoryHealthHealthStatus) Reset() {
+	var v CategoryHealthHealthStatus
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptCategoryHealthHealthStatus) SetTo(v CategoryHealthHealthStatus) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptCategoryHealthHealthStatus) Get() (v CategoryHealthHealthStatus, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptCategoryHealthHealthStatus) Or(d CategoryHealthHealthStatus) CategoryHealthHealthStatus {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptDashboardOverviewResponseFeatureActivity returns new OptDashboardOverviewResponseFeatureActivity with value set to v.
+func NewOptDashboardOverviewResponseFeatureActivity(v DashboardOverviewResponseFeatureActivity) OptDashboardOverviewResponseFeatureActivity {
+	return OptDashboardOverviewResponseFeatureActivity{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDashboardOverviewResponseFeatureActivity is optional DashboardOverviewResponseFeatureActivity.
+type OptDashboardOverviewResponseFeatureActivity struct {
+	Value DashboardOverviewResponseFeatureActivity
+	Set   bool
+}
+
+// IsSet returns true if OptDashboardOverviewResponseFeatureActivity was set.
+func (o OptDashboardOverviewResponseFeatureActivity) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDashboardOverviewResponseFeatureActivity) Reset() {
+	var v DashboardOverviewResponseFeatureActivity
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDashboardOverviewResponseFeatureActivity) SetTo(v DashboardOverviewResponseFeatureActivity) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDashboardOverviewResponseFeatureActivity) Get() (v DashboardOverviewResponseFeatureActivity, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDashboardOverviewResponseFeatureActivity) Or(d DashboardOverviewResponseFeatureActivity) DashboardOverviewResponseFeatureActivity {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptDate returns new OptDate with value set to v.
 func NewOptDate(v time.Time) OptDate {
 	return OptDate{
@@ -5637,6 +6191,52 @@ func (o OptEnvironment) Get() (v Environment, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptEnvironment) Or(d Environment) Environment {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptFeatureUpcomingNextState returns new OptFeatureUpcomingNextState with value set to v.
+func NewOptFeatureUpcomingNextState(v FeatureUpcomingNextState) OptFeatureUpcomingNextState {
+	return OptFeatureUpcomingNextState{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptFeatureUpcomingNextState is optional FeatureUpcomingNextState.
+type OptFeatureUpcomingNextState struct {
+	Value FeatureUpcomingNextState
+	Set   bool
+}
+
+// IsSet returns true if OptFeatureUpcomingNextState was set.
+func (o OptFeatureUpcomingNextState) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptFeatureUpcomingNextState) Reset() {
+	var v FeatureUpcomingNextState
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptFeatureUpcomingNextState) SetTo(v FeatureUpcomingNextState) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptFeatureUpcomingNextState) Get() (v FeatureUpcomingNextState, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptFeatureUpcomingNextState) Or(d FeatureUpcomingNextState) FeatureUpcomingNextState {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -6728,6 +7328,98 @@ func (o OptPagination) Or(d Pagination) Pagination {
 	return d
 }
 
+// NewOptProjectHealthHealthStatus returns new OptProjectHealthHealthStatus with value set to v.
+func NewOptProjectHealthHealthStatus(v ProjectHealthHealthStatus) OptProjectHealthHealthStatus {
+	return OptProjectHealthHealthStatus{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptProjectHealthHealthStatus is optional ProjectHealthHealthStatus.
+type OptProjectHealthHealthStatus struct {
+	Value ProjectHealthHealthStatus
+	Set   bool
+}
+
+// IsSet returns true if OptProjectHealthHealthStatus was set.
+func (o OptProjectHealthHealthStatus) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptProjectHealthHealthStatus) Reset() {
+	var v ProjectHealthHealthStatus
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptProjectHealthHealthStatus) SetTo(v ProjectHealthHealthStatus) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptProjectHealthHealthStatus) Get() (v ProjectHealthHealthStatus, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptProjectHealthHealthStatus) Or(d ProjectHealthHealthStatus) ProjectHealthHealthStatus {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptRecentActivityStatus returns new OptRecentActivityStatus with value set to v.
+func NewOptRecentActivityStatus(v RecentActivityStatus) OptRecentActivityStatus {
+	return OptRecentActivityStatus{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRecentActivityStatus is optional RecentActivityStatus.
+type OptRecentActivityStatus struct {
+	Value RecentActivityStatus
+	Set   bool
+}
+
+// IsSet returns true if OptRecentActivityStatus was set.
+func (o OptRecentActivityStatus) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRecentActivityStatus) Reset() {
+	var v RecentActivityStatus
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRecentActivityStatus) SetTo(v RecentActivityStatus) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRecentActivityStatus) Get() (v RecentActivityStatus, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRecentActivityStatus) Or(d RecentActivityStatus) RecentActivityStatus {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptRuleCondition returns new OptRuleCondition with value set to v.
 func NewOptRuleCondition(v RuleCondition) OptRuleCondition {
 	return OptRuleCondition{
@@ -7415,6 +8107,87 @@ func (s *PendingChangesListResponse) SetPagination(val Pagination) {
 
 func (*PendingChangesListResponse) listPendingChangesRes() {}
 
+// Ref: #/components/schemas/PendingSummary
+type PendingSummary struct {
+	ProjectID             OptUUID     `json:"project_id"`
+	EnvironmentID         OptUUID     `json:"environment_id"`
+	EnvironmentKey        OptString   `json:"environment_key"`
+	TotalPending          OptUint     `json:"total_pending"`
+	PendingFeatureChanges OptUint     `json:"pending_feature_changes"`
+	PendingGuardedChanges OptUint     `json:"pending_guarded_changes"`
+	OldestRequestAt       OptDateTime `json:"oldest_request_at"`
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *PendingSummary) GetProjectID() OptUUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *PendingSummary) GetEnvironmentID() OptUUID {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *PendingSummary) GetEnvironmentKey() OptString {
+	return s.EnvironmentKey
+}
+
+// GetTotalPending returns the value of TotalPending.
+func (s *PendingSummary) GetTotalPending() OptUint {
+	return s.TotalPending
+}
+
+// GetPendingFeatureChanges returns the value of PendingFeatureChanges.
+func (s *PendingSummary) GetPendingFeatureChanges() OptUint {
+	return s.PendingFeatureChanges
+}
+
+// GetPendingGuardedChanges returns the value of PendingGuardedChanges.
+func (s *PendingSummary) GetPendingGuardedChanges() OptUint {
+	return s.PendingGuardedChanges
+}
+
+// GetOldestRequestAt returns the value of OldestRequestAt.
+func (s *PendingSummary) GetOldestRequestAt() OptDateTime {
+	return s.OldestRequestAt
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *PendingSummary) SetProjectID(val OptUUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *PendingSummary) SetEnvironmentID(val OptUUID) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *PendingSummary) SetEnvironmentKey(val OptString) {
+	s.EnvironmentKey = val
+}
+
+// SetTotalPending sets the value of TotalPending.
+func (s *PendingSummary) SetTotalPending(val OptUint) {
+	s.TotalPending = val
+}
+
+// SetPendingFeatureChanges sets the value of PendingFeatureChanges.
+func (s *PendingSummary) SetPendingFeatureChanges(val OptUint) {
+	s.PendingFeatureChanges = val
+}
+
+// SetPendingGuardedChanges sets the value of PendingGuardedChanges.
+func (s *PendingSummary) SetPendingGuardedChanges(val OptUint) {
+	s.PendingGuardedChanges = val
+}
+
+// SetOldestRequestAt sets the value of OldestRequestAt.
+func (s *PendingSummary) SetOldestRequestAt(val OptDateTime) {
+	s.OldestRequestAt = val
+}
+
 // Ref: #/components/schemas/ProductInfoResponse
 type ProductInfoResponse struct {
 	// Unique client identifier for this installation.
@@ -7491,6 +8264,190 @@ func (s *Project) SetDescription(val string) {
 // SetCreatedAt sets the value of CreatedAt.
 func (s *Project) SetCreatedAt(val time.Time) {
 	s.CreatedAt = val
+}
+
+// Ref: #/components/schemas/ProjectHealth
+type ProjectHealth struct {
+	ProjectID                  OptUUID                      `json:"project_id"`
+	EnvironmentID              OptUUID                      `json:"environment_id"`
+	EnvironmentKey             OptString                    `json:"environment_key"`
+	TotalFeatures              OptUint                      `json:"total_features"`
+	EnabledFeatures            OptUint                      `json:"enabled_features"`
+	DisabledFeatures           OptUint                      `json:"disabled_features"`
+	AutoDisableManagedFeatures OptUint                      `json:"auto_disable_managed_features"`
+	UncategorizedFeatures      OptUint                      `json:"uncategorized_features"`
+	GuardedFeatures            OptUint                      `json:"guarded_features"`
+	PendingFeatures            OptUint                      `json:"pending_features"`
+	PendingGuardedFeatures     OptUint                      `json:"pending_guarded_features"`
+	HealthStatus               OptProjectHealthHealthStatus `json:"health_status"`
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *ProjectHealth) GetProjectID() OptUUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *ProjectHealth) GetEnvironmentID() OptUUID {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *ProjectHealth) GetEnvironmentKey() OptString {
+	return s.EnvironmentKey
+}
+
+// GetTotalFeatures returns the value of TotalFeatures.
+func (s *ProjectHealth) GetTotalFeatures() OptUint {
+	return s.TotalFeatures
+}
+
+// GetEnabledFeatures returns the value of EnabledFeatures.
+func (s *ProjectHealth) GetEnabledFeatures() OptUint {
+	return s.EnabledFeatures
+}
+
+// GetDisabledFeatures returns the value of DisabledFeatures.
+func (s *ProjectHealth) GetDisabledFeatures() OptUint {
+	return s.DisabledFeatures
+}
+
+// GetAutoDisableManagedFeatures returns the value of AutoDisableManagedFeatures.
+func (s *ProjectHealth) GetAutoDisableManagedFeatures() OptUint {
+	return s.AutoDisableManagedFeatures
+}
+
+// GetUncategorizedFeatures returns the value of UncategorizedFeatures.
+func (s *ProjectHealth) GetUncategorizedFeatures() OptUint {
+	return s.UncategorizedFeatures
+}
+
+// GetGuardedFeatures returns the value of GuardedFeatures.
+func (s *ProjectHealth) GetGuardedFeatures() OptUint {
+	return s.GuardedFeatures
+}
+
+// GetPendingFeatures returns the value of PendingFeatures.
+func (s *ProjectHealth) GetPendingFeatures() OptUint {
+	return s.PendingFeatures
+}
+
+// GetPendingGuardedFeatures returns the value of PendingGuardedFeatures.
+func (s *ProjectHealth) GetPendingGuardedFeatures() OptUint {
+	return s.PendingGuardedFeatures
+}
+
+// GetHealthStatus returns the value of HealthStatus.
+func (s *ProjectHealth) GetHealthStatus() OptProjectHealthHealthStatus {
+	return s.HealthStatus
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *ProjectHealth) SetProjectID(val OptUUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *ProjectHealth) SetEnvironmentID(val OptUUID) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *ProjectHealth) SetEnvironmentKey(val OptString) {
+	s.EnvironmentKey = val
+}
+
+// SetTotalFeatures sets the value of TotalFeatures.
+func (s *ProjectHealth) SetTotalFeatures(val OptUint) {
+	s.TotalFeatures = val
+}
+
+// SetEnabledFeatures sets the value of EnabledFeatures.
+func (s *ProjectHealth) SetEnabledFeatures(val OptUint) {
+	s.EnabledFeatures = val
+}
+
+// SetDisabledFeatures sets the value of DisabledFeatures.
+func (s *ProjectHealth) SetDisabledFeatures(val OptUint) {
+	s.DisabledFeatures = val
+}
+
+// SetAutoDisableManagedFeatures sets the value of AutoDisableManagedFeatures.
+func (s *ProjectHealth) SetAutoDisableManagedFeatures(val OptUint) {
+	s.AutoDisableManagedFeatures = val
+}
+
+// SetUncategorizedFeatures sets the value of UncategorizedFeatures.
+func (s *ProjectHealth) SetUncategorizedFeatures(val OptUint) {
+	s.UncategorizedFeatures = val
+}
+
+// SetGuardedFeatures sets the value of GuardedFeatures.
+func (s *ProjectHealth) SetGuardedFeatures(val OptUint) {
+	s.GuardedFeatures = val
+}
+
+// SetPendingFeatures sets the value of PendingFeatures.
+func (s *ProjectHealth) SetPendingFeatures(val OptUint) {
+	s.PendingFeatures = val
+}
+
+// SetPendingGuardedFeatures sets the value of PendingGuardedFeatures.
+func (s *ProjectHealth) SetPendingGuardedFeatures(val OptUint) {
+	s.PendingGuardedFeatures = val
+}
+
+// SetHealthStatus sets the value of HealthStatus.
+func (s *ProjectHealth) SetHealthStatus(val OptProjectHealthHealthStatus) {
+	s.HealthStatus = val
+}
+
+type ProjectHealthHealthStatus string
+
+const (
+	ProjectHealthHealthStatusGreen  ProjectHealthHealthStatus = "green"
+	ProjectHealthHealthStatusYellow ProjectHealthHealthStatus = "yellow"
+	ProjectHealthHealthStatusRed    ProjectHealthHealthStatus = "red"
+)
+
+// AllValues returns all ProjectHealthHealthStatus values.
+func (ProjectHealthHealthStatus) AllValues() []ProjectHealthHealthStatus {
+	return []ProjectHealthHealthStatus{
+		ProjectHealthHealthStatusGreen,
+		ProjectHealthHealthStatusYellow,
+		ProjectHealthHealthStatusRed,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ProjectHealthHealthStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case ProjectHealthHealthStatusGreen:
+		return []byte(s), nil
+	case ProjectHealthHealthStatusYellow:
+		return []byte(s), nil
+	case ProjectHealthHealthStatusRed:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ProjectHealthHealthStatus) UnmarshalText(data []byte) error {
+	switch ProjectHealthHealthStatus(data) {
+	case ProjectHealthHealthStatusGreen:
+		*s = ProjectHealthHealthStatusGreen
+		return nil
+	case ProjectHealthHealthStatusYellow:
+		*s = ProjectHealthHealthStatusYellow
+		return nil
+	case ProjectHealthHealthStatusRed:
+		*s = ProjectHealthHealthStatusRed
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }
 
 // Ref: #/components/schemas/ProjectResponse
@@ -7721,6 +8678,193 @@ func (*ProjectTagResponse) createProjectTagRes() {}
 func (*ProjectTagResponse) getProjectTagRes()    {}
 func (*ProjectTagResponse) updateProjectTagRes() {}
 
+// Ref: #/components/schemas/RecentActivity
+type RecentActivity struct {
+	ProjectID      OptUUID                     `json:"project_id"`
+	EnvironmentID  OptUUID                     `json:"environment_id"`
+	EnvironmentKey OptString                   `json:"environment_key"`
+	ProjectName    OptString                   `json:"project_name"`
+	RequestID      OptUUID                     `json:"request_id"`
+	Actor          OptString                   `json:"actor"`
+	CreatedAt      OptDateTime                 `json:"created_at"`
+	Status         OptRecentActivityStatus     `json:"status"`
+	Changes        []RecentActivityChangesItem `json:"changes"`
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *RecentActivity) GetProjectID() OptUUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *RecentActivity) GetEnvironmentID() OptUUID {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *RecentActivity) GetEnvironmentKey() OptString {
+	return s.EnvironmentKey
+}
+
+// GetProjectName returns the value of ProjectName.
+func (s *RecentActivity) GetProjectName() OptString {
+	return s.ProjectName
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *RecentActivity) GetRequestID() OptUUID {
+	return s.RequestID
+}
+
+// GetActor returns the value of Actor.
+func (s *RecentActivity) GetActor() OptString {
+	return s.Actor
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *RecentActivity) GetCreatedAt() OptDateTime {
+	return s.CreatedAt
+}
+
+// GetStatus returns the value of Status.
+func (s *RecentActivity) GetStatus() OptRecentActivityStatus {
+	return s.Status
+}
+
+// GetChanges returns the value of Changes.
+func (s *RecentActivity) GetChanges() []RecentActivityChangesItem {
+	return s.Changes
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *RecentActivity) SetProjectID(val OptUUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *RecentActivity) SetEnvironmentID(val OptUUID) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *RecentActivity) SetEnvironmentKey(val OptString) {
+	s.EnvironmentKey = val
+}
+
+// SetProjectName sets the value of ProjectName.
+func (s *RecentActivity) SetProjectName(val OptString) {
+	s.ProjectName = val
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *RecentActivity) SetRequestID(val OptUUID) {
+	s.RequestID = val
+}
+
+// SetActor sets the value of Actor.
+func (s *RecentActivity) SetActor(val OptString) {
+	s.Actor = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *RecentActivity) SetCreatedAt(val OptDateTime) {
+	s.CreatedAt = val
+}
+
+// SetStatus sets the value of Status.
+func (s *RecentActivity) SetStatus(val OptRecentActivityStatus) {
+	s.Status = val
+}
+
+// SetChanges sets the value of Changes.
+func (s *RecentActivity) SetChanges(val []RecentActivityChangesItem) {
+	s.Changes = val
+}
+
+type RecentActivityChangesItem struct {
+	Entity   OptString `json:"entity"`
+	EntityID OptUUID   `json:"entity_id"`
+	Action   OptString `json:"action"`
+}
+
+// GetEntity returns the value of Entity.
+func (s *RecentActivityChangesItem) GetEntity() OptString {
+	return s.Entity
+}
+
+// GetEntityID returns the value of EntityID.
+func (s *RecentActivityChangesItem) GetEntityID() OptUUID {
+	return s.EntityID
+}
+
+// GetAction returns the value of Action.
+func (s *RecentActivityChangesItem) GetAction() OptString {
+	return s.Action
+}
+
+// SetEntity sets the value of Entity.
+func (s *RecentActivityChangesItem) SetEntity(val OptString) {
+	s.Entity = val
+}
+
+// SetEntityID sets the value of EntityID.
+func (s *RecentActivityChangesItem) SetEntityID(val OptUUID) {
+	s.EntityID = val
+}
+
+// SetAction sets the value of Action.
+func (s *RecentActivityChangesItem) SetAction(val OptString) {
+	s.Action = val
+}
+
+type RecentActivityStatus string
+
+const (
+	RecentActivityStatusApplied  RecentActivityStatus = "applied"
+	RecentActivityStatusPending  RecentActivityStatus = "pending"
+	RecentActivityStatusRejected RecentActivityStatus = "rejected"
+)
+
+// AllValues returns all RecentActivityStatus values.
+func (RecentActivityStatus) AllValues() []RecentActivityStatus {
+	return []RecentActivityStatus{
+		RecentActivityStatusApplied,
+		RecentActivityStatusPending,
+		RecentActivityStatusRejected,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s RecentActivityStatus) MarshalText() ([]byte, error) {
+	switch s {
+	case RecentActivityStatusApplied:
+		return []byte(s), nil
+	case RecentActivityStatusPending:
+		return []byte(s), nil
+	case RecentActivityStatusRejected:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *RecentActivityStatus) UnmarshalText(data []byte) error {
+	switch RecentActivityStatus(data) {
+	case RecentActivityStatusApplied:
+		*s = RecentActivityStatusApplied
+		return nil
+	case RecentActivityStatusPending:
+		*s = RecentActivityStatusPending
+		return nil
+	case RecentActivityStatusRejected:
+		*s = RecentActivityStatusRejected
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/RefreshTokenRequest
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
@@ -7835,6 +8979,98 @@ func (s *ResetPasswordRequest) SetToken(val string) {
 // SetNewPassword sets the value of NewPassword.
 func (s *ResetPasswordRequest) SetNewPassword(val string) {
 	s.NewPassword = val
+}
+
+// Ref: #/components/schemas/RiskyFeature
+type RiskyFeature struct {
+	ProjectID      OptUUID   `json:"project_id"`
+	EnvironmentID  OptUUID   `json:"environment_id"`
+	EnvironmentKey OptString `json:"environment_key"`
+	FeatureID      OptUUID   `json:"feature_id"`
+	FeatureName    OptString `json:"feature_name"`
+	Enabled        OptBool   `json:"enabled"`
+	HasPending     OptBool   `json:"has_pending"`
+	RiskyTags      OptString `json:"risky_tags"`
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *RiskyFeature) GetProjectID() OptUUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *RiskyFeature) GetEnvironmentID() OptUUID {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *RiskyFeature) GetEnvironmentKey() OptString {
+	return s.EnvironmentKey
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *RiskyFeature) GetFeatureID() OptUUID {
+	return s.FeatureID
+}
+
+// GetFeatureName returns the value of FeatureName.
+func (s *RiskyFeature) GetFeatureName() OptString {
+	return s.FeatureName
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *RiskyFeature) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// GetHasPending returns the value of HasPending.
+func (s *RiskyFeature) GetHasPending() OptBool {
+	return s.HasPending
+}
+
+// GetRiskyTags returns the value of RiskyTags.
+func (s *RiskyFeature) GetRiskyTags() OptString {
+	return s.RiskyTags
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *RiskyFeature) SetProjectID(val OptUUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *RiskyFeature) SetEnvironmentID(val OptUUID) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *RiskyFeature) SetEnvironmentKey(val OptString) {
+	s.EnvironmentKey = val
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *RiskyFeature) SetFeatureID(val OptUUID) {
+	s.FeatureID = val
+}
+
+// SetFeatureName sets the value of FeatureName.
+func (s *RiskyFeature) SetFeatureName(val OptString) {
+	s.FeatureName = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *RiskyFeature) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
+// SetHasPending sets the value of HasPending.
+func (s *RiskyFeature) SetHasPending(val OptBool) {
+	s.HasPending = val
+}
+
+// SetRiskyTags sets the value of RiskyTags.
+func (s *RiskyFeature) SetRiskyTags(val OptString) {
+	s.RiskyTags = val
 }
 
 // Ref: #/components/schemas/Rule

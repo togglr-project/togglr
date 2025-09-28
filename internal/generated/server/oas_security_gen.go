@@ -65,6 +65,7 @@ var operationRolesBearerAuth = map[string][]string{
 	Disable2FAOperation:                  []string{},
 	GetCategoryOperation:                 []string{},
 	GetCurrentUserOperation:              []string{},
+	GetDashboardOverviewOperation:        []string{},
 	GetEnvironmentOperation:              []string{},
 	GetFeatureOperation:                  []string{},
 	GetFeatureScheduleOperation:          []string{},

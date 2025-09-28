@@ -40,6 +40,7 @@ type RestAPI struct {
 	guardService            contract.GuardService
 	guardEngine             contract.GuardEngine
 	projectSettingsUseCase  contract.ProjectSettingsUseCase
+	dashboardUseCase        contract.DashboardUseCase
 }
 
 func New(
@@ -68,6 +69,7 @@ func New(
 	guardService contract.GuardService,
 	guardEngine contract.GuardEngine,
 	projectSettingsUseCase contract.ProjectSettingsUseCase,
+	dashboardUseCase contract.DashboardUseCase,
 ) *RestAPI {
 	return &RestAPI{
 		config:                  config,
@@ -95,6 +97,7 @@ func New(
 		guardService:            guardService,
 		guardEngine:             guardEngine,
 		projectSettingsUseCase:  projectSettingsUseCase,
+		dashboardUseCase:        dashboardUseCase,
 	}
 }
 
