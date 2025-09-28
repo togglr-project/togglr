@@ -209,12 +209,10 @@
           Authorization: 'Bearer {{auth.response.access_token}}'
         body: { "name": "this_is_a_very_long_attribute_name_that_exceeds_fifty_characters", "description": "Too long name" }
       response:
-        status: 500
+        status: 400
         json: |
           {
-            "error": {
-              "message": "<<PRESENCE>>"
-            }
+            "error_message": "<<PRESENCE>>"
           }
 
     - name: create_rule_attribute_long_description
@@ -226,12 +224,10 @@
           Authorization: 'Bearer {{auth.response.access_token}}'
         body: { "name": "user.test", "description": "This is a very long description that exceeds three hundred characters and should cause a validation error because the database schema limits the description field to varchar(300) which means it can only hold up to 300 characters but this description is much longer than that and should trigger a validation error when trying to create the rule attribute with such a long description" }
       response:
-        status: 500
+        status: 400
         json: |
           {
-            "error": {
-              "message": "<<PRESENCE>>"
-            }
+            "error_message": "<<PRESENCE>>"
           }
 
 - name: create rule attribute that already exists
