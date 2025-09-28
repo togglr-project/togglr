@@ -6,15 +6,15 @@ export type ThemeMode = PaletteMode;
 
 // Dark theme color constants
 const DARK_BACKGROUND_COLOR = 'rgba(28, 30, 35, 0.95)';
-const DARK_PAPER_COLOR = 'rgba(38, 40, 48, 0.9)';
+const DARK_PAPER_COLOR = 'rgb(38, 40, 48)';
 const PRIMARY_COLOR = 'rgb(130, 82, 255)'; // Slightly more blue-purple for a more refined look
 const PRIMARY_LIGHT = 'rgba(150, 110, 255, 0.85)';
 const SECONDARY_COLOR = '#FF5A8C'; // Soft pink for better contrast with purple
 const DARK_TEXT_COLOR = 'rgb(245, 245, 250)'; // Slightly off-white for better eye comfort
 
 // Light theme color constants
-const LIGHT_BACKGROUND_COLOR = 'rgba(248, 249, 252, 0.95)'; // Slightly blue tint for a fresher look
-const LIGHT_PAPER_COLOR = 'rgba(255, 255, 255, 0.92)';
+const LIGHT_BACKGROUND_COLOR = 'rgb(248, 249, 252)'; // Slightly blue tint for a fresher look
+const LIGHT_PAPER_COLOR = 'rgb(255, 255, 255)';
 const LIGHT_TEXT_COLOR = 'rgb(40, 42, 54)'; // Slightly blue-black for better contrast
 
 
@@ -94,30 +94,44 @@ export const getTheme = (mode: ThemeMode) => {
       subtitle2: {
         fontWeight: 500,
       },
+      body1: {
+        lineHeight: 1.7,
+        letterSpacing: '0.005em',
+      },
+      body2: {
+        lineHeight: 1.7,
+        letterSpacing: '0.005em',
+      },
       button: {
         textTransform: 'none',
         fontWeight: 500,
       },
     },
     shape: {
-      borderRadius: 8,
+      borderRadius: 10,
     },
     components: {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
+            borderRadius: 10,
             padding: '6px 12px',
             fontWeight: 500,
             color: '#ffffff',
             boxShadow: 'none',
             backgroundColor: primaryMain,
-            transition: 'background-color 0.15s ease, color 0.15s ease',
+            transition: 'background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease',
             '&:hover': {
               backgroundColor: mode === 'light' ? 'rgba(130, 82, 255, 0.9)' : 'rgba(130, 82, 255, 0.85)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)'
             },
             '&:active': {
               backgroundColor: mode === 'light' ? 'rgba(130, 82, 255, 0.85)' : 'rgba(130, 82, 255, 0.8)',
+              transform: 'translateY(0)'
+            },
+            '&:focus-visible': {
+              outline: 'none',
+              boxShadow: '0 0 0 3px rgba(130, 82, 255, 0.28)'
             },
           },
           outlined: {
@@ -131,33 +145,38 @@ export const getTheme = (mode: ThemeMode) => {
       MuiPaper: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
+            borderRadius: 10,
             backgroundColor: paperColor,
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
-            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04)',
+            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.06)'}`,
           },
         },
       },
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === 'dark' ? 'rgba(28, 30, 35, 0.95)' : 'rgba(255, 255, 255, 0.9)',
+            backgroundColor: mode === 'dark' ? 'rgba(28, 30, 35, 0.75)' : 'rgba(255, 255, 255, 0.8)',
             boxShadow: '0 1px 1px rgba(0, 0, 0, 0.06)',
             borderBottom: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)'}`,
+            backdropFilter: 'saturate(180%) blur(8px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(8px)',
+            overflow: 'hidden',
+            backgroundClip: 'padding-box',
+            WebkitMaskImage: '-webkit-radial-gradient(white, black)'
           },
         },
       },
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
+            borderRadius: 10,
             backgroundColor: paperColor,
-            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.06)',
-            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)'}`,
+            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.04)',
+            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.06)'}`,
             transition: 'box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out',
             '&:hover': {
               transform: 'translateY(-1px)',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)'
+              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.10)'
             },
           },
         },
@@ -175,6 +194,7 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           paper: {
             backgroundColor: mode === 'dark' ? 'rgb(16, 18, 22)' : 'rgb(255, 255, 255)',
+            borderRadius: 10,
             border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)'}`,
             boxShadow: mode === 'dark'
               ? '0 8px 20px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.16)'
@@ -197,7 +217,14 @@ export const getTheme = (mode: ThemeMode) => {
         styleOverrides: {
           root: {
             '& .MuiOutlinedInput-root': {
-              borderRadius: 8,
+              borderRadius: 10,
+              transition: 'box-shadow 0.15s ease, border-color 0.15s ease',
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: primaryMain,
+              },
+              '&.Mui-focused': {
+                boxShadow: '0 0 0 3px rgba(130, 82, 255, 0.20)'
+              },
               // Override browser autofill styling
               '& input:-webkit-autofill': {
                 WebkitBoxShadow: `0 0 0 100px ${paperColor} inset`,
@@ -241,7 +268,7 @@ export const getTheme = (mode: ThemeMode) => {
       MuiSelect: {
         styleOverrides: {
           outlined: {
-            borderRadius: 8,
+            borderRadius: 10,
           },
         },
         variants: [
@@ -325,6 +352,9 @@ export const getTheme = (mode: ThemeMode) => {
       MuiFilledInput: {
         styleOverrides: {
           root: {
+            '&.Mui-focused': {
+              boxShadow: '0 0 0 3px rgba(130, 82, 255, 0.20)'
+            },
             // Override browser autofill styling
             '& input:-webkit-autofill': {
               WebkitBoxShadow: `0 0 0 100px ${mode === 'light' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.09)'} inset`,

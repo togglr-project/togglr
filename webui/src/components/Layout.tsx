@@ -43,7 +43,7 @@ import { useAuth } from '../auth/AuthContext';
 import { usePendingChangesCount } from '../hooks/usePendingChanges';
 import ThemeToggle from './ThemeToggle';
 import Breadcrumbs from './Breadcrumbs';
-import SkipLink from './SkipLink';
+// import SkipLink from './SkipLink';
 import WardenLogo from "./WardenLogo.tsx";
 
 // Component for showing pending changes count badge
@@ -693,7 +693,6 @@ const Layout: React.FC<LayoutProps> = ({
           alignItems: 'center',
         }}
       >
-        <SkipLink href="#main-content">Skip to main content</SkipLink>
         <Box sx={{ height: { xs: `${APPBAR_MAIN_HEIGHT}px`, md: `${APPBAR_MAIN_HEIGHT + TABBAR_HEIGHT}px` } }} />
         <Box 
           id="main-content"
