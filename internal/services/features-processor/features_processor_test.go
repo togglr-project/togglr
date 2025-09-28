@@ -206,14 +206,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindMultivariant,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindMultivariant,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{variantA, variantB},
 				Rules: []domain.Rule{
@@ -257,14 +259,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "scheduled_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "scheduled_feature",
-					Name:         "Scheduled Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "scheduled_feature",
+						Name:      "Scheduled Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -288,14 +292,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "scheduled_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "scheduled_feature",
-					Name:         "Scheduled Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "scheduled_feature",
+						Name:      "Scheduled Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -320,14 +326,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "scheduled_feature_disable",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "scheduled_feature_disable",
-					Name:         "Scheduled Feature Disable",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "scheduled_feature_disable",
+						Name:      "Scheduled Feature Disable",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -351,14 +359,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "oneshot_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "oneshot_feature",
-					Name:         "One-shot Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "oneshot_feature",
+						Name:      "One-shot Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -382,14 +392,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "oneshot_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "oneshot_feature",
-					Name:         "One-shot Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "oneshot_feature",
+						Name:      "One-shot Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -414,14 +426,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "multi_oneshot_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "multi_oneshot_feature",
-					Name:         "Multi One-shot Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "multi_oneshot_feature",
+						Name:      "Multi One-shot Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -454,14 +468,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Rules: []domain.Rule{
 					{
@@ -489,14 +505,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Rules: []domain.Rule{
 					{
@@ -524,14 +542,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Rules: []domain.Rule{}, // пустые правила
 			},
@@ -546,14 +566,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindMultivariant,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindMultivariant,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{}, // пустые варианты
 				Rules: []domain.Rule{
@@ -583,14 +605,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Rules: []domain.Rule{
 					{
@@ -614,14 +638,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "feature_key",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "feature_key",
-					Name:         "Test Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "feature_key",
+						Name:      "Test Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				Rules: []domain.Rule{
 					{
@@ -644,14 +670,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "simple_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "simple_feature",
-					Name:         "Simple Feature",
-					Kind:         domain.FeatureKindSimple,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "simple_feature",
+						Name:      "Simple Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "enabled",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 			},
 			reqCtx:        map[domain.RuleAttribute]any{},
@@ -665,14 +693,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "rollout_feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "rollout_feature",
-					Name:         "Rollout Feature",
-					Kind:         domain.FeatureKindMultivariant,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "rollout_feature",
+						Name:      "Rollout Feature",
+						Kind:      domain.FeatureKindMultivariant,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
 				},
 				FlagVariants: []domain.FlagVariant{
 					{ID: "v1", Name: "A", RolloutPercent: 50},
@@ -706,14 +736,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "scheduled_with_rules",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "scheduled_with_rules",
-					Name:         "Scheduled with Rules",
-					Kind:         domain.FeatureKindMultivariant,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "scheduled_with_rules",
+						Name:      "Scheduled with Rules",
+						Kind:      domain.FeatureKindMultivariant,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
 				},
 				FlagVariants: []domain.FlagVariant{variantA},
 				Rules: []domain.Rule{
@@ -755,14 +787,16 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey: "scheduled_with_rules_inactive",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:           "f1",
-					ProjectID:    "p1",
-					Key:          "scheduled_with_rules_inactive",
-					Name:         "Scheduled with Rules Inactive",
-					Kind:         domain.FeatureKindMultivariant,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "scheduled_with_rules_inactive",
+						Name:      "Scheduled with Rules Inactive",
+						Kind:      domain.FeatureKindMultivariant,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
+					},
 					DefaultValue: "default",
 					Enabled:      true,
-					CreatedAt:    time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC).Add(-1 * time.Hour),
 				},
 				FlagVariants: []domain.FlagVariant{variantA},
 				Rules: []domain.Rule{
@@ -800,7 +834,7 @@ func TestService_Evaluate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, 0)
+			svc := New(nil, nil, nil, nil, 0)
 
 			// Set fixed time for schedule tests
 			var testTime time.Time
@@ -820,7 +854,7 @@ func TestService_Evaluate(t *testing.T) {
 				testTime = time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC) // default time for non-schedule tests
 			}
 
-			// Set mock time function
+			// Set a mock time function
 			svc.nowFunc = func() time.Time { return testTime }
 
 			// Initialize holder
@@ -834,13 +868,13 @@ func TestService_Evaluate(t *testing.T) {
 				if svc.holder == nil {
 					svc.holder = Holder{}
 				}
-				svc.holder[tt.projectID] = ProjectFeatures{
+				svc.holder[string(tt.projectID)+"_dev"] = ProjectFeatures{
 					tt.featureKey: MakeFeaturePrepared(tt.feature),
 				}
 				svc.mu.Unlock()
 			}
 
-			value, enabled, found := svc.Evaluate(tt.projectID, tt.featureKey, tt.reqCtx)
+			value, enabled, found := svc.Evaluate(tt.projectID, tt.featureKey, "dev", tt.reqCtx)
 
 			if tt.allowedEnabled != nil {
 				// enabled must be one of allowedEnabled
@@ -890,8 +924,10 @@ func TestIsFeatureActiveNow(t *testing.T) {
 			name: "schedule disable overrides enabled feature",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -911,8 +947,10 @@ func TestIsFeatureActiveNow(t *testing.T) {
 			name: "newer schedule overrides older one",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -940,8 +978,10 @@ func TestIsFeatureActiveNow(t *testing.T) {
 			name: "same created_at, disable wins over enable",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1433,8 +1473,10 @@ func TestService_NextState(t *testing.T) {
 			name: "feature with no schedules returns zero values",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-1 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-1 * time.Hour),
+					},
+					Enabled: true,
 				},
 			},
 			expectedEnabled: false,
@@ -1445,8 +1487,10 @@ func TestService_NextState(t *testing.T) {
 			name: "schedule without cron, returns end time",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1467,8 +1511,10 @@ func TestService_NextState(t *testing.T) {
 			name: "schedule not yet started, returns start time",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1489,8 +1535,10 @@ func TestService_NextState(t *testing.T) {
 			name: "schedule already ended, returns zero values",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: now.Add(-2 * time.Hour),
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: now.Add(-2 * time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1511,7 +1559,7 @@ func TestService_NextState(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, 0)
+			svc := New(nil, nil, nil, nil, 0)
 
 			enabled, timestamp := svc.NextStateAt(tt.feature, now)
 
@@ -1633,8 +1681,10 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 			name: "master enable OFF - feature completely disabled",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   false, // Master Enable = OFF
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: false, // Master Enable = OFF
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1654,8 +1704,10 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 			name: "master enable ON, no schedules - stays in manual state",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true, // Master Enable = ON
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: true, // Master Enable = ON
 				},
 				Schedules: []domain.FeatureSchedule{}, // no schedules
 			},
@@ -1667,30 +1719,34 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 			name: "repeating schedule with enable action - baseline should be OFF",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
 						ID:           "repeating1",
 						Action:       domain.FeatureScheduleActionEnable,
 						CronExpr:     ptrString("0 9 * * *"),        // daily at 9:00
-						CronDuration: ptrDuration(30 * time.Minute), // 30 minutes duration
+						CronDuration: ptrDuration(30 * time.Minute), // 30-minute duration
 						Timezone:     "UTC",
 						CreatedAt:    featureCreatedAt.Add(1 * time.Hour),
 					},
 				},
 			},
-			now:      now,   // 12:00, not during 9:00-9:30 window
-			expected: false, // baseline should be OFF for enable action
+			now:      now,   // 12:00, not during the 9:00-9:30 window
+			expected: false, // the baseline should be OFF for enable action
 			desc:     "Repeating enable schedule: baseline OFF, active only during scheduled windows",
 		},
 		{
 			name: "repeating schedule with disable action - baseline should be ON",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1703,16 +1759,18 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 					},
 				},
 			},
-			now:      now,  // 12:00, not during 9:00-9:30 window
-			expected: true, // baseline should be ON for disable action
+			now:      now,  // 12:00, not during the 9:00-9:30 window
+			expected: true, // the baseline should be ON for disable action
 			desc:     "Repeating disable schedule: baseline ON, disabled only during scheduled windows",
 		},
 		{
 			name: "one-shot schedules - all activate, baseline should be OFF",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1741,8 +1799,10 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 			name: "one-shot schedules - any deactivate, baseline should be ON",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -1764,15 +1824,17 @@ func TestIsFeatureActiveNow_ScheduleBaseline(t *testing.T) {
 				},
 			},
 			now:      now,  // between the two one-shot intervals
-			expected: true, // baseline should be ON when any one-shot is deactivate
+			expected: true, // baseline should be ON when any one-shot is deactivated
 			desc:     "One-shot schedules with deactivate: baseline ON",
 		},
 		{
 			name: "one-shot schedules - during active interval",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					Enabled:   true,
-					CreatedAt: featureCreatedAt,
+					BasicFeature: domain.BasicFeature{
+						CreatedAt: featureCreatedAt,
+					},
+					Enabled: true,
 				},
 				Schedules: []domain.FeatureSchedule{
 					{

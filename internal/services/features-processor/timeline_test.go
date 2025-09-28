@@ -24,10 +24,12 @@ func TestBuildFeatureTimeline(t *testing.T) {
 			name: "enabled feature without schedules",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f1",
-					Key:       "always_on",
-					Enabled:   true,
-					CreatedAt: now.Add(-time.Hour),
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						Key:       "always_on",
+						CreatedAt: now.Add(-time.Hour),
+					},
+					Enabled: true,
 				},
 				Schedules: nil,
 			},
@@ -43,10 +45,12 @@ func TestBuildFeatureTimeline(t *testing.T) {
 			name: "feature with start and end schedule",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f2",
-					Key:       "with_range",
-					Enabled:   true, // Master Enable ON
-					CreatedAt: now.Add(-time.Hour),
+					BasicFeature: domain.BasicFeature{
+						ID:        "f2",
+						Key:       "with_range",
+						CreatedAt: now.Add(-time.Hour),
+					},
+					Enabled: true, // Master Enable ON
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -73,10 +77,12 @@ func TestBuildFeatureTimeline(t *testing.T) {
 			name: "feature with cron schedule",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f3",
-					Key:       "cron_based",
-					Enabled:   true, // Master Enable ON
-					CreatedAt: now,
+					BasicFeature: domain.BasicFeature{
+						ID:        "f3",
+						Key:       "cron_based",
+						CreatedAt: now,
+					},
+					Enabled: true, // Master Enable ON
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -106,10 +112,12 @@ func TestBuildFeatureTimeline(t *testing.T) {
 			name: "disabled feature without schedules",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f4",
-					Key:       "always_off",
-					Enabled:   false,
-					CreatedAt: now.Add(-time.Hour),
+					BasicFeature: domain.BasicFeature{
+						ID:        "f4",
+						Key:       "always_off",
+						CreatedAt: now.Add(-time.Hour),
+					},
+					Enabled: false,
 				},
 			},
 			from: now,
@@ -124,7 +132,7 @@ func TestBuildFeatureTimeline(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, 0)
+			svc := New(nil, nil, nil, nil, 0)
 			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err)
 			assert.Len(t, got, len(tt.wantTimes), "unexpected number of events")
@@ -158,10 +166,12 @@ func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 			name: "repeating schedule with enable action - baseline should be OFF",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f1",
-					Key:       "repeating_enable",
-					Enabled:   true, // Master Enable ON
-					CreatedAt: now.Add(-time.Hour),
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						Key:       "repeating_enable",
+						CreatedAt: now.Add(-time.Hour),
+					},
+					Enabled: true, // Master Enable ON
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -189,10 +199,12 @@ func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 			name: "repeating schedule with disable action - baseline should be ON",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f2",
-					Key:       "repeating_disable",
-					Enabled:   true, // Master Enable ON
-					CreatedAt: now.Add(-time.Hour),
+					BasicFeature: domain.BasicFeature{
+						ID:        "f2",
+						Key:       "repeating_disable",
+						CreatedAt: now.Add(-time.Hour),
+					},
+					Enabled: true, // Master Enable ON
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -220,10 +232,12 @@ func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 			name: "master enable OFF - feature completely disabled",
 			feature: domain.FeatureExtended{
 				Feature: domain.Feature{
-					ID:        "f3",
-					Key:       "master_off",
-					Enabled:   false, // Master Enable OFF
-					CreatedAt: now.Add(-time.Hour),
+					BasicFeature: domain.BasicFeature{
+						ID:        "f3",
+						Key:       "master_off",
+						CreatedAt: now.Add(-time.Hour),
+					},
+					Enabled: false, // Master Enable OFF
 				},
 				Schedules: []domain.FeatureSchedule{
 					{
@@ -249,7 +263,7 @@ func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, 0)
+			svc := New(nil, nil, nil, nil, 0)
 			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err, tt.desc)
 			assert.Len(t, got, len(tt.wantTimes), "unexpected number of events: %s", tt.desc)

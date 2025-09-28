@@ -162,22 +162,22 @@ func (_c *MockProjectsRepository_Create_Call) RunAndReturn(run func(ctx context.
 }
 
 // GetByAPIKey provides a mock function for the type MockProjectsRepository
-func (_mock *MockProjectsRepository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Project, error) {
+func (_mock *MockProjectsRepository) GetByAPIKey(ctx context.Context, apiKey string) (domain.ProjectWithEnv, error) {
 	ret := _mock.Called(ctx, apiKey)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByAPIKey")
 	}
 
-	var r0 domain.Project
+	var r0 domain.ProjectWithEnv
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.Project, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.ProjectWithEnv, error)); ok {
 		return returnFunc(ctx, apiKey)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.Project); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.ProjectWithEnv); ok {
 		r0 = returnFunc(ctx, apiKey)
 	} else {
-		r0 = ret.Get(0).(domain.Project)
+		r0 = ret.Get(0).(domain.ProjectWithEnv)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, apiKey)
@@ -217,12 +217,12 @@ func (_c *MockProjectsRepository_GetByAPIKey_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockProjectsRepository_GetByAPIKey_Call) Return(project domain.Project, err error) *MockProjectsRepository_GetByAPIKey_Call {
-	_c.Call.Return(project, err)
+func (_c *MockProjectsRepository_GetByAPIKey_Call) Return(projectWithEnv domain.ProjectWithEnv, err error) *MockProjectsRepository_GetByAPIKey_Call {
+	_c.Call.Return(projectWithEnv, err)
 	return _c
 }
 
-func (_c *MockProjectsRepository_GetByAPIKey_Call) RunAndReturn(run func(ctx context.Context, apiKey string) (domain.Project, error)) *MockProjectsRepository_GetByAPIKey_Call {
+func (_c *MockProjectsRepository_GetByAPIKey_Call) RunAndReturn(run func(ctx context.Context, apiKey string) (domain.ProjectWithEnv, error)) *MockProjectsRepository_GetByAPIKey_Call {
 	_c.Call.Return(run)
 	return _c
 }

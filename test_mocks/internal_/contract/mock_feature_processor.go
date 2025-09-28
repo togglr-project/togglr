@@ -113,8 +113,8 @@ func (_c *MockFeatureProcessor_BuildFeatureTimeline_Call) RunAndReturn(run func(
 }
 
 // Evaluate provides a mock function for the type MockFeatureProcessor
-func (_mock *MockFeatureProcessor) Evaluate(projectID domain.ProjectID, featureKey string, reqCtx map[domain.RuleAttribute]any) (string, bool, bool) {
-	ret := _mock.Called(projectID, featureKey, reqCtx)
+func (_mock *MockFeatureProcessor) Evaluate(projectID domain.ProjectID, featureKey string, env string, reqCtx map[domain.RuleAttribute]any) (string, bool, bool) {
+	ret := _mock.Called(projectID, featureKey, env, reqCtx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Evaluate")
@@ -123,21 +123,21 @@ func (_mock *MockFeatureProcessor) Evaluate(projectID domain.ProjectID, featureK
 	var r0 string
 	var r1 bool
 	var r2 bool
-	if returnFunc, ok := ret.Get(0).(func(domain.ProjectID, string, map[domain.RuleAttribute]any) (string, bool, bool)); ok {
-		return returnFunc(projectID, featureKey, reqCtx)
+	if returnFunc, ok := ret.Get(0).(func(domain.ProjectID, string, string, map[domain.RuleAttribute]any) (string, bool, bool)); ok {
+		return returnFunc(projectID, featureKey, env, reqCtx)
 	}
-	if returnFunc, ok := ret.Get(0).(func(domain.ProjectID, string, map[domain.RuleAttribute]any) string); ok {
-		r0 = returnFunc(projectID, featureKey, reqCtx)
+	if returnFunc, ok := ret.Get(0).(func(domain.ProjectID, string, string, map[domain.RuleAttribute]any) string); ok {
+		r0 = returnFunc(projectID, featureKey, env, reqCtx)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
-	if returnFunc, ok := ret.Get(1).(func(domain.ProjectID, string, map[domain.RuleAttribute]any) bool); ok {
-		r1 = returnFunc(projectID, featureKey, reqCtx)
+	if returnFunc, ok := ret.Get(1).(func(domain.ProjectID, string, string, map[domain.RuleAttribute]any) bool); ok {
+		r1 = returnFunc(projectID, featureKey, env, reqCtx)
 	} else {
 		r1 = ret.Get(1).(bool)
 	}
-	if returnFunc, ok := ret.Get(2).(func(domain.ProjectID, string, map[domain.RuleAttribute]any) bool); ok {
-		r2 = returnFunc(projectID, featureKey, reqCtx)
+	if returnFunc, ok := ret.Get(2).(func(domain.ProjectID, string, string, map[domain.RuleAttribute]any) bool); ok {
+		r2 = returnFunc(projectID, featureKey, env, reqCtx)
 	} else {
 		r2 = ret.Get(2).(bool)
 	}
@@ -152,12 +152,13 @@ type MockFeatureProcessor_Evaluate_Call struct {
 // Evaluate is a helper method to define mock.On call
 //   - projectID domain.ProjectID
 //   - featureKey string
+//   - env string
 //   - reqCtx map[domain.RuleAttribute]any
-func (_e *MockFeatureProcessor_Expecter) Evaluate(projectID interface{}, featureKey interface{}, reqCtx interface{}) *MockFeatureProcessor_Evaluate_Call {
-	return &MockFeatureProcessor_Evaluate_Call{Call: _e.mock.On("Evaluate", projectID, featureKey, reqCtx)}
+func (_e *MockFeatureProcessor_Expecter) Evaluate(projectID interface{}, featureKey interface{}, env interface{}, reqCtx interface{}) *MockFeatureProcessor_Evaluate_Call {
+	return &MockFeatureProcessor_Evaluate_Call{Call: _e.mock.On("Evaluate", projectID, featureKey, env, reqCtx)}
 }
 
-func (_c *MockFeatureProcessor_Evaluate_Call) Run(run func(projectID domain.ProjectID, featureKey string, reqCtx map[domain.RuleAttribute]any)) *MockFeatureProcessor_Evaluate_Call {
+func (_c *MockFeatureProcessor_Evaluate_Call) Run(run func(projectID domain.ProjectID, featureKey string, env string, reqCtx map[domain.RuleAttribute]any)) *MockFeatureProcessor_Evaluate_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 domain.ProjectID
 		if args[0] != nil {
@@ -167,14 +168,19 @@ func (_c *MockFeatureProcessor_Evaluate_Call) Run(run func(projectID domain.Proj
 		if args[1] != nil {
 			arg1 = args[1].(string)
 		}
-		var arg2 map[domain.RuleAttribute]any
+		var arg2 string
 		if args[2] != nil {
-			arg2 = args[2].(map[domain.RuleAttribute]any)
+			arg2 = args[2].(string)
+		}
+		var arg3 map[domain.RuleAttribute]any
+		if args[3] != nil {
+			arg3 = args[3].(map[domain.RuleAttribute]any)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -185,7 +191,7 @@ func (_c *MockFeatureProcessor_Evaluate_Call) Return(value string, enabled bool,
 	return _c
 }
 
-func (_c *MockFeatureProcessor_Evaluate_Call) RunAndReturn(run func(projectID domain.ProjectID, featureKey string, reqCtx map[domain.RuleAttribute]any) (string, bool, bool)) *MockFeatureProcessor_Evaluate_Call {
+func (_c *MockFeatureProcessor_Evaluate_Call) RunAndReturn(run func(projectID domain.ProjectID, featureKey string, env string, reqCtx map[domain.RuleAttribute]any) (string, bool, bool)) *MockFeatureProcessor_Evaluate_Call {
 	_c.Call.Return(run)
 	return _c
 }
