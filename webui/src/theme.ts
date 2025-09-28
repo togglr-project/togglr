@@ -171,6 +171,17 @@ export const getTheme = (mode: ThemeMode) => {
           },
         },
       },
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: mode === 'dark' ? 'rgb(16, 18, 22)' : 'rgb(255, 255, 255)',
+            border: `1px solid ${mode === 'dark' ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)'}`,
+            boxShadow: mode === 'dark'
+              ? '0 8px 20px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.16)'
+              : '0 6px 16px rgba(0, 0, 0, 0.08)'
+          },
+        },
+      },
       MuiChip: {
         styleOverrides: {
           root: {
