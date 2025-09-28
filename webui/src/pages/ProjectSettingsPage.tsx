@@ -32,6 +32,78 @@ import { useNotification } from '../App';
 
 interface ProjectResponse { project: Project }
 
+interface ApiKeysSectionProps {
+  projectId?: string;
+  showNotification: (message: string, severity?: 'success' | 'error' | 'info' | 'warning', durationMs?: number) => void;
+}
+
+const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({ projectId = '', showNotification }) => {
+  const { data: envResp, isLoading: loadingEnvs, error: envError } = useQuery({
+    queryKey: ['project-environments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectEnvironments(projectId);
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+
+  const environments = envResp?.items ?? [];
+  const [visible, setVisible] = useState<Record<number, boolean>>({});
+
+  const toggleVisible = (id: number) => setVisible(v => ({ ...v, [id]: !v[id] }));
+
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      showNotification('API key copied to clipboard', 'success', 2000);
+    } catch {
+      showNotification('Failed to copy API key', 'error', 3000);
+    }
+  };
+
+  return (
+    <Box>
+      <Typography variant="subtitle2" color="text.secondary">API keys</Typography>
+      {loadingEnvs && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+          <CircularProgress size={18} />
+          <Typography variant="body2" color="text.secondary">Loading environments…</Typography>
+        </Box>
+      )}
+      {envError && (
+        <Typography variant="body2" color="error" sx={{ mt: 1 }}>Failed to load environments.</Typography>
+      )}
+      {!loadingEnvs && environments.length === 0 && (
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>No environments found.</Typography>
+      )}
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
+        {environments.map(env => (
+          <Paper key={env.id} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ minWidth: 160 }}>
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>{env.name}</Typography>
+              <Typography variant="caption" color="text.secondary">{env.key}</Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1, fontFamily: 'monospace', bgcolor: 'action.hover', px: 1.5, py: 0.75, borderRadius: 1, overflowX: 'auto' }}>
+              {visible[env.id] ? env.api_key : '•'.repeat(Math.max(12, env.api_key?.length || 16))}
+            </Box>
+            <Tooltip title={visible[env.id] ? 'Hide' : 'Show'}>
+              <IconButton size="small" onClick={() => toggleVisible(env.id)}>
+                {visible[env.id] ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Copy">
+              <IconButton size="small" onClick={() => copy(env.api_key)}>
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Paper>
+        ))}
+      </Box>
+    </Box>
+  );
+};
+
 const ProjectSettingsPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const navigate = useNavigate();
@@ -51,8 +123,6 @@ const ProjectSettingsPage: React.FC = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   React.useEffect(() => {
@@ -113,28 +183,35 @@ const ProjectSettingsPage: React.FC = () => {
 
       {project && (
         <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <Box>
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>API Keys</Typography>
-            <Typography variant="body2" color="text.secondary">
-              API keys are now managed per environment. Use the environments section to view and manage API keys for each environment.
-            </Typography>
-          </Box>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gap: 3,
+              alignItems: 'start'
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <TextField
+                label="Project name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                fullWidth
+              />
+              <TextField
+                label="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                fullWidth
+                multiline
+                minRows={3}
+              />
+            </Box>
 
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="Project name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              fullWidth
-              multiline
-              minRows={3}
-            />
+            <Box>
+              {/* API Keys per environment */}
+              <ApiKeysSection projectId={projectId} showNotification={showNotification} />
+            </Box>
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
