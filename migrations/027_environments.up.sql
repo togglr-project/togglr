@@ -175,3 +175,24 @@ CREATE TRIGGER trg_create_params_on_feature_insert
     AFTER INSERT ON features
     FOR EACH ROW
 EXECUTE FUNCTION create_default_feature_params();
+
+---
+
+CREATE OR REPLACE FUNCTION create_feature_params_for_env()
+    RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO feature_params (feature_id, environment_id, enabled, default_value)
+    SELECT f.id, NEW.id, false, ''
+    FROM features f
+    WHERE f.project_id = NEW.project_id;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_create_feature_params_on_env_insert ON environments;
+
+CREATE TRIGGER trg_create_feature_params_on_env_insert
+    AFTER INSERT ON environments
+    FOR EACH ROW
+EXECUTE FUNCTION create_feature_params_for_env();
