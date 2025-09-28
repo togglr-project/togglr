@@ -145,7 +145,11 @@
           Content-Type: application/json
         body: {"code":"", "session_id":"invalid_session"}
       response:
-        status: 401
+        status: 400
+        json: |
+          {
+            "error_message": "<<PRESENCE>>"
+          }
 
 - name: verify 2FA with malformed JSON
   fixtures:

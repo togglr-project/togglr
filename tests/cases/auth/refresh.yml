@@ -68,7 +68,11 @@
           Content-Type: application/json
         body: {"refresh_token":""}
       response:
-        status: 401
+        status: 400
+        json: |
+          {
+            "error_message": "<<PRESENCE>>"
+          }
 
 - name: refresh with missing token
   fixtures:

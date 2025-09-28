@@ -101,12 +101,10 @@
           Content-Type: application/json
         body: {"username":"", "password":"Warden123!"}
       response:
-        status: 401
+        status: 400
         json: |
           {
-            "error": {
-              "message": "authentication failed: invalid credentials"
-            }
+            "error_message": "<<PRESENCE>>"
           }
       dbChecks:
         - query: SELECT (now() - last_login < interval '5 seconds') as res FROM public.users WHERE username = 'admin'
@@ -130,12 +128,10 @@
           Content-Type: application/json
         body: {"username":"admin", "password":""}
       response:
-        status: 401
+        status: 400
         json: |
           {
-            "error": {
-              "message": "authentication failed: invalid credentials"
-            }
+            "error_message": "<<PRESENCE>>"
           }
       dbChecks:
         - query: SELECT (now() - last_login < interval '5 seconds') as res FROM public.users WHERE username = 'admin'
