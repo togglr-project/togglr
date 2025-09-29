@@ -40,6 +40,7 @@ WITH feature_with_category AS (
      )
 SELECT
     fwc.project_id,
+    pr.name AS project_name,
     fwc.environment_id,
     fwc.environment_key,
     COUNT(DISTINCT fwc.feature_id) AS total_features,
@@ -63,8 +64,9 @@ SELECT
         ELSE 'green'
         END AS health_status
 FROM feature_with_category fwc
-         LEFT JOIN pending p ON p.feature_id = fwc.feature_id
-GROUP BY fwc.project_id, fwc.environment_id, fwc.environment_key;
+LEFT JOIN pending p ON p.feature_id = fwc.feature_id
+JOIN projects pr ON fwc.project_id = pr.id
+GROUP BY fwc.project_id, project_name, fwc.environment_id, fwc.environment_key;
 
 -- ------------------------------------
 
@@ -110,6 +112,7 @@ WITH feature_with_category AS (
      )
 SELECT
     fwc.project_id,
+    pr.name AS project_name,
     fwc.environment_id,
     fwc.environment_key,
     fwc.category_id,
@@ -135,5 +138,6 @@ SELECT
         ELSE 'green'
         END AS health_status
 FROM feature_with_category fwc
-         LEFT JOIN pending p ON p.feature_id = fwc.feature_id
-GROUP BY fwc.project_id, fwc.environment_id, fwc.environment_key, fwc.category_id, fwc.category_name, fwc.category_slug;
+LEFT JOIN pending p ON p.feature_id = fwc.feature_id
+JOIN projects pr ON pr.id = fwc.project_id
+GROUP BY fwc.project_id, project_name, fwc.environment_id, fwc.environment_key, fwc.category_id, fwc.category_name, fwc.category_slug;

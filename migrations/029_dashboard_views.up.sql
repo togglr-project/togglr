@@ -2,6 +2,7 @@ DROP VIEW IF EXISTS v_project_pending_summary CASCADE;
 CREATE OR REPLACE VIEW v_project_pending_summary AS
 SELECT
     pc.project_id,
+    pr.name AS project_name,
     e.id AS environment_id,
     e.key AS environment_key,
     COUNT(DISTINCT pc.id) AS total_pending,
@@ -19,8 +20,9 @@ SELECT
 FROM pending_changes pc
          LEFT JOIN pending_change_entities pce ON pce.pending_change_id = pc.id
          JOIN environments e ON e.project_id = pc.project_id
+         JOIN projects pr ON pr.id = e.project_id
 WHERE pc.status = 'pending'
-GROUP BY pc.project_id, e.id, e.key;
+GROUP BY pc.project_id, project_name, e.id, e.key;
 
 -- ------------------------------------
 
@@ -28,6 +30,7 @@ DROP VIEW IF EXISTS v_project_top_risky_features CASCADE;
 CREATE OR REPLACE VIEW v_project_top_risky_features AS
 SELECT
     f.project_id,
+    pr.name AS project_name,
     fp.environment_id,
     e.key AS environment_key,
     f.id AS feature_id,
@@ -47,8 +50,9 @@ FROM features f
          JOIN environments e ON e.id = fp.environment_id
          JOIN feature_tags ft ON ft.feature_id = f.id
          JOIN tags t ON ft.tag_id = t.id
+         JOIN projects pr ON pr.id = e.project_id
 WHERE t.slug IN ('critical','guarded','auto-disable')
-GROUP BY f.project_id, fp.environment_id, e.key, f.id, f.name, fp.enabled;
+GROUP BY f.project_id, project_name, fp.environment_id, e.key, f.id, f.name, fp.enabled;
 
 -- ------------------------------------
 
