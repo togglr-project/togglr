@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -26,6 +27,7 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
 		return tx
 	}
+
 	return r.db
 }
 
@@ -86,6 +88,7 @@ func (r *Repository) ProjectHealth(ctx context.Context, envKey string, projectID
 			HealthStatus:               domain.HealthStatus(m.HealthStatus),
 		})
 	}
+
 	return out, nil
 }
 
@@ -149,6 +152,7 @@ func (r *Repository) CategoryHealth(ctx context.Context, envKey string, projectI
 			HealthStatus:               domain.HealthStatus(m.HealthStatus),
 		})
 	}
+
 	return out, nil
 }
 
@@ -173,7 +177,7 @@ func (r *Repository) RecentActivity(ctx context.Context, envKey string, projectI
 		query += ` AND project_id = $2`
 		args = append(args, *projectID)
 	}
-	query += ` ORDER BY created_at DESC LIMIT $` + fmt.Sprint(len(args)+1)
+	query += ` ORDER BY created_at DESC LIMIT $` + strconv.Itoa(len(args)+1)
 	args = append(args, limit)
 	rows, err := exec.Query(ctx, query, args...)
 	if err != nil {
@@ -204,6 +208,7 @@ func (r *Repository) RecentActivity(ctx context.Context, envKey string, projectI
 			Changes:        changes,
 		})
 	}
+
 	return out, nil
 }
 
@@ -228,7 +233,7 @@ func (r *Repository) RiskyFeatures(ctx context.Context, envKey string, projectID
 		query += ` AND project_id = $2`
 		args = append(args, *projectID)
 	}
-	query += ` ORDER BY feature_name ASC LIMIT $` + fmt.Sprint(len(args)+1)
+	query += ` ORDER BY feature_name ASC LIMIT $` + strconv.Itoa(len(args)+1)
 	args = append(args, limit)
 	rows, err := exec.Query(ctx, query, args...)
 	if err != nil {
@@ -255,6 +260,7 @@ func (r *Repository) RiskyFeatures(ctx context.Context, envKey string, projectID
 			RiskyTags:      m.RiskyTags,
 		})
 	}
+
 	return out, nil
 }
 
@@ -303,10 +309,11 @@ func (r *Repository) PendingSummary(ctx context.Context, envKey string, projectI
 			OldestRequestAt:       m.OldestRequestAt,
 		})
 	}
+
 	return out, nil
 }
 
-// parseRecentChanges decodes JSONB array of objects into []domain.RecentChange
+// parseRecentChanges decodes JSONB array of objects into []domain.RecentChange.
 func parseRecentChanges(raw []byte) ([]domain.RecentChange, error) {
 	if len(raw) == 0 {
 		return nil, nil
@@ -327,6 +334,7 @@ func parseRecentChanges(raw []byte) ([]domain.RecentChange, error) {
 			Action:   tmp[i].Action,
 		})
 	}
+
 	return out, nil
 }
 
@@ -344,7 +352,7 @@ func (r *Repository) TopActiveFeatureIDs(
 		query += ` AND project_id = $2`
 		args = append(args, *projectID)
 	}
-	query += ` ORDER BY rank_score DESC LIMIT $` + fmt.Sprint(len(args)+1)
+	query += ` ORDER BY rank_score DESC LIMIT $` + strconv.Itoa(len(args)+1)
 	args = append(args, limit)
 	rows, err := exec.Query(ctx, query, args...)
 	if err != nil {
@@ -357,10 +365,12 @@ func (r *Repository) TopActiveFeatureIDs(
 		if err := row.Scan(&id); err != nil {
 			return "", err
 		}
+
 		return id, nil
 	})
 	if err != nil {
 		return nil, fmt.Errorf("collect v_top_active_features ids: %w", err)
 	}
+
 	return ids, nil
 }

@@ -227,6 +227,7 @@ func (s *Service) getEntityTypeAndID(entity any) (entityType, entityID string, e
 		if entityType, entityID, err := s.handleFeatureTagStruct(entity); err == nil {
 			return entityType, entityID, nil
 		}
+
 		return "", "", fmt.Errorf("unknown entity type: %T", entity)
 	}
 }
@@ -241,7 +242,7 @@ func (s *Service) handleFeatureTagStruct(entity any) (entityType, entityID strin
 	}
 
 	if val.Kind() != reflect.Struct {
-		return "", "", fmt.Errorf("not a struct")
+		return "", "", errors.New("not a struct")
 	}
 
 	// Check if it has FeatureID and TagID fields
@@ -249,7 +250,7 @@ func (s *Service) handleFeatureTagStruct(entity any) (entityType, entityID strin
 	tagIDField := val.FieldByName("TagID")
 
 	if !featureIDField.IsValid() || !tagIDField.IsValid() {
-		return "", "", fmt.Errorf("not a FeatureTag struct")
+		return "", "", errors.New("not a FeatureTag struct")
 	}
 
 	// Get the values
@@ -257,7 +258,7 @@ func (s *Service) handleFeatureTagStruct(entity any) (entityType, entityID strin
 	tagID := tagIDField.String()
 
 	if featureID == "" || tagID == "" {
-		return "", "", fmt.Errorf("empty FeatureID or TagID")
+		return "", "", errors.New("empty FeatureID or TagID")
 	}
 
 	// For FeatureTag relationships, we use the TagID as the entity ID
@@ -266,7 +267,10 @@ func (s *Service) handleFeatureTagStruct(entity any) (entityType, entityID strin
 }
 
 // computeFeatureChanges computes changes for feature entities.
-func (s *Service) computeFeatureChanges(oldEntity, newEntity any, action domain.EntityAction) (map[string]domain.ChangeValue, error) {
+func (s *Service) computeFeatureChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) (map[string]domain.ChangeValue, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldFeature, err := s.convertToFeaturePtr(oldEntity)
@@ -287,7 +291,10 @@ func (s *Service) computeFeatureChanges(oldEntity, newEntity any, action domain.
 }
 
 // computeFeatureParamsChanges computes changes for feature params entities.
-func (s *Service) computeFeatureParamsChanges(oldEntity, newEntity any, action domain.EntityAction) (map[string]domain.ChangeValue, error) {
+func (s *Service) computeFeatureParamsChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) (map[string]domain.ChangeValue, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldParams, err := s.convertToFeatureParamsPtr(oldEntity)
@@ -315,7 +322,10 @@ func (s *Service) computeFeatureParamsChanges(oldEntity, newEntity any, action d
 }
 
 // computeRuleChanges computes changes for rule entities.
-func (s *Service) computeRuleChanges(oldEntity, newEntity any, action domain.EntityAction) (map[string]domain.ChangeValue, error) {
+func (s *Service) computeRuleChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) (map[string]domain.ChangeValue, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldRule, err := s.convertToRulePtr(oldEntity)
@@ -343,7 +353,10 @@ func (s *Service) computeRuleChanges(oldEntity, newEntity any, action domain.Ent
 }
 
 // computeFlagVariantChanges computes changes for flag variant entities.
-func (s *Service) computeFlagVariantChanges(oldEntity, newEntity any, action domain.EntityAction) (map[string]domain.ChangeValue, error) {
+func (s *Service) computeFlagVariantChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) (map[string]domain.ChangeValue, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldVariant, err := s.convertToFlagVariantPtr(oldEntity)
@@ -371,7 +384,10 @@ func (s *Service) computeFlagVariantChanges(oldEntity, newEntity any, action dom
 }
 
 // computeFeatureScheduleChanges computes changes for feature schedule entities.
-func (s *Service) computeFeatureScheduleChanges(oldEntity, newEntity any, action domain.EntityAction) (map[string]domain.ChangeValue, error) {
+func (s *Service) computeFeatureScheduleChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) (map[string]domain.ChangeValue, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldSchedule, err := s.convertToFeatureSchedulePtr(oldEntity)
@@ -400,7 +416,10 @@ func (s *Service) computeFeatureScheduleChanges(oldEntity, newEntity any, action
 
 // computeFeatureTagChanges computes changes for feature tag entities.
 // For feature tags, we expect a struct with FeatureID and TagID fields.
-func (s *Service) computeFeatureTagChanges(oldEntity, newEntity any, action domain.EntityAction) (map[string]domain.ChangeValue, error) {
+func (s *Service) computeFeatureTagChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) (map[string]domain.ChangeValue, error) {
 	switch action {
 	case domain.EntityActionInsert, domain.EntityActionDelete:
 		// For feature tags, we need to extract feature_id and tag_id

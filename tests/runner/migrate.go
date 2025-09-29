@@ -68,6 +68,7 @@ func disableTriggersForTests(db *sql.DB) error {
 	}
 
 	slog.Info("triggers disabled for test environment")
+
 	return nil
 }
 

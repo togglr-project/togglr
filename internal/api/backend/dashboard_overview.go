@@ -25,6 +25,7 @@ func (r *RestAPI) GetDashboardOverview(
 	overview, err := r.dashboardUseCase.Overview(ctx, params.EnvironmentKey, projectIDPtr, limit)
 	if err != nil {
 		slog.Error("get dashboard overview failed", "error", err)
+
 		return nil, err
 	}
 
@@ -212,9 +213,10 @@ func (r *RestAPI) GetDashboardOverview(
 					fu.FeatureID = generatedapi.NewOptUUID(id)
 				}
 				fu.FeatureName = generatedapi.NewOptString(up.FeatureName)
-				if up.NextState == "enabled" {
+				switch up.NextState {
+				case "enabled":
 					fu.NextState = generatedapi.NewOptFeatureUpcomingNextState(generatedapi.FeatureUpcomingNextStateEnabled)
-				} else if up.NextState == "disabled" {
+				case "disabled":
 					fu.NextState = generatedapi.NewOptFeatureUpcomingNextState(generatedapi.FeatureUpcomingNextStateDisabled)
 				}
 				fu.At = generatedapi.NewOptDateTime(up.At)

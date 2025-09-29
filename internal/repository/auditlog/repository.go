@@ -147,7 +147,7 @@ func (r *Repository) ListChanges(
 
 	switch filter.SortBy {
 	case "created_at", "actor", "entity":
-		orderCol = fmt.Sprintf("audit_log.%s", filter.SortBy)
+		orderCol = "audit_log." + filter.SortBy
 	}
 
 	orderDir := "DESC"

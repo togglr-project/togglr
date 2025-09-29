@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/togglr-project/togglr/internal/contract"
@@ -65,9 +66,10 @@ func (s *Service) Overview(
 		fe, err := s.featuresUseCase.GetExtendedByID(ctx, domain.FeatureID(id), envKey)
 		if err != nil {
 			// if feature not found, skip; otherwise return error
-			if err == domain.ErrEntityNotFound {
+			if errors.Is(err, domain.ErrEntityNotFound) {
 				continue
 			}
+
 			return domain.DashboardOverview{}, fmt.Errorf("get feature extended: %w", err)
 		}
 
