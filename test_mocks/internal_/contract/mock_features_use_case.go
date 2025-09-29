@@ -40,8 +40,8 @@ func (_m *MockFeaturesUseCase) EXPECT() *MockFeaturesUseCase_Expecter {
 }
 
 // CreateWithChildren provides a mock function for the type MockFeaturesUseCase
-func (_mock *MockFeaturesUseCase) CreateWithChildren(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, error) {
-	ret := _mock.Called(ctx, feature, variants, rules)
+func (_mock *MockFeaturesUseCase) CreateWithChildren(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule, tagsIDs []domain.TagID) (domain.FeatureExtended, error) {
+	ret := _mock.Called(ctx, feature, variants, rules, tagsIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateWithChildren")
@@ -49,16 +49,16 @@ func (_mock *MockFeaturesUseCase) CreateWithChildren(ctx context.Context, featur
 
 	var r0 domain.FeatureExtended
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) (domain.FeatureExtended, error)); ok {
-		return returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule, []domain.TagID) (domain.FeatureExtended, error)); ok {
+		return returnFunc(ctx, feature, variants, rules, tagsIDs)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) domain.FeatureExtended); ok {
-		r0 = returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule, []domain.TagID) domain.FeatureExtended); ok {
+		r0 = returnFunc(ctx, feature, variants, rules, tagsIDs)
 	} else {
 		r0 = ret.Get(0).(domain.FeatureExtended)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule) error); ok {
-		r1 = returnFunc(ctx, feature, variants, rules)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.Feature, []domain.FlagVariant, []domain.Rule, []domain.TagID) error); ok {
+		r1 = returnFunc(ctx, feature, variants, rules, tagsIDs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -75,11 +75,12 @@ type MockFeaturesUseCase_CreateWithChildren_Call struct {
 //   - feature domain.Feature
 //   - variants []domain.FlagVariant
 //   - rules []domain.Rule
-func (_e *MockFeaturesUseCase_Expecter) CreateWithChildren(ctx interface{}, feature interface{}, variants interface{}, rules interface{}) *MockFeaturesUseCase_CreateWithChildren_Call {
-	return &MockFeaturesUseCase_CreateWithChildren_Call{Call: _e.mock.On("CreateWithChildren", ctx, feature, variants, rules)}
+//   - tagsIDs []domain.TagID
+func (_e *MockFeaturesUseCase_Expecter) CreateWithChildren(ctx interface{}, feature interface{}, variants interface{}, rules interface{}, tagsIDs interface{}) *MockFeaturesUseCase_CreateWithChildren_Call {
+	return &MockFeaturesUseCase_CreateWithChildren_Call{Call: _e.mock.On("CreateWithChildren", ctx, feature, variants, rules, tagsIDs)}
 }
 
-func (_c *MockFeaturesUseCase_CreateWithChildren_Call) Run(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule)) *MockFeaturesUseCase_CreateWithChildren_Call {
+func (_c *MockFeaturesUseCase_CreateWithChildren_Call) Run(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule, tagsIDs []domain.TagID)) *MockFeaturesUseCase_CreateWithChildren_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -97,11 +98,16 @@ func (_c *MockFeaturesUseCase_CreateWithChildren_Call) Run(run func(ctx context.
 		if args[3] != nil {
 			arg3 = args[3].([]domain.Rule)
 		}
+		var arg4 []domain.TagID
+		if args[4] != nil {
+			arg4 = args[4].([]domain.TagID)
+		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
+			arg4,
 		)
 	})
 	return _c
@@ -112,7 +118,7 @@ func (_c *MockFeaturesUseCase_CreateWithChildren_Call) Return(featureExtended do
 	return _c
 }
 
-func (_c *MockFeaturesUseCase_CreateWithChildren_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule) (domain.FeatureExtended, error)) *MockFeaturesUseCase_CreateWithChildren_Call {
+func (_c *MockFeaturesUseCase_CreateWithChildren_Call) RunAndReturn(run func(ctx context.Context, feature domain.Feature, variants []domain.FlagVariant, rules []domain.Rule, tagsIDs []domain.TagID) (domain.FeatureExtended, error)) *MockFeaturesUseCase_CreateWithChildren_Call {
 	_c.Call.Return(run)
 	return _c
 }
