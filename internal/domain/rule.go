@@ -5,17 +5,18 @@ import (
 )
 
 type Rule struct {
-	ID            RuleID
-	ProjectID     ProjectID
-	FeatureID     FeatureID
-	EnvironmentID EnvironmentID
-	Conditions    BooleanExpression
-	SegmentID     *SegmentID
-	IsCustomized  bool
-	Action        RuleAction
-	FlagVariantID *FlagVariantID // which variant to assign if the condition matches
-	Priority      uint8
-	CreatedAt     time.Time
+	ID            RuleID            `db:"id" pk:"true"`
+	ProjectID     ProjectID         `db:"project_id"`
+	FeatureID     FeatureID         `db:"feature_id"`
+	EnvironmentID EnvironmentID     `db:"environment_id"`
+	Conditions    BooleanExpression `db:"condition" editable:"true"`
+	SegmentID     *SegmentID        `db:"segment_id" editable:"true"`
+	IsCustomized  bool              `db:"is_customized" editable:"true"`
+	Action        RuleAction        `db:"action" editable:"true"`
+	FlagVariantID *FlagVariantID    `db:"flag_variant_id" editable:"true"` // which variant to assign if the condition matches
+	Priority      uint8             `db:"priority" editable:"true"`
+	CreatedAt     time.Time         `db:"created_at"`
+	// TODO: updatedAt
 }
 
 type RuleID string
@@ -37,10 +38,6 @@ func (action RuleAction) String() string {
 }
 
 type RuleAttribute string
-
-const (
-	RuleAttributeUserID RuleAttribute = "user.id"
-)
 
 func (attr RuleAttribute) String() string {
 	return string(attr)

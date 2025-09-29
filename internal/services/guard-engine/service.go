@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"time"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/contract"
@@ -160,7 +159,7 @@ func (s *Service) determineEntityTypeAndChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
 ) (entityType, entityID string, changes map[string]domain.ChangeValue, err error) {
-	// Determine entity type from the old entity (or new entity if old is nil)
+	// Determine an entity type from the old entity (or new entity if old is nil)
 	var entity any
 	if oldEntity != nil {
 		entity = oldEntity
@@ -282,7 +281,7 @@ func (s *Service) computeFeatureChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFeatureChangeDiff(oldFeature, newFeature), nil
+		return BuildChangeDiff(oldFeature, newFeature), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -306,14 +305,14 @@ func (s *Service) computeFeatureParamsChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFeatureParamsChangeDiff(oldParams, newParams), nil
+		return BuildChangeDiff(oldParams, newParams), nil
 	case domain.EntityActionInsert:
 		newParams, err := s.convertToFeatureParamsPtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFeatureParamsInsertChanges(newParams), nil
+		return BuildInsertChanges(newParams), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -337,14 +336,14 @@ func (s *Service) computeRuleChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildRuleChangeDiff(oldRule, newRule), nil
+		return BuildChangeDiff(oldRule, newRule), nil
 	case domain.EntityActionInsert:
 		newRule, err := s.convertToRulePtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildRuleInsertChanges(newRule), nil
+		return BuildInsertChanges(newRule), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -368,14 +367,14 @@ func (s *Service) computeFlagVariantChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFlagVariantChangeDiff(oldVariant, newVariant), nil
+		return BuildChangeDiff(oldVariant, newVariant), nil
 	case domain.EntityActionInsert:
 		newVariant, err := s.convertToFlagVariantPtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFlagVariantInsertChanges(newVariant), nil
+		return BuildInsertChanges(newVariant), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -399,14 +398,14 @@ func (s *Service) computeFeatureScheduleChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFeatureScheduleChangeDiff(oldSchedule, newSchedule), nil
+		return BuildChangeDiff(oldSchedule, newSchedule), nil
 	case domain.EntityActionInsert:
 		newSchedule, err := s.convertToFeatureSchedulePtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return s.buildFeatureScheduleInsertChanges(newSchedule), nil
+		return BuildInsertChanges(newSchedule), nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -425,7 +424,7 @@ func (s *Service) computeFeatureTagChanges(
 		// For feature tags, we need to extract feature_id and tag_id
 		var featureID, tagID string
 
-		// Try to extract from old entity first, then new entity
+		// Try to extract from an old entity first, then a new entity
 		if oldEntity != nil {
 			if featureID, tagID = s.extractFeatureTagIDs(oldEntity); featureID != "" && tagID != "" {
 				// Found in old entity
@@ -433,7 +432,7 @@ func (s *Service) computeFeatureTagChanges(
 		}
 		if newEntity != nil && (featureID == "" || tagID == "") {
 			if featureID, tagID = s.extractFeatureTagIDs(newEntity); featureID != "" && tagID != "" {
-				// Found in new entity
+				// Found in a new entity
 			}
 		}
 
@@ -445,6 +444,18 @@ func (s *Service) computeFeatureTagChanges(
 			"feature_id": {New: featureID},
 			"tag_id":     {New: tagID},
 		}, nil
+	case domain.EntityActionUpdate:
+		// For update, we can use the generic function
+		oldTag, err := s.convertToFeatureTagPtr(oldEntity)
+		if err != nil {
+			return nil, fmt.Errorf("old entity: %w", err)
+		}
+		newTag, err := s.convertToFeatureTagPtr(newEntity)
+		if err != nil {
+			return nil, fmt.Errorf("new entity: %w", err)
+		}
+
+		return BuildChangeDiff(oldTag, newTag), nil
 	default:
 		return nil, fmt.Errorf("unsupported action for feature tag: %s", action)
 	}
@@ -469,7 +480,7 @@ func (s *Service) extractFeatureTagIDs(entity any) (featureID, tagID string) {
 		}
 	}
 
-	// Try map type
+	// Try a map type
 	if m, ok := entity.(map[string]any); ok {
 		if f, exists := m["feature_id"]; exists {
 			if fStr, ok := f.(string); ok {
@@ -486,259 +497,7 @@ func (s *Service) extractFeatureTagIDs(entity any) (featureID, tagID string) {
 	return featureID, tagID
 }
 
-// Helper methods for building change diffs
-
-func (s *Service) buildFeatureChangeDiff(old, new *domain.Feature) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if old.Name != new.Name {
-		changes["name"] = domain.ChangeValue{Old: old.Name, New: new.Name}
-	}
-	if old.Description != new.Description {
-		changes["description"] = domain.ChangeValue{Old: old.Description, New: new.Description}
-	}
-	if old.Enabled != new.Enabled {
-		changes["enabled"] = domain.ChangeValue{Old: old.Enabled, New: new.Enabled}
-	}
-	if old.DefaultValue != new.DefaultValue {
-		changes["default_value"] = domain.ChangeValue{Old: old.DefaultValue, New: new.DefaultValue}
-	}
-
-	return changes
-}
-
-func (s *Service) buildFeatureParamsChangeDiff(old, new *domain.FeatureParams) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if old.Enabled != new.Enabled {
-		changes["enabled"] = domain.ChangeValue{Old: old.Enabled, New: new.Enabled}
-	}
-	if old.DefaultValue != new.DefaultValue {
-		changes["default_value"] = domain.ChangeValue{Old: old.DefaultValue, New: new.DefaultValue}
-	}
-
-	return changes
-}
-
-func (s *Service) buildFeatureParamsInsertChanges(params *domain.FeatureParams) map[string]domain.ChangeValue {
-	return map[string]domain.ChangeValue{
-		"feature_id":     {New: string(params.FeatureID)},
-		"environment_id": {New: params.EnvironmentID},
-		"enabled":        {New: params.Enabled},
-		"default_value":  {New: params.DefaultValue},
-	}
-}
-
-func (s *Service) buildRuleChangeDiff(old, new *domain.Rule) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if old.IsCustomized != new.IsCustomized {
-		changes["is_customized"] = domain.ChangeValue{Old: old.IsCustomized, New: new.IsCustomized}
-	}
-	if old.Action != new.Action {
-		changes["action"] = domain.ChangeValue{Old: old.Action.String(), New: new.Action.String()}
-	}
-	if old.Priority != new.Priority {
-		changes["priority"] = domain.ChangeValue{Old: old.Priority, New: new.Priority}
-	}
-
-	// Handle optional fields
-	if s.ruleFlagVariantIDChanged(old.FlagVariantID, new.FlagVariantID) {
-		changes["flag_variant_id"] = domain.ChangeValue{
-			Old: s.ruleFlagVariantIDString(old.FlagVariantID),
-			New: s.ruleFlagVariantIDString(new.FlagVariantID),
-		}
-	}
-	if s.ruleSegmentIDChanged(old.SegmentID, new.SegmentID) {
-		changes["segment_id"] = domain.ChangeValue{
-			Old: s.ruleSegmentIDString(old.SegmentID),
-			New: s.ruleSegmentIDString(new.SegmentID),
-		}
-	}
-
-	return changes
-}
-
-func (s *Service) buildRuleInsertChanges(rule *domain.Rule) map[string]domain.ChangeValue {
-	changes := map[string]domain.ChangeValue{
-		"project_id":    {New: string(rule.ProjectID)},
-		"feature_id":    {New: string(rule.FeatureID)},
-		"is_customized": {New: rule.IsCustomized},
-		"action":        {New: rule.Action.String()},
-		"priority":      {New: rule.Priority},
-	}
-
-	if rule.FlagVariantID != nil {
-		changes["flag_variant_id"] = domain.ChangeValue{New: s.ruleFlagVariantIDString(rule.FlagVariantID)}
-	}
-	if rule.SegmentID != nil {
-		changes["segment_id"] = domain.ChangeValue{New: s.ruleSegmentIDString(rule.SegmentID)}
-	}
-
-	return changes
-}
-
-func (s *Service) buildFlagVariantChangeDiff(old, new *domain.FlagVariant) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if old.Name != new.Name {
-		changes["name"] = domain.ChangeValue{Old: old.Name, New: new.Name}
-	}
-	if old.RolloutPercent != new.RolloutPercent {
-		changes["rollout_percent"] = domain.ChangeValue{Old: old.RolloutPercent, New: new.RolloutPercent}
-	}
-
-	return changes
-}
-
-func (s *Service) buildFlagVariantInsertChanges(variant *domain.FlagVariant) map[string]domain.ChangeValue {
-	return map[string]domain.ChangeValue{
-		"project_id":      {New: string(variant.ProjectID)},
-		"feature_id":      {New: string(variant.FeatureID)},
-		"name":            {New: variant.Name},
-		"rollout_percent": {New: variant.RolloutPercent},
-	}
-}
-
-func (s *Service) buildFeatureScheduleChangeDiff(old, new *domain.FeatureSchedule) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if s.timePtrChanged(old.StartsAt, new.StartsAt) {
-		changes["starts_at"] = domain.ChangeValue{
-			Old: s.timePtrString(old.StartsAt),
-			New: s.timePtrString(new.StartsAt),
-		}
-	}
-	if s.timePtrChanged(old.EndsAt, new.EndsAt) {
-		changes["ends_at"] = domain.ChangeValue{
-			Old: s.timePtrString(old.EndsAt),
-			New: s.timePtrString(new.EndsAt),
-		}
-	}
-	if s.stringPtrChanged(old.CronExpr, new.CronExpr) {
-		changes["cron_expr"] = domain.ChangeValue{
-			Old: s.stringPtrString(old.CronExpr),
-			New: s.stringPtrString(new.CronExpr),
-		}
-	}
-	if s.durationPtrChanged(old.CronDuration, new.CronDuration) {
-		changes["cron_duration"] = domain.ChangeValue{
-			Old: s.durationPtrString(old.CronDuration),
-			New: s.durationPtrString(new.CronDuration),
-		}
-	}
-	if old.Timezone != new.Timezone {
-		changes["timezone"] = domain.ChangeValue{Old: old.Timezone, New: new.Timezone}
-	}
-	if old.Action != new.Action {
-		changes["action"] = domain.ChangeValue{Old: old.Action.String(), New: new.Action.String()}
-	}
-
-	return changes
-}
-
-func (s *Service) buildFeatureScheduleInsertChanges(schedule *domain.FeatureSchedule) map[string]domain.ChangeValue {
-	changes := map[string]domain.ChangeValue{
-		"project_id":     {New: string(schedule.ProjectID)},
-		"feature_id":     {New: string(schedule.FeatureID)},
-		"environment_id": {New: schedule.EnvironmentID},
-		"timezone":       {New: schedule.Timezone},
-		"action":         {New: schedule.Action.String()},
-	}
-
-	if schedule.StartsAt != nil {
-		changes["starts_at"] = domain.ChangeValue{New: s.timePtrString(schedule.StartsAt)}
-	}
-	if schedule.EndsAt != nil {
-		changes["ends_at"] = domain.ChangeValue{New: s.timePtrString(schedule.EndsAt)}
-	}
-	if schedule.CronExpr != nil {
-		changes["cron_expr"] = domain.ChangeValue{New: s.stringPtrString(schedule.CronExpr)}
-	}
-	if schedule.CronDuration != nil {
-		changes["cron_duration"] = domain.ChangeValue{New: s.durationPtrString(schedule.CronDuration)}
-	}
-
-	return changes
-}
-
-// Helper methods for comparing optional fields
-
-func (s *Service) ruleFlagVariantIDChanged(old, new *domain.FlagVariantID) bool {
-	if old == nil && new == nil {
-		return false
-	}
-	if old == nil || new == nil {
-		return true
-	}
-
-	return *old != *new
-}
-
-func (s *Service) ruleFlagVariantIDString(id *domain.FlagVariantID) interface{} {
-	if id == nil {
-		return nil
-	}
-
-	return string(*id)
-}
-
-func (s *Service) ruleSegmentIDChanged(old, new *domain.SegmentID) bool {
-	if old == nil && new == nil {
-		return false
-	}
-	if old == nil || new == nil {
-		return true
-	}
-
-	return *old != *new
-}
-
-func (s *Service) ruleSegmentIDString(id *domain.SegmentID) interface{} {
-	if id == nil {
-		return nil
-	}
-
-	return string(*id)
-}
-
-func (s *Service) timePtrChanged(old, new *time.Time) bool {
-	return s.timePtrString(old) != s.timePtrString(new)
-}
-
-func (s *Service) timePtrString(p *time.Time) interface{} {
-	if p == nil {
-		return nil
-	}
-
-	return p.Format(time.RFC3339)
-}
-
-func (s *Service) stringPtrChanged(old, new *string) bool {
-	return s.stringPtrString(old) != s.stringPtrString(new)
-}
-
-func (s *Service) stringPtrString(p *string) interface{} {
-	if p == nil {
-		return nil
-	}
-
-	return *p
-}
-
-func (s *Service) durationPtrChanged(old, new *time.Duration) bool {
-	return s.durationPtrString(old) != s.durationPtrString(new)
-}
-
-func (s *Service) durationPtrString(p *time.Duration) interface{} {
-	if p == nil {
-		return nil
-	}
-
-	return p.String()
-}
-
-// Helper functions to convert any entity to pointer type for consistent handling
+// Helper functions to convert any entity to a pointer type for consistent handling
 
 func (s *Service) convertToFeaturePtr(entity any) (*domain.Feature, error) {
 	switch e := entity.(type) {
@@ -792,5 +551,16 @@ func (s *Service) convertToFeatureSchedulePtr(entity any) (*domain.FeatureSchedu
 		return &e, nil
 	default:
 		return nil, fmt.Errorf("expected *domain.FeatureSchedule or domain.FeatureSchedule, got %T", entity)
+	}
+}
+
+func (s *Service) convertToFeatureTagPtr(entity any) (*domain.FeatureTags, error) {
+	switch e := entity.(type) {
+	case *domain.FeatureTags:
+		return e, nil
+	case domain.FeatureTags:
+		return &e, nil
+	default:
+		return nil, fmt.Errorf("expected *domain.FeatureTags or domain.FeatureTags, got %T", entity)
 	}
 }

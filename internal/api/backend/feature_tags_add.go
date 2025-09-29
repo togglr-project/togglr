@@ -45,14 +45,11 @@ func (r *RestAPI) AddFeatureTag(
 		return nil, err
 	}
 
-	// Guarded flow: if feature is guarded, create a pending change and return 202
+	// Guarded flow: if a feature is guarded, create a pending change and return 202
 	// Create a simple struct for feature tag relationship
-	featureTagData := struct {
-		FeatureID string
-		TagID     string
-	}{
-		FeatureID: featureID.String(),
-		TagID:     tagID.String(),
+	featureTagData := domain.FeatureTags{
+		FeatureID: featureID,
+		TagID:     tagID,
 	}
 
 	pendingChange, conflict, _, err := r.guardEngine.CheckGuardedOperation(

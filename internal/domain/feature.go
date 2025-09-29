@@ -14,15 +14,15 @@ const (
 )
 
 type BasicFeature struct {
-	ID          FeatureID
-	ProjectID   ProjectID
-	Key         string      // machine name, e.g. "new_ui"
-	Name        string      // human readable name
-	Description string      // optional description
-	Kind        FeatureKind // "simple" | "multivariant"
-	RolloutKey  RuleAttribute
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID          FeatureID     `db:"id" pk:"true"`
+	ProjectID   ProjectID     `db:"project_id"`
+	Key         string        `db:"key"`                         // machine name, e.g. "new_ui"
+	Kind        FeatureKind   `db:"kind"`                        // "simple" | "multivariant"
+	Name        string        `db:"name" editable:"true"`        // human readable name
+	Description string        `db:"description" editable:"true"` // optional description
+	RolloutKey  RuleAttribute `db:"rollout_key" editable:"true"`
+	CreatedAt   time.Time     `db:"created_at"`
+	UpdatedAt   time.Time     `db:"updated_at"`
 }
 
 type Feature struct {
