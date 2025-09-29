@@ -51,6 +51,20 @@ func ApplyChangesToEntity(currentEntity any, changes map[string]domain.ChangeVal
 	return nil
 }
 
+// CreateEntityFromChanges creates a new entity from changes using reflection and db tags.
+// It takes the entity type, changes map, and creates a new entity with the changes applied.
+func CreateEntityFromChanges(entityType reflect.Type, changes map[string]domain.ChangeValue) (any, error) {
+	// Create a new instance of the entity type
+	entity := reflect.New(entityType).Interface()
+
+	// Apply changes to the new entity
+	if err := ApplyChangesToEntity(entity, changes); err != nil {
+		return nil, fmt.Errorf("apply changes to new entity: %w", err)
+	}
+
+	return entity, nil
+}
+
 // applyChangeToField applies a change value to a specific field using reflection.
 func applyChangeToField(field reflect.Value, newValue any) error {
 	if newValue == nil {
@@ -58,6 +72,7 @@ func applyChangeToField(field reflect.Value, newValue any) error {
 		if field.Kind() == reflect.Ptr {
 			field.Set(reflect.Zero(field.Type()))
 		}
+
 		return nil
 	}
 
@@ -162,6 +177,7 @@ func convertToInt64(value any) (int64, bool) {
 			return num, true
 		}
 	}
+
 	return 0, false
 }
 
@@ -211,6 +227,7 @@ func convertToUint64(value any) (uint64, bool) {
 			return num, true
 		}
 	}
+
 	return 0, false
 }
 
@@ -246,24 +263,11 @@ func convertToFloat64(value any) (float64, bool) {
 			return num, true
 		}
 	}
+
 	return 0, false
 }
 
-// CreateEntityFromChanges creates a new entity from changes using reflection and db tags.
-// It takes the entity type, changes map, and creates a new entity with the changes applied.
-func CreateEntityFromChanges(entityType reflect.Type, changes map[string]domain.ChangeValue) (any, error) {
-	// Create a new instance of the entity type
-	entity := reflect.New(entityType).Interface()
-
-	// Apply changes to the new entity
-	if err := ApplyChangesToEntity(entity, changes); err != nil {
-		return nil, fmt.Errorf("apply changes to new entity: %w", err)
-	}
-
-	return entity, nil
-}
-
-// convertToBooleanExpression converts a map[string]interface{} to domain.BooleanExpression
+// convertToBooleanExpression converts a map[string]interface{} to domain.BooleanExpression.
 func convertToBooleanExpression(value any, field reflect.Value) error {
 	// Convert to JSON and back to BooleanExpression
 	jsonData, err := json.Marshal(value)
@@ -277,5 +281,6 @@ func convertToBooleanExpression(value any, field reflect.Value) error {
 	}
 
 	field.Set(reflect.ValueOf(expr))
+
 	return nil
 }

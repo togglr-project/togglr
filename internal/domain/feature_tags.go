@@ -5,7 +5,7 @@ import (
 )
 
 type FeatureTags struct {
-	FeatureID FeatureID `db:"feature_id" pk:"true" editable:"true"`
-	TagID     TagID     `db:"tag_id" pk:"true" editable:"true"`
+	FeatureID FeatureID `db:"feature_id" editable:"true" pk:"true"`
+	TagID     TagID     `db:"tag_id"     editable:"true" pk:"true"`
 	CreatedAt time.Time `db:"created_at"`
 }

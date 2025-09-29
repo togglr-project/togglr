@@ -58,7 +58,7 @@ func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
 	return changes
 }
 
-// buildNestedChangeDiff processes nested structs
+// buildNestedChangeDiff processes nested structs.
 func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
@@ -99,7 +99,7 @@ func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.C
 }
 
 // BuildInsertChanges creates changes for insert action, including all fields with editable tag
-// and required fields for record creation (e.g., ID, ProjectID, FeatureID)
+// and required fields for record creation (e.g., ID, ProjectID, FeatureID).
 func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
@@ -118,6 +118,7 @@ func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 		if f.Tag.Get("editable") == "true" && fieldName != "" {
 			val := v.Field(i).Interface()
 			changes[fieldName] = domain.ChangeValue{New: val}
+
 			continue
 		}
 
@@ -144,7 +145,7 @@ func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 	return changes
 }
 
-// buildNestedInsertChanges processes nested structs for insert
+// buildNestedInsertChanges processes nested structs for insert.
 func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
@@ -170,6 +171,7 @@ func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue
 		if f.Tag.Get("editable") == "true" {
 			val := field.Field(i).Interface()
 			changes[fieldName] = domain.ChangeValue{New: val}
+
 			continue
 		}
 
@@ -183,7 +185,7 @@ func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue
 	return changes
 }
 
-// isRequiredForInsert checks if a field is required for insert operation
+// isRequiredForInsert checks if a field is required for insert operation.
 func isRequiredForInsert(fieldName string) bool {
 	requiredFields := map[string]bool{
 		"project_id":     true,

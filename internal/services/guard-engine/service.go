@@ -11,7 +11,7 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
-// EntityChanges represents changes for a specific entity type
+// EntityChanges represents changes for a specific entity type.
 type EntityChanges struct {
 	EntityType string
 	EntityID   string
@@ -187,6 +187,7 @@ func (s *Service) determineEntityTypeAndChanges(
 		if err != nil {
 			return nil, err
 		}
+
 		return []EntityChanges{{
 			EntityType: entityType,
 			EntityID:   entityID,
@@ -388,6 +389,7 @@ func (s *Service) computeRuleChanges(
 		}
 
 		changes := BuildInsertChanges(newRule)
+
 		return []EntityChanges{{
 			EntityType: string(domain.EntityRule),
 			EntityID:   string(newRule.ID),
@@ -433,6 +435,7 @@ func (s *Service) computeFlagVariantChanges(
 		}
 
 		changes := BuildInsertChanges(newVariant)
+
 		return []EntityChanges{{
 			EntityType: string(domain.EntityFlagVariant),
 			EntityID:   string(newVariant.ID),
@@ -478,6 +481,7 @@ func (s *Service) computeFeatureScheduleChanges(
 		}
 
 		changes := BuildInsertChanges(newSchedule)
+
 		return []EntityChanges{{
 			EntityType: string(domain.EntityFeatureSchedule),
 			EntityID:   string(newSchedule.ID),
@@ -521,6 +525,7 @@ func (s *Service) computeFeatureTagChanges(
 			"feature_id": {New: featureID},
 			"tag_id":     {New: tagID},
 		}
+
 		return []EntityChanges{{
 			EntityType: string(domain.EntityFeatureTag),
 			EntityID:   featureID,

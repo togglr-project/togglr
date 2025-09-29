@@ -2,6 +2,7 @@ package features
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -447,11 +448,11 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID, envKey string
 	}
 
 	if !proceed {
-		return domain.GuardedResult{}, fmt.Errorf("unexpected guard result: no pending change but proceed=false")
+		return domain.GuardedResult{}, errors.New("unexpected guard result: no pending change but proceed=false")
 	}
 
 	// This should never be reached for guarded features
-	return domain.GuardedResult{}, fmt.Errorf("unexpected: guarded feature but no pending change created")
+	return domain.GuardedResult{}, errors.New("unexpected: guarded feature but no pending change created")
 }
 
 func (s *Service) Toggle(
@@ -477,7 +478,7 @@ func (s *Service) Toggle(
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("check feature guarded: %w", err)
 	}
 
-	// If feature is not guarded, proceed with direct update
+	// If a feature is not guarded, proceed with a direct update
 	if !isGuarded {
 		// Proceed with normal update of environment-specific params
 		var updated domain.Feature
@@ -513,7 +514,7 @@ func (s *Service) Toggle(
 	newFeature := existing
 	newFeature.Enabled = enabled
 
-	// Use new guard engine
+	// Use the new guard engine
 	pendingChange, conflict, proceed, err := s.guardEngine.CheckGuardedOperation(
 		ctx,
 		contract.GuardRequest{
@@ -543,340 +544,11 @@ func (s *Service) Toggle(
 	}
 
 	if !proceed {
-		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("unexpected guard result: no pending change but proceed=false")
+		return domain.Feature{}, domain.GuardedResult{}, errors.New("unexpected guard result: no pending change but proceed=false")
 	}
 
 	// This should never be reached for guarded features
-	return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("unexpected: guarded feature but no pending change created")
-}
-
-// computeVariantChanges computes changes for flag variants by comparing existing and new variants.
-func (s *Service) computeVariantChanges(
-	ctx context.Context,
-	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
-	existingVariants []domain.FlagVariant,
-	newVariants []domain.FlagVariant,
-) ([]domain.EntityChange, error) {
-	// Build maps for comparison
-	existingByID := make(map[domain.FlagVariantID]domain.FlagVariant)
-	existingByName := make(map[string]domain.FlagVariant)
-	for _, v := range existingVariants {
-		existingByID[v.ID] = v
-		existingByName[v.Name] = v
-	}
-
-	newByID := make(map[domain.FlagVariantID]domain.FlagVariant)
-	for _, v := range newVariants {
-		newByID[v.ID] = v
-	}
-
-	var changes []domain.EntityChange
-
-	// Process variants for changes
-	for _, newVariant := range newVariants {
-		// Set environment ID for new variants
-		newVariant.EnvironmentID = envID
-
-		if newVariant.ID != "" {
-			// Check if this is an update to existing variant
-			if existing, exists := existingByID[newVariant.ID]; exists {
-				// Compare and create change if different
-				if s.variantsAreDifferent(existing, newVariant) {
-					changes = append(changes, domain.EntityChange{
-						Entity:   string(domain.EntityFlagVariant),
-						EntityID: string(newVariant.ID),
-						Action:   domain.EntityActionUpdate,
-						Changes:  s.buildVariantChanges(existing, newVariant),
-					})
-				}
-			} else {
-				// This is a new variant
-				changes = append(changes, domain.EntityChange{
-					Entity:   string(domain.EntityFlagVariant),
-					EntityID: string(newVariant.ID),
-					Action:   domain.EntityActionInsert,
-					Changes:  s.buildVariantChanges(domain.FlagVariant{}, newVariant),
-				})
-			}
-		} else {
-			// New variant without ID - will be created
-			changes = append(changes, domain.EntityChange{
-				Entity:   string(domain.EntityFlagVariant),
-				EntityID: "", // Will be generated
-				Action:   domain.EntityActionInsert,
-				Changes:  s.buildVariantChanges(domain.FlagVariant{}, newVariant),
-			})
-		}
-	}
-
-	// Check for deleted variants
-	for _, existing := range existingVariants {
-		if _, exists := newByID[existing.ID]; !exists {
-			// This variant was deleted
-			changes = append(changes, domain.EntityChange{
-				Entity:   string(domain.EntityFlagVariant),
-				EntityID: string(existing.ID),
-				Action:   domain.EntityActionDelete,
-				Changes:  nil,
-			})
-		}
-	}
-
-	return changes, nil
-}
-
-// computeRuleChanges computes changes for rules by comparing existing and new rules.
-func (s *Service) computeRuleChanges(
-	ctx context.Context,
-	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
-	existingRules []domain.Rule,
-	newRules []domain.Rule,
-) ([]domain.EntityChange, error) {
-	// Build maps for comparison
-	existingByID := make(map[domain.RuleID]domain.Rule)
-	for _, r := range existingRules {
-		existingByID[r.ID] = r
-	}
-
-	newByID := make(map[domain.RuleID]domain.Rule)
-	for _, r := range newRules {
-		newByID[r.ID] = r
-	}
-
-	var changes []domain.EntityChange
-
-	// Process rules for changes
-	for _, newRule := range newRules {
-		// Set environment ID for new rules
-		newRule.EnvironmentID = envID
-
-		if newRule.ID != "" {
-			// Check if this is an update to existing rule
-			if existing, exists := existingByID[newRule.ID]; exists {
-				// Compare and create change if different
-				if s.rulesAreDifferent(existing, newRule) {
-					changes = append(changes, domain.EntityChange{
-						Entity:   string(domain.EntityRule),
-						EntityID: string(newRule.ID),
-						Action:   domain.EntityActionUpdate,
-						Changes:  s.buildRuleChanges(existing, newRule),
-					})
-				}
-			} else {
-				// This is a new rule
-				changes = append(changes, domain.EntityChange{
-					Entity:   string(domain.EntityRule),
-					EntityID: string(newRule.ID),
-					Action:   domain.EntityActionInsert,
-					Changes:  s.buildRuleChanges(domain.Rule{}, newRule),
-				})
-			}
-		} else {
-			// New rule without ID - will be created
-			changes = append(changes, domain.EntityChange{
-				Entity:   string(domain.EntityRule),
-				EntityID: "", // Will be generated
-				Action:   domain.EntityActionInsert,
-				Changes:  s.buildRuleChanges(domain.Rule{}, newRule),
-			})
-		}
-	}
-
-	// Check for deleted rules
-	for _, existing := range existingRules {
-		if _, exists := newByID[existing.ID]; !exists {
-			// This rule was deleted
-			changes = append(changes, domain.EntityChange{
-				Entity:   string(domain.EntityRule),
-				EntityID: string(existing.ID),
-				Action:   domain.EntityActionDelete,
-				Changes:  nil,
-			})
-		}
-	}
-
-	return changes, nil
-}
-
-// variantsAreDifferent checks if two variants are different.
-func (s *Service) variantsAreDifferent(existing, new domain.FlagVariant) bool {
-	return existing.Name != new.Name ||
-		existing.RolloutPercent != new.RolloutPercent
-}
-
-// rulesAreDifferent checks if two rules are different.
-func (s *Service) rulesAreDifferent(existing, new domain.Rule) bool {
-	return existing.IsCustomized != new.IsCustomized ||
-		existing.Action != new.Action ||
-		existing.Priority != new.Priority ||
-		!s.flagVariantIDsEqual(existing.FlagVariantID, new.FlagVariantID) ||
-		!s.segmentIDsEqual(existing.SegmentID, new.SegmentID) ||
-		!s.conditionsEqual(existing.Conditions, new.Conditions)
-}
-
-// conditionsEqual compares two conditions expressions.
-func (s *Service) conditionsEqual(existing, new any) bool {
-	// Use reflect.DeepEqual for reliable deep comparison
-	return reflect.DeepEqual(existing, new)
-}
-
-// computeFeatureChanges computes changes for BasicFeature fields
-func (s *Service) computeFeatureChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	// Compare BasicFeature fields
-	if oldFeature.Name != newFeature.Name {
-		changes["name"] = domain.ChangeValue{
-			Old: oldFeature.Name,
-			New: newFeature.Name,
-		}
-	}
-
-	if oldFeature.Description != newFeature.Description {
-		changes["description"] = domain.ChangeValue{
-			Old: oldFeature.Description,
-			New: newFeature.Description,
-		}
-	}
-
-	if oldFeature.RolloutKey != newFeature.RolloutKey {
-		changes["rollout_key"] = domain.ChangeValue{
-			Old: oldFeature.RolloutKey,
-			New: newFeature.RolloutKey,
-		}
-	}
-
-	return changes
-}
-
-// computeFeatureParamsChanges computes changes for FeatureParams fields
-func (s *Service) computeFeatureParamsChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	// Compare FeatureParams fields
-	if oldFeature.Enabled != newFeature.Enabled {
-		changes["enabled"] = domain.ChangeValue{
-			Old: oldFeature.Enabled,
-			New: newFeature.Enabled,
-		}
-	}
-
-	if oldFeature.DefaultValue != newFeature.DefaultValue {
-		changes["default_value"] = domain.ChangeValue{
-			Old: oldFeature.DefaultValue,
-			New: newFeature.DefaultValue,
-		}
-	}
-
-	return changes
-}
-
-// flagVariantIDsEqual compares two flag variant ID pointers.
-func (s *Service) flagVariantIDsEqual(a, b *domain.FlagVariantID) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-	return *a == *b
-}
-
-// segmentIDsEqual compares two segment ID pointers.
-func (s *Service) segmentIDsEqual(a, b *domain.SegmentID) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-	return *a == *b
-}
-
-// buildVariantChanges builds changes map for a variant.
-func (s *Service) buildVariantChanges(existing, new domain.FlagVariant) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if existing.Name != new.Name {
-		changes["name"] = domain.ChangeValue{
-			Old: existing.Name,
-			New: new.Name,
-		}
-	}
-
-	if existing.RolloutPercent != new.RolloutPercent {
-		changes["rollout_percent"] = domain.ChangeValue{
-			Old: existing.RolloutPercent,
-			New: new.RolloutPercent,
-		}
-	}
-
-	// For new variants, add required fields
-	if existing.ID == "" {
-		changes["project_id"] = domain.ChangeValue{New: new.ProjectID}
-		changes["feature_id"] = domain.ChangeValue{New: new.FeatureID}
-		changes["environment_id"] = domain.ChangeValue{New: new.EnvironmentID}
-	}
-
-	return changes
-}
-
-// buildRuleChanges builds changes map for a rule.
-func (s *Service) buildRuleChanges(existing, new domain.Rule) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if existing.IsCustomized != new.IsCustomized {
-		changes["is_customized"] = domain.ChangeValue{
-			Old: existing.IsCustomized,
-			New: new.IsCustomized,
-		}
-	}
-
-	if existing.Action != new.Action {
-		changes["action"] = domain.ChangeValue{
-			Old: existing.Action,
-			New: new.Action,
-		}
-	}
-
-	if existing.Priority != new.Priority {
-		changes["priority"] = domain.ChangeValue{
-			Old: existing.Priority,
-			New: new.Priority,
-		}
-	}
-
-	if !s.flagVariantIDsEqual(existing.FlagVariantID, new.FlagVariantID) {
-		changes["flag_variant_id"] = domain.ChangeValue{
-			Old: existing.FlagVariantID,
-			New: new.FlagVariantID,
-		}
-	}
-
-	if !s.segmentIDsEqual(existing.SegmentID, new.SegmentID) {
-		changes["segment_id"] = domain.ChangeValue{
-			Old: existing.SegmentID,
-			New: new.SegmentID,
-		}
-	}
-
-	if !s.conditionsEqual(existing.Conditions, new.Conditions) {
-		changes["condition"] = domain.ChangeValue{
-			Old: existing.Conditions,
-			New: new.Conditions,
-		}
-	}
-
-	// For new rules, add required fields
-	if existing.ID == "" {
-		changes["project_id"] = domain.ChangeValue{New: new.ProjectID}
-		changes["feature_id"] = domain.ChangeValue{New: new.FeatureID}
-		changes["environment_id"] = domain.ChangeValue{New: new.EnvironmentID}
-	}
-
-	return changes
+	return domain.Feature{}, domain.GuardedResult{}, errors.New("unexpected: guarded feature but no pending change created")
 }
 
 // UpdateWithChildren updates the feature and reconciles its child entities (variants and rules).
@@ -923,12 +595,12 @@ func (s *Service) UpdateWithChildren(
 	}
 
 	// Compute changes for variants and rules
-	variantChanges, err := s.computeVariantChanges(ctx, feature.ID, env.ID, existingVariants, variants)
+	variantChanges, err := s.computeVariantChanges(env.ID, existingVariants, variants)
 	if err != nil {
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("compute variant changes: %w", err)
 	}
 
-	ruleChanges, err := s.computeRuleChanges(ctx, feature.ID, env.ID, existingRules, rules)
+	ruleChanges, err := s.computeRuleChanges(env.ID, existingRules, rules)
 	if err != nil {
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("compute rule changes: %w", err)
 	}
@@ -948,7 +620,7 @@ func (s *Service) UpdateWithChildren(
 		}
 	}
 
-	tagChanges, err := s.computeTagChanges(ctx, feature.ID, existingFeatureTags, tags)
+	tagChanges, err := s.computeTagChanges(feature.ID, existingFeatureTags, tags)
 	if err != nil {
 		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("compute tag changes: %w", err)
 	}
@@ -1041,6 +713,7 @@ func (s *Service) UpdateWithChildren(
 			requestUserIDPtr,
 			payload,
 		)
+
 		return err
 	})
 	if err != nil {
@@ -1057,7 +730,334 @@ func (s *Service) GetFeatureParams(ctx context.Context, featureID domain.Feature
 	return s.featureParamsRep.ListByFeatureID(ctx, featureID)
 }
 
-// updateFeatureWithChildrenDirect performs direct update without guard engine
+// computeVariantChanges computes changes for flag variants by comparing existing and new variants.
+func (s *Service) computeVariantChanges(
+	envID domain.EnvironmentID,
+	existingVariants []domain.FlagVariant,
+	newVariants []domain.FlagVariant,
+) ([]domain.EntityChange, error) {
+	// Build maps for comparison
+	existingByID := make(map[domain.FlagVariantID]domain.FlagVariant)
+	existingByName := make(map[string]domain.FlagVariant)
+	for _, v := range existingVariants {
+		existingByID[v.ID] = v
+		existingByName[v.Name] = v
+	}
+
+	newByID := make(map[domain.FlagVariantID]domain.FlagVariant)
+	for _, v := range newVariants {
+		newByID[v.ID] = v
+	}
+
+	var changes []domain.EntityChange
+
+	// Process variants for changes
+	for _, newVariant := range newVariants {
+		// Set environment ID for new variants
+		newVariant.EnvironmentID = envID
+
+		if newVariant.ID != "" {
+			// Check if this is an update to existing variant
+			if existing, exists := existingByID[newVariant.ID]; exists {
+				// Compare and create change if different
+				if s.variantsAreDifferent(existing, newVariant) {
+					changes = append(changes, domain.EntityChange{
+						Entity:   string(domain.EntityFlagVariant),
+						EntityID: string(newVariant.ID),
+						Action:   domain.EntityActionUpdate,
+						Changes:  s.buildVariantChanges(existing, newVariant),
+					})
+				}
+			} else {
+				// This is a new variant
+				changes = append(changes, domain.EntityChange{
+					Entity:   string(domain.EntityFlagVariant),
+					EntityID: string(newVariant.ID),
+					Action:   domain.EntityActionInsert,
+					Changes:  s.buildVariantChanges(domain.FlagVariant{}, newVariant),
+				})
+			}
+		} else {
+			// New variant without ID - will be created
+			changes = append(changes, domain.EntityChange{
+				Entity:   string(domain.EntityFlagVariant),
+				EntityID: "", // Will be generated
+				Action:   domain.EntityActionInsert,
+				Changes:  s.buildVariantChanges(domain.FlagVariant{}, newVariant),
+			})
+		}
+	}
+
+	// Check for deleted variants
+	for _, existing := range existingVariants {
+		if _, exists := newByID[existing.ID]; !exists {
+			// This variant was deleted
+			changes = append(changes, domain.EntityChange{
+				Entity:   string(domain.EntityFlagVariant),
+				EntityID: string(existing.ID),
+				Action:   domain.EntityActionDelete,
+				Changes:  nil,
+			})
+		}
+	}
+
+	return changes, nil
+}
+
+// computeRuleChanges computes changes for rules by comparing existing and new rules.
+func (s *Service) computeRuleChanges(
+	envID domain.EnvironmentID,
+	existingRules []domain.Rule,
+	newRules []domain.Rule,
+) ([]domain.EntityChange, error) {
+	// Build maps for comparison
+	existingByID := make(map[domain.RuleID]domain.Rule)
+	for _, r := range existingRules {
+		existingByID[r.ID] = r
+	}
+
+	newByID := make(map[domain.RuleID]domain.Rule)
+	for _, r := range newRules {
+		newByID[r.ID] = r
+	}
+
+	var changes []domain.EntityChange
+
+	// Process rules for changes
+	for _, newRule := range newRules {
+		// Set environment ID for new rules
+		newRule.EnvironmentID = envID
+
+		if newRule.ID != "" {
+			// Check if this is an update to existing rule
+			if existing, exists := existingByID[newRule.ID]; exists {
+				// Compare and create change if different
+				if s.rulesAreDifferent(existing, newRule) {
+					changes = append(changes, domain.EntityChange{
+						Entity:   string(domain.EntityRule),
+						EntityID: string(newRule.ID),
+						Action:   domain.EntityActionUpdate,
+						Changes:  s.buildRuleChanges(existing, newRule),
+					})
+				}
+			} else {
+				// This is a new rule
+				changes = append(changes, domain.EntityChange{
+					Entity:   string(domain.EntityRule),
+					EntityID: string(newRule.ID),
+					Action:   domain.EntityActionInsert,
+					Changes:  s.buildRuleChanges(domain.Rule{}, newRule),
+				})
+			}
+		} else {
+			// New rule without ID - will be created
+			changes = append(changes, domain.EntityChange{
+				Entity:   string(domain.EntityRule),
+				EntityID: "", // Will be generated
+				Action:   domain.EntityActionInsert,
+				Changes:  s.buildRuleChanges(domain.Rule{}, newRule),
+			})
+		}
+	}
+
+	// Check for deleted rules
+	for _, existing := range existingRules {
+		if _, exists := newByID[existing.ID]; !exists {
+			// This rule was deleted
+			changes = append(changes, domain.EntityChange{
+				Entity:   string(domain.EntityRule),
+				EntityID: string(existing.ID),
+				Action:   domain.EntityActionDelete,
+				Changes:  nil,
+			})
+		}
+	}
+
+	return changes, nil
+}
+
+// variantsAreDifferent checks if two variants are different.
+func (s *Service) variantsAreDifferent(existing, new domain.FlagVariant) bool {
+	return existing.Name != new.Name ||
+		existing.RolloutPercent != new.RolloutPercent
+}
+
+// rulesAreDifferent checks if two rules are different.
+func (s *Service) rulesAreDifferent(existing, new domain.Rule) bool {
+	return existing.IsCustomized != new.IsCustomized ||
+		existing.Action != new.Action ||
+		existing.Priority != new.Priority ||
+		!s.flagVariantIDsEqual(existing.FlagVariantID, new.FlagVariantID) ||
+		!s.segmentIDsEqual(existing.SegmentID, new.SegmentID) ||
+		!s.conditionsEqual(existing.Conditions, new.Conditions)
+}
+
+// conditionsEqual compares two conditions expressions.
+func (s *Service) conditionsEqual(existing, new any) bool {
+	// Use reflect.DeepEqual for reliable deep comparison
+	return reflect.DeepEqual(existing, new)
+}
+
+// computeFeatureChanges computes changes for BasicFeature fields.
+func (s *Service) computeFeatureChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
+	changes := make(map[string]domain.ChangeValue)
+
+	// Compare BasicFeature fields
+	if oldFeature.Name != newFeature.Name {
+		changes["name"] = domain.ChangeValue{
+			Old: oldFeature.Name,
+			New: newFeature.Name,
+		}
+	}
+
+	if oldFeature.Description != newFeature.Description {
+		changes["description"] = domain.ChangeValue{
+			Old: oldFeature.Description,
+			New: newFeature.Description,
+		}
+	}
+
+	if oldFeature.RolloutKey != newFeature.RolloutKey {
+		changes["rollout_key"] = domain.ChangeValue{
+			Old: oldFeature.RolloutKey,
+			New: newFeature.RolloutKey,
+		}
+	}
+
+	return changes
+}
+
+// computeFeatureParamsChanges computes changes for FeatureParams fields.
+func (s *Service) computeFeatureParamsChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
+	changes := make(map[string]domain.ChangeValue)
+
+	// Compare FeatureParams fields
+	if oldFeature.Enabled != newFeature.Enabled {
+		changes["enabled"] = domain.ChangeValue{
+			Old: oldFeature.Enabled,
+			New: newFeature.Enabled,
+		}
+	}
+
+	if oldFeature.DefaultValue != newFeature.DefaultValue {
+		changes["default_value"] = domain.ChangeValue{
+			Old: oldFeature.DefaultValue,
+			New: newFeature.DefaultValue,
+		}
+	}
+
+	return changes
+}
+
+// flagVariantIDsEqual compares two flag variant ID pointers.
+func (s *Service) flagVariantIDsEqual(a, b *domain.FlagVariantID) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+
+	return *a == *b
+}
+
+// segmentIDsEqual compares two segment ID pointers.
+func (s *Service) segmentIDsEqual(a, b *domain.SegmentID) bool {
+	if a == nil && b == nil {
+		return true
+	}
+	if a == nil || b == nil {
+		return false
+	}
+
+	return *a == *b
+}
+
+// buildVariantChanges builds changes map for a variant.
+func (s *Service) buildVariantChanges(existing, new domain.FlagVariant) map[string]domain.ChangeValue {
+	changes := make(map[string]domain.ChangeValue)
+
+	if existing.Name != new.Name {
+		changes["name"] = domain.ChangeValue{
+			Old: existing.Name,
+			New: new.Name,
+		}
+	}
+
+	if existing.RolloutPercent != new.RolloutPercent {
+		changes["rollout_percent"] = domain.ChangeValue{
+			Old: existing.RolloutPercent,
+			New: new.RolloutPercent,
+		}
+	}
+
+	// For new variants, add required fields
+	if existing.ID == "" {
+		changes["project_id"] = domain.ChangeValue{New: new.ProjectID}
+		changes["feature_id"] = domain.ChangeValue{New: new.FeatureID}
+		changes["environment_id"] = domain.ChangeValue{New: new.EnvironmentID}
+	}
+
+	return changes
+}
+
+// buildRuleChanges builds changes map for a rule.
+func (s *Service) buildRuleChanges(existing, new domain.Rule) map[string]domain.ChangeValue {
+	changes := make(map[string]domain.ChangeValue)
+
+	if existing.IsCustomized != new.IsCustomized {
+		changes["is_customized"] = domain.ChangeValue{
+			Old: existing.IsCustomized,
+			New: new.IsCustomized,
+		}
+	}
+
+	if existing.Action != new.Action {
+		changes["action"] = domain.ChangeValue{
+			Old: existing.Action,
+			New: new.Action,
+		}
+	}
+
+	if existing.Priority != new.Priority {
+		changes["priority"] = domain.ChangeValue{
+			Old: existing.Priority,
+			New: new.Priority,
+		}
+	}
+
+	if !s.flagVariantIDsEqual(existing.FlagVariantID, new.FlagVariantID) {
+		changes["flag_variant_id"] = domain.ChangeValue{
+			Old: existing.FlagVariantID,
+			New: new.FlagVariantID,
+		}
+	}
+
+	if !s.segmentIDsEqual(existing.SegmentID, new.SegmentID) {
+		changes["segment_id"] = domain.ChangeValue{
+			Old: existing.SegmentID,
+			New: new.SegmentID,
+		}
+	}
+
+	if !s.conditionsEqual(existing.Conditions, new.Conditions) {
+		changes["condition"] = domain.ChangeValue{
+			Old: existing.Conditions,
+			New: new.Conditions,
+		}
+	}
+
+	// For new rules, add required fields
+	if existing.ID == "" {
+		changes["project_id"] = domain.ChangeValue{New: new.ProjectID}
+		changes["feature_id"] = domain.ChangeValue{New: new.FeatureID}
+		changes["environment_id"] = domain.ChangeValue{New: new.EnvironmentID}
+	}
+
+	return changes
+}
+
+// updateFeatureWithChildrenDirect performs direct update without guard engine.
 func (s *Service) updateFeatureWithChildrenDirect(
 	ctx context.Context,
 	feature domain.Feature,
@@ -1070,7 +1070,7 @@ func (s *Service) updateFeatureWithChildrenDirect(
 	envKey := env.Key
 
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		feature.ProjectID = feature.ProjectID // Ensure project ID is set
+		// Ensure project ID is set
 
 		updated, err := s.repo.Update(ctx, env.ID, feature.BasicFeature)
 		if err != nil {
@@ -1087,7 +1087,7 @@ func (s *Service) updateFeatureWithChildrenDirect(
 		}
 		if _, err := s.featureParamsRep.Update(ctx, feature.ProjectID, params); err != nil {
 			// Fallback: if params row is missing (should not happen due to trigger), create it
-			if err == domain.ErrEntityNotFound {
+			if errors.Is(err, domain.ErrEntityNotFound) {
 				if _, cerr := s.featureParamsRep.Create(ctx, feature.ProjectID, domain.FeatureParams{
 					FeatureID:     feature.ID,
 					EnvironmentID: env.ID,
@@ -1252,7 +1252,7 @@ func (s *Service) updateFeatureWithChildrenDirect(
 		result.Rules = updatedRules
 
 		// Reconcile tags
-		if err := s.reconcileTags(ctx, feature.ProjectID, feature.ID, tags); err != nil {
+		if err := s.reconcileTags(ctx, feature.ID, tags); err != nil {
 			return fmt.Errorf("reconcile tags: %w", err)
 		}
 
@@ -1274,7 +1274,6 @@ func (s *Service) updateFeatureWithChildrenDirect(
 
 // computeTagChanges computes changes for tags by comparing existing and new tags.
 func (s *Service) computeTagChanges(
-	ctx context.Context,
 	featureID domain.FeatureID,
 	existingTags []domain.FeatureTags,
 	newTags []domain.FeatureTags,
@@ -1374,7 +1373,7 @@ func (s *Service) buildTagChanges(existing, new domain.FeatureTags, featureID do
 }
 
 // reconcileTags reconciles feature tags by comparing existing and new tags.
-func (s *Service) reconcileTags(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID, newTags []domain.FeatureTags) error {
+func (s *Service) reconcileTags(ctx context.Context, featureID domain.FeatureID, newTags []domain.FeatureTags) error {
 	// Get existing tags
 	existingTags, err := s.featureTagsRep.ListFeatureTags(ctx, featureID)
 	if err != nil {
