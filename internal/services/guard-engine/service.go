@@ -69,6 +69,16 @@ func (s *Service) CheckGuardedOperation(
 	)
 }
 
+// BuildChangeDiff computes changes between two entities using reflection and editable tags.
+func (s *Service) BuildChangeDiff(oldEntity, newEntity any) map[string]domain.ChangeValue {
+	return BuildChangeDiff(oldEntity, newEntity)
+}
+
+// BuildInsertChanges identifies fields that should be included in insert operations.
+func (s *Service) BuildInsertChanges(entity any) map[string]domain.ChangeValue {
+	return BuildInsertChanges(entity)
+}
+
 func (s *Service) checkAndMaybeCreatePending(
 	ctx context.Context,
 	in GuardEngineInput,

@@ -39,6 +39,118 @@ func (_m *MockGuardEngine) EXPECT() *MockGuardEngine_Expecter {
 	return &MockGuardEngine_Expecter{mock: &_m.Mock}
 }
 
+// BuildChangeDiff provides a mock function for the type MockGuardEngine
+func (_mock *MockGuardEngine) BuildChangeDiff(oldEntity any, newEntity any) map[string]domain.ChangeValue {
+	ret := _mock.Called(oldEntity, newEntity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for BuildChangeDiff")
+	}
+
+	var r0 map[string]domain.ChangeValue
+	if returnFunc, ok := ret.Get(0).(func(any, any) map[string]domain.ChangeValue); ok {
+		r0 = returnFunc(oldEntity, newEntity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]domain.ChangeValue)
+		}
+	}
+	return r0
+}
+
+// MockGuardEngine_BuildChangeDiff_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'BuildChangeDiff'
+type MockGuardEngine_BuildChangeDiff_Call struct {
+	*mock.Call
+}
+
+// BuildChangeDiff is a helper method to define mock.On call
+//   - oldEntity any
+//   - newEntity any
+func (_e *MockGuardEngine_Expecter) BuildChangeDiff(oldEntity interface{}, newEntity interface{}) *MockGuardEngine_BuildChangeDiff_Call {
+	return &MockGuardEngine_BuildChangeDiff_Call{Call: _e.mock.On("BuildChangeDiff", oldEntity, newEntity)}
+}
+
+func (_c *MockGuardEngine_BuildChangeDiff_Call) Run(run func(oldEntity any, newEntity any)) *MockGuardEngine_BuildChangeDiff_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 any
+		if args[0] != nil {
+			arg0 = args[0].(any)
+		}
+		var arg1 any
+		if args[1] != nil {
+			arg1 = args[1].(any)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockGuardEngine_BuildChangeDiff_Call) Return(stringToChangeValue map[string]domain.ChangeValue) *MockGuardEngine_BuildChangeDiff_Call {
+	_c.Call.Return(stringToChangeValue)
+	return _c
+}
+
+func (_c *MockGuardEngine_BuildChangeDiff_Call) RunAndReturn(run func(oldEntity any, newEntity any) map[string]domain.ChangeValue) *MockGuardEngine_BuildChangeDiff_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// BuildInsertChanges provides a mock function for the type MockGuardEngine
+func (_mock *MockGuardEngine) BuildInsertChanges(entity any) map[string]domain.ChangeValue {
+	ret := _mock.Called(entity)
+
+	if len(ret) == 0 {
+		panic("no return value specified for BuildInsertChanges")
+	}
+
+	var r0 map[string]domain.ChangeValue
+	if returnFunc, ok := ret.Get(0).(func(any) map[string]domain.ChangeValue); ok {
+		r0 = returnFunc(entity)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]domain.ChangeValue)
+		}
+	}
+	return r0
+}
+
+// MockGuardEngine_BuildInsertChanges_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'BuildInsertChanges'
+type MockGuardEngine_BuildInsertChanges_Call struct {
+	*mock.Call
+}
+
+// BuildInsertChanges is a helper method to define mock.On call
+//   - entity any
+func (_e *MockGuardEngine_Expecter) BuildInsertChanges(entity interface{}) *MockGuardEngine_BuildInsertChanges_Call {
+	return &MockGuardEngine_BuildInsertChanges_Call{Call: _e.mock.On("BuildInsertChanges", entity)}
+}
+
+func (_c *MockGuardEngine_BuildInsertChanges_Call) Run(run func(entity any)) *MockGuardEngine_BuildInsertChanges_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 any
+		if args[0] != nil {
+			arg0 = args[0].(any)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockGuardEngine_BuildInsertChanges_Call) Return(stringToChangeValue map[string]domain.ChangeValue) *MockGuardEngine_BuildInsertChanges_Call {
+	_c.Call.Return(stringToChangeValue)
+	return _c
+}
+
+func (_c *MockGuardEngine_BuildInsertChanges_Call) RunAndReturn(run func(entity any) map[string]domain.ChangeValue) *MockGuardEngine_BuildInsertChanges_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CheckGuardedOperation provides a mock function for the type MockGuardEngine
 func (_mock *MockGuardEngine) CheckGuardedOperation(ctx context.Context, req contract.GuardRequest) (*domain.PendingChange, bool, bool, error) {
 	ret := _mock.Called(ctx, req)

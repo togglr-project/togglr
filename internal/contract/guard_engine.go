@@ -43,4 +43,25 @@ type GuardEngine interface {
 		ctx context.Context,
 		req GuardRequest,
 	) (pendingChange *domain.PendingChange, conflict bool, proceed bool, err error)
+
+	// BuildChangeDiff computes changes between two entities using reflection and editable tags.
+	// This is a generic method that can be used for any entity type that has editable tags.
+	//
+	// Parameters:
+	//   - oldEntity: the existing entity (can be nil for insert operations)
+	//   - newEntity: the new entity (can be nil for delete operations)
+	//
+	// Returns:
+	//   - map of field changes (field name -> ChangeValue)
+	BuildChangeDiff(oldEntity, newEntity any) map[string]domain.ChangeValue
+
+	// BuildInsertChanges identifies fields that should be included in insert operations.
+	// This method uses reflection and editable/pk tags to determine which fields to include.
+	//
+	// Parameters:
+	//   - entity: the entity to analyze for insert fields
+	//
+	// Returns:
+	//   - map of field values for insert (field name -> ChangeValue)
+	BuildInsertChanges(entity any) map[string]domain.ChangeValue
 }

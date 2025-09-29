@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"time"
 
 	"github.com/google/uuid"
@@ -759,31 +758,35 @@ func (s *Service) computeVariantChanges(
 		if newVariant.ID != "" {
 			// Check if this is an update to existing variant
 			if existing, exists := existingByID[newVariant.ID]; exists {
-				// Compare and create change if different
-				if s.variantsAreDifferent(existing, newVariant) {
+				// Use guard engine to compute changes
+				variantChanges := s.guardEngine.BuildChangeDiff(&existing, &newVariant)
+				// Only create change if there are differences
+				if len(variantChanges) > 0 {
 					changes = append(changes, domain.EntityChange{
 						Entity:   string(domain.EntityFlagVariant),
 						EntityID: string(newVariant.ID),
 						Action:   domain.EntityActionUpdate,
-						Changes:  s.buildVariantChanges(existing, newVariant),
+						Changes:  variantChanges,
 					})
 				}
 			} else {
-				// This is a new variant
+				// This is a new variant - use guard engine for insert changes
+				variantChanges := s.guardEngine.BuildInsertChanges(&newVariant)
 				changes = append(changes, domain.EntityChange{
 					Entity:   string(domain.EntityFlagVariant),
 					EntityID: string(newVariant.ID),
 					Action:   domain.EntityActionInsert,
-					Changes:  s.buildVariantChanges(domain.FlagVariant{}, newVariant),
+					Changes:  variantChanges,
 				})
 			}
 		} else {
 			// New variant without ID - will be created
+			variantChanges := s.guardEngine.BuildInsertChanges(&newVariant)
 			changes = append(changes, domain.EntityChange{
 				Entity:   string(domain.EntityFlagVariant),
 				EntityID: "", // Will be generated
 				Action:   domain.EntityActionInsert,
-				Changes:  s.buildVariantChanges(domain.FlagVariant{}, newVariant),
+				Changes:  variantChanges,
 			})
 		}
 	}
@@ -831,31 +834,35 @@ func (s *Service) computeRuleChanges(
 		if newRule.ID != "" {
 			// Check if this is an update to existing rule
 			if existing, exists := existingByID[newRule.ID]; exists {
-				// Compare and create change if different
-				if s.rulesAreDifferent(existing, newRule) {
+				// Use guard engine to compute changes
+				ruleChanges := s.guardEngine.BuildChangeDiff(&existing, &newRule)
+				// Only create change if there are differences
+				if len(ruleChanges) > 0 {
 					changes = append(changes, domain.EntityChange{
 						Entity:   string(domain.EntityRule),
 						EntityID: string(newRule.ID),
 						Action:   domain.EntityActionUpdate,
-						Changes:  s.buildRuleChanges(existing, newRule),
+						Changes:  ruleChanges,
 					})
 				}
 			} else {
-				// This is a new rule
+				// This is a new rule - use guard engine for insert changes
+				ruleChanges := s.guardEngine.BuildInsertChanges(&newRule)
 				changes = append(changes, domain.EntityChange{
 					Entity:   string(domain.EntityRule),
 					EntityID: string(newRule.ID),
 					Action:   domain.EntityActionInsert,
-					Changes:  s.buildRuleChanges(domain.Rule{}, newRule),
+					Changes:  ruleChanges,
 				})
 			}
 		} else {
 			// New rule without ID - will be created
+			ruleChanges := s.guardEngine.BuildInsertChanges(&newRule)
 			changes = append(changes, domain.EntityChange{
 				Entity:   string(domain.EntityRule),
 				EntityID: "", // Will be generated
 				Action:   domain.EntityActionInsert,
-				Changes:  s.buildRuleChanges(domain.Rule{}, newRule),
+				Changes:  ruleChanges,
 			})
 		}
 	}
@@ -876,185 +883,24 @@ func (s *Service) computeRuleChanges(
 	return changes, nil
 }
 
-// variantsAreDifferent checks if two variants are different.
-func (s *Service) variantsAreDifferent(existing, new domain.FlagVariant) bool {
-	return existing.Name != new.Name ||
-		existing.RolloutPercent != new.RolloutPercent
-}
-
-// rulesAreDifferent checks if two rules are different.
-func (s *Service) rulesAreDifferent(existing, new domain.Rule) bool {
-	return existing.IsCustomized != new.IsCustomized ||
-		existing.Action != new.Action ||
-		existing.Priority != new.Priority ||
-		!s.flagVariantIDsEqual(existing.FlagVariantID, new.FlagVariantID) ||
-		!s.segmentIDsEqual(existing.SegmentID, new.SegmentID) ||
-		!s.conditionsEqual(existing.Conditions, new.Conditions)
-}
-
-// conditionsEqual compares two conditions expressions.
-func (s *Service) conditionsEqual(existing, new any) bool {
-	// Use reflect.DeepEqual for reliable deep comparison
-	return reflect.DeepEqual(existing, new)
-}
-
-// computeFeatureChanges computes changes for BasicFeature fields.
+// computeFeatureChanges computes changes for BasicFeature fields using guard engine.
 func (s *Service) computeFeatureChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
+	// Extract BasicFeature from both features
+	oldBasic := oldFeature.BasicFeature
+	newBasic := newFeature.BasicFeature
 
-	// Compare BasicFeature fields
-	if oldFeature.Name != newFeature.Name {
-		changes["name"] = domain.ChangeValue{
-			Old: oldFeature.Name,
-			New: newFeature.Name,
-		}
-	}
-
-	if oldFeature.Description != newFeature.Description {
-		changes["description"] = domain.ChangeValue{
-			Old: oldFeature.Description,
-			New: newFeature.Description,
-		}
-	}
-
-	if oldFeature.RolloutKey != newFeature.RolloutKey {
-		changes["rollout_key"] = domain.ChangeValue{
-			Old: oldFeature.RolloutKey,
-			New: newFeature.RolloutKey,
-		}
-	}
-
-	return changes
+	// Use guard engine to compute changes for BasicFeature fields
+	return s.guardEngine.BuildChangeDiff(&oldBasic, &newBasic)
 }
 
-// computeFeatureParamsChanges computes changes for FeatureParams fields.
+// computeFeatureParamsChanges computes changes for FeatureParams fields using guard engine.
 func (s *Service) computeFeatureParamsChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
+	// Convert features to FeatureParams using the ConvertToFeatureParams method
+	oldParams := oldFeature.ConvertToFeatureParams()
+	newParams := newFeature.ConvertToFeatureParams()
 
-	// Compare FeatureParams fields
-	if oldFeature.Enabled != newFeature.Enabled {
-		changes["enabled"] = domain.ChangeValue{
-			Old: oldFeature.Enabled,
-			New: newFeature.Enabled,
-		}
-	}
-
-	if oldFeature.DefaultValue != newFeature.DefaultValue {
-		changes["default_value"] = domain.ChangeValue{
-			Old: oldFeature.DefaultValue,
-			New: newFeature.DefaultValue,
-		}
-	}
-
-	return changes
-}
-
-// flagVariantIDsEqual compares two flag variant ID pointers.
-func (s *Service) flagVariantIDsEqual(a, b *domain.FlagVariantID) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-
-	return *a == *b
-}
-
-// segmentIDsEqual compares two segment ID pointers.
-func (s *Service) segmentIDsEqual(a, b *domain.SegmentID) bool {
-	if a == nil && b == nil {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-
-	return *a == *b
-}
-
-// buildVariantChanges builds changes map for a variant.
-func (s *Service) buildVariantChanges(existing, new domain.FlagVariant) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if existing.Name != new.Name {
-		changes["name"] = domain.ChangeValue{
-			Old: existing.Name,
-			New: new.Name,
-		}
-	}
-
-	if existing.RolloutPercent != new.RolloutPercent {
-		changes["rollout_percent"] = domain.ChangeValue{
-			Old: existing.RolloutPercent,
-			New: new.RolloutPercent,
-		}
-	}
-
-	// For new variants, add required fields
-	if existing.ID == "" {
-		changes["project_id"] = domain.ChangeValue{New: new.ProjectID}
-		changes["feature_id"] = domain.ChangeValue{New: new.FeatureID}
-		changes["environment_id"] = domain.ChangeValue{New: new.EnvironmentID}
-	}
-
-	return changes
-}
-
-// buildRuleChanges builds changes map for a rule.
-func (s *Service) buildRuleChanges(existing, new domain.Rule) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	if existing.IsCustomized != new.IsCustomized {
-		changes["is_customized"] = domain.ChangeValue{
-			Old: existing.IsCustomized,
-			New: new.IsCustomized,
-		}
-	}
-
-	if existing.Action != new.Action {
-		changes["action"] = domain.ChangeValue{
-			Old: existing.Action,
-			New: new.Action,
-		}
-	}
-
-	if existing.Priority != new.Priority {
-		changes["priority"] = domain.ChangeValue{
-			Old: existing.Priority,
-			New: new.Priority,
-		}
-	}
-
-	if !s.flagVariantIDsEqual(existing.FlagVariantID, new.FlagVariantID) {
-		changes["flag_variant_id"] = domain.ChangeValue{
-			Old: existing.FlagVariantID,
-			New: new.FlagVariantID,
-		}
-	}
-
-	if !s.segmentIDsEqual(existing.SegmentID, new.SegmentID) {
-		changes["segment_id"] = domain.ChangeValue{
-			Old: existing.SegmentID,
-			New: new.SegmentID,
-		}
-	}
-
-	if !s.conditionsEqual(existing.Conditions, new.Conditions) {
-		changes["condition"] = domain.ChangeValue{
-			Old: existing.Conditions,
-			New: new.Conditions,
-		}
-	}
-
-	// For new rules, add required fields
-	if existing.ID == "" {
-		changes["project_id"] = domain.ChangeValue{New: new.ProjectID}
-		changes["feature_id"] = domain.ChangeValue{New: new.FeatureID}
-		changes["environment_id"] = domain.ChangeValue{New: new.EnvironmentID}
-	}
-
-	return changes
+	// Use guard engine to compute changes for FeatureParams fields
+	return s.guardEngine.BuildChangeDiff(&oldParams, &newParams)
 }
 
 // updateFeatureWithChildrenDirect performs direct update without guard engine.
@@ -1293,34 +1139,41 @@ func (s *Service) computeTagChanges(
 
 	// Process new tags for changes
 	for _, newTag := range newTags {
+		// Set feature_id for new tags
+		newTag.FeatureID = featureID
+
 		if newTag.TagID != "" {
 			// Check if this is an update to existing tag
 			if existing, exists := existingByID[newTag.TagID]; exists {
-				// Compare and create change if different
-				if s.tagsAreDifferent(existing, newTag) {
+				// Use guard engine to compute changes
+				tagChanges := s.guardEngine.BuildChangeDiff(&existing, &newTag)
+				// Only create change if there are differences
+				if len(tagChanges) > 0 {
 					changes = append(changes, domain.EntityChange{
 						Entity:   string(domain.EntityFeatureTag),
 						EntityID: string(newTag.TagID),
 						Action:   domain.EntityActionUpdate,
-						Changes:  s.buildTagChanges(existing, newTag, featureID),
+						Changes:  tagChanges,
 					})
 				}
 			} else {
-				// This is a new tag
+				// This is a new tag - use guard engine for insert changes
+				tagChanges := s.guardEngine.BuildInsertChanges(&newTag)
 				changes = append(changes, domain.EntityChange{
 					Entity:   string(domain.EntityFeatureTag),
 					EntityID: string(newTag.TagID),
 					Action:   domain.EntityActionInsert,
-					Changes:  s.buildTagChanges(domain.FeatureTags{}, newTag, featureID),
+					Changes:  tagChanges,
 				})
 			}
 		} else {
 			// New tag without ID - will be created
+			tagChanges := s.guardEngine.BuildInsertChanges(&newTag)
 			changes = append(changes, domain.EntityChange{
 				Entity:   string(domain.EntityFeatureTag),
 				EntityID: "", // Will be generated
 				Action:   domain.EntityActionInsert,
-				Changes:  s.buildTagChanges(domain.FeatureTags{}, newTag, featureID),
+				Changes:  tagChanges,
 			})
 		}
 	}
@@ -1343,33 +1196,6 @@ func (s *Service) computeTagChanges(
 	}
 
 	return changes, nil
-}
-
-// tagsAreDifferent checks if two tags are different.
-func (s *Service) tagsAreDifferent(existing, new domain.FeatureTags) bool {
-	return existing.TagID != new.TagID
-}
-
-// buildTagChanges builds changes map for a tag.
-func (s *Service) buildTagChanges(existing, new domain.FeatureTags, featureID domain.FeatureID) map[string]domain.ChangeValue {
-	changes := make(map[string]domain.ChangeValue)
-
-	// Always add feature_id for both insert and update operations
-	changes["feature_id"] = domain.ChangeValue{New: featureID}
-
-	if existing.TagID != new.TagID {
-		changes["tag_id"] = domain.ChangeValue{
-			Old: existing.TagID,
-			New: new.TagID,
-		}
-	}
-
-	// For new tags, add tag_id
-	if existing.TagID == "" {
-		changes["tag_id"] = domain.ChangeValue{New: new.TagID}
-	}
-
-	return changes
 }
 
 // reconcileTags reconciles feature tags by comparing existing and new tags.
