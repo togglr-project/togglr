@@ -12,7 +12,7 @@ func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
 	vOld := reflect.ValueOf(old)
 	vNew := reflect.ValueOf(new)
 
-	// Обрабатываем указатели
+	// Handle pointers
 	if vOld.Kind() == reflect.Ptr {
 		vOld = vOld.Elem()
 	}
@@ -22,11 +22,11 @@ func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
 
 	typ := vOld.Type()
 
-	// Обрабатываем поля структуры
+	// Process struct fields
 	for i := 0; i < typ.NumField(); i++ {
 		f := typ.Field(i)
 
-		// Если поле имеет тег editable, обрабатываем его
+		// If field has editable tag, process it
 		if f.Tag.Get("editable") == "true" {
 			fieldName := f.Tag.Get("db")
 			if fieldName == "" {
@@ -41,13 +41,13 @@ func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
 			}
 		}
 
-		// Если поле является вложенной структурой (например, BasicFeature в Feature),
-		// рекурсивно обрабатываем его поля
+		// If field is a nested struct (e.g., BasicFeature in Feature),
+		// recursively process its fields
 		if f.Anonymous || (f.Type.Kind() == reflect.Struct && f.Tag.Get("editable") == "") {
 			oldField := vOld.Field(i)
 			newField := vNew.Field(i)
 
-			// Обрабатываем вложенную структуру
+			// Process nested struct
 			nestedChanges := buildNestedChangeDiff(oldField, newField)
 			for k, v := range nestedChanges {
 				changes[k] = v
@@ -58,11 +58,11 @@ func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
 	return changes
 }
 
-// buildNestedChangeDiff обрабатывает вложенные структуры
+// buildNestedChangeDiff processes nested structs
 func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
-	// Обрабатываем указатели
+	// Handle pointers
 	if oldField.Kind() == reflect.Ptr {
 		oldField = oldField.Elem()
 	}
@@ -84,7 +84,7 @@ func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.C
 
 		fieldName := f.Tag.Get("db")
 		if fieldName == "" {
-			continue // Пропускаем поля без db тега
+			continue // Skip fields without db tag
 		}
 
 		oldVal := oldField.Field(i).Interface()
@@ -98,8 +98,8 @@ func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.C
 	return changes
 }
 
-// BuildInsertChanges создает изменения для insert action, включая все поля с тегом editable
-// и обязательные поля для создания записи (например, ID, ProjectID, FeatureID)
+// BuildInsertChanges creates changes for insert action, including all fields with editable tag
+// and required fields for record creation (e.g., ID, ProjectID, FeatureID)
 func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
@@ -109,32 +109,32 @@ func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 	}
 	typ := v.Type()
 
-	// Обрабатываем поля структуры
+	// Process struct fields
 	for i := 0; i < typ.NumField(); i++ {
 		f := typ.Field(i)
 		fieldName := f.Tag.Get("db")
 
-		// Если поле имеет тег editable, включаем его
+		// If field has editable tag, include it
 		if f.Tag.Get("editable") == "true" && fieldName != "" {
 			val := v.Field(i).Interface()
 			changes[fieldName] = domain.ChangeValue{New: val}
 			continue
 		}
 
-		// Если поле является вложенной структурой (например, BasicFeature в Feature),
-		// рекурсивно обрабатываем его поля
+		// If field is a nested struct (e.g., BasicFeature in Feature),
+		// recursively process its fields
 		if f.Anonymous || (f.Type.Kind() == reflect.Struct && f.Tag.Get("editable") == "") {
 			field := v.Field(i)
 
-			// Обрабатываем вложенную структуру
+			// Process nested struct
 			nestedChanges := buildNestedInsertChanges(field)
 			for k, v := range nestedChanges {
 				changes[k] = v
 			}
 		}
 
-		// Включаем обязательные поля для создания записи
-		// (поля с тегом pk или поля, которые обычно нужны для создания)
+		// Include required fields for record creation
+		// (fields with pk tag or fields that are usually needed for creation)
 		if fieldName != "" && (f.Tag.Get("pk") == "true" || isRequiredForInsert(fieldName)) {
 			val := v.Field(i).Interface()
 			changes[fieldName] = domain.ChangeValue{New: val}
@@ -144,11 +144,11 @@ func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 	return changes
 }
 
-// buildNestedInsertChanges обрабатывает вложенные структуры для insert
+// buildNestedInsertChanges processes nested structs for insert
 func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
-	// Обрабатываем указатели
+	// Handle pointers
 	if field.Kind() == reflect.Ptr {
 		field = field.Elem()
 	}
@@ -166,14 +166,14 @@ func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue
 			continue
 		}
 
-		// Включаем все поля с тегом editable
+		// Include all fields with editable tag
 		if f.Tag.Get("editable") == "true" {
 			val := field.Field(i).Interface()
 			changes[fieldName] = domain.ChangeValue{New: val}
 			continue
 		}
 
-		// Включаем обязательные поля для создания записи
+		// Include required fields for record creation
 		if f.Tag.Get("pk") == "true" || isRequiredForInsert(fieldName) {
 			val := field.Field(i).Interface()
 			changes[fieldName] = domain.ChangeValue{New: val}
@@ -183,7 +183,7 @@ func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue
 	return changes
 }
 
-// isRequiredForInsert проверяет, является ли поле обязательным для insert операции
+// isRequiredForInsert checks if a field is required for insert operation
 func isRequiredForInsert(fieldName string) bool {
 	requiredFields := map[string]bool{
 		"project_id":     true,

@@ -11,6 +11,13 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
+// EntityChanges represents changes for a specific entity type
+type EntityChanges struct {
+	EntityType string
+	EntityID   string
+	Changes    map[string]domain.ChangeValue
+}
+
 // Service is a default implementation of contract.GuardEngine.
 // It encapsulates guard checks and pending change creation logic.
 type Service struct {
@@ -31,19 +38,19 @@ func New(
 var _ contract.GuardEngine = (*Service)(nil)
 
 // CheckGuardedOperation is a high-level method that automatically determines
-// an entity type and computes changes by comparing old and new entities.
+// entity types and computes changes by comparing old and new entities.
 func (s *Service) CheckGuardedOperation(
 	ctx context.Context,
 	req contract.GuardRequest,
 ) (*domain.PendingChange, bool, bool, error) {
-	// Determine an entity type and compute changes
-	entityType, entityID, changes, err := s.determineEntityTypeAndChanges(req.OldEntity, req.NewEntity, req.Action)
+	// Determine entity types and compute changes
+	entityChangesList, err := s.determineEntityTypeAndChanges(req.OldEntity, req.NewEntity, req.Action)
 	if err != nil {
 		return nil, false, false, fmt.Errorf("determine entity type and changes: %w", err)
 	}
 
 	// If no changes detected, proceed normally
-	if len(changes) == 0 {
+	if len(entityChangesList) == 0 {
 		return nil, false, true, nil
 	}
 
@@ -51,15 +58,13 @@ func (s *Service) CheckGuardedOperation(
 	return s.checkAndMaybeCreatePending(
 		ctx,
 		GuardEngineInput{
-			ProjectID:       req.ProjectID,
-			EnvironmentID:   req.EnvironmentID,
-			FeatureID:       req.FeatureID,
-			Reason:          req.Reason,
-			Origin:          req.Origin,
-			PrimaryEntity:   entityType,
-			PrimaryEntityID: entityID,
-			Action:          req.Action,
-			ExtraChanges:    changes,
+			ProjectID:         req.ProjectID,
+			EnvironmentID:     req.EnvironmentID,
+			FeatureID:         req.FeatureID,
+			Reason:            req.Reason,
+			Origin:            req.Origin,
+			EntityChangesList: entityChangesList,
+			Action:            req.Action,
 		},
 	)
 }
@@ -77,7 +82,7 @@ func (s *Service) checkAndMaybeCreatePending(
 		return nil, false, true, nil
 	}
 
-	// Build entities: always include the feature entity to serialize/lock, and optionally the primary entity
+	// Build entities from the changes list
 	entities := []domain.EntityChange{
 		{
 			Entity:   string(domain.EntityFeature),
@@ -86,16 +91,14 @@ func (s *Service) checkAndMaybeCreatePending(
 			Changes:  map[string]domain.ChangeValue{},
 		},
 	}
-	if in.PrimaryEntity != "" {
-		changes := map[string]domain.ChangeValue{}
-		for k, v := range in.ExtraChanges {
-			changes[k] = v
-		}
+
+	// Add entities from the changes list
+	for _, entityChanges := range in.EntityChangesList {
 		entities = append(entities, domain.EntityChange{
-			Entity:   in.PrimaryEntity,
-			EntityID: in.PrimaryEntityID,
+			Entity:   entityChanges.EntityType,
+			EntityID: entityChanges.EntityID,
 			Action:   in.Action,
-			Changes:  changes,
+			Changes:  entityChanges.Changes,
 		})
 	}
 
@@ -153,47 +156,53 @@ func (s *Service) checkAndMaybeCreatePending(
 	return &pc, false, false, nil
 }
 
-// determineEntityTypeAndChanges determines the entity type and computes changes
+// determineEntityTypeAndChanges determines entity types and computes changes
 // by comparing old and new entities.
 func (s *Service) determineEntityTypeAndChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
-) (entityType, entityID string, changes map[string]domain.ChangeValue, err error) {
-	// Determine an entity type from the old entity (or new entity if old is nil)
+) ([]EntityChanges, error) {
+	// Determine entity type from the old entity (or new entity if old is nil)
 	var entity any
 	if oldEntity != nil {
 		entity = oldEntity
 	} else if newEntity != nil {
 		entity = newEntity
 	} else {
-		return "", "", nil, errors.New("both old and new entities are nil")
+		return nil, errors.New("both old and new entities are nil")
 	}
 
 	// Get entity type and ID
-	entityType, entityID, err = s.getEntityTypeAndID(entity)
+	entityType, entityID, err := s.getEntityTypeAndID(entity)
 	if err != nil {
-		return "", "", nil, fmt.Errorf("get entity type and ID: %w", err)
+		return nil, fmt.Errorf("get entity type and ID: %w", err)
 	}
 
 	// Compute changes based on entity type
 	switch entityType {
 	case string(domain.EntityFeature):
-		changes, err = s.computeFeatureChanges(oldEntity, newEntity, action)
+		return s.computeFeatureChanges(oldEntity, newEntity, action)
 	case string(domain.EntityFeatureParams):
-		changes, err = s.computeFeatureParamsChanges(oldEntity, newEntity, action)
+		changes, err := s.computeFeatureParamsChanges(oldEntity, newEntity, action)
+		if err != nil {
+			return nil, err
+		}
+		return []EntityChanges{{
+			EntityType: entityType,
+			EntityID:   entityID,
+			Changes:    changes,
+		}}, nil
 	case string(domain.EntityRule):
-		changes, err = s.computeRuleChanges(oldEntity, newEntity, action)
+		return s.computeRuleChanges(oldEntity, newEntity, action)
 	case string(domain.EntityFlagVariant):
-		changes, err = s.computeFlagVariantChanges(oldEntity, newEntity, action)
+		return s.computeFlagVariantChanges(oldEntity, newEntity, action)
 	case string(domain.EntityFeatureSchedule):
-		changes, err = s.computeFeatureScheduleChanges(oldEntity, newEntity, action)
+		return s.computeFeatureScheduleChanges(oldEntity, newEntity, action)
 	case string(domain.EntityFeatureTag):
-		changes, err = s.computeFeatureTagChanges(oldEntity, newEntity, action)
+		return s.computeFeatureTagChanges(oldEntity, newEntity, action)
 	default:
-		return "", "", nil, fmt.Errorf("unsupported entity type: %s", entityType)
+		return nil, fmt.Errorf("unsupported entity type: %s", entityType)
 	}
-
-	return entityType, entityID, changes, err
 }
 
 // getEntityTypeAndID extracts entity type and ID from an entity.
@@ -269,7 +278,7 @@ func (s *Service) handleFeatureTagStruct(entity any) (entityType, entityID strin
 func (s *Service) computeFeatureChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
-) (map[string]domain.ChangeValue, error) {
+) ([]EntityChanges, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldFeature, err := s.convertToFeaturePtr(oldEntity)
@@ -281,7 +290,33 @@ func (s *Service) computeFeatureChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildChangeDiff(oldFeature, newFeature), nil
+		var result []EntityChanges
+
+		// Changes for the base features table (BasicFeature)
+		basicFeatureChanges := BuildChangeDiff(oldFeature, newFeature)
+		if len(basicFeatureChanges) > 0 {
+			result = append(result, EntityChanges{
+				EntityType: string(domain.EntityFeature),
+				EntityID:   string(newFeature.ID),
+				Changes:    basicFeatureChanges,
+			})
+		}
+
+		// Changes for the feature_params table (enabled, default_value)
+		// Use ConvertToFeatureParams method for automatic conversion
+		oldParams := oldFeature.ConvertToFeatureParams()
+		newParams := newFeature.ConvertToFeatureParams()
+
+		paramsChanges := BuildChangeDiff(&oldParams, &newParams)
+		if len(paramsChanges) > 0 {
+			result = append(result, EntityChanges{
+				EntityType: string(domain.EntityFeatureParams),
+				EntityID:   string(newFeature.ID),
+				Changes:    paramsChanges,
+			})
+		}
+
+		return result, nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -324,7 +359,7 @@ func (s *Service) computeFeatureParamsChanges(
 func (s *Service) computeRuleChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
-) (map[string]domain.ChangeValue, error) {
+) ([]EntityChanges, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldRule, err := s.convertToRulePtr(oldEntity)
@@ -336,14 +371,28 @@ func (s *Service) computeRuleChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildChangeDiff(oldRule, newRule), nil
+		changes := BuildChangeDiff(oldRule, newRule)
+		if len(changes) == 0 {
+			return nil, nil
+		}
+
+		return []EntityChanges{{
+			EntityType: string(domain.EntityRule),
+			EntityID:   string(newRule.ID),
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionInsert:
 		newRule, err := s.convertToRulePtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildInsertChanges(newRule), nil
+		changes := BuildInsertChanges(newRule)
+		return []EntityChanges{{
+			EntityType: string(domain.EntityRule),
+			EntityID:   string(newRule.ID),
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -355,7 +404,7 @@ func (s *Service) computeRuleChanges(
 func (s *Service) computeFlagVariantChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
-) (map[string]domain.ChangeValue, error) {
+) ([]EntityChanges, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldVariant, err := s.convertToFlagVariantPtr(oldEntity)
@@ -367,14 +416,28 @@ func (s *Service) computeFlagVariantChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildChangeDiff(oldVariant, newVariant), nil
+		changes := BuildChangeDiff(oldVariant, newVariant)
+		if len(changes) == 0 {
+			return nil, nil
+		}
+
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFlagVariant),
+			EntityID:   string(newVariant.ID),
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionInsert:
 		newVariant, err := s.convertToFlagVariantPtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildInsertChanges(newVariant), nil
+		changes := BuildInsertChanges(newVariant)
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFlagVariant),
+			EntityID:   string(newVariant.ID),
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -386,7 +449,7 @@ func (s *Service) computeFlagVariantChanges(
 func (s *Service) computeFeatureScheduleChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
-) (map[string]domain.ChangeValue, error) {
+) ([]EntityChanges, error) {
 	switch action {
 	case domain.EntityActionUpdate:
 		oldSchedule, err := s.convertToFeatureSchedulePtr(oldEntity)
@@ -398,14 +461,28 @@ func (s *Service) computeFeatureScheduleChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildChangeDiff(oldSchedule, newSchedule), nil
+		changes := BuildChangeDiff(oldSchedule, newSchedule)
+		if len(changes) == 0 {
+			return nil, nil
+		}
+
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFeatureSchedule),
+			EntityID:   string(newSchedule.ID),
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionInsert:
 		newSchedule, err := s.convertToFeatureSchedulePtr(newEntity)
 		if err != nil {
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildInsertChanges(newSchedule), nil
+		changes := BuildInsertChanges(newSchedule)
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFeatureSchedule),
+			EntityID:   string(newSchedule.ID),
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:
@@ -418,7 +495,7 @@ func (s *Service) computeFeatureScheduleChanges(
 func (s *Service) computeFeatureTagChanges(
 	oldEntity, newEntity any,
 	action domain.EntityAction,
-) (map[string]domain.ChangeValue, error) {
+) ([]EntityChanges, error) {
 	switch action {
 	case domain.EntityActionInsert, domain.EntityActionDelete:
 		// For feature tags, we need to extract feature_id and tag_id
@@ -440,10 +517,15 @@ func (s *Service) computeFeatureTagChanges(
 			return nil, errors.New("feature_id and tag_id are required for feature tag changes")
 		}
 
-		return map[string]domain.ChangeValue{
+		changes := map[string]domain.ChangeValue{
 			"feature_id": {New: featureID},
 			"tag_id":     {New: tagID},
-		}, nil
+		}
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFeatureTag),
+			EntityID:   featureID,
+			Changes:    changes,
+		}}, nil
 	case domain.EntityActionUpdate:
 		// For update, we can use the generic function
 		oldTag, err := s.convertToFeatureTagPtr(oldEntity)
@@ -455,7 +537,16 @@ func (s *Service) computeFeatureTagChanges(
 			return nil, fmt.Errorf("new entity: %w", err)
 		}
 
-		return BuildChangeDiff(oldTag, newTag), nil
+		changes := BuildChangeDiff(oldTag, newTag)
+		if len(changes) == 0 {
+			return nil, nil
+		}
+
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFeatureTag),
+			EntityID:   string(newTag.FeatureID),
+			Changes:    changes,
+		}}, nil
 	default:
 		return nil, fmt.Errorf("unsupported action for feature tag: %s", action)
 	}
@@ -465,11 +556,12 @@ func (s *Service) computeFeatureTagChanges(
 // This handles both struct types and map types.
 func (s *Service) extractFeatureTagIDs(entity any) (featureID, tagID string) {
 	// Try struct type first
-	if v := reflect.ValueOf(entity); v.Kind() == reflect.Ptr {
+	v := reflect.ValueOf(entity)
+	if v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
 
-	if v := reflect.ValueOf(entity); v.Kind() == reflect.Struct {
+	if v.Kind() == reflect.Struct {
 		// Look for FeatureID field
 		if featureField := v.FieldByName("FeatureID"); featureField.IsValid() {
 			featureID = featureField.String()

@@ -41,6 +41,13 @@ func (r *RestAPI) CreateProjectFeature(
 		return nil, err
 	}
 
+	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, projectID, req.EnvironmentKey)
+	if err != nil {
+		slog.Error("get environment for feature create failed", "error", err)
+
+		return nil, err
+	}
+
 	feature := domain.Feature{
 		BasicFeature: domain.BasicFeature{
 			ProjectID:   projectID,
@@ -50,8 +57,9 @@ func (r *RestAPI) CreateProjectFeature(
 			Kind:        domain.FeatureKind(req.Kind),
 			RolloutKey:  domain.RuleAttribute(req.RolloutKey.Or("")),
 		},
-		DefaultValue: req.DefaultValue,
-		Enabled:      req.Enabled,
+		EnvironmentID: env.ID,
+		DefaultValue:  req.DefaultValue,
+		Enabled:       req.Enabled,
 	}
 
 	// Build inline flag variants

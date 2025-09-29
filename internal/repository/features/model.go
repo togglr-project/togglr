@@ -62,7 +62,8 @@ func (f *featureFullModel) toDomain() domain.Feature {
 			CreatedAt:   f.CreatedAt,
 			UpdatedAt:   f.UpdatedAt,
 		},
-		Enabled:      f.Enabled,
-		DefaultValue: f.DefaultValue,
+		EnvironmentID: domain.EnvironmentID(f.EnvironmentID),
+		Enabled:       f.Enabled,
+		DefaultValue:  f.DefaultValue,
 	}
 }

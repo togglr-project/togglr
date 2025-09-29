@@ -64,8 +64,9 @@ func (r *RestAPI) UpdateFeature(
 			Kind:        domain.FeatureKind(req.Kind),
 			RolloutKey:  domain.RuleAttribute(req.RolloutKey.Or("")),
 		},
-		DefaultValue: req.DefaultValue,
-		Enabled:      req.Enabled,
+		EnvironmentID: existing.EnvironmentID,
+		DefaultValue:  req.DefaultValue,
+		Enabled:       req.Enabled,
 	}
 
 	// Build variants

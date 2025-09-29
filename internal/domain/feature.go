@@ -28,8 +28,9 @@ type BasicFeature struct {
 type Feature struct {
 	BasicFeature
 
-	Enabled      bool   // whether the feature is enabled in the specified environment
-	DefaultValue string // default value for the feature in the specified environment
+	EnvironmentID EnvironmentID
+	Enabled       bool   // whether the feature is enabled in the specified environment
+	DefaultValue  string // default value for the feature in the specified environment
 }
 
 type FeatureExtended struct {
@@ -57,14 +58,11 @@ type GuardedResult struct {
 	Error          error          // any error that occurred
 }
 
-// GetParamsForEnvironment returns the feature parameters for a specific environment
-// This method will be implemented in the repository layer.
-func (f *Feature) GetParamsForEnvironment(envID EnvironmentID, params []FeatureParams) *FeatureParams {
-	for _, p := range params {
-		if p.EnvironmentID == envID {
-			return &p
-		}
+func (f *Feature) ConvertToFeatureParams() FeatureParams {
+	return FeatureParams{
+		FeatureID:     f.ID,
+		EnvironmentID: f.EnvironmentID,
+		Enabled:       f.Enabled,
+		DefaultValue:  f.DefaultValue,
 	}
-
-	return nil
 }
