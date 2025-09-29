@@ -221,6 +221,10 @@ export interface CreateFeatureRequest {
      * Optional list of rules to create along with the feature
      */
     'rules'?: Array<CreateRuleInline>;
+    /**
+     * Tag IDs
+     */
+    'tags'?: Array<string>;
 }
 
 

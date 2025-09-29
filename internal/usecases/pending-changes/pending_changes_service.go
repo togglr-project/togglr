@@ -465,7 +465,7 @@ func (s *Service) applyRuleChange(
 			return fmt.Errorf("create rule from changes: %w", err)
 		}
 
-		_, err = s.rulesRepo.Create(ctx, rule.(domain.Rule))
+		_, err = s.rulesRepo.Create(ctx, *rule.(*domain.Rule))
 		if err != nil {
 			return fmt.Errorf("create rule: %w", err)
 		}
@@ -513,7 +513,7 @@ func (s *Service) applyFlagVariantChange(
 			return fmt.Errorf("create flag variant from changes: %w", err)
 		}
 
-		_, err = s.flagVariantsRepo.Create(ctx, variant.(domain.FlagVariant))
+		_, err = s.flagVariantsRepo.Create(ctx, *variant.(*domain.FlagVariant))
 		if err != nil {
 			return fmt.Errorf("create flag variant: %w", err)
 		}
@@ -561,7 +561,7 @@ func (s *Service) applyFeatureScheduleChange(
 			return fmt.Errorf("create feature schedule from changes: %w", err)
 		}
 
-		_, err = s.schedulesRepo.Create(ctx, schedule.(domain.FeatureSchedule))
+		_, err = s.schedulesRepo.Create(ctx, *schedule.(*domain.FeatureSchedule))
 		if err != nil {
 			return fmt.Errorf("create feature schedule: %w", err)
 		}

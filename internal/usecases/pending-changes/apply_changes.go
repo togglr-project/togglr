@@ -1,6 +1,7 @@
 package pending_changes
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -113,6 +114,11 @@ func applyChangeToField(field reflect.Value, newValue any) error {
 		if str, ok := newValue.(string); ok {
 			// Try to set the string value directly
 			field.SetString(str)
+		} else if fieldType == reflect.TypeOf(domain.BooleanExpression{}) {
+			// Handle BooleanExpression specially
+			if err := convertToBooleanExpression(newValue, field); err != nil {
+				return fmt.Errorf("convert to BooleanExpression: %w", err)
+			}
 		} else {
 			return fmt.Errorf("expected string for custom type, got %T", newValue)
 		}
@@ -255,4 +261,21 @@ func CreateEntityFromChanges(entityType reflect.Type, changes map[string]domain.
 	}
 
 	return entity, nil
+}
+
+// convertToBooleanExpression converts a map[string]interface{} to domain.BooleanExpression
+func convertToBooleanExpression(value any, field reflect.Value) error {
+	// Convert to JSON and back to BooleanExpression
+	jsonData, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("marshal to JSON: %w", err)
+	}
+
+	var expr domain.BooleanExpression
+	if err := json.Unmarshal(jsonData, &expr); err != nil {
+		return fmt.Errorf("unmarshal to BooleanExpression: %w", err)
+	}
+
+	field.Set(reflect.ValueOf(expr))
+	return nil
 }

@@ -47,7 +47,8 @@ const uuid = () => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? cr
 
 const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, featureDetails, feature, environmentKey }) => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const authContext = useAuth();
+  const user = authContext?.user;
 
   type VariantForm = { id: string; name: string; rollout_percent: number };
   type RuleForm = { id: string; priority: number; action: RuleActionType; flag_variant_id?: string; expression: RuleConditionExpression; segment_id?: string; is_customized?: boolean; baseExpressionJson?: string };
@@ -400,14 +401,10 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
         is_customized: r.segment_id ? Boolean(r.is_customized) : true,
         environment_key: environmentKey,
       })),
+      tags: selectedTags.map(tag => tag.id),
     };
 
     updateMutation.mutate(payload);
-    
-    // Update tags after feature update
-    if (featureId) {
-      updateFeatureTags(featureId);
-    }
   };
 
   const updateFeatureTags = async (featureId: string) => {

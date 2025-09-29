@@ -83,7 +83,6 @@ func (r *RestAPI) UpdateFeature(
 
 	// Build rules with structured conditions
 	rules := make([]domain.Rule, 0, len(req.Rules))
-
 	for _, rr := range req.Rules {
 		expr, err := exprFromAPI(rr.Conditions)
 		if err != nil {
@@ -112,7 +111,23 @@ func (r *RestAPI) UpdateFeature(
 		})
 	}
 
-	updated, guardResult, err := r.featuresUseCase.UpdateWithChildren(ctx, environmentKey, feature, variants, rules)
+	// Build feature tags
+	featureTags := make([]domain.FeatureTags, 0, len(req.Tags))
+	for _, tagID := range req.Tags {
+		featureTags = append(featureTags, domain.FeatureTags{
+			FeatureID: featureID,
+			TagID:     domain.TagID(tagID),
+		})
+	}
+
+	updated, guardResult, err := r.featuresUseCase.UpdateWithChildren(
+		ctx,
+		environmentKey,
+		feature,
+		variants,
+		rules,
+		featureTags,
+	)
 	if err != nil {
 		slog.Error("update feature with children failed", "error", err)
 

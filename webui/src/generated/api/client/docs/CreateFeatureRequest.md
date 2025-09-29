@@ -15,6 +15,7 @@ Name | Type | Description | Notes
 **rollout_key** | **string** |  | [optional] [default to undefined]
 **variants** | [**Array&lt;CreateFlagVariantInline&gt;**](CreateFlagVariantInline.md) | Optional list of flag variants to create along with the feature | [optional] [default to undefined]
 **rules** | [**Array&lt;CreateRuleInline&gt;**](CreateRuleInline.md) | Optional list of rules to create along with the feature | [optional] [default to undefined]
+**tags** | **Array&lt;string&gt;** | Tag IDs | [optional] [default to undefined]
 
 ## Example
 
@@ -32,6 +33,7 @@ const instance: CreateFeatureRequest = {
     rollout_key,
     variants,
     rules,
+    tags,
 };
 ```
 

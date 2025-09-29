@@ -75,7 +75,6 @@ func (r *RestAPI) CreateProjectFeature(
 
 	// Build inline rules with structured conditions
 	rules := make([]domain.Rule, 0, len(req.Rules))
-
 	for _, rr := range req.Rules {
 		expr, err := exprFromAPI(rr.Conditions)
 		if err != nil {
@@ -103,7 +102,12 @@ func (r *RestAPI) CreateProjectFeature(
 		})
 	}
 
-	created, err := r.featuresUseCase.CreateWithChildren(ctx, feature, variants, rules)
+	tagIDs := make([]domain.TagID, 0, len(req.Tags))
+	for _, tagID := range req.Tags {
+		tagIDs = append(tagIDs, domain.TagID(tagID))
+	}
+
+	created, err := r.featuresUseCase.CreateWithChildren(ctx, feature, variants, rules, tagIDs)
 	if err != nil {
 		slog.Error("create project feature with children failed", "error", err)
 

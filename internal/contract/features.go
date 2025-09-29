@@ -24,6 +24,7 @@ type FeaturesUseCase interface {
 		feature domain.Feature,
 		variants []domain.FlagVariant,
 		rules []domain.Rule,
+		tagsIDs []domain.TagID,
 	) (domain.FeatureExtended, error)
 	// UpdateWithChildren updates feature and reconciles its variants and rules in a single transaction.
 	UpdateWithChildren(
@@ -32,6 +33,7 @@ type FeaturesUseCase interface {
 		feature domain.Feature,
 		variants []domain.FlagVariant,
 		rules []domain.Rule,
+		tags []domain.FeatureTags,
 	) (domain.FeatureExtended, domain.GuardedResult, error)
 	GetByIDWithEnv(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error)
 	GetExtendedByID(ctx context.Context, id domain.FeatureID, env string) (domain.FeatureExtended, error)

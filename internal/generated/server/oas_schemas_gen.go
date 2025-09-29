@@ -1058,6 +1058,8 @@ type CreateFeatureRequest struct {
 	Variants []CreateFlagVariantInline `json:"variants"`
 	// Optional list of rules to create along with the feature.
 	Rules []CreateRuleInline `json:"rules"`
+	// Tag IDs.
+	Tags []string `json:"tags"`
 }
 
 // GetKey returns the value of Key.
@@ -1110,6 +1112,11 @@ func (s *CreateFeatureRequest) GetRules() []CreateRuleInline {
 	return s.Rules
 }
 
+// GetTags returns the value of Tags.
+func (s *CreateFeatureRequest) GetTags() []string {
+	return s.Tags
+}
+
 // SetKey sets the value of Key.
 func (s *CreateFeatureRequest) SetKey(val string) {
 	s.Key = val
@@ -1158,6 +1165,11 @@ func (s *CreateFeatureRequest) SetVariants(val []CreateFlagVariantInline) {
 // SetRules sets the value of Rules.
 func (s *CreateFeatureRequest) SetRules(val []CreateRuleInline) {
 	s.Rules = val
+}
+
+// SetTags sets the value of Tags.
+func (s *CreateFeatureRequest) SetTags(val []string) {
+	s.Tags = val
 }
 
 // Ref: #/components/schemas/CreateFeatureScheduleRequest

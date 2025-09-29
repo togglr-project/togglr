@@ -251,20 +251,9 @@ const CreateFeatureDialog: React.FC<CreateFeatureDialogProps> = ({ open, onClose
         rollout_key: kind === 'multivariant' ? (rolloutKey.trim() || undefined) : undefined,
         variants: inlineVariants,
         rules: inlineRules,
+        tags: selectedTags.map(tag => tag.id),
       });
       const feature = (featureRes.data as { feature: Feature }).feature;
-      
-      // Add selected tags to the feature
-      if (selectedTags.length > 0) {
-        for (const tag of selectedTags) {
-          try {
-            await apiClient.addFeatureTag(feature.id, { tag_id: tag.id });
-          } catch (err) {
-            console.warn('Failed to add tag to feature:', err);
-            // Don't fail the entire operation if tag addition fails
-          }
-        }
-      }
       
       return feature;
     },

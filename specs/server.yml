@@ -6348,6 +6348,11 @@ components:
           maxItems: 100
           items:
             $ref: '#/components/schemas/CreateRuleInline'
+        tags:
+          type: array
+          description: Tag IDs
+          items:
+            type: string
       required: [key, name, kind, environment_key, enabled, default_value]
 
     ToggleFeatureRequest:

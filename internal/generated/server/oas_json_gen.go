@@ -2409,19 +2409,30 @@ func (s *CreateFeatureRequest) encodeFields(e *jx.Encoder) {
 			e.ArrEnd()
 		}
 	}
+	{
+		if s.Tags != nil {
+			e.FieldStart("tags")
+			e.ArrStart()
+			for _, elem := range s.Tags {
+				e.Str(elem)
+			}
+			e.ArrEnd()
+		}
+	}
 }
 
-var jsonFieldsNameOfCreateFeatureRequest = [10]string{
-	0: "key",
-	1: "name",
-	2: "description",
-	3: "kind",
-	4: "environment_key",
-	5: "default_value",
-	6: "enabled",
-	7: "rollout_key",
-	8: "variants",
-	9: "rules",
+var jsonFieldsNameOfCreateFeatureRequest = [11]string{
+	0:  "key",
+	1:  "name",
+	2:  "description",
+	3:  "kind",
+	4:  "environment_key",
+	5:  "default_value",
+	6:  "enabled",
+	7:  "rollout_key",
+	8:  "variants",
+	9:  "rules",
+	10: "tags",
 }
 
 // Decode decodes CreateFeatureRequest from json.
@@ -2556,6 +2567,25 @@ func (s *CreateFeatureRequest) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"rules\"")
+			}
+		case "tags":
+			if err := func() error {
+				s.Tags = make([]string, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem string
+					v, err := d.Str()
+					elem = string(v)
+					if err != nil {
+						return err
+					}
+					s.Tags = append(s.Tags, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"tags\"")
 			}
 		default:
 			return d.Skip()
