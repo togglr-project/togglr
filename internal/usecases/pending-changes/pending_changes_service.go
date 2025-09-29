@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
+	"reflect"
 	"time"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
@@ -398,18 +398,9 @@ func (s *Service) applyFeatureParamsChange(
 		}
 	}
 
-	updated := current
-	for field, change := range entity.Changes {
-		switch field {
-		case "enabled":
-			if newVal, ok := change.New.(bool); ok {
-				updated.Enabled = newVal
-			}
-		case "default_value":
-			if newVal, ok := change.New.(string); ok {
-				updated.DefaultValue = newVal
-			}
-		}
+	// Apply changes using reflection
+	if err := ApplyChangesToEntity(&current, entity.Changes); err != nil {
+		return fmt.Errorf("apply changes to feature_params: %w", err)
 	}
 
 	// We need project ID for audit when updating feature_params
@@ -419,11 +410,11 @@ func (s *Service) applyFeatureParamsChange(
 	}
 
 	// Persist
-	_, err = s.featureParamsRepo.Update(ctx, feature.ProjectID, updated)
+	_, err = s.featureParamsRepo.Update(ctx, feature.ProjectID, current)
 	if err != nil {
 		// If update failed because not found (when created baseline), try Create
 		if errors.Is(err, domain.ErrEntityNotFound) {
-			_, cerr := s.featureParamsRepo.Create(ctx, feature.ProjectID, updated)
+			_, cerr := s.featureParamsRepo.Create(ctx, feature.ProjectID, current)
 			if cerr != nil {
 				return fmt.Errorf("create feature_params: %w", cerr)
 			}
@@ -457,87 +448,24 @@ func (s *Service) applyRuleChange(
 			return fmt.Errorf("get current rule: %w", err)
 		}
 
-		updated := current
-		for field, change := range entity.Changes {
-			switch field {
-			case "is_customized":
-				if v, ok := change.New.(bool); ok {
-					updated.IsCustomized = v
-				}
-			case "action":
-				if v, ok := change.New.(string); ok {
-					updated.Action = domain.RuleAction(v)
-				}
-			case "priority":
-				// JSON numbers come as float64
-				if num, ok := change.New.(float64); ok {
-					updated.Priority = uint8(num)
-				}
-			case "flag_variant_id":
-				if change.New == nil {
-					updated.FlagVariantID = nil
-				} else if v, ok := change.New.(string); ok {
-					id := domain.FlagVariantID(v)
-					updated.FlagVariantID = &id
-				}
-			case "segment_id":
-				if change.New == nil {
-					updated.SegmentID = nil
-				} else if v, ok := change.New.(string); ok {
-					id := domain.SegmentID(v)
-					updated.SegmentID = &id
-				}
-				// Note: conditions update is non-trivial (AST). If provided, keep existing for now.
-			}
+		// Apply changes using reflection
+		if err := ApplyChangesToEntity(&current, entity.Changes); err != nil {
+			return fmt.Errorf("apply changes to rule: %w", err)
 		}
 
-		if _, err := s.rulesRepo.Update(ctx, updated); err != nil {
+		if _, err := s.rulesRepo.Update(ctx, current); err != nil {
 			return fmt.Errorf("update rule: %w", err)
 		}
 
 		return nil
 	case domain.EntityActionInsert:
-		// For insert we expect minimal required fields in changes: feature_id, project_id etc.
-		var rule domain.Rule
-		for field, change := range entity.Changes {
-			switch field {
-			case "project_id":
-				if v, ok := change.New.(string); ok {
-					rule.ProjectID = domain.ProjectID(v)
-				}
-			case "feature_id":
-				if v, ok := change.New.(string); ok {
-					rule.FeatureID = domain.FeatureID(v)
-				}
-			case "is_customized":
-				if v, ok := change.New.(bool); ok {
-					rule.IsCustomized = v
-				}
-			case "action":
-				if v, ok := change.New.(string); ok {
-					rule.Action = domain.RuleAction(v)
-				}
-			case "priority":
-				if num, ok := change.New.(float64); ok {
-					rule.Priority = uint8(num)
-				}
-			case "flag_variant_id":
-				if change.New != nil {
-					if v, ok := change.New.(string); ok {
-						id := domain.FlagVariantID(v)
-						rule.FlagVariantID = &id
-					}
-				}
-			case "segment_id":
-				if change.New != nil {
-					if v, ok := change.New.(string); ok {
-						id := domain.SegmentID(v)
-						rule.SegmentID = &id
-					}
-				}
-			}
+		// Create new rule from changes using reflection
+		rule, err := CreateEntityFromChanges(reflect.TypeOf(domain.Rule{}), entity.Changes)
+		if err != nil {
+			return fmt.Errorf("create rule from changes: %w", err)
 		}
-		_, err := s.rulesRepo.Create(ctx, rule)
+
+		_, err = s.rulesRepo.Create(ctx, rule.(domain.Rule))
 		if err != nil {
 			return fmt.Errorf("create rule: %w", err)
 		}
@@ -567,47 +495,25 @@ func (s *Service) applyFlagVariantChange(
 		if err != nil {
 			return fmt.Errorf("get current flag variant: %w", err)
 		}
-		updated := current
-		for field, change := range entity.Changes {
-			switch field {
-			case "name":
-				if v, ok := change.New.(string); ok {
-					updated.Name = v
-				}
-			case "rollout_percent":
-				if num, ok := change.New.(float64); ok {
-					updated.RolloutPercent = uint8(num)
-				}
-			}
+
+		// Apply changes using reflection
+		if err := ApplyChangesToEntity(&current, entity.Changes); err != nil {
+			return fmt.Errorf("apply changes to flag variant: %w", err)
 		}
-		if _, err := s.flagVariantsRepo.Update(ctx, updated); err != nil {
+
+		if _, err := s.flagVariantsRepo.Update(ctx, current); err != nil {
 			return fmt.Errorf("update flag variant: %w", err)
 		}
 
 		return nil
 	case domain.EntityActionInsert:
-		var v domain.FlagVariant
-		for field, change := range entity.Changes {
-			switch field {
-			case "project_id":
-				if s, ok := change.New.(string); ok {
-					v.ProjectID = domain.ProjectID(s)
-				}
-			case "feature_id":
-				if s2, ok := change.New.(string); ok {
-					v.FeatureID = domain.FeatureID(s2)
-				}
-			case "name":
-				if s3, ok := change.New.(string); ok {
-					v.Name = s3
-				}
-			case "rollout_percent":
-				if num, ok := change.New.(float64); ok {
-					v.RolloutPercent = uint8(num)
-				}
-			}
+		// Create new flag variant from changes using reflection
+		variant, err := CreateEntityFromChanges(reflect.TypeOf(domain.FlagVariant{}), entity.Changes)
+		if err != nil {
+			return fmt.Errorf("create flag variant from changes: %w", err)
 		}
-		_, err := s.flagVariantsRepo.Create(ctx, v)
+
+		_, err = s.flagVariantsRepo.Create(ctx, variant.(domain.FlagVariant))
 		if err != nil {
 			return fmt.Errorf("create flag variant: %w", err)
 		}
@@ -625,39 +531,6 @@ func (s *Service) applyFeatureScheduleChange(
 ) error {
 	id := domain.FeatureScheduleID(entity.EntityID)
 
-	parseTime := func(val interface{}) (*time.Time, bool) {
-		if val == nil {
-			return nil, true
-		}
-		if s, ok := val.(string); ok {
-			if t, err := time.Parse(time.RFC3339, s); err == nil {
-				return &t, true
-			}
-		}
-
-		return nil, false
-	}
-
-	parseDuration := func(val interface{}) (*time.Duration, bool) {
-		if val == nil {
-			return nil, true
-		}
-		switch v := val.(type) {
-		case string:
-			d, err := time.ParseDuration(v)
-			if err == nil {
-				return &d, true
-			}
-		case float64:
-			// seconds
-			d := time.Duration(v) * time.Second
-
-			return &d, true
-		}
-
-		return nil, false
-	}
-
 	switch entity.Action {
 	case domain.EntityActionDelete:
 		if err := s.schedulesRepo.Delete(ctx, id); err != nil {
@@ -670,92 +543,25 @@ func (s *Service) applyFeatureScheduleChange(
 		if err != nil {
 			return fmt.Errorf("get current feature schedule: %w", err)
 		}
-		updated := current
-		for field, change := range entity.Changes {
-			switch field {
-			case "starts_at":
-				if t, ok := parseTime(change.New); ok {
-					updated.StartsAt = t
-				}
-			case "ends_at":
-				if t, ok := parseTime(change.New); ok {
-					updated.EndsAt = t
-				}
-			case "cron_expr":
-				if change.New == nil {
-					updated.CronExpr = nil
-				} else if s, ok := change.New.(string); ok {
-					updated.CronExpr = &s
-				}
-			case "cron_duration":
-				if d, ok := parseDuration(change.New); ok {
-					updated.CronDuration = d
-				}
-			case "timezone":
-				if s, ok := change.New.(string); ok {
-					updated.Timezone = s
-				}
-			case "action":
-				if s, ok := change.New.(string); ok {
-					updated.Action = domain.FeatureScheduleAction(s)
-				}
-			}
+
+		// Apply changes using reflection
+		if err := ApplyChangesToEntity(&current, entity.Changes); err != nil {
+			return fmt.Errorf("apply changes to feature schedule: %w", err)
 		}
-		if _, err := s.schedulesRepo.Update(ctx, updated); err != nil {
+
+		if _, err := s.schedulesRepo.Update(ctx, current); err != nil {
 			return fmt.Errorf("update feature schedule: %w", err)
 		}
 
 		return nil
 	case domain.EntityActionInsert:
-		var sch domain.FeatureSchedule
-		for field, change := range entity.Changes {
-			switch field {
-			case "project_id":
-				if s, ok := change.New.(string); ok {
-					sch.ProjectID = domain.ProjectID(s)
-				}
-			case "feature_id":
-				if s, ok := change.New.(string); ok {
-					sch.FeatureID = domain.FeatureID(s)
-				}
-			case "environment_id":
-				switch v := change.New.(type) {
-				case float64:
-					sch.EnvironmentID = domain.EnvironmentID(int64(v))
-				case string:
-					if n, err := strconv.ParseInt(v, 10, 64); err == nil {
-						sch.EnvironmentID = domain.EnvironmentID(n)
-					}
-				}
-			case "starts_at":
-				if t, ok := parseTime(change.New); ok {
-					sch.StartsAt = t
-				}
-			case "ends_at":
-				if t, ok := parseTime(change.New); ok {
-					sch.EndsAt = t
-				}
-			case "cron_expr":
-				if change.New == nil {
-					sch.CronExpr = nil
-				} else if s, ok := change.New.(string); ok {
-					sch.CronExpr = &s
-				}
-			case "cron_duration":
-				if d, ok := parseDuration(change.New); ok {
-					sch.CronDuration = d
-				}
-			case "timezone":
-				if s, ok := change.New.(string); ok {
-					sch.Timezone = s
-				}
-			case "action":
-				if s, ok := change.New.(string); ok {
-					sch.Action = domain.FeatureScheduleAction(s)
-				}
-			}
+		// Create new feature schedule from changes using reflection
+		schedule, err := CreateEntityFromChanges(reflect.TypeOf(domain.FeatureSchedule{}), entity.Changes)
+		if err != nil {
+			return fmt.Errorf("create feature schedule from changes: %w", err)
 		}
-		_, err := s.schedulesRepo.Create(ctx, sch)
+
+		_, err = s.schedulesRepo.Create(ctx, schedule.(domain.FeatureSchedule))
 		if err != nil {
 			return fmt.Errorf("create feature schedule: %w", err)
 		}
@@ -782,24 +588,13 @@ func (s *Service) applyFeatureChange(
 			return fmt.Errorf("get current feature: %w", err)
 		}
 
-		// Apply changes
-		updatedFeature := currentFeature
-
-		for field, change := range entity.Changes {
-			switch field {
-			case "name":
-				if newValue, ok := change.New.(string); ok {
-					updatedFeature.Name = newValue
-				}
-			case "description":
-				if newValue, ok := change.New.(string); ok {
-					updatedFeature.Description = newValue
-				}
-			}
+		// Apply changes using reflection
+		if err := ApplyChangesToEntity(&currentFeature, entity.Changes); err != nil {
+			return fmt.Errorf("apply changes to feature: %w", err)
 		}
 
 		// Update feature
-		_, err = s.featuresRepo.Update(ctx, envID, updatedFeature)
+		_, err = s.featuresRepo.Update(ctx, envID, currentFeature)
 		if err != nil {
 			return fmt.Errorf("update feature: %w", err)
 		}
