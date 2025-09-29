@@ -12,6 +12,7 @@ type DashboardRepository interface {
 	RecentActivity(ctx context.Context, envKey string, projectID *string, limit uint) ([]domain.RecentActivity, error)
 	RiskyFeatures(ctx context.Context, envKey string, projectID *string, limit uint) ([]domain.RiskyFeature, error)
 	PendingSummary(ctx context.Context, envKey string, projectID *string) ([]domain.PendingSummary, error)
+	TopActiveFeatureIDs(ctx context.Context, envKey string, projectID *string, limit uint) ([]string, error)
 }
 
 type DashboardUseCase interface {

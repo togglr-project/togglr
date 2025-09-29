@@ -321,3 +321,38 @@ func parseRecentChanges(raw []byte) ([]domain.RecentChange, error) {
 	}
 	return out, nil
 }
+
+// TopActiveFeatureIDs returns feature IDs from v_top_active_features ordered by rank_score.
+func (r *Repository) TopActiveFeatureIDs(
+	ctx context.Context,
+	envKey string,
+	projectID *string,
+	limit uint,
+) ([]string, error) {
+	exec := r.getExecutor(ctx)
+	query := `SELECT feature_id FROM v_top_active_features WHERE environment_key = $1 AND enabled = true`
+	args := []any{envKey}
+	if projectID != nil {
+		query += ` AND project_id = $2`
+		args = append(args, *projectID)
+	}
+	query += ` ORDER BY rank_score DESC LIMIT $` + fmt.Sprint(len(args)+1)
+	args = append(args, limit)
+	rows, err := exec.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("query v_top_active_features: %w", err)
+	}
+	defer rows.Close()
+
+	ids, err := pgx.CollectRows(rows, func(row pgx.CollectableRow) (string, error) {
+		var id string
+		if err := row.Scan(&id); err != nil {
+			return "", err
+		}
+		return id, nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("collect v_top_active_features ids: %w", err)
+	}
+	return ids, nil
+}
