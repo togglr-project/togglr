@@ -374,6 +374,7 @@ func (s *Category) SetUpdatedAt(val time.Time) {
 // Ref: #/components/schemas/CategoryHealth
 type CategoryHealth struct {
 	ProjectID                  OptUUID                       `json:"project_id"`
+	ProjectName                OptString                     `json:"project_name"`
 	EnvironmentID              OptUUID                       `json:"environment_id"`
 	EnvironmentKey             OptString                     `json:"environment_key"`
 	CategoryID                 OptUUID                       `json:"category_id"`
@@ -392,6 +393,11 @@ type CategoryHealth struct {
 // GetProjectID returns the value of ProjectID.
 func (s *CategoryHealth) GetProjectID() OptUUID {
 	return s.ProjectID
+}
+
+// GetProjectName returns the value of ProjectName.
+func (s *CategoryHealth) GetProjectName() OptString {
+	return s.ProjectName
 }
 
 // GetEnvironmentID returns the value of EnvironmentID.
@@ -462,6 +468,11 @@ func (s *CategoryHealth) GetHealthStatus() OptCategoryHealthHealthStatus {
 // SetProjectID sets the value of ProjectID.
 func (s *CategoryHealth) SetProjectID(val OptUUID) {
 	s.ProjectID = val
+}
+
+// SetProjectName sets the value of ProjectName.
+func (s *CategoryHealth) SetProjectName(val OptString) {
+	s.ProjectName = val
 }
 
 // SetEnvironmentID sets the value of EnvironmentID.
@@ -8110,6 +8121,7 @@ func (*PendingChangesListResponse) listPendingChangesRes() {}
 // Ref: #/components/schemas/PendingSummary
 type PendingSummary struct {
 	ProjectID             OptUUID     `json:"project_id"`
+	ProjectName           OptString   `json:"project_name"`
 	EnvironmentID         OptUUID     `json:"environment_id"`
 	EnvironmentKey        OptString   `json:"environment_key"`
 	TotalPending          OptUint     `json:"total_pending"`
@@ -8121,6 +8133,11 @@ type PendingSummary struct {
 // GetProjectID returns the value of ProjectID.
 func (s *PendingSummary) GetProjectID() OptUUID {
 	return s.ProjectID
+}
+
+// GetProjectName returns the value of ProjectName.
+func (s *PendingSummary) GetProjectName() OptString {
+	return s.ProjectName
 }
 
 // GetEnvironmentID returns the value of EnvironmentID.
@@ -8156,6 +8173,11 @@ func (s *PendingSummary) GetOldestRequestAt() OptDateTime {
 // SetProjectID sets the value of ProjectID.
 func (s *PendingSummary) SetProjectID(val OptUUID) {
 	s.ProjectID = val
+}
+
+// SetProjectName sets the value of ProjectName.
+func (s *PendingSummary) SetProjectName(val OptString) {
+	s.ProjectName = val
 }
 
 // SetEnvironmentID sets the value of EnvironmentID.
@@ -8269,6 +8291,7 @@ func (s *Project) SetCreatedAt(val time.Time) {
 // Ref: #/components/schemas/ProjectHealth
 type ProjectHealth struct {
 	ProjectID                  OptUUID                      `json:"project_id"`
+	ProjectName                OptString                    `json:"project_name"`
 	EnvironmentID              OptUUID                      `json:"environment_id"`
 	EnvironmentKey             OptString                    `json:"environment_key"`
 	TotalFeatures              OptUint                      `json:"total_features"`
@@ -8285,6 +8308,11 @@ type ProjectHealth struct {
 // GetProjectID returns the value of ProjectID.
 func (s *ProjectHealth) GetProjectID() OptUUID {
 	return s.ProjectID
+}
+
+// GetProjectName returns the value of ProjectName.
+func (s *ProjectHealth) GetProjectName() OptString {
+	return s.ProjectName
 }
 
 // GetEnvironmentID returns the value of EnvironmentID.
@@ -8345,6 +8373,11 @@ func (s *ProjectHealth) GetHealthStatus() OptProjectHealthHealthStatus {
 // SetProjectID sets the value of ProjectID.
 func (s *ProjectHealth) SetProjectID(val OptUUID) {
 	s.ProjectID = val
+}
+
+// SetProjectName sets the value of ProjectName.
+func (s *ProjectHealth) SetProjectName(val OptString) {
+	s.ProjectName = val
 }
 
 // SetEnvironmentID sets the value of EnvironmentID.
@@ -8984,6 +9017,7 @@ func (s *ResetPasswordRequest) SetNewPassword(val string) {
 // Ref: #/components/schemas/RiskyFeature
 type RiskyFeature struct {
 	ProjectID      OptUUID   `json:"project_id"`
+	ProjectName    OptString `json:"project_name"`
 	EnvironmentID  OptUUID   `json:"environment_id"`
 	EnvironmentKey OptString `json:"environment_key"`
 	FeatureID      OptUUID   `json:"feature_id"`
@@ -8996,6 +9030,11 @@ type RiskyFeature struct {
 // GetProjectID returns the value of ProjectID.
 func (s *RiskyFeature) GetProjectID() OptUUID {
 	return s.ProjectID
+}
+
+// GetProjectName returns the value of ProjectName.
+func (s *RiskyFeature) GetProjectName() OptString {
+	return s.ProjectName
 }
 
 // GetEnvironmentID returns the value of EnvironmentID.
@@ -9036,6 +9075,11 @@ func (s *RiskyFeature) GetRiskyTags() OptString {
 // SetProjectID sets the value of ProjectID.
 func (s *RiskyFeature) SetProjectID(val OptUUID) {
 	s.ProjectID = val
+}
+
+// SetProjectName sets the value of ProjectName.
+func (s *RiskyFeature) SetProjectName(val OptString) {
+	s.ProjectName = val
 }
 
 // SetEnvironmentID sets the value of EnvironmentID.

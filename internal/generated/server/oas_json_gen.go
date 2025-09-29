@@ -887,6 +887,12 @@ func (s *CategoryHealth) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.ProjectName.Set {
+			e.FieldStart("project_name")
+			s.ProjectName.Encode(e)
+		}
+	}
+	{
 		if s.EnvironmentID.Set {
 			e.FieldStart("environment_id")
 			s.EnvironmentID.Encode(e)
@@ -966,21 +972,22 @@ func (s *CategoryHealth) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfCategoryHealth = [14]string{
+var jsonFieldsNameOfCategoryHealth = [15]string{
 	0:  "project_id",
-	1:  "environment_id",
-	2:  "environment_key",
-	3:  "category_id",
-	4:  "category_name",
-	5:  "category_slug",
-	6:  "total_features",
-	7:  "enabled_features",
-	8:  "disabled_features",
-	9:  "pending_features",
-	10: "guarded_features",
-	11: "auto_disable_managed_features",
-	12: "pending_guarded_features",
-	13: "health_status",
+	1:  "project_name",
+	2:  "environment_id",
+	3:  "environment_key",
+	4:  "category_id",
+	5:  "category_name",
+	6:  "category_slug",
+	7:  "total_features",
+	8:  "enabled_features",
+	9:  "disabled_features",
+	10: "pending_features",
+	11: "guarded_features",
+	12: "auto_disable_managed_features",
+	13: "pending_guarded_features",
+	14: "health_status",
 }
 
 // Decode decodes CategoryHealth from json.
@@ -1000,6 +1007,16 @@ func (s *CategoryHealth) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "project_name":
+			if err := func() error {
+				s.ProjectName.Reset()
+				if err := s.ProjectName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_name\"")
 			}
 		case "environment_id":
 			if err := func() error {
@@ -15028,6 +15045,12 @@ func (s *PendingSummary) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.ProjectName.Set {
+			e.FieldStart("project_name")
+			s.ProjectName.Encode(e)
+		}
+	}
+	{
 		if s.EnvironmentID.Set {
 			e.FieldStart("environment_id")
 			s.EnvironmentID.Encode(e)
@@ -15065,14 +15088,15 @@ func (s *PendingSummary) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfPendingSummary = [7]string{
+var jsonFieldsNameOfPendingSummary = [8]string{
 	0: "project_id",
-	1: "environment_id",
-	2: "environment_key",
-	3: "total_pending",
-	4: "pending_feature_changes",
-	5: "pending_guarded_changes",
-	6: "oldest_request_at",
+	1: "project_name",
+	2: "environment_id",
+	3: "environment_key",
+	4: "total_pending",
+	5: "pending_feature_changes",
+	6: "pending_guarded_changes",
+	7: "oldest_request_at",
 }
 
 // Decode decodes PendingSummary from json.
@@ -15092,6 +15116,16 @@ func (s *PendingSummary) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "project_name":
+			if err := func() error {
+				s.ProjectName.Reset()
+				if err := s.ProjectName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_name\"")
 			}
 		case "environment_id":
 			if err := func() error {
@@ -15453,6 +15487,12 @@ func (s *ProjectHealth) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.ProjectName.Set {
+			e.FieldStart("project_name")
+			s.ProjectName.Encode(e)
+		}
+	}
+	{
 		if s.EnvironmentID.Set {
 			e.FieldStart("environment_id")
 			s.EnvironmentID.Encode(e)
@@ -15520,19 +15560,20 @@ func (s *ProjectHealth) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfProjectHealth = [12]string{
+var jsonFieldsNameOfProjectHealth = [13]string{
 	0:  "project_id",
-	1:  "environment_id",
-	2:  "environment_key",
-	3:  "total_features",
-	4:  "enabled_features",
-	5:  "disabled_features",
-	6:  "auto_disable_managed_features",
-	7:  "uncategorized_features",
-	8:  "guarded_features",
-	9:  "pending_features",
-	10: "pending_guarded_features",
-	11: "health_status",
+	1:  "project_name",
+	2:  "environment_id",
+	3:  "environment_key",
+	4:  "total_features",
+	5:  "enabled_features",
+	6:  "disabled_features",
+	7:  "auto_disable_managed_features",
+	8:  "uncategorized_features",
+	9:  "guarded_features",
+	10: "pending_features",
+	11: "pending_guarded_features",
+	12: "health_status",
 }
 
 // Decode decodes ProjectHealth from json.
@@ -15552,6 +15593,16 @@ func (s *ProjectHealth) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "project_name":
+			if err := func() error {
+				s.ProjectName.Reset()
+				if err := s.ProjectName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_name\"")
 			}
 		case "environment_id":
 			if err := func() error {
@@ -17207,6 +17258,12 @@ func (s *RiskyFeature) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.ProjectName.Set {
+			e.FieldStart("project_name")
+			s.ProjectName.Encode(e)
+		}
+	}
+	{
 		if s.EnvironmentID.Set {
 			e.FieldStart("environment_id")
 			s.EnvironmentID.Encode(e)
@@ -17250,15 +17307,16 @@ func (s *RiskyFeature) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfRiskyFeature = [8]string{
+var jsonFieldsNameOfRiskyFeature = [9]string{
 	0: "project_id",
-	1: "environment_id",
-	2: "environment_key",
-	3: "feature_id",
-	4: "feature_name",
-	5: "enabled",
-	6: "has_pending",
-	7: "risky_tags",
+	1: "project_name",
+	2: "environment_id",
+	3: "environment_key",
+	4: "feature_id",
+	5: "feature_name",
+	6: "enabled",
+	7: "has_pending",
+	8: "risky_tags",
 }
 
 // Decode decodes RiskyFeature from json.
@@ -17278,6 +17336,16 @@ func (s *RiskyFeature) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"project_id\"")
+			}
+		case "project_name":
+			if err := func() error {
+				s.ProjectName.Reset()
+				if err := s.ProjectName.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"project_name\"")
 			}
 		case "environment_id":
 			if err := func() error {

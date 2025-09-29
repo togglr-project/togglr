@@ -91,6 +91,7 @@ export type CategoryKindEnum = typeof CategoryKindEnum[keyof typeof CategoryKind
 
 export interface CategoryHealth {
     'project_id'?: string;
+    'project_name'?: string;
     'environment_id'?: string;
     'environment_key'?: string;
     'category_id'?: string;
@@ -959,6 +960,7 @@ export interface PendingChangesListResponse {
 }
 export interface PendingSummary {
     'project_id'?: string;
+    'project_name'?: string;
     'environment_id'?: string;
     'environment_key'?: string;
     'total_pending'?: number;
@@ -984,6 +986,7 @@ export interface Project {
 }
 export interface ProjectHealth {
     'project_id'?: string;
+    'project_name'?: string;
     'environment_id'?: string;
     'environment_key'?: string;
     'total_features'?: number;
@@ -1085,6 +1088,7 @@ export interface ResetPasswordRequest {
 }
 export interface RiskyFeature {
     'project_id'?: string;
+    'project_name'?: string;
     'environment_id'?: string;
     'environment_key'?: string;
     'feature_id'?: string;

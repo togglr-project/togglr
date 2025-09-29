@@ -31,6 +31,7 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 
 type projectHealthRow struct {
 	ProjectID                  string `db:"project_id"`
+	ProjectName                string `db:"project_name"`
 	EnvironmentID              string `db:"environment_id"`
 	EnvironmentKey             string `db:"environment_key"`
 	TotalFeatures              int64  `db:"total_features"`
@@ -46,7 +47,7 @@ type projectHealthRow struct {
 
 func (r *Repository) ProjectHealth(ctx context.Context, envKey string, projectID *string) ([]domain.ProjectHealth, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, environment_id, environment_key,
+	query := `SELECT project_id, project_name, environment_id, environment_key,
 		total_features, enabled_features, disabled_features,
 		auto_disable_managed_features, uncategorized_features,
 		guarded_features, pending_features, pending_guarded_features, health_status
@@ -71,6 +72,7 @@ func (r *Repository) ProjectHealth(ctx context.Context, envKey string, projectID
 		m := models[i]
 		out = append(out, domain.ProjectHealth{
 			ProjectID:                  m.ProjectID,
+			ProjectName:                m.ProjectName,
 			EnvironmentID:              m.EnvironmentID,
 			EnvironmentKey:             m.EnvironmentKey,
 			TotalFeatures:              uint(m.TotalFeatures),
@@ -89,6 +91,7 @@ func (r *Repository) ProjectHealth(ctx context.Context, envKey string, projectID
 
 type categoryHealthRow struct {
 	ProjectID                  string `db:"project_id"`
+	ProjectName                string `db:"project_name"`
 	EnvironmentID              string `db:"environment_id"`
 	EnvironmentKey             string `db:"environment_key"`
 	CategoryID                 string `db:"category_id"`
@@ -106,7 +109,7 @@ type categoryHealthRow struct {
 
 func (r *Repository) CategoryHealth(ctx context.Context, envKey string, projectID *string) ([]domain.CategoryHealth, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, environment_id, environment_key, category_id, category_name, category_slug,
+	query := `SELECT project_id, project_name, environment_id, environment_key, category_id, category_name, category_slug,
 		total_features, enabled_features, disabled_features, pending_features, guarded_features,
 		auto_disable_managed_features, pending_guarded_features, health_status
 		FROM v_project_category_health WHERE environment_key = $1`
@@ -130,6 +133,7 @@ func (r *Repository) CategoryHealth(ctx context.Context, envKey string, projectI
 		m := models[i]
 		out = append(out, domain.CategoryHealth{
 			ProjectID:                  m.ProjectID,
+			ProjectName:                m.ProjectName,
 			EnvironmentID:              m.EnvironmentID,
 			EnvironmentKey:             m.EnvironmentKey,
 			CategoryID:                 m.CategoryID,
@@ -205,6 +209,7 @@ func (r *Repository) RecentActivity(ctx context.Context, envKey string, projectI
 
 type riskyFeatureRow struct {
 	ProjectID      string `db:"project_id"`
+	ProjectName    string `db:"project_name"`
 	EnvironmentID  string `db:"environment_id"`
 	EnvironmentKey string `db:"environment_key"`
 	FeatureID      string `db:"feature_id"`
@@ -216,7 +221,7 @@ type riskyFeatureRow struct {
 
 func (r *Repository) RiskyFeatures(ctx context.Context, envKey string, projectID *string, limit uint) ([]domain.RiskyFeature, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, environment_id, environment_key, feature_id, feature_name, enabled, risky_tags, has_pending
+	query := `SELECT project_id, project_name, environment_id, environment_key, feature_id, feature_name, enabled, risky_tags, has_pending
 		FROM v_project_top_risky_features WHERE environment_key = $1`
 	args := []any{envKey}
 	if projectID != nil {
@@ -240,6 +245,7 @@ func (r *Repository) RiskyFeatures(ctx context.Context, envKey string, projectID
 		m := models[i]
 		out = append(out, domain.RiskyFeature{
 			ProjectID:      m.ProjectID,
+			ProjectName:    m.ProjectName,
 			EnvironmentID:  m.EnvironmentID,
 			EnvironmentKey: m.EnvironmentKey,
 			FeatureID:      m.FeatureID,
@@ -254,6 +260,7 @@ func (r *Repository) RiskyFeatures(ctx context.Context, envKey string, projectID
 
 type pendingSummaryRow struct {
 	ProjectID             string     `db:"project_id"`
+	ProjectName           string     `db:"project_name"`
 	EnvironmentID         string     `db:"environment_id"`
 	EnvironmentKey        string     `db:"environment_key"`
 	TotalPending          int64      `db:"total_pending"`
@@ -264,7 +271,7 @@ type pendingSummaryRow struct {
 
 func (r *Repository) PendingSummary(ctx context.Context, envKey string, projectID *string) ([]domain.PendingSummary, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, environment_id, environment_key, total_pending, pending_feature_changes,
+	query := `SELECT project_id, project_name, environment_id, environment_key, total_pending, pending_feature_changes,
 		pending_guarded_changes, oldest_request_at
 		FROM v_project_pending_summary WHERE environment_key = $1`
 	args := []any{envKey}
@@ -287,6 +294,7 @@ func (r *Repository) PendingSummary(ctx context.Context, envKey string, projectI
 		m := models[i]
 		out = append(out, domain.PendingSummary{
 			ProjectID:             m.ProjectID,
+			ProjectName:           m.ProjectName,
 			EnvironmentID:         m.EnvironmentID,
 			EnvironmentKey:        m.EnvironmentKey,
 			TotalPending:          uint(m.TotalPending),

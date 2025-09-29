@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **string** |  | [optional] [default to undefined]
+**project_name** | **string** |  | [optional] [default to undefined]
 **environment_id** | **string** |  | [optional] [default to undefined]
 **environment_key** | **string** |  | [optional] [default to undefined]
 **category_id** | **string** |  | [optional] [default to undefined]
@@ -27,6 +28,7 @@ import { CategoryHealth } from './api';
 
 const instance: CategoryHealth = {
     project_id,
+    project_name,
     environment_id,
     environment_key,
     category_id,

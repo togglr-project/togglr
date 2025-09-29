@@ -39,6 +39,7 @@ func (r *RestAPI) GetDashboardOverview(
 			if id, err := uuid.Parse(ph.ProjectID); err == nil {
 				item.ProjectID = generatedapi.NewOptUUID(id)
 			}
+			item.ProjectName = generatedapi.NewOptString(ph.ProjectName)
 			if id, err := uuid.Parse(ph.EnvironmentID); err == nil {
 				item.EnvironmentID = generatedapi.NewOptUUID(id)
 			}
@@ -74,6 +75,7 @@ func (r *RestAPI) GetDashboardOverview(
 			if id, err := uuid.Parse(ch.ProjectID); err == nil {
 				item.ProjectID = generatedapi.NewOptUUID(id)
 			}
+			item.ProjectName = generatedapi.NewOptString(ch.ProjectName)
 			if id, err := uuid.Parse(ch.EnvironmentID); err == nil {
 				item.EnvironmentID = generatedapi.NewOptUUID(id)
 			}
@@ -157,6 +159,7 @@ func (r *RestAPI) GetDashboardOverview(
 			if id, err := uuid.Parse(rf.ProjectID); err == nil {
 				item.ProjectID = generatedapi.NewOptUUID(id)
 			}
+			item.ProjectName = generatedapi.NewOptString(rf.ProjectName)
 			if id, err := uuid.Parse(rf.EnvironmentID); err == nil {
 				item.EnvironmentID = generatedapi.NewOptUUID(id)
 			}
@@ -182,6 +185,7 @@ func (r *RestAPI) GetDashboardOverview(
 			if id, err := uuid.Parse(ps.ProjectID); err == nil {
 				item.ProjectID = generatedapi.NewOptUUID(id)
 			}
+			item.ProjectName = generatedapi.NewOptString(ps.ProjectName)
 			if id, err := uuid.Parse(ps.EnvironmentID); err == nil {
 				item.EnvironmentID = generatedapi.NewOptUUID(id)
 			}

@@ -533,7 +533,7 @@ const DashboardPage: React.FC = () => {
                 subtitle="Health and feature totals per project"
                 data={data.projects || []}
                 columns={[
-                  { key: 'project_id', label: 'Project', width: '25%' },
+                  { key: 'project_name', label: 'Project', width: '25%', render: (value, row) => value || row.project_id || '—' },
                   { key: 'total_features', label: 'Total', align: 'right' },
                   { key: 'enabled_features', label: 'Enabled', align: 'right' },
                   { key: 'disabled_features', label: 'Disabled', align: 'right' },
@@ -711,7 +711,7 @@ const DashboardPage: React.FC = () => {
                 data={data.risky_features || []}
                 columns={[
                   { key: 'feature_name', label: 'Feature', width: '25%' },
-                  { key: 'project_id', label: 'Project', width: '20%' },
+                  { key: 'project_name', label: 'Project', width: '20%', render: (value, row) => value || row.project_id || '—' },
                   { 
                     key: 'risky_tags', 
                     label: 'Tags', 
@@ -815,7 +815,7 @@ const DashboardPage: React.FC = () => {
                 subtitle="Summary of pending changes across projects"
                 data={data.pending_summary || []}
                 columns={[
-                  { key: 'project_id', label: 'Project', width: '25%' },
+                  { key: 'project_name', label: 'Project', width: '25%', render: (value, row) => value || row.project_id || '—' },
                   { key: 'total_pending', label: 'Total', align: 'right' },
                   { key: 'pending_feature_changes', label: 'Feature Changes', align: 'right' },
                   { key: 'pending_guarded_changes', label: 'Guarded Changes', align: 'right' },

@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **string** |  | [optional] [default to undefined]
+**project_name** | **string** |  | [optional] [default to undefined]
 **environment_id** | **string** |  | [optional] [default to undefined]
 **environment_key** | **string** |  | [optional] [default to undefined]
 **total_pending** | **number** |  | [optional] [default to undefined]
@@ -20,6 +21,7 @@ import { PendingSummary } from './api';
 
 const instance: PendingSummary = {
     project_id,
+    project_name,
     environment_id,
     environment_key,
     total_pending,

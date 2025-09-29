@@ -14,6 +14,7 @@ const (
 
 type ProjectHealth struct {
 	ProjectID                  string
+	ProjectName                string
 	EnvironmentID              string
 	EnvironmentKey             string
 	TotalFeatures              uint
@@ -29,6 +30,7 @@ type ProjectHealth struct {
 
 type CategoryHealth struct {
 	ProjectID                  string
+	ProjectName                string
 	EnvironmentID              string
 	EnvironmentKey             string
 	CategoryID                 string
@@ -64,6 +66,7 @@ type RecentActivity struct {
 
 type RiskyFeature struct {
 	ProjectID      string
+	ProjectName    string
 	EnvironmentID  string
 	EnvironmentKey string
 	FeatureID      string
@@ -75,6 +78,7 @@ type RiskyFeature struct {
 
 type PendingSummary struct {
 	ProjectID             string
+	ProjectName           string
 	EnvironmentID         string
 	EnvironmentKey        string
 	TotalPending          uint

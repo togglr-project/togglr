@@ -6,6 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **project_id** | **string** |  | [optional] [default to undefined]
+**project_name** | **string** |  | [optional] [default to undefined]
 **environment_id** | **string** |  | [optional] [default to undefined]
 **environment_key** | **string** |  | [optional] [default to undefined]
 **feature_id** | **string** |  | [optional] [default to undefined]
@@ -21,6 +22,7 @@ import { RiskyFeature } from './api';
 
 const instance: RiskyFeature = {
     project_id,
+    project_name,
     environment_id,
     environment_key,
     feature_id,

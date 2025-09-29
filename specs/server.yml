@@ -7902,6 +7902,8 @@ components:
         project_id:
           type: string
           format: uuid
+        project_name:
+          type: string
         environment_id:
           type: string
           format: uuid
@@ -7941,6 +7943,8 @@ components:
         project_id:
           type: string
           format: uuid
+        project_name:
+          type: string
         environment_id:
           type: string
           format: uuid
@@ -8048,6 +8052,8 @@ components:
         project_id:
           type: string
           format: uuid
+        project_name:
+          type: string
         environment_id:
           type: string
           format: uuid
@@ -8071,6 +8077,8 @@ components:
         project_id:
           type: string
           format: uuid
+        project_name:
+          type: string
         environment_id:
           type: string
           format: uuid
