@@ -395,6 +395,28 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID, envKey string
 		return domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
 
+	// Check if feature is guarded
+	isGuarded, err := s.guardService.IsFeatureGuarded(ctx, id)
+	if err != nil {
+		return domain.GuardedResult{}, fmt.Errorf("check feature guarded: %w", err)
+	}
+
+	// If feature is not guarded, proceed with direct delete
+	if !isGuarded {
+		if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+			if err := s.repo.Delete(ctx, env.ID, id); err != nil {
+				return fmt.Errorf("delete feature: %w", err)
+			}
+
+			return nil
+		}); err != nil {
+			return domain.GuardedResult{}, fmt.Errorf("tx delete feature: %w", err)
+		}
+
+		return domain.GuardedResult{}, nil
+	}
+
+	// Feature is guarded - create pending change
 	// Use new guard engine
 	pendingChange, conflict, proceed, err := s.guardEngine.CheckGuardedOperation(
 		ctx,
@@ -428,18 +450,8 @@ func (s *Service) Delete(ctx context.Context, id domain.FeatureID, envKey string
 		return domain.GuardedResult{}, fmt.Errorf("unexpected guard result: no pending change but proceed=false")
 	}
 
-	// Feature is not guarded, proceed with normal delete
-	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		if err := s.repo.Delete(ctx, env.ID, id); err != nil {
-			return fmt.Errorf("delete feature: %w", err)
-		}
-
-		return nil
-	}); err != nil {
-		return domain.GuardedResult{}, fmt.Errorf("tx delete feature: %w", err)
-	}
-
-	return domain.GuardedResult{Pending: false}, nil
+	// This should never be reached for guarded features
+	return domain.GuardedResult{}, fmt.Errorf("unexpected: guarded feature but no pending change created")
 }
 
 func (s *Service) Toggle(
@@ -459,6 +471,44 @@ func (s *Service) Toggle(
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("get env: %w", err)
 	}
 
+	// Check if feature is guarded
+	isGuarded, err := s.guardService.IsFeatureGuarded(ctx, id)
+	if err != nil {
+		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("check feature guarded: %w", err)
+	}
+
+	// If feature is not guarded, proceed with direct update
+	if !isGuarded {
+		// Proceed with normal update of environment-specific params
+		var updated domain.Feature
+
+		if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+			// Update feature_params for this environment (enabled flag)
+			params := domain.FeatureParams{
+				FeatureID:     existing.ID,
+				EnvironmentID: env.ID,
+				Enabled:       enabled,
+				DefaultValue:  existing.DefaultValue,
+				UpdatedAt:     time.Now(),
+			}
+
+			if _, err := s.featureParamsRep.Update(ctx, existing.ProjectID, params); err != nil {
+				return fmt.Errorf("update feature params: %w", err)
+			}
+
+			// Update the feature object to return
+			updated = existing
+			updated.Enabled = enabled
+
+			return nil
+		}); err != nil {
+			return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("tx update feature: %w", err)
+		}
+
+		return updated, domain.GuardedResult{}, nil
+	}
+
+	// Feature is guarded - create pending change
 	// Create new feature with updated enabled status
 	newFeature := existing
 	newFeature.Enabled = enabled
@@ -496,36 +546,8 @@ func (s *Service) Toggle(
 		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("unexpected guard result: no pending change but proceed=false")
 	}
 
-	// Feature is not guarded, proceed with normal update of environment-specific params
-	var updated domain.Feature
-
-	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
-		// Update feature_params for this environment (enabled flag)
-		params := domain.FeatureParams{
-			FeatureID:     existing.ID,
-			EnvironmentID: env.ID,
-			Enabled:       enabled,
-			DefaultValue:  existing.DefaultValue,
-			UpdatedAt:     time.Now(),
-		}
-
-		if _, err := s.featureParamsRep.Update(ctx, existing.ProjectID, params); err != nil {
-			return fmt.Errorf("update feature params: %w", err)
-		}
-
-		// Reload feature with environment-specific fields
-		reloaded, err := s.repo.GetByIDWithEnv(ctx, id, envKey)
-		if err != nil {
-			return fmt.Errorf("reload feature after toggle: %w", err)
-		}
-		updated = reloaded
-
-		return nil
-	}); err != nil {
-		return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("tx toggle feature: %w", err)
-	}
-
-	return updated, domain.GuardedResult{Pending: false}, nil
+	// This should never be reached for guarded features
+	return domain.Feature{}, domain.GuardedResult{}, fmt.Errorf("unexpected: guarded feature but no pending change created")
 }
 
 // computeVariantChanges computes changes for flag variants by comparing existing and new variants.

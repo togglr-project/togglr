@@ -169,6 +169,7 @@ const EditFeatureDialog: React.FC<EditFeatureDialogProps> = ({ open, onClose, fe
 
   // Ensure segments is always an array
   const safeSegments = useMemo(() => {
+    if (!segments) return [];
     return Array.isArray(segments) ? segments : [];
   }, [segments]);
 

@@ -51,7 +51,8 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
 
   const getSegmentName = (segmentId: string | undefined) => {
     if (!segmentId) return 'user defined rule';
-    const found = segments?.find(s => s.id === segmentId);
+    if (!segments || !Array.isArray(segments)) return 'user defined rule';
+    const found = segments.find(s => s.id === segmentId);
     return found ? found.name : 'user defined rule';
   };
 
