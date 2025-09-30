@@ -45,7 +45,5 @@ export const useFeatureHasPendingChanges = (featureId: string, projectId?: strin
     )
   ) || false;
   
-  console.log('[useFeatureHasPendingChanges]', { featureId, projectId, hasPending, pendingChangesCount: pendingChanges?.length });
-  
   return hasPending;
 };

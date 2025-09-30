@@ -195,17 +195,6 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
   // Check if user can cancel (is the requester)
   const canCancel = user && user.id === pendingChange.request_user_id;
 
-  // Debug info (remove in production)
-  console.log('PendingChangeCard debug:', {
-    userId: user?.id,
-    requestUserId: pendingChange.request_user_id,
-    isSuperuser: user?.is_superuser,
-    projectPermissions: user?.project_permissions?.[pendingChange.project_id],
-    canApprove,
-    canCancel,
-    status: pendingChange.status
-  });
-
   return (
     <>
       <Card sx={{ mb: 2 }}>

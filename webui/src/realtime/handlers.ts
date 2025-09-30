@@ -15,7 +15,6 @@ export type RealtimeEvent = {
 const invalidateByPattern = (qc: QueryClient, pattern: (query: any) => boolean, description: string) => {
   try {
     qc.invalidateQueries({ predicate: pattern });
-    console.log(`[Realtime] Invalidated ${description}`);
   } catch (e) {
     console.error(`[Realtime] Error invalidating ${description}:`, e);
   }
@@ -25,7 +24,6 @@ const invalidateByPattern = (qc: QueryClient, pattern: (query: any) => boolean, 
 const refetchByPattern = (qc: QueryClient, pattern: (query: any) => boolean, description: string) => {
   try {
     qc.refetchQueries({ predicate: pattern });
-    console.log(`[Realtime] Refetching ${description}`);
   } catch (e) {
     console.error(`[Realtime] Error refetching ${description}:`, e);
   }
@@ -35,7 +33,6 @@ const refetchByPattern = (qc: QueryClient, pattern: (query: any) => boolean, des
 const invalidateByKey = (qc: QueryClient, keyPattern: any[], description: string) => {
   try {
     qc.invalidateQueries({ queryKey: keyPattern, exact: false });
-    console.log(`[Realtime] Invalidated ${description}`);
   } catch (e) {
     console.error(`[Realtime] Error invalidating ${description}:`, e);
   }
@@ -45,7 +42,6 @@ const invalidateByKey = (qc: QueryClient, keyPattern: any[], description: string
 const refetchByKey = (qc: QueryClient, keyPattern: any[], description: string) => {
   try {
     qc.refetchQueries({ queryKey: keyPattern, exact: false });
-    console.log(`[Realtime] Refetching ${description}`);
   } catch (e) {
     console.error(`[Realtime] Error refetching ${description}:`, e);
   }
@@ -298,8 +294,6 @@ export function handleEvent(qc: QueryClient | undefined, evt: RealtimeEvent) {
   }
 
   const { project_id: projectId, environment: envKey, entity, entity_id: entityId, type } = evt;
-  
-  console.log(`[Realtime] Handling event: ${type} for ${entity} ${entityId} in project ${projectId}`);
 
   // Check if this is a feature-related event
   const isFeatureEvent = type.startsWith('feature_');
