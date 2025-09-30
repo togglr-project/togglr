@@ -148,6 +148,20 @@ const handleFeaturePending = (qc: QueryClient, projectId: string, envKey: string
     (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
     'project-pending-changes queries'
   );
+  
+  // Invalidate pending changes count for menu badge
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
+    'pending-changes count queries (menu badge)'
+  );
+  
+  // Refetch pending changes count for menu badge
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
+    'pending-changes count queries (menu badge)'
+  );
 };
 
 // Handle feature deletion events
@@ -259,6 +273,20 @@ const handlePendingChangeEvent = (qc: QueryClient, projectId: string, envKey: st
     qc,
     (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
     'project-pending-changes queries'
+  );
+  
+  // Invalidate pending changes count for menu badge
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
+    'pending-changes count queries (menu badge)'
+  );
+  
+  // Refetch pending changes count for menu badge
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
+    'pending-changes count queries (menu badge)'
   );
 };
 
