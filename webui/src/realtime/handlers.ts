@@ -62,14 +62,21 @@ const handleFeatureUpdate = (qc: QueryClient, projectId: string, envKey: string,
     'project-features queries'
   );
   
-  // 2. Invalidate feature-details queries
+  // 2. Invalidate feature-details queries (for preview panel)
   invalidateByPattern(
     qc,
     (query) => query.queryKey[0] === 'feature-details' && query.queryKey[1] === featureId,
-    'feature-details queries'
+    'feature-details queries (preview panel)'
   );
   
-  // 3. Invalidate feature-names queries
+  // 3. Invalidate feature-changes queries (for preview panel)
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-changes' && query.queryKey[1] === featureId && query.queryKey[2] === projectId,
+    'feature-changes queries (preview panel)'
+  );
+  
+  // 4. Invalidate feature-names queries
   invalidateByPattern(
     qc,
     (query) => query.queryKey[0] === 'feature-names' && query.queryKey[1] === projectId,
@@ -97,7 +104,14 @@ const handleFeatureUpdate = (qc: QueryClient, projectId: string, envKey: string,
     'feature-details queries'
   );
   
-  // 7. Refetch all queries that contain projectId
+  // 7. Refetch feature-changes queries (for preview panel)
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-changes' && query.queryKey[1] === featureId && query.queryKey[2] === projectId,
+    'feature-changes queries (preview panel)'
+  );
+  
+  // 8. Refetch all queries that contain projectId
   refetchByPattern(
     qc,
     (query) => query.queryKey.includes(projectId),
@@ -175,10 +189,18 @@ const handleChildEntityEvent = (qc: QueryClient, projectId: string, envKey: stri
     'project-features queries (child entity)'
   );
   
+  // Invalidate all feature-details queries for this project
   invalidateByPattern(
     qc,
-    (query) => query.queryKey[0] === 'feature-details' && query.queryKey[1] === projectId,
+    (query) => query.queryKey[0] === 'feature-details',
     'feature-details queries (child entity)'
+  );
+  
+  // Invalidate all feature-changes queries for this project
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-changes' && query.queryKey[2] === projectId,
+    'feature-changes queries (child entity)'
   );
   
   invalidateByPattern(
@@ -192,6 +214,20 @@ const handleChildEntityEvent = (qc: QueryClient, projectId: string, envKey: stri
     qc,
     (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
     'project-features queries (child entity)'
+  );
+  
+  // Refetch all feature-details queries
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-details',
+    'feature-details queries (child entity)'
+  );
+  
+  // Refetch all feature-changes queries for this project
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-changes' && query.queryKey[2] === projectId,
+    'feature-changes queries (child entity)'
   );
 };
 
