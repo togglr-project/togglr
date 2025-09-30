@@ -26,10 +26,10 @@ func NewRoles(pool *pgxpool.Pool) *Roles {
 func (r *Roles) GetByKey(ctx context.Context, key string) (string, error) { // id
 	exec := getExecutor(ctx, r.db)
 
-	const q = `select id from roles where key = $1 limit 1`
+	const query = `select id from roles where key = $1 limit 1`
 
 	var id string
-	if err := exec.QueryRow(ctx, q, key).Scan(&id); err != nil {
+	if err := exec.QueryRow(ctx, query, key).Scan(&id); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", nil
 		}
@@ -59,14 +59,14 @@ func (r *Permissions) RoleHasPermission(
 ) (bool, error) {
 	exec := getExecutor(ctx, r.db)
 
-	const q = `select exists(
+	const query = `select exists(
 		select 1 from role_permissions rp
 		join permissions p on p.id = rp.permission_id
 		where rp.role_id = $1 and p.key = $2
 	)`
 
 	var has bool
-	if err := exec.QueryRow(ctx, q, roleID, string(key)).Scan(&has); err != nil {
+	if err := exec.QueryRow(ctx, query, roleID, string(key)).Scan(&has); err != nil {
 		return false, fmt.Errorf("role has permission: %w", err)
 	}
 
@@ -92,10 +92,10 @@ func (r *Memberships) GetForUserProject(
 ) (string, error) { // roleID
 	exec := getExecutor(ctx, r.db)
 
-	const q = `select role_id from memberships where project_id = $1::uuid and user_id = $2 limit 1`
+	const query = `select role_id from memberships where project_id = $1::uuid and user_id = $2 limit 1`
 
 	var roleID string
-	if err := exec.QueryRow(ctx, q, projectID, userID).Scan(&roleID); err != nil {
+	if err := exec.QueryRow(ctx, query, projectID, userID).Scan(&roleID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return "", nil
 		}
