@@ -13,3 +13,20 @@ ON CONFLICT DO NOTHING;
 
 -- project_member может только toggle/view/manage features,
 -- поэтому segment/schedule ему НЕ добавляем
+
+CREATE OR REPLACE VIEW v_role_permissions AS
+SELECT
+    r.id          AS role_id,
+    r.key         AS role_key,
+    r.name        AS role_name,
+    json_agg(
+            json_build_object(
+                    'key', p.key,
+                    'name', p.name
+            ) ORDER BY p.key
+    ) AS permissions
+FROM roles r
+LEFT JOIN role_permissions rp ON rp.role_id = r.id
+LEFT JOIN permissions p ON p.id = rp.permission_id
+GROUP BY r.id, r.key, r.name
+ORDER BY r.key;
