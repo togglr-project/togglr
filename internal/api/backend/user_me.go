@@ -38,7 +38,7 @@ func (r *RestAPI) GetCurrentUser(ctx context.Context) (generatedapi.GetCurrentUs
 			arr = append(arr, string(permKey))
 		}
 
-		projectPermissions[string(projectID)] = arr
+		projectPermissions[projectID.String()] = arr
 	}
 
 	return &generatedapi.User{
