@@ -12,6 +12,7 @@ import { Pending as PendingIcon } from '@mui/icons-material';
 import GuardResponseHandler from '../pending-changes/GuardResponseHandler';
 import { useApprovePendingChange } from '../../hooks/usePendingChanges';
 import type { AuthCredentialsMethodEnum } from '../../generated/api/client';
+import { useRBAC } from '../../auth/permissions';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -35,6 +36,9 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   });
 
   const projectId = featureDetails?.feature.project_id;
+  const rbac = useRBAC(projectId || '');
+  const canToggleFeature = rbac.canToggleFeature();
+  const canManageFeature = rbac.canManageFeature();
   const { data: segments } = useQuery<Segment[]>({
     queryKey: ['project-segments', projectId],
     queryFn: async () => {
@@ -122,7 +126,7 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
     return null;
   };
 
-  const canToggle = featureDetails ? Boolean(user?.is_superuser || user?.project_permissions?.[featureDetails.feature.project_id]?.includes('feature.toggle')) : false;
+  const canToggle = featureDetails ? canToggleFeature : false;
   
   // Check if feature has pending changes
   const hasPendingChanges = useFeatureHasPendingChanges(feature?.id || '', featureDetails?.feature.project_id);

@@ -17,6 +17,7 @@ import GuardResponseHandler from '../components/pending-changes/GuardResponseHan
 import { useApprovePendingChange } from '../hooks/usePendingChanges';
 import { useProjectPendingChanges } from '../hooks/useProjectPendingChanges';
 import type { AuthCredentialsMethodEnum } from '../generated/api/client';
+import { useRBAC } from '../auth/permissions';
 
 interface ProjectResponse { project: Project }
 
@@ -25,6 +26,9 @@ const ProjectPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  
+  // RBAC проверки для проекта
+  const rbac = useRBAC(projectId);
 
   const { data: projectResp, isLoading: loadingProject, error: projectError } = useQuery({
     queryKey: ['project', projectId],
@@ -126,13 +130,29 @@ const ProjectPage: React.FC = () => {
     forbiddenError?: string;
   }>({});
 
-  // Permission to toggle features in this project (superuser can always toggle)
-  const canToggleFeature = Boolean(user?.is_superuser || user?.project_permissions?.[projectId]?.includes('feature.toggle'));
+  // Permission to toggle features in this project
+  const canToggleFeature = rbac.canToggleFeature();
 
   // Get pending changes for the project
   const { data: pendingChanges } = useProjectPendingChanges(projectId);
 
   const approveMutation = useApprovePendingChange();
+
+  // Check project access
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   // Toggle mutation
   const toggleMutation = useMutation({
@@ -233,9 +253,11 @@ const ProjectPage: React.FC = () => {
       <Paper id="features" sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Features</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)} size="small">
-            Add Feature
-          </Button>
+          {rbac.canManageFeature() && (
+            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpen(true)} size="small">
+              Add Feature
+            </Button>
+          )}
         </Box>
 
         {/* Environment selector */}

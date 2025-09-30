@@ -28,6 +28,7 @@ import SearchPanel from '../components/SearchPanel';
 import ConditionExpressionBuilder from '../components/conditions/ConditionExpressionBuilder';
 import apiClient from '../api/apiClient';
 import type { Project, Segment, RuleConditionExpression, ListProjectSegmentsSortByEnum, SortOrder, ListSegmentsResponse } from '../generated/api/client';
+import { useRBAC } from '../auth/permissions';
 
 interface ProjectResponse { project: Project }
 
@@ -285,6 +286,25 @@ const ProjectSegmentsPage: React.FC = () => {
   const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
   const [syncOpen, setSyncOpen] = useState(false);
   const [segmentId, setSegmentId] = useState<string>('');
+  
+  // RBAC checks for current project
+  const rbac = useRBAC(projectId);
+
+  // Check project access
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   const handleSyncCustomized = (segId: string) => {
     setSegmentId(segId);
@@ -370,9 +390,11 @@ const ProjectSegmentsPage: React.FC = () => {
       <Paper sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Segments</Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)} size="small">
-            Add Segment
-          </Button>
+          {rbac.canManageSegment() && (
+            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)} size="small">
+              Add Segment
+            </Button>
+          )}
         </Box>
 
         {/* Search and filters */}
@@ -441,27 +463,29 @@ const ProjectSegmentsPage: React.FC = () => {
                       <SegmentDesyncCount segmentId={s.id} />
                     </Box>
                   </Box>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Tooltip title="Edit">
-                      <span>
-                        <IconButton onClick={() => setEditData(s)} aria-label="edit-segment">
-                          <EditIcon />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                    <Tooltip title="Delete">
-                      <span>
-                        <IconButton 
-                          onClick={() => setConfirmDelete(s)} 
-                          aria-label="delete-segment" 
-                          disabled={deleteMutation.isPending}
-                          sx={{ color: 'error.main' }}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  </Box>
+                  {rbac.canManageSegment() && (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Tooltip title="Edit">
+                        <span>
+                          <IconButton onClick={() => setEditData(s)} aria-label="edit-segment">
+                            <EditIcon />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <span>
+                          <IconButton 
+                            onClick={() => setConfirmDelete(s)} 
+                            aria-label="delete-segment" 
+                            disabled={deleteMutation.isPending}
+                            sx={{ color: 'error.main' }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </span>
+                      </Tooltip>
+                    </Box>
+                  )}
                 </Paper>
               ))}
             </Box>

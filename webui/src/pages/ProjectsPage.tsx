@@ -15,8 +15,8 @@ import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
 import CreateProjectDialog from '../components/admin/CreateProjectDialog';
-import { userPermissions } from '../hooks/userPermissions';
 import ProjectCard from '../components/projects/ProjectCard';
+import { useRBAC } from '../auth/permissions';
 
 interface Project {
   id: string;
@@ -27,9 +27,9 @@ interface Project {
 
 const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
-  const { canCreateProjects } = userPermissions();
+  const rbac = useRBAC(); // Для проверки суперюзера
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -41,6 +41,20 @@ const ProjectsPage: React.FC = () => {
       return res.data;
     },
   });
+
+  // Фильтрация проектов по правам доступа
+  const accessibleProjects = React.useMemo(() => {
+    if (!projects || !user) return [];
+    
+    // Если пользователь суперюзер, показываем все проекты
+    if (user.is_superuser) return projects;
+    
+    // Иначе фильтруем по project_permissions
+    return projects.filter(project => {
+      const permissions = user.project_permissions?.[project.id];
+      return permissions && permissions.includes('project.view');
+    });
+  }, [projects, user]);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -84,7 +98,7 @@ const ProjectsPage: React.FC = () => {
           <Typography variant="h6" sx={{ color: 'primary.light' }}>
             Projects
           </Typography>
-          {canCreateProjects() && (
+          {rbac.isSuperuser && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -103,9 +117,9 @@ const ProjectsPage: React.FC = () => {
           </Box>
         ) : error ? (
           <Typography color="error">Failed to load projects.</Typography>
-        ) : projects && projects.length > 0 ? (
+        ) : accessibleProjects && accessibleProjects.length > 0 ? (
           <Grid container spacing={1.5}>
-            {projects.map((project: Project) => (
+            {accessibleProjects.map((project: Project) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={project.id}>
                 <ProjectCard
                   id={project.id}

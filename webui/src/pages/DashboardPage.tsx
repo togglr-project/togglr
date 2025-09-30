@@ -51,6 +51,7 @@ import PageHeader from '../components/PageHeader';
 import { useAuth } from '../auth/AuthContext';
 import apiClient from '../api/apiClient';
 import type { DashboardOverviewResponse, Project } from '../generated/api/client';
+import { useRBAC } from '../auth/permissions';
 
 const useQueryParam = (key: string) => {
   const location = useLocation();
@@ -313,7 +314,7 @@ const SectionTitle: React.FC<{ title: string; subtitle?: string }> = ({ title, s
 );
 
 const DashboardPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -339,6 +340,20 @@ const DashboardPage: React.FC = () => {
     queryKey: ['projects'],
     queryFn: async () => (await apiClient.listProjects()).data,
   });
+
+  // Filter projects by access permissions
+  const accessibleProjects = useMemo(() => {
+    if (!projects || !user) return [];
+    
+    // If user is superuser, show all projects
+    if (user.is_superuser) return projects;
+    
+    // Otherwise filter by project_permissions
+    return projects.filter(project => {
+      const permissions = user.project_permissions?.[project.id];
+      return permissions && permissions.includes('project.view');
+    });
+  }, [projects, user]);
 
   // Dashboard data
   const { data, isLoading, error, refetch, isFetching } = useQuery<DashboardOverviewResponse>({
@@ -420,7 +435,7 @@ const DashboardPage: React.FC = () => {
               <MenuItem value="">
                 <em>All projects</em>
               </MenuItem>
-              {projects?.map((p) => (
+              {accessibleProjects?.map((p) => (
                 <MenuItem key={p.id} value={p.id}>{p.name}</MenuItem>
               ))}
             </Select>

@@ -23,6 +23,7 @@ import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import { Assignment as ChangesIcon } from '@mui/icons-material';
 import type { PendingChangeResponseStatusEnum } from '../generated/api/client';
+import { useRBAC } from '../auth/permissions';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -51,6 +52,40 @@ const PendingChangesPage: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
   const [statusFilter, setStatusFilter] = useState<PendingChangeResponseStatusEnum | undefined>('pending');
   const [environmentKey, setEnvironmentKey] = useState<string>('prod');
+  
+  // RBAC checks for current project
+  const rbac = useRBAC(projectId);
+
+  // Check project access and audit permissions
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
+
+  if (!rbac.canViewAudit()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view audit logs and change requests.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   // Load environments for the project
   const { data: environmentsResp, isLoading: loadingEnvironments } = useQuery({

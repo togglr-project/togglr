@@ -20,6 +20,7 @@ import {
 import type { FeatureExtended } from '../../generated/api/client';
 import { getNextStateDescription } from '../../utils/timeUtils';
 import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
+import { useRBAC } from '../../auth/permissions';
 
 interface FeatureCardProps {
   feature: FeatureExtended;
@@ -46,6 +47,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 }) => {
   // Check if feature has pending changes
   const hasPendingChanges = useFeatureHasPendingChanges(feature.id, projectId);
+
+  // RBAC: compute manage capability for edit action
+  const rbac = useRBAC(projectId || '');
+  const canManageFeature = rbac.canManageFeature();
+
   const getKindColor = (kind: string) => {
     switch (kind) {
       case 'simple': return 'warning';
@@ -53,7 +59,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
       default: return 'default';
     }
   };
-
 
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -236,21 +241,23 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
             
             {/* Actions */}
             <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
-              <Tooltip title={hasPendingChanges ? "Cannot edit: feature has pending changes" : "Edit feature"}>
-                <span>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => onEdit(feature)}
-                    disabled={hasPendingChanges}
-                    sx={{ 
-                      opacity: hasPendingChanges ? 0.5 : 1,
-                      cursor: hasPendingChanges ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </span>
-              </Tooltip>
+              {canManageFeature && (
+                <Tooltip title={hasPendingChanges ? "Cannot edit: feature has pending changes" : "Edit feature"}>
+                  <span>
+                    <IconButton 
+                      size="small" 
+                      onClick={() => onEdit(feature)}
+                      disabled={hasPendingChanges}
+                      sx={{ 
+                        opacity: hasPendingChanges ? 0.5 : 1,
+                        cursor: hasPendingChanges ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              )}
               <Tooltip title="View details">
                 <IconButton size="small" onClick={() => onView(feature)}>
                   <ViewIcon fontSize="small" />

@@ -45,6 +45,7 @@ import ThemeToggle from './ThemeToggle';
 import Breadcrumbs from './Breadcrumbs';
 // import SkipLink from './SkipLink';
 import WardenLogo from "./WardenLogo.tsx";
+import { useRBAC } from '../auth/permissions';
 
 // Component for showing pending changes count badge
 const PendingChangesBadge: React.FC<{ projectId: string }> = ({ projectId }) => {
@@ -144,6 +145,9 @@ const Layout: React.FC<LayoutProps> = ({
     const projectMatch = location.pathname.match(/^\/projects\/([^/]+)/);
     const currentProjectId = projectMatch ? projectMatch[1] : null;
     const showProjectSidebar = Boolean(currentProjectId);
+    
+    // RBAC checks for current project
+    const rbac = useRBAC(currentProjectId);
 
   // Check if the current path matches the menu item path
   const isActive = (path: string) => {
@@ -414,96 +418,100 @@ const Layout: React.FC<LayoutProps> = ({
               </ListItem>
 
               {/* Segments menu item */}
-              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                    py: 1.2,
-                    borderRadius: 2,
-                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? (
-                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
-                    ) : 'transparent',
-                    '&:hover': {
-                      backgroundColor: theme.palette.mode === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.06)' 
-                        : 'rgba(130, 82, 255, 0.06)',
-                    },
-                  }}
-                  onClick={() => {
-                    if (currentProjectId) navigate(`/projects/${currentProjectId}/segments`);
-                  }}
-                >
-                  <ListItemIcon
+              {rbac.canManageSegment() && (
+                <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 'primary.main' : 'inherit',
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      py: 1.2,
+                      borderRadius: 2,
+                      backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? (
+                        theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                      ) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)' 
+                          : 'rgba(130, 82, 255, 0.06)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (currentProjectId) navigate(`/projects/${currentProjectId}/segments`);
                     }}
                   >
-                    <PeopleIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={'Segments'} 
-                    primaryTypographyProps={{
-                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 600 : 500,
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 'primary.main' : 'inherit',
-                    }}
-                    sx={{ 
-                      opacity: open ? 1 : 0,
-                      ml: 0.5,
-                    }} 
-                  />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 'primary.main' : 'inherit',
+                      }}
+                    >
+                      <PeopleIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={'Segments'} 
+                      primaryTypographyProps={{
+                        fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 600 : 500,
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/segments`) ? 'primary.main' : 'inherit',
+                      }}
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        ml: 0.5,
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )}
 
               {/* Scheduling menu item */}
-              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                    py: 1.2,
-                    borderRadius: 2,
-                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? (
-                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
-                    ) : 'transparent',
-                    '&:hover': {
-                      backgroundColor: theme.palette.mode === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.06)'
-                        : 'rgba(130, 82, 255, 0.06)',
-                    },
-                  }}
-                  onClick={() => {
-                    if (currentProjectId) navigate(`/projects/${currentProjectId}/scheduling`);
-                  }}
-                >
-                  <ListItemIcon
+              {rbac.canManageSchedule() && (
+                <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 'primary.main' : 'inherit',
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      py: 1.2,
+                      borderRadius: 2,
+                      backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? (
+                        theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                      ) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)'
+                          : 'rgba(130, 82, 255, 0.06)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (currentProjectId) navigate(`/projects/${currentProjectId}/scheduling`);
                     }}
                   >
-                    <ScheduleIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={'Scheduling'} 
-                    primaryTypographyProps={{
-                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 600 : 500,
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 'primary.main' : 'inherit',
-                    }}
-                    sx={{ 
-                      opacity: open ? 1 : 0,
-                      ml: 0.5,
-                    }} 
-                  />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 'primary.main' : 'inherit',
+                      }}
+                    >
+                      <ScheduleIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={'Scheduling'} 
+                      primaryTypographyProps={{
+                        fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 600 : 500,
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/scheduling`) ? 'primary.main' : 'inherit',
+                      }}
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        ml: 0.5,
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )}
 
               {/* Tags menu item */}
               <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
@@ -552,103 +560,107 @@ const Layout: React.FC<LayoutProps> = ({
               </ListItem>
 
               {/* Change Requests menu item */}
-              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                    py: 1.2,
-                    borderRadius: 2,
-                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? (
-                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
-                    ) : 'transparent',
-                    '&:hover': {
-                      backgroundColor: theme.palette.mode === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.06)' 
-                        : 'rgba(130, 82, 255, 0.06)',
-                    },
-                  }}
-                  onClick={() => {
-                    if (currentProjectId) navigate(`/projects/${currentProjectId}/pending-changes`);
-                  }}
-                >
-                  <ListItemIcon
+              {rbac.canViewAudit() && (
+                <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      py: 1.2,
+                      borderRadius: 2,
+                      backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? (
+                        theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                      ) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)' 
+                          : 'rgba(130, 82, 255, 0.06)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (currentProjectId) navigate(`/projects/${currentProjectId}/pending-changes`);
                     }}
                   >
-                    <ChangesIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <span>Change Requests</span>
-                        {currentProjectId && (
-                          <PendingChangesBadge projectId={currentProjectId} />
-                        )}
-                      </Box>
-                    }
-                    primaryTypographyProps={{
-                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 600 : 500,
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
-                    }}
-                    sx={{ 
-                      opacity: open ? 1 : 0,
-                      ml: 0.5,
-                    }} 
-                  />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
+                      }}
+                    >
+                      <ChangesIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <span>Change Requests</span>
+                          {currentProjectId && (
+                            <PendingChangesBadge projectId={currentProjectId} />
+                          )}
+                        </Box>
+                      }
+                      primaryTypographyProps={{
+                        fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 600 : 500,
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/pending-changes`) ? 'primary.main' : 'inherit',
+                      }}
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        ml: 0.5,
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )}
 
               {/* Project Settings menu item */}
-              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
-                <ListItemButton
-                  sx={{
-                    minHeight: 48,
-                    justifyContent: open ? 'initial' : 'center',
-                    px: 2.5,
-                    py: 1.2,
-                    borderRadius: 2,
-                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? (
-                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
-                    ) : 'transparent',
-                    '&:hover': {
-                      backgroundColor: theme.palette.mode === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.06)'
-                        : 'rgba(130, 82, 255, 0.06)',
-                    },
-                  }}
-                  onClick={() => {
-                    if (currentProjectId) navigate(`/projects/${currentProjectId}/settings`);
-                  }}
-                >
-                  <ListItemIcon
+              {rbac.canManageProject() && (
+                <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                  <ListItemButton
                     sx={{
-                      minWidth: 0,
-                      mr: open ? 3 : 'auto',
-                      justifyContent: 'center',
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 'primary.main' : 'inherit',
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      py: 1.2,
+                      borderRadius: 2,
+                      backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? (
+                        theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                      ) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)'
+                          : 'rgba(130, 82, 255, 0.06)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (currentProjectId) navigate(`/projects/${currentProjectId}/settings`);
                     }}
                   >
-                    <SettingsIcon />
-                  </ListItemIcon>
-                  <ListItemText 
-                    primary={'Project Settings'} 
-                    primaryTypographyProps={{
-                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 600 : 500,
-                      color: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 'primary.main' : 'inherit',
-                    }}
-                    sx={{ 
-                      opacity: open ? 1 : 0,
-                      ml: 0.5,
-                    }} 
-                  />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 'primary.main' : 'inherit',
+                      }}
+                    >
+                      <SettingsIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={'Project Settings'} 
+                      primaryTypographyProps={{
+                        fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 600 : 500,
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 'primary.main' : 'inherit',
+                      }}
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        ml: 0.5,
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )}
             </List>
             <Divider sx={{ my: 2, mx: 2 }} />
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>

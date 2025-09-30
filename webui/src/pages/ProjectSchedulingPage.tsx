@@ -43,6 +43,7 @@ import type { AuthCredentialsMethodEnum } from '../generated/api/client';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import { useAuth } from '../auth/AuthContext';
 import SearchPanel from '../components/SearchPanel';
+import { useRBAC } from '../auth/permissions';
 import TimelineChart from '../components/TimelineChart';
 import ScheduleBuilder from '../components/ScheduleBuilder';
 import OneShotScheduleDialog from '../components/OneShotScheduleDialog';
@@ -157,6 +158,25 @@ const ProjectSchedulingPage: React.FC = () => {
     // Try to get from localStorage first, fallback to 'prod'
     return localStorage.getItem('currentEnvironmentKey') || 'prod';
   });
+  
+  // RBAC checks for current project
+  const rbac = useRBAC(projectId);
+
+  // Check project access
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
@@ -686,41 +706,50 @@ const ProjectSchedulingPage: React.FC = () => {
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>
-              {canAddRecurringSchedule(schedulesByFeature[f.id] || []) ? (
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button 
-                    variant="contained" 
-                    startIcon={<AddIcon />} 
-                    onClick={(e) => { e.stopPropagation(); openScheduleBuilder(f); }}
-                    size="small"
-                  >
-                    Recurring
-                  </Button>
+              {rbac.canManageSchedule() ? (
+                canAddRecurringSchedule(schedulesByFeature[f.id] || []) ? (
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button 
+                      variant="contained" 
+                      startIcon={<AddIcon />} 
+                      onClick={(e) => { e.stopPropagation(); openScheduleBuilder(f); }}
+                      size="small"
+                    >
+                      Recurring
+                    </Button>
+                    <Button 
+                      variant="outlined" 
+                      startIcon={<AddIcon />} 
+                      onClick={(e) => { e.stopPropagation(); openOneShotDialog(f); }}
+                      size="small"
+                    >
+                      One-shot
+                    </Button>
+                  </Box>
+                ) : canAddOneShotSchedule(schedulesByFeature[f.id] || []) ? (
                   <Button 
                     variant="outlined" 
                     startIcon={<AddIcon />} 
                     onClick={(e) => { e.stopPropagation(); openOneShotDialog(f); }}
                     size="small"
                   >
-                    One-shot
+                    Add One-shot
                   </Button>
-                </Box>
-              ) : canAddOneShotSchedule(schedulesByFeature[f.id] || []) ? (
-                <Button 
-                  variant="outlined" 
-                  startIcon={<AddIcon />} 
-                  onClick={(e) => { e.stopPropagation(); openOneShotDialog(f); }}
-                  size="small"
-                >
-                  Add One-shot
-                </Button>
+                ) : (
+                  <Chip 
+                    size="small" 
+                    label="Recurring schedule exists" 
+                    color="warning" 
+                    variant="outlined"
+                    icon={<ScheduleIcon />}
+                  />
+                )
               ) : (
                 <Chip 
                   size="small" 
-                  label="Recurring schedule exists" 
-                  color="warning" 
+                  label="No permission to manage schedules" 
+                  color="default" 
                   variant="outlined"
-                  icon={<ScheduleIcon />}
                 />
               )}
             </Box>
@@ -759,24 +788,26 @@ const ProjectSchedulingPage: React.FC = () => {
                         )}
                         <Typography variant="caption" color="text.secondary">Timezone: {s.timezone}</Typography>
                       </Box>
-                      <Box>
-                        <Tooltip title="Edit schedule">
-                          <IconButton onClick={() => openEdit(f, s)} size="small"><EditIcon /></IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete schedule">
-                          <IconButton
-                            color="error"
-                            onClick={() => {
-                              const confirmed = window.confirm('Delete the schedule? This action is irreversible.');
-                              if (confirmed) {
-                                deleteMut.mutate({ scheduleId: s.id });
-                              }
-                            }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
+                      {rbac.canManageSchedule() && (
+                        <Box>
+                          <Tooltip title="Edit schedule">
+                            <IconButton onClick={() => openEdit(f, s)} size="small"><EditIcon /></IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete schedule">
+                            <IconButton
+                              color="error"
+                              onClick={() => {
+                                const confirmed = window.confirm('Delete the schedule? This action is irreversible.');
+                                if (confirmed) {
+                                  deleteMut.mutate({ scheduleId: s.id });
+                                }
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Box>
+                      )}
                     </Paper>
                   ))}
                 </Box>
