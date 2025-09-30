@@ -11,9 +11,10 @@ const getConfig = () => {
   // Fallback to build-time environment variables
   return {
     API_BASE_URL: import.meta.env.VITE_API_BASE_URL || '/',
+    WS_BASE_URL: import.meta.env.VITE_WS_BASE_URL || '',
     VERSION: import.meta.env.VITE_VERSION || 'dev',
     BUILD_TIME: import.meta.env.VITE_BUILD_TIME || new Date().toISOString(),
-  };
+  } as Window['TOGGLR_CONFIG'];
 };
 
 const config = getConfig();

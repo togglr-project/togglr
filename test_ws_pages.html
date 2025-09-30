@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Pages Test</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .log { margin: 5px 0; padding: 5px; border-left: 3px solid #ccc; }
+        .error { border-left-color: #f00; background: #ffe6e6; }
+        .success { border-left-color: #0f0; background: #e6ffe6; }
+        .info { border-left-color: #00f; background: #e6f3ff; }
+        .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Pages Test</h1>
+    <div id="logs"></div>
+    
+    <div class="test-section">
+        <h3>Test Different Pages</h3>
+        <button onclick="testPage('/')">Home Page</button>
+        <button onclick="testPage('/login')">Login Page</button>
+        <button onclick="testPage('/projects')">Projects List</button>
+        <button onclick="testPage('/projects/test-project')">Project Page</button>
+        <button onclick="testPage('/projects/test-project/features')">Project Features</button>
+        <button onclick="testPage('/projects/test-project/settings')">Project Settings</button>
+        <button onclick="testPage('/admin')">Admin Page</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Current Status</h3>
+        <div id="status">Ready to test</div>
+    </div>
+    
+    <script>
+        let currentWS = null;
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `log ${type}`;
+            div.textContent = new Date().toISOString() + ': ' + message;
+            document.getElementById('logs').appendChild(div);
+            console.log(message);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+        }
+        
+        function testPage(path) {
+            log(`=== Testing page: ${path} ===`, 'info');
+            
+            // Close existing WebSocket
+            if (currentWS) {
+                currentWS.close();
+                currentWS = null;
+            }
+            
+            // Simulate navigation
+            window.history.pushState({}, '', path);
+            
+            // Simulate the logic from App.tsx
+            const fromStorage = (keys) => {
+                for (const k of keys) {
+                    const v = localStorage.getItem(k);
+                    if (v) return v;
+                }
+                return '';
+            };
+            
+            const projectId = fromStorage(['currentProjectId', 'selectedProjectId', 'projectId']);
+            const envId = fromStorage(['currentEnvId', 'selectedEnvironmentId', 'environmentId', 'env_id', 'activeEnvironmentId']);
+            const token = localStorage.getItem('accessToken');
+            
+            // Check if we're on a project-related page
+            const isProjectPage = path.startsWith('/projects/') && path !== '/projects';
+            const shouldConnectWS = isProjectPage && projectId && envId;
+            
+            log(`Project ID: ${projectId || 'none'}`, 'info');
+            log(`Environment ID: ${envId || 'none'}`, 'info');
+            log(`Token: ${token ? 'present' : 'missing'}`, 'info');
+            log(`Is Project Page: ${isProjectPage}`, 'info');
+            log(`Should Connect WS: ${shouldConnectWS}`, 'info');
+            
+            if (shouldConnectWS) {
+                log('✅ WebSocket should connect', 'success');
+                updateStatus('WebSocket should connect', 'success');
+                
+                // Actually connect for testing
+                const wsUrl = `ws://localhost:8082/api/ws?project_id=${projectId}&env_id=${envId}`;
+                const protocols = token ? [`bearer,${token}`] : [];
+                
+                log(`Connecting to: ${wsUrl}`, 'info');
+                
+                currentWS = new WebSocket(wsUrl, protocols);
+                
+                currentWS.onopen = function(event) {
+                    log('✅ WebSocket connected!', 'success');
+                    updateStatus('WebSocket connected', 'success');
+                };
+                
+                currentWS.onclose = function(event) {
+                    log(`❌ WebSocket closed: code=${event.code}, reason="${event.reason}"`, 'error');
+                    updateStatus('WebSocket closed', 'error');
+                };
+                
+                currentWS.onerror = function(event) {
+                    log('❌ WebSocket error', 'error');
+                    updateStatus('WebSocket error', 'error');
+                };
+                
+                currentWS.onmessage = function(event) {
+                    log('📨 Message received: ' + event.data, 'success');
+                };
+                
+            } else {
+                log('⏭️ WebSocket should NOT connect', 'info');
+                updateStatus('WebSocket should NOT connect', 'info');
+            }
+        }
+        
+        // Set up some test data
+        localStorage.setItem('currentProjectId', 'test-project');
+        localStorage.setItem('currentEnvId', '1');
+        localStorage.setItem('accessToken', 'test-token-123');
+        
+        log('Test data set up:', 'info');
+        log(`Project ID: ${localStorage.getItem('currentProjectId')}`, 'info');
+        log(`Environment ID: ${localStorage.getItem('currentEnvId')}`, 'info');
+        log(`Token: ${localStorage.getItem('accessToken') ? 'present' : 'missing'}`, 'info');
+        
+        // Test current page
+        testPage(window.location.pathname);
+    </script>
+</body>
+</html>

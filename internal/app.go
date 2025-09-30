@@ -593,7 +593,7 @@ func (app *App) newWSServer() (*httpserver.Server, error) {
 		middlewares.WithRawRequest(
 			middlewares.RequestIDMdw(
 				middlewares.ActorMdw(
-					middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(wsapi.New(rtSvc.Broadcaster())),
+					middlewares.WSAuthMiddleware(tokenizerSrv, usersSrv)(wsapi.New(rtSvc.Broadcaster())),
 					domain.AuditActorUser,
 				),
 			),

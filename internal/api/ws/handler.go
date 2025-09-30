@@ -22,19 +22,23 @@ func New(broadcaster contract.RealtimeBroadcaster) *Handler {
 }
 
 func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
+	// Log connection attempt
+	projectID := domain.ProjectID(req.URL.Query().Get("project_id"))
+	_ = req.Header.Get("Sec-WebSocket-Protocol")
+
 	conn, err := upgrader.Upgrade(writer, req, nil)
 	if err != nil {
 		http.Error(writer, "upgrade failed", http.StatusBadRequest)
 		return
 	}
 
-	projectID := domain.ProjectID(req.URL.Query().Get("project_id"))
 	if projectID == "" {
 		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "project_id required"),
 			time.Now().Add(time.Second))
 		_ = conn.Close()
 		return
 	}
+
 	var envID int64
 	if v := req.URL.Query().Get("env_id"); v != "" {
 		if id, err := strconv.ParseInt(v, 10, 64); err == nil {

@@ -56,7 +56,21 @@ const ProjectPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
   const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
-  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
+  const [environmentKey, setEnvironmentKey] = useState<string>(() => {
+    // Try to get from localStorage first, fallback to 'prod'
+    return localStorage.getItem('currentEnvironmentKey') || 'prod';
+  });
+
+  // Initialize environment ID in localStorage when environments are loaded
+  React.useEffect(() => {
+    if (environments.length > 0 && environmentKey) {
+      const currentEnv = environments.find(env => env.key === environmentKey);
+      if (currentEnv && !localStorage.getItem('currentEnvId')) {
+        localStorage.setItem('currentEnvId', currentEnv.id.toString());
+        console.log('[ProjectPage] Initialized environment ID in localStorage:', { id: currentEnv.id, key: currentEnv.key });
+      }
+    }
+  }, [environments, environmentKey]);
 
   const effectiveSearch = search.trim();
   const minSearch = effectiveSearch.length >= 3 ? effectiveSearch : undefined;
@@ -226,11 +240,20 @@ const ProjectPage: React.FC = () => {
             <Select
               value={environmentKey}
               label="Environment"
-              onChange={(e) => setEnvironmentKey(e.target.value)}
+              onChange={(e) => {
+                setEnvironmentKey(e.target.value);
+                // Find the environment ID and save it to localStorage
+                const selectedEnv = environments.find(env => env.key === e.target.value);
+                if (selectedEnv) {
+                  localStorage.setItem('currentEnvId', selectedEnv.id.toString());
+                  localStorage.setItem('currentEnvironmentKey', selectedEnv.key);
+                  console.log('[ProjectPage] Saved environment to localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
+                }
+              }}
               disabled={loadingEnvironments}
             >
               {environments.map((env) => (
-                <MenuItem key={env.id} value={env.key}>
+                <MenuItem key={env.id} value={env.key} data-env-id={env.id}>
                   {env.name} ({env.key})
                 </MenuItem>
               ))}

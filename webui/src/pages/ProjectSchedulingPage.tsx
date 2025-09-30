@@ -153,7 +153,10 @@ const ProjectSchedulingPage: React.FC = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { user } = useAuth();
-  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
+  const [environmentKey, setEnvironmentKey] = useState<string>(() => {
+    // Try to get from localStorage first, fallback to 'prod'
+    return localStorage.getItem('currentEnvironmentKey') || 'prod';
+  });
 
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
@@ -174,6 +177,17 @@ const ProjectSchedulingPage: React.FC = () => {
     enabled: !!projectId,
   });
   const environments = environmentsResp?.items ?? [];
+
+  // Initialize environment ID in localStorage when environments are loaded
+  React.useEffect(() => {
+    if (environments.length > 0 && environmentKey) {
+      const currentEnv = environments.find((env: any) => env.key === environmentKey);
+      if (currentEnv && !localStorage.getItem('currentEnvId')) {
+        localStorage.setItem('currentEnvId', currentEnv.id.toString());
+        console.log('[ProjectSchedulingPage] Initialized environment ID in localStorage:', { id: currentEnv.id, key: currentEnv.key });
+      }
+    }
+  }, [environments, environmentKey]);
 
   // Filters, sorting and pagination state for features
   const [search, setSearch] = useState('');
@@ -822,11 +836,20 @@ const ProjectSchedulingPage: React.FC = () => {
               <Select
                 label="Environment"
                 value={environmentKey}
-                onChange={(e) => setEnvironmentKey(e.target.value)}
+                onChange={(e) => {
+                  setEnvironmentKey(e.target.value);
+                  // Find the environment ID and save it to localStorage
+                  const selectedEnv = environments.find((env: any) => env.key === e.target.value);
+                  if (selectedEnv) {
+                    localStorage.setItem('currentEnvId', selectedEnv.id.toString());
+                    localStorage.setItem('currentEnvironmentKey', selectedEnv.key);
+                    console.log('[ProjectSchedulingPage] Saved environment to localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
+                  }
+                }}
                 disabled={loadingEnvironments}
               >
                 {environments.map((env: any) => (
-                  <MenuItem key={env.id} value={env.key}>
+                  <MenuItem key={env.id} value={env.key} data-env-id={env.id}>
                     {env.name} ({env.key})
                   </MenuItem>
                 ))}
