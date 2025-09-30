@@ -54,6 +54,7 @@ import (
 	"github.com/togglr-project/togglr/internal/services/ldap"
 	"github.com/togglr-project/togglr/internal/services/notification-channels/email"
 	"github.com/togglr-project/togglr/internal/services/permissions"
+	realtimechanges "github.com/togglr-project/togglr/internal/services/realtime-changes"
 	ssoprovidermanager "github.com/togglr-project/togglr/internal/services/sso/provider-manager"
 	samlprovider "github.com/togglr-project/togglr/internal/services/sso/saml"
 	"github.com/togglr-project/togglr/internal/services/tokenizer"
@@ -70,7 +71,6 @@ import (
 	productinfousecase "github.com/togglr-project/togglr/internal/usecases/productinfo"
 	projectsettingsusecase "github.com/togglr-project/togglr/internal/usecases/project-settings"
 	projectsusecase "github.com/togglr-project/togglr/internal/usecases/projects"
-	realtimeusecase "github.com/togglr-project/togglr/internal/usecases/realtime"
 	ruleattributesusecase "github.com/togglr-project/togglr/internal/usecases/ruleattributes"
 	rulesusecase "github.com/togglr-project/togglr/internal/usecases/rules"
 	segmentsusecase "github.com/togglr-project/togglr/internal/usecases/segments"
@@ -268,7 +268,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(projectsettingsusecase.New)
 	app.registerComponent(environmentsusecase.New)
 	app.registerComponent(dashboardusecase.New)
-	app.registerComponent(realtimeusecase.New)
+	app.registerComponent(realtimechanges.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,
@@ -585,7 +585,7 @@ func (app *App) newWSServer() (*httpserver.Server, error) {
 		return nil, fmt.Errorf("resolve users service component: %w", err)
 	}
 
-	var rtSvc *realtimeusecase.Service
+	var rtSvc *realtimechanges.Service
 	if err := app.container.Resolve(&rtSvc); err != nil {
 		return nil, fmt.Errorf("resolve realtime service component: %w", err)
 	}

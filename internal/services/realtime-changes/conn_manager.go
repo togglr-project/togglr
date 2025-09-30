@@ -1,4 +1,4 @@
-package realtime
+package realtime_changes
 
 import (
 	"log/slog"
@@ -19,51 +19,51 @@ func newConnManager() *connManager {
 	return &connManager{conns: make(map[string]map[contract.WSConnection]struct{})}
 }
 
-func key(projectID domain.ProjectID, envID int64) string {
+func makeKey(projectID domain.ProjectID, envID int64) string {
 	return string(projectID) + ":" + fmtInt(envID)
 }
 
 func (m *connManager) Add(projectID domain.ProjectID, envID int64, c contract.WSConnection) {
-	k := key(projectID, envID)
+	key := makeKey(projectID, envID)
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	set, ok := m.conns[k]
+	connsSet, ok := m.conns[key]
 	if !ok {
-		set = make(map[contract.WSConnection]struct{})
-		m.conns[k] = set
+		connsSet = make(map[contract.WSConnection]struct{})
+		m.conns[key] = connsSet
 	}
-	set[c] = struct{}{}
+	connsSet[c] = struct{}{}
 }
 
 func (m *connManager) Remove(projectID domain.ProjectID, envID int64, c contract.WSConnection) {
-	k := key(projectID, envID)
+	key := makeKey(projectID, envID)
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	if set, ok := m.conns[k]; ok {
+	if set, ok := m.conns[key]; ok {
 		delete(set, c)
 		if len(set) == 0 {
-			delete(m.conns, k)
+			delete(m.conns, key)
 		}
 	}
 }
 
 func (m *connManager) broadcastMsg(projectID domain.ProjectID, envID int64, msg []byte) {
-	k := key(projectID, envID)
+	key := makeKey(projectID, envID)
 	m.mu.RLock()
-	set := m.conns[k]
+	connsSet := m.conns[key]
 	m.mu.RUnlock()
 
 	slog.Info("realtime: broadcasting to connections",
 		"project_id", projectID,
 		"environment_id", envID,
-		"connection_count", len(set))
+		"connection_count", len(connsSet))
 
-	for c := range set {
-		if !c.Send(msg) {
+	for connection := range connsSet {
+		if !connection.Send(msg) {
 			// client closed or buffer full; drop it
 			slog.Info("realtime: removing closed connection")
-			c.Close()
-			m.Remove(projectID, envID, c)
+			connection.Close()
+			m.Remove(projectID, envID, connection)
 		}
 	}
 }

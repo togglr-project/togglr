@@ -19,7 +19,7 @@ func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCa
 
 			// First, try to get a token from WebSocket subprotocol
 			if subprotocols := request.Header.Get("Sec-WebSocket-Protocol"); subprotocols != "" {
-				slog.Info("ws protocol", slog.String("protocol", subprotocols))
+				slog.Debug("ws protocol", slog.String("protocol", subprotocols))
 
 				protocols := strings.Split(subprotocols, ",")
 				for _, protocol := range protocols {
@@ -27,7 +27,7 @@ func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCa
 					if strings.HasPrefix(protocol, "token.") {
 						// Extract token from subprotocol
 						token = strings.TrimPrefix(protocol, "token.")
-						slog.Info("extracted token from subprotocol", slog.String("token", token[:10]+"..."))
+						slog.Debug("extracted token from subprotocol", slog.String("token", token[:10]+"..."))
 
 						break
 					}
@@ -38,7 +38,7 @@ func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCa
 			if token == "" {
 				token = request.URL.Query().Get("token")
 				if token != "" {
-					slog.Info("extracted token from query parameter", slog.String("token", token[:10]+"..."))
+					slog.Debug("extracted token from query parameter", slog.String("token", token[:10]+"..."))
 				}
 			}
 
@@ -55,10 +55,8 @@ func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCa
 				request.Header.Set("Authorization", "Bearer "+token)
 			}
 
-			// If no token found, pass through without authentication
 			if token == "" {
-				slog.Info("no token found, proceeding without authentication")
-				next.ServeHTTP(writer, request)
+				writer.WriteHeader(http.StatusUnauthorized)
 
 				return
 			}
@@ -66,26 +64,25 @@ func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCa
 			// Verify the token and get the user ID
 			claims, err := tokenizer.VerifyToken(token, domain.TokenTypeAccess)
 			if err != nil {
-				slog.Info("token verification failed", slog.String("error", err.Error()))
-				// Invalid token, pass through without authentication
-				next.ServeHTTP(writer, request)
+				writer.WriteHeader(http.StatusUnauthorized)
 
 				return
 			}
 
-			slog.Info("token verified successfully", slog.Any("user_id", claims.UserID))
+			slog.Debug("token verified successfully", slog.Any("user_id", claims.UserID))
 
 			// Get the user
 			user, err := usersSrv.GetByID(request.Context(), domain.UserID(claims.UserID))
 			if err != nil {
-				slog.Info("user not found", slog.Any("user_id", claims.UserID), slog.String("error", err.Error()))
-				// User isn't found, pass through without authentication
-				next.ServeHTTP(writer, request)
+				slog.Info("user not found",
+					slog.Any("user_id", claims.UserID), slog.String("error", err.Error()))
+				writer.WriteHeader(http.StatusUnauthorized)
 
 				return
 			}
 
-			slog.Info("user found", slog.Int("user_id", int(user.ID)), slog.String("username", user.Username))
+			slog.Debug("user found",
+				slog.Int("user_id", int(user.ID)), slog.String("username", user.Username))
 
 			// Set the user ID and superuser flag in the context
 			ctx := appcontext.WithUserID(request.Context(), user.ID)
@@ -93,7 +90,7 @@ func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCa
 			ctx = appcontext.WithIsSuper(ctx, user.IsSuperuser)
 
 			// Continue with the modified context
-			slog.Info("proceeding with authenticated context")
+			slog.Debug("proceeding with authenticated context")
 			next.ServeHTTP(writer, request.WithContext(ctx))
 		})
 	}

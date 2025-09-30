@@ -14,7 +14,6 @@ export type WSOptions = {
 const getWSBaseURL = (): string => {
   if (typeof window !== 'undefined' && window.TOGGLR_CONFIG?.WS_BASE_URL) {
     const raw = window.TOGGLR_CONFIG.WS_BASE_URL;
-    console.log('[Realtime] Using WS_BASE_URL from config:', raw);
     
     // If already has ws:// or wss://, use as is
     if (raw.startsWith('ws://') || raw.startsWith('wss://')) {
@@ -71,7 +70,6 @@ export class WSClient {
 
   private connect() {
     const base = getWSBaseURL();
-    console.log('[Realtime] WS base URL:', base);
     
     // Convert HTTP URL to WebSocket URL
     const wsBase = base.replace('http://', 'ws://').replace('https://', 'wss://');
@@ -88,15 +86,12 @@ export class WSClient {
     } else {
       console.log('[Realtime] No token provided');
     }
-    
-    console.log('[Realtime] WS full URL:', url.toString());
 
     // No subprotocols needed
     const protocols: string[] = [];
 
     const finalURL = url.toString();
     try {
-      console.log('[Realtime] WS connecting to', finalURL, 'with protocols:', protocols);
       this.ws = new WebSocket(finalURL, protocols);
     } catch (e) {
       console.error('[Realtime] WS connect error', e);
@@ -164,7 +159,6 @@ export class WSClient {
             // Fallback: send ping message
             this.ws.send(JSON.stringify({ type: 'ping' }));
           }
-          console.log('[Realtime] Sent ping');
         } catch (e) {
           console.warn('[Realtime] Ping failed:', e);
         }

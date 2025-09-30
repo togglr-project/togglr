@@ -1,4 +1,4 @@
-package realtime
+package realtime_changes
 
 import (
 	"context"
@@ -62,13 +62,13 @@ func (s *Service) worker(ctx context.Context) {
 			}
 
 			if len(events) > 0 {
-				slog.Info("realtime: found events", "count", len(events))
+				slog.Debug("realtime: found events", "count", len(events))
 			}
 
 			for _, evt := range events {
 				lastSeen = evt.CreatedAt
 				payload := s.toJSON(evt)
-				slog.Info("realtime: broadcasting event",
+				slog.Debug("realtime: broadcasting event",
 					"source", evt.Source,
 					"entity", evt.Entity,
 					"action", evt.Action,
