@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -24,18 +25,26 @@ func New(broadcaster contract.RealtimeBroadcaster) *Handler {
 func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 	// Log connection attempt
 	projectID := domain.ProjectID(req.URL.Query().Get("project_id"))
-	_ = req.Header.Get("Sec-WebSocket-Protocol")
+
+	slog.Info("WebSocket connection attempt",
+		slog.String("project_id", string(projectID)),
+		slog.String("remote_addr", req.RemoteAddr))
 
 	conn, err := upgrader.Upgrade(writer, req, nil)
 	if err != nil {
+		slog.Error("WebSocket upgrade failed", slog.String("error", err.Error()))
 		http.Error(writer, "upgrade failed", http.StatusBadRequest)
+
 		return
 	}
+
+	slog.Info("WebSocket connection established")
 
 	if projectID == "" {
 		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "project_id required"),
 			time.Now().Add(time.Second))
 		_ = conn.Close()
+
 		return
 	}
 
@@ -51,24 +60,61 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 		}
 	}
 	if envID == 0 {
-		_ = conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "env_id required"),
-			time.Now().Add(time.Second))
+		_ = conn.WriteControl(
+			websocket.CloseMessage,
+			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "env_id required"),
+			time.Now().Add(time.Second),
+		)
 		_ = conn.Close()
+
 		return
 	}
 
-	c := newWSConn(conn)
-	h.broadcaster.Add(projectID, envID, c)
+	wsConnection := newWSConn(conn)
+	slog.Info("adding WebSocket connection to broadcaster")
+	h.broadcaster.Add(projectID, envID, wsConnection)
 	defer func() {
-		h.broadcaster.Remove(projectID, envID, c)
-		c.Close()
+		slog.Info("removing WebSocket connection from broadcaster")
+		h.broadcaster.Remove(projectID, envID, wsConnection)
+		wsConnection.Close()
 	}()
 
-	// Read loop to detect a client close; ignore messages
+	// Set up ping/pong to keep connection alive
+	conn.SetPingHandler(func(message string) error {
+		slog.Info("WebSocket ping received", slog.String("message", message))
+		// Respond to ping with pong
+		err := conn.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(time.Second))
+		if err != nil {
+			slog.Error("WebSocket pong failed", slog.String("error", err.Error()))
+		} else {
+			slog.Info("WebSocket pong sent")
+		}
+		return err
+	})
+
+	// Read loop to detect a client close - no deadline to avoid premature disconnections
+	slog.Info("starting WebSocket read loop")
 	for {
-		if _, _, err := conn.NextReader(); err != nil {
+		messageType, message, err := conn.ReadMessage()
+		if err != nil {
+			// Check if it's a normal close or an error
+			if websocket.IsCloseError(err,
+				websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				// Normal close, no need to log as an error
+				slog.Info("WebSocket connection closed normally", slog.String("error", err.Error()))
+				return
+			}
+
+			// Log other errors
+			slog.Error("ws socket client error", "error", err)
+
 			return
 		}
+
+		// Handle the message (for now, just log it)
+		slog.Info("WebSocket message received",
+			slog.Int("message_type", messageType),
+			slog.String("message", string(message)))
 	}
 }
 
@@ -80,6 +126,7 @@ type wsConn struct {
 func newWSConn(c *websocket.Conn) *wsConn {
 	w := &wsConn{c: c, send: make(chan []byte, 16)}
 	go w.writer()
+
 	return w
 }
 
@@ -88,6 +135,7 @@ func (w *wsConn) writer() {
 		_ = w.c.SetWriteDeadline(time.Now().Add(10 * time.Second))
 		if err := w.c.WriteMessage(websocket.TextMessage, msg); err != nil {
 			_ = w.c.Close()
+
 			return
 		}
 	}

@@ -15,6 +15,7 @@ import (
 	"github.com/togglr-project/togglr/internal/api/backend/middlewares"
 	apisdk "github.com/togglr-project/togglr/internal/api/sdk"
 	wsapi "github.com/togglr-project/togglr/internal/api/ws"
+	wsmiddlewares "github.com/togglr-project/togglr/internal/api/ws/middlewares"
 	"github.com/togglr-project/togglr/internal/config"
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
@@ -593,7 +594,7 @@ func (app *App) newWSServer() (*httpserver.Server, error) {
 		middlewares.WithRawRequest(
 			middlewares.RequestIDMdw(
 				middlewares.ActorMdw(
-					middlewares.WSAuthMiddleware(tokenizerSrv, usersSrv)(wsapi.New(rtSvc.Broadcaster())),
+					wsmiddlewares.WSAuthMiddleware(tokenizerSrv, usersSrv)(wsapi.New(rtSvc.Broadcaster())),
 					domain.AuditActorUser,
 				),
 			),

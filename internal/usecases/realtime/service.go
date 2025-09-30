@@ -55,6 +55,7 @@ func (s *Service) worker(ctx context.Context) {
 			events, err := s.repo.FetchAfter(ctx, lastSeen)
 			if err != nil {
 				slog.Error("realtime: fetch events", "err", err)
+
 				continue
 			}
 			for _, evt := range events {
@@ -89,6 +90,7 @@ func (s *Service) toJSON(evt domain.RealtimeEvent) []byte {
 		Action:      evt.Action,
 	}
 	b, _ := json.Marshal(msg)
+
 	return b
 }
 

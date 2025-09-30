@@ -49,6 +49,7 @@ export class WSClient {
   private ws: WebSocket | null = null;
   private backoff = 1000; // start 1s
   private stopped = false;
+  private pingInterval: number | null = null;
 
   constructor(opts: WSOptions) {
     this.opts = opts;
@@ -61,6 +62,7 @@ export class WSClient {
 
   stop() {
     this.stopped = true;
+    this.stopPingPong();
     if (this.ws) {
       try { this.ws.close(); } catch {}
       this.ws = null;
@@ -71,13 +73,15 @@ export class WSClient {
     const base = getWSBaseURL();
     console.log('[Realtime] WS base URL:', base);
     
-    const url = new URL('/api/ws', base);
+    // Convert HTTP URL to WebSocket URL
+    const wsBase = base.replace('http://', 'ws://').replace('https://', 'wss://');
+    console.log('[Realtime] WS base URL converted:', wsBase);
+    
+    const url = new URL('/api/ws', wsBase);
     url.searchParams.set('project_id', this.opts.projectId);
     url.searchParams.set('env_id', this.opts.envId);
     
-    console.log('[Realtime] WS full URL:', url.toString());
-
-    // Pass token as query parameter (more reliable than subprotocol)
+    // Pass token through query parameter instead of subprotocol
     if (this.opts.token) {
       url.searchParams.set('token', this.opts.token);
       console.log('[Realtime] Using token in query parameter');
@@ -85,6 +89,8 @@ export class WSClient {
       console.log('[Realtime] No token provided');
     }
     
+    console.log('[Realtime] WS full URL:', url.toString());
+
     // No subprotocols needed
     const protocols: string[] = [];
 
@@ -102,6 +108,9 @@ export class WSClient {
       console.log('[Realtime] WS connected successfully');
       this.backoff = 1000;
       this.opts.onOpen?.();
+      
+      // Start ping/pong to keep connection alive
+      this.startPingPong();
     };
 
     this.ws.onclose = (ev) => {
@@ -130,14 +139,43 @@ export class WSClient {
   }
 
   private scheduleReconnect() {
-    const delay = Math.min(this.backoff, 15000);
+    const delay = Math.min(this.backoff, 30000); // Max 30 seconds
     console.log(`[Realtime] WS reconnecting in ${delay}ms...`);
     setTimeout(() => {
       if (!this.stopped) {
-        this.backoff = Math.min(this.backoff * 2, 15000);
+        this.backoff = Math.min(this.backoff * 1.5, 30000); // Slower backoff
         console.log('[Realtime] WS attempting reconnect...');
         this.connect();
       }
     }, delay);
+  }
+
+  private startPingPong() {
+    this.stopPingPong(); // Clear any existing interval
+    
+    // Send ping every 30 seconds using WebSocket ping frame
+    this.pingInterval = window.setInterval(() => {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        try {
+          // Use WebSocket ping frame if available, otherwise send ping message
+          if ('ping' in this.ws && typeof this.ws.ping === 'function') {
+            this.ws.ping();
+          } else {
+            // Fallback: send ping message
+            this.ws.send(JSON.stringify({ type: 'ping' }));
+          }
+          console.log('[Realtime] Sent ping');
+        } catch (e) {
+          console.warn('[Realtime] Ping failed:', e);
+        }
+      }
+    }, 30000);
+  }
+
+  private stopPingPong() {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
   }
 }
