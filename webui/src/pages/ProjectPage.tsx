@@ -33,6 +33,8 @@ const ProjectPage: React.FC = () => {
       return res.data as ProjectResponse;
     },
     enabled: !!projectId,
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   // Get environments for the project
@@ -43,6 +45,8 @@ const ProjectPage: React.FC = () => {
       return res.data;
     },
     enabled: !!projectId,
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const environments = environmentsResp?.items ?? [];
@@ -93,7 +97,8 @@ const ProjectPage: React.FC = () => {
       return res.data;
     },
     enabled: !!projectId,
-    placeholderData: keepPreviousData,
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const features = featuresResp?.items ?? [];

@@ -96,6 +96,8 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
       return response.data;
     },
     enabled: !!selectedFeature,
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   // Load feature changes history

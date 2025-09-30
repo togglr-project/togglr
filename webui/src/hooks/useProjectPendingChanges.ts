@@ -29,8 +29,9 @@ export const useProjectPendingChanges = (projectId?: string) => {
       }
     },
     enabled: !!projectId,
-    staleTime: 30 * 1000, // 30 seconds
-    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    // Removed refetchInterval - updates now come via WebSocket
   });
 };
 
@@ -38,9 +39,13 @@ export const useProjectPendingChanges = (projectId?: string) => {
 export const useFeatureHasPendingChanges = (featureId: string, projectId?: string) => {
   const { data: pendingChanges } = useProjectPendingChanges(projectId);
   
-  return pendingChanges?.some(change => 
+  const hasPending = pendingChanges?.some(change => 
     change.change.entities?.some(entity => 
       entity.entity === 'feature' && entity.entity_id === featureId
     )
   ) || false;
+  
+  console.log('[useFeatureHasPendingChanges]', { featureId, projectId, hasPending, pendingChangesCount: pendingChanges?.length });
+  
+  return hasPending;
 };

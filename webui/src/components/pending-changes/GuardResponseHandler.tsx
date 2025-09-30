@@ -48,7 +48,7 @@ const GuardResponseHandler: React.FC<GuardResponseHandlerProps> = ({
     ?.filter(entity => entity.entity === 'feature')
     ?.map(entity => entity.entity_id) || [];
   
-  const { data: featureNames } = useFeatureNames(featureIds, pendingChange?.project_id);
+  const { data: featureNames } = useFeatureNames(featureIds, pendingChange?.project_id, 'prod');
 
   const handleApprove = (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
     if (onApprove) {

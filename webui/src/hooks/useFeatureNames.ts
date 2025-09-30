@@ -2,16 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
 
 // Hook to get feature names by IDs
-export const useFeatureNames = (featureIds: string[], projectId?: string) => {
+export const useFeatureNames = (featureIds: string[], projectId?: string, environmentKey: string = 'prod') => {
   return useQuery({
-    queryKey: ['feature-names', featureIds, projectId],
+    queryKey: ['feature-names', featureIds, projectId, environmentKey],
     queryFn: async () => {
       if (!projectId || featureIds.length === 0) {
         return {};
       }
 
       // Get all features for the project
-      const response = await apiClient.listProjectFeatures(projectId, undefined, undefined, undefined, undefined, undefined, undefined);
+      const response = await apiClient.listProjectFeatures(projectId, environmentKey, undefined, undefined, undefined, undefined, undefined);
       
       // Create a map of feature ID to name
       const featureNames: Record<string, string> = {};
@@ -24,7 +24,8 @@ export const useFeatureNames = (featureIds: string[], projectId?: string) => {
       return featureNames;
     },
     enabled: !!projectId && featureIds.length > 0,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 };
 

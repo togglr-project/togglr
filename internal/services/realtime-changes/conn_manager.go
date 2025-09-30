@@ -53,7 +53,7 @@ func (m *connManager) broadcastMsg(projectID domain.ProjectID, envID int64, msg 
 	connsSet := m.conns[key]
 	m.mu.RUnlock()
 
-	slog.Info("realtime: broadcasting to connections",
+	slog.Debug("realtime: broadcasting to connections",
 		"project_id", projectID,
 		"environment_id", envID,
 		"connection_count", len(connsSet))
@@ -61,7 +61,7 @@ func (m *connManager) broadcastMsg(projectID domain.ProjectID, envID int64, msg 
 	for connection := range connsSet {
 		if !connection.Send(msg) {
 			// client closed or buffer full; drop it
-			slog.Info("realtime: removing closed connection")
+			slog.Debug("realtime: removing closed connection")
 			connection.Close()
 			m.Remove(projectID, envID, connection)
 		}

@@ -30,6 +30,8 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       return res.data as FeatureDetailsResponse;
     },
     enabled: open && !!feature?.id,
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const projectId = featureDetails?.feature.project_id;
@@ -41,6 +43,8 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
       return Array.isArray(resp?.items) ? (resp.items as Segment[]) : (resp as Segment[]);
     },
     enabled: Boolean(projectId),
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const getVariantName = (id: string) => {

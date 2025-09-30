@@ -57,7 +57,7 @@ const PendingChangeCard: React.FC<PendingChangeCardProps> = ({
     ?.filter(entity => entity.entity === 'feature')
     ?.map(entity => entity.entity_id) || [];
   
-  const { data: featureNames } = useFeatureNames(featureIds, pendingChange.project_id);
+  const { data: featureNames } = useFeatureNames(featureIds, pendingChange.project_id, 'prod');
 
   const approveMutation = useApprovePendingChange();
   const rejectMutation = useRejectPendingChange();

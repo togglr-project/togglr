@@ -142,6 +142,8 @@ export const usePendingChangesCount = (projectId: string) => {
       return response.data.data.length;
     },
     enabled: !!projectId,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    // Removed refetchInterval - updates now come via WebSocket
   });
 };

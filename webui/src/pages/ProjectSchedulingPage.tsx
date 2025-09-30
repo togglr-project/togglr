@@ -220,7 +220,8 @@ const ProjectSchedulingPage: React.FC = () => {
       return res.data;
     },
     enabled: !!projectId,
-    placeholderData: keepPreviousData,
+    staleTime: 0, // No caching - always fetch fresh data
+    refetchOnWindowFocus: true, // Refetch when window gains focus
   });
 
   const features = featuresResp?.items ?? [];
