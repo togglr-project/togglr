@@ -11,159 +11,265 @@ export type RealtimeEvent = {
   action: string; // e.g., 'updated', 'pending', 'deleted'
 };
 
-const invalidate = (qc: QueryClient, keys: any[]) => {
-  try { qc.invalidateQueries({ queryKey: keys, exact: false }); } catch {}
-};
-
-const refetchQueries = (qc: QueryClient, keys: any[]) => {
-  try { 
-    qc.refetchQueries({ queryKey: keys, exact: false }); 
-    console.log('[Realtime] Refetching queries:', keys);
+// Helper function to invalidate queries by pattern
+const invalidateByPattern = (qc: QueryClient, pattern: (query: any) => boolean, description: string) => {
+  try {
+    qc.invalidateQueries({ predicate: pattern });
+    console.log(`[Realtime] Invalidated ${description}`);
   } catch (e) {
-    console.error('[Realtime] Error refetching queries:', e);
+    console.error(`[Realtime] Error invalidating ${description}:`, e);
   }
 };
 
-const updateFeatureInCache = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
-  // Since we have no caching, just invalidate all related queries
-  invalidate(qc, ['project-features', projectId, envKey]);
-  invalidate(qc, ['feature-details', featureId, envKey]);
-  invalidate(qc, ['feature-names', projectId, envKey]);
-  
-  console.log('[Realtime] Invalidated feature queries:', featureId);
+// Helper function to refetch queries by pattern
+const refetchByPattern = (qc: QueryClient, pattern: (query: any) => boolean, description: string) => {
+  try {
+    qc.refetchQueries({ predicate: pattern });
+    console.log(`[Realtime] Refetching ${description}`);
+  } catch (e) {
+    console.error(`[Realtime] Error refetching ${description}:`, e);
+  }
 };
 
-const removeFeatureFromCache = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
-  // Since we have no caching, just invalidate all related queries
-  invalidate(qc, ['project-features', projectId, envKey]);
-  invalidate(qc, ['feature-details', featureId, envKey]);
-  invalidate(qc, ['feature-names', projectId, envKey]);
-  
-  console.log('[Realtime] Invalidated feature queries for deletion:', featureId);
+// Helper function to invalidate queries by key pattern
+const invalidateByKey = (qc: QueryClient, keyPattern: any[], description: string) => {
+  try {
+    qc.invalidateQueries({ queryKey: keyPattern, exact: false });
+    console.log(`[Realtime] Invalidated ${description}`);
+  } catch (e) {
+    console.error(`[Realtime] Error invalidating ${description}:`, e);
+  }
 };
 
-const markFeatureAsPending = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
-  // Update feature - pending changes will be invalidated by the main handler
-  updateFeatureInCache(qc, projectId, envKey, featureId);
-  
-  console.log('[Realtime] Marked feature as pending:', featureId);
+// Helper function to refetch queries by key pattern
+const refetchByKey = (qc: QueryClient, keyPattern: any[], description: string) => {
+  try {
+    qc.refetchQueries({ queryKey: keyPattern, exact: false });
+    console.log(`[Realtime] Refetching ${description}`);
+  } catch (e) {
+    console.error(`[Realtime] Error refetching ${description}:`, e);
+  }
 };
 
+// Handle feature update events
+const handleFeatureUpdate = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
+  console.log(`[Realtime] Handling feature update: ${featureId} in project ${projectId}`);
+  
+  // 1. Invalidate all project-features queries (with any parameters)
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
+    'project-features queries'
+  );
+  
+  // 2. Invalidate feature-details queries
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-details' && query.queryKey[1] === featureId,
+    'feature-details queries'
+  );
+  
+  // 3. Invalidate feature-names queries
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-names' && query.queryKey[1] === projectId,
+    'feature-names queries'
+  );
+  
+  // 4. Invalidate all queries that contain projectId (broader pattern)
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey.includes(projectId),
+    'all project queries'
+  );
+  
+  // 5. Refetch all project-features queries
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
+    'project-features queries'
+  );
+  
+  // 6. Refetch feature-details queries
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-details' && query.queryKey[1] === featureId,
+    'feature-details queries'
+  );
+  
+  // 7. Refetch all queries that contain projectId
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey.includes(projectId),
+    'all project queries'
+  );
+};
+
+// Handle feature pending events
+const handleFeaturePending = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
+  console.log(`[Realtime] Handling feature pending: ${featureId} in project ${projectId}`);
+  
+  // Invalidate pending changes queries
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pending-changes' && query.queryKey[1] === projectId,
+    'pending-changes queries'
+  );
+  
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
+    'project-pending-changes queries'
+  );
+  
+  // Refetch pending changes queries
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pending-changes' && query.queryKey[1] === projectId,
+    'pending-changes queries'
+  );
+  
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
+    'project-pending-changes queries'
+  );
+};
+
+// Handle feature deletion events
+const handleFeatureDeleted = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
+  console.log(`[Realtime] Handling feature deletion: ${featureId} in project ${projectId}`);
+  
+  // Remove from cache and invalidate
+  qc.removeQueries({ 
+    predicate: (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId 
+  });
+  
+  qc.removeQueries({ 
+    predicate: (query) => query.queryKey[0] === 'feature-details' && query.queryKey[1] === featureId 
+  });
+  
+  // Invalidate and refetch project-features
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
+    'project-features queries'
+  );
+  
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
+    'project-features queries'
+  );
+};
+
+// Handle child entity events (feature_params, feature_tag, etc.)
+const handleChildEntityEvent = (qc: QueryClient, projectId: string, envKey: string, eventType: string) => {
+  console.log(`[Realtime] Handling child entity event: ${eventType} in project ${projectId}`);
+  
+  // For child entities, we need to invalidate all project-features queries
+  // because the parent feature might have changed
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
+    'project-features queries (child entity)'
+  );
+  
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-details' && query.queryKey[1] === projectId,
+    'feature-details queries (child entity)'
+  );
+  
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'feature-names' && query.queryKey[1] === projectId,
+    'feature-names queries (child entity)'
+  );
+  
+  // Refetch all project-features queries
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-features' && query.queryKey[1] === projectId,
+    'project-features queries (child entity)'
+  );
+};
+
+// Handle pending change events
+const handlePendingChangeEvent = (qc: QueryClient, projectId: string, envKey: string) => {
+  console.log(`[Realtime] Handling pending change event in project ${projectId}`);
+  
+  // Invalidate pending changes queries
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pending-changes' && query.queryKey[1] === projectId,
+    'pending-changes queries'
+  );
+  
+  invalidateByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
+    'project-pending-changes queries'
+  );
+  
+  // Refetch pending changes queries
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'pending-changes' && query.queryKey[1] === projectId,
+    'pending-changes queries'
+  );
+  
+  refetchByPattern(
+    qc,
+    (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
+    'project-pending-changes queries'
+  );
+};
+
+// Main event handler
 export function handleEvent(qc: QueryClient | undefined, evt: RealtimeEvent) {
-  if (!qc) return;
+  if (!qc) {
+    console.warn('[Realtime] QueryClient not available');
+    return;
+  }
 
-  const envKey = evt.environment;
-  const projectId = evt.project_id;
-  const entityId = evt.entity_id;
+  const { project_id: projectId, environment: envKey, entity, entity_id: entityId, type } = evt;
+  
+  console.log(`[Realtime] Handling event: ${type} for ${entity} ${entityId} in project ${projectId}`);
 
-  console.log('[Realtime] Handling event:', evt);
-
-  // Check if this is a feature-related event by type
-  const isFeatureEvent = evt.type.startsWith('feature_');
+  // Check if this is a feature-related event
+  const isFeatureEvent = type.startsWith('feature_');
   
   if (isFeatureEvent) {
-    // For feature events, we need to determine if we can update specific feature
-    // or if we need to invalidate all features
-    
-    if (evt.entity === 'feature') {
-      // Direct feature events - can update specific feature
-      const featureId = entityId;
-      
-      switch (evt.type) {
+    if (entity === 'feature') {
+      // Direct feature events
+      switch (type) {
         case 'feature_update':
-        case 'feature_updated': {
-          // Update specific feature
-          updateFeatureInCache(qc, projectId, envKey, featureId);
-          // Force refetch specific feature queries
-          refetchQueries(qc, ['project-features', projectId, envKey]);
-          refetchQueries(qc, ['feature-details', featureId, envKey]);
+        case 'feature_updated':
+          handleFeatureUpdate(qc, projectId, envKey, entityId);
           break;
-        }
-        case 'feature_pending': {
-          // Show pending status
-          markFeatureAsPending(qc, projectId, envKey, featureId);
+        case 'feature_pending':
+          handleFeaturePending(qc, projectId, envKey, entityId);
           break;
-        }
-        case 'feature_deleted': {
-          // Remove feature from list
-          removeFeatureFromCache(qc, projectId, envKey, featureId);
+        case 'feature_deleted':
+          handleFeatureDeleted(qc, projectId, envKey, entityId);
           break;
-        }
-        default: {
-          // For unknown types, update specific feature
-          updateFeatureInCache(qc, projectId, envKey, featureId);
-        }
+        default:
+          // For unknown feature types, treat as update
+          handleFeatureUpdate(qc, projectId, envKey, entityId);
       }
     } else {
-      // Feature-related events on child entities - invalidate all features
-      console.log('[Realtime] Feature-related child entity changed, invalidating all features:', evt.entity, evt.type);
-      invalidate(qc, ['project-features', projectId, envKey]);
-      invalidate(qc, ['feature-details']);
-      invalidate(qc, ['feature-names', projectId, envKey]);
-      
-      // Force refetch all feature-related queries
-      console.log('[Realtime] Force refetching all feature queries');
-      refetchQueries(qc, ['project-features', projectId]);
-      refetchQueries(qc, ['feature-details']);
-      refetchQueries(qc, ['feature-names', projectId, envKey]);
-      
-      // Also try to refetch with broader patterns
-      refetchQueries(qc, ['project-features']);
-      refetchQueries(qc, ['feature-details']);
-      
-      // As a last resort, try to force update by setting stale data
-      console.log('[Realtime] Attempting to force update by setting stale data');
-      qc.setQueriesData(
-        { queryKey: ['project-features', projectId], exact: false },
-        (oldData: any) => {
-          if (oldData) {
-            console.log('[Realtime] Marking project-features as stale');
-            return { ...oldData, _isStale: true };
-          }
-          return oldData;
-        }
-      );
+      // Feature-related events on child entities (feature_params, feature_tag, etc.)
+      handleChildEntityEvent(qc, projectId, envKey, type);
     }
-    
-    // Always invalidate related queries for feature events
-    invalidate(qc, ['feature-timelines', projectId, envKey]);
-    invalidate(qc, ['dashboard', projectId]);
-    invalidate(qc, ['pending-changes', projectId, envKey]);
-    invalidate(qc, ['project-pending-changes', projectId]);
-    
-    // Force refetch all feature-related queries
-    refetchQueries(qc, ['feature-timelines', projectId, envKey]);
-    refetchQueries(qc, ['dashboard', projectId]);
-    refetchQueries(qc, ['pending-changes', projectId, envKey]);
-    refetchQueries(qc, ['project-pending-changes', projectId]);
-    
-    // Also invalidate and refetch the pending changes count for menu badge
-    invalidate(qc, ['pending-changes', projectId, 'pending', undefined, 'count']);
-    refetchQueries(qc, ['pending-changes', projectId, 'pending', undefined, 'count']);
   } else {
     // Non-feature events
-    switch (evt.entity) {
-    case 'pending_change': {
-      // Invalidate pending changes
-      invalidate(qc, ['pending-changes', projectId, envKey]);
-      invalidate(qc, ['project-pending-changes', projectId]);
-      // Also invalidate the count for menu badge
-      invalidate(qc, ['pending-changes', projectId, 'pending', undefined, 'count']);
-      refetchQueries(qc, ['pending-changes', projectId, 'pending', undefined, 'count']);
-      break;
-    }
-    default: {
-      // Fallback: invalidate project-level queries
-      console.log('[Realtime] Unknown entity, invalidating project queries:', evt.entity);
-      invalidate(qc, [projectId]);
-      invalidate(qc, ['project-features', projectId, envKey]);
-      invalidate(qc, ['pending-changes', projectId, envKey]);
-      invalidate(qc, ['project-pending-changes', projectId]);
-      // Also invalidate the count for menu badge
-      invalidate(qc, ['pending-changes', projectId, 'pending', undefined, 'count']);
-      refetchQueries(qc, ['pending-changes', projectId, 'pending', undefined, 'count']);
-      break;
-    }
+    switch (entity) {
+      case 'pending_change':
+        handlePendingChangeEvent(qc, projectId, envKey);
+        break;
+      default:
+        console.log(`[Realtime] Unknown entity type: ${entity}`);
     }
   }
 }
