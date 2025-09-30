@@ -812,7 +812,7 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
           </Alert>
         )}
 
-        {cronExpression && (
+        {cronExpression ? (
           <Paper sx={{ p: 2, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Schedule description:
@@ -838,21 +838,44 @@ const EditRecurringScheduleBuilder: React.FC<EditRecurringScheduleBuilderProps> 
               <strong>Timezone:</strong> {data.timezone}
             </Typography>
           </Paper>
+        ) : (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Typography variant="subtitle2">No valid cron expression generated</Typography>
+            <Typography variant="body2">
+              Please check your schedule configuration. Current data: {JSON.stringify(data, null, 2)}
+            </Typography>
+          </Alert>
         )}
 
         {/* Timeline Preview */}
-        <TimelinePreview 
-          featureId={featureId}
-          environmentKey={environmentKey}
-          schedules={[{
-            startsAt: data.startsAt,
-            endsAt: data.endsAt,
-            cronExpr: cronExpression,
-            timezone: data.timezone,
-            action: data.action,
-            cronDuration: data.duration
-          }]}
-        />
+        {cronExpression && (
+          <>
+            {console.log('Rendering TimelinePreview with:', {
+              featureId,
+              environmentKey,
+              cronExpression,
+              data: {
+                startsAt: data.startsAt,
+                endsAt: data.endsAt,
+                timezone: data.timezone,
+                action: data.action,
+                duration: data.duration
+              }
+            })}
+            <TimelinePreview 
+              featureId={featureId}
+              environmentKey={environmentKey}
+              schedules={[{
+                startsAt: data.startsAt,
+                endsAt: data.endsAt,
+                cronExpr: cronExpression,
+                timezone: data.timezone,
+                action: data.action,
+                cronDuration: data.duration
+              }]}
+            />
+          </>
+        )}
       </Box>
     );
   };

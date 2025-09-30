@@ -33,8 +33,16 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState<1 | 3 | 7>(1);
 
+  // Debug logging
+  console.log('TimelinePreview props:', { featureId, environmentKey, schedules });
+
   const generateTimeline = useCallback(async () => {
-    if (!featureId || schedules.length === 0) return;
+    console.log('generateTimeline called with:', { featureId, schedulesLength: schedules.length });
+    
+    if (!featureId || schedules.length === 0) {
+      console.log('generateTimeline: missing featureId or schedules, returning early');
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -68,7 +76,17 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
       );
 
       console.log('Timeline response:', response);
-      setTimelineData((response.data as unknown) as { events: Array<{ timestamp: string; enabled: boolean }> });
+      // API returns {events: Array<{time: string, enabled: boolean}>}
+      // We need to convert 'time' to 'timestamp' for our component
+      const apiData = response.data as { events: Array<{ time: string; enabled: boolean }> };
+      const convertedData = {
+        events: apiData.events.map(event => ({
+          timestamp: event.time,
+          enabled: event.enabled
+        }))
+      };
+      console.log('Converted timeline data:', convertedData);
+      setTimelineData(convertedData);
     } catch (err: unknown) {
       console.error('Failed to generate timeline:', err);
       const error = err as { message?: string; code?: string; response?: { status?: number; statusText?: string; data?: unknown } };
@@ -114,14 +132,24 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
   }
 
   if (!timelineData || !timelineData.events || timelineData.events.length === 0) {
+    console.log('TimelinePreview: No timeline data to display', { 
+      timelineData, 
+      hasEvents: timelineData?.events, 
+      eventsLength: timelineData?.events?.length 
+    });
     return (
       <Paper sx={{ p: 2, mt: 2 }}>
         <Typography variant="body2" color="text.secondary">
           No timeline events to display
         </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+          Debug: timelineData={timelineData ? 'exists' : 'null'}, events={timelineData?.events?.length || 0}
+        </Typography>
       </Paper>
     );
   }
+
+  console.log('TimelinePreview: Rendering timeline with', timelineData.events.length, 'events');
 
   // Create a mock feature for TimelineChart
   const mockFeature = {
@@ -170,7 +198,7 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
         features={[mockFeature]}
         timelines={{ [featureId]: timelineEvents }}
         isLoading={false}
-        error={null}
+        error={undefined}
         from={new Date().toISOString()}
         to={new Date(Date.now() + timeRange * 24 * 60 * 60 * 1000).toISOString()}
       />
