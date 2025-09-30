@@ -19,6 +19,7 @@ type Config struct {
 	Logger           Logger        `envconfig:"LOGGER"`
 	APIServer        Server        `envconfig:"API_SERVER"`
 	SDKServer        Server        `envconfig:"SDK_SERVER"`
+	WSServer         Server        `envconfig:"WS_SERVER"`
 	TechServer       Server        `envconfig:"TECH_SERVER"`
 	Postgres         Postgres      `envconfig:"POSTGRES"`
 	Mailer           Mailer        `envconfig:"MAILER"`

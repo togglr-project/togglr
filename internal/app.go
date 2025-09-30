@@ -14,6 +14,7 @@ import (
 	apibackend "github.com/togglr-project/togglr/internal/api/backend"
 	"github.com/togglr-project/togglr/internal/api/backend/middlewares"
 	apisdk "github.com/togglr-project/togglr/internal/api/sdk"
+	wsapi "github.com/togglr-project/togglr/internal/api/ws"
 	"github.com/togglr-project/togglr/internal/config"
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
@@ -39,6 +40,7 @@ import (
 	"github.com/togglr-project/togglr/internal/repository/project_settings"
 	"github.com/togglr-project/togglr/internal/repository/projects"
 	"github.com/togglr-project/togglr/internal/repository/rbac"
+	realtimerepo "github.com/togglr-project/togglr/internal/repository/realtime"
 	ruleattributesrepo "github.com/togglr-project/togglr/internal/repository/ruleattributes"
 	"github.com/togglr-project/togglr/internal/repository/rules"
 	segmentsrepo "github.com/togglr-project/togglr/internal/repository/segments"
@@ -67,6 +69,7 @@ import (
 	productinfousecase "github.com/togglr-project/togglr/internal/usecases/productinfo"
 	projectsettingsusecase "github.com/togglr-project/togglr/internal/usecases/project-settings"
 	projectsusecase "github.com/togglr-project/togglr/internal/usecases/projects"
+	realtimeusecase "github.com/togglr-project/togglr/internal/usecases/realtime"
 	ruleattributesusecase "github.com/togglr-project/togglr/internal/usecases/ruleattributes"
 	rulesusecase "github.com/togglr-project/togglr/internal/usecases/rules"
 	segmentsusecase "github.com/togglr-project/togglr/internal/usecases/segments"
@@ -97,6 +100,7 @@ type App struct {
 
 	APIServer *httpserver.Server
 	SDKServer *httpserver.Server
+	WSServer  *httpserver.Server
 
 	container *di.Container
 	diApp     *di.App
@@ -146,6 +150,11 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 		return nil, fmt.Errorf("create SDK server: %w", err)
 	}
 
+	app.WSServer, err = app.newWSServer()
+	if err != nil {
+		return nil, fmt.Errorf("create WS server: %w", err)
+	}
+
 	return app, nil
 }
 
@@ -179,6 +188,7 @@ func (app *App) Run(ctx context.Context) error {
 	group, groupCtx := errgroup.WithContext(ctx)
 	group.Go(func() error { return app.APIServer.ListenAndServe(groupCtx) })
 	group.Go(func() error { return app.SDKServer.ListenAndServe(groupCtx) })
+	group.Go(func() error { return app.WSServer.ListenAndServe(groupCtx) })
 	group.Go(func() error { return techServer.ListenAndServe(groupCtx) })
 	group.Go(func() error { return app.diApp.Run(groupCtx) })
 
@@ -223,6 +233,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(environmentsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(featureparamsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(dashboardrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(realtimerepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -256,6 +267,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(projectsettingsusecase.New)
 	app.registerComponent(environmentsusecase.New)
 	app.registerComponent(dashboardusecase.New)
+	app.registerComponent(realtimeusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,
@@ -556,4 +568,51 @@ func newPostgresConnPool(ctx context.Context, cfg *config.Postgres) (*pgxpool.Po
 	}
 
 	return pool, nil
+}
+
+// newWSServer creates a dedicated WebSocket server on a separate port.
+func (app *App) newWSServer() (*httpserver.Server, error) {
+	cfg := app.Config.WSServer
+
+	var tokenizerSrv contract.Tokenizer
+	if err := app.container.Resolve(&tokenizerSrv); err != nil {
+		return nil, fmt.Errorf("resolve tokenizer service component: %w", err)
+	}
+
+	var usersSrv contract.UsersUseCase
+	if err := app.container.Resolve(&usersSrv); err != nil {
+		return nil, fmt.Errorf("resolve users service component: %w", err)
+	}
+
+	var rtSvc *realtimeusecase.Service
+	if err := app.container.Resolve(&rtSvc); err != nil {
+		return nil, fmt.Errorf("resolve realtime service component: %w", err)
+	}
+
+	wsHandler := pkgmiddlewares.CORSMdw(
+		middlewares.WithRawRequest(
+			middlewares.RequestIDMdw(
+				middlewares.ActorMdw(
+					middlewares.AuthMiddleware(tokenizerSrv, usersSrv)(wsapi.New(rtSvc.Broadcaster())),
+					domain.AuditActorUser,
+				),
+			),
+		),
+	)
+
+	router := httprouter.New()
+	router.Handler(http.MethodGet, "/api/ws", wsHandler)
+
+	lis, err := net.Listen("tcp", cfg.Addr)
+	if err != nil {
+		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
+	}
+
+	return &httpserver.Server{
+		Listener:     lis,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.IdleTimeout,
+		Handler:      router,
+	}, nil
 }
