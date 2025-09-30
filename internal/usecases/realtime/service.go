@@ -28,8 +28,8 @@ func New(repo contract.RealtimeEventsRepository) *Service {
 }
 
 // Start launches a background worker that polls the repository and broadcasts events.
-func (s *Service) Start(ctx context.Context) error {
-	go s.worker(ctx)
+func (s *Service) Start(context.Context) error {
+	go s.worker(context.Background())
 
 	return nil
 }
@@ -47,9 +47,13 @@ func (s *Service) worker(ctx context.Context) {
 	ticker := time.NewTicker(s.pollInterval)
 	defer ticker.Stop()
 
+	slog.Info("realtime worker started", "poll_interval", s.pollInterval)
+
 	for {
 		select {
 		case <-ctx.Done():
+			slog.Info("realtime worker stopped")
+
 			return
 		case <-ticker.C:
 			events, err := s.repo.FetchAfter(ctx, lastSeen)
@@ -58,9 +62,20 @@ func (s *Service) worker(ctx context.Context) {
 
 				continue
 			}
+
+			if len(events) > 0 {
+				slog.Info("realtime: found events", "count", len(events))
+			}
+
 			for _, evt := range events {
 				lastSeen = evt.CreatedAt
 				payload := s.toJSON(evt)
+				slog.Info("realtime: broadcasting event",
+					"source", evt.Source,
+					"entity", evt.Entity,
+					"action", evt.Action,
+					"project_id", evt.ProjectID,
+					"environment_id", evt.EnvironmentID)
 				s.manager.broadcastMsg(evt.ProjectID, evt.EnvironmentID, payload)
 			}
 		}
@@ -149,9 +164,16 @@ func (m *connManager) broadcastMsg(projectID domain.ProjectID, envID int64, msg 
 	m.mu.RLock()
 	set := m.conns[k]
 	m.mu.RUnlock()
+
+	slog.Info("realtime: broadcasting to connections",
+		"project_id", projectID,
+		"environment_id", envID,
+		"connection_count", len(set))
+
 	for c := range set {
 		if !c.Send(msg) {
 			// client closed or buffer full; drop it
+			slog.Info("realtime: removing closed connection")
 			c.Close()
 			m.Remove(projectID, envID, c)
 		}
