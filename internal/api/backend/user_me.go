@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/google/uuid"
+
 	appcontext "github.com/togglr-project/togglr/internal/context"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -24,7 +26,6 @@ func (r *RestAPI) GetCurrentUser(ctx context.Context) (generatedapi.GetCurrentUs
 
 	// Build project permissions for projects where the user has membership
 	projectPermissions := generatedapi.UserProjectPermissions{}
-
 	permsByProject, err := r.permissionsService.GetMyProjectPermissions(ctx)
 	if err != nil {
 		slog.Error("get my project permissions failed", "error", err)
@@ -41,6 +42,23 @@ func (r *RestAPI) GetCurrentUser(ctx context.Context) (generatedapi.GetCurrentUs
 		projectPermissions[projectID.String()] = arr
 	}
 
+	// Build user project roles
+	projectRoles := generatedapi.UserProjectRoles{}
+	roleByProject, err := r.permissionsService.GetMyProjectRoles(ctx)
+	if err != nil {
+		slog.Error("get my project roles failed", "error", err)
+
+		return nil, err
+	}
+	for projectID, role := range roleByProject {
+		projectRoles[projectID.String()] = generatedapi.Role{
+			ID:          uuid.MustParse(string(role.ID)),
+			Key:         role.Key,
+			Name:        role.Name,
+			Description: role.Description,
+		}
+	}
+
 	return &generatedapi.User{
 		ID:                 uint(userInfo.ID),
 		Username:           userInfo.Username,
@@ -53,6 +71,7 @@ func (r *RestAPI) GetCurrentUser(ctx context.Context) (generatedapi.GetCurrentUs
 		TwoFaEnabled:       userInfo.TwoFAEnabled,
 		CreatedAt:          userInfo.CreatedAt,
 		LastLogin:          lastLogin,
-		ProjectPermissions: generatedapi.NewOptUserProjectPermissions(projectPermissions),
+		ProjectPermissions: projectPermissions,
+		ProjectRoles:       projectRoles,
 	}, nil
 }

@@ -23,21 +23,50 @@ func NewRoles(pool *pgxpool.Pool) *Roles {
 	return &Roles{db: pool}
 }
 
-func (r *Roles) GetByKey(ctx context.Context, key string) (string, error) { // id
+func (r *Roles) GetByKey(ctx context.Context, key string) (domain.Role, error) {
 	exec := getExecutor(ctx, r.db)
 
-	const query = `select id from roles where key = $1 limit 1`
+	const query = `select * from roles where key = $1 limit 1`
 
-	var id string
-	if err := exec.QueryRow(ctx, query, key).Scan(&id); err != nil {
+	rows, err := exec.Query(ctx, query, key)
+	if err != nil {
+		return domain.Role{}, fmt.Errorf("get role by key: %w", err)
+	}
+	defer rows.Close()
+
+	role, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[roleModel])
+	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", nil
+			return domain.Role{}, domain.ErrEntityNotFound
 		}
 
-		return "", fmt.Errorf("roles get by key: %w", err)
+		return domain.Role{}, fmt.Errorf("collect role: %w", err)
 	}
 
-	return id, nil
+	return role.toDomain(), nil
+}
+
+func (r *Roles) GetByID(ctx context.Context, id domain.RoleID) (domain.Role, error) {
+	exec := getExecutor(ctx, r.db)
+
+	const query = `select * from roles where id = $1 limit 1`
+
+	rows, err := exec.Query(ctx, query, id)
+	if err != nil {
+		return domain.Role{}, fmt.Errorf("get role by key: %w", err)
+	}
+	defer rows.Close()
+
+	role, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[roleModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.Role{}, domain.ErrEntityNotFound
+		}
+
+		return domain.Role{}, fmt.Errorf("collect role: %w", err)
+	}
+
+	return role.toDomain(), nil
 }
 
 var _ contract.RolesRepository = (*Roles)(nil)

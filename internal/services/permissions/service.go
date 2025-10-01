@@ -155,10 +155,10 @@ func (s *Service) GetMyProjectPermissions(
 	result := make(map[domain.ProjectID][]domain.PermKey)
 
 	for i := range all {
-		p := all[i]
+		project := all[i]
 
 		// Check membership directly, do not use superuser bypass here
-		roleID, mErr := s.member.GetForUserProject(ctx, int(userID), p.ID)
+		roleID, mErr := s.member.GetForUserProject(ctx, int(userID), project.ID)
 		if mErr != nil {
 			return nil, mErr
 		}
@@ -182,8 +182,45 @@ func (s *Service) GetMyProjectPermissions(
 		}
 
 		if len(granted) > 0 {
-			result[p.ID] = granted
+			result[project.ID] = granted
 		}
+	}
+
+	return result, nil
+}
+
+func (s *Service) GetMyProjectRoles(ctx context.Context) (map[domain.ProjectID]domain.Role, error) {
+	userID := etx.UserID(ctx)
+	if userID == 0 {
+		return nil, domain.ErrUserNotFound
+	}
+
+	all, err := s.projects.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[domain.ProjectID]domain.Role)
+
+	for i := range all {
+		project := all[i]
+
+		// Check membership directly, do not use superuser bypass here
+		roleID, err := s.member.GetForUserProject(ctx, int(userID), project.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		if roleID == "" {
+			continue // no membership — skip this project
+		}
+
+		role, err := s.roles.GetByID(ctx, domain.RoleID(roleID))
+		if err != nil {
+			return nil, err
+		}
+
+		result[project.ID] = role
 	}
 
 	return result, nil

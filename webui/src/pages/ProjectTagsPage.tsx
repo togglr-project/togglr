@@ -44,13 +44,13 @@ import PageHeader from '../components/PageHeader';
 import TagFormDialog from '../components/tags/TagFormDialog';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
-import { userPermissions } from '../hooks/userPermissions';
+import { useRBAC } from '../auth/permissions';
 import type { ProjectTag, Category, CreateProjectTagRequest, UpdateProjectTagRequest } from '../generated/api/client';
 
 const ProjectTagsPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const { user } = useAuth();
-  const { canManageProject } = userPermissions();
+  const rbac = useRBAC(projectId);
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -137,7 +137,21 @@ const ProjectTagsPage: React.FC = () => {
     return <Navigate to="/projects" replace />;
   }
 
-  const canManage = user?.is_superuser || (projectId && canManageProject(parseInt(projectId)));
+  // Check project access and tag management permissions
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   const validateForm = () => {
     if (!formData.name.trim()) {
@@ -328,7 +342,7 @@ const ProjectTagsPage: React.FC = () => {
           subtitle="Manage tags for this project"
           icon={<TagIcon />}
         >
-          {canManage && (
+          {rbac.canManageTags() && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -382,7 +396,7 @@ const ProjectTagsPage: React.FC = () => {
                       <Typography variant="h6" sx={{ flexGrow: 1 }}>
                         {tag.name}
                       </Typography>
-                      {canManage && (
+                      {rbac.canManageTags() && (
                         <IconButton
                           size="small"
                           onClick={(e) => handleMenuOpen(e, tag)}
@@ -420,12 +434,12 @@ const ProjectTagsPage: React.FC = () => {
                 No {['Domain', 'User', 'System'][activeTab]} tags found
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {canManage 
+                {rbac.canManageTags() 
                   ? 'Create your first tag to organize features.'
                   : 'No tags are available for this project.'
                 }
               </Typography>
-              {canManage && (
+              {rbac.canManageTags() && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -443,12 +457,12 @@ const ProjectTagsPage: React.FC = () => {
               No tags found
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {canManage 
+              {rbac.canManageTags() 
                 ? 'Create your first tag to organize features.'
                 : 'No tags are available for this project.'
               }
             </Typography>
-            {canManage && (
+            {rbac.canManageTags() && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}

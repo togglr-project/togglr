@@ -7,7 +7,8 @@ import (
 )
 
 type RolesRepository interface {
-	GetByKey(ctx context.Context, key string) (id string, err error)
+	GetByKey(ctx context.Context, key string) (domain.Role, error)
+	GetByID(ctx context.Context, id domain.RoleID) (domain.Role, error)
 }
 
 type PermissionsRepository interface {

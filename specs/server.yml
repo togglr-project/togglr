@@ -5925,7 +5925,12 @@ components:
             type: array
             items:
               type: string
-      required: [id, username, email, is_superuser, is_active, is_tmp_password, is_external, two_fa_enabled, license_accepted, created_at]
+        project_roles:
+          type: object
+          description: Map of project_id to role object. Contains only projects where user has membership.
+          additionalProperties:
+            $ref: '#/components/schemas/Role'
+      required: [id, username, email, is_superuser, is_active, is_tmp_password, is_external, two_fa_enabled, license_accepted, project_permissions, project_roles, created_at]
 
     AddProjectRequest:
       type: object
@@ -8101,3 +8106,17 @@ components:
         oldest_request_at:
           type: string
           format: date-time
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required: [id, key, name, description]

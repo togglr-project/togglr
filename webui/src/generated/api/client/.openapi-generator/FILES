@@ -115,6 +115,7 @@ docs/RefreshTokenResponse.md
 docs/RejectPendingChangeRequest.md
 docs/ResetPasswordRequest.md
 docs/RiskyFeature.md
+docs/Role.md
 docs/Rule.md
 docs/RuleAction.md
 docs/RuleAttributeEntity.md

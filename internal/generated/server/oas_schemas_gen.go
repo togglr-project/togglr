@@ -7719,52 +7719,6 @@ func (o OptUint) Or(d uint) uint {
 	return d
 }
 
-// NewOptUserProjectPermissions returns new OptUserProjectPermissions with value set to v.
-func NewOptUserProjectPermissions(v UserProjectPermissions) OptUserProjectPermissions {
-	return OptUserProjectPermissions{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptUserProjectPermissions is optional UserProjectPermissions.
-type OptUserProjectPermissions struct {
-	Value UserProjectPermissions
-	Set   bool
-}
-
-// IsSet returns true if OptUserProjectPermissions was set.
-func (o OptUserProjectPermissions) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptUserProjectPermissions) Reset() {
-	var v UserProjectPermissions
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptUserProjectPermissions) SetTo(v UserProjectPermissions) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptUserProjectPermissions) Get() (v UserProjectPermissions, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptUserProjectPermissions) Or(d UserProjectPermissions) UserProjectPermissions {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // Ref: #/components/schemas/Pagination
 type Pagination struct {
 	Total   uint `json:"total"`
@@ -9127,6 +9081,54 @@ func (s *RiskyFeature) SetHasPending(val OptBool) {
 // SetRiskyTags sets the value of RiskyTags.
 func (s *RiskyFeature) SetRiskyTags(val OptString) {
 	s.RiskyTags = val
+}
+
+// Ref: #/components/schemas/Role
+type Role struct {
+	ID          uuid.UUID `json:"id"`
+	Key         string    `json:"key"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+}
+
+// GetID returns the value of ID.
+func (s *Role) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetKey returns the value of Key.
+func (s *Role) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *Role) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *Role) GetDescription() string {
+	return s.Description
+}
+
+// SetID sets the value of ID.
+func (s *Role) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetKey sets the value of Key.
+func (s *Role) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *Role) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Role) SetDescription(val string) {
+	s.Description = val
 }
 
 // Ref: #/components/schemas/Rule
@@ -10512,7 +10514,9 @@ type User struct {
 	LastLogin       OptDateTime `json:"last_login"`
 	// Map of project_id to list of permission keys for that project. Contains only projects where user
 	// has membership.
-	ProjectPermissions OptUserProjectPermissions `json:"project_permissions"`
+	ProjectPermissions UserProjectPermissions `json:"project_permissions"`
+	// Map of project_id to role object. Contains only projects where user has membership.
+	ProjectRoles UserProjectRoles `json:"project_roles"`
 }
 
 // GetID returns the value of ID.
@@ -10571,8 +10575,13 @@ func (s *User) GetLastLogin() OptDateTime {
 }
 
 // GetProjectPermissions returns the value of ProjectPermissions.
-func (s *User) GetProjectPermissions() OptUserProjectPermissions {
+func (s *User) GetProjectPermissions() UserProjectPermissions {
 	return s.ProjectPermissions
+}
+
+// GetProjectRoles returns the value of ProjectRoles.
+func (s *User) GetProjectRoles() UserProjectRoles {
+	return s.ProjectRoles
 }
 
 // SetID sets the value of ID.
@@ -10631,8 +10640,13 @@ func (s *User) SetLastLogin(val OptDateTime) {
 }
 
 // SetProjectPermissions sets the value of ProjectPermissions.
-func (s *User) SetProjectPermissions(val OptUserProjectPermissions) {
+func (s *User) SetProjectPermissions(val UserProjectPermissions) {
 	s.ProjectPermissions = val
+}
+
+// SetProjectRoles sets the value of ProjectRoles.
+func (s *User) SetProjectRoles(val UserProjectRoles) {
+	s.ProjectRoles = val
 }
 
 func (*User) getCurrentUserRes()      {}
@@ -10652,6 +10666,18 @@ func (s *UserProjectPermissions) init() UserProjectPermissions {
 	m := *s
 	if m == nil {
 		m = map[string][]string{}
+		*s = m
+	}
+	return m
+}
+
+// Map of project_id to role object. Contains only projects where user has membership.
+type UserProjectRoles map[string]Role
+
+func (s *UserProjectRoles) init() UserProjectRoles {
+	m := *s
+	if m == nil {
+		m = map[string]Role{}
 		*s = m
 	}
 	return m

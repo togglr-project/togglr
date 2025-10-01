@@ -42,14 +42,14 @@ import PageHeader from '../components/PageHeader';
 import CategoryFormDialog from '../components/categories/CategoryFormDialog';
 import apiClient from '../api/apiClient';
 import { useAuth } from '../auth/AuthContext';
-import { userPermissions } from '../hooks/userPermissions';
+import { useRBAC } from '../auth/permissions';
 import type { Category, CreateCategoryRequest, UpdateCategoryRequest, CategoryKindEnum, CreateCategoryRequestKindEnum } from '../generated/api/client';
 
 const CategoriesPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
-  const { canCreateProjects } = userPermissions();
+  const rbac = useRBAC(); // Categories are global, no projectId needed
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -126,7 +126,7 @@ const CategoriesPage: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  const isSuperuser = user?.is_superuser;
+  // Everyone can view categories, but only users with category.manage permission can manage them
 
   const validateForm = () => {
     if (!formData.name.trim()) {
@@ -270,7 +270,7 @@ const CategoriesPage: React.FC = () => {
           subtitle="Manage feature tag categories"
           icon={<CategoryIcon />}
         >
-          {isSuperuser && (
+          {rbac.canManageCategories() && (
             <Button
               variant="contained"
               startIcon={<AddIcon />}
@@ -324,7 +324,7 @@ const CategoriesPage: React.FC = () => {
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
                           {category.name}
                         </Typography>
-                        {isSuperuser && category.kind !== 'system' && (
+                        {rbac.canManageCategories() && category.kind !== 'system' && (
                           <IconButton
                             size="small"
                             onClick={(e) => handleMenuOpen(e, category)}
@@ -361,12 +361,12 @@ const CategoriesPage: React.FC = () => {
                 No {['Domain', 'User', 'System'][activeTab]} categories found
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                {isSuperuser 
+                {rbac.canManageCategories() 
                   ? 'Create your first category to get started.'
                   : 'No categories have been created yet.'
                 }
               </Typography>
-              {isSuperuser && activeTab !== 2 && (
+              {rbac.canManageCategories() && activeTab !== 2 && (
                 <Button
                   variant="contained"
                   startIcon={<AddIcon />}
@@ -384,12 +384,12 @@ const CategoriesPage: React.FC = () => {
               No categories found
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {isSuperuser 
+              {rbac.canManageCategories() 
                 ? 'Create your first category to organize feature tags.'
                 : 'No categories are available at the moment.'
               }
             </Typography>
-            {isSuperuser && activeTab !== 2 && (
+            {rbac.canManageCategories() && activeTab !== 2 && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}

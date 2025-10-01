@@ -24,6 +24,12 @@ export const PERMISSIONS = {
   membership: {
     manage: 'membership.manage',
   },
+  tag: {
+    manage: 'tag.manage',
+  },
+  category: {
+    manage: 'category.manage',
+  },
 } as const;
 
 export type PermissionKey =
@@ -35,17 +41,31 @@ export type PermissionKey =
   | typeof PERMISSIONS.segment.manage
   | typeof PERMISSIONS.schedule.manage
   | typeof PERMISSIONS.audit.view
-  | typeof PERMISSIONS.membership.manage;
+  | typeof PERMISSIONS.membership.manage
+  | typeof PERMISSIONS.tag.manage
+  | typeof PERMISSIONS.category.manage;
 
 export function hasPermission(
   projectId: string | number | undefined,
   perm: PermissionKey,
   opts?: { isSuperuser?: boolean; projectPermissions?: Record<string, string[]> | undefined },
 ): boolean {
-  if (!projectId) return false;
-
   const isSuperuser = opts?.isSuperuser ?? false;
   if (isSuperuser) return true;
+
+  // For global permissions (like category.manage), check if user has it on any project
+  if (perm === PERMISSIONS.category.manage) {
+    const pp = opts?.projectPermissions;
+    if (!pp) return false;
+    
+    // Check if user has category.manage permission on any project
+    return Object.values(pp).some(permissions => 
+      permissions.includes(PERMISSIONS.category.manage)
+    );
+  }
+
+  // For project-specific permissions, we need projectId
+  if (!projectId) return false;
 
   const pp = opts?.projectPermissions;
   if (!pp) return false;
@@ -77,6 +97,8 @@ export function useRBAC(projectId?: string | number) {
       canManageSchedule: () => check(PERMISSIONS.schedule.manage),
       canViewAudit: () => check(PERMISSIONS.audit.view),
       canManageMembership: () => check(PERMISSIONS.membership.manage),
+      canManageTags: () => check(PERMISSIONS.tag.manage),
+      canManageCategories: () => check(PERMISSIONS.category.manage),
     };
   }, [user, projectId]);
 
@@ -108,5 +130,12 @@ export const Guard = {
   },
   canManageMembership(projectId: string | number, isSuperuser?: boolean, projectPermissions?: Record<string, string[]>) {
     return hasPermission(projectId, PERMISSIONS.membership.manage, { isSuperuser, projectPermissions });
+  },
+  canManageTags(projectId: string | number, isSuperuser?: boolean, projectPermissions?: Record<string, string[]>) {
+    return hasPermission(projectId, PERMISSIONS.tag.manage, { isSuperuser, projectPermissions });
+  },
+  canManageCategories(projectId: string | number, isSuperuser?: boolean, projectPermissions?: Record<string, string[]>) {
+    // For global permissions, we can pass any projectId (it will be ignored)
+    return hasPermission(projectId, PERMISSIONS.category.manage, { isSuperuser, projectPermissions });
   },
 };

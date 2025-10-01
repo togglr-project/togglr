@@ -47,7 +47,7 @@ const AccountPage: React.FC = () => {
     });
   };
 
-  // Get user's accessible projects with permissions
+  // Get user's accessible projects with permissions and roles
   const getUserProjects = () => {
     if (!user || !projects) return [];
     
@@ -55,11 +55,12 @@ const AccountPage: React.FC = () => {
     if (user.is_superuser) {
       return projects.map(project => ({
         ...project,
-        permissions: ['project.view', 'project.manage', 'feature.view', 'feature.toggle', 'feature.manage', 'segment.manage', 'schedule.manage', 'audit.view', 'membership.manage']
+        permissions: ['project.view', 'project.manage', 'feature.view', 'feature.toggle', 'feature.manage', 'segment.manage', 'schedule.manage', 'audit.view', 'membership.manage', 'tag.manage', 'category.manage'],
+        role: { name: 'Superuser', key: 'superuser', description: 'Full system access' }
       }));
     }
     
-    // Otherwise, filter by project_permissions
+    // Otherwise, filter by project_permissions and include roles
     return projects
       .filter(project => {
         const permissions = user.project_permissions?.[project.id];
@@ -67,7 +68,8 @@ const AccountPage: React.FC = () => {
       })
       .map(project => ({
         ...project,
-        permissions: user.project_permissions?.[project.id] || []
+        permissions: user.project_permissions?.[project.id] || [],
+        role: user.project_roles?.[project.id] || null
       }));
   };
 
@@ -82,7 +84,9 @@ const AccountPage: React.FC = () => {
       'segment.manage': { icon: <PeopleIcon />, label: 'Manage Segments', color: 'secondary' },
       'schedule.manage': { icon: <ScheduleIcon />, label: 'Manage Schedules', color: 'info' },
       'audit.view': { icon: <AuditIcon />, label: 'View Audit Logs', color: 'default' },
-      'membership.manage': { icon: <PeopleIcon />, label: 'Manage Members', color: 'warning' }
+      'membership.manage': { icon: <PeopleIcon />, label: 'Manage Members', color: 'warning' },
+      'tag.manage': { icon: <EditIcon />, label: 'Manage Tags', color: 'info' },
+      'category.manage': { icon: <SettingsIcon />, label: 'Manage Categories', color: 'primary' }
     };
     
     return permissionMap[permission] || { icon: <ViewIcon />, label: permission, color: 'default' };
@@ -286,12 +290,13 @@ const AccountPage: React.FC = () => {
                               color="primary" 
                               variant="outlined"
                             />
-                            {user?.is_superuser && (
+                            {project.role && (
                               <Chip 
-                                label="Superuser" 
+                                label={project.role.name} 
                                 size="small" 
-                                color="warning" 
-                                icon={<AdminIcon />}
+                                color={user?.is_superuser ? "warning" : "secondary"} 
+                                icon={user?.is_superuser ? <AdminIcon /> : undefined}
+                                variant="filled"
                               />
                             )}
                           </Box>
@@ -299,6 +304,36 @@ const AccountPage: React.FC = () => {
                       </AccordionSummary>
                       <AccordionDetails>
                         <Box>
+                          {/* Role Information */}
+                          {project.role && (
+                            <Box sx={{ 
+                              mb: 3, 
+                              p: 2, 
+                              backgroundColor: 'primary.50', 
+                              borderRadius: 1, 
+                              border: '1px solid', 
+                              borderColor: 'primary.200' 
+                            }}>
+                              <Typography variant="subtitle2" gutterBottom sx={{ color: 'primary.dark', fontWeight: 600 }}>
+                                Your Role
+                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                <Chip 
+                                  label={project.role.name} 
+                                  size="small" 
+                                  color={user?.is_superuser ? "warning" : "secondary"} 
+                                  icon={user?.is_superuser ? <AdminIcon /> : undefined}
+                                  variant="filled"
+                                />
+                              </Box>
+                              {project.role.description && (
+                                <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                                  {project.role.description}
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                          
                           <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, color: 'text.secondary' }}>
                             Available Permissions:
                           </Typography>

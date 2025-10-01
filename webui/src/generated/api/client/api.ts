@@ -1101,6 +1101,12 @@ export interface RiskyFeature {
     'has_pending'?: boolean;
     'risky_tags'?: string;
 }
+export interface Role {
+    'id': string;
+    'key': string;
+    'name': string;
+    'description': string;
+}
 export interface Rule {
     'id': string;
     'feature_id': string;
@@ -1390,7 +1396,11 @@ export interface User {
     /**
      * Map of project_id to list of permission keys for that project. Contains only projects where user has membership.
      */
-    'project_permissions'?: { [key: string]: Array<string>; };
+    'project_permissions': { [key: string]: Array<string>; };
+    /**
+     * Map of project_id to role object. Contains only projects where user has membership.
+     */
+    'project_roles': { [key: string]: Role; };
 }
 
 /**

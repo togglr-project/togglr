@@ -16,7 +16,8 @@ Name | Type | Description | Notes
 **license_accepted** | **boolean** | Flag indicating whether the user has accepted the license agreement | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **last_login** | **string** |  | [optional] [default to undefined]
-**project_permissions** | **{ [key: string]: Array&lt;string&gt;; }** | Map of project_id to list of permission keys for that project. Contains only projects where user has membership. | [optional] [default to undefined]
+**project_permissions** | **{ [key: string]: Array&lt;string&gt;; }** | Map of project_id to list of permission keys for that project. Contains only projects where user has membership. | [default to undefined]
+**project_roles** | [**{ [key: string]: Role; }**](Role.md) | Map of project_id to role object. Contains only projects where user has membership. | [default to undefined]
 
 ## Example
 
@@ -36,6 +37,7 @@ const instance: User = {
     created_at,
     last_login,
     project_permissions,
+    project_roles,
 };
 ```
 
