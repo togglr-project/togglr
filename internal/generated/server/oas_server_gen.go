@@ -210,6 +210,12 @@ type Handler interface {
 	//
 	// POST /api/v1/auth/forgot-password
 	ForgotPassword(ctx context.Context, req *ForgotPasswordRequest) (ForgotPasswordRes, error)
+	// GetAuditLogEntry implements GetAuditLogEntry operation.
+	//
+	// Get audit log entry by ID.
+	//
+	// GET /api/v1/audit/{id}
+	GetAuditLogEntry(ctx context.Context, params GetAuditLogEntryParams) (GetAuditLogEntryRes, error)
 	// GetCategory implements GetCategory operation.
 	//
 	// Get category details.
@@ -414,6 +420,12 @@ type Handler interface {
 	//
 	// GET /api/v1/permissions
 	ListPermissions(ctx context.Context) (ListPermissionsRes, error)
+	// ListProjectAuditLogs implements ListProjectAuditLogs operation.
+	//
+	// List audit log entries for project.
+	//
+	// GET /api/v1/projects/{project_id}/audit
+	ListProjectAuditLogs(ctx context.Context, params ListProjectAuditLogsParams) (ListProjectAuditLogsRes, error)
 	// ListProjectChanges implements ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.

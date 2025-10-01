@@ -160,6 +160,170 @@ func (s *AuditAction) UnmarshalText(data []byte) error {
 	}
 }
 
+// Ref: #/components/schemas/AuditLog
+type AuditLog struct {
+	ID             int64               `json:"id"`
+	ProjectID      uuid.UUID           `json:"project_id"`
+	EnvironmentID  int                 `json:"environment_id"`
+	EnvironmentKey OptString           `json:"environment_key"`
+	Entity         string              `json:"entity"`
+	EntityID       uuid.UUID           `json:"entity_id"`
+	FeatureID      OptUUID             `json:"feature_id"`
+	Action         string              `json:"action"`
+	Actor          string              `json:"actor"`
+	Username       OptString           `json:"username"`
+	RequestID      OptUUID             `json:"request_id"`
+	OldValue       OptAuditLogOldValue `json:"old_value"`
+	NewValue       OptAuditLogNewValue `json:"new_value"`
+	CreatedAt      time.Time           `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *AuditLog) GetID() int64 {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *AuditLog) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *AuditLog) GetEnvironmentID() int {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *AuditLog) GetEnvironmentKey() OptString {
+	return s.EnvironmentKey
+}
+
+// GetEntity returns the value of Entity.
+func (s *AuditLog) GetEntity() string {
+	return s.Entity
+}
+
+// GetEntityID returns the value of EntityID.
+func (s *AuditLog) GetEntityID() uuid.UUID {
+	return s.EntityID
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *AuditLog) GetFeatureID() OptUUID {
+	return s.FeatureID
+}
+
+// GetAction returns the value of Action.
+func (s *AuditLog) GetAction() string {
+	return s.Action
+}
+
+// GetActor returns the value of Actor.
+func (s *AuditLog) GetActor() string {
+	return s.Actor
+}
+
+// GetUsername returns the value of Username.
+func (s *AuditLog) GetUsername() OptString {
+	return s.Username
+}
+
+// GetRequestID returns the value of RequestID.
+func (s *AuditLog) GetRequestID() OptUUID {
+	return s.RequestID
+}
+
+// GetOldValue returns the value of OldValue.
+func (s *AuditLog) GetOldValue() OptAuditLogOldValue {
+	return s.OldValue
+}
+
+// GetNewValue returns the value of NewValue.
+func (s *AuditLog) GetNewValue() OptAuditLogNewValue {
+	return s.NewValue
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *AuditLog) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *AuditLog) SetID(val int64) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *AuditLog) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *AuditLog) SetEnvironmentID(val int) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *AuditLog) SetEnvironmentKey(val OptString) {
+	s.EnvironmentKey = val
+}
+
+// SetEntity sets the value of Entity.
+func (s *AuditLog) SetEntity(val string) {
+	s.Entity = val
+}
+
+// SetEntityID sets the value of EntityID.
+func (s *AuditLog) SetEntityID(val uuid.UUID) {
+	s.EntityID = val
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *AuditLog) SetFeatureID(val OptUUID) {
+	s.FeatureID = val
+}
+
+// SetAction sets the value of Action.
+func (s *AuditLog) SetAction(val string) {
+	s.Action = val
+}
+
+// SetActor sets the value of Actor.
+func (s *AuditLog) SetActor(val string) {
+	s.Actor = val
+}
+
+// SetUsername sets the value of Username.
+func (s *AuditLog) SetUsername(val OptString) {
+	s.Username = val
+}
+
+// SetRequestID sets the value of RequestID.
+func (s *AuditLog) SetRequestID(val OptUUID) {
+	s.RequestID = val
+}
+
+// SetOldValue sets the value of OldValue.
+func (s *AuditLog) SetOldValue(val OptAuditLogOldValue) {
+	s.OldValue = val
+}
+
+// SetNewValue sets the value of NewValue.
+func (s *AuditLog) SetNewValue(val OptAuditLogNewValue) {
+	s.NewValue = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *AuditLog) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+func (*AuditLog) getAuditLogEntryRes() {}
+
+type AuditLogNewValue struct{}
+
+type AuditLogOldValue struct{}
+
 // Ref: #/components/schemas/AuthCredentials
 type AuthCredentials struct {
 	Method     AuthCredentialsMethod `json:"method"`
@@ -2472,6 +2636,7 @@ func (*ErrorInternalServerError) deleteRuleAttributeRes()         {}
 func (*ErrorInternalServerError) deleteSegmentRes()               {}
 func (*ErrorInternalServerError) deleteUserRes()                  {}
 func (*ErrorInternalServerError) forgotPasswordRes()              {}
+func (*ErrorInternalServerError) getAuditLogEntryRes()            {}
 func (*ErrorInternalServerError) getCategoryRes()                 {}
 func (*ErrorInternalServerError) getCurrentUserRes()              {}
 func (*ErrorInternalServerError) getDashboardOverviewRes()        {}
@@ -2498,6 +2663,7 @@ func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listFeatureTagsRes()             {}
 func (*ErrorInternalServerError) listPendingChangesRes()          {}
 func (*ErrorInternalServerError) listPermissionsRes()             {}
+func (*ErrorInternalServerError) listProjectAuditLogsRes()        {}
 func (*ErrorInternalServerError) listProjectChangesRes()          {}
 func (*ErrorInternalServerError) listProjectEnvironmentsRes()     {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
@@ -2620,6 +2786,7 @@ func (*ErrorNotFound) deleteProjectTagRes()            {}
 func (*ErrorNotFound) deleteRuleAttributeRes()         {}
 func (*ErrorNotFound) deleteSegmentRes()               {}
 func (*ErrorNotFound) deleteUserRes()                  {}
+func (*ErrorNotFound) getAuditLogEntryRes()            {}
 func (*ErrorNotFound) getCategoryRes()                 {}
 func (*ErrorNotFound) getEnvironmentRes()              {}
 func (*ErrorNotFound) getFeatureRes()                  {}
@@ -2638,6 +2805,7 @@ func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
 func (*ErrorNotFound) listFeatureTagsRes()             {}
+func (*ErrorNotFound) listProjectAuditLogsRes()        {}
 func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
 func (*ErrorNotFound) listProjectMembershipsRes()      {}
@@ -2723,6 +2891,7 @@ func (*ErrorPermissionDenied) deleteRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) deleteSegmentRes()               {}
 func (*ErrorPermissionDenied) deleteUserRes()                  {}
 func (*ErrorPermissionDenied) forgotPasswordRes()              {}
+func (*ErrorPermissionDenied) getAuditLogEntryRes()            {}
 func (*ErrorPermissionDenied) getCategoryRes()                 {}
 func (*ErrorPermissionDenied) getDashboardOverviewRes()        {}
 func (*ErrorPermissionDenied) getEnvironmentRes()              {}
@@ -2750,6 +2919,7 @@ func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
 func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
 func (*ErrorPermissionDenied) listPendingChangesRes()          {}
+func (*ErrorPermissionDenied) listProjectAuditLogsRes()        {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectEnvironmentsRes()     {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
@@ -2902,6 +3072,7 @@ func (*ErrorUnauthorized) deleteRuleAttributeRes()         {}
 func (*ErrorUnauthorized) deleteSegmentRes()               {}
 func (*ErrorUnauthorized) deleteUserRes()                  {}
 func (*ErrorUnauthorized) disable2FARes()                  {}
+func (*ErrorUnauthorized) getAuditLogEntryRes()            {}
 func (*ErrorUnauthorized) getCategoryRes()                 {}
 func (*ErrorUnauthorized) getCurrentUserRes()              {}
 func (*ErrorUnauthorized) getDashboardOverviewRes()        {}
@@ -2932,6 +3103,7 @@ func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listFeatureTagsRes()             {}
 func (*ErrorUnauthorized) listPendingChangesRes()          {}
 func (*ErrorUnauthorized) listPermissionsRes()             {}
+func (*ErrorUnauthorized) listProjectAuditLogsRes()        {}
 func (*ErrorUnauthorized) listProjectChangesRes()          {}
 func (*ErrorUnauthorized) listProjectEnvironmentsRes()     {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
@@ -5469,6 +5641,109 @@ type ListPermissionsOKApplicationJSON []Permission
 
 func (*ListPermissionsOKApplicationJSON) listPermissionsRes() {}
 
+type ListProjectAuditLogsOK struct {
+	Items      []AuditLog `json:"items"`
+	Pagination Pagination `json:"pagination"`
+}
+
+// GetItems returns the value of Items.
+func (s *ListProjectAuditLogsOK) GetItems() []AuditLog {
+	return s.Items
+}
+
+// GetPagination returns the value of Pagination.
+func (s *ListProjectAuditLogsOK) GetPagination() Pagination {
+	return s.Pagination
+}
+
+// SetItems sets the value of Items.
+func (s *ListProjectAuditLogsOK) SetItems(val []AuditLog) {
+	s.Items = val
+}
+
+// SetPagination sets the value of Pagination.
+func (s *ListProjectAuditLogsOK) SetPagination(val Pagination) {
+	s.Pagination = val
+}
+
+func (*ListProjectAuditLogsOK) listProjectAuditLogsRes() {}
+
+type ListProjectAuditLogsSortBy string
+
+const (
+	ListProjectAuditLogsSortByEnvironmentKey ListProjectAuditLogsSortBy = "environment_key"
+	ListProjectAuditLogsSortByEntity         ListProjectAuditLogsSortBy = "entity"
+	ListProjectAuditLogsSortByEntityID       ListProjectAuditLogsSortBy = "entity_id"
+	ListProjectAuditLogsSortByActor          ListProjectAuditLogsSortBy = "actor"
+	ListProjectAuditLogsSortByAction         ListProjectAuditLogsSortBy = "action"
+	ListProjectAuditLogsSortByUsername       ListProjectAuditLogsSortBy = "username"
+	ListProjectAuditLogsSortByCreatedAt      ListProjectAuditLogsSortBy = "created_at"
+)
+
+// AllValues returns all ListProjectAuditLogsSortBy values.
+func (ListProjectAuditLogsSortBy) AllValues() []ListProjectAuditLogsSortBy {
+	return []ListProjectAuditLogsSortBy{
+		ListProjectAuditLogsSortByEnvironmentKey,
+		ListProjectAuditLogsSortByEntity,
+		ListProjectAuditLogsSortByEntityID,
+		ListProjectAuditLogsSortByActor,
+		ListProjectAuditLogsSortByAction,
+		ListProjectAuditLogsSortByUsername,
+		ListProjectAuditLogsSortByCreatedAt,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s ListProjectAuditLogsSortBy) MarshalText() ([]byte, error) {
+	switch s {
+	case ListProjectAuditLogsSortByEnvironmentKey:
+		return []byte(s), nil
+	case ListProjectAuditLogsSortByEntity:
+		return []byte(s), nil
+	case ListProjectAuditLogsSortByEntityID:
+		return []byte(s), nil
+	case ListProjectAuditLogsSortByActor:
+		return []byte(s), nil
+	case ListProjectAuditLogsSortByAction:
+		return []byte(s), nil
+	case ListProjectAuditLogsSortByUsername:
+		return []byte(s), nil
+	case ListProjectAuditLogsSortByCreatedAt:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *ListProjectAuditLogsSortBy) UnmarshalText(data []byte) error {
+	switch ListProjectAuditLogsSortBy(data) {
+	case ListProjectAuditLogsSortByEnvironmentKey:
+		*s = ListProjectAuditLogsSortByEnvironmentKey
+		return nil
+	case ListProjectAuditLogsSortByEntity:
+		*s = ListProjectAuditLogsSortByEntity
+		return nil
+	case ListProjectAuditLogsSortByEntityID:
+		*s = ListProjectAuditLogsSortByEntityID
+		return nil
+	case ListProjectAuditLogsSortByActor:
+		*s = ListProjectAuditLogsSortByActor
+		return nil
+	case ListProjectAuditLogsSortByAction:
+		*s = ListProjectAuditLogsSortByAction
+		return nil
+	case ListProjectAuditLogsSortByUsername:
+		*s = ListProjectAuditLogsSortByUsername
+		return nil
+	case ListProjectAuditLogsSortByCreatedAt:
+		*s = ListProjectAuditLogsSortByCreatedAt
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 type ListProjectChangesSortBy string
 
 const (
@@ -6040,6 +6315,98 @@ func (o OptAuditAction) Get() (v AuditAction, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptAuditAction) Or(d AuditAction) AuditAction {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptAuditLogNewValue returns new OptAuditLogNewValue with value set to v.
+func NewOptAuditLogNewValue(v *AuditLogNewValue) OptAuditLogNewValue {
+	return OptAuditLogNewValue{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptAuditLogNewValue is optional *AuditLogNewValue.
+type OptAuditLogNewValue struct {
+	Value *AuditLogNewValue
+	Set   bool
+}
+
+// IsSet returns true if OptAuditLogNewValue was set.
+func (o OptAuditLogNewValue) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptAuditLogNewValue) Reset() {
+	var v *AuditLogNewValue
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptAuditLogNewValue) SetTo(v *AuditLogNewValue) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptAuditLogNewValue) Get() (v *AuditLogNewValue, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptAuditLogNewValue) Or(d *AuditLogNewValue) *AuditLogNewValue {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptAuditLogOldValue returns new OptAuditLogOldValue with value set to v.
+func NewOptAuditLogOldValue(v *AuditLogOldValue) OptAuditLogOldValue {
+	return OptAuditLogOldValue{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptAuditLogOldValue is optional *AuditLogOldValue.
+type OptAuditLogOldValue struct {
+	Value *AuditLogOldValue
+	Set   bool
+}
+
+// IsSet returns true if OptAuditLogOldValue was set.
+func (o OptAuditLogOldValue) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptAuditLogOldValue) Reset() {
+	var v *AuditLogOldValue
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptAuditLogOldValue) SetTo(v *AuditLogOldValue) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptAuditLogOldValue) Get() (v *AuditLogOldValue, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptAuditLogOldValue) Or(d *AuditLogOldValue) *AuditLogOldValue {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -6868,6 +7235,52 @@ func (o OptListPendingChangesStatus) Get() (v ListPendingChangesStatus, ok bool)
 
 // Or returns value if set, or given parameter if does not.
 func (o OptListPendingChangesStatus) Or(d ListPendingChangesStatus) ListPendingChangesStatus {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptListProjectAuditLogsSortBy returns new OptListProjectAuditLogsSortBy with value set to v.
+func NewOptListProjectAuditLogsSortBy(v ListProjectAuditLogsSortBy) OptListProjectAuditLogsSortBy {
+	return OptListProjectAuditLogsSortBy{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptListProjectAuditLogsSortBy is optional ListProjectAuditLogsSortBy.
+type OptListProjectAuditLogsSortBy struct {
+	Value ListProjectAuditLogsSortBy
+	Set   bool
+}
+
+// IsSet returns true if OptListProjectAuditLogsSortBy was set.
+func (o OptListProjectAuditLogsSortBy) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptListProjectAuditLogsSortBy) Reset() {
+	var v ListProjectAuditLogsSortBy
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptListProjectAuditLogsSortBy) SetTo(v ListProjectAuditLogsSortBy) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptListProjectAuditLogsSortBy) Get() (v ListProjectAuditLogsSortBy, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptListProjectAuditLogsSortBy) Or(d ListProjectAuditLogsSortBy) ListProjectAuditLogsSortBy {
 	if v, ok := o.Get(); ok {
 		return v
 	}

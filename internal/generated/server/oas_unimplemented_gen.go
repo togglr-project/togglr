@@ -314,6 +314,15 @@ func (UnimplementedHandler) ForgotPassword(ctx context.Context, req *ForgotPassw
 	return r, ht.ErrNotImplemented
 }
 
+// GetAuditLogEntry implements GetAuditLogEntry operation.
+//
+// Get audit log entry by ID.
+//
+// GET /api/v1/audit/{id}
+func (UnimplementedHandler) GetAuditLogEntry(ctx context.Context, params GetAuditLogEntryParams) (r GetAuditLogEntryRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetCategory implements GetCategory operation.
 //
 // Get category details.
@@ -614,6 +623,15 @@ func (UnimplementedHandler) ListPendingChanges(ctx context.Context, params ListP
 //
 // GET /api/v1/permissions
 func (UnimplementedHandler) ListPermissions(ctx context.Context) (r ListPermissionsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectAuditLogs implements ListProjectAuditLogs operation.
+//
+// List audit log entries for project.
+//
+// GET /api/v1/projects/{project_id}/audit
+func (UnimplementedHandler) ListProjectAuditLogs(ctx context.Context, params ListProjectAuditLogsParams) (r ListProjectAuditLogsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

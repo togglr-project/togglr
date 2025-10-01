@@ -5919,6 +5919,186 @@ paths:
       security:
         - bearerAuth: []
 
+  /api/v1/projects/{project_id}/audit:
+    get:
+      summary: List audit log entries for project
+      operationId: ListProjectAuditLogs
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by environment
+        - name: entity
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by entity type (e.g. "feature", "segment")
+        - name: entity_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter by specific entity
+        - name: actor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by actor username
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: Start of time range
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+          description: End of time range
+        - name: sort_by
+          in: query
+          required: false
+          description: Sort by field
+          schema:
+            type: string
+            enum: [environment_key, entity, entity_id, actor, action, username, created_at]
+        - name: sort_order
+          in: query
+          required: false
+          description: Sort order
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+        - name: page
+          in: query
+          required: false
+          description: Page number (starts from 1)
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          required: false
+          description: Items per page
+          schema:
+            type: integer
+            format: uint
+            minimum: 1
+            default: 20
+      responses:
+        '200':
+          description: List of audit log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLog'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                required: [ items, pagination ]
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/audit/{id}:
+    get:
+      summary: Get audit log entry by ID
+      operationId: GetAuditLogEntry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Audit log entry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLog'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Audit log entry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -8639,3 +8819,49 @@ components:
           format: uuid
           example: "c4f1a8d0-3b75-4c9f-9181-bbba66ad635d"
       required: [role_id]
+
+    AuditLog:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: integer
+        environment_key:
+          type: string
+        entity:
+          type: string
+          example: "feature"
+        entity_id:
+          type: string
+          format: uuid
+        feature_id:
+          type: string
+          format: uuid
+        action:
+          type: string
+          example: "update"
+        actor:
+          type: string
+          example: "system"
+        username:
+          type: string
+          example: "john.doe"
+        request_id:
+          type: string
+          format: uuid
+        old_value:
+          type: object
+          nullable: true
+        new_value:
+          type: object
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required:
+        [id, project_id, environment_id, entity, entity_id, action, actor, created_at]

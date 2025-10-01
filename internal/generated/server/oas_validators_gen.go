@@ -2928,6 +2928,61 @@ func (s ListPermissionsOKApplicationJSON) Validate() error {
 	return nil
 }
 
+func (s *ListProjectAuditLogsOK) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.Items == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "items",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := s.Pagination.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "pagination",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
+func (s ListProjectAuditLogsSortBy) Validate() error {
+	switch s {
+	case "environment_key":
+		return nil
+	case "entity":
+		return nil
+	case "entity_id":
+		return nil
+	case "actor":
+		return nil
+	case "action":
+		return nil
+	case "username":
+		return nil
+	case "created_at":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
+}
+
 func (s ListProjectChangesSortBy) Validate() error {
 	switch s {
 	case "created_at":

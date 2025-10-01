@@ -133,6 +133,10 @@ type ForgotPasswordRes interface {
 	forgotPasswordRes()
 }
 
+type GetAuditLogEntryRes interface {
+	getAuditLogEntryRes()
+}
+
 type GetCategoryRes interface {
 	getCategoryRes()
 }
@@ -263,6 +267,10 @@ type ListPendingChangesRes interface {
 
 type ListPermissionsRes interface {
 	listPermissionsRes()
+}
+
+type ListProjectAuditLogsRes interface {
+	listProjectAuditLogsRes()
 }
 
 type ListProjectChangesRes interface {
