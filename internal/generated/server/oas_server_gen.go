@@ -96,6 +96,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/features
 	CreateProjectFeature(ctx context.Context, req *CreateFeatureRequest, params CreateProjectFeatureParams) (CreateProjectFeatureRes, error)
+	// CreateProjectMembership implements CreateProjectMembership operation.
+	//
+	// Add membership to project.
+	//
+	// POST /api/v1/projects/{project_id}/memberships
+	CreateProjectMembership(ctx context.Context, req *CreateMembershipRequest, params CreateProjectMembershipParams) (CreateProjectMembershipRes, error)
 	// CreateProjectSegment implements CreateProjectSegment operation.
 	//
 	// Create segment for project.
@@ -156,6 +162,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteProjectMembership implements DeleteProjectMembership operation.
+	//
+	// Delete membership.
+	//
+	// DELETE /api/v1/projects/{project_id}/memberships/{membership_id}
+	DeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (DeleteProjectMembershipRes, error)
 	// DeleteProjectSetting implements DeleteProjectSetting operation.
 	//
 	// Delete project setting.
@@ -306,6 +318,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}
 	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetProjectMembership implements GetProjectMembership operation.
+	//
+	// Get membership.
+	//
+	// GET /api/v1/projects/{project_id}/memberships/{membership_id}
+	GetProjectMembership(ctx context.Context, params GetProjectMembershipParams) (GetProjectMembershipRes, error)
 	// GetProjectSetting implements GetProjectSetting operation.
 	//
 	// Get project setting by name.
@@ -318,6 +336,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/tags/{tag_id}
 	GetProjectTag(ctx context.Context, params GetProjectTagParams) (GetProjectTagRes, error)
+	// GetRolePermissions implements GetRolePermissions operation.
+	//
+	// Get permissions for a role.
+	//
+	// GET /api/v1/roles/{role_id}/permissions
+	GetRolePermissions(ctx context.Context, params GetRolePermissionsParams) (GetRolePermissionsRes, error)
 	// GetSAMLMetadata implements GetSAMLMetadata operation.
 	//
 	// Get SAML metadata.
@@ -384,6 +408,12 @@ type Handler interface {
 	//
 	// GET /api/v1/pending_changes
 	ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (ListPendingChangesRes, error)
+	// ListPermissions implements ListPermissions operation.
+	//
+	// List all permissions.
+	//
+	// GET /api/v1/permissions
+	ListPermissions(ctx context.Context) (ListPermissionsRes, error)
 	// ListProjectChanges implements ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -402,6 +432,12 @@ type Handler interface {
 	//
 	// GET /api/v1/projects/{project_id}/features
 	ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (ListProjectFeaturesRes, error)
+	// ListProjectMemberships implements ListProjectMemberships operation.
+	//
+	// List memberships for project.
+	//
+	// GET /api/v1/projects/{project_id}/memberships
+	ListProjectMemberships(ctx context.Context, params ListProjectMembershipsParams) (ListProjectMembershipsRes, error)
 	// ListProjectSegments implements ListProjectSegments operation.
 	//
 	// List segments for project.
@@ -426,6 +462,18 @@ type Handler interface {
 	//
 	// GET /api/v1/projects
 	ListProjects(ctx context.Context) (ListProjectsRes, error)
+	// ListRolePermissions implements ListRolePermissions operation.
+	//
+	// List permissions for all roles.
+	//
+	// GET /api/v1/roles/permissions
+	ListRolePermissions(ctx context.Context) (ListRolePermissionsRes, error)
+	// ListRoles implements ListRoles operation.
+	//
+	// List all roles.
+	//
+	// GET /api/v1/roles
+	ListRoles(ctx context.Context) (ListRolesRes, error)
 	// ListRuleAttributes implements ListRuleAttributes operation.
 	//
 	// List of rule attributes.
@@ -594,6 +642,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateProjectMembership implements UpdateProjectMembership operation.
+	//
+	// Update membership.
+	//
+	// PUT /api/v1/projects/{project_id}/memberships/{membership_id}
+	UpdateProjectMembership(ctx context.Context, req *UpdateMembershipRequest, params UpdateProjectMembershipParams) (UpdateProjectMembershipRes, error)
 	// UpdateProjectSetting implements UpdateProjectSetting operation.
 	//
 	// Update project setting.

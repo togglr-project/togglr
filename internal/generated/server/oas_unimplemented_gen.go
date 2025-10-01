@@ -143,6 +143,15 @@ func (UnimplementedHandler) CreateProjectFeature(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
+// CreateProjectMembership implements CreateProjectMembership operation.
+//
+// Add membership to project.
+//
+// POST /api/v1/projects/{project_id}/memberships
+func (UnimplementedHandler) CreateProjectMembership(ctx context.Context, req *CreateMembershipRequest, params CreateProjectMembershipParams) (r CreateProjectMembershipRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateProjectSegment implements CreateProjectSegment operation.
 //
 // Create segment for project.
@@ -230,6 +239,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteProjectMembership implements DeleteProjectMembership operation.
+//
+// Delete membership.
+//
+// DELETE /api/v1/projects/{project_id}/memberships/{membership_id}
+func (UnimplementedHandler) DeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (r DeleteProjectMembershipRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -455,6 +473,15 @@ func (UnimplementedHandler) GetProject(ctx context.Context, params GetProjectPar
 	return r, ht.ErrNotImplemented
 }
 
+// GetProjectMembership implements GetProjectMembership operation.
+//
+// Get membership.
+//
+// GET /api/v1/projects/{project_id}/memberships/{membership_id}
+func (UnimplementedHandler) GetProjectMembership(ctx context.Context, params GetProjectMembershipParams) (r GetProjectMembershipRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetProjectSetting implements GetProjectSetting operation.
 //
 // Get project setting by name.
@@ -470,6 +497,15 @@ func (UnimplementedHandler) GetProjectSetting(ctx context.Context, params GetPro
 //
 // GET /api/v1/projects/{project_id}/tags/{tag_id}
 func (UnimplementedHandler) GetProjectTag(ctx context.Context, params GetProjectTagParams) (r GetProjectTagRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetRolePermissions implements GetRolePermissions operation.
+//
+// Get permissions for a role.
+//
+// GET /api/v1/roles/{role_id}/permissions
+func (UnimplementedHandler) GetRolePermissions(ctx context.Context, params GetRolePermissionsParams) (r GetRolePermissionsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -572,6 +608,15 @@ func (UnimplementedHandler) ListPendingChanges(ctx context.Context, params ListP
 	return r, ht.ErrNotImplemented
 }
 
+// ListPermissions implements ListPermissions operation.
+//
+// List all permissions.
+//
+// GET /api/v1/permissions
+func (UnimplementedHandler) ListPermissions(ctx context.Context) (r ListPermissionsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListProjectChanges implements ListProjectChanges operation.
 //
 // Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -596,6 +641,15 @@ func (UnimplementedHandler) ListProjectEnvironments(ctx context.Context, params 
 //
 // GET /api/v1/projects/{project_id}/features
 func (UnimplementedHandler) ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (r ListProjectFeaturesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListProjectMemberships implements ListProjectMemberships operation.
+//
+// List memberships for project.
+//
+// GET /api/v1/projects/{project_id}/memberships
+func (UnimplementedHandler) ListProjectMemberships(ctx context.Context, params ListProjectMembershipsParams) (r ListProjectMembershipsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -632,6 +686,24 @@ func (UnimplementedHandler) ListProjectTags(ctx context.Context, params ListProj
 //
 // GET /api/v1/projects
 func (UnimplementedHandler) ListProjects(ctx context.Context) (r ListProjectsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListRolePermissions implements ListRolePermissions operation.
+//
+// List permissions for all roles.
+//
+// GET /api/v1/roles/permissions
+func (UnimplementedHandler) ListRolePermissions(ctx context.Context) (r ListRolePermissionsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListRoles implements ListRoles operation.
+//
+// List all roles.
+//
+// GET /api/v1/roles
+func (UnimplementedHandler) ListRoles(ctx context.Context) (r ListRolesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -884,6 +956,15 @@ func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *Up
 //
 // PUT /api/v1/projects/{project_id}
 func (UnimplementedHandler) UpdateProject(ctx context.Context, req *UpdateProjectRequest, params UpdateProjectParams) (r UpdateProjectRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateProjectMembership implements UpdateProjectMembership operation.
+//
+// Update membership.
+//
+// PUT /api/v1/projects/{project_id}/memberships/{membership_id}
+func (UnimplementedHandler) UpdateProjectMembership(ctx context.Context, req *UpdateMembershipRequest, params UpdateProjectMembershipParams) (r UpdateProjectMembershipRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

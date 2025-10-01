@@ -1053,48 +1053,30 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case 'e': // Prefix: "ending_changes"
+				case 'e': // Prefix: "e"
 
-					if l := len("ending_changes"); len(elem) >= l && elem[0:l] == "ending_changes" {
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						switch r.Method {
-						case "GET":
-							s.handleListPendingChangesRequest([0]string{}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "GET")
-						}
-
-						return
+						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case 'n': // Prefix: "nding_changes"
 
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("nding_changes"); len(elem) >= l && elem[0:l] == "nding_changes" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
-						// Param: "pending_change_id"
-						// Match until "/"
-						idx := strings.IndexByte(elem, '/')
-						if idx < 0 {
-							idx = len(elem)
-						}
-						args[0] = elem[:idx]
-						elem = elem[idx:]
-
 						if len(elem) == 0 {
 							switch r.Method {
 							case "GET":
-								s.handleGetPendingChangeRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
+								s.handleListPendingChangesRequest([0]string{}, elemIsEscaped, w, r)
 							default:
 								s.notAllowed(w, r, "GET")
 							}
@@ -1110,100 +1092,152 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								break
 							}
 
+							// Param: "pending_change_id"
+							// Match until "/"
+							idx := strings.IndexByte(elem, '/')
+							if idx < 0 {
+								idx = len(elem)
+							}
+							args[0] = elem[:idx]
+							elem = elem[idx:]
+
 							if len(elem) == 0 {
-								break
+								switch r.Method {
+								case "GET":
+									s.handleGetPendingChangeRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
 							}
 							switch elem[0] {
-							case 'a': // Prefix: "approve"
+							case '/': // Prefix: "/"
 
-								if l := len("approve"); len(elem) >= l && elem[0:l] == "approve" {
+								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 									elem = elem[l:]
 								} else {
 									break
 								}
 
 								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "POST":
-										s.handleApprovePendingChangeRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "POST")
-									}
-
-									return
-								}
-
-							case 'c': // Prefix: "cancel"
-
-								if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
-									elem = elem[l:]
-								} else {
 									break
 								}
+								switch elem[0] {
+								case 'a': // Prefix: "approve"
 
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "POST":
-										s.handleCancelPendingChangeRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "POST")
+									if l := len("approve"); len(elem) >= l && elem[0:l] == "approve" {
+										elem = elem[l:]
+									} else {
+										break
 									}
 
-									return
-								}
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleApprovePendingChangeRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
 
-							case 'i': // Prefix: "initiate-totp"
-
-								if l := len("initiate-totp"); len(elem) >= l && elem[0:l] == "initiate-totp" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "POST":
-										s.handleInitiateTOTPApprovalRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "POST")
+										return
 									}
 
-									return
-								}
+								case 'c': // Prefix: "cancel"
 
-							case 'r': // Prefix: "reject"
-
-								if l := len("reject"); len(elem) >= l && elem[0:l] == "reject" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "POST":
-										s.handleRejectPendingChangeRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "POST")
+									if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
+										elem = elem[l:]
+									} else {
+										break
 									}
 
-									return
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleCancelPendingChangeRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
+								case 'i': // Prefix: "initiate-totp"
+
+									if l := len("initiate-totp"); len(elem) >= l && elem[0:l] == "initiate-totp" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleInitiateTOTPApprovalRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
+								case 'r': // Prefix: "reject"
+
+									if l := len("reject"); len(elem) >= l && elem[0:l] == "reject" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "POST":
+											s.handleRejectPendingChangeRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "POST")
+										}
+
+										return
+									}
+
 								}
 
 							}
 
+						}
+
+					case 'r': // Prefix: "rmissions"
+
+						if l := len("rmissions"); len(elem) >= l && elem[0:l] == "rmissions" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleListPermissionsRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
 						}
 
 					}
@@ -1409,6 +1443,75 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										return
 									}
 
+								case 'm': // Prefix: "memberships"
+
+									if l := len("memberships"); len(elem) >= l && elem[0:l] == "memberships" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										switch r.Method {
+										case "GET":
+											s.handleListProjectMembershipsRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										case "POST":
+											s.handleCreateProjectMembershipRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET,POST")
+										}
+
+										return
+									}
+									switch elem[0] {
+									case '/': // Prefix: "/"
+
+										if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										// Param: "membership_id"
+										// Leaf parameter, slashes are prohibited
+										idx := strings.IndexByte(elem, '/')
+										if idx >= 0 {
+											break
+										}
+										args[1] = elem
+										elem = ""
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch r.Method {
+											case "DELETE":
+												s.handleDeleteProjectMembershipRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											case "GET":
+												s.handleGetProjectMembershipRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											case "PUT":
+												s.handleUpdateProjectMembershipRequest([2]string{
+													args[0],
+													args[1],
+												}, elemIsEscaped, w, r)
+											default:
+												s.notAllowed(w, r, "DELETE,GET,PUT")
+											}
+
+											return
+										}
+
+									}
+
 								case 's': // Prefix: "se"
 
 									if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
@@ -1597,56 +1700,162 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
-			case 'r': // Prefix: "rule_attributes"
+			case 'r': // Prefix: "r"
 
-				if l := len("rule_attributes"); len(elem) >= l && elem[0:l] == "rule_attributes" {
+				if l := len("r"); len(elem) >= l && elem[0:l] == "r" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch r.Method {
-					case "GET":
-						s.handleListRuleAttributesRequest([0]string{}, elemIsEscaped, w, r)
-					case "POST":
-						s.handleCreateRuleAttributeRequest([0]string{}, elemIsEscaped, w, r)
-					default:
-						s.notAllowed(w, r, "GET,POST")
-					}
-
-					return
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case 'o': // Prefix: "oles"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("oles"); len(elem) >= l && elem[0:l] == "oles" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "name"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
 					if len(elem) == 0 {
-						// Leaf node.
 						switch r.Method {
-						case "DELETE":
-							s.handleDeleteRuleAttributeRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
+						case "GET":
+							s.handleListRolesRequest([0]string{}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "DELETE")
+							s.notAllowed(w, r, "GET")
 						}
 
 						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'p': // Prefix: "permissions"
+							origElem := elem
+							if l := len("permissions"); len(elem) >= l && elem[0:l] == "permissions" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleListRolePermissionsRequest([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+							elem = origElem
+						}
+						// Param: "role_id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/permissions"
+
+							if l := len("/permissions"); len(elem) >= l && elem[0:l] == "/permissions" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "GET":
+									s.handleGetRolePermissionsRequest([1]string{
+										args[0],
+									}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "GET")
+								}
+
+								return
+							}
+
+						}
+
+					}
+
+				case 'u': // Prefix: "ule_attributes"
+
+					if l := len("ule_attributes"); len(elem) >= l && elem[0:l] == "ule_attributes" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch r.Method {
+						case "GET":
+							s.handleListRuleAttributesRequest([0]string{}, elemIsEscaped, w, r)
+						case "POST":
+							s.handleCreateRuleAttributeRequest([0]string{}, elemIsEscaped, w, r)
+						default:
+							s.notAllowed(w, r, "GET,POST")
+						}
+
+						return
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						// Param: "name"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "DELETE":
+								s.handleDeleteRuleAttributeRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "DELETE")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -3368,55 +3577,35 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case 'e': // Prefix: "ending_changes"
+				case 'e': // Prefix: "e"
 
-					if l := len("ending_changes"); len(elem) >= l && elem[0:l] == "ending_changes" {
+					if l := len("e"); len(elem) >= l && elem[0:l] == "e" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						switch method {
-						case "GET":
-							r.name = ListPendingChangesOperation
-							r.summary = "List pending changes"
-							r.operationID = "ListPendingChanges"
-							r.pathPattern = "/api/v1/pending_changes"
-							r.args = args
-							r.count = 0
-							return r, true
-						default:
-							return
-						}
+						break
 					}
 					switch elem[0] {
-					case '/': // Prefix: "/"
+					case 'n': // Prefix: "nding_changes"
 
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						if l := len("nding_changes"); len(elem) >= l && elem[0:l] == "nding_changes" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
-						// Param: "pending_change_id"
-						// Match until "/"
-						idx := strings.IndexByte(elem, '/')
-						if idx < 0 {
-							idx = len(elem)
-						}
-						args[0] = elem[:idx]
-						elem = elem[idx:]
-
 						if len(elem) == 0 {
 							switch method {
 							case "GET":
-								r.name = GetPendingChangeOperation
-								r.summary = "Get pending change by ID"
-								r.operationID = "GetPendingChange"
-								r.pathPattern = "/api/v1/pending_changes/{pending_change_id}"
+								r.name = ListPendingChangesOperation
+								r.summary = "List pending changes"
+								r.operationID = "ListPendingChanges"
+								r.pathPattern = "/api/v1/pending_changes"
 								r.args = args
-								r.count = 1
+								r.count = 0
 								return r, true
 							default:
 								return
@@ -3431,108 +3620,166 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								break
 							}
 
+							// Param: "pending_change_id"
+							// Match until "/"
+							idx := strings.IndexByte(elem, '/')
+							if idx < 0 {
+								idx = len(elem)
+							}
+							args[0] = elem[:idx]
+							elem = elem[idx:]
+
 							if len(elem) == 0 {
-								break
+								switch method {
+								case "GET":
+									r.name = GetPendingChangeOperation
+									r.summary = "Get pending change by ID"
+									r.operationID = "GetPendingChange"
+									r.pathPattern = "/api/v1/pending_changes/{pending_change_id}"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
 							}
 							switch elem[0] {
-							case 'a': // Prefix: "approve"
+							case '/': // Prefix: "/"
 
-								if l := len("approve"); len(elem) >= l && elem[0:l] == "approve" {
+								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 									elem = elem[l:]
 								} else {
 									break
 								}
 
 								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "POST":
-										r.name = ApprovePendingChangeOperation
-										r.summary = "Approve a pending change"
-										r.operationID = "ApprovePendingChange"
-										r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/approve"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
-									}
-								}
-
-							case 'c': // Prefix: "cancel"
-
-								if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
-									elem = elem[l:]
-								} else {
 									break
 								}
+								switch elem[0] {
+								case 'a': // Prefix: "approve"
 
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "POST":
-										r.name = CancelPendingChangeOperation
-										r.summary = "Cancel a pending change"
-										r.operationID = "CancelPendingChange"
-										r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/cancel"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
+									if l := len("approve"); len(elem) >= l && elem[0:l] == "approve" {
+										elem = elem[l:]
+									} else {
+										break
 									}
-								}
 
-							case 'i': // Prefix: "initiate-totp"
-
-								if l := len("initiate-totp"); len(elem) >= l && elem[0:l] == "initiate-totp" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "POST":
-										r.name = InitiateTOTPApprovalOperation
-										r.summary = "Initiate TOTP approval session"
-										r.operationID = "InitiateTOTPApproval"
-										r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/initiate-totp"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = ApprovePendingChangeOperation
+											r.summary = "Approve a pending change"
+											r.operationID = "ApprovePendingChange"
+											r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/approve"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
 									}
-								}
 
-							case 'r': // Prefix: "reject"
+								case 'c': // Prefix: "cancel"
 
-								if l := len("reject"); len(elem) >= l && elem[0:l] == "reject" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "POST":
-										r.name = RejectPendingChangeOperation
-										r.summary = "Reject a pending change"
-										r.operationID = "RejectPendingChange"
-										r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/reject"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
+									if l := len("cancel"); len(elem) >= l && elem[0:l] == "cancel" {
+										elem = elem[l:]
+									} else {
+										break
 									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = CancelPendingChangeOperation
+											r.summary = "Cancel a pending change"
+											r.operationID = "CancelPendingChange"
+											r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/cancel"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'i': // Prefix: "initiate-totp"
+
+									if l := len("initiate-totp"); len(elem) >= l && elem[0:l] == "initiate-totp" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = InitiateTOTPApprovalOperation
+											r.summary = "Initiate TOTP approval session"
+											r.operationID = "InitiateTOTPApproval"
+											r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/initiate-totp"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 'r': // Prefix: "reject"
+
+									if l := len("reject"); len(elem) >= l && elem[0:l] == "reject" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "POST":
+											r.name = RejectPendingChangeOperation
+											r.summary = "Reject a pending change"
+											r.operationID = "RejectPendingChange"
+											r.pathPattern = "/api/v1/pending_changes/{pending_change_id}/reject"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
 								}
 
 							}
 
+						}
+
+					case 'r': // Prefix: "rmissions"
+
+						if l := len("rmissions"); len(elem) >= l && elem[0:l] == "rmissions" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = ListPermissionsOperation
+								r.summary = "List all permissions"
+								r.operationID = "ListPermissions"
+								r.pathPattern = "/api/v1/permissions"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
 						}
 
 					}
@@ -3774,6 +4021,88 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										}
 									}
 
+								case 'm': // Prefix: "memberships"
+
+									if l := len("memberships"); len(elem) >= l && elem[0:l] == "memberships" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										switch method {
+										case "GET":
+											r.name = ListProjectMembershipsOperation
+											r.summary = "List memberships for project"
+											r.operationID = "ListProjectMemberships"
+											r.pathPattern = "/api/v1/projects/{project_id}/memberships"
+											r.args = args
+											r.count = 1
+											return r, true
+										case "POST":
+											r.name = CreateProjectMembershipOperation
+											r.summary = "Add membership to project"
+											r.operationID = "CreateProjectMembership"
+											r.pathPattern = "/api/v1/projects/{project_id}/memberships"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+									switch elem[0] {
+									case '/': // Prefix: "/"
+
+										if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+											elem = elem[l:]
+										} else {
+											break
+										}
+
+										// Param: "membership_id"
+										// Leaf parameter, slashes are prohibited
+										idx := strings.IndexByte(elem, '/')
+										if idx >= 0 {
+											break
+										}
+										args[1] = elem
+										elem = ""
+
+										if len(elem) == 0 {
+											// Leaf node.
+											switch method {
+											case "DELETE":
+												r.name = DeleteProjectMembershipOperation
+												r.summary = "Delete membership"
+												r.operationID = "DeleteProjectMembership"
+												r.pathPattern = "/api/v1/projects/{project_id}/memberships/{membership_id}"
+												r.args = args
+												r.count = 2
+												return r, true
+											case "GET":
+												r.name = GetProjectMembershipOperation
+												r.summary = "Get membership"
+												r.operationID = "GetProjectMembership"
+												r.pathPattern = "/api/v1/projects/{project_id}/memberships/{membership_id}"
+												r.args = args
+												r.count = 2
+												return r, true
+											case "PUT":
+												r.name = UpdateProjectMembershipOperation
+												r.summary = "Update membership"
+												r.operationID = "UpdateProjectMembership"
+												r.pathPattern = "/api/v1/projects/{project_id}/memberships/{membership_id}"
+												r.args = args
+												r.count = 2
+												return r, true
+											default:
+												return
+											}
+										}
+
+									}
+
 								case 's': // Prefix: "se"
 
 									if l := len("se"); len(elem) >= l && elem[0:l] == "se" {
@@ -3994,68 +4323,184 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 				}
 
-			case 'r': // Prefix: "rule_attributes"
+			case 'r': // Prefix: "r"
 
-				if l := len("rule_attributes"); len(elem) >= l && elem[0:l] == "rule_attributes" {
+				if l := len("r"); len(elem) >= l && elem[0:l] == "r" {
 					elem = elem[l:]
 				} else {
 					break
 				}
 
 				if len(elem) == 0 {
-					switch method {
-					case "GET":
-						r.name = ListRuleAttributesOperation
-						r.summary = "List of rule attributes"
-						r.operationID = "ListRuleAttributes"
-						r.pathPattern = "/api/v1/rule_attributes"
-						r.args = args
-						r.count = 0
-						return r, true
-					case "POST":
-						r.name = CreateRuleAttributeOperation
-						r.summary = "Create rule attribute"
-						r.operationID = "CreateRuleAttribute"
-						r.pathPattern = "/api/v1/rule_attributes"
-						r.args = args
-						r.count = 0
-						return r, true
-					default:
-						return
-					}
+					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/"
+				case 'o': // Prefix: "oles"
 
-					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+					if l := len("oles"); len(elem) >= l && elem[0:l] == "oles" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "name"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
 					if len(elem) == 0 {
-						// Leaf node.
 						switch method {
-						case "DELETE":
-							r.name = DeleteRuleAttributeOperation
-							r.summary = "Delete rule attribute"
-							r.operationID = "DeleteRuleAttribute"
-							r.pathPattern = "/api/v1/rule_attributes/{name}"
+						case "GET":
+							r.name = ListRolesOperation
+							r.summary = "List all roles"
+							r.operationID = "ListRoles"
+							r.pathPattern = "/api/v1/roles"
 							r.args = args
-							r.count = 1
+							r.count = 0
 							return r, true
 						default:
 							return
 						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case 'p': // Prefix: "permissions"
+							origElem := elem
+							if l := len("permissions"); len(elem) >= l && elem[0:l] == "permissions" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = ListRolePermissionsOperation
+									r.summary = "List permissions for all roles"
+									r.operationID = "ListRolePermissions"
+									r.pathPattern = "/api/v1/roles/permissions"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+							elem = origElem
+						}
+						// Param: "role_id"
+						// Match until "/"
+						idx := strings.IndexByte(elem, '/')
+						if idx < 0 {
+							idx = len(elem)
+						}
+						args[0] = elem[:idx]
+						elem = elem[idx:]
+
+						if len(elem) == 0 {
+							break
+						}
+						switch elem[0] {
+						case '/': // Prefix: "/permissions"
+
+							if l := len("/permissions"); len(elem) >= l && elem[0:l] == "/permissions" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "GET":
+									r.name = GetRolePermissionsOperation
+									r.summary = "Get permissions for a role"
+									r.operationID = "GetRolePermissions"
+									r.pathPattern = "/api/v1/roles/{role_id}/permissions"
+									r.args = args
+									r.count = 1
+									return r, true
+								default:
+									return
+								}
+							}
+
+						}
+
+					}
+
+				case 'u': // Prefix: "ule_attributes"
+
+					if l := len("ule_attributes"); len(elem) >= l && elem[0:l] == "ule_attributes" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						switch method {
+						case "GET":
+							r.name = ListRuleAttributesOperation
+							r.summary = "List of rule attributes"
+							r.operationID = "ListRuleAttributes"
+							r.pathPattern = "/api/v1/rule_attributes"
+							r.args = args
+							r.count = 0
+							return r, true
+						case "POST":
+							r.name = CreateRuleAttributeOperation
+							r.summary = "Create rule attribute"
+							r.operationID = "CreateRuleAttribute"
+							r.pathPattern = "/api/v1/rule_attributes"
+							r.args = args
+							r.count = 0
+							return r, true
+						default:
+							return
+						}
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/"
+
+						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						// Param: "name"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "DELETE":
+								r.name = DeleteRuleAttributeOperation
+								r.summary = "Delete rule attribute"
+								r.operationID = "DeleteRuleAttribute"
+								r.pathPattern = "/api/v1/rule_attributes/{name}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

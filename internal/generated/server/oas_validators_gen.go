@@ -2321,6 +2321,14 @@ func (s GetLDAPSyncLogsLevel) Validate() error {
 	}
 }
 
+func (s GetRolePermissionsOKApplicationJSON) Validate() error {
+	alias := ([]Permission)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
 func (s *LDAPStatistics) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -2912,6 +2920,14 @@ func (s ListPendingChangesStatus) Validate() error {
 	}
 }
 
+func (s ListPermissionsOKApplicationJSON) Validate() error {
+	alias := ([]Permission)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
 func (s ListProjectChangesSortBy) Validate() error {
 	switch s {
 	case "created_at":
@@ -2953,6 +2969,14 @@ func (s ListProjectFeaturesSortBy) Validate() error {
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
+}
+
+func (s ListProjectMembershipsOKApplicationJSON) Validate() error {
+	alias := ([]Membership)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
 }
 
 func (s ListProjectSegmentsSortBy) Validate() error {
@@ -3025,6 +3049,22 @@ func (s ListProjectTagsResponse) Validate() error {
 
 func (s ListProjectsResponse) Validate() error {
 	alias := ([]Project)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
+func (s ListRolePermissionsOKApplicationJSON) Validate() error {
+	alias := ([]ListRolePermissionsOKItem)(s)
+	if alias == nil {
+		return errors.New("nil is invalid value")
+	}
+	return nil
+}
+
+func (s ListRolesOKApplicationJSON) Validate() error {
+	alias := ([]Role)(s)
 	if alias == nil {
 		return errors.New("nil is invalid value")
 	}

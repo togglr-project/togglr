@@ -4,25 +4,25 @@ package domain
 type PermKey string
 
 const (
-	// Project-level
+	// Project-level.
 	PermProjectView   PermKey = "project.view"
 	PermProjectManage PermKey = "project.manage"
 	PermProjectCreate PermKey = "project.create"
 	PermTagManage     PermKey = "tag.manage"
 
-	// Feature-level
+	// Feature-level.
 	PermFeatureView   PermKey = "feature.view"
 	PermFeatureToggle PermKey = "feature.toggle"
 	PermFeatureManage PermKey = "feature.manage"
 
-	// Segments & Scheduling
+	// Segments & Scheduling.
 	PermSegmentManage  PermKey = "segment.manage"
 	PermScheduleManage PermKey = "schedule.manage"
 
-	// Audit & Membership
+	// Audit & Membership.
 	PermAuditView        PermKey = "audit.view"
 	PermMembershipManage PermKey = "membership.manage"
 
-	// Categories
+	// Categories.
 	PermCategoryManage PermKey = "category.manage"
 )

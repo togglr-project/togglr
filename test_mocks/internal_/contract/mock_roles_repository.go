@@ -8,6 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // NewMockRolesRepository creates a new instance of MockRolesRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -37,23 +38,89 @@ func (_m *MockRolesRepository) EXPECT() *MockRolesRepository_Expecter {
 	return &MockRolesRepository_Expecter{mock: &_m.Mock}
 }
 
+// GetByID provides a mock function for the type MockRolesRepository
+func (_mock *MockRolesRepository) GetByID(ctx context.Context, id domain.RoleID) (domain.Role, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 domain.Role
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.RoleID) (domain.Role, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.RoleID) domain.Role); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.Role)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.RoleID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRolesRepository_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type MockRolesRepository_GetByID_Call struct {
+	*mock.Call
+}
+
+// GetByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.RoleID
+func (_e *MockRolesRepository_Expecter) GetByID(ctx interface{}, id interface{}) *MockRolesRepository_GetByID_Call {
+	return &MockRolesRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
+}
+
+func (_c *MockRolesRepository_GetByID_Call) Run(run func(ctx context.Context, id domain.RoleID)) *MockRolesRepository_GetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.RoleID
+		if args[1] != nil {
+			arg1 = args[1].(domain.RoleID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRolesRepository_GetByID_Call) Return(role domain.Role, err error) *MockRolesRepository_GetByID_Call {
+	_c.Call.Return(role, err)
+	return _c
+}
+
+func (_c *MockRolesRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.RoleID) (domain.Role, error)) *MockRolesRepository_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByKey provides a mock function for the type MockRolesRepository
-func (_mock *MockRolesRepository) GetByKey(ctx context.Context, key string) (string, error) {
+func (_mock *MockRolesRepository) GetByKey(ctx context.Context, key string) (domain.Role, error) {
 	ret := _mock.Called(ctx, key)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByKey")
 	}
 
-	var r0 string
+	var r0 domain.Role
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (domain.Role, error)); ok {
 		return returnFunc(ctx, key)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) domain.Role); ok {
 		r0 = returnFunc(ctx, key)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Get(0).(domain.Role)
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = returnFunc(ctx, key)
@@ -93,12 +160,74 @@ func (_c *MockRolesRepository_GetByKey_Call) Run(run func(ctx context.Context, k
 	return _c
 }
 
-func (_c *MockRolesRepository_GetByKey_Call) Return(id string, err error) *MockRolesRepository_GetByKey_Call {
-	_c.Call.Return(id, err)
+func (_c *MockRolesRepository_GetByKey_Call) Return(role domain.Role, err error) *MockRolesRepository_GetByKey_Call {
+	_c.Call.Return(role, err)
 	return _c
 }
 
-func (_c *MockRolesRepository_GetByKey_Call) RunAndReturn(run func(ctx context.Context, key string) (string, error)) *MockRolesRepository_GetByKey_Call {
+func (_c *MockRolesRepository_GetByKey_Call) RunAndReturn(run func(ctx context.Context, key string) (domain.Role, error)) *MockRolesRepository_GetByKey_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// List provides a mock function for the type MockRolesRepository
+func (_mock *MockRolesRepository) List(ctx context.Context) ([]domain.Role, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []domain.Role
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.Role, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.Role); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Role)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRolesRepository_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockRolesRepository_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockRolesRepository_Expecter) List(ctx interface{}) *MockRolesRepository_List_Call {
+	return &MockRolesRepository_List_Call{Call: _e.mock.On("List", ctx)}
+}
+
+func (_c *MockRolesRepository_List_Call) Run(run func(ctx context.Context)) *MockRolesRepository_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockRolesRepository_List_Call) Return(roles []domain.Role, err error) *MockRolesRepository_List_Call {
+	_c.Call.Return(roles, err)
+	return _c
+}
+
+func (_c *MockRolesRepository_List_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Role, error)) *MockRolesRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

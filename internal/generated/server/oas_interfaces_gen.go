@@ -57,6 +57,10 @@ type CreateProjectFeatureRes interface {
 	createProjectFeatureRes()
 }
 
+type CreateProjectMembershipRes interface {
+	createProjectMembershipRes()
+}
+
 type CreateProjectSegmentRes interface {
 	createProjectSegmentRes()
 }
@@ -95,6 +99,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteProjectMembershipRes interface {
+	deleteProjectMembershipRes()
 }
 
 type DeleteProjectSettingRes interface {
@@ -189,6 +197,10 @@ type GetProductInfoRes interface {
 	getProductInfoRes()
 }
 
+type GetProjectMembershipRes interface {
+	getProjectMembershipRes()
+}
+
 type GetProjectRes interface {
 	getProjectRes()
 }
@@ -199,6 +211,10 @@ type GetProjectSettingRes interface {
 
 type GetProjectTagRes interface {
 	getProjectTagRes()
+}
+
+type GetRolePermissionsRes interface {
+	getRolePermissionsRes()
 }
 
 type GetSAMLMetadataRes interface {
@@ -245,6 +261,10 @@ type ListPendingChangesRes interface {
 	listPendingChangesRes()
 }
 
+type ListPermissionsRes interface {
+	listPermissionsRes()
+}
+
 type ListProjectChangesRes interface {
 	listProjectChangesRes()
 }
@@ -255,6 +275,10 @@ type ListProjectEnvironmentsRes interface {
 
 type ListProjectFeaturesRes interface {
 	listProjectFeaturesRes()
+}
+
+type ListProjectMembershipsRes interface {
+	listProjectMembershipsRes()
 }
 
 type ListProjectSegmentsRes interface {
@@ -271,6 +295,14 @@ type ListProjectTagsRes interface {
 
 type ListProjectsRes interface {
 	listProjectsRes()
+}
+
+type ListRolePermissionsRes interface {
+	listRolePermissionsRes()
+}
+
+type ListRolesRes interface {
+	listRolesRes()
 }
 
 type ListRuleAttributesRes interface {
@@ -379,6 +411,10 @@ type UpdateLicenseAcceptanceRes interface {
 
 type UpdateLicenseRes interface {
 	updateLicenseRes()
+}
+
+type UpdateProjectMembershipRes interface {
+	updateProjectMembershipRes()
 }
 
 type UpdateProjectRes interface {

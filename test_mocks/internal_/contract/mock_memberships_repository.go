@@ -38,6 +38,219 @@ func (_m *MockMembershipsRepository) EXPECT() *MockMembershipsRepository_Expecte
 	return &MockMembershipsRepository_Expecter{mock: &_m.Mock}
 }
 
+// Create provides a mock function for the type MockMembershipsRepository
+func (_mock *MockMembershipsRepository) Create(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID) (domain.ProjectMembership, error) {
+	ret := _mock.Called(ctx, projectID, userID, roleID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
+	var r0 domain.ProjectMembership
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, int, domain.RoleID) (domain.ProjectMembership, error)); ok {
+		return returnFunc(ctx, projectID, userID, roleID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, int, domain.RoleID) domain.ProjectMembership); ok {
+		r0 = returnFunc(ctx, projectID, userID, roleID)
+	} else {
+		r0 = ret.Get(0).(domain.ProjectMembership)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, int, domain.RoleID) error); ok {
+		r1 = returnFunc(ctx, projectID, userID, roleID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockMembershipsRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+type MockMembershipsRepository_Create_Call struct {
+	*mock.Call
+}
+
+// Create is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - userID int
+//   - roleID domain.RoleID
+func (_e *MockMembershipsRepository_Expecter) Create(ctx interface{}, projectID interface{}, userID interface{}, roleID interface{}) *MockMembershipsRepository_Create_Call {
+	return &MockMembershipsRepository_Create_Call{Call: _e.mock.On("Create", ctx, projectID, userID, roleID)}
+}
+
+func (_c *MockMembershipsRepository_Create_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID)) *MockMembershipsRepository_Create_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 int
+		if args[2] != nil {
+			arg2 = args[2].(int)
+		}
+		var arg3 domain.RoleID
+		if args[3] != nil {
+			arg3 = args[3].(domain.RoleID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Create_Call) Return(projectMembership domain.ProjectMembership, err error) *MockMembershipsRepository_Create_Call {
+	_c.Call.Return(projectMembership, err)
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Create_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID) (domain.ProjectMembership, error)) *MockMembershipsRepository_Create_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Delete provides a mock function for the type MockMembershipsRepository
+func (_mock *MockMembershipsRepository) Delete(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) error {
+	ret := _mock.Called(ctx, projectID, membershipID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.MembershipID) error); ok {
+		r0 = returnFunc(ctx, projectID, membershipID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockMembershipsRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockMembershipsRepository_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - membershipID domain.MembershipID
+func (_e *MockMembershipsRepository_Expecter) Delete(ctx interface{}, projectID interface{}, membershipID interface{}) *MockMembershipsRepository_Delete_Call {
+	return &MockMembershipsRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, projectID, membershipID)}
+}
+
+func (_c *MockMembershipsRepository_Delete_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID)) *MockMembershipsRepository_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.MembershipID
+		if args[2] != nil {
+			arg2 = args[2].(domain.MembershipID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Delete_Call) Return(err error) *MockMembershipsRepository_Delete_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) error) *MockMembershipsRepository_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Get provides a mock function for the type MockMembershipsRepository
+func (_mock *MockMembershipsRepository) Get(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) (domain.ProjectMembership, error) {
+	ret := _mock.Called(ctx, projectID, membershipID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Get")
+	}
+
+	var r0 domain.ProjectMembership
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.MembershipID) (domain.ProjectMembership, error)); ok {
+		return returnFunc(ctx, projectID, membershipID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.MembershipID) domain.ProjectMembership); ok {
+		r0 = returnFunc(ctx, projectID, membershipID)
+	} else {
+		r0 = ret.Get(0).(domain.ProjectMembership)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.MembershipID) error); ok {
+		r1 = returnFunc(ctx, projectID, membershipID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockMembershipsRepository_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
+type MockMembershipsRepository_Get_Call struct {
+	*mock.Call
+}
+
+// Get is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - membershipID domain.MembershipID
+func (_e *MockMembershipsRepository_Expecter) Get(ctx interface{}, projectID interface{}, membershipID interface{}) *MockMembershipsRepository_Get_Call {
+	return &MockMembershipsRepository_Get_Call{Call: _e.mock.On("Get", ctx, projectID, membershipID)}
+}
+
+func (_c *MockMembershipsRepository_Get_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID)) *MockMembershipsRepository_Get_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.MembershipID
+		if args[2] != nil {
+			arg2 = args[2].(domain.MembershipID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Get_Call) Return(projectMembership domain.ProjectMembership, err error) *MockMembershipsRepository_Get_Call {
+	_c.Call.Return(projectMembership, err)
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Get_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) (domain.ProjectMembership, error)) *MockMembershipsRepository_Get_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetForUserProject provides a mock function for the type MockMembershipsRepository
 func (_mock *MockMembershipsRepository) GetForUserProject(ctx context.Context, userID int, projectID domain.ProjectID) (string, error) {
 	ret := _mock.Called(ctx, userID, projectID)
@@ -106,6 +319,152 @@ func (_c *MockMembershipsRepository_GetForUserProject_Call) Return(roleID string
 }
 
 func (_c *MockMembershipsRepository_GetForUserProject_Call) RunAndReturn(run func(ctx context.Context, userID int, projectID domain.ProjectID) (string, error)) *MockMembershipsRepository_GetForUserProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListForProject provides a mock function for the type MockMembershipsRepository
+func (_mock *MockMembershipsRepository) ListForProject(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectMembership, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListForProject")
+	}
+
+	var r0 []domain.ProjectMembership
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) ([]domain.ProjectMembership, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) []domain.ProjectMembership); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.ProjectMembership)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockMembershipsRepository_ListForProject_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListForProject'
+type MockMembershipsRepository_ListForProject_Call struct {
+	*mock.Call
+}
+
+// ListForProject is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockMembershipsRepository_Expecter) ListForProject(ctx interface{}, projectID interface{}) *MockMembershipsRepository_ListForProject_Call {
+	return &MockMembershipsRepository_ListForProject_Call{Call: _e.mock.On("ListForProject", ctx, projectID)}
+}
+
+func (_c *MockMembershipsRepository_ListForProject_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockMembershipsRepository_ListForProject_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMembershipsRepository_ListForProject_Call) Return(projectMemberships []domain.ProjectMembership, err error) *MockMembershipsRepository_ListForProject_Call {
+	_c.Call.Return(projectMemberships, err)
+	return _c
+}
+
+func (_c *MockMembershipsRepository_ListForProject_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectMembership, error)) *MockMembershipsRepository_ListForProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Update provides a mock function for the type MockMembershipsRepository
+func (_mock *MockMembershipsRepository) Update(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID, roleID domain.RoleID) (domain.ProjectMembership, error) {
+	ret := _mock.Called(ctx, projectID, membershipID, roleID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 domain.ProjectMembership
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.MembershipID, domain.RoleID) (domain.ProjectMembership, error)); ok {
+		return returnFunc(ctx, projectID, membershipID, roleID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.MembershipID, domain.RoleID) domain.ProjectMembership); ok {
+		r0 = returnFunc(ctx, projectID, membershipID, roleID)
+	} else {
+		r0 = ret.Get(0).(domain.ProjectMembership)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.MembershipID, domain.RoleID) error); ok {
+		r1 = returnFunc(ctx, projectID, membershipID, roleID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockMembershipsRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockMembershipsRepository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - membershipID domain.MembershipID
+//   - roleID domain.RoleID
+func (_e *MockMembershipsRepository_Expecter) Update(ctx interface{}, projectID interface{}, membershipID interface{}, roleID interface{}) *MockMembershipsRepository_Update_Call {
+	return &MockMembershipsRepository_Update_Call{Call: _e.mock.On("Update", ctx, projectID, membershipID, roleID)}
+}
+
+func (_c *MockMembershipsRepository_Update_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID, roleID domain.RoleID)) *MockMembershipsRepository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.MembershipID
+		if args[2] != nil {
+			arg2 = args[2].(domain.MembershipID)
+		}
+		var arg3 domain.RoleID
+		if args[3] != nil {
+			arg3 = args[3].(domain.RoleID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Update_Call) Return(projectMembership domain.ProjectMembership, err error) *MockMembershipsRepository_Update_Call {
+	_c.Call.Return(projectMembership, err)
+	return _c
+}
+
+func (_c *MockMembershipsRepository_Update_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID, roleID domain.RoleID) (domain.ProjectMembership, error)) *MockMembershipsRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

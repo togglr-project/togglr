@@ -38,6 +38,198 @@ func (_m *MockPermissionsRepository) EXPECT() *MockPermissionsRepository_Expecte
 	return &MockPermissionsRepository_Expecter{mock: &_m.Mock}
 }
 
+// List provides a mock function for the type MockPermissionsRepository
+func (_mock *MockPermissionsRepository) List(ctx context.Context) ([]domain.Permission, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []domain.Permission
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.Permission, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.Permission); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Permission)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsRepository_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockPermissionsRepository_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockPermissionsRepository_Expecter) List(ctx interface{}) *MockPermissionsRepository_List_Call {
+	return &MockPermissionsRepository_List_Call{Call: _e.mock.On("List", ctx)}
+}
+
+func (_c *MockPermissionsRepository_List_Call) Run(run func(ctx context.Context)) *MockPermissionsRepository_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsRepository_List_Call) Return(permissions []domain.Permission, err error) *MockPermissionsRepository_List_Call {
+	_c.Call.Return(permissions, err)
+	return _c
+}
+
+func (_c *MockPermissionsRepository_List_Call) RunAndReturn(run func(ctx context.Context) ([]domain.Permission, error)) *MockPermissionsRepository_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListForAllRoles provides a mock function for the type MockPermissionsRepository
+func (_mock *MockPermissionsRepository) ListForAllRoles(ctx context.Context) (map[domain.Role][]domain.Permission, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListForAllRoles")
+	}
+
+	var r0 map[domain.Role][]domain.Permission
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (map[domain.Role][]domain.Permission, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) map[domain.Role][]domain.Permission); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[domain.Role][]domain.Permission)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsRepository_ListForAllRoles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListForAllRoles'
+type MockPermissionsRepository_ListForAllRoles_Call struct {
+	*mock.Call
+}
+
+// ListForAllRoles is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockPermissionsRepository_Expecter) ListForAllRoles(ctx interface{}) *MockPermissionsRepository_ListForAllRoles_Call {
+	return &MockPermissionsRepository_ListForAllRoles_Call{Call: _e.mock.On("ListForAllRoles", ctx)}
+}
+
+func (_c *MockPermissionsRepository_ListForAllRoles_Call) Run(run func(ctx context.Context)) *MockPermissionsRepository_ListForAllRoles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsRepository_ListForAllRoles_Call) Return(roleToPermissions map[domain.Role][]domain.Permission, err error) *MockPermissionsRepository_ListForAllRoles_Call {
+	_c.Call.Return(roleToPermissions, err)
+	return _c
+}
+
+func (_c *MockPermissionsRepository_ListForAllRoles_Call) RunAndReturn(run func(ctx context.Context) (map[domain.Role][]domain.Permission, error)) *MockPermissionsRepository_ListForAllRoles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListForRole provides a mock function for the type MockPermissionsRepository
+func (_mock *MockPermissionsRepository) ListForRole(ctx context.Context, roleID domain.RoleID) ([]domain.Permission, error) {
+	ret := _mock.Called(ctx, roleID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListForRole")
+	}
+
+	var r0 []domain.Permission
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.RoleID) ([]domain.Permission, error)); ok {
+		return returnFunc(ctx, roleID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.RoleID) []domain.Permission); ok {
+		r0 = returnFunc(ctx, roleID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.Permission)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.RoleID) error); ok {
+		r1 = returnFunc(ctx, roleID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsRepository_ListForRole_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListForRole'
+type MockPermissionsRepository_ListForRole_Call struct {
+	*mock.Call
+}
+
+// ListForRole is a helper method to define mock.On call
+//   - ctx context.Context
+//   - roleID domain.RoleID
+func (_e *MockPermissionsRepository_Expecter) ListForRole(ctx interface{}, roleID interface{}) *MockPermissionsRepository_ListForRole_Call {
+	return &MockPermissionsRepository_ListForRole_Call{Call: _e.mock.On("ListForRole", ctx, roleID)}
+}
+
+func (_c *MockPermissionsRepository_ListForRole_Call) Run(run func(ctx context.Context, roleID domain.RoleID)) *MockPermissionsRepository_ListForRole_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.RoleID
+		if args[1] != nil {
+			arg1 = args[1].(domain.RoleID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsRepository_ListForRole_Call) Return(permissions []domain.Permission, err error) *MockPermissionsRepository_ListForRole_Call {
+	_c.Call.Return(permissions, err)
+	return _c
+}
+
+func (_c *MockPermissionsRepository_ListForRole_Call) RunAndReturn(run func(ctx context.Context, roleID domain.RoleID) ([]domain.Permission, error)) *MockPermissionsRepository_ListForRole_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // RoleHasPermission provides a mock function for the type MockPermissionsRepository
 func (_mock *MockPermissionsRepository) RoleHasPermission(ctx context.Context, roleID string, key domain.PermKey) (bool, error) {
 	ret := _mock.Called(ctx, roleID, key)

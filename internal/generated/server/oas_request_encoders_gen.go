@@ -208,6 +208,20 @@ func encodeCreateProjectFeatureRequest(
 	return nil
 }
 
+func encodeCreateProjectMembershipRequest(
+	req *CreateMembershipRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateProjectSegmentRequest(
 	req *CreateSegmentRequest,
 	r *http.Request,
@@ -574,6 +588,20 @@ func encodeUpdateLicenseAcceptanceRequest(
 
 func encodeUpdateProjectRequest(
 	req *UpdateProjectRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateProjectMembershipRequest(
+	req *UpdateMembershipRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

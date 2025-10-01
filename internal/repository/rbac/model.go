@@ -23,3 +23,35 @@ func (role *roleModel) toDomain() domain.Role {
 		CreatedAt:   role.CreatedAt,
 	}
 }
+
+type permissionModel struct {
+	ID   string `db:"id"`
+	Key  string `db:"key"`
+	Name string `db:"name"`
+}
+
+func (p *permissionModel) toDomain() domain.Permission {
+	return domain.Permission{ID: domain.PermissionID(p.ID), Key: domain.PermKey(p.Key), Name: p.Name}
+}
+
+type membershipModel struct {
+	ID        string    `db:"id"`
+	ProjectID string    `db:"project_id"`
+	UserID    int       `db:"user_id"`
+	RoleID    string    `db:"role_id"`
+	RoleKey   string    `db:"role_key"`
+	RoleName  string    `db:"role_name"`
+	CreatedAt time.Time `db:"created_at"`
+}
+
+func (m *membershipModel) toDomain() domain.ProjectMembership {
+	return domain.ProjectMembership{
+		ID:        domain.MembershipID(m.ID),
+		UserID:    m.UserID,
+		ProjectID: domain.ProjectID(m.ProjectID),
+		RoleID:    domain.RoleID(m.RoleID),
+		RoleKey:   m.RoleKey,
+		RoleName:  m.RoleName,
+		CreatedAt: m.CreatedAt,
+	}
+}

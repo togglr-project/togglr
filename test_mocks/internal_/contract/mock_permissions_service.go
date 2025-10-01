@@ -282,6 +282,68 @@ func (_c *MockPermissionsService_GetMyProjectPermissions_Call) RunAndReturn(run 
 	return _c
 }
 
+// GetMyProjectRoles provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) GetMyProjectRoles(ctx context.Context) (map[domain.ProjectID]domain.Role, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMyProjectRoles")
+	}
+
+	var r0 map[domain.ProjectID]domain.Role
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) (map[domain.ProjectID]domain.Role, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) map[domain.ProjectID]domain.Role); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[domain.ProjectID]domain.Role)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockPermissionsService_GetMyProjectRoles_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetMyProjectRoles'
+type MockPermissionsService_GetMyProjectRoles_Call struct {
+	*mock.Call
+}
+
+// GetMyProjectRoles is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockPermissionsService_Expecter) GetMyProjectRoles(ctx interface{}) *MockPermissionsService_GetMyProjectRoles_Call {
+	return &MockPermissionsService_GetMyProjectRoles_Call{Call: _e.mock.On("GetMyProjectRoles", ctx)}
+}
+
+func (_c *MockPermissionsService_GetMyProjectRoles_Call) Run(run func(ctx context.Context)) *MockPermissionsService_GetMyProjectRoles_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_GetMyProjectRoles_Call) Return(projectIDToRole map[domain.ProjectID]domain.Role, err error) *MockPermissionsService_GetMyProjectRoles_Call {
+	_c.Call.Return(projectIDToRole, err)
+	return _c
+}
+
+func (_c *MockPermissionsService_GetMyProjectRoles_Call) RunAndReturn(run func(ctx context.Context) (map[domain.ProjectID]domain.Role, error)) *MockPermissionsService_GetMyProjectRoles_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // HasGlobalPermission provides a mock function for the type MockPermissionsService
 func (_mock *MockPermissionsService) HasGlobalPermission(ctx context.Context, permKey domain.PermKey) (bool, error) {
 	ret := _mock.Called(ctx, permKey)

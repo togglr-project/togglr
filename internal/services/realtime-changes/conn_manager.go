@@ -9,7 +9,7 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
-// connManager implements contract.RealtimeBroadcaster
+// connManager implements contract.RealtimeBroadcaster.
 type connManager struct {
 	mu    sync.RWMutex
 	conns map[string]map[contract.WSConnection]struct{}

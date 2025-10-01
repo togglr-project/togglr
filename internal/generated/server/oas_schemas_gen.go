@@ -1320,6 +1320,32 @@ func (s *CreateFlagVariantRequest) SetRolloutPercent(val int) {
 	s.RolloutPercent = val
 }
 
+// Ref: #/components/schemas/CreateMembershipRequest
+type CreateMembershipRequest struct {
+	UserID int64     `json:"user_id"`
+	RoleID uuid.UUID `json:"role_id"`
+}
+
+// GetUserID returns the value of UserID.
+func (s *CreateMembershipRequest) GetUserID() int64 {
+	return s.UserID
+}
+
+// GetRoleID returns the value of RoleID.
+func (s *CreateMembershipRequest) GetRoleID() uuid.UUID {
+	return s.RoleID
+}
+
+// SetUserID sets the value of UserID.
+func (s *CreateMembershipRequest) SetUserID(val int64) {
+	s.UserID = val
+}
+
+// SetRoleID sets the value of RoleID.
+func (s *CreateMembershipRequest) SetRoleID(val uuid.UUID) {
+	s.RoleID = val
+}
+
 // Ref: #/components/schemas/CreateProjectSettingRequest
 type CreateProjectSettingRequest struct {
 	Name  string                           `json:"name"`
@@ -1829,6 +1855,11 @@ type DeleteFeatureScheduleNoContent struct{}
 
 func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
 
+// DeleteProjectMembershipNoContent is response for DeleteProjectMembership operation.
+type DeleteProjectMembershipNoContent struct{}
+
+func (*DeleteProjectMembershipNoContent) deleteProjectMembershipRes() {}
+
 // DeleteProjectSettingNoContent is response for DeleteProjectSetting operation.
 type DeleteProjectSettingNoContent struct{}
 
@@ -2273,6 +2304,7 @@ func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
 func (*ErrorBadRequest) createFeatureRuleRes()        {}
 func (*ErrorBadRequest) createFeatureScheduleRes()    {}
 func (*ErrorBadRequest) createProjectFeatureRes()     {}
+func (*ErrorBadRequest) createProjectMembershipRes()  {}
 func (*ErrorBadRequest) createProjectSegmentRes()     {}
 func (*ErrorBadRequest) createProjectSettingRes()     {}
 func (*ErrorBadRequest) createProjectTagRes()         {}
@@ -2302,6 +2334,7 @@ func (*ErrorBadRequest) updateFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
 func (*ErrorBadRequest) updateLicenseRes()            {}
+func (*ErrorBadRequest) updateProjectMembershipRes()  {}
 func (*ErrorBadRequest) updateProjectRes()            {}
 func (*ErrorBadRequest) updateProjectSettingRes()     {}
 func (*ErrorBadRequest) updateProjectTagRes()         {}
@@ -2422,6 +2455,7 @@ func (*ErrorInternalServerError) createFeatureFlagVariantRes()    {}
 func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) createProjectFeatureRes()        {}
+func (*ErrorInternalServerError) createProjectMembershipRes()     {}
 func (*ErrorInternalServerError) createProjectSegmentRes()        {}
 func (*ErrorInternalServerError) createProjectSettingRes()        {}
 func (*ErrorInternalServerError) createProjectTagRes()            {}
@@ -2431,6 +2465,7 @@ func (*ErrorInternalServerError) deleteCategoryRes()              {}
 func (*ErrorInternalServerError) deleteEnvironmentRes()           {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
+func (*ErrorInternalServerError) deleteProjectMembershipRes()     {}
 func (*ErrorInternalServerError) deleteProjectSettingRes()        {}
 func (*ErrorInternalServerError) deleteProjectTagRes()            {}
 func (*ErrorInternalServerError) deleteRuleAttributeRes()         {}
@@ -2447,9 +2482,11 @@ func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
 func (*ErrorInternalServerError) getLicenseStatusRes()            {}
 func (*ErrorInternalServerError) getPendingChangeRes()            {}
 func (*ErrorInternalServerError) getProductInfoRes()              {}
+func (*ErrorInternalServerError) getProjectMembershipRes()        {}
 func (*ErrorInternalServerError) getProjectRes()                  {}
 func (*ErrorInternalServerError) getProjectSettingRes()           {}
 func (*ErrorInternalServerError) getProjectTagRes()               {}
+func (*ErrorInternalServerError) getRolePermissionsRes()          {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()             {}
 func (*ErrorInternalServerError) getSSOProvidersRes()             {}
 func (*ErrorInternalServerError) getSegmentRes()                  {}
@@ -2460,13 +2497,17 @@ func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listFeatureTagsRes()             {}
 func (*ErrorInternalServerError) listPendingChangesRes()          {}
+func (*ErrorInternalServerError) listPermissionsRes()             {}
 func (*ErrorInternalServerError) listProjectChangesRes()          {}
 func (*ErrorInternalServerError) listProjectEnvironmentsRes()     {}
 func (*ErrorInternalServerError) listProjectFeaturesRes()         {}
+func (*ErrorInternalServerError) listProjectMembershipsRes()      {}
 func (*ErrorInternalServerError) listProjectSegmentsRes()         {}
 func (*ErrorInternalServerError) listProjectSettingsRes()         {}
 func (*ErrorInternalServerError) listProjectTagsRes()             {}
 func (*ErrorInternalServerError) listProjectsRes()                {}
+func (*ErrorInternalServerError) listRolePermissionsRes()         {}
+func (*ErrorInternalServerError) listRolesRes()                   {}
 func (*ErrorInternalServerError) listRuleAttributesRes()          {}
 func (*ErrorInternalServerError) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorInternalServerError) listUsersRes()                   {}
@@ -2488,6 +2529,7 @@ func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
 func (*ErrorInternalServerError) updateLicenseRes()               {}
+func (*ErrorInternalServerError) updateProjectMembershipRes()     {}
 func (*ErrorInternalServerError) updateProjectRes()               {}
 func (*ErrorInternalServerError) updateProjectSettingRes()        {}
 func (*ErrorInternalServerError) updateProjectTagRes()            {}
@@ -2564,6 +2606,7 @@ func (*ErrorNotFound) createFeatureFlagVariantRes()    {}
 func (*ErrorNotFound) createFeatureRuleRes()           {}
 func (*ErrorNotFound) createFeatureScheduleRes()       {}
 func (*ErrorNotFound) createProjectFeatureRes()        {}
+func (*ErrorNotFound) createProjectMembershipRes()     {}
 func (*ErrorNotFound) createProjectSegmentRes()        {}
 func (*ErrorNotFound) createProjectSettingRes()        {}
 func (*ErrorNotFound) createProjectTagRes()            {}
@@ -2571,6 +2614,7 @@ func (*ErrorNotFound) deleteCategoryRes()              {}
 func (*ErrorNotFound) deleteEnvironmentRes()           {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
+func (*ErrorNotFound) deleteProjectMembershipRes()     {}
 func (*ErrorNotFound) deleteProjectSettingRes()        {}
 func (*ErrorNotFound) deleteProjectTagRes()            {}
 func (*ErrorNotFound) deleteRuleAttributeRes()         {}
@@ -2582,9 +2626,11 @@ func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
 func (*ErrorNotFound) getFeatureTimelineRes()          {}
 func (*ErrorNotFound) getPendingChangeRes()            {}
+func (*ErrorNotFound) getProjectMembershipRes()        {}
 func (*ErrorNotFound) getProjectRes()                  {}
 func (*ErrorNotFound) getProjectSettingRes()           {}
 func (*ErrorNotFound) getProjectTagRes()               {}
+func (*ErrorNotFound) getRolePermissionsRes()          {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
 func (*ErrorNotFound) initiateTOTPApprovalRes()        {}
@@ -2594,6 +2640,7 @@ func (*ErrorNotFound) listFeatureSchedulesRes()        {}
 func (*ErrorNotFound) listFeatureTagsRes()             {}
 func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
+func (*ErrorNotFound) listProjectMembershipsRes()      {}
 func (*ErrorNotFound) listProjectSegmentsRes()         {}
 func (*ErrorNotFound) listProjectSettingsRes()         {}
 func (*ErrorNotFound) listProjectTagsRes()             {}
@@ -2610,6 +2657,7 @@ func (*ErrorNotFound) updateCategoryRes()              {}
 func (*ErrorNotFound) updateEnvironmentRes()           {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
+func (*ErrorNotFound) updateProjectMembershipRes()     {}
 func (*ErrorNotFound) updateProjectRes()               {}
 func (*ErrorNotFound) updateProjectSettingRes()        {}
 func (*ErrorNotFound) updateProjectTagRes()            {}
@@ -2657,6 +2705,7 @@ func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()        {}
+func (*ErrorPermissionDenied) createProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) createProjectSegmentRes()        {}
 func (*ErrorPermissionDenied) createProjectSettingRes()        {}
 func (*ErrorPermissionDenied) createProjectTagRes()            {}
@@ -2667,6 +2716,7 @@ func (*ErrorPermissionDenied) deleteEnvironmentRes()           {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) deleteProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) deleteProjectSettingRes()        {}
 func (*ErrorPermissionDenied) deleteProjectTagRes()            {}
 func (*ErrorPermissionDenied) deleteRuleAttributeRes()         {}
@@ -2686,6 +2736,7 @@ func (*ErrorPermissionDenied) getLDAPSyncLogsRes()             {}
 func (*ErrorPermissionDenied) getLDAPSyncProgressRes()         {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()           {}
 func (*ErrorPermissionDenied) getProductInfoRes()              {}
+func (*ErrorPermissionDenied) getProjectMembershipRes()        {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
 func (*ErrorPermissionDenied) getProjectSettingRes()           {}
 func (*ErrorPermissionDenied) getProjectTagRes()               {}
@@ -2700,6 +2751,7 @@ func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectEnvironmentsRes()     {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
+func (*ErrorPermissionDenied) listProjectMembershipsRes()      {}
 func (*ErrorPermissionDenied) listProjectSegmentsRes()         {}
 func (*ErrorPermissionDenied) listProjectSettingsRes()         {}
 func (*ErrorPermissionDenied) listProjectTagsRes()             {}
@@ -2720,6 +2772,7 @@ func (*ErrorPermissionDenied) updateFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}
 func (*ErrorPermissionDenied) updateLicenseRes()               {}
+func (*ErrorPermissionDenied) updateProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) updateProjectRes()               {}
 func (*ErrorPermissionDenied) updateProjectSettingRes()        {}
 func (*ErrorPermissionDenied) updateProjectTagRes()            {}
@@ -2829,6 +2882,7 @@ func (*ErrorUnauthorized) createFeatureFlagVariantRes()    {}
 func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) createProjectFeatureRes()        {}
+func (*ErrorUnauthorized) createProjectMembershipRes()     {}
 func (*ErrorUnauthorized) createProjectSegmentRes()        {}
 func (*ErrorUnauthorized) createProjectSettingRes()        {}
 func (*ErrorUnauthorized) createProjectTagRes()            {}
@@ -2839,6 +2893,7 @@ func (*ErrorUnauthorized) deleteEnvironmentRes()           {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
+func (*ErrorUnauthorized) deleteProjectMembershipRes()     {}
 func (*ErrorUnauthorized) deleteProjectSettingRes()        {}
 func (*ErrorUnauthorized) deleteProjectTagRes()            {}
 func (*ErrorUnauthorized) deleteRuleAttributeRes()         {}
@@ -2860,9 +2915,11 @@ func (*ErrorUnauthorized) getLDAPSyncProgressRes()         {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()           {}
 func (*ErrorUnauthorized) getPendingChangeRes()            {}
 func (*ErrorUnauthorized) getProductInfoRes()              {}
+func (*ErrorUnauthorized) getProjectMembershipRes()        {}
 func (*ErrorUnauthorized) getProjectRes()                  {}
 func (*ErrorUnauthorized) getProjectSettingRes()           {}
 func (*ErrorUnauthorized) getProjectTagRes()               {}
+func (*ErrorUnauthorized) getRolePermissionsRes()          {}
 func (*ErrorUnauthorized) getSegmentRes()                  {}
 func (*ErrorUnauthorized) initiateTOTPApprovalRes()        {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
@@ -2872,13 +2929,17 @@ func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listFeatureTagsRes()             {}
 func (*ErrorUnauthorized) listPendingChangesRes()          {}
+func (*ErrorUnauthorized) listPermissionsRes()             {}
 func (*ErrorUnauthorized) listProjectChangesRes()          {}
 func (*ErrorUnauthorized) listProjectEnvironmentsRes()     {}
 func (*ErrorUnauthorized) listProjectFeaturesRes()         {}
+func (*ErrorUnauthorized) listProjectMembershipsRes()      {}
 func (*ErrorUnauthorized) listProjectSegmentsRes()         {}
 func (*ErrorUnauthorized) listProjectSettingsRes()         {}
 func (*ErrorUnauthorized) listProjectTagsRes()             {}
 func (*ErrorUnauthorized) listProjectsRes()                {}
+func (*ErrorUnauthorized) listRolePermissionsRes()         {}
+func (*ErrorUnauthorized) listRolesRes()                   {}
 func (*ErrorUnauthorized) listRuleAttributesRes()          {}
 func (*ErrorUnauthorized) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorUnauthorized) listUsersRes()                   {}
@@ -2904,6 +2965,7 @@ func (*ErrorUnauthorized) updateFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()     {}
 func (*ErrorUnauthorized) updateLicenseRes()               {}
+func (*ErrorUnauthorized) updateProjectMembershipRes()     {}
 func (*ErrorUnauthorized) updateProjectRes()               {}
 func (*ErrorUnauthorized) updateProjectSettingRes()        {}
 func (*ErrorUnauthorized) updateProjectTagRes()            {}
@@ -3841,6 +3903,10 @@ func (s *GetLDAPSyncLogsLevel) UnmarshalText(data []byte) error {
 		return errors.Errorf("invalid value: %q", data)
 	}
 }
+
+type GetRolePermissionsOKApplicationJSON []Permission
+
+func (*GetRolePermissionsOKApplicationJSON) getRolePermissionsRes() {}
 
 type GetSAMLMetadataOK struct {
 	Data io.Reader
@@ -5397,6 +5463,10 @@ func (s *ListPendingChangesStatus) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListPermissionsOKApplicationJSON []Permission
+
+func (*ListPermissionsOKApplicationJSON) listPermissionsRes() {}
+
 type ListProjectChangesSortBy string
 
 const (
@@ -5555,6 +5625,10 @@ func (s *ListProjectFeaturesSortBy) UnmarshalText(data []byte) error {
 	}
 }
 
+type ListProjectMembershipsOKApplicationJSON []Membership
+
+func (*ListProjectMembershipsOKApplicationJSON) listProjectMembershipsRes() {}
+
 type ListProjectSegmentsSortBy string
 
 const (
@@ -5639,6 +5713,39 @@ func (*ListProjectTagsResponse) listProjectTagsRes() {}
 type ListProjectsResponse []Project
 
 func (*ListProjectsResponse) listProjectsRes() {}
+
+type ListRolePermissionsOKApplicationJSON []ListRolePermissionsOKItem
+
+func (*ListRolePermissionsOKApplicationJSON) listRolePermissionsRes() {}
+
+type ListRolePermissionsOKItem struct {
+	Role        OptRole      `json:"role"`
+	Permissions []Permission `json:"permissions"`
+}
+
+// GetRole returns the value of Role.
+func (s *ListRolePermissionsOKItem) GetRole() OptRole {
+	return s.Role
+}
+
+// GetPermissions returns the value of Permissions.
+func (s *ListRolePermissionsOKItem) GetPermissions() []Permission {
+	return s.Permissions
+}
+
+// SetRole sets the value of Role.
+func (s *ListRolePermissionsOKItem) SetRole(val OptRole) {
+	s.Role = val
+}
+
+// SetPermissions sets the value of Permissions.
+func (s *ListRolePermissionsOKItem) SetPermissions(val []Permission) {
+	s.Permissions = val
+}
+
+type ListRolesOKApplicationJSON []Role
+
+func (*ListRolesOKApplicationJSON) listRolesRes() {}
 
 type ListRuleAttributesResponse []RuleAttributeEntity
 
@@ -5805,6 +5912,91 @@ func (s *LoginResponse) SetIsTmpPassword(val bool) {
 
 func (*LoginResponse) loginRes()       {}
 func (*LoginResponse) sSOCallbackRes() {}
+
+// Ref: #/components/schemas/Membership
+type Membership struct {
+	ID        uuid.UUID `json:"id"`
+	UserID    int64     `json:"user_id"`
+	ProjectID uuid.UUID `json:"project_id"`
+	RoleID    uuid.UUID `json:"role_id"`
+	RoleKey   string    `json:"role_key"`
+	RoleName  string    `json:"role_name"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+// GetID returns the value of ID.
+func (s *Membership) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetUserID returns the value of UserID.
+func (s *Membership) GetUserID() int64 {
+	return s.UserID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *Membership) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetRoleID returns the value of RoleID.
+func (s *Membership) GetRoleID() uuid.UUID {
+	return s.RoleID
+}
+
+// GetRoleKey returns the value of RoleKey.
+func (s *Membership) GetRoleKey() string {
+	return s.RoleKey
+}
+
+// GetRoleName returns the value of RoleName.
+func (s *Membership) GetRoleName() string {
+	return s.RoleName
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *Membership) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// SetID sets the value of ID.
+func (s *Membership) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *Membership) SetUserID(val int64) {
+	s.UserID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *Membership) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetRoleID sets the value of RoleID.
+func (s *Membership) SetRoleID(val uuid.UUID) {
+	s.RoleID = val
+}
+
+// SetRoleKey sets the value of RoleKey.
+func (s *Membership) SetRoleKey(val string) {
+	s.RoleKey = val
+}
+
+// SetRoleName sets the value of RoleName.
+func (s *Membership) SetRoleName(val string) {
+	s.RoleName = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *Membership) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+func (*Membership) createProjectMembershipRes() {}
+func (*Membership) getProjectMembershipRes()    {}
+func (*Membership) updateProjectMembershipRes() {}
 
 // NewOptAuditAction returns new OptAuditAction with value set to v.
 func NewOptAuditAction(v AuditAction) OptAuditAction {
@@ -7443,6 +7635,52 @@ func (o OptRecentActivityStatus) Or(d RecentActivityStatus) RecentActivityStatus
 	return d
 }
 
+// NewOptRole returns new OptRole with value set to v.
+func NewOptRole(v Role) OptRole {
+	return OptRole{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptRole is optional Role.
+type OptRole struct {
+	Value Role
+	Set   bool
+}
+
+// IsSet returns true if OptRole was set.
+func (o OptRole) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptRole) Reset() {
+	var v Role
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptRole) SetTo(v Role) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptRole) Get() (v Role, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptRole) Or(d Role) Role {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptRuleCondition returns new OptRuleCondition with value set to v.
 func NewOptRuleCondition(v RuleCondition) OptRuleCondition {
 	return OptRuleCondition{
@@ -8174,6 +8412,43 @@ func (s *PendingSummary) SetPendingGuardedChanges(val OptUint) {
 // SetOldestRequestAt sets the value of OldestRequestAt.
 func (s *PendingSummary) SetOldestRequestAt(val OptDateTime) {
 	s.OldestRequestAt = val
+}
+
+// Ref: #/components/schemas/Permission
+type Permission struct {
+	ID   uuid.UUID `json:"id"`
+	Key  string    `json:"key"`
+	Name string    `json:"name"`
+}
+
+// GetID returns the value of ID.
+func (s *Permission) GetID() uuid.UUID {
+	return s.ID
+}
+
+// GetKey returns the value of Key.
+func (s *Permission) GetKey() string {
+	return s.Key
+}
+
+// GetName returns the value of Name.
+func (s *Permission) GetName() string {
+	return s.Name
+}
+
+// SetID sets the value of ID.
+func (s *Permission) SetID(val uuid.UUID) {
+	s.ID = val
+}
+
+// SetKey sets the value of Key.
+func (s *Permission) SetKey(val string) {
+	s.Key = val
+}
+
+// SetName sets the value of Name.
+func (s *Permission) SetName(val string) {
+	s.Name = val
 }
 
 // Ref: #/components/schemas/ProductInfoResponse
@@ -10356,6 +10631,21 @@ func (s *UpdateLicenseRequest) GetLicenseText() string {
 // SetLicenseText sets the value of LicenseText.
 func (s *UpdateLicenseRequest) SetLicenseText(val string) {
 	s.LicenseText = val
+}
+
+// Ref: #/components/schemas/UpdateMembershipRequest
+type UpdateMembershipRequest struct {
+	RoleID uuid.UUID `json:"role_id"`
+}
+
+// GetRoleID returns the value of RoleID.
+func (s *UpdateMembershipRequest) GetRoleID() uuid.UUID {
+	return s.RoleID
+}
+
+// SetRoleID sets the value of RoleID.
+func (s *UpdateMembershipRequest) SetRoleID(val uuid.UUID) {
+	s.RoleID = val
 }
 
 // Ref: #/components/schemas/UpdateProjectRequest

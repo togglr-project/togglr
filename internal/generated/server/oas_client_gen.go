@@ -117,6 +117,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/projects/{project_id}/features
 	CreateProjectFeature(ctx context.Context, request *CreateFeatureRequest, params CreateProjectFeatureParams) (CreateProjectFeatureRes, error)
+	// CreateProjectMembership invokes CreateProjectMembership operation.
+	//
+	// Add membership to project.
+	//
+	// POST /api/v1/projects/{project_id}/memberships
+	CreateProjectMembership(ctx context.Context, request *CreateMembershipRequest, params CreateProjectMembershipParams) (CreateProjectMembershipRes, error)
 	// CreateProjectSegment invokes CreateProjectSegment operation.
 	//
 	// Create segment for project.
@@ -177,6 +183,12 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteProjectMembership invokes DeleteProjectMembership operation.
+	//
+	// Delete membership.
+	//
+	// DELETE /api/v1/projects/{project_id}/memberships/{membership_id}
+	DeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (DeleteProjectMembershipRes, error)
 	// DeleteProjectSetting invokes DeleteProjectSetting operation.
 	//
 	// Delete project setting.
@@ -327,6 +339,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/projects/{project_id}
 	GetProject(ctx context.Context, params GetProjectParams) (GetProjectRes, error)
+	// GetProjectMembership invokes GetProjectMembership operation.
+	//
+	// Get membership.
+	//
+	// GET /api/v1/projects/{project_id}/memberships/{membership_id}
+	GetProjectMembership(ctx context.Context, params GetProjectMembershipParams) (GetProjectMembershipRes, error)
 	// GetProjectSetting invokes GetProjectSetting operation.
 	//
 	// Get project setting by name.
@@ -339,6 +357,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/projects/{project_id}/tags/{tag_id}
 	GetProjectTag(ctx context.Context, params GetProjectTagParams) (GetProjectTagRes, error)
+	// GetRolePermissions invokes GetRolePermissions operation.
+	//
+	// Get permissions for a role.
+	//
+	// GET /api/v1/roles/{role_id}/permissions
+	GetRolePermissions(ctx context.Context, params GetRolePermissionsParams) (GetRolePermissionsRes, error)
 	// GetSAMLMetadata invokes GetSAMLMetadata operation.
 	//
 	// Get SAML metadata.
@@ -405,6 +429,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/pending_changes
 	ListPendingChanges(ctx context.Context, params ListPendingChangesParams) (ListPendingChangesRes, error)
+	// ListPermissions invokes ListPermissions operation.
+	//
+	// List all permissions.
+	//
+	// GET /api/v1/permissions
+	ListPermissions(ctx context.Context) (ListPermissionsRes, error)
 	// ListProjectChanges invokes ListProjectChanges operation.
 	//
 	// Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -423,6 +453,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/projects/{project_id}/features
 	ListProjectFeatures(ctx context.Context, params ListProjectFeaturesParams) (ListProjectFeaturesRes, error)
+	// ListProjectMemberships invokes ListProjectMemberships operation.
+	//
+	// List memberships for project.
+	//
+	// GET /api/v1/projects/{project_id}/memberships
+	ListProjectMemberships(ctx context.Context, params ListProjectMembershipsParams) (ListProjectMembershipsRes, error)
 	// ListProjectSegments invokes ListProjectSegments operation.
 	//
 	// List segments for project.
@@ -447,6 +483,18 @@ type Invoker interface {
 	//
 	// GET /api/v1/projects
 	ListProjects(ctx context.Context) (ListProjectsRes, error)
+	// ListRolePermissions invokes ListRolePermissions operation.
+	//
+	// List permissions for all roles.
+	//
+	// GET /api/v1/roles/permissions
+	ListRolePermissions(ctx context.Context) (ListRolePermissionsRes, error)
+	// ListRoles invokes ListRoles operation.
+	//
+	// List all roles.
+	//
+	// GET /api/v1/roles
+	ListRoles(ctx context.Context) (ListRolesRes, error)
 	// ListRuleAttributes invokes ListRuleAttributes operation.
 	//
 	// List of rule attributes.
@@ -615,6 +663,12 @@ type Invoker interface {
 	//
 	// PUT /api/v1/projects/{project_id}
 	UpdateProject(ctx context.Context, request *UpdateProjectRequest, params UpdateProjectParams) (UpdateProjectRes, error)
+	// UpdateProjectMembership invokes UpdateProjectMembership operation.
+	//
+	// Update membership.
+	//
+	// PUT /api/v1/projects/{project_id}/memberships/{membership_id}
+	UpdateProjectMembership(ctx context.Context, request *UpdateMembershipRequest, params UpdateProjectMembershipParams) (UpdateProjectMembershipRes, error)
 	// UpdateProjectSetting invokes UpdateProjectSetting operation.
 	//
 	// Update project setting.
@@ -2397,6 +2451,133 @@ func (c *Client) sendCreateProjectFeature(ctx context.Context, request *CreateFe
 	return result, nil
 }
 
+// CreateProjectMembership invokes CreateProjectMembership operation.
+//
+// Add membership to project.
+//
+// POST /api/v1/projects/{project_id}/memberships
+func (c *Client) CreateProjectMembership(ctx context.Context, request *CreateMembershipRequest, params CreateProjectMembershipParams) (CreateProjectMembershipRes, error) {
+	res, err := c.sendCreateProjectMembership(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateProjectMembership(ctx context.Context, request *CreateMembershipRequest, params CreateProjectMembershipParams) (res CreateProjectMembershipRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CreateProjectMembership"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/memberships"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateProjectMembershipOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/memberships"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateProjectMembershipRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, CreateProjectMembershipOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateProjectMembershipResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateProjectSegment invokes CreateProjectSegment operation.
 //
 // Create segment for project.
@@ -3602,6 +3783,148 @@ func (c *Client) sendDeleteLDAPConfig(ctx context.Context) (res DeleteLDAPConfig
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteLDAPConfigResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteProjectMembership invokes DeleteProjectMembership operation.
+//
+// Delete membership.
+//
+// DELETE /api/v1/projects/{project_id}/memberships/{membership_id}
+func (c *Client) DeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (DeleteProjectMembershipRes, error) {
+	res, err := c.sendDeleteProjectMembership(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (res DeleteProjectMembershipRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("DeleteProjectMembership"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/memberships/{membership_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteProjectMembershipOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/memberships/"
+	{
+		// Encode "membership_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "membership_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.MembershipID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, DeleteProjectMembershipOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteProjectMembershipResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -6584,6 +6907,148 @@ func (c *Client) sendGetProject(ctx context.Context, params GetProjectParams) (r
 	return result, nil
 }
 
+// GetProjectMembership invokes GetProjectMembership operation.
+//
+// Get membership.
+//
+// GET /api/v1/projects/{project_id}/memberships/{membership_id}
+func (c *Client) GetProjectMembership(ctx context.Context, params GetProjectMembershipParams) (GetProjectMembershipRes, error) {
+	res, err := c.sendGetProjectMembership(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetProjectMembership(ctx context.Context, params GetProjectMembershipParams) (res GetProjectMembershipRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetProjectMembership"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/memberships/{membership_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetProjectMembershipOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/memberships/"
+	{
+		// Encode "membership_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "membership_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.MembershipID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetProjectMembershipOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetProjectMembershipResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetProjectSetting invokes GetProjectSetting operation.
 //
 // Get project setting by name.
@@ -6861,6 +7326,130 @@ func (c *Client) sendGetProjectTag(ctx context.Context, params GetProjectTagPara
 
 	stage = "DecodeResponse"
 	result, err := decodeGetProjectTagResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetRolePermissions invokes GetRolePermissions operation.
+//
+// Get permissions for a role.
+//
+// GET /api/v1/roles/{role_id}/permissions
+func (c *Client) GetRolePermissions(ctx context.Context, params GetRolePermissionsParams) (GetRolePermissionsRes, error) {
+	res, err := c.sendGetRolePermissions(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetRolePermissions(ctx context.Context, params GetRolePermissionsParams) (res GetRolePermissionsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetRolePermissions"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/roles/{role_id}/permissions"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetRolePermissionsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/roles/"
+	{
+		// Encode "role_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "role_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.RoleID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/permissions"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetRolePermissionsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetRolePermissionsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -8284,6 +8873,111 @@ func (c *Client) sendListPendingChanges(ctx context.Context, params ListPendingC
 	return result, nil
 }
 
+// ListPermissions invokes ListPermissions operation.
+//
+// List all permissions.
+//
+// GET /api/v1/permissions
+func (c *Client) ListPermissions(ctx context.Context) (ListPermissionsRes, error) {
+	res, err := c.sendListPermissions(ctx)
+	return res, err
+}
+
+func (c *Client) sendListPermissions(ctx context.Context) (res ListPermissionsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListPermissions"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/permissions"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListPermissionsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/permissions"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListPermissionsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListPermissionsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListProjectChanges invokes ListProjectChanges operation.
 //
 // Get history of changes made to project features, rules, and other entities grouped by request_id.
@@ -8984,6 +9678,130 @@ func (c *Client) sendListProjectFeatures(ctx context.Context, params ListProject
 	return result, nil
 }
 
+// ListProjectMemberships invokes ListProjectMemberships operation.
+//
+// List memberships for project.
+//
+// GET /api/v1/projects/{project_id}/memberships
+func (c *Client) ListProjectMemberships(ctx context.Context, params ListProjectMembershipsParams) (ListProjectMembershipsRes, error) {
+	res, err := c.sendListProjectMemberships(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendListProjectMemberships(ctx context.Context, params ListProjectMembershipsParams) (res ListProjectMembershipsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListProjectMemberships"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/memberships"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListProjectMembershipsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/memberships"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListProjectMembershipsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListProjectMembershipsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListProjectSegments invokes ListProjectSegments operation.
 //
 // List segments for project.
@@ -9602,6 +10420,216 @@ func (c *Client) sendListProjects(ctx context.Context) (res ListProjectsRes, err
 
 	stage = "DecodeResponse"
 	result, err := decodeListProjectsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ListRolePermissions invokes ListRolePermissions operation.
+//
+// List permissions for all roles.
+//
+// GET /api/v1/roles/permissions
+func (c *Client) ListRolePermissions(ctx context.Context) (ListRolePermissionsRes, error) {
+	res, err := c.sendListRolePermissions(ctx)
+	return res, err
+}
+
+func (c *Client) sendListRolePermissions(ctx context.Context) (res ListRolePermissionsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListRolePermissions"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/roles/permissions"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListRolePermissionsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/roles/permissions"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListRolePermissionsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListRolePermissionsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ListRoles invokes ListRoles operation.
+//
+// List all roles.
+//
+// GET /api/v1/roles
+func (c *Client) ListRoles(ctx context.Context) (ListRolesRes, error) {
+	res, err := c.sendListRoles(ctx)
+	return res, err
+}
+
+func (c *Client) sendListRoles(ctx context.Context) (res ListRolesRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListRoles"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/roles"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListRolesOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/roles"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListRolesOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListRolesResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -12812,6 +13840,151 @@ func (c *Client) sendUpdateProject(ctx context.Context, request *UpdateProjectRe
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateProjectResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateProjectMembership invokes UpdateProjectMembership operation.
+//
+// Update membership.
+//
+// PUT /api/v1/projects/{project_id}/memberships/{membership_id}
+func (c *Client) UpdateProjectMembership(ctx context.Context, request *UpdateMembershipRequest, params UpdateProjectMembershipParams) (UpdateProjectMembershipRes, error) {
+	res, err := c.sendUpdateProjectMembership(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateProjectMembership(ctx context.Context, request *UpdateMembershipRequest, params UpdateProjectMembershipParams) (res UpdateProjectMembershipRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateProjectMembership"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/memberships/{membership_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateProjectMembershipOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/memberships/"
+	{
+		// Encode "membership_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "membership_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.MembershipID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateProjectMembershipRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, UpdateProjectMembershipOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateProjectMembershipResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

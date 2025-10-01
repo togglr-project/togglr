@@ -71,6 +71,7 @@ import (
 	productinfousecase "github.com/togglr-project/togglr/internal/usecases/productinfo"
 	projectsettingsusecase "github.com/togglr-project/togglr/internal/usecases/project-settings"
 	projectsusecase "github.com/togglr-project/togglr/internal/usecases/projects"
+	rbacusecase "github.com/togglr-project/togglr/internal/usecases/rbac"
 	ruleattributesusecase "github.com/togglr-project/togglr/internal/usecases/ruleattributes"
 	rulesusecase "github.com/togglr-project/togglr/internal/usecases/rules"
 	segmentsusecase "github.com/togglr-project/togglr/internal/usecases/segments"
@@ -269,6 +270,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(environmentsusecase.New)
 	app.registerComponent(dashboardusecase.New)
 	app.registerComponent(realtimechanges.New)
+	app.registerComponent(rbacusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

@@ -737,6 +737,71 @@ func decodeCreateProjectFeatureParams(args [1]string, argsEscaped bool, r *http.
 	return params, nil
 }
 
+// CreateProjectMembershipParams is parameters of CreateProjectMembership operation.
+type CreateProjectMembershipParams struct {
+	ProjectID uuid.UUID
+}
+
+func unpackCreateProjectMembershipParams(packed middleware.Parameters) (params CreateProjectMembershipParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeCreateProjectMembershipParams(args [1]string, argsEscaped bool, r *http.Request) (params CreateProjectMembershipParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CreateProjectSegmentParams is parameters of CreateProjectSegment operation.
 type CreateProjectSegmentParams struct {
 	ProjectID string
@@ -1230,6 +1295,124 @@ func decodeDeleteFeatureScheduleParams(args [1]string, argsEscaped bool, r *http
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "schedule_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteProjectMembershipParams is parameters of DeleteProjectMembership operation.
+type DeleteProjectMembershipParams struct {
+	ProjectID    uuid.UUID
+	MembershipID uuid.UUID
+}
+
+func unpackDeleteProjectMembershipParams(packed middleware.Parameters) (params DeleteProjectMembershipParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "membership_id",
+			In:   "path",
+		}
+		params.MembershipID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeDeleteProjectMembershipParams(args [2]string, argsEscaped bool, r *http.Request) (params DeleteProjectMembershipParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: membership_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "membership_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.MembershipID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "membership_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -2944,6 +3127,124 @@ func decodeGetProjectParams(args [1]string, argsEscaped bool, r *http.Request) (
 	return params, nil
 }
 
+// GetProjectMembershipParams is parameters of GetProjectMembership operation.
+type GetProjectMembershipParams struct {
+	ProjectID    uuid.UUID
+	MembershipID uuid.UUID
+}
+
+func unpackGetProjectMembershipParams(packed middleware.Parameters) (params GetProjectMembershipParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "membership_id",
+			In:   "path",
+		}
+		params.MembershipID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetProjectMembershipParams(args [2]string, argsEscaped bool, r *http.Request) (params GetProjectMembershipParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: membership_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "membership_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.MembershipID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "membership_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // GetProjectSettingParams is parameters of GetProjectSetting operation.
 type GetProjectSettingParams struct {
 	ProjectID   string
@@ -3173,6 +3474,71 @@ func decodeGetProjectTagParams(args [2]string, argsEscaped bool, r *http.Request
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "tag_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetRolePermissionsParams is parameters of GetRolePermissions operation.
+type GetRolePermissionsParams struct {
+	RoleID uuid.UUID
+}
+
+func unpackGetRolePermissionsParams(packed middleware.Parameters) (params GetRolePermissionsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "role_id",
+			In:   "path",
+		}
+		params.RoleID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeGetRolePermissionsParams(args [1]string, argsEscaped bool, r *http.Request) (params GetRolePermissionsParams, _ error) {
+	// Decode path: role_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "role_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.RoleID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "role_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -5691,6 +6057,71 @@ func decodeListProjectFeaturesParams(args [1]string, argsEscaped bool, r *http.R
 	return params, nil
 }
 
+// ListProjectMembershipsParams is parameters of ListProjectMemberships operation.
+type ListProjectMembershipsParams struct {
+	ProjectID uuid.UUID
+}
+
+func unpackListProjectMembershipsParams(packed middleware.Parameters) (params ListProjectMembershipsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeListProjectMembershipsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListProjectMembershipsParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // ListProjectSegmentsParams is parameters of ListProjectSegments operation.
 type ListProjectSegmentsParams struct {
 	ProjectID string
@@ -7764,6 +8195,124 @@ func decodeUpdateProjectParams(args [1]string, argsEscaped bool, r *http.Request
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateProjectMembershipParams is parameters of UpdateProjectMembership operation.
+type UpdateProjectMembershipParams struct {
+	ProjectID    uuid.UUID
+	MembershipID uuid.UUID
+}
+
+func unpackUpdateProjectMembershipParams(packed middleware.Parameters) (params UpdateProjectMembershipParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(uuid.UUID)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "membership_id",
+			In:   "path",
+		}
+		params.MembershipID = packed[key].(uuid.UUID)
+	}
+	return params
+}
+
+func decodeUpdateProjectMembershipParams(args [2]string, argsEscaped bool, r *http.Request) (params UpdateProjectMembershipParams, _ error) {
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: membership_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "membership_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUUID(val)
+				if err != nil {
+					return err
+				}
+
+				params.MembershipID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "membership_id",
 			In:   "path",
 			Err:  err,
 		}
