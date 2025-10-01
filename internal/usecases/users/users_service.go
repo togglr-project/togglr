@@ -15,6 +15,7 @@ import (
 
 type UsersService struct {
 	usersRepo        contract.UsersRepository
+	permissionsRepo  contract.PermissionsRepository
 	tokenizer        contract.Tokenizer
 	emailer          contract.Emailer
 	twoFARateLimiter contract.TwoFARateLimiter
@@ -25,6 +26,7 @@ type UsersService struct {
 
 func New(
 	usersRepo contract.UsersRepository,
+	permissionsRepo contract.PermissionsRepository,
 	tokenizer contract.Tokenizer,
 	emailer contract.Emailer,
 	twoFARateLimiter contract.TwoFARateLimiter,
@@ -44,6 +46,7 @@ func New(
 
 	return &UsersService{
 		usersRepo:        usersRepo,
+		permissionsRepo:  permissionsRepo,
 		tokenizer:        tokenizer,
 		emailer:          emailer,
 		twoFARateLimiter: twoFARateLimiter,
@@ -151,8 +154,6 @@ func (s *UsersService) List(ctx context.Context) ([]domain.User, error) {
 }
 
 // Create creates a new user. Only superusers can create new users.
-//
-
 func (s *UsersService) Create(
 	ctx context.Context,
 	currentUser domain.User,

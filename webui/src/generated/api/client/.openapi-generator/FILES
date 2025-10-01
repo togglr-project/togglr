@@ -23,6 +23,7 @@ docs/CreateFeatureRequest.md
 docs/CreateFeatureScheduleRequest.md
 docs/CreateFlagVariantInline.md
 docs/CreateFlagVariantRequest.md
+docs/CreateMembershipRequest.md
 docs/CreateProjectSettingRequest.md
 docs/CreateProjectTagRequest.md
 docs/CreateRuleAttributeRequest.md
@@ -90,16 +91,19 @@ docs/ListChangesResponse.md
 docs/ListEnvironmentsResponse.md
 docs/ListFeaturesResponse.md
 docs/ListProjectSettingsResponse.md
+docs/ListRolePermissions200ResponseInner.md
 docs/ListSegmentsResponse.md
 docs/LogicalOperator.md
 docs/LoginRequest.md
 docs/LoginResponse.md
+docs/Membership.md
 docs/Pagination.md
 docs/PendingChangeMeta.md
 docs/PendingChangePayload.md
 docs/PendingChangeResponse.md
 docs/PendingChangesListResponse.md
 docs/PendingSummary.md
+docs/Permission.md
 docs/ProductInfoResponse.md
 docs/Project.md
 docs/ProjectHealth.md
@@ -148,6 +152,7 @@ docs/UpdateEnvironmentRequest.md
 docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
 docs/UpdateLicenseRequest.md
+docs/UpdateMembershipRequest.md
 docs/UpdateProjectRequest.md
 docs/UpdateProjectSettingRequest.md
 docs/UpdateProjectTagRequest.md

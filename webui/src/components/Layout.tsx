@@ -36,7 +36,8 @@ import {
   FlagOutlined as FlagOutlinedIcon,
   Schedule as ScheduleIcon,
   PeopleOutline as PeopleIcon,
-  Assignment as ChangesIcon
+  Assignment as ChangesIcon,
+  Security as SecurityIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -652,6 +653,54 @@ const Layout: React.FC<LayoutProps> = ({
                       primaryTypographyProps={{
                         fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 600 : 500,
                         color: location.pathname.startsWith(`/projects/${currentProjectId}/settings`) ? 'primary.main' : 'inherit',
+                      }}
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        ml: 0.5,
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )}
+
+              {/* Project Permissions menu item */}
+              {rbac.canManageMembership() && (
+                <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                  <ListItemButton
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      py: 1.2,
+                      borderRadius: 2,
+                      backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/permissions`) ? (
+                        theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                      ) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)'
+                          : 'rgba(130, 82, 255, 0.06)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (currentProjectId) navigate(`/projects/${currentProjectId}/permissions`);
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/permissions`) ? 'primary.main' : 'inherit',
+                      }}
+                    >
+                      <SecurityIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={'Permissions'} 
+                      primaryTypographyProps={{
+                        fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/permissions`) ? 600 : 500,
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/permissions`) ? 'primary.main' : 'inherit',
                       }}
                       sx={{ 
                         opacity: open ? 1 : 0,

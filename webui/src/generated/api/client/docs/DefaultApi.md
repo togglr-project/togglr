@@ -18,6 +18,7 @@ All URIs are relative to *http://localhost*
 |[**createFeatureRule**](#createfeaturerule) | **POST** /api/v1/features/{feature_id}/rules | Create rule for feature|
 |[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
+|[**createProjectMembership**](#createprojectmembership) | **POST** /api/v1/projects/{project_id}/memberships | Add membership to project|
 |[**createProjectSegment**](#createprojectsegment) | **POST** /api/v1/projects/{project_id}/segments | Create segment for project|
 |[**createProjectSetting**](#createprojectsetting) | **POST** /api/v1/projects/{project_id}/settings | Create project setting|
 |[**createProjectTag**](#createprojecttag) | **POST** /api/v1/projects/{project_id}/tags | Create new tag for project|
@@ -28,6 +29,7 @@ All URIs are relative to *http://localhost*
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
 |[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
+|[**deleteProjectMembership**](#deleteprojectmembership) | **DELETE** /api/v1/projects/{project_id}/memberships/{membership_id} | Delete membership|
 |[**deleteProjectSetting**](#deleteprojectsetting) | **DELETE** /api/v1/projects/{project_id}/settings/{setting_name} | Delete project setting|
 |[**deleteProjectTag**](#deleteprojecttag) | **DELETE** /api/v1/projects/{project_id}/tags/{tag_id} | Delete tag|
 |[**deleteRuleAttribute**](#deleteruleattribute) | **DELETE** /api/v1/rule_attributes/{name} | Delete rule attribute|
@@ -52,8 +54,10 @@ All URIs are relative to *http://localhost*
 |[**getPendingChange**](#getpendingchange) | **GET** /api/v1/pending_changes/{pending_change_id} | Get pending change by ID|
 |[**getProductInfo**](#getproductinfo) | **GET** /api/v1/product/info | Get product information including client ID|
 |[**getProject**](#getproject) | **GET** /api/v1/projects/{project_id} | Get project details|
+|[**getProjectMembership**](#getprojectmembership) | **GET** /api/v1/projects/{project_id}/memberships/{membership_id} | Get membership|
 |[**getProjectSetting**](#getprojectsetting) | **GET** /api/v1/projects/{project_id}/settings/{setting_name} | Get project setting by name|
 |[**getProjectTag**](#getprojecttag) | **GET** /api/v1/projects/{project_id}/tags/{tag_id} | Get tag details|
+|[**getRolePermissions**](#getrolepermissions) | **GET** /api/v1/roles/{role_id}/permissions | Get permissions for a role|
 |[**getSAMLMetadata**](#getsamlmetadata) | **GET** /api/v1/saml/metadata | Get SAML metadata|
 |[**getSSOProviders**](#getssoproviders) | **GET** /api/v1/auth/sso/providers | Get available SSO providers|
 |[**getSegment**](#getsegment) | **GET** /api/v1/segments/{segment_id} | Get segment by ID|
@@ -65,13 +69,17 @@ All URIs are relative to *http://localhost*
 |[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
 |[**listFeatureTags**](#listfeaturetags) | **GET** /api/v1/features/{feature_id}/tags | List feature tags|
 |[**listPendingChanges**](#listpendingchanges) | **GET** /api/v1/pending_changes | List pending changes|
+|[**listPermissions**](#listpermissions) | **GET** /api/v1/permissions | List all permissions|
 |[**listProjectChanges**](#listprojectchanges) | **GET** /api/v1/projects/{project_id}/changes | Get project changes history|
 |[**listProjectEnvironments**](#listprojectenvironments) | **GET** /api/v1/projects/{project_id}/environments | List project environments|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
+|[**listProjectMemberships**](#listprojectmemberships) | **GET** /api/v1/projects/{project_id}/memberships | List memberships for project|
 |[**listProjectSegments**](#listprojectsegments) | **GET** /api/v1/projects/{project_id}/segments | List segments for project|
 |[**listProjectSettings**](#listprojectsettings) | **GET** /api/v1/projects/{project_id}/settings | List project settings|
 |[**listProjectTags**](#listprojecttags) | **GET** /api/v1/projects/{project_id}/tags | Get tags list for project|
 |[**listProjects**](#listprojects) | **GET** /api/v1/projects | Get projects list|
+|[**listRolePermissions**](#listrolepermissions) | **GET** /api/v1/roles/permissions | List permissions for all roles|
+|[**listRoles**](#listroles) | **GET** /api/v1/roles | List all roles|
 |[**listRuleAttributes**](#listruleattributes) | **GET** /api/v1/rule_attributes | List of rule attributes|
 |[**listSegmentDesyncFeatureIDs**](#listsegmentdesyncfeatureids) | **GET** /api/v1/segments/{segment_id}/desync-features | Get desync feature IDs by segment ID|
 |[**listUsers**](#listusers) | **GET** /api/v1/users | List all users (superuser only)|
@@ -99,6 +107,7 @@ All URIs are relative to *http://localhost*
 |[**updateLicense**](#updatelicense) | **PUT** /api/v1/license | Update license|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
 |[**updateProject**](#updateproject) | **PUT** /api/v1/projects/{project_id} | Update project name and description|
+|[**updateProjectMembership**](#updateprojectmembership) | **PUT** /api/v1/projects/{project_id}/memberships/{membership_id} | Update membership|
 |[**updateProjectSetting**](#updateprojectsetting) | **PUT** /api/v1/projects/{project_id}/settings/{setting_name} | Update project setting|
 |[**updateProjectTag**](#updateprojecttag) | **PUT** /api/v1/projects/{project_id}/tags/{tag_id} | Update tag|
 |[**updateSegment**](#updatesegment) | **PUT** /api/v1/segments/{segment_id} | Update segment|
@@ -933,6 +942,66 @@ const { status, data } = await apiInstance.createProjectFeature(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **createProjectMembership**
+> Membership createProjectMembership(createMembershipRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateMembershipRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let createMembershipRequest: CreateMembershipRequest; //
+
+const { status, data } = await apiInstance.createProjectMembership(
+    projectId,
+    createMembershipRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createMembershipRequest** | **CreateMembershipRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Membership**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Membership created |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createProjectSegment**
 > SegmentResponse createProjectSegment(createSegmentRequest)
 
@@ -1497,6 +1566,64 @@ This endpoint does not have any parameters.
 |**200** | LDAP configuration deleted |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteProjectMembership**
+> deleteProjectMembership()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let membershipId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteProjectMembership(
+    projectId,
+    membershipId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **membershipId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Membership deleted |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Membership not found |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -2801,6 +2928,64 @@ const { status, data } = await apiInstance.getProject(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getProjectMembership**
+> Membership getProjectMembership()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let membershipId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getProjectMembership(
+    projectId,
+    membershipId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **membershipId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Membership**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Membership |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Membership not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getProjectSetting**
 > ProjectSettingResponse getProjectSetting()
 
@@ -2912,6 +3097,60 @@ const { status, data } = await apiInstance.getProjectTag(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Tag not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getRolePermissions**
+> Array<Permission> getRolePermissions()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let roleId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.getRolePermissions(
+    roleId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **roleId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<Permission>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of permissions for role |  -  |
+|**401** | Unauthorized |  -  |
+|**404** | Role not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -3525,6 +3764,52 @@ const { status, data } = await apiInstance.listPendingChanges(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **listPermissions**
+> Array<Permission> listPermissions()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.listPermissions();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<Permission>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of all permissions |  -  |
+|**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **listProjectChanges**
 > ListChangesResponse listProjectChanges()
 
@@ -3739,6 +4024,61 @@ const { status, data } = await apiInstance.listProjectFeatures(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | List of features for the project |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listProjectMemberships**
+> Array<Membership> listProjectMemberships()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+
+const { status, data } = await apiInstance.listProjectMemberships(
+    projectId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Array<Membership>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of memberships |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Project not found |  -  |
@@ -3976,6 +4316,98 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | List of projects |  -  |
+|**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listRolePermissions**
+> Array<ListRolePermissions200ResponseInner> listRolePermissions()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.listRolePermissions();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<ListRolePermissions200ResponseInner>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Map of role to permissions |  -  |
+|**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listRoles**
+> Array<Role> listRoles()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.listRoles();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**Array<Role>**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of roles |  -  |
 |**401** | Unauthorized |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
@@ -5511,6 +5943,69 @@ const { status, data } = await apiInstance.updateProject(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateProjectMembership**
+> Membership updateProjectMembership(updateMembershipRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    UpdateMembershipRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let membershipId: string; // (default to undefined)
+let updateMembershipRequest: UpdateMembershipRequest; //
+
+const { status, data } = await apiInstance.updateProjectMembership(
+    projectId,
+    membershipId,
+    updateMembershipRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateMembershipRequest** | **UpdateMembershipRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+| **membershipId** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**Membership**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Membership updated |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Membership not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

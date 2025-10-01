@@ -22,6 +22,7 @@ import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import CategoriesPage from './pages/CategoriesPage';
 import ProjectTagsPage from './pages/ProjectTagsPage';
+import ProjectPermissionsPage from './pages/ProjectPermissionsPage';
 import PendingChangesPage from './pages/PendingChangesPage';
 import AdminPage from './pages/AdminPage';
 import AccountPage from './pages/AccountPage';
@@ -297,6 +298,7 @@ function App() {
                         <Route path="/projects/:projectId/scheduling" element={<LicenseGuard><ProjectSchedulingPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/segments" element={<LicenseGuard><ProjectSegmentsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/tags" element={<LicenseGuard><ProjectTagsPage /></LicenseGuard>} />
+                        <Route path="/projects/:projectId/permissions" element={<LicenseGuard><ProjectPermissionsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/pending-changes" element={<LicenseGuard><PendingChangesPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
                         <Route path="/admin" element={<LicenseGuard><AdminPage /></LicenseGuard>} />
