@@ -251,6 +251,78 @@ func (_c *MockFeatureParamsRepository_GetByFeatureWithEnv_Call) RunAndReturn(run
 	return _c
 }
 
+// GetForUpdate provides a mock function for the type MockFeatureParamsRepository
+func (_mock *MockFeatureParamsRepository) GetForUpdate(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error) {
+	ret := _mock.Called(ctx, featureID, envID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetForUpdate")
+	}
+
+	var r0 domain.FeatureParams
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) (domain.FeatureParams, error)); ok {
+		return returnFunc(ctx, featureID, envID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) domain.FeatureParams); ok {
+		r0 = returnFunc(ctx, featureID, envID)
+	} else {
+		r0 = ret.Get(0).(domain.FeatureParams)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, featureID, envID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureParamsRepository_GetForUpdate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetForUpdate'
+type MockFeatureParamsRepository_GetForUpdate_Call struct {
+	*mock.Call
+}
+
+// GetForUpdate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - featureID domain.FeatureID
+//   - envID domain.EnvironmentID
+func (_e *MockFeatureParamsRepository_Expecter) GetForUpdate(ctx interface{}, featureID interface{}, envID interface{}) *MockFeatureParamsRepository_GetForUpdate_Call {
+	return &MockFeatureParamsRepository_GetForUpdate_Call{Call: _e.mock.On("GetForUpdate", ctx, featureID, envID)}
+}
+
+func (_c *MockFeatureParamsRepository_GetForUpdate_Call) Run(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID)) *MockFeatureParamsRepository_GetForUpdate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureParamsRepository_GetForUpdate_Call) Return(featureParams domain.FeatureParams, err error) *MockFeatureParamsRepository_GetForUpdate_Call {
+	_c.Call.Return(featureParams, err)
+	return _c
+}
+
+func (_c *MockFeatureParamsRepository_GetForUpdate_Call) RunAndReturn(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error)) *MockFeatureParamsRepository_GetForUpdate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListByFeatureID provides a mock function for the type MockFeatureParamsRepository
 func (_mock *MockFeatureParamsRepository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error) {
 	ret := _mock.Called(ctx, featureID)

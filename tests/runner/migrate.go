@@ -54,16 +54,41 @@ func upMigrations(connStr, migrationsDir string) error {
 func disableTriggersForTests(db *sql.DB) error {
 	slog.Info("disabling triggers for test environment...")
 
+	// First, let's see what triggers exist
+	rows, err := db.Query(`
+		SELECT trigger_name, event_object_table 
+		FROM information_schema.triggers 
+		WHERE trigger_schema = 'public' 
+		AND trigger_name LIKE '%project%' OR trigger_name LIKE '%tag%' OR trigger_name LIKE '%setting%'
+		ORDER BY trigger_name
+	`)
+	if err != nil {
+		slog.Warn("failed to query triggers", "error", err)
+	} else {
+		defer rows.Close()
+		slog.Info("existing triggers:")
+		for rows.Next() {
+			var triggerName, tableName string
+			if err := rows.Scan(&triggerName, &tableName); err == nil {
+				slog.Info("trigger found", "name", triggerName, "table", tableName)
+			}
+		}
+	}
+
 	triggers := []string{
 		"trg_create_envs_on_project_insert",
 		"trg_create_params_on_feature_insert",
 		"trg_create_feature_params_on_env_insert",
+		"trg_set_default_project_settings",
+		"trg_init_project_safety_tags",
 	}
 
 	for _, trigger := range triggers {
 		query := fmt.Sprintf("DROP TRIGGER IF EXISTS %s ON %s", trigger, getTableName(trigger))
 		if _, err := db.Exec(query); err != nil {
-			return fmt.Errorf("drop trigger %s: %w", trigger, err)
+			slog.Warn("failed to drop trigger", "trigger", trigger, "error", err)
+		} else {
+			slog.Info("dropped trigger", "trigger", trigger)
 		}
 	}
 
@@ -80,6 +105,10 @@ func getTableName(triggerName string) string {
 		return "features"
 	case "trg_create_feature_params_on_env_insert":
 		return "environments"
+	case "trg_set_default_project_settings":
+		return "projects"
+	case "trg_init_project_safety_tags":
+		return "projects"
 	default:
 		return ""
 	}

@@ -28,6 +28,11 @@ type FeatureParamsRepository interface {
 		featureID domain.FeatureID,
 		envID domain.EnvironmentID,
 	) (domain.FeatureParams, error)
+	GetForUpdate(
+		ctx context.Context,
+		featureID domain.FeatureID,
+		envID domain.EnvironmentID,
+	) (domain.FeatureParams, error)
 	ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error)
 	Create(ctx context.Context, projectID domain.ProjectID, params domain.FeatureParams) (domain.FeatureParams, error)
 	Update(ctx context.Context, projectID domain.ProjectID, params domain.FeatureParams) (domain.FeatureParams, error)

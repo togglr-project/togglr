@@ -24,7 +24,7 @@ type ErrorReportsUseCase interface {
 		reqCtx map[domain.RuleAttribute]any,
 		reportType string,
 		reportMsg string,
-	) (health domain.FeatureHealth, accepted bool, err error)
+	) (health domain.FeatureHealth, accepted bool, threshold int, err error)
 
 	GetFeatureHealth(
 		ctx context.Context,

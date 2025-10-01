@@ -1,0 +1,22 @@
+- name: simple error report test
+  fixtures:
+    - empty_db
+    - sdk_base
+
+  steps:
+    - name: report_error
+      request:
+        method: POST
+        path: /sdk/v1/features/new_ui/report-error
+        headers:
+          Content-Type: application/json
+          Authorization: 545C3E6A-8B17-4204-9558-9106D33B56F7
+        body: {"error_type":"timeout","error_message":"Service X timeout"}
+      response:
+        status: 200
+        headers:
+          Content-Type: application/json
+      dbChecks:
+        - query: SELECT COUNT(*) as cnt FROM monitoring.error_reports WHERE feature_id = '22222222-2222-2222-2222-222222222222' AND environment_id = 1
+          result:
+            - cnt: 1

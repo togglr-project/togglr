@@ -117,7 +117,7 @@ func (_c *MockErrorReportsUseCase_GetFeatureHealth_Call) RunAndReturn(run func(c
 }
 
 // ReportError provides a mock function for the type MockErrorReportsUseCase
-func (_mock *MockErrorReportsUseCase) ReportError(ctx context.Context, projectID domain.ProjectID, featureKey string, envKey string, reqCtx map[domain.RuleAttribute]any, reportType string, reportMsg string) (domain.FeatureHealth, bool, error) {
+func (_mock *MockErrorReportsUseCase) ReportError(ctx context.Context, projectID domain.ProjectID, featureKey string, envKey string, reqCtx map[domain.RuleAttribute]any, reportType string, reportMsg string) (domain.FeatureHealth, bool, int, error) {
 	ret := _mock.Called(ctx, projectID, featureKey, envKey, reqCtx, reportType, reportMsg)
 
 	if len(ret) == 0 {
@@ -126,8 +126,9 @@ func (_mock *MockErrorReportsUseCase) ReportError(ctx context.Context, projectID
 
 	var r0 domain.FeatureHealth
 	var r1 bool
-	var r2 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, string, map[domain.RuleAttribute]any, string, string) (domain.FeatureHealth, bool, error)); ok {
+	var r2 int
+	var r3 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, string, map[domain.RuleAttribute]any, string, string) (domain.FeatureHealth, bool, int, error)); ok {
 		return returnFunc(ctx, projectID, featureKey, envKey, reqCtx, reportType, reportMsg)
 	}
 	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, string, map[domain.RuleAttribute]any, string, string) domain.FeatureHealth); ok {
@@ -140,12 +141,17 @@ func (_mock *MockErrorReportsUseCase) ReportError(ctx context.Context, projectID
 	} else {
 		r1 = ret.Get(1).(bool)
 	}
-	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, string, string, map[domain.RuleAttribute]any, string, string) error); ok {
+	if returnFunc, ok := ret.Get(2).(func(context.Context, domain.ProjectID, string, string, map[domain.RuleAttribute]any, string, string) int); ok {
 		r2 = returnFunc(ctx, projectID, featureKey, envKey, reqCtx, reportType, reportMsg)
 	} else {
-		r2 = ret.Error(2)
+		r2 = ret.Get(2).(int)
 	}
-	return r0, r1, r2
+	if returnFunc, ok := ret.Get(3).(func(context.Context, domain.ProjectID, string, string, map[domain.RuleAttribute]any, string, string) error); ok {
+		r3 = returnFunc(ctx, projectID, featureKey, envKey, reqCtx, reportType, reportMsg)
+	} else {
+		r3 = ret.Error(3)
+	}
+	return r0, r1, r2, r3
 }
 
 // MockErrorReportsUseCase_ReportError_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ReportError'
@@ -208,12 +214,12 @@ func (_c *MockErrorReportsUseCase_ReportError_Call) Run(run func(ctx context.Con
 	return _c
 }
 
-func (_c *MockErrorReportsUseCase_ReportError_Call) Return(health domain.FeatureHealth, accepted bool, err error) *MockErrorReportsUseCase_ReportError_Call {
-	_c.Call.Return(health, accepted, err)
+func (_c *MockErrorReportsUseCase_ReportError_Call) Return(health domain.FeatureHealth, accepted bool, threshold int, err error) *MockErrorReportsUseCase_ReportError_Call {
+	_c.Call.Return(health, accepted, threshold, err)
 	return _c
 }
 
-func (_c *MockErrorReportsUseCase_ReportError_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, featureKey string, envKey string, reqCtx map[domain.RuleAttribute]any, reportType string, reportMsg string) (domain.FeatureHealth, bool, error)) *MockErrorReportsUseCase_ReportError_Call {
+func (_c *MockErrorReportsUseCase_ReportError_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, featureKey string, envKey string, reqCtx map[domain.RuleAttribute]any, reportType string, reportMsg string) (domain.FeatureHealth, bool, int, error)) *MockErrorReportsUseCase_ReportError_Call {
 	_c.Call.Return(run)
 	return _c
 }

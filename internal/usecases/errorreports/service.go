@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
@@ -80,28 +82,30 @@ func (s *Service) ReportError(
 	reqCtx map[domain.RuleAttribute]any,
 	reportType string,
 	reportMsg string,
-) (domain.FeatureHealth, bool, error) {
+) (domain.FeatureHealth, bool, int, error) {
 	// find feature by key and env
 	feature, err := s.featuresRepo.GetByKeyWithEnv(ctx, featureKey, envKey)
 	if err != nil {
-		return domain.FeatureHealth{}, false, err
+		return domain.FeatureHealth{}, false, 0, err
 	}
 
 	// ensure environment exists to get its ID
 	env, err := s.envsRepo.GetByProjectIDAndKey(ctx, projectID, envKey)
 	if err != nil {
-		return domain.FeatureHealth{}, false, err
+		return domain.FeatureHealth{}, false, 0, err
 	}
 
 	// insert error + possibly auto-disable in a single transaction
 	var (
-		accepted bool
-		health   domain.FeatureHealth
+		accepted  bool
+		health    domain.FeatureHealth
+		threshold int
 	)
 
 	err = s.txManager.ReadCommitted(ctx, func(txCtx context.Context) error {
 		// 1) insert error report
 		report := domain.ErrorReport{
+			EventID:       generateEventID(),
 			ProjectID:     projectID,
 			FeatureID:     feature.ID,
 			EnvironmentID: env.ID,
@@ -126,51 +130,99 @@ func (s *Service) ReportError(
 			}
 			if hasTag {
 				// 3) read project settings
-				enabled := getBoolSetting(txCtx, s.projectSettings, projectID, psAutoDisableEnabledKey, defaultAutoDisableEnabled)
+				enabled := getBoolSetting(
+					txCtx,
+					s.projectSettings,
+					projectID,
+					psAutoDisableEnabledKey,
+					defaultAutoDisableEnabled,
+				)
 				if enabled {
-					threshold := getIntSetting(txCtx, s.projectSettings, projectID, psAutoDisableErrorThresholdKey, defaultErrorThreshold)
-					windowSec := getIntSetting(txCtx, s.projectSettings, projectID, psAutoDisableTimeWindowSecKey, int(defaultTimeWindow/time.Second))
+					threshold = getIntSetting(
+						txCtx,
+						s.projectSettings,
+						projectID,
+						psAutoDisableErrorThresholdKey,
+						defaultErrorThreshold,
+					)
+					windowSec := getIntSetting(
+						txCtx,
+						s.projectSettings,
+						projectID,
+						psAutoDisableTimeWindowSecKey,
+						int(defaultTimeWindow/time.Second),
+					)
 
 					cnt, err := s.repo.CountRecent(txCtx, feature.ID, env.ID, time.Duration(windowSec)*time.Second)
 					if err != nil {
 						return err
 					}
 					if cnt >= threshold {
-						requiresApproval := getBoolSetting(txCtx, s.projectSettings, projectID, psAutoDisableRequiresApprovalKey, defaultRequiresApproval)
-						if requiresApproval {
-							// create pending change to disable feature
-							payload := domain.PendingChangePayload{
-								Entities: []domain.EntityChange{
-									{
-										Entity:   "feature_params",
-										EntityID: feature.ID.String(),
-										Action:   domain.EntityActionUpdate,
-										Changes: map[string]domain.ChangeValue{
-											"enabled": {Old: feature.Enabled, New: false},
+						// Lock feature_params for update to prevent race conditions
+						currentParams, err := s.featureParams.GetForUpdate(txCtx, feature.ID, env.ID)
+						if err != nil {
+							return fmt.Errorf("get feature params for update: %w", err)
+						}
+
+						// Check if already disabled to avoid duplicate operations
+						if !currentParams.Enabled {
+							// Feature already disabled, skip auto-disable
+							slog.Info("feature already disabled, skipping auto-disable",
+								"feature_id", feature.ID, "env_id", env.ID)
+						} else {
+							requiresApproval := getBoolSetting(
+								txCtx,
+								s.projectSettings,
+								projectID,
+								psAutoDisableRequiresApprovalKey,
+								defaultRequiresApproval,
+							)
+							if requiresApproval {
+								// create pending change to disable feature
+								payload := domain.PendingChangePayload{
+									Entities: []domain.EntityChange{
+										{
+											Entity:   "feature_params",
+											EntityID: feature.ID.String(),
+											Action:   domain.EntityActionUpdate,
+											Changes: map[string]domain.ChangeValue{
+												"enabled": {Old: currentParams.Enabled, New: false},
+											},
 										},
 									},
-								},
-								Meta: domain.PendingChangeMeta{
-									Reason: "auto-disable threshold exceeded",
-									Origin: "auto-disable",
-									Client: "sdk",
-								},
-							}
-							_, err := s.pendingUC.Create(txCtx, projectID, env.ID, "system", nil, payload)
-							if err != nil {
-								return fmt.Errorf("create pending change: %w", err)
-							}
-							accepted = true
-						} else {
-							// perform immediate disable by updating feature params
-							params := domain.FeatureParams{
-								FeatureID:     feature.ID,
-								EnvironmentID: env.ID,
-								Enabled:       false,
-								DefaultValue:  feature.DefaultValue,
-							}
-							if _, err := s.featureParams.Update(txCtx, projectID, params); err != nil {
-								return fmt.Errorf("disable feature: %w", err)
+									Meta: domain.PendingChangeMeta{
+										Reason: "auto-disable threshold exceeded",
+										Origin: "auto-disable",
+										Client: "sdk",
+									},
+								}
+								_, err := s.pendingUC.Create(
+									txCtx,
+									projectID,
+									env.ID,
+									"system",
+									nil,
+									payload,
+								)
+								if err != nil {
+									return fmt.Errorf("create pending change: %w", err)
+								}
+								accepted = true
+							} else {
+								// perform immediate disable by updating feature params
+								params := domain.FeatureParams{
+									FeatureID:     feature.ID,
+									EnvironmentID: env.ID,
+									Enabled:       false,
+									DefaultValue:  currentParams.DefaultValue,
+									UpdatedAt:     time.Now(),
+								}
+								if _, err := s.featureParams.Update(txCtx, projectID, params); err != nil {
+									return fmt.Errorf("disable feature: %w", err)
+								}
+
+								slog.Info("feature auto-disabled",
+									"feature_id", feature.ID, "error_count", cnt, "threshold", threshold)
 							}
 						}
 					}
@@ -201,10 +253,10 @@ func (s *Service) ReportError(
 		return nil
 	})
 	if err != nil {
-		return domain.FeatureHealth{}, false, err
+		return domain.FeatureHealth{}, false, 0, err
 	}
 
-	return health, accepted, nil
+	return health, accepted, threshold, nil
 }
 
 func (s *Service) GetFeatureHealth(
@@ -256,7 +308,13 @@ func deriveStatus(enabled bool, lastErr time.Time) string {
 }
 
 // helpers for settings.
-func getBoolSetting(ctx context.Context, repo contract.ProjectSettingsRepository, projectID domain.ProjectID, name string, def bool) bool {
+func getBoolSetting(
+	ctx context.Context,
+	repo contract.ProjectSettingsRepository,
+	projectID domain.ProjectID,
+	name string,
+	def bool,
+) bool {
 	st, err := repo.GetByName(ctx, projectID, name)
 	if err != nil || st == nil {
 		return def
@@ -269,7 +327,13 @@ func getBoolSetting(ctx context.Context, repo contract.ProjectSettingsRepository
 	return v
 }
 
-func getIntSetting(ctx context.Context, repo contract.ProjectSettingsRepository, projectID domain.ProjectID, name string, def int) int {
+func getIntSetting(
+	ctx context.Context,
+	repo contract.ProjectSettingsRepository,
+	projectID domain.ProjectID,
+	name string,
+	def int,
+) int {
 	st, err := repo.GetByName(ctx, projectID, name)
 	if err != nil || st == nil {
 		return def
@@ -297,4 +361,124 @@ func anyMap(m map[domain.RuleAttribute]any) map[string]any {
 	}
 
 	return res
+}
+
+// writeAutoDisableAuditLog writes an audit log entry for auto-disable action
+// func (s *Service) writeAutoDisableAuditLog(
+//	ctx context.Context,
+//	projectID domain.ProjectID,
+//	featureID domain.FeatureID,
+//	envID domain.EnvironmentID,
+//	oldParams domain.FeatureParams,
+//	newParams domain.FeatureParams,
+//	errorCount int,
+//	threshold int,
+//) error {
+//	// Create audit log entry with auto-disable context
+//	auditData := map[string]any{
+//		"auto_disable": true,
+//		"error_count":  errorCount,
+//		"threshold":    threshold,
+//		"reason":       "auto-disable threshold exceeded",
+//		"origin":       "sdk",
+//	}
+//
+//	// Use the audit log writer directly
+//	executor := s.getExecutor(ctx)
+//	if executor != nil {
+//		if err := s.writeAuditLog(ctx, executor, projectID, featureID, envID, oldParams, newParams, auditData); err != nil {
+//			return fmt.Errorf("write auto-disable audit log: %w", err)
+//		}
+//	} else {
+//		slog.Warn("no transaction context available, skipping audit log", "feature_id", featureID)
+//		return nil // Don't fail the operation
+//	}
+//
+//	return nil
+//}
+
+// writeAuditLog is a helper to write audit log entries
+// func (s *Service) writeAuditLog(
+//	ctx context.Context,
+//	executor db.Tx,
+//	projectID domain.ProjectID,
+//	featureID domain.FeatureID,
+//	envID domain.EnvironmentID,
+//	oldVal any,
+//	newVal any,
+//	meta map[string]any,
+//) error {
+//	// Import auditlog package at the top of the file
+//	// For now, we'll create a simple audit log entry
+//	const query = `
+//		INSERT INTO audit_log (project_id, feature_id, entity_id, entity, actor,
+//		                       username, action, old_value, new_value, request_id, environment_id)
+//		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+//	`
+//
+//	// Marshal old and new values
+//	var oldJSON, newJSON []byte
+//	var err error
+//
+//	if oldVal != nil {
+//		oldJSON, err = json.Marshal(oldVal)
+//		if err != nil {
+//			return fmt.Errorf("marshal old value: %w", err)
+//		}
+//	}
+//
+//	if newVal != nil {
+//		newJSON, err = json.Marshal(newVal)
+//		if err != nil {
+//			return fmt.Errorf("marshal new value: %w", err)
+//		}
+//	}
+//
+//	// Add metadata to new value
+//	if meta != nil && newJSON != nil {
+//		var newValMap map[string]any
+//		if err := json.Unmarshal(newJSON, &newValMap); err == nil {
+//			for k, v := range meta {
+//				newValMap[k] = v
+//			}
+//			newJSON, err = json.Marshal(newValMap)
+//			if err != nil {
+//				return fmt.Errorf("marshal new value with metadata: %w", err)
+//			}
+//		}
+//	}
+//
+//	_, err = executor.Exec(
+//		ctx,
+//		query,
+//		projectID,
+//		featureID,
+//		featureID.String(), // entity_id
+//		"feature_params",   // entity
+//		"system",           // actor
+//		"",                 // username
+//		"auto_disable",     // action
+//		oldJSON,
+//		newJSON,
+//		"", // request_id
+//		int64(envID),
+//	)
+//
+//	return err
+//}
+
+// getExecutor is a helper to get executor from context
+// func (s *Service) getExecutor(ctx context.Context) db.Tx {
+//	// Get executor from transaction context if available
+//	if tx := db.TxFromContext(ctx); tx != nil {
+//		return tx
+//	}
+//	// If no transaction context available, return nil
+//	// This should not happen in normal flow as we're always within a transaction
+//	return nil
+//}
+
+// generateEventID generates a new UUID for error report event.
+func generateEventID() string {
+	return uuid.New().String()
 }

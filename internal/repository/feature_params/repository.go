@@ -99,6 +99,29 @@ func (r *Repository) GetByFeatureWithEnv(ctx context.Context, featureID domain.F
 	return model.toDomain(), nil
 }
 
+func (r *Repository) GetForUpdate(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM feature_params WHERE feature_id = $1 AND environment_id = $2 FOR UPDATE LIMIT 1`
+
+	rows, err := executor.Query(ctx, query, featureID, envID)
+	if err != nil {
+		return domain.FeatureParams{}, fmt.Errorf("query feature_params for update: %w", err)
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureParamsModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.FeatureParams{}, domain.ErrEntityNotFound
+		}
+
+		return domain.FeatureParams{}, fmt.Errorf("collect feature_params row for update: %w", err)
+	}
+
+	return model.toDomain(), nil
+}
+
 func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error) {
 	executor := r.getExecutor(ctx)
 

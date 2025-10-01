@@ -34,7 +34,7 @@ func (s *SDKRestAPI) ReportFeatureError(
 		}
 	}
 
-	health, accepted, err := s.errorReportsUseCase.ReportError(
+	health, accepted, threshold, err := s.errorReportsUseCase.ReportError(
 		ctx,
 		projectID,
 		featureKey,
@@ -61,7 +61,7 @@ func (s *SDKRestAPI) ReportFeatureError(
 		Enabled:        health.Enabled,
 		AutoDisabled:   !health.Enabled,
 		ErrorRate:      generatedapi.NewOptFloat32(float32(health.ErrorRate)),
-		Threshold:      generatedapi.OptFloat32{}, // TODO: implement!
+		Threshold:      generatedapi.NewOptFloat32(float32(threshold)),
 		LastErrorAt:    lastAt,
 	}, nil
 }

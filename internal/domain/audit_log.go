@@ -16,9 +16,10 @@ const (
 type AuditAction string
 
 const (
-	AuditActionCreate AuditAction = "create"
-	AuditActionUpdate AuditAction = "update"
-	AuditActionDelete AuditAction = "delete"
+	AuditActionCreate      AuditAction = "create"
+	AuditActionUpdate      AuditAction = "update"
+	AuditActionDelete      AuditAction = "delete"
+	AuditActionAutoDisable AuditAction = "auto_disable"
 )
 
 type EntityType string

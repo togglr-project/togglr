@@ -25,13 +25,17 @@ func (s *SDKRestAPI) GetFeatureHealth(
 		lastAt.SetTo(health.LastErrorAt)
 	}
 
+	// Get threshold from project settings
+	threshold := 20 // default threshold
+	// TODO: implement threshold retrieval from project settings
+
 	return &generatedapi.FeatureHealth{
 		FeatureKey:     featureKey,
 		EnvironmentKey: envKey,
 		Enabled:        health.Enabled,
 		AutoDisabled:   !health.Enabled,
 		ErrorRate:      generatedapi.NewOptFloat32(float32(health.ErrorRate)),
-		Threshold:      generatedapi.NewOptFloat32(float32(0)), // TODO: implement!
+		Threshold:      generatedapi.NewOptFloat32(float32(threshold)),
 		LastErrorAt:    lastAt,
 	}, nil
 }

@@ -29,11 +29,11 @@ func (r *Repository) Insert(ctx context.Context, report domain.ErrorReport) erro
 	const query = `
 		insert into monitoring.error_reports (
 			project_id, feature_id, environment_id,
-			error_type, error_message, context
-		) values ($1, $2, $3, $4, $5, $6)
+			error_type, error_message, context, event_id
+		) values ($1, $2, $3, $4, $5, $6, $7)
 	`
 
-	_, err := exec.Exec(ctx, query, report.ProjectID, report.FeatureID, report.EnvironmentID, report.ErrorType, report.ErrorMessage, report.Context)
+	_, err := exec.Exec(ctx, query, report.ProjectID, report.FeatureID, report.EnvironmentID, report.ErrorType, report.ErrorMessage, report.Context, report.EventID)
 	if err != nil {
 		return fmt.Errorf("insert error report: %w", err)
 	}
