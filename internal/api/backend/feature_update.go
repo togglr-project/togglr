@@ -36,7 +36,7 @@ func (r *RestAPI) UpdateFeature(
 		return nil, err
 	}
 
-	if err := r.permissionsService.CanManageProject(ctx, existing.ProjectID); err != nil {
+	if err := r.permissionsService.CanManageFeature(ctx, existing.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", existing.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

@@ -18,12 +18,22 @@ func (r *RestAPI) ListPendingChanges(
 	ctx context.Context,
 	params generatedapi.ListPendingChangesParams,
 ) (generatedapi.ListPendingChangesRes, error) {
+	// Check if the user can view audit logs
+	if params.ProjectID.Set {
+		projectID := domain.ProjectID(params.ProjectID.Value.String())
+		if err := r.permissionsService.CanViewAudit(ctx, projectID); err != nil {
+			return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+				Message: generatedapi.NewOptString("permission denied"),
+			}}, nil
+		}
+	}
+
 	// Build filter
 	var envIDRef *domain.EnvironmentID
 
 	// Prefer environment_key over environment_id when provided
 	if params.EnvironmentKey.Set {
-		// Resolve environment by project_id + environment_key
+		// Resolve the environment by project_id + environment_key
 		projectID := domain.ProjectID(params.ProjectID.Value.String())
 		env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, projectID, params.EnvironmentKey.Value)
 		if err != nil {

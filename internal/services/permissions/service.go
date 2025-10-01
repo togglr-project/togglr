@@ -49,7 +49,7 @@ func (s *Service) HasProjectPermission(
 		return true, nil
 	}
 
-	// Verify project exists (preserve current behavior and error mapping)
+	// Verify the project exists (preserve current behavior and error mapping)
 	if _, err := s.projects.GetByID(ctx, projectID); err != nil {
 		return false, err
 	}
@@ -93,6 +93,143 @@ func (s *Service) CanManageProject(ctx context.Context, projectID domain.Project
 	}
 
 	return nil
+}
+
+// CanToggleFeature checks if a user can toggle a feature.
+func (s *Service) CanToggleFeature(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermFeatureToggle)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanManageFeature checks if a user can manage features (create, update, delete).
+func (s *Service) CanManageFeature(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermFeatureManage)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanManageSegment checks if a user can manage segments.
+func (s *Service) CanManageSegment(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermSegmentManage)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanManageSchedule checks if a user can manage feature schedules.
+func (s *Service) CanManageSchedule(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermScheduleManage)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanViewAudit checks if a user can view audit logs.
+func (s *Service) CanViewAudit(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermAuditView)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanManageMembership checks if a user can manage project memberships.
+func (s *Service) CanManageMembership(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermMembershipManage)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanManageTags checks if a user can manage project tags.
+func (s *Service) CanManageTags(ctx context.Context, projectID domain.ProjectID) error {
+	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermTagManage)
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
+// CanManageCategories checks if a user can manage global categories.
+// This is a global permission, so projectID is ignored.
+func (s *Service) CanManageCategories(ctx context.Context) error {
+	// For global permissions, check if user has category.manage on any project
+	if s.isSuper(ctx) {
+		return nil
+	}
+
+	userID := etx.UserID(ctx)
+	if userID == 0 {
+		return domain.ErrUserNotFound
+	}
+
+	// Get all projects where user has membership
+	all, err := s.projects.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Check if user has category.manage permission on any project
+	for _, project := range all {
+		roleID, err := s.member.GetForUserProject(ctx, int(userID), project.ID)
+		if err != nil || roleID == "" {
+			continue // no membership or error
+		}
+
+		has, err := s.perms.RoleHasPermission(ctx, roleID, domain.PermCategoryManage)
+		if err != nil {
+			continue // error checking permission
+		}
+
+		if has {
+			return nil // user has category.manage on at least one project
+		}
+	}
+
+	return domain.ErrPermissionDenied
 }
 
 // GetAccessibleProjects returns all projects that a user can access.

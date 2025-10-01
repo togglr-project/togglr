@@ -39,7 +39,7 @@ func (r *RestAPI) CreateFeatureSchedule(
 	}
 
 	// Check permissions on the owning project
-	if err := r.permissionsService.CanManageProject(ctx, feature.ProjectID); err != nil {
+	if err := r.permissionsService.CanManageSchedule(ctx, feature.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

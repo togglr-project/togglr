@@ -15,7 +15,7 @@ func (r *RestAPI) UpdateProjectMembership(
 	params generatedapi.UpdateProjectMembershipParams,
 ) (generatedapi.UpdateProjectMembershipRes, error) {
 	projectID := domain.ProjectID(params.ProjectID.String())
-	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
+	if err := r.permissionsService.CanManageMembership(ctx, projectID); err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{Message: generatedapi.NewOptString("permission denied")}}, nil
 	}
 	projectMembership, err := r.membershipsUseCase.UpdateProjectMembership(ctx, projectID, domain.MembershipID(params.MembershipID.String()), domain.RoleID(req.RoleID.String()))

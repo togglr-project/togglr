@@ -32,8 +32,8 @@ func (r *RestAPI) DeleteFeature(
 		return nil, err
 	}
 
-	// Check permissions to manage the project
-	if err := r.permissionsService.CanManageProject(ctx, feature.ProjectID); err != nil {
+	// Check permissions to manage features
+	if err := r.permissionsService.CanManageFeature(ctx, feature.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

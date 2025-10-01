@@ -13,7 +13,7 @@ func (r *RestAPI) DeleteProjectMembership(
 	params generatedapi.DeleteProjectMembershipParams,
 ) (generatedapi.DeleteProjectMembershipRes, error) {
 	projectID := domain.ProjectID(params.ProjectID.String())
-	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
+	if err := r.permissionsService.CanManageMembership(ctx, projectID); err != nil {
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{Message: generatedapi.NewOptString("permission denied")}}, nil
 	}
 	if err := r.membershipsUseCase.DeleteProjectMembership(ctx, projectID, domain.MembershipID(params.MembershipID.String())); err != nil {

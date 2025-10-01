@@ -30,8 +30,8 @@ func (r *RestAPI) DeleteFeatureSchedule(
 		return nil, err
 	}
 
-	// Check permissions to manage the project
-	if err := r.permissionsService.CanManageProject(ctx, schedule.ProjectID); err != nil {
+	// Check permissions to manage schedules
+	if err := r.permissionsService.CanManageSchedule(ctx, schedule.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", schedule.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

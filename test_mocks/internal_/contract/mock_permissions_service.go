@@ -95,6 +95,171 @@ func (_c *MockPermissionsService_CanAccessProject_Call) RunAndReturn(run func(ct
 	return _c
 }
 
+// CanManageCategories provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanManageCategories(ctx context.Context) error {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanManageCategories")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) error); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanManageCategories_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanManageCategories'
+type MockPermissionsService_CanManageCategories_Call struct {
+	*mock.Call
+}
+
+// CanManageCategories is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockPermissionsService_Expecter) CanManageCategories(ctx interface{}) *MockPermissionsService_CanManageCategories_Call {
+	return &MockPermissionsService_CanManageCategories_Call{Call: _e.mock.On("CanManageCategories", ctx)}
+}
+
+func (_c *MockPermissionsService_CanManageCategories_Call) Run(run func(ctx context.Context)) *MockPermissionsService_CanManageCategories_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageCategories_Call) Return(err error) *MockPermissionsService_CanManageCategories_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageCategories_Call) RunAndReturn(run func(ctx context.Context) error) *MockPermissionsService_CanManageCategories_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanManageFeature provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanManageFeature(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanManageFeature")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanManageFeature_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanManageFeature'
+type MockPermissionsService_CanManageFeature_Call struct {
+	*mock.Call
+}
+
+// CanManageFeature is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanManageFeature(ctx interface{}, projectID interface{}) *MockPermissionsService_CanManageFeature_Call {
+	return &MockPermissionsService_CanManageFeature_Call{Call: _e.mock.On("CanManageFeature", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanManageFeature_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanManageFeature_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageFeature_Call) Return(err error) *MockPermissionsService_CanManageFeature_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageFeature_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanManageFeature_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanManageMembership provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanManageMembership(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanManageMembership")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanManageMembership_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanManageMembership'
+type MockPermissionsService_CanManageMembership_Call struct {
+	*mock.Call
+}
+
+// CanManageMembership is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanManageMembership(ctx interface{}, projectID interface{}) *MockPermissionsService_CanManageMembership_Call {
+	return &MockPermissionsService_CanManageMembership_Call{Call: _e.mock.On("CanManageMembership", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanManageMembership_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanManageMembership_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageMembership_Call) Return(err error) *MockPermissionsService_CanManageMembership_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageMembership_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanManageMembership_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CanManageProject provides a mock function for the type MockPermissionsService
 func (_mock *MockPermissionsService) CanManageProject(ctx context.Context, projectID domain.ProjectID) error {
 	ret := _mock.Called(ctx, projectID)
@@ -148,6 +313,291 @@ func (_c *MockPermissionsService_CanManageProject_Call) Return(err error) *MockP
 }
 
 func (_c *MockPermissionsService_CanManageProject_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanManageProject_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanManageSchedule provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanManageSchedule(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanManageSchedule")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanManageSchedule_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanManageSchedule'
+type MockPermissionsService_CanManageSchedule_Call struct {
+	*mock.Call
+}
+
+// CanManageSchedule is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanManageSchedule(ctx interface{}, projectID interface{}) *MockPermissionsService_CanManageSchedule_Call {
+	return &MockPermissionsService_CanManageSchedule_Call{Call: _e.mock.On("CanManageSchedule", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanManageSchedule_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanManageSchedule_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageSchedule_Call) Return(err error) *MockPermissionsService_CanManageSchedule_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageSchedule_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanManageSchedule_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanManageSegment provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanManageSegment(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanManageSegment")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanManageSegment_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanManageSegment'
+type MockPermissionsService_CanManageSegment_Call struct {
+	*mock.Call
+}
+
+// CanManageSegment is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanManageSegment(ctx interface{}, projectID interface{}) *MockPermissionsService_CanManageSegment_Call {
+	return &MockPermissionsService_CanManageSegment_Call{Call: _e.mock.On("CanManageSegment", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanManageSegment_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanManageSegment_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageSegment_Call) Return(err error) *MockPermissionsService_CanManageSegment_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageSegment_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanManageSegment_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanManageTags provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanManageTags(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanManageTags")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanManageTags_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanManageTags'
+type MockPermissionsService_CanManageTags_Call struct {
+	*mock.Call
+}
+
+// CanManageTags is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanManageTags(ctx interface{}, projectID interface{}) *MockPermissionsService_CanManageTags_Call {
+	return &MockPermissionsService_CanManageTags_Call{Call: _e.mock.On("CanManageTags", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanManageTags_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanManageTags_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageTags_Call) Return(err error) *MockPermissionsService_CanManageTags_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanManageTags_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanManageTags_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanToggleFeature provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanToggleFeature(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanToggleFeature")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanToggleFeature_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanToggleFeature'
+type MockPermissionsService_CanToggleFeature_Call struct {
+	*mock.Call
+}
+
+// CanToggleFeature is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanToggleFeature(ctx interface{}, projectID interface{}) *MockPermissionsService_CanToggleFeature_Call {
+	return &MockPermissionsService_CanToggleFeature_Call{Call: _e.mock.On("CanToggleFeature", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanToggleFeature_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanToggleFeature_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanToggleFeature_Call) Return(err error) *MockPermissionsService_CanToggleFeature_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanToggleFeature_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanToggleFeature_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CanViewAudit provides a mock function for the type MockPermissionsService
+func (_mock *MockPermissionsService) CanViewAudit(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CanViewAudit")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockPermissionsService_CanViewAudit_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CanViewAudit'
+type MockPermissionsService_CanViewAudit_Call struct {
+	*mock.Call
+}
+
+// CanViewAudit is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockPermissionsService_Expecter) CanViewAudit(ctx interface{}, projectID interface{}) *MockPermissionsService_CanViewAudit_Call {
+	return &MockPermissionsService_CanViewAudit_Call{Call: _e.mock.On("CanViewAudit", ctx, projectID)}
+}
+
+func (_c *MockPermissionsService_CanViewAudit_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockPermissionsService_CanViewAudit_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockPermissionsService_CanViewAudit_Call) Return(err error) *MockPermissionsService_CanViewAudit_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockPermissionsService_CanViewAudit_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockPermissionsService_CanViewAudit_Call {
 	_c.Call.Return(run)
 	return _c
 }

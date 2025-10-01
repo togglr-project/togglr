@@ -16,7 +16,7 @@ func (r *RestAPI) GetPendingChange(
 ) (generatedapi.GetPendingChangeRes, error) {
 	pendingChangeID := domain.PendingChangeID(params.PendingChangeID.String())
 
-	// Get pending change
+	// Get pending change first to check project permissions
 	change, err := r.pendingChangesUseCase.GetByID(ctx, pendingChangeID)
 	if err != nil {
 		if errors.Is(err, domain.ErrEntityNotFound) {
@@ -28,6 +28,13 @@ func (r *RestAPI) GetPendingChange(
 		slog.Error("get pending change failed", "error", err)
 
 		return nil, err
+	}
+
+	// Check if the user can view audit logs for this project
+	if err := r.permissionsService.CanViewAudit(ctx, change.ProjectID); err != nil {
+		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+			Message: generatedapi.NewOptString("permission denied"),
+		}}, nil
 	}
 
 	// Convert to response format

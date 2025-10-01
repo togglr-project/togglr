@@ -36,6 +36,15 @@ func (r *RestAPI) AddFeatureTag(
 
 		return nil, err
 	}
+
+	// Check if user can manage features
+	if err := r.permissionsService.CanManageFeature(ctx, feature.ProjectID); err != nil {
+		slog.Error("permission denied", "error", err, "user_id", userID, "project_id", feature.ProjectID)
+
+		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+			Message: generatedapi.NewOptString("permission denied"),
+		}}, nil
+	}
 	// Get environment by key within the project's scope
 	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, feature.ProjectID, envKey)
 	if err != nil {

@@ -30,8 +30,8 @@ func (r *RestAPI) DeleteSegment(
 		return nil, err
 	}
 
-	// Check permissions to manage the project
-	if err := r.permissionsService.CanManageProject(ctx, seg.ProjectID); err != nil {
+	// Check permissions to manage segments
+	if err := r.permissionsService.CanManageSegment(ctx, seg.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", seg.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

@@ -16,8 +16,8 @@ func (r *RestAPI) CreateProjectFeature(
 ) (generatedapi.CreateProjectFeatureRes, error) {
 	projectID := domain.ProjectID(params.ProjectID)
 
-	// Check if the user can manage the project
-	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
+	// Check if the user can manage features
+	if err := r.permissionsService.CanManageFeature(ctx, projectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", projectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

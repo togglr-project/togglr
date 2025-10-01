@@ -18,8 +18,8 @@ func (r *RestAPI) DeleteProjectTag(
 	projectID := domain.ProjectID(params.ProjectID.String())
 	tagID := domain.TagID(params.TagID.String())
 
-	// Check if user can manage the project
-	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
+	// Check if user can manage tags
+	if err := r.permissionsService.CanManageTags(ctx, projectID); err != nil {
 		slog.Error("permission denied", "error", err, "user_id", userID, "project_id", projectID)
 
 		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{

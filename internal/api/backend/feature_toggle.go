@@ -35,23 +35,22 @@ func (r *RestAPI) ToggleFeature(
 	}
 
 	// Check permission to toggle feature within the project's scope
-	ok, perr := r.permissionsService.HasProjectPermission(ctx, feature.ProjectID, domain.PermFeatureToggle)
-	if perr != nil {
-		slog.Error("permission check failed", "error", perr, "project_id", feature.ProjectID)
+	if err := r.permissionsService.CanToggleFeature(ctx, feature.ProjectID); err != nil {
+		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
 
-		if errors.Is(perr, domain.ErrUserNotFound) {
+		if errors.Is(err, domain.ErrPermissionDenied) {
+			return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+				Message: generatedapi.NewOptString("permission denied"),
+			}}, nil
+		}
+
+		if errors.Is(err, domain.ErrUserNotFound) {
 			return &generatedapi.ErrorUnauthorized{Error: generatedapi.ErrorUnauthorizedError{
 				Message: generatedapi.NewOptString("unauthorized"),
 			}}, nil
 		}
 
-		return nil, perr
-	}
-
-	if !ok {
-		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
-			Message: generatedapi.NewOptString("permission denied"),
-		}}, nil
+		return nil, err
 	}
 
 	updated, guardResult, err := r.featuresUseCase.Toggle(ctx, featureID, req.Enabled, environmentKey)

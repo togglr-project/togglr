@@ -2735,6 +2735,7 @@ func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes()       {}
 func (*ErrorPermissionDenied) getLDAPSyncLogsRes()             {}
 func (*ErrorPermissionDenied) getLDAPSyncProgressRes()         {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()           {}
+func (*ErrorPermissionDenied) getPendingChangeRes()            {}
 func (*ErrorPermissionDenied) getProductInfoRes()              {}
 func (*ErrorPermissionDenied) getProjectMembershipRes()        {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
@@ -2748,6 +2749,7 @@ func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
 func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
+func (*ErrorPermissionDenied) listPendingChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectEnvironmentsRes()     {}
 func (*ErrorPermissionDenied) listProjectFeaturesRes()         {}
