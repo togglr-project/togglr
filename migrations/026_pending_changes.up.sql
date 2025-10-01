@@ -122,3 +122,29 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_project_settings_set_updated_at
     BEFORE UPDATE ON project_settings
     FOR EACH ROW EXECUTE FUNCTION set_project_settings_updated_at();
+
+---
+
+-- Функция-триггер для добавления дефолтных project_settings
+CREATE OR REPLACE FUNCTION set_default_project_settings()
+    RETURNS TRIGGER AS $$
+BEGIN
+    -- auto-disable approval
+    INSERT INTO project_settings (project_id, name, value, created_at, updated_at)
+    VALUES (NEW.id, 'auto_disable_requires_approval', 'false'::jsonb, now(), now())
+    ON CONFLICT (project_id, name) DO NOTHING;
+
+    -- audit log retention
+    INSERT INTO project_settings (project_id, name, value, created_at, updated_at)
+    VALUES (NEW.id, 'audit_log_retention_days', '180'::jsonb, now(), now())
+    ON CONFLICT (project_id, name) DO NOTHING;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Триггер на вставку проекта
+CREATE TRIGGER trg_set_default_project_settings
+    AFTER INSERT ON projects
+    FOR EACH ROW
+EXECUTE FUNCTION set_default_project_settings();
