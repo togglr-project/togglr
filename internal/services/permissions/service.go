@@ -148,6 +148,8 @@ func (s *Service) GetMyProjectPermissions(
 		domain.PermMembershipManage,
 		domain.PermSegmentManage,
 		domain.PermScheduleManage,
+		domain.PermCategoryManage,
+		domain.PermTagManage,
 	}
 
 	result := make(map[domain.ProjectID][]domain.PermKey)

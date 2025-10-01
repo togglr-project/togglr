@@ -2,12 +2,14 @@ DELETE FROM permissions WHERE key IN ('rule.manage', 'variant.manage');
 
 INSERT INTO permissions (key, name) VALUES
 ('segment.manage', 'Manage segments'),
-('schedule.manage', 'Manage schedules');
+('schedule.manage', 'Manage schedules'),
+('category.manage', 'Manage categories'),
+('tag.manage', 'Manage project tags');
 
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id
 FROM roles r
-JOIN permissions p ON p.key IN ('segment.manage', 'schedule.manage')
+JOIN permissions p ON p.key IN ('segment.manage', 'schedule.manage', 'category.manage', 'tag.manage')
 WHERE r.key IN ('project_owner', 'project_manager')
 ON CONFLICT DO NOTHING;
 
