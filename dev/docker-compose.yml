@@ -11,6 +11,7 @@ services:
     environment:
       - DOMAIN=${DOMAIN}
       - BACKEND_URL=http://togglr-backend:8080
+      - WS_BACKEND_URL=http://togglr-backend:8082
       - FRONTEND_URL=http://togglr-frontend
       - SSL_CERT=${SSL_CERT}
       - SSL_CERT_KEY=${SSL_CERT_KEY}
@@ -35,6 +36,7 @@ services:
     container_name: togglr-frontend
     environment:
       - TOGGLR_API_BASE_URL=https://${DOMAIN}
+      - TOGGLR_WS_BASE_URL=https://${DOMAIN}
     restart: always
     depends_on:
       togglr-backend:
@@ -52,9 +54,10 @@ services:
       context: ../
       target: prod
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-      - "8081:8081"
+    # ports:
+    #   - "8080:8080"
+    #   - "8081:8081"
+    #   - "8082:8082"
     env_file:
       - compose.env
     command: ["/bin/app", "server"]
