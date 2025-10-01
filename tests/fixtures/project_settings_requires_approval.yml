@@ -1,0 +1,25 @@
+public.project_settings:
+  - id: 1
+    project_id: 11111111-1111-1111-1111-111111111111
+    name: auto_disable_enabled
+    value: 'true'
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - id: 2
+    project_id: 11111111-1111-1111-1111-111111111111
+    name: auto_disable_requires_approval
+    value: 'true'
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - id: 3
+    project_id: 11111111-1111-1111-1111-111111111111
+    name: auto_disable_error_threshold
+    value: '2'
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())
+  - id: 4
+    project_id: 11111111-1111-1111-1111-111111111111
+    name: auto_disable_time_window_sec
+    value: '60'
+    created_at: $eval(SELECT NOW())
+    updated_at: $eval(SELECT NOW())

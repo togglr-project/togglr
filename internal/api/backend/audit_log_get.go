@@ -10,6 +10,6 @@ func (r *RestAPI) GetAuditLogEntry(
 	ctx context.Context,
 	params generatedapi.GetAuditLogEntryParams,
 ) (generatedapi.GetAuditLogEntryRes, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }

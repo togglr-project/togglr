@@ -26,6 +26,7 @@ import (
 	"github.com/togglr-project/togglr/internal/repository/categories"
 	dashboardrepo "github.com/togglr-project/togglr/internal/repository/dashboard"
 	environmentsrepo "github.com/togglr-project/togglr/internal/repository/environments"
+	"github.com/togglr-project/togglr/internal/repository/errorreports"
 	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
 	"github.com/togglr-project/togglr/internal/repository/features"
@@ -61,6 +62,7 @@ import (
 	categoriesusecase "github.com/togglr-project/togglr/internal/usecases/categories"
 	dashboardusecase "github.com/togglr-project/togglr/internal/usecases/dashboard"
 	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
+	errorreportsusecase "github.com/togglr-project/togglr/internal/usecases/errorreports"
 	featuretagsusecase "github.com/togglr-project/togglr/internal/usecases/feature-tags"
 	featuresusecase "github.com/togglr-project/togglr/internal/usecases/features"
 	featureschedulesusecase "github.com/togglr-project/togglr/internal/usecases/featureschedules"
@@ -236,6 +238,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(featureparamsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(dashboardrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(realtimerepo.New).Arg(app.PostgresPool)
+	app.registerComponent(errorreports.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -271,6 +274,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(dashboardusecase.New)
 	app.registerComponent(realtimechanges.New)
 	app.registerComponent(rbacusecase.New)
+	app.registerComponent(errorreportsusecase.New)
 
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,

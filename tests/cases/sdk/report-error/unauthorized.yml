@@ -1,0 +1,19 @@
+- name: unauthorized without api key
+  fixtures:
+    - empty_db
+    - sdk_base
+
+  steps:
+    - name: report_no_auth
+      request:
+        method: POST
+        path: /sdk/v1/features/new_ui/report-error
+        headers:
+          Content-Type: application/json
+        body: {"error_type":"timeout","error_message":"Service X timeout"}
+      response:
+        status: 401
+        json: |
+          {
+            "error_message": "operation ReportFeatureError: security \"\": security requirement is not satisfied"
+          }

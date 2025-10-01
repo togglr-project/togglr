@@ -34,19 +34,34 @@ func (s *SDKRestAPI) ReportFeatureError(
 		}
 	}
 
-	_ = projectID
-	// TODO: implement
+	health, accepted, err := s.errorReportsUseCase.ReportError(
+		ctx,
+		projectID,
+		featureKey,
+		envKey,
+		reqCtx,
+		req.ErrorType,
+		req.ErrorMessage,
+	)
+	if err != nil {
+		return nil, err
+	}
+	if accepted {
+		return &generatedapi.ReportFeatureErrorAccepted{}, nil
+	}
 
-	// return &generatedapi.ReportFeatureErrorAccepted{}, nil // for 202 status code (Error reported, evaluation pending)
+	var lastAt generatedapi.OptDateTime
+	if !health.LastErrorAt.IsZero() {
+		lastAt.SetTo(health.LastErrorAt)
+	}
 
-	// for 200 status code (Error reported successfully)
 	return &generatedapi.FeatureHealth{
 		FeatureKey:     featureKey,
 		EnvironmentKey: envKey,
-		Enabled:        false,                      // TODO: implement
-		AutoDisabled:   false,                      // TODO: implement
-		ErrorRate:      generatedapi.OptFloat32{},  // TODO: implement
-		Threshold:      generatedapi.OptFloat32{},  // TODO: implement
-		LastErrorAt:    generatedapi.OptDateTime{}, // TODO: implement
+		Enabled:        health.Enabled,
+		AutoDisabled:   !health.Enabled,
+		ErrorRate:      generatedapi.NewOptFloat32(float32(health.ErrorRate)),
+		Threshold:      generatedapi.OptFloat32{}, // TODO: implement!
+		LastErrorAt:    lastAt,
 	}, nil
 }

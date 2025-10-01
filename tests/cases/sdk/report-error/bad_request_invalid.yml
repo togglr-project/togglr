@@ -1,0 +1,16 @@
+- name: bad request when required fields missing
+  fixtures:
+    - empty_db
+    - sdk_base
+
+  steps:
+    - name: report_without_required_field
+      request:
+        method: POST
+        path: /sdk/v1/features/new_ui/report-error
+        headers:
+          Content-Type: application/json
+          Authorization: 545C3E6A-8B17-4204-9558-9106D33B56F7
+        body: {"error_message":"missing type"}
+      response:
+        status: 400

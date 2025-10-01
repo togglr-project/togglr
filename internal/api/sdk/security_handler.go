@@ -2,6 +2,7 @@ package apisdk
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
@@ -39,6 +40,11 @@ func (r *SecurityHandler) HandleApiKeyAuth(
 	_ generatedapi.OperationName,
 	tokenHolder generatedapi.ApiKeyAuth,
 ) (context.Context, error) {
+	// If the API key header is missing, return a security error, so NewError maps it to 401 {"error":{...}}
+	if tokenHolder.APIKey == "" {
+		return ctx, errors.New("missing api key")
+	}
+
 	if v, ok := r.cache.Load(tokenHolder.APIKey); ok {
 		ce := v.(cacheEntry)
 		if time.Now().Before(ce.expiresAt) {

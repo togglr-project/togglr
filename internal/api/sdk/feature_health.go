@@ -15,17 +15,23 @@ func (s *SDKRestAPI) GetFeatureHealth(
 	envKey := appcontext.EnvKey(ctx)
 	featureKey := params.FeatureKey
 
-	_ = projectID
+	health, err := s.errorReportsUseCase.GetFeatureHealth(ctx, projectID, featureKey, envKey)
+	if err != nil {
+		return nil, err
+	}
 
-	// TODO: implement
+	var lastAt generatedapi.OptDateTime
+	if !health.LastErrorAt.IsZero() {
+		lastAt.SetTo(health.LastErrorAt)
+	}
 
 	return &generatedapi.FeatureHealth{
 		FeatureKey:     featureKey,
 		EnvironmentKey: envKey,
-		Enabled:        false,                      // TODO: implement
-		AutoDisabled:   false,                      // TODO: implement
-		ErrorRate:      generatedapi.OptFloat32{},  // TODO: implement
-		Threshold:      generatedapi.OptFloat32{},  // TODO: implement
-		LastErrorAt:    generatedapi.OptDateTime{}, // TODO: implement
+		Enabled:        health.Enabled,
+		AutoDisabled:   !health.Enabled,
+		ErrorRate:      generatedapi.NewOptFloat32(float32(health.ErrorRate)),
+		Threshold:      generatedapi.NewOptFloat32(float32(0)), // TODO: implement!
+		LastErrorAt:    lastAt,
 	}, nil
 }

@@ -17,6 +17,7 @@ func NewEnv() Env {
 			"ADMIN_TMP_PASSWORD":    "password543210",
 			"API_SERVER_ADDR":       ":8080",
 			"TECH_SERVER_ADDR":      ":8081",
+			"WS_SERVER_ADDR":        ":8082",
 			"SDK_SERVER_ADDR":       ":8090",
 			"POSTGRES_HOST":         "localhost",
 			"POSTGRES_PORT":         "5432",

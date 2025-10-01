@@ -202,7 +202,7 @@ func startPostgres(t *testing.T) (*postgres.PostgresContainer, func()) {
 	t.Helper()
 
 	container, err := postgres.Run(t.Context(),
-		"postgres:16",
+		"timescale/timescaledb:latest-pg17",
 		postgres.WithDatabase("test_db"),
 		postgres.WithUsername("user"),
 		postgres.WithPassword("password"),

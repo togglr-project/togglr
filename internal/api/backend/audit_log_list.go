@@ -10,6 +10,6 @@ func (r *RestAPI) ListProjectAuditLogs(
 	ctx context.Context,
 	params generatedapi.ListProjectAuditLogsParams,
 ) (generatedapi.ListProjectAuditLogsRes, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }
