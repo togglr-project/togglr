@@ -82,26 +82,84 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/evaluate"
+				case '/': // Prefix: "/"
 
-					if l := len("/evaluate"); len(elem) >= l && elem[0:l] == "/evaluate" {
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch r.Method {
-						case "POST":
-							s.handleSdkV1FeaturesFeatureKeyEvaluatePostRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
-						default:
-							s.notAllowed(w, r, "POST")
+						break
+					}
+					switch elem[0] {
+					case 'e': // Prefix: "evaluate"
+
+						if l := len("evaluate"); len(elem) >= l && elem[0:l] == "evaluate" {
+							elem = elem[l:]
+						} else {
+							break
 						}
 
-						return
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleSdkV1FeaturesFeatureKeyEvaluatePostRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
+					case 'h': // Prefix: "health"
+
+						if l := len("health"); len(elem) >= l && elem[0:l] == "health" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetFeatureHealthRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+					case 'r': // Prefix: "report-error"
+
+						if l := len("report-error"); len(elem) >= l && elem[0:l] == "report-error" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleReportFeatureErrorRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -241,28 +299,90 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case '/': // Prefix: "/evaluate"
+				case '/': // Prefix: "/"
 
-					if l := len("/evaluate"); len(elem) >= l && elem[0:l] == "/evaluate" {
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
 					if len(elem) == 0 {
-						// Leaf node.
-						switch method {
-						case "POST":
-							r.name = SdkV1FeaturesFeatureKeyEvaluatePostOperation
-							r.summary = "Evaluate feature for given context"
-							r.operationID = ""
-							r.pathPattern = "/sdk/v1/features/{feature_key}/evaluate"
-							r.args = args
-							r.count = 1
-							return r, true
-						default:
-							return
+						break
+					}
+					switch elem[0] {
+					case 'e': // Prefix: "evaluate"
+
+						if l := len("evaluate"); len(elem) >= l && elem[0:l] == "evaluate" {
+							elem = elem[l:]
+						} else {
+							break
 						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = SdkV1FeaturesFeatureKeyEvaluatePostOperation
+								r.summary = "Evaluate feature for given context"
+								r.operationID = ""
+								r.pathPattern = "/sdk/v1/features/{feature_key}/evaluate"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'h': // Prefix: "health"
+
+						if l := len("health"); len(elem) >= l && elem[0:l] == "health" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetFeatureHealthOperation
+								r.summary = "Get health status of feature (including auto-disable state)"
+								r.operationID = "GetFeatureHealth"
+								r.pathPattern = "/sdk/v1/features/{feature_key}/health"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 'r': // Prefix: "report-error"
+
+						if l := len("report-error"); len(elem) >= l && elem[0:l] == "report-error" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = ReportFeatureErrorOperation
+								r.summary = "Report feature execution error (for auto-disable)"
+								r.operationID = "ReportFeatureError"
+								r.pathPattern = "/sdk/v1/features/{feature_key}/report-error"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

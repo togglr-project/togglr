@@ -34,6 +34,8 @@ func findAuthorization(h http.Header, prefix string) (string, bool) {
 }
 
 var operationRolesApiKeyAuth = map[string][]string{
+	GetFeatureHealthOperation:                    []string{},
+	ReportFeatureErrorOperation:                  []string{},
 	SdkV1FeaturesFeatureKeyEvaluatePostOperation: []string{},
 }
 

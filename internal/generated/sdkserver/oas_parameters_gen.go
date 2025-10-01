@@ -15,6 +15,136 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
+// GetFeatureHealthParams is parameters of GetFeatureHealth operation.
+type GetFeatureHealthParams struct {
+	FeatureKey string
+}
+
+func unpackGetFeatureHealthParams(packed middleware.Parameters) (params GetFeatureHealthParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_key",
+			In:   "path",
+		}
+		params.FeatureKey = packed[key].(string)
+	}
+	return params
+}
+
+func decodeGetFeatureHealthParams(args [1]string, argsEscaped bool, r *http.Request) (params GetFeatureHealthParams, _ error) {
+	// Decode path: feature_key.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_key",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureKey = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_key",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ReportFeatureErrorParams is parameters of ReportFeatureError operation.
+type ReportFeatureErrorParams struct {
+	FeatureKey string
+}
+
+func unpackReportFeatureErrorParams(packed middleware.Parameters) (params ReportFeatureErrorParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_key",
+			In:   "path",
+		}
+		params.FeatureKey = packed[key].(string)
+	}
+	return params
+}
+
+func decodeReportFeatureErrorParams(args [1]string, argsEscaped bool, r *http.Request) (params ReportFeatureErrorParams, _ error) {
+	// Decode path: feature_key.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_key",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureKey = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_key",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // SdkV1FeaturesFeatureKeyEvaluatePostParams is parameters of POST /sdk/v1/features/{feature_key}/evaluate operation.
 type SdkV1FeaturesFeatureKeyEvaluatePostParams struct {
 	FeatureKey string

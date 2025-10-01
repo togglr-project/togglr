@@ -8,6 +8,18 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// GetFeatureHealth implements GetFeatureHealth operation.
+	//
+	// Get health status of feature (including auto-disable state).
+	//
+	// GET /sdk/v1/features/{feature_key}/health
+	GetFeatureHealth(ctx context.Context, params GetFeatureHealthParams) (GetFeatureHealthRes, error)
+	// ReportFeatureError implements ReportFeatureError operation.
+	//
+	// Report feature execution error (for auto-disable).
+	//
+	// POST /sdk/v1/features/{feature_key}/report-error
+	ReportFeatureError(ctx context.Context, req *FeatureErrorReport, params ReportFeatureErrorParams) (ReportFeatureErrorRes, error)
 	// SdkV1FeaturesFeatureKeyEvaluatePost implements POST /sdk/v1/features/{feature_key}/evaluate operation.
 	//
 	// Returns feature evaluation result for given project and context.

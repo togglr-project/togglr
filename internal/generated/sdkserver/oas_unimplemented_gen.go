@@ -13,6 +13,24 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// GetFeatureHealth implements GetFeatureHealth operation.
+//
+// Get health status of feature (including auto-disable state).
+//
+// GET /sdk/v1/features/{feature_key}/health
+func (UnimplementedHandler) GetFeatureHealth(ctx context.Context, params GetFeatureHealthParams) (r GetFeatureHealthRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ReportFeatureError implements ReportFeatureError operation.
+//
+// Report feature execution error (for auto-disable).
+//
+// POST /sdk/v1/features/{feature_key}/report-error
+func (UnimplementedHandler) ReportFeatureError(ctx context.Context, req *FeatureErrorReport, params ReportFeatureErrorParams) (r ReportFeatureErrorRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // SdkV1FeaturesFeatureKeyEvaluatePost implements POST /sdk/v1/features/{feature_key}/evaluate operation.
 //
 // Returns feature evaluation result for given project and context.

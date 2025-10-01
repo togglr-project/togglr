@@ -65,6 +65,8 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 	s.Error = val
 }
 
+func (*ErrorBadRequest) getFeatureHealthRes()                    {}
+func (*ErrorBadRequest) reportFeatureErrorRes()                  {}
 func (*ErrorBadRequest) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 type ErrorBadRequestError struct {
@@ -111,6 +113,8 @@ func (s *ErrorInternalServerError) SetError(val ErrorInternalServerErrorError) {
 	s.Error = val
 }
 
+func (*ErrorInternalServerError) getFeatureHealthRes()                    {}
+func (*ErrorInternalServerError) reportFeatureErrorRes()                  {}
 func (*ErrorInternalServerError) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 type ErrorInternalServerErrorError struct {
@@ -143,6 +147,8 @@ func (s *ErrorNotFound) SetError(val ErrorNotFoundError) {
 	s.Error = val
 }
 
+func (*ErrorNotFound) getFeatureHealthRes()                    {}
+func (*ErrorNotFound) reportFeatureErrorRes()                  {}
 func (*ErrorNotFound) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 type ErrorNotFoundError struct {
@@ -185,6 +191,8 @@ func (s *ErrorStatusCode) SetResponse(val Error) {
 	s.Response = val
 }
 
+func (*ErrorStatusCode) getFeatureHealthRes()                    {}
+func (*ErrorStatusCode) reportFeatureErrorRes()                  {}
 func (*ErrorStatusCode) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 // Merged schema.
@@ -203,6 +211,8 @@ func (s *ErrorUnauthorized) SetError(val ErrorUnauthorizedError) {
 	s.Error = val
 }
 
+func (*ErrorUnauthorized) getFeatureHealthRes()                    {}
+func (*ErrorUnauthorized) reportFeatureErrorRes()                  {}
 func (*ErrorUnauthorized) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
 type ErrorUnauthorizedError struct {
@@ -270,6 +280,138 @@ func (s *EvaluateResponse) SetValue(val string) {
 
 func (*EvaluateResponse) sdkV1FeaturesFeatureKeyEvaluatePostRes() {}
 
+// Ref: #/components/schemas/FeatureErrorReport
+type FeatureErrorReport struct {
+	ErrorType    string                       `json:"error_type"`
+	ErrorMessage string                       `json:"error_message"`
+	Context      OptFeatureErrorReportContext `json:"context"`
+}
+
+// GetErrorType returns the value of ErrorType.
+func (s *FeatureErrorReport) GetErrorType() string {
+	return s.ErrorType
+}
+
+// GetErrorMessage returns the value of ErrorMessage.
+func (s *FeatureErrorReport) GetErrorMessage() string {
+	return s.ErrorMessage
+}
+
+// GetContext returns the value of Context.
+func (s *FeatureErrorReport) GetContext() OptFeatureErrorReportContext {
+	return s.Context
+}
+
+// SetErrorType sets the value of ErrorType.
+func (s *FeatureErrorReport) SetErrorType(val string) {
+	s.ErrorType = val
+}
+
+// SetErrorMessage sets the value of ErrorMessage.
+func (s *FeatureErrorReport) SetErrorMessage(val string) {
+	s.ErrorMessage = val
+}
+
+// SetContext sets the value of Context.
+func (s *FeatureErrorReport) SetContext(val OptFeatureErrorReportContext) {
+	s.Context = val
+}
+
+type FeatureErrorReportContext map[string]jx.Raw
+
+func (s *FeatureErrorReportContext) init() FeatureErrorReportContext {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+// Ref: #/components/schemas/FeatureHealth
+type FeatureHealth struct {
+	FeatureKey     string      `json:"feature_key"`
+	EnvironmentKey string      `json:"environment_key"`
+	Enabled        bool        `json:"enabled"`
+	AutoDisabled   bool        `json:"auto_disabled"`
+	ErrorRate      OptFloat32  `json:"error_rate"`
+	Threshold      OptFloat32  `json:"threshold"`
+	LastErrorAt    OptDateTime `json:"last_error_at"`
+}
+
+// GetFeatureKey returns the value of FeatureKey.
+func (s *FeatureHealth) GetFeatureKey() string {
+	return s.FeatureKey
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *FeatureHealth) GetEnvironmentKey() string {
+	return s.EnvironmentKey
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *FeatureHealth) GetEnabled() bool {
+	return s.Enabled
+}
+
+// GetAutoDisabled returns the value of AutoDisabled.
+func (s *FeatureHealth) GetAutoDisabled() bool {
+	return s.AutoDisabled
+}
+
+// GetErrorRate returns the value of ErrorRate.
+func (s *FeatureHealth) GetErrorRate() OptFloat32 {
+	return s.ErrorRate
+}
+
+// GetThreshold returns the value of Threshold.
+func (s *FeatureHealth) GetThreshold() OptFloat32 {
+	return s.Threshold
+}
+
+// GetLastErrorAt returns the value of LastErrorAt.
+func (s *FeatureHealth) GetLastErrorAt() OptDateTime {
+	return s.LastErrorAt
+}
+
+// SetFeatureKey sets the value of FeatureKey.
+func (s *FeatureHealth) SetFeatureKey(val string) {
+	s.FeatureKey = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *FeatureHealth) SetEnvironmentKey(val string) {
+	s.EnvironmentKey = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *FeatureHealth) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// SetAutoDisabled sets the value of AutoDisabled.
+func (s *FeatureHealth) SetAutoDisabled(val bool) {
+	s.AutoDisabled = val
+}
+
+// SetErrorRate sets the value of ErrorRate.
+func (s *FeatureHealth) SetErrorRate(val OptFloat32) {
+	s.ErrorRate = val
+}
+
+// SetThreshold sets the value of Threshold.
+func (s *FeatureHealth) SetThreshold(val OptFloat32) {
+	s.Threshold = val
+}
+
+// SetLastErrorAt sets the value of LastErrorAt.
+func (s *FeatureHealth) SetLastErrorAt(val OptDateTime) {
+	s.LastErrorAt = val
+}
+
+func (*FeatureHealth) getFeatureHealthRes()   {}
+func (*FeatureHealth) reportFeatureErrorRes() {}
+
 // Ref: #/components/schemas/HealthResponse
 type HealthResponse struct {
 	Status     HealthResponseStatus `json:"status"`
@@ -332,6 +474,144 @@ func (s *HealthResponseStatus) UnmarshalText(data []byte) error {
 	}
 }
 
+// NewOptDateTime returns new OptDateTime with value set to v.
+func NewOptDateTime(v time.Time) OptDateTime {
+	return OptDateTime{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptDateTime is optional time.Time.
+type OptDateTime struct {
+	Value time.Time
+	Set   bool
+}
+
+// IsSet returns true if OptDateTime was set.
+func (o OptDateTime) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptDateTime) Reset() {
+	var v time.Time
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptDateTime) SetTo(v time.Time) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptDateTime) Get() (v time.Time, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptFeatureErrorReportContext returns new OptFeatureErrorReportContext with value set to v.
+func NewOptFeatureErrorReportContext(v FeatureErrorReportContext) OptFeatureErrorReportContext {
+	return OptFeatureErrorReportContext{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptFeatureErrorReportContext is optional FeatureErrorReportContext.
+type OptFeatureErrorReportContext struct {
+	Value FeatureErrorReportContext
+	Set   bool
+}
+
+// IsSet returns true if OptFeatureErrorReportContext was set.
+func (o OptFeatureErrorReportContext) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptFeatureErrorReportContext) Reset() {
+	var v FeatureErrorReportContext
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptFeatureErrorReportContext) SetTo(v FeatureErrorReportContext) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptFeatureErrorReportContext) Get() (v FeatureErrorReportContext, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptFeatureErrorReportContext) Or(d FeatureErrorReportContext) FeatureErrorReportContext {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptFloat32 returns new OptFloat32 with value set to v.
+func NewOptFloat32(v float32) OptFloat32 {
+	return OptFloat32{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptFloat32 is optional float32.
+type OptFloat32 struct {
+	Value float32
+	Set   bool
+}
+
+// IsSet returns true if OptFloat32 was set.
+func (o OptFloat32) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptFloat32) Reset() {
+	var v float32
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptFloat32) SetTo(v float32) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptFloat32) Get() (v float32, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptFloat32) Or(d float32) float32 {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
 // NewOptString returns new OptString with value set to v.
 func NewOptString(v string) OptString {
 	return OptString{
@@ -377,6 +657,11 @@ func (o OptString) Or(d string) string {
 	}
 	return d
 }
+
+// ReportFeatureErrorAccepted is response for ReportFeatureError operation.
+type ReportFeatureErrorAccepted struct{}
+
+func (*ReportFeatureErrorAccepted) reportFeatureErrorRes() {}
 
 // SdkV1HealthGetDef is default response for SdkV1HealthGet operation.
 type SdkV1HealthGetDef struct {
