@@ -26,7 +26,6 @@ type UsersService struct {
 
 func New(
 	usersRepo contract.UsersRepository,
-	permissionsRepo contract.PermissionsRepository,
 	tokenizer contract.Tokenizer,
 	emailer contract.Emailer,
 	twoFARateLimiter contract.TwoFARateLimiter,
@@ -46,7 +45,6 @@ func New(
 
 	return &UsersService{
 		usersRepo:        usersRepo,
-		permissionsRepo:  permissionsRepo,
 		tokenizer:        tokenizer,
 		emailer:          emailer,
 		twoFARateLimiter: twoFARateLimiter,
