@@ -1,8 +1,7 @@
 - name: no auto-disable when feature has no tag
   fixtures:
     - empty_db
-    - sdk_base
-    - project_settings_immediate
+    - sdk_without_auto_disable_tag
 
   steps:
     - name: first_error
@@ -31,7 +30,10 @@
             "feature_key": "new_ui",
             "environment_key": "prod",
             "enabled": true,
-            "auto_disabled": false
+            "auto_disabled": false,
+            "error_rate": 0.0,
+            "threshold": 0,
+            "last_error_at": "<<PRESENCE>>"
           }
       dbChecks:
         - query: SELECT enabled FROM feature_params WHERE feature_id = '22222222-2222-2222-2222-222222222222' AND environment_id = 1

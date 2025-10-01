@@ -1,9 +1,7 @@
 - name: immediate disable when threshold reached and tag present
   fixtures:
     - empty_db
-    - sdk_base
-    - sdk_feature_with_auto_disable_tag
-    - project_settings_immediate
+    - sdk_with_auto_disable
 
   steps:
     - name: first_error
@@ -36,7 +34,10 @@
             "feature_key": "new_ui",
             "environment_key": "prod",
             "enabled": false,
-            "auto_disabled": true
+            "auto_disabled": true,
+            "error_rate": 0.0,
+            "threshold": 2,
+            "last_error_at": "<<PRESENCE>>"
           }
       dbChecks:
         - query: SELECT enabled FROM feature_params WHERE feature_id = '22222222-2222-2222-2222-222222222222' AND environment_id = 1

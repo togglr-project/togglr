@@ -1,9 +1,7 @@
 - name: requires approval when threshold reached and setting enabled
   fixtures:
     - empty_db
-    - sdk_base
-    - sdk_feature_with_auto_disable_tag
-    - project_settings_requires_approval
+    - sdk_with_requires_approval
 
   steps:
     - name: first_error
