@@ -19,7 +19,7 @@ const TabPanel: React.FC<TabPanelProps> = (props) => {
       {...other}
     >
       {value === index && (
-        <Box sx={{ pt: 3 }}>
+        <Box sx={{ p: 3 }}>
           {children}
         </Box>
       )}

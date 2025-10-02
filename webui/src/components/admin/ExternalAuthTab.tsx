@@ -24,7 +24,7 @@ const ExternalAuthTab: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box>
       <Box sx={{ mb: 3 }}>
         <Typography
           variant="h5"

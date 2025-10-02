@@ -214,7 +214,7 @@ const LicenseTab: React.FC = () => {
       {/* Installation Info Card */}
       {productInfo && (
         <Card sx={{ mb: 3 }}>
-          <CardContent>
+          <CardContent sx={{ p: 3 }}>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" gutterBottom fontWeight={600} sx={{ color: 'primary.light' }}>
                 Installation Info
@@ -263,7 +263,7 @@ const LicenseTab: React.FC = () => {
 
       {licenseStatus?.license && (
         <Card sx={{ mb: 3 }}>
-          <CardContent>
+          <CardContent sx={{ p: 3 }}>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" gutterBottom fontWeight={600} sx={{ color: 'primary.light' }}>
                 Current License Status
@@ -389,7 +389,6 @@ const LicenseTab: React.FC = () => {
                       sx: { fontFamily: 'monospace', fontSize: '0.875rem' }
                     }}
                     variant="outlined"
-                    size="small"
                   />
                 </Grid>
               )}
