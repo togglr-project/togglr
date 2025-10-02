@@ -1,3 +1,15 @@
+We welcome community contributions to Togglr!
+
+Before submitting a pull request, please note:
+
+- All contributions are subject to the [Togglr Business License (TBL)](./LICENSE).
+- By contributing, you agree to the terms of our [Contributor License Agreement (CLA)](./CLA.md).
+- This means:
+    - You confirm that you have the legal right to submit the code.
+    - You agree that your contribution will be licensed under TBL.
+    - The project owner may also include your contribution in commercial licenses without any obligation to provide royalties, equity, or other compensation.
+    - You retain authorship and copyright of your contribution, visible in Git history.
+
 # Architecture and Development Principles
 
 This document describes the key architectural decisions, principles, and tools used in the project. It is intended to quickly onboard new developers and synchronize understanding within the team.
