@@ -64,6 +64,8 @@ services:
     depends_on:
       togglr-postgresql:
         condition: service_healthy
+      togglr-nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
       interval: 30s
@@ -90,5 +92,27 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  togglr-nats:
+    image: nats:2.11.10-alpine
+    container_name: togglr-nats
+    ports:
+      - "8222:8222"
+    volumes:
+      - nats_togglr:/data
+    command: >
+      -p 4222
+      -m 8222
+      --store_dir /data
+    environment:
+      - NATS_LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8222/varz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
     postgresql_togglr:
+    nats_togglr:
