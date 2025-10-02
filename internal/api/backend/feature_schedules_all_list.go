@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -12,20 +11,6 @@ import (
 func (r *RestAPI) ListAllFeatureSchedules(
 	ctx context.Context,
 ) (generatedapi.ListAllFeatureSchedulesRes, error) {
-	// Allow only users with global feature.manage permission
-	ok, err := r.permissionsService.HasGlobalPermission(ctx, domain.PermFeatureManage)
-	if err != nil {
-		slog.Error("check global permission failed", "error", err)
-
-		return nil, err
-	}
-
-	if !ok {
-		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
-			Message: generatedapi.NewOptString("permission denied"),
-		}}, nil
-	}
-
 	items, err := r.featureSchedulesUseCase.List(ctx)
 	if err != nil {
 		slog.Error("list all schedules failed", "error", err)
@@ -33,8 +18,15 @@ func (r *RestAPI) ListAllFeatureSchedules(
 		return nil, err
 	}
 
+	// Filter schedules based on user's project access
 	resp := make(generatedapi.ListFeatureSchedulesResponse, 0, len(items))
 	for _, it := range items {
+		// Check if user can view this project
+		if err := r.permissionsService.CanViewProject(ctx, it.ProjectID); err != nil {
+			// Skip this schedule if user doesn't have access to the project
+			continue
+		}
+
 		resp = append(resp, generatedapi.FeatureSchedule{
 			ID:           it.ID.String(),
 			ProjectID:    it.ProjectID.String(),

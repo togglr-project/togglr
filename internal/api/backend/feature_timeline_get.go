@@ -31,7 +31,7 @@ func (r *RestAPI) GetFeatureTimeline(
 		return nil, err
 	}
 
-	if err := r.permissionsService.CanAccessProject(ctx, feature.ProjectID); err != nil {
+	if err := r.permissionsService.CanViewProject(ctx, feature.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

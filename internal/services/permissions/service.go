@@ -81,6 +81,31 @@ func (s *Service) CanAccessProject(ctx context.Context, projectID domain.Project
 	return nil
 }
 
+// CanViewProject checks if a user can view a project (basic access for all project members).
+// This is more permissive than CanAccessProject and allows all project members to view project data.
+func (s *Service) CanViewProject(ctx context.Context, projectID domain.ProjectID) error {
+	// Superusers can always view projects
+	if s.isSuper(ctx) {
+		return nil
+	}
+
+	userID := etx.UserID(ctx)
+	if userID == 0 {
+		return domain.ErrUserNotFound
+	}
+
+	// Check if a user has any membership in the project (any role)
+	roleID, err := s.member.GetForUserProject(ctx, int(userID), projectID)
+	if err != nil {
+		return err
+	}
+	if roleID == "" {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
+}
+
 // CanManageProject checks if a user can manage a project (create, update, delete).
 func (s *Service) CanManageProject(ctx context.Context, projectID domain.ProjectID) error {
 	ok, err := s.HasProjectPermission(ctx, projectID, domain.PermProjectManage)

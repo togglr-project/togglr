@@ -29,7 +29,7 @@ func (r *RestAPI) GetFeatureSchedule(
 	}
 
 	// Check access permissions for the owning project
-	if err := r.permissionsService.CanAccessProject(ctx, item.ProjectID); err != nil {
+	if err := r.permissionsService.CanViewProject(ctx, item.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", item.ProjectID)
 
 		if errors.Is(err, domain.ErrPermissionDenied) {

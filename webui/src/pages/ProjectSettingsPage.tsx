@@ -29,6 +29,7 @@ import PageHeader from '../components/PageHeader';
 import apiClient from '../api/apiClient';
 import type { Project } from '../generated/api/client';
 import { useNotification } from '../App';
+import { useRBAC } from '../auth/permissions';
 
 interface ProjectResponse { project: Project }
 
@@ -109,6 +110,7 @@ const ProjectSettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { showNotification } = useNotification();
+  const rbac = useRBAC(projectId);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['project', projectId],
@@ -215,22 +217,26 @@ const ProjectSettingsPage: React.FC = () => {
           </Box>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-            <Button
-              color="error"
-              startIcon={<DeleteIcon />}
-              onClick={() => setConfirmOpen(true)}
-            >
-              Delete project
-            </Button>
+            {rbac.canManageProject() && (
+              <Button
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => setConfirmOpen(true)}
+              >
+                Delete project
+              </Button>
+            )}
 
-            <Button
-              variant="contained"
-              startIcon={<SaveIcon />}
-              disabled={!changed || saveMut.isPending}
-              onClick={() => saveMut.mutate()}
-            >
-              Save changes
-            </Button>
+            {rbac.canManageProject() && (
+              <Button
+                variant="contained"
+                startIcon={<SaveIcon />}
+                disabled={!changed || saveMut.isPending}
+                onClick={() => saveMut.mutate()}
+              >
+                Save changes
+              </Button>
+            )}
           </Box>
         </Paper>
       )}

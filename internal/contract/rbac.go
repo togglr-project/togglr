@@ -8,6 +8,7 @@ import (
 
 type PermissionsService interface {
 	CanAccessProject(ctx context.Context, projectID domain.ProjectID) error
+	CanViewProject(ctx context.Context, projectID domain.ProjectID) error
 	CanManageProject(ctx context.Context, projectID domain.ProjectID) error
 	CanToggleFeature(ctx context.Context, projectID domain.ProjectID) error
 	CanManageFeature(ctx context.Context, projectID domain.ProjectID) error
