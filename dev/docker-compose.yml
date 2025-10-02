@@ -97,6 +97,7 @@ services:
     image: nats:2.11.10-alpine
     container_name: togglr-nats
     ports:
+      - "4222:4222"
       - "8222:8222"
     volumes:
       - nats_togglr:/data

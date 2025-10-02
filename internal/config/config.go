@@ -22,6 +22,7 @@ type Config struct {
 	WSServer         Server        `envconfig:"WS_SERVER"`
 	TechServer       Server        `envconfig:"TECH_SERVER"`
 	Postgres         Postgres      `envconfig:"POSTGRES"`
+	NATS             NATS          `envconfig:"NATS"`
 	Mailer           Mailer        `envconfig:"MAILER"`
 	MigrationsDir    string        `default:"./migrations"     envconfig:"MIGRATIONS_DIR"`
 	FrontendURL      string        `envconfig:"FRONTEND_URL"   required:"true"`
@@ -85,6 +86,10 @@ type Mailer struct {
 	CertFile      string `default:""           envconfig:"CERT_FILE"`
 	KeyFile       string `default:""           envconfig:"KEY_FILE"`
 	UseTLS        bool   `default:"false"      envconfig:"USE_TLS"`
+}
+
+type NATS struct {
+	URL string `envconfig:"URL" required:"true"`
 }
 
 type Postgres struct {

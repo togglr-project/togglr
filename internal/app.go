@@ -21,6 +21,7 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedsdk "github.com/togglr-project/togglr/internal/generated/sdkserver"
 	generatedserver "github.com/togglr-project/togglr/internal/generated/server"
+	natsmq "github.com/togglr-project/togglr/internal/infra/mq/nats"
 	"github.com/togglr-project/togglr/internal/license"
 	"github.com/togglr-project/togglr/internal/repository/auditlog"
 	"github.com/togglr-project/togglr/internal/repository/categories"
@@ -101,6 +102,7 @@ type App struct {
 	Logger *slog.Logger
 
 	PostgresPool *pgxpool.Pool
+	Bus          *natsmq.NATSMq
 
 	APIServer *httpserver.Server
 	SDKServer *httpserver.Server
@@ -119,6 +121,11 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 		return nil, fmt.Errorf("create postgres pool: %w", err)
 	}
 
+	bus, err := natsmq.New(cfg.NATS.URL)
+	if err != nil {
+		return nil, fmt.Errorf("init message queue: %w", err)
+	}
+
 	container := di.New()
 	diApp := di.NewApp(container)
 
@@ -128,6 +135,7 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 		container:    container,
 		diApp:        diApp,
 		PostgresPool: pgPool,
+		Bus:          bus,
 	}
 
 	app.registerComponents()
@@ -202,6 +210,9 @@ func (app *App) Run(ctx context.Context) error {
 func (app *App) Close() {
 	if app.PostgresPool != nil {
 		app.PostgresPool.Close()
+	}
+	if app.Bus != nil {
+		app.Bus.Close()
 	}
 }
 
