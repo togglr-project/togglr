@@ -2,6 +2,7 @@ package auditlog
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
 )
@@ -74,7 +76,7 @@ func (r *Repository) ListSince(ctx context.Context, since time.Time) ([]domain.A
 
 	const query = `
 SELECT audit_log.id, audit_log.project_id, feature_id, entity_id, request_id, entity,
-       actor, username, action, old_value, new_value, environment_id, envs.key AS env_key, audit_log.created_at
+       actor, username, action, old_value, new_value, environment_id, COALESCE(envs.key, '') AS env_key, audit_log.created_at
 FROM audit_log
 LEFT JOIN environments envs ON audit_log.environment_id = envs.id
 WHERE audit_log.created_at > $1
@@ -111,7 +113,7 @@ func (r *Repository) ListChanges(
 	builder := sq.Select(
 		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
 		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
-		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "envs.key AS env_key", "audit_log.created_at",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
 	).From("audit_log").
 		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
 
@@ -279,6 +281,164 @@ func (r *Repository) ListChanges(
 		Items:     items,
 		Total:     total,
 	}, nil
+}
+
+// ListByProjectIDFiltered returns paginated audit logs for a project with filters and sorting.
+func (r *Repository) ListByProjectIDFiltered(
+	ctx context.Context,
+	opts contract.AuditLogListFilter,
+) (items []domain.AuditLog, total int, err error) {
+	exec := r.getExecutor(ctx)
+
+	builder := sq.Select(
+		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
+		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
+	).From("audit_log").
+		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
+
+	builder = builder.Where(sq.Eq{"audit_log.project_id": opts.ProjectID})
+
+	if opts.EnvironmentKey != nil {
+		builder = builder.Where(sq.Eq{"envs.key": *opts.EnvironmentKey})
+	}
+	if opts.Entity != nil {
+		builder = builder.Where(sq.Eq{"audit_log.entity": *opts.Entity})
+	}
+	if opts.EntityID != nil {
+		builder = builder.Where(sq.Eq{"audit_log.entity_id": *opts.EntityID})
+	}
+	if opts.Actor != nil {
+		builder = builder.Where(sq.Eq{"audit_log.actor": *opts.Actor})
+	}
+	if opts.From != nil {
+		builder = builder.Where(sq.GtOrEq{"audit_log.created_at": *opts.From})
+	}
+	if opts.To != nil {
+		builder = builder.Where(sq.LtOrEq{"audit_log.created_at": *opts.To})
+	}
+
+	orderCol := "audit_log.created_at"
+	switch opts.SortBy {
+	case "environment_key":
+		orderCol = "envs.key"
+	case "entity":
+		orderCol = "audit_log.entity"
+	case "entity_id":
+		orderCol = "audit_log.entity_id"
+	case "actor":
+		orderCol = "audit_log.actor"
+	case "action":
+		orderCol = "audit_log.action"
+	case "username":
+		orderCol = "audit_log.username"
+	case "created_at":
+		orderCol = "audit_log.created_at"
+	}
+	orderDir := "DESC"
+	if !opts.SortDesc {
+		orderDir = "ASC"
+	}
+	builder = builder.OrderBy(fmt.Sprintf("%s %s", orderCol, orderDir))
+
+	page := opts.Page
+	perPage := opts.PerPage
+	if page <= 0 {
+		page = 1
+	}
+	if perPage <= 0 {
+		perPage = 20
+	}
+	offset := (page - 1) * perPage
+	builder = builder.Limit(uint64(perPage)).Offset(uint64(offset))
+
+	query, args, err := builder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build audit logs query: %w", err)
+	}
+
+	rows, err := exec.Query(ctx, query, args...)
+	if err != nil {
+		return nil, 0, fmt.Errorf("query audit logs: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[auditLogModel])
+	if err != nil {
+		return nil, 0, fmt.Errorf("collect audit_log rows: %w", err)
+	}
+
+	items = make([]domain.AuditLog, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	// Count total
+	countBuilder := sq.Select("COUNT(*)").From("audit_log").
+		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
+	countBuilder = countBuilder.Where(sq.Eq{"audit_log.project_id": opts.ProjectID})
+	if opts.EnvironmentKey != nil {
+		countBuilder = countBuilder.Where(sq.Eq{"envs.key": *opts.EnvironmentKey})
+	}
+	if opts.Entity != nil {
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.entity": *opts.Entity})
+	}
+	if opts.EntityID != nil {
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.entity_id": *opts.EntityID})
+	}
+	if opts.Actor != nil {
+		countBuilder = countBuilder.Where(sq.Eq{"audit_log.actor": *opts.Actor})
+	}
+	if opts.From != nil {
+		countBuilder = countBuilder.Where(sq.GtOrEq{"audit_log.created_at": *opts.From})
+	}
+	if opts.To != nil {
+		countBuilder = countBuilder.Where(sq.LtOrEq{"audit_log.created_at": *opts.To})
+	}
+	countQuery, countArgs, err := countBuilder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return nil, 0, fmt.Errorf("build count audit logs query: %w", err)
+	}
+	if err := exec.QueryRow(ctx, countQuery, countArgs...).Scan(&total); err != nil {
+		return nil, 0, fmt.Errorf("count audit logs: %w", err)
+	}
+
+	return items, total, nil
+}
+
+// GetByID returns a single audit log entry by id.
+func (r *Repository) GetByID(ctx context.Context, id domain.AuditLogID) (domain.AuditLog, error) {
+	exec := r.getExecutor(ctx)
+
+	builder := sq.Select(
+		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
+		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
+	).From("audit_log").
+		LeftJoin("environments envs ON audit_log.environment_id = envs.id").
+		Where(sq.Eq{"audit_log.id": id})
+
+	query, args, err := builder.PlaceholderFormat(sq.Dollar).ToSql()
+	if err != nil {
+		return domain.AuditLog{}, fmt.Errorf("build audit log by id query: %w", err)
+	}
+
+	rows, err := exec.Query(ctx, query, args...)
+	if err != nil {
+		return domain.AuditLog{}, fmt.Errorf("query audit log by id: %w", err)
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[auditLogModel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return domain.AuditLog{}, domain.ErrEntityNotFound
+		}
+
+		return domain.AuditLog{}, fmt.Errorf("collect audit_log row: %w", err)
+	}
+
+	return model.toDomain(), nil
 }
 
 //nolint:ireturn // repository executor pattern

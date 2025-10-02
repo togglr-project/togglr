@@ -8,6 +8,7 @@ docs/AddFeatureTagRequest.md
 docs/AddProjectRequest.md
 docs/ApprovePendingChangeRequest.md
 docs/AuditAction.md
+docs/AuditLog.md
 docs/AuthCredentials.md
 docs/CancelPendingChangeRequest.md
 docs/Category.md
@@ -90,6 +91,7 @@ docs/LicenseType.md
 docs/ListChangesResponse.md
 docs/ListEnvironmentsResponse.md
 docs/ListFeaturesResponse.md
+docs/ListProjectAuditLogs200Response.md
 docs/ListProjectSettingsResponse.md
 docs/ListRolePermissions200ResponseInner.md
 docs/ListSegmentsResponse.md

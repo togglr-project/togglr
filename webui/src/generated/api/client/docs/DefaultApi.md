@@ -37,6 +37,7 @@ All URIs are relative to *http://localhost*
 |[**deleteUser**](#deleteuser) | **DELETE** /api/v1/users/{user_id} | Delete a user (superuser only, cannot delete superusers)|
 |[**disable2FA**](#disable2fa) | **POST** /api/v1/users/me/2fa/disable | Disable 2FA (using email-confirmation)|
 |[**forgotPassword**](#forgotpassword) | **POST** /api/v1/auth/forgot-password | Request a password reset|
+|[**getAuditLogEntry**](#getauditlogentry) | **GET** /api/v1/audit/{id} | Get audit log entry by ID|
 |[**getCategory**](#getcategory) | **GET** /api/v1/categories/{category_id} | Get category details|
 |[**getCurrentUser**](#getcurrentuser) | **GET** /api/v1/users/me | Get current user information|
 |[**getDashboardOverview**](#getdashboardoverview) | **GET** /api/v1/dashboard/overview | Project Dashboard overview|
@@ -70,6 +71,7 @@ All URIs are relative to *http://localhost*
 |[**listFeatureTags**](#listfeaturetags) | **GET** /api/v1/features/{feature_id}/tags | List feature tags|
 |[**listPendingChanges**](#listpendingchanges) | **GET** /api/v1/pending_changes | List pending changes|
 |[**listPermissions**](#listpermissions) | **GET** /api/v1/permissions | List all permissions|
+|[**listProjectAuditLogs**](#listprojectauditlogs) | **GET** /api/v1/projects/{project_id}/audit | List audit log entries for project|
 |[**listProjectChanges**](#listprojectchanges) | **GET** /api/v1/projects/{project_id}/changes | Get project changes history|
 |[**listProjectEnvironments**](#listprojectenvironments) | **GET** /api/v1/projects/{project_id}/environments | List project environments|
 |[**listProjectFeatures**](#listprojectfeatures) | **GET** /api/v1/projects/{project_id}/features | List features for project|
@@ -2020,6 +2022,61 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getAuditLogEntry**
+> AuditLog getAuditLogEntry()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let id: number; // (default to undefined)
+
+const { status, data } = await apiInstance.getAuditLogEntry(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**AuditLog**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Audit log entry |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Audit log entry not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getCategory**
 > CategoryResponse getCategory()
 
@@ -2820,6 +2877,7 @@ const { status, data } = await apiInstance.getPendingChange(
 |-------------|-------------|------------------|
 |**200** | Pending change details |  -  |
 |**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
 |**404** | Pending change not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
@@ -3759,6 +3817,7 @@ const { status, data } = await apiInstance.listPendingChanges(
 |**200** | List of pending changes |  -  |
 |**400** | Bad request |  -  |
 |**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -3805,6 +3864,91 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | List of all permissions |  -  |
 |**401** | Unauthorized |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listProjectAuditLogs**
+> ListProjectAuditLogs200Response listProjectAuditLogs()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; //Filter by environment (optional) (default to undefined)
+let entity: string; //Filter by entity type (e.g. \"feature\", \"segment\") (optional) (default to undefined)
+let entityId: string; //Filter by specific entity (optional) (default to undefined)
+let actor: string; //Filter by actor username (optional) (default to undefined)
+let from: string; //Start of time range (optional) (default to undefined)
+let to: string; //End of time range (optional) (default to undefined)
+let sortBy: 'environment_key' | 'entity' | 'entity_id' | 'actor' | 'action' | 'username' | 'created_at'; //Sort by field (optional) (default to undefined)
+let sortOrder: SortOrder; //Sort order (optional) (default to undefined)
+let page: number; //Page number (starts from 1) (optional) (default to 1)
+let perPage: number; //Items per page (optional) (default to 20)
+
+const { status, data } = await apiInstance.listProjectAuditLogs(
+    projectId,
+    environmentKey,
+    entity,
+    entityId,
+    actor,
+    from,
+    to,
+    sortBy,
+    sortOrder,
+    page,
+    perPage
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Filter by environment | (optional) defaults to undefined|
+| **entity** | [**string**] | Filter by entity type (e.g. \&quot;feature\&quot;, \&quot;segment\&quot;) | (optional) defaults to undefined|
+| **entityId** | [**string**] | Filter by specific entity | (optional) defaults to undefined|
+| **actor** | [**string**] | Filter by actor username | (optional) defaults to undefined|
+| **from** | [**string**] | Start of time range | (optional) defaults to undefined|
+| **to** | [**string**] | End of time range | (optional) defaults to undefined|
+| **sortBy** | [**&#39;environment_key&#39; | &#39;entity&#39; | &#39;entity_id&#39; | &#39;actor&#39; | &#39;action&#39; | &#39;username&#39; | &#39;created_at&#39;**]**Array<&#39;environment_key&#39; &#124; &#39;entity&#39; &#124; &#39;entity_id&#39; &#124; &#39;actor&#39; &#124; &#39;action&#39; &#124; &#39;username&#39; &#124; &#39;created_at&#39;>** | Sort by field | (optional) defaults to undefined|
+| **sortOrder** | **SortOrder** | Sort order | (optional) defaults to undefined|
+| **page** | [**number**] | Page number (starts from 1) | (optional) defaults to 1|
+| **perPage** | [**number**] | Items per page | (optional) defaults to 20|
+
+
+### Return type
+
+**ListProjectAuditLogs200Response**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of audit log entries |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Project not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

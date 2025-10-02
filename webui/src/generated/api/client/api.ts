@@ -51,6 +51,22 @@ export const AuditAction = {
 export type AuditAction = typeof AuditAction[keyof typeof AuditAction];
 
 
+export interface AuditLog {
+    'id': number;
+    'project_id': string;
+    'environment_id': number;
+    'environment_key'?: string;
+    'entity': string;
+    'entity_id': string;
+    'feature_id'?: string;
+    'action': string;
+    'actor': string;
+    'username'?: string;
+    'request_id'?: string;
+    'old_value'?: { [key: string]: any; };
+    'new_value'?: { [key: string]: any; };
+    'created_at': string;
+}
 export interface AuthCredentials {
     'method': AuthCredentialsMethodEnum;
     'credential': string;
@@ -885,6 +901,10 @@ export interface ListEnvironmentsResponse {
 }
 export interface ListFeaturesResponse {
     'items': Array<FeatureExtended>;
+    'pagination': Pagination;
+}
+export interface ListProjectAuditLogs200Response {
+    'items': Array<AuditLog>;
     'pagination': Pagination;
 }
 export interface ListProjectSettingsResponse {
@@ -2813,6 +2833,44 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Get audit log entry by ID
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAuditLogEntry: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('getAuditLogEntry', 'id', id)
+            const localVarPath = `/api/v1/audit/{id}`
+                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get category details
          * @param {string} categoryId 
          * @param {*} [options] Override http request option.
@@ -4155,6 +4213,98 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List audit log entries for project
+         * @param {string} projectId 
+         * @param {string} [environmentKey] Filter by environment
+         * @param {string} [entity] Filter by entity type (e.g. \&quot;feature\&quot;, \&quot;segment\&quot;)
+         * @param {string} [entityId] Filter by specific entity
+         * @param {string} [actor] Filter by actor username
+         * @param {string} [from] Start of time range
+         * @param {string} [to] End of time range
+         * @param {ListProjectAuditLogsSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectAuditLogs: async (projectId: string, environmentKey?: string, entity?: string, entityId?: string, actor?: string, from?: string, to?: string, sortBy?: ListProjectAuditLogsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listProjectAuditLogs', 'projectId', projectId)
+            const localVarPath = `/api/v1/projects/{project_id}/audit`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (environmentKey !== undefined) {
+                localVarQueryParameter['environment_key'] = environmentKey;
+            }
+
+            if (entity !== undefined) {
+                localVarQueryParameter['entity'] = entity;
+            }
+
+            if (entityId !== undefined) {
+                localVarQueryParameter['entity_id'] = entityId;
+            }
+
+            if (actor !== undefined) {
+                localVarQueryParameter['actor'] = actor;
+            }
+
+            if (from !== undefined) {
+                localVarQueryParameter['from'] = (from as any instanceof Date) ?
+                    (from as any).toISOString() :
+                    from;
+            }
+
+            if (to !== undefined) {
+                localVarQueryParameter['to'] = (to as any instanceof Date) ?
+                    (to as any).toISOString() :
+                    to;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sort_by'] = sortBy;
+            }
+
+            if (sortOrder !== undefined) {
+                localVarQueryParameter['sort_order'] = sortOrder;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (perPage !== undefined) {
+                localVarQueryParameter['per_page'] = perPage;
+            }
 
 
     
@@ -6533,6 +6683,19 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get audit log entry by ID
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAuditLogEntry(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AuditLog>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAuditLogEntry(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getAuditLogEntry']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get category details
          * @param {string} categoryId 
          * @param {*} [options] Override http request option.
@@ -6973,6 +7136,29 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listPermissions(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listPermissions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List audit log entries for project
+         * @param {string} projectId 
+         * @param {string} [environmentKey] Filter by environment
+         * @param {string} [entity] Filter by entity type (e.g. \&quot;feature\&quot;, \&quot;segment\&quot;)
+         * @param {string} [entityId] Filter by specific entity
+         * @param {string} [actor] Filter by actor username
+         * @param {string} [from] Start of time range
+         * @param {string} [to] End of time range
+         * @param {ListProjectAuditLogsSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listProjectAuditLogs(projectId: string, environmentKey?: string, entity?: string, entityId?: string, actor?: string, from?: string, to?: string, sortBy?: ListProjectAuditLogsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListProjectAuditLogs200Response>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listProjectAuditLogs(projectId, environmentKey, entity, entityId, actor, from, to, sortBy, sortOrder, page, perPage, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listProjectAuditLogs']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7939,6 +8125,16 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get audit log entry by ID
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAuditLogEntry(id: number, options?: RawAxiosRequestConfig): AxiosPromise<AuditLog> {
+            return localVarFp.getAuditLogEntry(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get category details
          * @param {string} categoryId 
          * @param {*} [options] Override http request option.
@@ -8281,6 +8477,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listPermissions(options?: RawAxiosRequestConfig): AxiosPromise<Array<Permission>> {
             return localVarFp.listPermissions(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List audit log entries for project
+         * @param {string} projectId 
+         * @param {string} [environmentKey] Filter by environment
+         * @param {string} [entity] Filter by entity type (e.g. \&quot;feature\&quot;, \&quot;segment\&quot;)
+         * @param {string} [entityId] Filter by specific entity
+         * @param {string} [actor] Filter by actor username
+         * @param {string} [from] Start of time range
+         * @param {string} [to] End of time range
+         * @param {ListProjectAuditLogsSortByEnum} [sortBy] Sort by field
+         * @param {SortOrder} [sortOrder] Sort order
+         * @param {number} [page] Page number (starts from 1)
+         * @param {number} [perPage] Items per page
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listProjectAuditLogs(projectId: string, environmentKey?: string, entity?: string, entityId?: string, actor?: string, from?: string, to?: string, sortBy?: ListProjectAuditLogsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig): AxiosPromise<ListProjectAuditLogs200Response> {
+            return localVarFp.listProjectAuditLogs(projectId, environmentKey, entity, entityId, actor, from, to, sortBy, sortOrder, page, perPage, options).then((request) => request(axios, basePath));
         },
         /**
          * Get history of changes made to project features, rules, and other entities grouped by request_id
@@ -9148,6 +9364,17 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get audit log entry by ID
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getAuditLogEntry(id: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getAuditLogEntry(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get category details
      * @param {string} categoryId 
      * @param {*} [options] Override http request option.
@@ -9522,6 +9749,27 @@ export class DefaultApi extends BaseAPI {
      */
     public listPermissions(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listPermissions(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List audit log entries for project
+     * @param {string} projectId 
+     * @param {string} [environmentKey] Filter by environment
+     * @param {string} [entity] Filter by entity type (e.g. \&quot;feature\&quot;, \&quot;segment\&quot;)
+     * @param {string} [entityId] Filter by specific entity
+     * @param {string} [actor] Filter by actor username
+     * @param {string} [from] Start of time range
+     * @param {string} [to] End of time range
+     * @param {ListProjectAuditLogsSortByEnum} [sortBy] Sort by field
+     * @param {SortOrder} [sortOrder] Sort order
+     * @param {number} [page] Page number (starts from 1)
+     * @param {number} [perPage] Items per page
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listProjectAuditLogs(projectId: string, environmentKey?: string, entity?: string, entityId?: string, actor?: string, from?: string, to?: string, sortBy?: ListProjectAuditLogsSortByEnum, sortOrder?: SortOrder, page?: number, perPage?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listProjectAuditLogs(projectId, environmentKey, entity, entityId, actor, from, to, sortBy, sortOrder, page, perPage, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10063,6 +10311,16 @@ export const ListPendingChangesSortByEnum = {
     RequestedBy: 'requested_by'
 } as const;
 export type ListPendingChangesSortByEnum = typeof ListPendingChangesSortByEnum[keyof typeof ListPendingChangesSortByEnum];
+export const ListProjectAuditLogsSortByEnum = {
+    EnvironmentKey: 'environment_key',
+    Entity: 'entity',
+    EntityId: 'entity_id',
+    Actor: 'actor',
+    Action: 'action',
+    Username: 'username',
+    CreatedAt: 'created_at'
+} as const;
+export type ListProjectAuditLogsSortByEnum = typeof ListProjectAuditLogsSortByEnum[keyof typeof ListProjectAuditLogsSortByEnum];
 export const ListProjectChangesSortByEnum = {
     CreatedAt: 'created_at',
     Actor: 'actor',

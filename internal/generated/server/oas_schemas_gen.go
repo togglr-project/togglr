@@ -162,20 +162,20 @@ func (s *AuditAction) UnmarshalText(data []byte) error {
 
 // Ref: #/components/schemas/AuditLog
 type AuditLog struct {
-	ID             int64               `json:"id"`
-	ProjectID      uuid.UUID           `json:"project_id"`
-	EnvironmentID  int                 `json:"environment_id"`
-	EnvironmentKey OptString           `json:"environment_key"`
-	Entity         string              `json:"entity"`
-	EntityID       uuid.UUID           `json:"entity_id"`
-	FeatureID      OptUUID             `json:"feature_id"`
-	Action         string              `json:"action"`
-	Actor          string              `json:"actor"`
-	Username       OptString           `json:"username"`
-	RequestID      OptUUID             `json:"request_id"`
-	OldValue       OptAuditLogOldValue `json:"old_value"`
-	NewValue       OptAuditLogNewValue `json:"new_value"`
-	CreatedAt      time.Time           `json:"created_at"`
+	ID             int64                  `json:"id"`
+	ProjectID      uuid.UUID              `json:"project_id"`
+	EnvironmentID  int                    `json:"environment_id"`
+	EnvironmentKey OptString              `json:"environment_key"`
+	Entity         string                 `json:"entity"`
+	EntityID       uuid.UUID              `json:"entity_id"`
+	FeatureID      OptUUID                `json:"feature_id"`
+	Action         string                 `json:"action"`
+	Actor          string                 `json:"actor"`
+	Username       OptString              `json:"username"`
+	RequestID      OptUUID                `json:"request_id"`
+	OldValue       OptNilAuditLogOldValue `json:"old_value"`
+	NewValue       OptNilAuditLogNewValue `json:"new_value"`
+	CreatedAt      time.Time              `json:"created_at"`
 }
 
 // GetID returns the value of ID.
@@ -234,12 +234,12 @@ func (s *AuditLog) GetRequestID() OptUUID {
 }
 
 // GetOldValue returns the value of OldValue.
-func (s *AuditLog) GetOldValue() OptAuditLogOldValue {
+func (s *AuditLog) GetOldValue() OptNilAuditLogOldValue {
 	return s.OldValue
 }
 
 // GetNewValue returns the value of NewValue.
-func (s *AuditLog) GetNewValue() OptAuditLogNewValue {
+func (s *AuditLog) GetNewValue() OptNilAuditLogNewValue {
 	return s.NewValue
 }
 
@@ -304,12 +304,12 @@ func (s *AuditLog) SetRequestID(val OptUUID) {
 }
 
 // SetOldValue sets the value of OldValue.
-func (s *AuditLog) SetOldValue(val OptAuditLogOldValue) {
+func (s *AuditLog) SetOldValue(val OptNilAuditLogOldValue) {
 	s.OldValue = val
 }
 
 // SetNewValue sets the value of NewValue.
-func (s *AuditLog) SetNewValue(val OptAuditLogNewValue) {
+func (s *AuditLog) SetNewValue(val OptNilAuditLogNewValue) {
 	s.NewValue = val
 }
 
@@ -320,9 +320,27 @@ func (s *AuditLog) SetCreatedAt(val time.Time) {
 
 func (*AuditLog) getAuditLogEntryRes() {}
 
-type AuditLogNewValue struct{}
+type AuditLogNewValue map[string]jx.Raw
 
-type AuditLogOldValue struct{}
+func (s *AuditLogNewValue) init() AuditLogNewValue {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type AuditLogOldValue map[string]jx.Raw
+
+func (s *AuditLogOldValue) init() AuditLogOldValue {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
 
 // Ref: #/components/schemas/AuthCredentials
 type AuthCredentials struct {
@@ -6321,98 +6339,6 @@ func (o OptAuditAction) Or(d AuditAction) AuditAction {
 	return d
 }
 
-// NewOptAuditLogNewValue returns new OptAuditLogNewValue with value set to v.
-func NewOptAuditLogNewValue(v *AuditLogNewValue) OptAuditLogNewValue {
-	return OptAuditLogNewValue{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptAuditLogNewValue is optional *AuditLogNewValue.
-type OptAuditLogNewValue struct {
-	Value *AuditLogNewValue
-	Set   bool
-}
-
-// IsSet returns true if OptAuditLogNewValue was set.
-func (o OptAuditLogNewValue) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptAuditLogNewValue) Reset() {
-	var v *AuditLogNewValue
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptAuditLogNewValue) SetTo(v *AuditLogNewValue) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptAuditLogNewValue) Get() (v *AuditLogNewValue, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptAuditLogNewValue) Or(d *AuditLogNewValue) *AuditLogNewValue {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptAuditLogOldValue returns new OptAuditLogOldValue with value set to v.
-func NewOptAuditLogOldValue(v *AuditLogOldValue) OptAuditLogOldValue {
-	return OptAuditLogOldValue{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptAuditLogOldValue is optional *AuditLogOldValue.
-type OptAuditLogOldValue struct {
-	Value *AuditLogOldValue
-	Set   bool
-}
-
-// IsSet returns true if OptAuditLogOldValue was set.
-func (o OptAuditLogOldValue) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptAuditLogOldValue) Reset() {
-	var v *AuditLogOldValue
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptAuditLogOldValue) SetTo(v *AuditLogOldValue) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptAuditLogOldValue) Get() (v *AuditLogOldValue, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptAuditLogOldValue) Or(d *AuditLogOldValue) *AuditLogOldValue {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
 	return OptBool{
@@ -7465,6 +7391,132 @@ func (o OptListProjectSegmentsSortBy) Get() (v ListProjectSegmentsSortBy, ok boo
 
 // Or returns value if set, or given parameter if does not.
 func (o OptListProjectSegmentsSortBy) Or(d ListProjectSegmentsSortBy) ListProjectSegmentsSortBy {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilAuditLogNewValue returns new OptNilAuditLogNewValue with value set to v.
+func NewOptNilAuditLogNewValue(v AuditLogNewValue) OptNilAuditLogNewValue {
+	return OptNilAuditLogNewValue{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilAuditLogNewValue is optional nullable AuditLogNewValue.
+type OptNilAuditLogNewValue struct {
+	Value AuditLogNewValue
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilAuditLogNewValue was set.
+func (o OptNilAuditLogNewValue) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilAuditLogNewValue) Reset() {
+	var v AuditLogNewValue
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilAuditLogNewValue) SetTo(v AuditLogNewValue) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilAuditLogNewValue) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilAuditLogNewValue) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v AuditLogNewValue
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilAuditLogNewValue) Get() (v AuditLogNewValue, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilAuditLogNewValue) Or(d AuditLogNewValue) AuditLogNewValue {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptNilAuditLogOldValue returns new OptNilAuditLogOldValue with value set to v.
+func NewOptNilAuditLogOldValue(v AuditLogOldValue) OptNilAuditLogOldValue {
+	return OptNilAuditLogOldValue{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptNilAuditLogOldValue is optional nullable AuditLogOldValue.
+type OptNilAuditLogOldValue struct {
+	Value AuditLogOldValue
+	Set   bool
+	Null  bool
+}
+
+// IsSet returns true if OptNilAuditLogOldValue was set.
+func (o OptNilAuditLogOldValue) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptNilAuditLogOldValue) Reset() {
+	var v AuditLogOldValue
+	o.Value = v
+	o.Set = false
+	o.Null = false
+}
+
+// SetTo sets value to v.
+func (o *OptNilAuditLogOldValue) SetTo(v AuditLogOldValue) {
+	o.Set = true
+	o.Null = false
+	o.Value = v
+}
+
+// IsNull returns true if value is Null.
+func (o OptNilAuditLogOldValue) IsNull() bool { return o.Null }
+
+// SetToNull sets value to null.
+func (o *OptNilAuditLogOldValue) SetToNull() {
+	o.Set = true
+	o.Null = true
+	var v AuditLogOldValue
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptNilAuditLogOldValue) Get() (v AuditLogOldValue, ok bool) {
+	if o.Null {
+		return v, false
+	}
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptNilAuditLogOldValue) Or(d AuditLogOldValue) AuditLogOldValue {
 	if v, ok := o.Get(); ok {
 		return v
 	}

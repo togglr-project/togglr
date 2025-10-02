@@ -373,7 +373,7 @@ func anyMap(m map[domain.RuleAttribute]any) map[string]any {
 //	newParams domain.FeatureParams,
 //	errorCount int,
 //	threshold int,
-//) error {
+// ) error {
 //	// Create audit log entry with auto-disable context
 //	auditData := map[string]any{
 //		"auto_disable": true,
@@ -407,7 +407,7 @@ func anyMap(m map[domain.RuleAttribute]any) map[string]any {
 //	oldVal any,
 //	newVal any,
 //	meta map[string]any,
-//) error {
+// ) error {
 //	// Import auditlog package at the top of the file
 //	// For now, we'll create a simple audit log entry
 //	const query = `

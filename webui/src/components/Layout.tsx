@@ -710,6 +710,53 @@ const Layout: React.FC<LayoutProps> = ({
                   </ListItemButton>
                 </ListItem>
               )}
+              {/* Audit Log menu item - should be the last */}
+              {rbac.canViewAudit() && (
+                <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                  <ListItemButton
+                    sx={{
+                      minHeight: 48,
+                      justifyContent: open ? 'initial' : 'center',
+                      px: 2.5,
+                      py: 1.2,
+                      borderRadius: 2,
+                      backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/audit-log`) ? (
+                        theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                      ) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.06)'
+                          : 'rgba(130, 82, 255, 0.06)',
+                      },
+                    }}
+                    onClick={() => {
+                      if (currentProjectId) navigate(`/projects/${currentProjectId}/audit-log`);
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        minWidth: 0,
+                        mr: open ? 3 : 'auto',
+                        justifyContent: 'center',
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/audit-log`) ? 'primary.main' : 'inherit',
+                      }}
+                    >
+                      <AnalyticsIcon />
+                    </ListItemIcon>
+                    <ListItemText 
+                      primary={'Audit Log'} 
+                      primaryTypographyProps={{
+                        fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/audit-log`) ? 600 : 500,
+                        color: location.pathname.startsWith(`/projects/${currentProjectId}/audit-log`) ? 'primary.main' : 'inherit',
+                      }}
+                      sx={{ 
+                        opacity: open ? 1 : 0,
+                        ml: 0.5,
+                      }} 
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )}
             </List>
             <Divider sx={{ my: 2, mx: 2 }} />
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>

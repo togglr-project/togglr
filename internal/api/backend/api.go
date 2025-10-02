@@ -42,6 +42,7 @@ type RestAPI struct {
 	projectSettingsUseCase  contract.ProjectSettingsUseCase
 	dashboardUseCase        contract.DashboardUseCase
 	membershipsUseCase      contract.MembershipsUseCase
+	auditLogRepo            contract.AuditLogRepository
 }
 
 func New(
@@ -72,6 +73,7 @@ func New(
 	projectSettingsUseCase contract.ProjectSettingsUseCase,
 	dashboardUseCase contract.DashboardUseCase,
 	membershipsUseCase contract.MembershipsUseCase,
+	auditLogRepo contract.AuditLogRepository,
 ) *RestAPI {
 	return &RestAPI{
 		config:                  config,
@@ -101,6 +103,7 @@ func New(
 		projectSettingsUseCase:  projectSettingsUseCase,
 		dashboardUseCase:        dashboardUseCase,
 		membershipsUseCase:      membershipsUseCase,
+		auditLogRepo:            auditLogRepo,
 	}
 }
 

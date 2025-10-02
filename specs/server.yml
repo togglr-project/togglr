@@ -8856,9 +8856,11 @@ components:
           format: uuid
         old_value:
           type: object
+          additionalProperties: true
           nullable: true
         new_value:
           type: object
+          additionalProperties: true
           nullable: true
         created_at:
           type: string

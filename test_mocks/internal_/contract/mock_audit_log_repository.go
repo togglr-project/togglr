@@ -9,6 +9,7 @@ import (
 	"time"
 
 	mock "github.com/stretchr/testify/mock"
+	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
@@ -37,6 +38,146 @@ type MockAuditLogRepository_Expecter struct {
 
 func (_m *MockAuditLogRepository) EXPECT() *MockAuditLogRepository_Expecter {
 	return &MockAuditLogRepository_Expecter{mock: &_m.Mock}
+}
+
+// GetByID provides a mock function for the type MockAuditLogRepository
+func (_mock *MockAuditLogRepository) GetByID(ctx context.Context, id domain.AuditLogID) (domain.AuditLog, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 domain.AuditLog
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.AuditLogID) (domain.AuditLog, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.AuditLogID) domain.AuditLog); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.AuditLog)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.AuditLogID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockAuditLogRepository_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type MockAuditLogRepository_GetByID_Call struct {
+	*mock.Call
+}
+
+// GetByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.AuditLogID
+func (_e *MockAuditLogRepository_Expecter) GetByID(ctx interface{}, id interface{}) *MockAuditLogRepository_GetByID_Call {
+	return &MockAuditLogRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
+}
+
+func (_c *MockAuditLogRepository_GetByID_Call) Run(run func(ctx context.Context, id domain.AuditLogID)) *MockAuditLogRepository_GetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.AuditLogID
+		if args[1] != nil {
+			arg1 = args[1].(domain.AuditLogID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAuditLogRepository_GetByID_Call) Return(auditLog domain.AuditLog, err error) *MockAuditLogRepository_GetByID_Call {
+	_c.Call.Return(auditLog, err)
+	return _c
+}
+
+func (_c *MockAuditLogRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.AuditLogID) (domain.AuditLog, error)) *MockAuditLogRepository_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// ListByProjectIDFiltered provides a mock function for the type MockAuditLogRepository
+func (_mock *MockAuditLogRepository) ListByProjectIDFiltered(ctx context.Context, filter contract.AuditLogListFilter) ([]domain.AuditLog, int, error) {
+	ret := _mock.Called(ctx, filter)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListByProjectIDFiltered")
+	}
+
+	var r0 []domain.AuditLog
+	var r1 int
+	var r2 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, contract.AuditLogListFilter) ([]domain.AuditLog, int, error)); ok {
+		return returnFunc(ctx, filter)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, contract.AuditLogListFilter) []domain.AuditLog); ok {
+		r0 = returnFunc(ctx, filter)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.AuditLog)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, contract.AuditLogListFilter) int); ok {
+		r1 = returnFunc(ctx, filter)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+	if returnFunc, ok := ret.Get(2).(func(context.Context, contract.AuditLogListFilter) error); ok {
+		r2 = returnFunc(ctx, filter)
+	} else {
+		r2 = ret.Error(2)
+	}
+	return r0, r1, r2
+}
+
+// MockAuditLogRepository_ListByProjectIDFiltered_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListByProjectIDFiltered'
+type MockAuditLogRepository_ListByProjectIDFiltered_Call struct {
+	*mock.Call
+}
+
+// ListByProjectIDFiltered is a helper method to define mock.On call
+//   - ctx context.Context
+//   - filter contract.AuditLogListFilter
+func (_e *MockAuditLogRepository_Expecter) ListByProjectIDFiltered(ctx interface{}, filter interface{}) *MockAuditLogRepository_ListByProjectIDFiltered_Call {
+	return &MockAuditLogRepository_ListByProjectIDFiltered_Call{Call: _e.mock.On("ListByProjectIDFiltered", ctx, filter)}
+}
+
+func (_c *MockAuditLogRepository_ListByProjectIDFiltered_Call) Run(run func(ctx context.Context, filter contract.AuditLogListFilter)) *MockAuditLogRepository_ListByProjectIDFiltered_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 contract.AuditLogListFilter
+		if args[1] != nil {
+			arg1 = args[1].(contract.AuditLogListFilter)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAuditLogRepository_ListByProjectIDFiltered_Call) Return(items []domain.AuditLog, total int, err error) *MockAuditLogRepository_ListByProjectIDFiltered_Call {
+	_c.Call.Return(items, total, err)
+	return _c
+}
+
+func (_c *MockAuditLogRepository_ListByProjectIDFiltered_Call) RunAndReturn(run func(ctx context.Context, filter contract.AuditLogListFilter) ([]domain.AuditLog, int, error)) *MockAuditLogRepository_ListByProjectIDFiltered_Call {
+	_c.Call.Return(run)
+	return _c
 }
 
 // ListChanges provides a mock function for the type MockAuditLogRepository

@@ -24,6 +24,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import ProjectTagsPage from './pages/ProjectTagsPage';
 import ProjectPermissionsPage from './pages/ProjectPermissionsPage';
 import PendingChangesPage from './pages/PendingChangesPage';
+import AuditLogPage from './pages/AuditLogPage';
 import AdminPage from './pages/AdminPage';
 import AccountPage from './pages/AccountPage';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -300,6 +301,7 @@ function App() {
                         <Route path="/projects/:projectId/tags" element={<LicenseGuard><ProjectTagsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/permissions" element={<LicenseGuard><ProjectPermissionsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/pending-changes" element={<LicenseGuard><PendingChangesPage /></LicenseGuard>} />
+                                                <Route path="/projects/:projectId/audit-log" element={<LicenseGuard><AuditLogPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
                         <Route path="/admin" element={<LicenseGuard><AdminPage /></LicenseGuard>} />
                         <Route path="/account" element={<LicenseGuard><AccountPage /></LicenseGuard>} />
