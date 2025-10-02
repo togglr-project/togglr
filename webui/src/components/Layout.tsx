@@ -128,8 +128,6 @@ const Layout: React.FC<LayoutProps> = ({
       { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
       { text: 'Projects', icon: <ProjectsIcon />, path: '/projects' },
       { text: 'Categories', icon: <CategoriesIcon />, path: '/categories' },
-      { text: 'Analytics', icon: <AnalyticsIcon />, path: '/analytics' },
-      { text: 'Settings', icon: <SettingsIcon />, path: '/settings' }
     ];
 
     // Add Admin menu item for superusers
