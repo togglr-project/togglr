@@ -19,6 +19,7 @@ import (
 	"github.com/togglr-project/togglr/internal/config"
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	eventsbus "github.com/togglr-project/togglr/internal/event-bus"
 	generatedsdk "github.com/togglr-project/togglr/internal/generated/sdkserver"
 	generatedserver "github.com/togglr-project/togglr/internal/generated/server"
 	natsmq "github.com/togglr-project/togglr/internal/infra/mq/nats"
@@ -222,6 +223,9 @@ func (app *App) registerComponent(constructor any) *di.Provider {
 
 func (app *App) registerComponents() {
 	app.registerComponent(db.NewTxManager).Arg(app.PostgresPool)
+	app.registerComponent(func() *natsmq.NATSMq {
+		return app.Bus
+	})
 
 	// Register repositories
 	app.registerComponent(projects.New).Arg(app.PostgresPool)
@@ -260,6 +264,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(permissions.New)
 	// Register feature processor service
 	app.registerComponent(featuresprocessor.New).Arg(time.Second * 3)
+	// Register events bus
+	app.registerComponent(eventsbus.New)
 
 	// Register licence middleware
 	app.registerComponent(license.NewMiddleware).Arg(license.LicenseServerURL)

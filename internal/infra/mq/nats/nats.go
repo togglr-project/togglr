@@ -2,10 +2,14 @@ package natsmq
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/nats-io/nats.go"
+
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 type NATSMq struct {
@@ -98,8 +102,22 @@ func (n *NATSMq) Subscribe(
 	sub, err := n.conn.Subscribe(topic, func(msg *nats.Msg) {
 		err := processFn(ctx, msg.Data)
 		if err != nil {
+			var skippableErr *domain.SkippableError
+			if errors.As(err, &skippableErr) {
+				slog.Warn("nats: message processing skipped", "error", err)
+
+				_ = msg.Ack()
+
+				return
+			}
+
 			slog.Error("nats: failed to process message", "error", err)
+			_ = msg.NakWithDelay(time.Minute)
+
+			return
 		}
+
+		_ = msg.Ack()
 	})
 	if err != nil {
 		return fmt.Errorf("subscribe to topic %q failed: %w", topic, err)

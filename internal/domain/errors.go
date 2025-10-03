@@ -20,3 +20,15 @@ var (
 	ErrTwoFARequired        = errors.New("2FA required")
 	ErrTooMany2FAAttempts   = errors.New("too many 2FA attempts, try later")
 )
+
+type SkippableError struct {
+	err error
+}
+
+func NewSkippableError(err error) *SkippableError {
+	return &SkippableError{err: err}
+}
+
+func (e *SkippableError) Error() string {
+	return e.err.Error()
+}

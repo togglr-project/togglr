@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
+	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
 )
@@ -34,34 +35,21 @@ func (s *SDKRestAPI) ReportFeatureError(
 		}
 	}
 
-	health, accepted, threshold, err := s.errorReportsUseCase.ReportError(
-		ctx,
-		projectID,
-		featureKey,
-		envKey,
-		reqCtx,
-		req.ErrorType,
-		req.ErrorMessage,
-	)
+	err := s.bus.PublishErrorReport(ctx, contract.ErrorReportEvent{
+		ProjectID:    projectID,
+		EnvKey:       envKey,
+		FeatureKey:   featureKey,
+		Context:      reqCtx,
+		ErrorType:    req.ErrorType,
+		ErrorMessage: req.ErrorMessage,
+	})
 	if err != nil {
-		return nil, err
-	}
-	if accepted {
-		return &generatedapi.ReportFeatureErrorAccepted{}, nil
-	}
-
-	var lastAt generatedapi.OptDateTime
-	if !health.LastErrorAt.IsZero() {
-		lastAt.SetTo(health.LastErrorAt)
+		return &generatedapi.ErrorInternalServerError{
+			Error: generatedapi.ErrorInternalServerErrorError{
+				Message: generatedapi.NewOptString(err.Error()),
+			},
+		}, nil
 	}
 
-	return &generatedapi.FeatureHealth{
-		FeatureKey:     featureKey,
-		EnvironmentKey: envKey,
-		Enabled:        health.Enabled,
-		AutoDisabled:   !health.Enabled,
-		ErrorRate:      generatedapi.NewOptFloat32(float32(health.ErrorRate)),
-		Threshold:      generatedapi.NewOptFloat32(float32(threshold)),
-		LastErrorAt:    lastAt,
-	}, nil
+	return &generatedapi.ReportFeatureErrorAccepted{}, nil
 }
