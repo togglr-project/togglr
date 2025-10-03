@@ -1,1 +1,48 @@
-USER AGREEMENT
+User Agreement for Togglr
+=========================
+
+1. Definitions
+--------------
+- "Licensed Work" means the Togglr software, including the server, SDKs, user interface components,
+  and any associated documentation or code.
+- "Internal Use" means use of the Licensed Work within your own organization, including in your own
+  products and services (whether public or private), provided that the Licensed Work is not offered
+  as a stand-alone or competing product.
+- "Competing Product" means any product or service whose primary purpose is to provide feature flagging,
+  experimentation, or functionality substantially similar to Togglr.
+- "Contribution" means any code, documentation, or other material submitted to the Togglr project
+  via pull request, patch, or other means.
+
+2. License and Usage
+--------------------
+This software ("Togglr") is provided under the Togglr Business License (TBL).
+By using Togglr, you agree to the following:
+
+- You may use Togglr for development, testing, internal operations, and as part of your own
+  products and services, provided that Togglr is not offered as a stand-alone or competing product.
+- You may distribute and embed the SDKs in your applications.
+- You may not:
+  - Offer Togglr or a modified version as a hosted SaaS or stand-alone product competing with Togglr.
+  - Resell, relicense, or distribute Togglr as a competitive product.
+- For OEM integration, SaaS offerings that directly compete, or redistribution of Togglr as a product,
+  you must obtain a separate commercial license from the Licensor.
+
+The software is provided "as is", without warranties of any kind.
+
+3. Contributor License Agreement (CLA)
+--------------------------------------
+By submitting a Contribution to the Togglr project, you agree that:
+
+1. You have the legal right to contribute the code.
+2. Your Contribution is licensed under the Togglr Business License (TBL).
+3. The project owner may also include your Contribution in commercial licenses or agreements, without
+   any obligation to pay you royalties, equity, or other compensation.
+4. You retain authorship and copyright of your Contribution, which will remain visible in
+   the Git history.
+
+If you do not agree with these terms, do not submit contributions.
+
+4. Contact
+----------
+For questions regarding commercial licensing, OEM integration, or other uses outside the Licensed Purpose,
+contact: roman.chudov@gmail.com
