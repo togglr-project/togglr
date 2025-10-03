@@ -12,7 +12,10 @@ import (
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
+	simplecache "github.com/togglr-project/togglr/pkg/simple-cache"
 )
+
+const PendingChangeCacheTTL = time.Minute
 
 var _ contract.ErrorReportsUseCase = (*Service)(nil)
 
@@ -27,6 +30,8 @@ type Service struct {
 	projectSettingsUC contract.ProjectSettingsUseCase
 	pendingUC         contract.PendingChangesUseCase
 	envsUC            contract.EnvironmentsUseCase
+
+	pendingCache *simplecache.Cache[string, bool]
 }
 
 func New(
@@ -41,6 +46,9 @@ func New(
 	pendingUC contract.PendingChangesUseCase,
 	envsUC contract.EnvironmentsUseCase,
 ) *Service {
+	pendingCache := simplecache.New[string, bool]()
+	pendingCache.StartCleanup(30 * time.Second)
+
 	return &Service{
 		txManager:         txManager,
 		repo:              repo,
@@ -52,6 +60,7 @@ func New(
 		projectSettingsUC: projectSettingsUC,
 		pendingUC:         pendingUC,
 		envsUC:            envsUC,
+		pendingCache:      pendingCache,
 	}
 }
 
@@ -150,6 +159,11 @@ func (s *Service) ReportError(
 							}
 
 							if requiresApproval {
+								pendingCacheKey := s.makePendingCacheKey(feature.ID, envKey)
+								if _, found := s.pendingCache.Get(pendingCacheKey); found {
+									return nil
+								}
+
 								payload := domain.PendingChangePayload{
 									Entities: []domain.EntityChange{
 										{
@@ -177,11 +191,15 @@ func (s *Service) ReportError(
 								)
 								if err != nil {
 									if errors.Is(err, domain.ErrEntityAlreadyExists) {
+										s.pendingCache.Set(pendingCacheKey, true, PendingChangeCacheTTL)
+
 										return nil
 									}
 
 									return fmt.Errorf("create pending change: %w", err)
 								}
+
+								s.pendingCache.Set(pendingCacheKey, true, PendingChangeCacheTTL)
 								accepted = true
 							} else {
 								params := domain.FeatureParams{
@@ -279,4 +297,8 @@ func anyMap(m map[domain.RuleAttribute]any) map[string]any {
 
 func generateEventID() string {
 	return uuid.New().String()
+}
+
+func (s *Service) makePendingCacheKey(featureID domain.FeatureID, envKey string) string {
+	return featureID.String() + ":" + envKey
 }
