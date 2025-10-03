@@ -87,10 +87,11 @@ const LicenseDialog: React.FC<LicenseDialogProps> = ({ open, onClose }) => {
             maxHeight: '400px', 
             overflow: 'auto',
             mb: 2,
-            backgroundColor: '#f5f5f5'
+            backgroundColor: 'background.paper',
+            color: 'text.primary'
           }}
         >
-          <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line' }}>
+          <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line', color: 'text.primary' }}>
             {`LICENSE AGREEMENT
 
 This software is provided under the terms of the license agreement below.

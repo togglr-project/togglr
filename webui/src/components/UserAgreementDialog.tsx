@@ -154,7 +154,8 @@ const UserAgreementDialog: React.FC<UserAgreementDialogProps> = ({ open, onClose
             maxHeight: '400px', 
             overflow: 'auto',
             mb: 2,
-            backgroundColor: '#f5f5f5'
+            backgroundColor: 'background.paper',
+            color: 'text.primary'
           }}
         >
           {isLoadingTexts ? (
@@ -164,12 +165,12 @@ const UserAgreementDialog: React.FC<UserAgreementDialogProps> = ({ open, onClose
           ) : (
             <>
               <TabPanel value={tabValue} index={0}>
-                <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line' }}>
+                <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line', color: 'text.primary' }}>
                   {englishText}
                 </Typography>
               </TabPanel>
               <TabPanel value={tabValue} index={1}>
-                <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line' }}>
+                <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-line', color: 'text.primary' }}>
                   {russianText}
                 </Typography>
               </TabPanel>
