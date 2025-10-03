@@ -16,24 +16,16 @@ import (
 
 var _ contract.ErrorReportsUseCase = (*Service)(nil)
 
-// Service implements ErrorReportsUseCase.
-// It orchestrates saving error reports and performing auto-disable logic.
-//
-// Dependency directions follow Clean Architecture: UseCase depends on interfaces in contract package.
-//
-//nolint:structcheck // fields are used across methods
 type Service struct {
-	txManager           db.TxManager
-	repo                contract.ErrorReportRepository
-	featuresRepo        contract.FeaturesRepository
-	featureParams       contract.FeatureParamsRepository
-	featureTags         contract.FeatureTagsRepository
-	tagsRepo            contract.TagsRepository
-	tagsUC              contract.TagsUseCase
-	projectSettingsRepo contract.ProjectSettingsRepository
-	projectSettingsUC   contract.ProjectSettingsUseCase
-	pendingUC           contract.PendingChangesUseCase
-	envsRepo            contract.EnvironmentsRepository
+	txManager         db.TxManager
+	repo              contract.ErrorReportRepository
+	featuresRepo      contract.FeaturesRepository
+	featureParams     contract.FeatureParamsRepository
+	featureTags       contract.FeatureTagsRepository
+	tagsUC            contract.TagsUseCase
+	projectSettingsUC contract.ProjectSettingsUseCase
+	pendingUC         contract.PendingChangesUseCase
+	envsUC            contract.EnvironmentsUseCase
 }
 
 func New(
@@ -42,25 +34,21 @@ func New(
 	featuresRepo contract.FeaturesRepository,
 	featureParams contract.FeatureParamsRepository,
 	featureTags contract.FeatureTagsRepository,
-	tagsRepo contract.TagsRepository,
 	tagsUC contract.TagsUseCase,
-	projectSettingsRepo contract.ProjectSettingsRepository,
 	projectSettingsUC contract.ProjectSettingsUseCase,
 	pendingUC contract.PendingChangesUseCase,
-	envsRepo contract.EnvironmentsRepository,
+	envsUC contract.EnvironmentsUseCase,
 ) *Service {
 	return &Service{
-		txManager:           txManager,
-		repo:                repo,
-		featuresRepo:        featuresRepo,
-		featureParams:       featureParams,
-		featureTags:         featureTags,
-		tagsRepo:            tagsRepo,
-		tagsUC:              tagsUC,
-		projectSettingsRepo: projectSettingsRepo,
-		projectSettingsUC:   projectSettingsUC,
-		pendingUC:           pendingUC,
-		envsRepo:            envsRepo,
+		txManager:         txManager,
+		repo:              repo,
+		featuresRepo:      featuresRepo,
+		featureParams:     featureParams,
+		featureTags:       featureTags,
+		tagsUC:            tagsUC,
+		projectSettingsUC: projectSettingsUC,
+		pendingUC:         pendingUC,
+		envsUC:            envsUC,
 	}
 }
 
@@ -73,23 +61,19 @@ func (s *Service) ReportError(
 	reportType string,
 	reportMsg string,
 ) (bool, error) {
-	// find feature by key and env
 	feature, err := s.featuresRepo.GetByKeyWithEnv(ctx, featureKey, envKey)
 	if err != nil {
 		return false, err
 	}
 
-	// ensure environment exists to get its ID
-	env, err := s.envsRepo.GetByProjectIDAndKey(ctx, projectID, envKey)
+	env, err := s.envsUC.GetByProjectIDAndKeyCached(ctx, projectID, envKey)
 	if err != nil {
 		return false, err
 	}
 
-	// insert error + possibly auto-disable in a single transaction
 	var accepted bool
 
 	err = s.txManager.ReadCommitted(ctx, func(txCtx context.Context) error {
-		// 1) insert error report
 		report := domain.ErrorReport{
 			EventID:       generateEventID(),
 			ProjectID:     projectID,
@@ -104,10 +88,8 @@ func (s *Service) ReportError(
 			return err
 		}
 
-		// 2) check tag auto-disable
-		tagAutoDisable, err := s.tagsUC.GetAutoDisableTag(txCtx, projectID)
+		tagAutoDisable, err := s.tagsUC.GetAutoDisableTagCached(txCtx, projectID)
 		if err != nil {
-			// if tag not found, just return health without auto-disable
 			slog.Warn("auto-disable tag not found, skipping auto-disable", "error", err)
 		} else {
 			hasAutoDisableTag, err := s.featureTags.HasFeatureTag(txCtx, feature.ID, tagAutoDisable.ID)
@@ -115,17 +97,16 @@ func (s *Service) ReportError(
 				return err
 			}
 			if hasAutoDisableTag {
-				// 3) read project settings
-				enabled, err := s.projectSettingsUC.GetAutoDisableEnabled(txCtx, projectID)
+				enabled, err := s.projectSettingsUC.GetAutoDisableEnabledCached(txCtx, projectID)
 				if err != nil {
 					return err
 				}
 				if enabled {
-					threshold, err := s.projectSettingsUC.GetAutoDisableErrorThreshold(txCtx, projectID)
+					threshold, err := s.projectSettingsUC.GetAutoDisableErrorThresholdCached(txCtx, projectID)
 					if err != nil {
 						return err
 					}
-					windowSec, err := s.projectSettingsUC.GetAutoDisableTimeWindowSec(txCtx, projectID)
+					windowSec, err := s.projectSettingsUC.GetAutoDisableTimeWindowSecCached(txCtx, projectID)
 					if err != nil {
 						return err
 					}
@@ -135,24 +116,22 @@ func (s *Service) ReportError(
 						return err
 					}
 					if cnt >= threshold {
-						// Lock feature_params for update to prevent race conditions
 						currentParams, err := s.featureParams.GetForUpdate(txCtx, feature.ID, env.ID)
 						if err != nil {
 							return fmt.Errorf("get feature params for update: %w", err)
 						}
 
-						// Check if already disabled to avoid duplicate operations
 						if !currentParams.Enabled {
-							// Feature already disabled, skip auto-disable
 							slog.Debug("feature already disabled, skipping auto-disable",
 								"feature_id", feature.ID, "env_id", env.ID)
 						} else {
-							requiresApproval, err := s.projectSettingsUC.GetAutoDisableRequiresApproval(txCtx, projectID)
+							requiresApproval, err := s.projectSettingsUC.
+								GetAutoDisableRequiresApprovalCached(txCtx, projectID)
 							if err != nil {
 								return err
 							}
 							if !requiresApproval {
-								tagGuarded, err := s.tagsUC.GetGuardedTag(txCtx, projectID)
+								tagGuarded, err := s.tagsUC.GetGuardedTagCached(txCtx, projectID)
 								if err != nil {
 									slog.Error("get guarded tag failed", "error", err)
 								} else {
@@ -168,7 +147,6 @@ func (s *Service) ReportError(
 							}
 
 							if requiresApproval {
-								// create pending change to disable feature
 								payload := domain.PendingChangePayload{
 									Entities: []domain.EntityChange{
 										{
@@ -203,7 +181,6 @@ func (s *Service) ReportError(
 								}
 								accepted = true
 							} else {
-								// perform immediate disable by updating feature params
 								params := domain.FeatureParams{
 									FeatureID:     feature.ID,
 									EnvironmentID: env.ID,
@@ -244,14 +221,12 @@ func (s *Service) GetFeatureHealth(
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}
-	env, err := s.envsRepo.GetByProjectIDAndKey(ctx, projectID, envKey)
+	env, err := s.envsUC.GetByProjectIDAndKeyCached(ctx, projectID, envKey)
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}
-	// Get time window from project settings, fallback to default
-	timeWindow, err := s.projectSettingsUC.GetAutoDisableTimeWindow(ctx, projectID)
+	timeWindow, err := s.projectSettingsUC.GetAutoDisableTimeWindowCached(ctx, projectID)
 	if err != nil {
-		// Fallback to default if settings are not available
 		timeWindow = 60 * time.Second
 	}
 	agg, err := s.repo.GetHealth(ctx, feature.ID, env.ID, timeWindow)
@@ -280,7 +255,6 @@ func deriveStatus(enabled bool, lastErr time.Time, timeWindow time.Duration) str
 	if lastErr.IsZero() {
 		return "healthy"
 	}
-	// simplification: if there were recent errors, mark as degraded
 	if time.Since(lastErr) < timeWindow {
 		return "degraded"
 	}
@@ -300,7 +274,6 @@ func anyMap(m map[domain.RuleAttribute]any) map[string]any {
 	return res
 }
 
-// generateEventID generates a new UUID for the error report event.
 func generateEventID() string {
 	return uuid.New().String()
 }

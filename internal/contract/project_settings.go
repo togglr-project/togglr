@@ -62,4 +62,11 @@ type ProjectSettingsUseCase interface {
 	GetAutoDisableErrorThreshold(ctx context.Context, projectID domain.ProjectID) (int, error)
 	GetAutoDisableTimeWindowSec(ctx context.Context, projectID domain.ProjectID) (int, error)
 	GetAutoDisableTimeWindow(ctx context.Context, projectID domain.ProjectID) (time.Duration, error)
+
+	// Cached versions of auto-disable getters
+	GetAutoDisableEnabledCached(ctx context.Context, projectID domain.ProjectID) (bool, error)
+	GetAutoDisableRequiresApprovalCached(ctx context.Context, projectID domain.ProjectID) (bool, error)
+	GetAutoDisableErrorThresholdCached(ctx context.Context, projectID domain.ProjectID) (int, error)
+	GetAutoDisableTimeWindowSecCached(ctx context.Context, projectID domain.ProjectID) (int, error)
+	GetAutoDisableTimeWindowCached(ctx context.Context, projectID domain.ProjectID) (time.Duration, error)
 }

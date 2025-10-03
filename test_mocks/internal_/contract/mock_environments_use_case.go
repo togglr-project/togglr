@@ -311,6 +311,78 @@ func (_c *MockEnvironmentsUseCase_GetByProjectIDAndKey_Call) RunAndReturn(run fu
 	return _c
 }
 
+// GetByProjectIDAndKeyCached provides a mock function for the type MockEnvironmentsUseCase
+func (_mock *MockEnvironmentsUseCase) GetByProjectIDAndKeyCached(ctx context.Context, projectID domain.ProjectID, key string) (domain.Environment, error) {
+	ret := _mock.Called(ctx, projectID, key)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByProjectIDAndKeyCached")
+	}
+
+	var r0 domain.Environment
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) (domain.Environment, error)); ok {
+		return returnFunc(ctx, projectID, key)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string) domain.Environment); ok {
+		r0 = returnFunc(ctx, projectID, key)
+	} else {
+		r0 = ret.Get(0).(domain.Environment)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string) error); ok {
+		r1 = returnFunc(ctx, projectID, key)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByProjectIDAndKeyCached'
+type MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call struct {
+	*mock.Call
+}
+
+// GetByProjectIDAndKeyCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - key string
+func (_e *MockEnvironmentsUseCase_Expecter) GetByProjectIDAndKeyCached(ctx interface{}, projectID interface{}, key interface{}) *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call {
+	return &MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call{Call: _e.mock.On("GetByProjectIDAndKeyCached", ctx, projectID, key)}
+}
+
+func (_c *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, key string)) *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call) Return(environment domain.Environment, err error) *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call {
+	_c.Call.Return(environment, err)
+	return _c
+}
+
+func (_c *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, key string) (domain.Environment, error)) *MockEnvironmentsUseCase_GetByProjectIDAndKeyCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListByProjectID provides a mock function for the type MockEnvironmentsUseCase
 func (_mock *MockEnvironmentsUseCase) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Environment, error) {
 	ret := _mock.Called(ctx, projectID)

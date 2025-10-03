@@ -248,6 +248,327 @@ func (_c *MockTagsUseCase_DeleteTag_Call) RunAndReturn(run func(ctx context.Cont
 	return _c
 }
 
+// EnsureSystemTags provides a mock function for the type MockTagsUseCase
+func (_mock *MockTagsUseCase) EnsureSystemTags(ctx context.Context, projectID domain.ProjectID) error {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EnsureSystemTags")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) error); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockTagsUseCase_EnsureSystemTags_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EnsureSystemTags'
+type MockTagsUseCase_EnsureSystemTags_Call struct {
+	*mock.Call
+}
+
+// EnsureSystemTags is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockTagsUseCase_Expecter) EnsureSystemTags(ctx interface{}, projectID interface{}) *MockTagsUseCase_EnsureSystemTags_Call {
+	return &MockTagsUseCase_EnsureSystemTags_Call{Call: _e.mock.On("EnsureSystemTags", ctx, projectID)}
+}
+
+func (_c *MockTagsUseCase_EnsureSystemTags_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockTagsUseCase_EnsureSystemTags_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTagsUseCase_EnsureSystemTags_Call) Return(err error) *MockTagsUseCase_EnsureSystemTags_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockTagsUseCase_EnsureSystemTags_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) error) *MockTagsUseCase_EnsureSystemTags_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableTag provides a mock function for the type MockTagsUseCase
+func (_mock *MockTagsUseCase) GetAutoDisableTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableTag")
+	}
+
+	var r0 domain.Tag
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (domain.Tag, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) domain.Tag); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(domain.Tag)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockTagsUseCase_GetAutoDisableTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableTag'
+type MockTagsUseCase_GetAutoDisableTag_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockTagsUseCase_Expecter) GetAutoDisableTag(ctx interface{}, projectID interface{}) *MockTagsUseCase_GetAutoDisableTag_Call {
+	return &MockTagsUseCase_GetAutoDisableTag_Call{Call: _e.mock.On("GetAutoDisableTag", ctx, projectID)}
+}
+
+func (_c *MockTagsUseCase_GetAutoDisableTag_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockTagsUseCase_GetAutoDisableTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetAutoDisableTag_Call) Return(tag domain.Tag, err error) *MockTagsUseCase_GetAutoDisableTag_Call {
+	_c.Call.Return(tag, err)
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetAutoDisableTag_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error)) *MockTagsUseCase_GetAutoDisableTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableTagCached provides a mock function for the type MockTagsUseCase
+func (_mock *MockTagsUseCase) GetAutoDisableTagCached(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableTagCached")
+	}
+
+	var r0 domain.Tag
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (domain.Tag, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) domain.Tag); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(domain.Tag)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockTagsUseCase_GetAutoDisableTagCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableTagCached'
+type MockTagsUseCase_GetAutoDisableTagCached_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableTagCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockTagsUseCase_Expecter) GetAutoDisableTagCached(ctx interface{}, projectID interface{}) *MockTagsUseCase_GetAutoDisableTagCached_Call {
+	return &MockTagsUseCase_GetAutoDisableTagCached_Call{Call: _e.mock.On("GetAutoDisableTagCached", ctx, projectID)}
+}
+
+func (_c *MockTagsUseCase_GetAutoDisableTagCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockTagsUseCase_GetAutoDisableTagCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetAutoDisableTagCached_Call) Return(tag domain.Tag, err error) *MockTagsUseCase_GetAutoDisableTagCached_Call {
+	_c.Call.Return(tag, err)
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetAutoDisableTagCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error)) *MockTagsUseCase_GetAutoDisableTagCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetGuardedTag provides a mock function for the type MockTagsUseCase
+func (_mock *MockTagsUseCase) GetGuardedTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGuardedTag")
+	}
+
+	var r0 domain.Tag
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (domain.Tag, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) domain.Tag); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(domain.Tag)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockTagsUseCase_GetGuardedTag_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetGuardedTag'
+type MockTagsUseCase_GetGuardedTag_Call struct {
+	*mock.Call
+}
+
+// GetGuardedTag is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockTagsUseCase_Expecter) GetGuardedTag(ctx interface{}, projectID interface{}) *MockTagsUseCase_GetGuardedTag_Call {
+	return &MockTagsUseCase_GetGuardedTag_Call{Call: _e.mock.On("GetGuardedTag", ctx, projectID)}
+}
+
+func (_c *MockTagsUseCase_GetGuardedTag_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockTagsUseCase_GetGuardedTag_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetGuardedTag_Call) Return(tag domain.Tag, err error) *MockTagsUseCase_GetGuardedTag_Call {
+	_c.Call.Return(tag, err)
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetGuardedTag_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error)) *MockTagsUseCase_GetGuardedTag_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetGuardedTagCached provides a mock function for the type MockTagsUseCase
+func (_mock *MockTagsUseCase) GetGuardedTagCached(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetGuardedTagCached")
+	}
+
+	var r0 domain.Tag
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (domain.Tag, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) domain.Tag); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(domain.Tag)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockTagsUseCase_GetGuardedTagCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetGuardedTagCached'
+type MockTagsUseCase_GetGuardedTagCached_Call struct {
+	*mock.Call
+}
+
+// GetGuardedTagCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockTagsUseCase_Expecter) GetGuardedTagCached(ctx interface{}, projectID interface{}) *MockTagsUseCase_GetGuardedTagCached_Call {
+	return &MockTagsUseCase_GetGuardedTagCached_Call{Call: _e.mock.On("GetGuardedTagCached", ctx, projectID)}
+}
+
+func (_c *MockTagsUseCase_GetGuardedTagCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockTagsUseCase_GetGuardedTagCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetGuardedTagCached_Call) Return(tag domain.Tag, err error) *MockTagsUseCase_GetGuardedTagCached_Call {
+	_c.Call.Return(tag, err)
+	return _c
+}
+
+func (_c *MockTagsUseCase_GetGuardedTagCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error)) *MockTagsUseCase_GetGuardedTagCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetTag provides a mock function for the type MockTagsUseCase
 func (_mock *MockTagsUseCase) GetTag(ctx context.Context, id domain.TagID) (domain.Tag, error) {
 	ret := _mock.Called(ctx, id)

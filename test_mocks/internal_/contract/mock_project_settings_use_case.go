@@ -6,6 +6,7 @@ package mockcontract
 
 import (
 	"context"
+	"time"
 
 	mock "github.com/stretchr/testify/mock"
 	"github.com/togglr-project/togglr/internal/domain"
@@ -181,6 +182,744 @@ func (_c *MockProjectSettingsUseCase_Delete_Call) RunAndReturn(run func(ctx cont
 	return _c
 }
 
+// GetAutoDisableEnabled provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableEnabled(ctx context.Context, projectID domain.ProjectID) (bool, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableEnabled")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (bool, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) bool); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableEnabled_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableEnabled'
+type MockProjectSettingsUseCase_GetAutoDisableEnabled_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableEnabled is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableEnabled(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableEnabled_Call{Call: _e.mock.On("GetAutoDisableEnabled", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call) Return(b bool, err error) *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (bool, error)) *MockProjectSettingsUseCase_GetAutoDisableEnabled_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableEnabledCached provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableEnabledCached(ctx context.Context, projectID domain.ProjectID) (bool, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableEnabledCached")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (bool, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) bool); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableEnabledCached'
+type MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableEnabledCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableEnabledCached(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call{Call: _e.mock.On("GetAutoDisableEnabledCached", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call) Return(b bool, err error) *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (bool, error)) *MockProjectSettingsUseCase_GetAutoDisableEnabledCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableErrorThreshold provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableErrorThreshold(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableErrorThreshold")
+	}
+
+	var r0 int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (int, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) int); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableErrorThreshold'
+type MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableErrorThreshold is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableErrorThreshold(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call{Call: _e.mock.On("GetAutoDisableErrorThreshold", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call) Return(n int, err error) *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (int, error)) *MockProjectSettingsUseCase_GetAutoDisableErrorThreshold_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableErrorThresholdCached provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableErrorThresholdCached(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableErrorThresholdCached")
+	}
+
+	var r0 int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (int, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) int); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableErrorThresholdCached'
+type MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableErrorThresholdCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableErrorThresholdCached(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call{Call: _e.mock.On("GetAutoDisableErrorThresholdCached", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call) Return(n int, err error) *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (int, error)) *MockProjectSettingsUseCase_GetAutoDisableErrorThresholdCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableRequiresApproval provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableRequiresApproval(ctx context.Context, projectID domain.ProjectID) (bool, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableRequiresApproval")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (bool, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) bool); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableRequiresApproval'
+type MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableRequiresApproval is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableRequiresApproval(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call{Call: _e.mock.On("GetAutoDisableRequiresApproval", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call) Return(b bool, err error) *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (bool, error)) *MockProjectSettingsUseCase_GetAutoDisableRequiresApproval_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableRequiresApprovalCached provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableRequiresApprovalCached(ctx context.Context, projectID domain.ProjectID) (bool, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableRequiresApprovalCached")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (bool, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) bool); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableRequiresApprovalCached'
+type MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableRequiresApprovalCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableRequiresApprovalCached(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call{Call: _e.mock.On("GetAutoDisableRequiresApprovalCached", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call) Return(b bool, err error) *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (bool, error)) *MockProjectSettingsUseCase_GetAutoDisableRequiresApprovalCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableTimeWindow provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableTimeWindow(ctx context.Context, projectID domain.ProjectID) (time.Duration, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableTimeWindow")
+	}
+
+	var r0 time.Duration
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (time.Duration, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) time.Duration); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(time.Duration)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableTimeWindow'
+type MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableTimeWindow is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableTimeWindow(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call{Call: _e.mock.On("GetAutoDisableTimeWindow", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call) Return(duration time.Duration, err error) *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call {
+	_c.Call.Return(duration, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (time.Duration, error)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindow_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableTimeWindowCached provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableTimeWindowCached(ctx context.Context, projectID domain.ProjectID) (time.Duration, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableTimeWindowCached")
+	}
+
+	var r0 time.Duration
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (time.Duration, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) time.Duration); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(time.Duration)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableTimeWindowCached'
+type MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableTimeWindowCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableTimeWindowCached(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call{Call: _e.mock.On("GetAutoDisableTimeWindowCached", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call) Return(duration time.Duration, err error) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call {
+	_c.Call.Return(duration, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (time.Duration, error)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableTimeWindowSec provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableTimeWindowSec(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableTimeWindowSec")
+	}
+
+	var r0 int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (int, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) int); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableTimeWindowSec'
+type MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableTimeWindowSec is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableTimeWindowSec(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call{Call: _e.mock.On("GetAutoDisableTimeWindowSec", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call) Return(n int, err error) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (int, error)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSec_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAutoDisableTimeWindowSecCached provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetAutoDisableTimeWindowSecCached(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAutoDisableTimeWindowSecCached")
+	}
+
+	var r0 int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) (int, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) int); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAutoDisableTimeWindowSecCached'
+type MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call struct {
+	*mock.Call
+}
+
+// GetAutoDisableTimeWindowSecCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockProjectSettingsUseCase_Expecter) GetAutoDisableTimeWindowSecCached(ctx interface{}, projectID interface{}) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call {
+	return &MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call{Call: _e.mock.On("GetAutoDisableTimeWindowSecCached", ctx, projectID)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call) Return(n int, err error) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) (int, error)) *MockProjectSettingsUseCase_GetAutoDisableTimeWindowSecCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetBoolSetting provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetBoolSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue bool) (bool, error) {
+	ret := _mock.Called(ctx, projectID, name, defaultValue)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBoolSetting")
+	}
+
+	var r0 bool
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, bool) (bool, error)); ok {
+		return returnFunc(ctx, projectID, name, defaultValue)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, bool) bool); ok {
+		r0 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, bool) error); ok {
+		r1 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetBoolSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBoolSetting'
+type MockProjectSettingsUseCase_GetBoolSetting_Call struct {
+	*mock.Call
+}
+
+// GetBoolSetting is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - name string
+//   - defaultValue bool
+func (_e *MockProjectSettingsUseCase_Expecter) GetBoolSetting(ctx interface{}, projectID interface{}, name interface{}, defaultValue interface{}) *MockProjectSettingsUseCase_GetBoolSetting_Call {
+	return &MockProjectSettingsUseCase_GetBoolSetting_Call{Call: _e.mock.On("GetBoolSetting", ctx, projectID, name, defaultValue)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetBoolSetting_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue bool)) *MockProjectSettingsUseCase_GetBoolSetting_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 bool
+		if args[3] != nil {
+			arg3 = args[3].(bool)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetBoolSetting_Call) Return(b bool, err error) *MockProjectSettingsUseCase_GetBoolSetting_Call {
+	_c.Call.Return(b, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetBoolSetting_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue bool) (bool, error)) *MockProjectSettingsUseCase_GetBoolSetting_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByName provides a mock function for the type MockProjectSettingsUseCase
 func (_mock *MockProjectSettingsUseCase) GetByName(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error) {
 	ret := _mock.Called(ctx, projectID, name)
@@ -251,6 +990,240 @@ func (_c *MockProjectSettingsUseCase_GetByName_Call) Return(projectSetting *doma
 }
 
 func (_c *MockProjectSettingsUseCase_GetByName_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string) (*domain.ProjectSetting, error)) *MockProjectSettingsUseCase_GetByName_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetFloat64Setting provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetFloat64Setting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue float64) (float64, error) {
+	ret := _mock.Called(ctx, projectID, name, defaultValue)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFloat64Setting")
+	}
+
+	var r0 float64
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, float64) (float64, error)); ok {
+		return returnFunc(ctx, projectID, name, defaultValue)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, float64) float64); ok {
+		r0 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r0 = ret.Get(0).(float64)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, float64) error); ok {
+		r1 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetFloat64Setting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFloat64Setting'
+type MockProjectSettingsUseCase_GetFloat64Setting_Call struct {
+	*mock.Call
+}
+
+// GetFloat64Setting is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - name string
+//   - defaultValue float64
+func (_e *MockProjectSettingsUseCase_Expecter) GetFloat64Setting(ctx interface{}, projectID interface{}, name interface{}, defaultValue interface{}) *MockProjectSettingsUseCase_GetFloat64Setting_Call {
+	return &MockProjectSettingsUseCase_GetFloat64Setting_Call{Call: _e.mock.On("GetFloat64Setting", ctx, projectID, name, defaultValue)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetFloat64Setting_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue float64)) *MockProjectSettingsUseCase_GetFloat64Setting_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 float64
+		if args[3] != nil {
+			arg3 = args[3].(float64)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetFloat64Setting_Call) Return(f float64, err error) *MockProjectSettingsUseCase_GetFloat64Setting_Call {
+	_c.Call.Return(f, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetFloat64Setting_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue float64) (float64, error)) *MockProjectSettingsUseCase_GetFloat64Setting_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetIntSetting provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetIntSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue int) (int, error) {
+	ret := _mock.Called(ctx, projectID, name, defaultValue)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetIntSetting")
+	}
+
+	var r0 int
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, int) (int, error)); ok {
+		return returnFunc(ctx, projectID, name, defaultValue)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, int) int); ok {
+		r0 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, int) error); ok {
+		r1 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetIntSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetIntSetting'
+type MockProjectSettingsUseCase_GetIntSetting_Call struct {
+	*mock.Call
+}
+
+// GetIntSetting is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - name string
+//   - defaultValue int
+func (_e *MockProjectSettingsUseCase_Expecter) GetIntSetting(ctx interface{}, projectID interface{}, name interface{}, defaultValue interface{}) *MockProjectSettingsUseCase_GetIntSetting_Call {
+	return &MockProjectSettingsUseCase_GetIntSetting_Call{Call: _e.mock.On("GetIntSetting", ctx, projectID, name, defaultValue)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetIntSetting_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue int)) *MockProjectSettingsUseCase_GetIntSetting_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 int
+		if args[3] != nil {
+			arg3 = args[3].(int)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetIntSetting_Call) Return(n int, err error) *MockProjectSettingsUseCase_GetIntSetting_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetIntSetting_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue int) (int, error)) *MockProjectSettingsUseCase_GetIntSetting_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetStringSetting provides a mock function for the type MockProjectSettingsUseCase
+func (_mock *MockProjectSettingsUseCase) GetStringSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue string) (string, error) {
+	ret := _mock.Called(ctx, projectID, name, defaultValue)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetStringSetting")
+	}
+
+	var r0 string
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, string) (string, error)); ok {
+		return returnFunc(ctx, projectID, name, defaultValue)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, string, string) string); ok {
+		r0 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, string, string) error); ok {
+		r1 = returnFunc(ctx, projectID, name, defaultValue)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockProjectSettingsUseCase_GetStringSetting_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetStringSetting'
+type MockProjectSettingsUseCase_GetStringSetting_Call struct {
+	*mock.Call
+}
+
+// GetStringSetting is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - name string
+//   - defaultValue string
+func (_e *MockProjectSettingsUseCase_Expecter) GetStringSetting(ctx interface{}, projectID interface{}, name interface{}, defaultValue interface{}) *MockProjectSettingsUseCase_GetStringSetting_Call {
+	return &MockProjectSettingsUseCase_GetStringSetting_Call{Call: _e.mock.On("GetStringSetting", ctx, projectID, name, defaultValue)}
+}
+
+func (_c *MockProjectSettingsUseCase_GetStringSetting_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue string)) *MockProjectSettingsUseCase_GetStringSetting_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetStringSetting_Call) Return(s string, err error) *MockProjectSettingsUseCase_GetStringSetting_Call {
+	_c.Call.Return(s, err)
+	return _c
+}
+
+func (_c *MockProjectSettingsUseCase_GetStringSetting_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, name string, defaultValue string) (string, error)) *MockProjectSettingsUseCase_GetStringSetting_Call {
 	_c.Call.Return(run)
 	return _c
 }

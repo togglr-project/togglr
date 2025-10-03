@@ -5,22 +5,25 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
+	simplecache "github.com/togglr-project/togglr/pkg/simple-cache"
 )
 
 const (
-	// System tag slugs for auto-disable functionality
 	AutoDisableTagSlug = "auto-disable"
 	GuardedTagSlug     = "guarded"
+	CacheTTL           = 10 * time.Minute
 )
 
 type Service struct {
 	txManager    db.TxManager
 	tagRepo      contract.TagsRepository
 	categoryRepo contract.CategoriesRepository
+	cache        *simplecache.Cache[string, domain.Tag]
 }
 
 func New(
@@ -28,11 +31,15 @@ func New(
 	tagRepo contract.TagsRepository,
 	categoryRepo contract.CategoriesRepository,
 ) *Service {
-	return &Service{
+	service := &Service{
 		txManager:    txManager,
 		tagRepo:      tagRepo,
 		categoryRepo: categoryRepo,
+		cache:        simplecache.New[string, domain.Tag](),
 	}
+	service.cache.StartCleanup(2 * time.Minute)
+
+	return service
 }
 
 func (s *Service) CreateTag(
@@ -43,7 +50,6 @@ func (s *Service) CreateTag(
 	description *string,
 	color *string,
 ) (domain.Tag, error) {
-	// Validate inputs
 	if strings.TrimSpace(name) == "" {
 		return domain.Tag{}, errors.New("name is required")
 	}
@@ -52,7 +58,6 @@ func (s *Service) CreateTag(
 		return domain.Tag{}, errors.New("slug is required")
 	}
 
-	// Check if tag with this slug already exists in the project
 	_, err := s.tagRepo.GetByProjectAndSlug(ctx, projectID, slug)
 	if err == nil {
 		return domain.Tag{}, fmt.Errorf("tag with slug %s already exists in project", slug)
@@ -62,7 +67,6 @@ func (s *Service) CreateTag(
 		return domain.Tag{}, fmt.Errorf("check tag existence: %w", err)
 	}
 
-	// Validate category ID if provided
 	if categoryID != nil {
 		_, err := s.categoryRepo.GetByID(ctx, *categoryID)
 		if err != nil {
@@ -70,7 +74,6 @@ func (s *Service) CreateTag(
 		}
 	}
 
-	// Create tag
 	tagDTO := &domain.TagDTO{
 		ProjectID:   projectID,
 		CategoryID:  categoryID,
@@ -91,7 +94,6 @@ func (s *Service) CreateTag(
 		return domain.Tag{}, fmt.Errorf("create tag: %w", err)
 	}
 
-	// Get created tag
 	tag, err := s.tagRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("get created tag: %w", err)
@@ -130,7 +132,6 @@ func (s *Service) UpdateTag(
 	description *string,
 	color *string,
 ) (domain.Tag, error) {
-	// Validate inputs
 	if strings.TrimSpace(name) == "" {
 		return domain.Tag{}, errors.New("name is required")
 	}
@@ -139,13 +140,11 @@ func (s *Service) UpdateTag(
 		return domain.Tag{}, errors.New("slug is required")
 	}
 
-	// Check if tag exists
 	existingTag, err := s.tagRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("get tag: %w", err)
 	}
 
-	// Check if slug is already taken by another tag in the same project
 	if existingTag.Slug != slug {
 		_, err := s.tagRepo.GetByProjectAndSlug(ctx, existingTag.ProjectID, slug)
 		if err == nil {
@@ -157,7 +156,6 @@ func (s *Service) UpdateTag(
 		}
 	}
 
-	// Validate category ID if provided
 	if categoryID != nil {
 		_, err := s.categoryRepo.GetByID(ctx, *categoryID)
 		if err != nil {
@@ -165,7 +163,6 @@ func (s *Service) UpdateTag(
 		}
 	}
 
-	// Update tag
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		return s.tagRepo.Update(
 			ctx,
@@ -181,7 +178,6 @@ func (s *Service) UpdateTag(
 		return domain.Tag{}, fmt.Errorf("update tag: %w", err)
 	}
 
-	// Get updated tag
 	tag, err := s.tagRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("get updated tag: %w", err)
@@ -191,13 +187,11 @@ func (s *Service) UpdateTag(
 }
 
 func (s *Service) DeleteTag(ctx context.Context, id domain.TagID) error {
-	// Check if a tag exists
 	_, err := s.tagRepo.GetByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("get tag: %w", err)
 	}
 
-	// Delete tag
 	err = s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		return s.tagRepo.Delete(ctx, id)
 	})
@@ -217,9 +211,6 @@ func (s *Service) CreateTagsFromCategories(ctx context.Context, projectID domain
 	return nil
 }
 
-// System tag specific methods
-
-// GetAutoDisableTag retrieves the auto-disable tag for a project, creating it if it doesn't exist.
 func (s *Service) GetAutoDisableTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
 	tag, err := s.tagRepo.GetByProjectAndSlug(ctx, projectID, AutoDisableTagSlug)
 	if err == nil {
@@ -230,11 +221,9 @@ func (s *Service) GetAutoDisableTag(ctx context.Context, projectID domain.Projec
 		return domain.Tag{}, fmt.Errorf("get auto-disable tag: %w", err)
 	}
 
-	// Create auto-disable tag if it doesn't exist
 	return s.createSystemTag(ctx, projectID, AutoDisableTagSlug, "Auto Disable", "Enables automatic feature disabling on errors")
 }
 
-// GetGuardedTag retrieves the guarded tag for a project, creating it if it doesn't exist.
 func (s *Service) GetGuardedTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
 	tag, err := s.tagRepo.GetByProjectAndSlug(ctx, projectID, GuardedTagSlug)
 	if err == nil {
@@ -245,19 +234,15 @@ func (s *Service) GetGuardedTag(ctx context.Context, projectID domain.ProjectID)
 		return domain.Tag{}, fmt.Errorf("get guarded tag: %w", err)
 	}
 
-	// Create guarded tag if it doesn't exist
 	return s.createSystemTag(ctx, projectID, GuardedTagSlug, "Guarded", "Requires approval for changes")
 }
 
-// EnsureSystemTags ensures that all system tags exist for a project.
 func (s *Service) EnsureSystemTags(ctx context.Context, projectID domain.ProjectID) error {
-	// Ensure auto-disable tag exists
 	_, err := s.GetAutoDisableTag(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("ensure auto-disable tag: %w", err)
 	}
 
-	// Ensure guarded tag exists
 	_, err = s.GetGuardedTag(ctx, projectID)
 	if err != nil {
 		return fmt.Errorf("ensure guarded tag: %w", err)
@@ -266,33 +251,81 @@ func (s *Service) EnsureSystemTags(ctx context.Context, projectID domain.Project
 	return nil
 }
 
-// createSystemTag creates a system tag with predefined properties.
+func (s *Service) GetAutoDisableTagCached(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	cacheKey := makeTagCacheKey(projectID, AutoDisableTagSlug)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		return cached, nil
+	}
+
+	tag, err := s.GetAutoDisableTag(ctx, projectID)
+	if err != nil {
+		return domain.Tag{}, err
+	}
+
+	s.cache.Set(cacheKey, tag, CacheTTL)
+
+	return tag, nil
+}
+
+func (s *Service) GetGuardedTagCached(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	cacheKey := makeTagCacheKey(projectID, GuardedTagSlug)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		return cached, nil
+	}
+
+	tag, err := s.GetGuardedTag(ctx, projectID)
+	if err != nil {
+		return domain.Tag{}, err
+	}
+
+	s.cache.Set(cacheKey, tag, CacheTTL)
+
+	return tag, nil
+}
+
+func (s *Service) InvalidateCache(projectID domain.ProjectID) {
+	keys := []string{
+		makeTagCacheKey(projectID, AutoDisableTagSlug),
+		makeTagCacheKey(projectID, GuardedTagSlug),
+	}
+
+	for _, key := range keys {
+		s.cache.Delete(key)
+	}
+}
+
 func (s *Service) createSystemTag(ctx context.Context, projectID domain.ProjectID, slug, name, description string) (domain.Tag, error) {
 	descriptionPtr := &description
-	color := "#ff6b6b" // Default red color for system tags
+	color := "#ff6b6b"
 
 	var id domain.TagID
 	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		id, err = s.tagRepo.Create(ctx, &domain.TagDTO{
 			ProjectID:   projectID,
-			CategoryID:  nil, // System tags don't belong to categories
+			CategoryID:  nil,
 			Name:        name,
 			Slug:        slug,
 			Description: descriptionPtr,
 			Color:       &color,
 		})
+
 		return err
 	})
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("create system tag %s: %w", slug, err)
 	}
 
-	// Get created tag
 	tag, err := s.tagRepo.GetByID(ctx, id)
 	if err != nil {
 		return domain.Tag{}, fmt.Errorf("get created system tag %s: %w", slug, err)
 	}
 
 	return tag, nil
+}
+
+func makeTagCacheKey(projectID domain.ProjectID, tagSlug string) string {
+	return string(projectID) + ":" + tagSlug
 }

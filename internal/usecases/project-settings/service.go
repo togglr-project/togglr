@@ -11,49 +11,50 @@ import (
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
+	simplecache "github.com/togglr-project/togglr/pkg/simple-cache"
 )
 
 const (
-	// Auto-disable project settings keys
 	AutoDisableEnabledKey          = "auto_disable_enabled"
 	AutoDisableRequiresApprovalKey = "auto_disable_requires_approval"
 	AutoDisableErrorThresholdKey   = "auto_disable_error_threshold"
 	AutoDisableTimeWindowSecKey    = "auto_disable_time_window_sec"
 
-	// Default values for auto-disable settings
 	DefaultAutoDisableEnabled = true
 	DefaultRequiresApproval   = false
 	DefaultErrorThreshold     = 10
 	DefaultTimeWindow         = 60 * time.Second
+
+	CacheTTL = 5 * time.Minute
 )
 
-// Service provides project settings management functionality.
 type Service struct {
 	txManager           db.TxManager
 	projectSettingsRepo contract.ProjectSettingsRepository
+	cache               *simplecache.Cache[string, any]
 }
 
-// New creates a new project settings use case.
 func New(txManager db.TxManager, projectSettingsRepo contract.ProjectSettingsRepository) *Service {
-	return &Service{
+	service := &Service{
 		txManager:           txManager,
 		projectSettingsRepo: projectSettingsRepo,
+		cache:               simplecache.New[string, any](),
 	}
+	service.cache.StartCleanup(1 * time.Minute)
+
+	return service
 }
 
-// Create creates a new project setting.
 func (s *Service) Create(
 	ctx context.Context,
 	projectID domain.ProjectID,
 	name string,
 	value any,
 ) (*domain.ProjectSetting, error) {
-	// Validate input
 	if name == "" {
 		return nil, errors.New("setting name cannot be empty")
 	}
 
-	// Marshal value to JSON to validate it
 	_, err := json.Marshal(value)
 	if err != nil {
 		return nil, fmt.Errorf("invalid setting value: %w", err)
@@ -75,7 +76,6 @@ func (s *Service) Create(
 	return setting, nil
 }
 
-// GetByName retrieves a project setting by name.
 func (s *Service) GetByName(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -93,19 +93,16 @@ func (s *Service) GetByName(
 	return setting, nil
 }
 
-// Update updates a project setting.
 func (s *Service) Update(
 	ctx context.Context,
 	projectID domain.ProjectID,
 	name string,
 	value any,
 ) (*domain.ProjectSetting, error) {
-	// Validate input
 	if name == "" {
 		return nil, errors.New("setting name cannot be empty")
 	}
 
-	// Marshal value to JSON to validate it
 	_, err := json.Marshal(value)
 	if err != nil {
 		return nil, fmt.Errorf("invalid setting value: %w", err)
@@ -118,7 +115,6 @@ func (s *Service) Update(
 		return nil, fmt.Errorf("update project setting: %w", err)
 	}
 
-	// Return the updated setting
 	setting, err := s.projectSettingsRepo.GetByName(ctx, projectID, name)
 	if err != nil {
 		return nil, fmt.Errorf("get updated project setting: %w", err)
@@ -127,7 +123,6 @@ func (s *Service) Update(
 	return setting, nil
 }
 
-// Delete deletes a project setting.
 func (s *Service) Delete(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -147,21 +142,17 @@ func (s *Service) Delete(
 	return nil
 }
 
-// List retrieves project settings with pagination.
 func (s *Service) List(
 	ctx context.Context,
 	projectID domain.ProjectID,
 	page, perPage int,
 ) ([]*domain.ProjectSetting, int, error) {
-	// Validate pagination parameters
 	if page < 1 {
 		page = 1
 	}
-
 	if perPage < 1 {
 		perPage = 20
 	}
-
 	if perPage > 100 {
 		perPage = 100
 	}
@@ -174,8 +165,6 @@ func (s *Service) List(
 	return settings, total, nil
 }
 
-// GetBoolSetting retrieves a project setting as a boolean value with safe type conversion.
-// Returns the default value if the setting doesn't exist or cannot be converted to bool.
 func (s *Service) GetBoolSetting(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -191,18 +180,16 @@ func (s *Service) GetBoolSetting(
 	case bool:
 		return val, nil
 	case string:
-		// Try to parse string representation of boolean
 		if parsed, err := strconv.ParseBool(val); err == nil {
 			return parsed, nil
 		}
+
 		return defaultValue, nil
 	default:
 		return defaultValue, nil
 	}
 }
 
-// GetIntSetting retrieves a project setting as an integer value with safe type conversion.
-// Returns the default value if the setting doesn't exist or cannot be converted to int.
 func (s *Service) GetIntSetting(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -240,18 +227,16 @@ func (s *Service) GetIntSetting(
 	case float64:
 		return int(val), nil
 	case string:
-		// Try to parse string representation of integer
 		if parsed, err := strconv.Atoi(val); err == nil {
 			return parsed, nil
 		}
+
 		return defaultValue, nil
 	default:
 		return defaultValue, nil
 	}
 }
 
-// GetStringSetting retrieves a project setting as a string value with safe type conversion.
-// Returns the default value if the setting doesn't exist or cannot be converted to string.
 func (s *Service) GetStringSetting(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -297,8 +282,6 @@ func (s *Service) GetStringSetting(
 	}
 }
 
-// GetFloat64Setting retrieves a project setting as a float64 value with safe type conversion.
-// Returns the default value if the setting doesn't exist or cannot be converted to float64.
 func (s *Service) GetFloat64Setting(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -336,43 +319,149 @@ func (s *Service) GetFloat64Setting(
 	case uint64:
 		return float64(val), nil
 	case string:
-		// Try to parse string representation of float
 		if parsed, err := strconv.ParseFloat(val, 64); err == nil {
 			return parsed, nil
 		}
+
 		return defaultValue, nil
 	default:
 		return defaultValue, nil
 	}
 }
 
-// Auto-disable specific getters with predefined keys and defaults
-
-// GetAutoDisableEnabled retrieves the auto-disable enabled setting for a project.
 func (s *Service) GetAutoDisableEnabled(ctx context.Context, projectID domain.ProjectID) (bool, error) {
 	return s.GetBoolSetting(ctx, projectID, AutoDisableEnabledKey, DefaultAutoDisableEnabled)
 }
 
-// GetAutoDisableRequiresApproval retrieves the auto-disable requires approval setting for a project.
 func (s *Service) GetAutoDisableRequiresApproval(ctx context.Context, projectID domain.ProjectID) (bool, error) {
 	return s.GetBoolSetting(ctx, projectID, AutoDisableRequiresApprovalKey, DefaultRequiresApproval)
 }
 
-// GetAutoDisableErrorThreshold retrieves the auto-disable error threshold setting for a project.
 func (s *Service) GetAutoDisableErrorThreshold(ctx context.Context, projectID domain.ProjectID) (int, error) {
 	return s.GetIntSetting(ctx, projectID, AutoDisableErrorThresholdKey, DefaultErrorThreshold)
 }
 
-// GetAutoDisableTimeWindowSec retrieves the auto-disable time window in seconds setting for a project.
 func (s *Service) GetAutoDisableTimeWindowSec(ctx context.Context, projectID domain.ProjectID) (int, error) {
 	return s.GetIntSetting(ctx, projectID, AutoDisableTimeWindowSecKey, int(DefaultTimeWindow.Seconds()))
 }
 
-// GetAutoDisableTimeWindow retrieves the auto-disable time window as time.Duration for a project.
 func (s *Service) GetAutoDisableTimeWindow(ctx context.Context, projectID domain.ProjectID) (time.Duration, error) {
 	secs, err := s.GetAutoDisableTimeWindowSec(ctx, projectID)
 	if err != nil {
 		return DefaultTimeWindow, err
 	}
+
 	return time.Duration(secs) * time.Second, nil
+}
+
+func (s *Service) GetAutoDisableEnabledCached(ctx context.Context, projectID domain.ProjectID) (bool, error) {
+	cacheKey := makeProjectSettingCacheKey(projectID, AutoDisableEnabledKey)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		if value, ok := cached.(bool); ok {
+			return value, nil
+		}
+	}
+
+	value, err := s.GetAutoDisableEnabled(ctx, projectID)
+	if err != nil {
+		return false, err
+	}
+
+	s.cache.Set(cacheKey, value, CacheTTL)
+
+	return value, nil
+}
+
+func (s *Service) GetAutoDisableRequiresApprovalCached(ctx context.Context, projectID domain.ProjectID) (bool, error) {
+	cacheKey := makeProjectSettingCacheKey(projectID, AutoDisableRequiresApprovalKey)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		if value, ok := cached.(bool); ok {
+			return value, nil
+		}
+	}
+
+	value, err := s.GetAutoDisableRequiresApproval(ctx, projectID)
+	if err != nil {
+		return false, err
+	}
+
+	s.cache.Set(cacheKey, value, CacheTTL)
+
+	return value, nil
+}
+
+func (s *Service) GetAutoDisableErrorThresholdCached(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	cacheKey := makeProjectSettingCacheKey(projectID, AutoDisableErrorThresholdKey)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		if value, ok := cached.(int); ok {
+			return value, nil
+		}
+	}
+
+	value, err := s.GetAutoDisableErrorThreshold(ctx, projectID)
+	if err != nil {
+		return 0, err
+	}
+
+	s.cache.Set(cacheKey, value, CacheTTL)
+
+	return value, nil
+}
+
+func (s *Service) GetAutoDisableTimeWindowSecCached(ctx context.Context, projectID domain.ProjectID) (int, error) {
+	cacheKey := makeProjectSettingCacheKey(projectID, AutoDisableTimeWindowSecKey)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		if value, ok := cached.(int); ok {
+			return value, nil
+		}
+	}
+
+	value, err := s.GetAutoDisableTimeWindowSec(ctx, projectID)
+	if err != nil {
+		return 0, err
+	}
+
+	s.cache.Set(cacheKey, value, CacheTTL)
+
+	return value, nil
+}
+
+func (s *Service) GetAutoDisableTimeWindowCached(ctx context.Context, projectID domain.ProjectID) (time.Duration, error) {
+	cacheKey := makeProjectSettingCacheKey(projectID, AutoDisableTimeWindowSecKey)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		if secs, ok := cached.(int); ok {
+			return time.Duration(secs) * time.Second, nil
+		}
+	}
+
+	value, err := s.GetAutoDisableTimeWindow(ctx, projectID)
+	if err != nil {
+		return DefaultTimeWindow, err
+	}
+
+	s.cache.Set(cacheKey, int(value.Seconds()), CacheTTL)
+
+	return value, nil
+}
+
+func (s *Service) InvalidateCache(projectID domain.ProjectID) {
+	keys := []string{
+		makeProjectSettingCacheKey(projectID, AutoDisableEnabledKey),
+		makeProjectSettingCacheKey(projectID, AutoDisableRequiresApprovalKey),
+		makeProjectSettingCacheKey(projectID, AutoDisableErrorThresholdKey),
+		makeProjectSettingCacheKey(projectID, AutoDisableTimeWindowSecKey),
+	}
+
+	for _, key := range keys {
+		s.cache.Delete(key)
+	}
+}
+
+func makeProjectSettingCacheKey(projectID domain.ProjectID, settingName string) string {
+	return string(projectID) + ":" + settingName
 }
