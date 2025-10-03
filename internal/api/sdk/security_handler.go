@@ -47,10 +47,7 @@ func (r *SecurityHandler) HandleApiKeyAuth(
 	if v, ok := r.cache.Load(tokenHolder.APIKey); ok {
 		ce := v.(cacheEntry)
 		if time.Now().Before(ce.expiresAt) {
-			ctx = appcontext.WithProjectID(ctx, ce.projectID)
-			ctx = appcontext.WithEnvKey(ctx, ce.envKey)
-
-			return ctx, nil
+			return makeAuthContext(ctx, ce.projectID, ce.envKey), nil
 		}
 		// expired entry, remove
 		r.cache.Delete(tokenHolder.APIKey)
@@ -68,8 +65,17 @@ func (r *SecurityHandler) HandleApiKeyAuth(
 		expiresAt: time.Now().Add(r.cacheTTL),
 	})
 
-	ctx = appcontext.WithProjectID(ctx, project.ID)
-	ctx = appcontext.WithEnvKey(ctx, project.EnvKey)
+	return makeAuthContext(ctx, project.ID, project.EnvKey), nil
+}
 
-	return ctx, nil
+func makeAuthContext(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envKey string,
+) context.Context {
+	ctx = appcontext.WithProjectID(ctx, projectID)
+	ctx = appcontext.WithEnvKey(ctx, envKey)
+	ctx = appcontext.WithUsername(ctx, "sdk")
+
+	return ctx
 }
