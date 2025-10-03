@@ -34,6 +34,11 @@ type TagsUseCase interface {
 		ctx context.Context,
 		projectID domain.ProjectID,
 	) error
+
+	// System tag specific methods
+	GetAutoDisableTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error)
+	GetGuardedTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error)
+	EnsureSystemTags(ctx context.Context, projectID domain.ProjectID) error
 }
 
 type TagsRepository interface {

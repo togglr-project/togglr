@@ -2,6 +2,7 @@ package contract
 
 import (
 	"context"
+	"time"
 
 	"github.com/togglr-project/togglr/internal/domain"
 )
@@ -48,4 +49,17 @@ type ProjectSettingsUseCase interface {
 	Update(ctx context.Context, projectID domain.ProjectID, name string, value any) (*domain.ProjectSetting, error)
 	Delete(ctx context.Context, projectID domain.ProjectID, name string) error
 	List(ctx context.Context, projectID domain.ProjectID, page, perPage int) ([]*domain.ProjectSetting, int, error)
+
+	// Typed getters with safe type conversion and default values
+	GetBoolSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue bool) (bool, error)
+	GetIntSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue int) (int, error)
+	GetStringSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue string) (string, error)
+	GetFloat64Setting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue float64) (float64, error)
+
+	// Auto-disable specific getters with predefined keys and defaults
+	GetAutoDisableEnabled(ctx context.Context, projectID domain.ProjectID) (bool, error)
+	GetAutoDisableRequiresApproval(ctx context.Context, projectID domain.ProjectID) (bool, error)
+	GetAutoDisableErrorThreshold(ctx context.Context, projectID domain.ProjectID) (int, error)
+	GetAutoDisableTimeWindowSec(ctx context.Context, projectID domain.ProjectID) (int, error)
+	GetAutoDisableTimeWindow(ctx context.Context, projectID domain.ProjectID) (time.Duration, error)
 }

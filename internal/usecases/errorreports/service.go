@@ -14,25 +14,6 @@ import (
 	"github.com/togglr-project/togglr/pkg/db"
 )
 
-const (
-	// project settings keys.
-	psAutoDisableEnabledKey          = "auto_disable_enabled"
-	psAutoDisableRequiresApprovalKey = "auto_disable_requires_approval"
-	psAutoDisableErrorThresholdKey   = "auto_disable_error_threshold"
-	psAutoDisableTimeWindowSecKey    = "auto_disable_time_window_sec"
-
-	// defaults.
-	defaultAutoDisableEnabled = true
-	defaultRequiresApproval   = false
-	defaultErrorThreshold     = 10
-	defaultTimeWindow         = 60 * time.Second
-
-	// tag slug which enables auto-disable for a feature.
-	autoDisableTagSlug = "auto-disable"
-	// tag slug which guards feature
-	guardedTagSlug = "guarded"
-)
-
 var _ contract.ErrorReportsUseCase = (*Service)(nil)
 
 // Service implements ErrorReportsUseCase.
@@ -42,15 +23,17 @@ var _ contract.ErrorReportsUseCase = (*Service)(nil)
 //
 //nolint:structcheck // fields are used across methods
 type Service struct {
-	txManager       db.TxManager
-	repo            contract.ErrorReportRepository
-	featuresRepo    contract.FeaturesRepository
-	featureParams   contract.FeatureParamsRepository
-	featureTags     contract.FeatureTagsRepository
-	tagsRepo        contract.TagsRepository
-	projectSettings contract.ProjectSettingsRepository
-	pendingUC       contract.PendingChangesUseCase
-	envsRepo        contract.EnvironmentsRepository
+	txManager           db.TxManager
+	repo                contract.ErrorReportRepository
+	featuresRepo        contract.FeaturesRepository
+	featureParams       contract.FeatureParamsRepository
+	featureTags         contract.FeatureTagsRepository
+	tagsRepo            contract.TagsRepository
+	tagsUC              contract.TagsUseCase
+	projectSettingsRepo contract.ProjectSettingsRepository
+	projectSettingsUC   contract.ProjectSettingsUseCase
+	pendingUC           contract.PendingChangesUseCase
+	envsRepo            contract.EnvironmentsRepository
 }
 
 func New(
@@ -60,20 +43,24 @@ func New(
 	featureParams contract.FeatureParamsRepository,
 	featureTags contract.FeatureTagsRepository,
 	tagsRepo contract.TagsRepository,
-	projectSettings contract.ProjectSettingsRepository,
+	tagsUC contract.TagsUseCase,
+	projectSettingsRepo contract.ProjectSettingsRepository,
+	projectSettingsUC contract.ProjectSettingsUseCase,
 	pendingUC contract.PendingChangesUseCase,
 	envsRepo contract.EnvironmentsRepository,
 ) *Service {
 	return &Service{
-		txManager:       txManager,
-		repo:            repo,
-		featuresRepo:    featuresRepo,
-		featureParams:   featureParams,
-		featureTags:     featureTags,
-		tagsRepo:        tagsRepo,
-		projectSettings: projectSettings,
-		pendingUC:       pendingUC,
-		envsRepo:        envsRepo,
+		txManager:           txManager,
+		repo:                repo,
+		featuresRepo:        featuresRepo,
+		featureParams:       featureParams,
+		featureTags:         featureTags,
+		tagsRepo:            tagsRepo,
+		tagsUC:              tagsUC,
+		projectSettingsRepo: projectSettingsRepo,
+		projectSettingsUC:   projectSettingsUC,
+		pendingUC:           pendingUC,
+		envsRepo:            envsRepo,
 	}
 }
 
@@ -118,7 +105,7 @@ func (s *Service) ReportError(
 		}
 
 		// 2) check tag auto-disable
-		tagAutoDisable, err := s.tagsRepo.GetByProjectAndSlug(txCtx, projectID, autoDisableTagSlug)
+		tagAutoDisable, err := s.tagsUC.GetAutoDisableTag(txCtx, projectID)
 		if err != nil {
 			// if tag not found, just return health without auto-disable
 			slog.Warn("auto-disable tag not found, skipping auto-disable", "error", err)
@@ -129,28 +116,19 @@ func (s *Service) ReportError(
 			}
 			if hasAutoDisableTag {
 				// 3) read project settings
-				enabled := getBoolSetting(
-					txCtx,
-					s.projectSettings,
-					projectID,
-					psAutoDisableEnabledKey,
-					defaultAutoDisableEnabled,
-				)
+				enabled, err := s.projectSettingsUC.GetAutoDisableEnabled(txCtx, projectID)
+				if err != nil {
+					return err
+				}
 				if enabled {
-					threshold := getIntSetting(
-						txCtx,
-						s.projectSettings,
-						projectID,
-						psAutoDisableErrorThresholdKey,
-						defaultErrorThreshold,
-					)
-					windowSec := getIntSetting(
-						txCtx,
-						s.projectSettings,
-						projectID,
-						psAutoDisableTimeWindowSecKey,
-						int(defaultTimeWindow.Seconds()),
-					)
+					threshold, err := s.projectSettingsUC.GetAutoDisableErrorThreshold(txCtx, projectID)
+					if err != nil {
+						return err
+					}
+					windowSec, err := s.projectSettingsUC.GetAutoDisableTimeWindowSec(txCtx, projectID)
+					if err != nil {
+						return err
+					}
 
 					cnt, err := s.repo.CountRecent(txCtx, feature.ID, env.ID, time.Duration(windowSec)*time.Second)
 					if err != nil {
@@ -169,15 +147,12 @@ func (s *Service) ReportError(
 							slog.Debug("feature already disabled, skipping auto-disable",
 								"feature_id", feature.ID, "env_id", env.ID)
 						} else {
-							requiresApproval := getBoolSetting(
-								txCtx,
-								s.projectSettings,
-								projectID,
-								psAutoDisableRequiresApprovalKey,
-								defaultRequiresApproval,
-							)
+							requiresApproval, err := s.projectSettingsUC.GetAutoDisableRequiresApproval(txCtx, projectID)
+							if err != nil {
+								return err
+							}
 							if !requiresApproval {
-								tagGuarded, err := s.tagsRepo.GetByProjectAndSlug(txCtx, projectID, guardedTagSlug)
+								tagGuarded, err := s.tagsUC.GetGuardedTag(txCtx, projectID)
 								if err != nil {
 									slog.Error("get guarded tag failed", "error", err)
 								} else {
@@ -273,7 +248,13 @@ func (s *Service) GetFeatureHealth(
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}
-	agg, err := s.repo.GetHealth(ctx, feature.ID, env.ID, defaultTimeWindow)
+	// Get time window from project settings, fallback to default
+	timeWindow, err := s.projectSettingsUC.GetAutoDisableTimeWindow(ctx, projectID)
+	if err != nil {
+		// Fallback to default if settings are not available
+		timeWindow = 60 * time.Second
+	}
+	agg, err := s.repo.GetHealth(ctx, feature.ID, env.ID, timeWindow)
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}
@@ -286,13 +267,13 @@ func (s *Service) GetFeatureHealth(
 		FeatureID:     feature.ID,
 		EnvironmentID: env.ID,
 		Enabled:       params.Enabled,
-		Status:        deriveStatus(params.Enabled, agg.LastErrorAt),
+		Status:        deriveStatus(params.Enabled, agg.LastErrorAt, timeWindow),
 		ErrorRate:     agg.ErrorRate,
 		LastErrorAt:   agg.LastErrorAt,
 	}, nil
 }
 
-func deriveStatus(enabled bool, lastErr time.Time) string {
+func deriveStatus(enabled bool, lastErr time.Time, timeWindow time.Duration) string {
 	if !enabled {
 		return "disabled"
 	}
@@ -300,55 +281,11 @@ func deriveStatus(enabled bool, lastErr time.Time) string {
 		return "healthy"
 	}
 	// simplification: if there were recent errors, mark as degraded
-	if time.Since(lastErr) < defaultTimeWindow {
+	if time.Since(lastErr) < timeWindow {
 		return "degraded"
 	}
 
 	return "healthy"
-}
-
-// helpers for settings.
-func getBoolSetting(
-	ctx context.Context,
-	repo contract.ProjectSettingsRepository,
-	projectID domain.ProjectID,
-	name string,
-	def bool,
-) bool {
-	st, err := repo.GetByName(ctx, projectID, name)
-	if err != nil || st == nil {
-		return def
-	}
-	v, ok := st.Value.(bool)
-	if !ok {
-		return def
-	}
-
-	return v
-}
-
-func getIntSetting(
-	ctx context.Context,
-	repo contract.ProjectSettingsRepository,
-	projectID domain.ProjectID,
-	name string,
-	def int,
-) int {
-	st, err := repo.GetByName(ctx, projectID, name)
-	if err != nil || st == nil {
-		return def
-	}
-	// JSON numbers come as float64 in interface{} commonly
-	switch val := st.Value.(type) {
-	case int:
-		return val
-	case int64:
-		return int(val)
-	case float64:
-		return int(val)
-	default:
-		return def
-	}
 }
 
 func anyMap(m map[domain.RuleAttribute]any) map[string]any {
@@ -363,122 +300,7 @@ func anyMap(m map[domain.RuleAttribute]any) map[string]any {
 	return res
 }
 
-// writeAutoDisableAuditLog writes an audit log entry for auto-disable action
-// func (s *Service) writeAutoDisableAuditLog(
-//	ctx context.Context,
-//	projectID domain.ProjectID,
-//	featureID domain.FeatureID,
-//	envID domain.EnvironmentID,
-//	oldParams domain.FeatureParams,
-//	newParams domain.FeatureParams,
-//	errorCount int,
-//	threshold int,
-// ) error {
-//	// Create audit log entry with auto-disable context
-//	auditData := map[string]any{
-//		"auto_disable": true,
-//		"error_count":  errorCount,
-//		"threshold":    threshold,
-//		"reason":       "auto-disable threshold exceeded",
-//		"origin":       "sdk",
-//	}
-//
-//	// Use the audit log writer directly
-//	executor := s.getExecutor(ctx)
-//	if executor != nil {
-//		if err := s.writeAuditLog(ctx, executor, projectID, featureID, envID, oldParams, newParams, auditData); err != nil {
-//			return fmt.Errorf("write auto-disable audit log: %w", err)
-//		}
-//	} else {
-//		slog.Warn("no transaction context available, skipping audit log", "feature_id", featureID)
-//		return nil // Don't fail the operation
-//	}
-//
-//	return nil
-//}
-
-// writeAuditLog is a helper to write audit log entries
-// func (s *Service) writeAuditLog(
-//	ctx context.Context,
-//	executor db.Tx,
-//	projectID domain.ProjectID,
-//	featureID domain.FeatureID,
-//	envID domain.EnvironmentID,
-//	oldVal any,
-//	newVal any,
-//	meta map[string]any,
-// ) error {
-//	// Import auditlog package at the top of the file
-//	// For now, we'll create a simple audit log entry
-//	const query = `
-//		INSERT INTO audit_log (project_id, feature_id, entity_id, entity, actor,
-//		                       username, action, old_value, new_value, request_id, environment_id)
-//		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-//	`
-//
-//	// Marshal old and new values
-//	var oldJSON, newJSON []byte
-//	var err error
-//
-//	if oldVal != nil {
-//		oldJSON, err = json.Marshal(oldVal)
-//		if err != nil {
-//			return fmt.Errorf("marshal old value: %w", err)
-//		}
-//	}
-//
-//	if newVal != nil {
-//		newJSON, err = json.Marshal(newVal)
-//		if err != nil {
-//			return fmt.Errorf("marshal new value: %w", err)
-//		}
-//	}
-//
-//	// Add metadata to new value
-//	if meta != nil && newJSON != nil {
-//		var newValMap map[string]any
-//		if err := json.Unmarshal(newJSON, &newValMap); err == nil {
-//			for k, v := range meta {
-//				newValMap[k] = v
-//			}
-//			newJSON, err = json.Marshal(newValMap)
-//			if err != nil {
-//				return fmt.Errorf("marshal new value with metadata: %w", err)
-//			}
-//		}
-//	}
-//
-//	_, err = executor.Exec(
-//		ctx,
-//		query,
-//		projectID,
-//		featureID,
-//		featureID.String(), // entity_id
-//		"feature_params",   // entity
-//		"system",           // actor
-//		"",                 // username
-//		"auto_disable",     // action
-//		oldJSON,
-//		newJSON,
-//		"", // request_id
-//		int64(envID),
-//	)
-//
-//	return err
-//}
-
-// getExecutor is a helper to get executor from context
-// func (s *Service) getExecutor(ctx context.Context) db.Tx {
-//	// Get executor from transaction context if available
-//	if tx := db.TxFromContext(ctx); tx != nil {
-//		return tx
-//	}
-//	// If no transaction context available, return nil
-//	// This should not happen in normal flow as we're always within a transaction
-//	return nil
-//}
-
-// generateEventID generates a new UUID for error report event.
+// generateEventID generates a new UUID for the error report event.
 func generateEventID() string {
 	return uuid.New().String()
 }

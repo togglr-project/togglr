@@ -11,6 +11,12 @@ import (
 	"github.com/togglr-project/togglr/pkg/db"
 )
 
+const (
+	// System tag slugs for auto-disable functionality
+	AutoDisableTagSlug = "auto-disable"
+	GuardedTagSlug     = "guarded"
+)
+
 type Service struct {
 	txManager    db.TxManager
 	tagRepo      contract.TagsRepository
@@ -209,4 +215,84 @@ func (s *Service) CreateTagsFromCategories(ctx context.Context, projectID domain
 	}
 
 	return nil
+}
+
+// System tag specific methods
+
+// GetAutoDisableTag retrieves the auto-disable tag for a project, creating it if it doesn't exist.
+func (s *Service) GetAutoDisableTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	tag, err := s.tagRepo.GetByProjectAndSlug(ctx, projectID, AutoDisableTagSlug)
+	if err == nil {
+		return tag, nil
+	}
+
+	if !errors.Is(err, domain.ErrEntityNotFound) {
+		return domain.Tag{}, fmt.Errorf("get auto-disable tag: %w", err)
+	}
+
+	// Create auto-disable tag if it doesn't exist
+	return s.createSystemTag(ctx, projectID, AutoDisableTagSlug, "Auto Disable", "Enables automatic feature disabling on errors")
+}
+
+// GetGuardedTag retrieves the guarded tag for a project, creating it if it doesn't exist.
+func (s *Service) GetGuardedTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
+	tag, err := s.tagRepo.GetByProjectAndSlug(ctx, projectID, GuardedTagSlug)
+	if err == nil {
+		return tag, nil
+	}
+
+	if !errors.Is(err, domain.ErrEntityNotFound) {
+		return domain.Tag{}, fmt.Errorf("get guarded tag: %w", err)
+	}
+
+	// Create guarded tag if it doesn't exist
+	return s.createSystemTag(ctx, projectID, GuardedTagSlug, "Guarded", "Requires approval for changes")
+}
+
+// EnsureSystemTags ensures that all system tags exist for a project.
+func (s *Service) EnsureSystemTags(ctx context.Context, projectID domain.ProjectID) error {
+	// Ensure auto-disable tag exists
+	_, err := s.GetAutoDisableTag(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("ensure auto-disable tag: %w", err)
+	}
+
+	// Ensure guarded tag exists
+	_, err = s.GetGuardedTag(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("ensure guarded tag: %w", err)
+	}
+
+	return nil
+}
+
+// createSystemTag creates a system tag with predefined properties.
+func (s *Service) createSystemTag(ctx context.Context, projectID domain.ProjectID, slug, name, description string) (domain.Tag, error) {
+	descriptionPtr := &description
+	color := "#ff6b6b" // Default red color for system tags
+
+	var id domain.TagID
+	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		var err error
+		id, err = s.tagRepo.Create(ctx, &domain.TagDTO{
+			ProjectID:   projectID,
+			CategoryID:  nil, // System tags don't belong to categories
+			Name:        name,
+			Slug:        slug,
+			Description: descriptionPtr,
+			Color:       &color,
+		})
+		return err
+	})
+	if err != nil {
+		return domain.Tag{}, fmt.Errorf("create system tag %s: %w", slug, err)
+	}
+
+	// Get created tag
+	tag, err := s.tagRepo.GetByID(ctx, id)
+	if err != nil {
+		return domain.Tag{}, fmt.Errorf("get created system tag %s: %w", slug, err)
+	}
+
+	return tag, nil
 }
