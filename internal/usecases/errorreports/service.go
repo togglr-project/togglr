@@ -2,6 +2,7 @@ package errorreports
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -28,6 +29,8 @@ const (
 
 	// tag slug which enables auto-disable for a feature.
 	autoDisableTagSlug = "auto-disable"
+	// tag slug which guards feature
+	guardedTagSlug = "guarded"
 )
 
 var _ contract.ErrorReportsUseCase = (*Service)(nil)
@@ -115,16 +118,16 @@ func (s *Service) ReportError(
 		}
 
 		// 2) check tag auto-disable
-		tag, err := s.tagsRepo.GetByProjectAndSlug(txCtx, projectID, autoDisableTagSlug)
+		tagAutoDisable, err := s.tagsRepo.GetByProjectAndSlug(txCtx, projectID, autoDisableTagSlug)
 		if err != nil {
 			// if tag not found, just return health without auto-disable
 			slog.Warn("auto-disable tag not found, skipping auto-disable", "error", err)
 		} else {
-			hasTag, err := s.featureTags.HasFeatureTag(txCtx, feature.ID, tag.ID)
+			hasAutoDisableTag, err := s.featureTags.HasFeatureTag(txCtx, feature.ID, tagAutoDisable.ID)
 			if err != nil {
 				return err
 			}
-			if hasTag {
+			if hasAutoDisableTag {
 				// 3) read project settings
 				enabled := getBoolSetting(
 					txCtx,
@@ -163,7 +166,7 @@ func (s *Service) ReportError(
 						// Check if already disabled to avoid duplicate operations
 						if !currentParams.Enabled {
 							// Feature already disabled, skip auto-disable
-							slog.Info("feature already disabled, skipping auto-disable",
+							slog.Debug("feature already disabled, skipping auto-disable",
 								"feature_id", feature.ID, "env_id", env.ID)
 						} else {
 							requiresApproval := getBoolSetting(
@@ -173,6 +176,22 @@ func (s *Service) ReportError(
 								psAutoDisableRequiresApprovalKey,
 								defaultRequiresApproval,
 							)
+							if !requiresApproval {
+								tagGuarded, err := s.tagsRepo.GetByProjectAndSlug(txCtx, projectID, guardedTagSlug)
+								if err != nil {
+									slog.Error("get guarded tag failed", "error", err)
+								} else {
+									requiresApproval, err = s.featureTags.HasFeatureTag(
+										txCtx,
+										feature.ID,
+										tagGuarded.ID,
+									)
+									if err != nil {
+										return err
+									}
+								}
+							}
+
 							if requiresApproval {
 								// create pending change to disable feature
 								payload := domain.PendingChangePayload{
@@ -201,6 +220,10 @@ func (s *Service) ReportError(
 									payload,
 								)
 								if err != nil {
+									if errors.Is(err, domain.ErrEntityAlreadyExists) {
+										return nil
+									}
+
 									return fmt.Errorf("create pending change: %w", err)
 								}
 								accepted = true
@@ -217,8 +240,9 @@ func (s *Service) ReportError(
 									return fmt.Errorf("disable feature: %w", err)
 								}
 
-								slog.Info("feature auto-disabled",
-									"feature_id", feature.ID, "error_count", cnt, "threshold", threshold)
+								slog.Warn("feature auto-disabled",
+									"feature_id", feature.ID, "env", envKey,
+									"error_count", cnt, "threshold", threshold)
 							}
 						}
 					}
