@@ -111,9 +111,13 @@ export class WSClient {
     this.ws.onclose = (ev) => {
       console.log('[Realtime] WS closed', { code: ev.code, reason: ev.reason, wasClean: ev.wasClean });
       this.opts.onClose?.(ev);
-      if (!this.stopped) {
+      
+      // Only reconnect if it's not a normal closure and we're not stopped
+      if (!this.stopped && ev.code !== 1000 && ev.code !== 1001) {
         console.log('[Realtime] WS scheduling reconnect...');
         this.scheduleReconnect();
+      } else if (ev.code === 1000 || ev.code === 1001) {
+        console.log('[Realtime] WS closed normally, not reconnecting');
       }
     };
 
@@ -126,6 +130,13 @@ export class WSClient {
       try {
         const data = JSON.parse(ev.data as string);
         console.log('[Realtime] WS message received', data);
+        
+        // Handle pong messages
+        if (data.type === 'pong') {
+          console.log('[Realtime] WS pong received');
+          return; // Don't pass pong messages to the application
+        }
+        
         this.opts.onMessage?.(data);
       } catch (e) {
         console.warn('[Realtime] WS message parse error', e);

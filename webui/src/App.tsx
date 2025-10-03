@@ -183,33 +183,17 @@ function App() {
             console.log('[Realtime] Found envId from selected option data:', envId);
           }
         }
-        
-        // If still no envId, try to find it by looking for environment data in the page
-        if (!envId) {
-          // Look for environment data in script tags or global variables
-          const envDataScript = document.querySelector('script[type="application/json"][data-env-data]');
-          if (envDataScript) {
-            try {
-              const envData = JSON.parse(envDataScript.textContent || '{}');
-              const currentEnv = envData.find((env: any) => env.key === environmentKey);
-              if (currentEnv && currentEnv.id) {
-                envId = currentEnv.id.toString();
-                console.log('[Realtime] Found envId from environment data:', envId);
-              }
-            } catch (e) {
-              console.log('[Realtime] Failed to parse environment data:', e);
-            }
-          }
-        }
       }
       
       // Also try to find any element with environment ID
-      const envElements = document.querySelectorAll('[data-environment-id], [data-env-id]');
-      if (envElements.length > 0) {
-        const firstEnvElement = envElements[0];
-        envId = firstEnvElement.getAttribute('data-environment-id') || firstEnvElement.getAttribute('data-env-id') || '';
-        if (envId) {
-          console.log('[Realtime] Found envId in DOM data attributes:', envId);
+      if (!envId) {
+        const envElements = document.querySelectorAll('[data-environment-id], [data-env-id]');
+        if (envElements.length > 0) {
+          const firstEnvElement = envElements[0];
+          envId = firstEnvElement.getAttribute('data-environment-id') || firstEnvElement.getAttribute('data-env-id') || '';
+          if (envId) {
+            console.log('[Realtime] Found envId in DOM data attributes:', envId);
+          }
         }
       }
     }
@@ -249,9 +233,37 @@ function App() {
       console.log('[Realtime] Project page but no envId, waiting for DOM to load...');
       setTimeout(() => {
         // Try to find envId again after DOM loads
-        const envSelect = document.querySelector('select[name*="env"], select[id*="env"], [data-testid*="env"]') as HTMLSelectElement;
-        if (envSelect && envSelect.value) {
-          const delayedEnvId = envSelect.value;
+        let delayedEnvId = '';
+        
+        // First try localStorage again
+        delayedEnvId = fromStorage([
+          'currentEnvId',
+          'selectedEnvironmentId',
+          'environmentId',
+          'env_id',
+          'activeEnvironmentId',
+        ]);
+        
+        // If still no envId, try DOM
+        if (!delayedEnvId) {
+          const envSelect = document.querySelector('select[name*="env"], select[id*="env"], [data-testid*="env"]') as HTMLSelectElement;
+          if (envSelect && envSelect.value) {
+            const environmentKey = envSelect.value;
+            console.log('[Realtime] Found environment key after delay:', environmentKey);
+            
+            // Try to find the environment ID by looking for the selected option's data attributes
+            const selectedOption = envSelect.querySelector(`option[value="${environmentKey}"]`);
+            if (selectedOption) {
+              const envIdFromData = selectedOption.getAttribute('data-env-id') || selectedOption.getAttribute('data-environment-id');
+              if (envIdFromData) {
+                delayedEnvId = envIdFromData;
+                console.log('[Realtime] Found envId from selected option data after delay:', delayedEnvId);
+              }
+            }
+          }
+        }
+        
+        if (delayedEnvId) {
           console.log('[Realtime] Found envId after delay:', delayedEnvId);
           stop = initRealtime({ projectId, envId: delayedEnvId, token });
         } else {

@@ -9,12 +9,13 @@ CREATE OR REPLACE VIEW v_realtime_events AS
         e.key           AS environment_key,
         pce.entity,
         pce.entity_id,
-        pc.status       AS action,
+        'pending'::text AS action,
         pc.created_at
     FROM pending_changes pc
     JOIN environments e ON e.id = pc.environment_id
     JOIN pending_change_entities pce ON pce.pending_change_id = pc.id
     WHERE pc.created_at > now() - interval '1 hour'
+      AND pc.status = 'pending'
 )
 UNION ALL
 (

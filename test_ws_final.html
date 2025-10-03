@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test - Final</title>
+</head>
+<body>
+    <h1>WebSocket Test - Final</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+    <button onclick="testMessage()">Send Test Message</button>
+    <button onclick="disconnect()">Disconnect</button>
+    <button onclick="reconnect()">Reconnect</button>
+
+    <script>
+        let ws = null;
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+
+        function log(message) {
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            messages.appendChild(div);
+            console.log(message);
+        }
+
+        let pingInterval = null;
+
+        function connect() {
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+                log('Already connected or connecting');
+                return;
+            }
+
+            const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTk1MTQzMzQsImlhdCI6MTc1OTUwMzUzNCwianRpIjoiYmRjZDE2ZTEtNWVlOC00NTQ5LTkzYmUtNTZiMDhlMDIwM2NhIiwidHlwZSI6ImFjY2Vzc1Rva2VuIiwidXNlcklkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiaXNTdXBlcnVzZXIiOnRydWV9.tFYDSYKbgrVOz3U7ErhlECC6jC2eZgLYGY8b3mVH_II';
+            const projectId = 'f874f4d8-77b3-4058-ad21-9e7ffba2215e';
+            const envId = '2';
+            
+            const url = `ws://localhost:8082/api/ws?project_id=${projectId}&env_id=${envId}&token=${token}`;
+            
+            log('Connecting to: ' + url);
+            status.textContent = 'Connecting...';
+            
+            ws = new WebSocket(url);
+            
+            ws.onopen = function() {
+                log('Connected successfully');
+                status.textContent = 'Connected';
+                
+                // Start sending ping messages every 30 seconds
+                pingInterval = setInterval(() => {
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        const pingMsg = JSON.stringify({ type: 'ping' });
+                        ws.send(pingMsg);
+                        log('Sent ping');
+                    }
+                }, 30000);
+            };
+            
+            ws.onclose = function(ev) {
+                log(`Disconnected: ${ev.code} - ${ev.reason || 'No reason'}`);
+                status.textContent = 'Disconnected';
+                
+                // Clear ping interval
+                if (pingInterval) {
+                    clearInterval(pingInterval);
+                    pingInterval = null;
+                }
+            };
+            
+            ws.onerror = function(ev) {
+                log('Error: ' + ev);
+                status.textContent = 'Error';
+            };
+            
+            ws.onmessage = function(ev) {
+                try {
+                    const data = JSON.parse(ev.data);
+                    if (data.type === 'pong') {
+                        log('Pong received');
+                    } else {
+                        log('Message received: ' + ev.data);
+                    }
+                } catch (e) {
+                    log('Message received: ' + ev.data);
+                }
+            };
+        }
+
+        function testMessage() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                const message = JSON.stringify({ type: 'test', message: 'Hello from client' });
+                ws.send(message);
+                log('Sent: ' + message);
+            } else {
+                log('Not connected');
+            }
+        }
+
+        function disconnect() {
+            if (pingInterval) {
+                clearInterval(pingInterval);
+                pingInterval = null;
+            }
+            if (ws) {
+                ws.close(1000, 'User disconnect');
+                ws = null;
+            }
+        }
+
+        function reconnect() {
+            if (ws) {
+                // Close the connection and wait for it to close before reconnecting
+                ws.onclose = function(ev) {
+                    log(`Disconnected: ${ev.code} - ${ev.reason || 'No reason'}`);
+                    status.textContent = 'Disconnected';
+                    
+                    // Clear ping interval
+                    if (pingInterval) {
+                        clearInterval(pingInterval);
+                        pingInterval = null;
+                    }
+                    
+                    // Reconnect after a short delay
+                    setTimeout(connect, 1000);
+                };
+                
+                // Clear ping interval
+                if (pingInterval) {
+                    clearInterval(pingInterval);
+                    pingInterval = null;
+                }
+                
+                ws.close(1000, 'Reconnecting');
+                ws = null;
+            } else {
+                // No existing connection, just connect
+                connect();
+            }
+        }
+
+        // Auto-connect on page load
+        connect();
+    </script>
+</body>
+</html>

@@ -15,6 +15,10 @@ import {
   Chip,
   Checkbox,
   Pagination,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -283,7 +287,10 @@ const CreateEditSegmentDialog: React.FC<{
 const ProjectSegmentsPage: React.FC = () => {
   const { projectId = '' } = useParams();
   const queryClient = useQueryClient();
-  const [environmentKey, setEnvironmentKey] = useState<string>('prod'); // Default to prod environment
+  const [environmentKey, setEnvironmentKey] = useState<string>(() => {
+    // Try to get from localStorage first, fallback to 'prod'
+    return localStorage.getItem('currentEnvironmentKey') || 'prod';
+  });
   const [syncOpen, setSyncOpen] = useState(false);
   const [segmentId, setSegmentId] = useState<string>('');
   
@@ -319,6 +326,29 @@ const ProjectSegmentsPage: React.FC = () => {
     },
     enabled: !!projectId,
   });
+
+  // Get environments for the project
+  const { data: environmentsResp, isLoading: loadingEnvironments } = useQuery({
+    queryKey: ['project-environments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectEnvironments(projectId);
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+
+  const environments = environmentsResp?.items ?? [];
+
+  // Initialize environment ID in localStorage when environments are loaded
+  React.useEffect(() => {
+    if (environments.length > 0 && environmentKey) {
+      const selectedEnv = environments.find(env => env.key === environmentKey);
+      if (selectedEnv) {
+        localStorage.setItem('currentEnvId', selectedEnv.id.toString());
+        console.log('[ProjectSegmentsPage] Initialized environment in localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
+      }
+    }
+  }, [environments, environmentKey]);
 
   // Filters, sorting and pagination state for segments
   const [search, setSearch] = useState('');
@@ -395,6 +425,34 @@ const ProjectSegmentsPage: React.FC = () => {
               Add Segment
             </Button>
           )}
+        </Box>
+
+        {/* Environment selector */}
+        <Box sx={{ mb: 2 }}>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Environment</InputLabel>
+            <Select
+              value={environmentKey}
+              label="Environment"
+              onChange={(e) => {
+                setEnvironmentKey(e.target.value);
+                // Find the environment ID and save it to localStorage
+                const selectedEnv = environments.find(env => env.key === e.target.value);
+                if (selectedEnv) {
+                  localStorage.setItem('currentEnvId', selectedEnv.id.toString());
+                  localStorage.setItem('currentEnvironmentKey', selectedEnv.key);
+                  console.log('[ProjectSegmentsPage] Saved environment to localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
+                }
+              }}
+              disabled={loadingEnvironments}
+            >
+              {environments.map((env) => (
+                <MenuItem key={env.id} value={env.key} data-env-id={env.id}>
+                  {env.name} ({env.key})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
 
         {/* Search and filters */}

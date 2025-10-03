@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"sync"
 
+	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/internal/infra/mq"
@@ -88,6 +89,10 @@ func (s *Service) processSDKErrorReportEvent(ctx context.Context, data []byte) e
 		return domain.NewSkippableError(err)
 	}
 
+	requestID := event.RequestID
+	ctx = appcontext.WithUsername(ctx, "sdk")
+	ctx = appcontext.WithRequestID(ctx, requestID)
+
 	accepted, err := s.errorReportUseCase.ReportError(
 		ctx,
 		event.ProjectID,
@@ -107,7 +112,8 @@ func (s *Service) processSDKErrorReportEvent(ctx context.Context, data []byte) e
 
 	if accepted {
 		slog.Warn("error report accepted (pending change)",
-			"feature_key", event.FeatureKey, "project_id", event.ProjectID, "env_key", event.EnvKey)
+			"feature_key", event.FeatureKey, "project_id", event.ProjectID,
+			"env_key", event.EnvKey, "request_id", requestID)
 	}
 
 	slog.Debug("error report processed",

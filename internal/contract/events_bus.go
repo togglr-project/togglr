@@ -7,6 +7,7 @@ import (
 )
 
 type ErrorReportEvent struct {
+	RequestID    string                       `json:"requestID"`
 	ProjectID    domain.ProjectID             `json:"projectID"`
 	EnvKey       string                       `json:"envKey"`
 	FeatureKey   string                       `json:"featureKey"`

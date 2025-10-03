@@ -47,6 +47,48 @@ const refetchByKey = (qc: QueryClient, keyPattern: any[], description: string) =
   }
 };
 
+// Helper function to invalidate pending changes count for menu badge
+const invalidatePendingChangesCount = (qc: QueryClient, projectId: string) => {
+  try {
+    // Invalidate all pending changes count queries for this project
+    qc.invalidateQueries({
+      predicate: (query) => {
+        const key = query.queryKey;
+        return Boolean(key[0] === 'pendingChanges' && 
+               key[1] === 'list' && 
+               key[2] && 
+               typeof key[2] === 'object' && 
+               (key[2] as any).projectId === projectId && 
+               key[3] === 'count');
+      }
+    });
+    console.log(`[Realtime] Invalidated pending changes count for project ${projectId}`);
+  } catch (e) {
+    console.error(`[Realtime] Error invalidating pending changes count:`, e);
+  }
+};
+
+// Helper function to refetch pending changes count for menu badge
+const refetchPendingChangesCount = (qc: QueryClient, projectId: string) => {
+  try {
+    // Refetch all pending changes count queries for this project
+    qc.refetchQueries({
+      predicate: (query) => {
+        const key = query.queryKey;
+        return Boolean(key[0] === 'pendingChanges' && 
+               key[1] === 'list' && 
+               key[2] && 
+               typeof key[2] === 'object' && 
+               (key[2] as any).projectId === projectId && 
+               key[3] === 'count');
+      }
+    });
+    console.log(`[Realtime] Refetched pending changes count for project ${projectId}`);
+  } catch (e) {
+    console.error(`[Realtime] Error refetching pending changes count:`, e);
+  }
+};
+
 // Handle feature update events
 const handleFeatureUpdate = (qc: QueryClient, projectId: string, envKey: string, featureId: string) => {
   console.log(`[Realtime] Handling feature update: ${featureId} in project ${projectId}`);
@@ -146,18 +188,10 @@ const handleFeaturePending = (qc: QueryClient, projectId: string, envKey: string
   );
   
   // Invalidate pending changes count for menu badge
-  invalidateByPattern(
-    qc,
-    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
-    'pending-changes count queries (menu badge)'
-  );
+  invalidatePendingChangesCount(qc, projectId);
   
   // Refetch pending changes count for menu badge
-  refetchByPattern(
-    qc,
-    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
-    'pending-changes count queries (menu badge)'
-  );
+  refetchPendingChangesCount(qc, projectId);
 };
 
 // Handle feature deletion events
@@ -191,6 +225,12 @@ const handleFeatureDeleted = (qc: QueryClient, projectId: string, envKey: string
 const handleChildEntityEvent = (qc: QueryClient, projectId: string, envKey: string, eventType: string) => {
   console.log(`[Realtime] Handling child entity event: ${eventType} in project ${projectId}`);
   
+  // Skip approved/rejected events for pending changes to avoid hiding pending chips
+  if (eventType.includes('approved') || eventType.includes('rejected')) {
+    console.log(`[Realtime] Skipping ${eventType} event to avoid hiding pending chips`);
+    return;
+  }
+  
   // For child entities, we need to invalidate all project-features queries
   // because the parent feature might have changed
   invalidateByPattern(
@@ -219,6 +259,27 @@ const handleChildEntityEvent = (qc: QueryClient, projectId: string, envKey: stri
     'feature-names queries (child entity)'
   );
   
+  // If this is a pending event, also invalidate pending changes queries
+  if (eventType.includes('pending')) {
+    console.log(`[Realtime] Child entity pending event detected: ${eventType}`);
+    
+    // Invalidate pending changes queries
+    invalidateByPattern(
+      qc,
+      (query) => query.queryKey[0] === 'pending-changes' && query.queryKey[1] === projectId,
+      'pending-changes queries (child entity pending)'
+    );
+    
+    invalidateByPattern(
+      qc,
+      (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
+      'project-pending-changes queries (child entity pending)'
+    );
+    
+    // Invalidate pending changes count for menu badge
+    invalidatePendingChangesCount(qc, projectId);
+  }
+  
   // Refetch all project-features queries
   refetchByPattern(
     qc,
@@ -239,6 +300,25 @@ const handleChildEntityEvent = (qc: QueryClient, projectId: string, envKey: stri
     (query) => query.queryKey[0] === 'feature-changes' && query.queryKey[2] === projectId,
     'feature-changes queries (child entity)'
   );
+  
+  // If this is a pending event, also refetch pending changes queries
+  if (eventType.includes('pending')) {
+    // Refetch pending changes queries
+    refetchByPattern(
+      qc,
+      (query) => query.queryKey[0] === 'pending-changes' && query.queryKey[1] === projectId,
+      'pending-changes queries (child entity pending)'
+    );
+    
+    refetchByPattern(
+      qc,
+      (query) => query.queryKey[0] === 'project-pending-changes' && query.queryKey[1] === projectId,
+      'project-pending-changes queries (child entity pending)'
+    );
+    
+    // Refetch pending changes count for menu badge
+    refetchPendingChangesCount(qc, projectId);
+  }
 };
 
 // Handle pending change events
@@ -272,18 +352,10 @@ const handlePendingChangeEvent = (qc: QueryClient, projectId: string, envKey: st
   );
   
   // Invalidate pending changes count for menu badge
-  invalidateByPattern(
-    qc,
-    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
-    'pending-changes count queries (menu badge)'
-  );
+  invalidatePendingChangesCount(qc, projectId);
   
   // Refetch pending changes count for menu badge
-  refetchByPattern(
-    qc,
-    (query) => query.queryKey[0] === 'pendingChanges' && query.queryKey[1] === 'list' && query.queryKey[2]?.projectId === projectId && query.queryKey[3] === 'count',
-    'pending-changes count queries (menu badge)'
-  );
+  refetchPendingChangesCount(qc, projectId);
 };
 
 // Main event handler

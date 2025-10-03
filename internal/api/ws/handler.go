@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -74,7 +75,9 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 	}
 
 	wsConnection := newWSConn(conn)
-	slog.Debug("adding WebSocket connection to broadcaster")
+	slog.Debug("adding WebSocket connection to broadcaster",
+		"project_id", projectID,
+		"environment_id", envID)
 	h.broadcaster.Add(projectID, envID, wsConnection)
 	defer func() {
 		slog.Debug("removing WebSocket connection from broadcaster")
@@ -84,7 +87,7 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 
 	// Set up ping/pong to keep connection alive
 	conn.SetPingHandler(func(message string) error {
-		slog.Info("WebSocket ping received", slog.String("message", message))
+		slog.Debug("WebSocket ping received", slog.String("message", message))
 		// Respond to ping with pong
 		err := conn.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(time.Second))
 		if err != nil {
@@ -116,9 +119,28 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		// Handle the message (for now, just log it)
+		// Handle the message
 		slog.Debug("WebSocket message received",
 			slog.Int("message_type", messageType),
 			slog.String("message", string(message)))
+
+		// Handle ping messages from client
+		if messageType == websocket.TextMessage {
+			var msg map[string]interface{}
+			if err := json.Unmarshal(message, &msg); err == nil {
+				if msgType, ok := msg["type"].(string); ok && msgType == "ping" {
+					slog.Debug("WebSocket ping received, sending pong")
+					// Send pong response
+					pongMsg := map[string]interface{}{"type": "pong", "timestamp": time.Now().Unix()}
+					if pongData, err := json.Marshal(pongMsg); err == nil {
+						if err := conn.WriteMessage(websocket.TextMessage, pongData); err != nil {
+							slog.Error("WebSocket pong send failed", "error", err)
+						} else {
+							slog.Debug("WebSocket pong sent")
+						}
+					}
+				}
+			}
+		}
 	}
 }

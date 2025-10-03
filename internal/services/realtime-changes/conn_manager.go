@@ -33,6 +33,10 @@ func (m *connManager) Add(projectID domain.ProjectID, envID int64, c contract.WS
 		m.conns[key] = connsSet
 	}
 	connsSet[c] = struct{}{}
+	slog.Debug("WebSocket connection added to broadcaster",
+		"project_id", projectID,
+		"environment_id", envID,
+		"total_connections", len(connsSet))
 }
 
 func (m *connManager) Remove(projectID domain.ProjectID, envID int64, c contract.WSConnection) {
@@ -44,6 +48,10 @@ func (m *connManager) Remove(projectID domain.ProjectID, envID int64, c contract
 		if len(set) == 0 {
 			delete(m.conns, key)
 		}
+		slog.Debug("WebSocket connection removed from broadcaster",
+			"project_id", projectID,
+			"environment_id", envID,
+			"remaining_connections", len(set))
 	}
 }
 

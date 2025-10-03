@@ -36,6 +36,7 @@ func (s *SDKRestAPI) ReportFeatureError(
 	}
 
 	err := s.bus.PublishErrorReport(ctx, contract.ErrorReportEvent{
+		RequestID:    appcontext.RequestID(ctx),
 		ProjectID:    projectID,
 		EnvKey:       envKey,
 		FeatureKey:   featureKey,
