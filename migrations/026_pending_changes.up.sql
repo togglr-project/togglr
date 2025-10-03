@@ -134,6 +134,21 @@ BEGIN
     VALUES (NEW.id, 'auto_disable_requires_approval', 'false'::jsonb, now(), now())
     ON CONFLICT (project_id, name) DO NOTHING;
 
+    -- auto_disable_enabled
+    INSERT INTO project_settings (project_id, name, value, created_at, updated_at)
+    VALUES (NEW.id, 'auto_disable_enabled', 'true'::jsonb, now(), now())
+    ON CONFLICT (project_id, name) DO NOTHING;
+
+    -- auto_disable_error_threshold
+    INSERT INTO project_settings (project_id, name, value, created_at, updated_at)
+    VALUES (NEW.id, 'auto_disable_error_threshold', '10'::jsonb, now(), now())
+    ON CONFLICT (project_id, name) DO NOTHING;
+
+    -- auto_disable_time_window_sec
+    INSERT INTO project_settings (project_id, name, value, created_at, updated_at)
+    VALUES (NEW.id, 'auto_disable_time_window_sec', '60'::jsonb, now(), now())
+    ON CONFLICT (project_id, name) DO NOTHING;
+
     -- audit log retention
     INSERT INTO project_settings (project_id, name, value, created_at, updated_at)
     VALUES (NEW.id, 'audit_log_retention_days', '180'::jsonb, now(), now())

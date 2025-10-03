@@ -23,7 +23,7 @@ const (
 	// defaults.
 	defaultAutoDisableEnabled = true
 	defaultRequiresApproval   = false
-	defaultErrorThreshold     = 20
+	defaultErrorThreshold     = 10
 	defaultTimeWindow         = 60 * time.Second
 
 	// tag slug which enables auto-disable for a feature.
@@ -82,25 +82,21 @@ func (s *Service) ReportError(
 	reqCtx map[domain.RuleAttribute]any,
 	reportType string,
 	reportMsg string,
-) (domain.FeatureHealth, bool, int, error) {
+) (bool, error) {
 	// find feature by key and env
 	feature, err := s.featuresRepo.GetByKeyWithEnv(ctx, featureKey, envKey)
 	if err != nil {
-		return domain.FeatureHealth{}, false, 0, err
+		return false, err
 	}
 
 	// ensure environment exists to get its ID
 	env, err := s.envsRepo.GetByProjectIDAndKey(ctx, projectID, envKey)
 	if err != nil {
-		return domain.FeatureHealth{}, false, 0, err
+		return false, err
 	}
 
 	// insert error + possibly auto-disable in a single transaction
-	var (
-		accepted  bool
-		health    domain.FeatureHealth
-		threshold int
-	)
+	var accepted bool
 
 	err = s.txManager.ReadCommitted(ctx, func(txCtx context.Context) error {
 		// 1) insert error report
@@ -138,7 +134,7 @@ func (s *Service) ReportError(
 					defaultAutoDisableEnabled,
 				)
 				if enabled {
-					threshold = getIntSetting(
+					threshold := getIntSetting(
 						txCtx,
 						s.projectSettings,
 						projectID,
@@ -150,7 +146,7 @@ func (s *Service) ReportError(
 						s.projectSettings,
 						projectID,
 						psAutoDisableTimeWindowSecKey,
-						int(defaultTimeWindow/time.Second),
+						int(defaultTimeWindow.Seconds()),
 					)
 
 					cnt, err := s.repo.CountRecent(txCtx, feature.ID, env.ID, time.Duration(windowSec)*time.Second)
@@ -230,33 +226,13 @@ func (s *Service) ReportError(
 			}
 		}
 
-		// 4) build health snapshot (using repo aggregates and current enabled state)
-		agg, err := s.repo.GetHealth(txCtx, feature.ID, env.ID, defaultTimeWindow)
-		if err != nil {
-			return err
-		}
-
-		// load latest params for enabled state
-		params, err := s.featureParams.GetByFeatureWithEnv(txCtx, feature.ID, env.ID)
-		if err != nil {
-			return err
-		}
-		health = domain.FeatureHealth{
-			FeatureID:     feature.ID,
-			EnvironmentID: env.ID,
-			Enabled:       params.Enabled,
-			Status:        deriveStatus(params.Enabled, agg.LastErrorAt),
-			ErrorRate:     agg.ErrorRate,
-			LastErrorAt:   agg.LastErrorAt,
-		}
-
 		return nil
 	})
 	if err != nil {
-		return domain.FeatureHealth{}, false, 0, err
+		return false, err
 	}
 
-	return health, accepted, threshold, nil
+	return accepted, nil
 }
 
 func (s *Service) GetFeatureHealth(

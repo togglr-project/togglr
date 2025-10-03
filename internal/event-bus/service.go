@@ -88,7 +88,7 @@ func (s *Service) processSDKErrorReportEvent(ctx context.Context, data []byte) e
 		return domain.NewSkippableError(err)
 	}
 
-	_, accepted, _, err := s.errorReportUseCase.ReportError(
+	accepted, err := s.errorReportUseCase.ReportError(
 		ctx,
 		event.ProjectID,
 		event.FeatureKey,
