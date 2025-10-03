@@ -38,6 +38,7 @@ type FeaturesUseCase interface {
 	GetByIDWithEnv(ctx context.Context, id domain.FeatureID, env string) (domain.Feature, error)
 	GetExtendedByID(ctx context.Context, id domain.FeatureID, env string) (domain.FeatureExtended, error)
 	GetByKeyWithEnv(ctx context.Context, key, env string) (domain.Feature, error)
+	GetByKeyWithEnvCached(ctx context.Context, key, env string) (domain.Feature, error)
 	List(ctx context.Context, env string) ([]domain.Feature, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID, env string) ([]domain.Feature, error)
 	ListByProjectIDFiltered(

@@ -339,6 +339,78 @@ func (_c *MockFeaturesUseCase_GetByKeyWithEnv_Call) RunAndReturn(run func(ctx co
 	return _c
 }
 
+// GetByKeyWithEnvCached provides a mock function for the type MockFeaturesUseCase
+func (_mock *MockFeaturesUseCase) GetByKeyWithEnvCached(ctx context.Context, key string, env string) (domain.Feature, error) {
+	ret := _mock.Called(ctx, key, env)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByKeyWithEnvCached")
+	}
+
+	var r0 domain.Feature
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (domain.Feature, error)); ok {
+		return returnFunc(ctx, key, env)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) domain.Feature); ok {
+		r0 = returnFunc(ctx, key, env)
+	} else {
+		r0 = ret.Get(0).(domain.Feature)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = returnFunc(ctx, key, env)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeaturesUseCase_GetByKeyWithEnvCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByKeyWithEnvCached'
+type MockFeaturesUseCase_GetByKeyWithEnvCached_Call struct {
+	*mock.Call
+}
+
+// GetByKeyWithEnvCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - key string
+//   - env string
+func (_e *MockFeaturesUseCase_Expecter) GetByKeyWithEnvCached(ctx interface{}, key interface{}, env interface{}) *MockFeaturesUseCase_GetByKeyWithEnvCached_Call {
+	return &MockFeaturesUseCase_GetByKeyWithEnvCached_Call{Call: _e.mock.On("GetByKeyWithEnvCached", ctx, key, env)}
+}
+
+func (_c *MockFeaturesUseCase_GetByKeyWithEnvCached_Call) Run(run func(ctx context.Context, key string, env string)) *MockFeaturesUseCase_GetByKeyWithEnvCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetByKeyWithEnvCached_Call) Return(feature domain.Feature, err error) *MockFeaturesUseCase_GetByKeyWithEnvCached_Call {
+	_c.Call.Return(feature, err)
+	return _c
+}
+
+func (_c *MockFeaturesUseCase_GetByKeyWithEnvCached_Call) RunAndReturn(run func(ctx context.Context, key string, env string) (domain.Feature, error)) *MockFeaturesUseCase_GetByKeyWithEnvCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetExtendedByID provides a mock function for the type MockFeaturesUseCase
 func (_mock *MockFeaturesUseCase) GetExtendedByID(ctx context.Context, id domain.FeatureID, env string) (domain.FeatureExtended, error) {
 	ret := _mock.Called(ctx, id, env)

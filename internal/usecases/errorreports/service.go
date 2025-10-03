@@ -20,8 +20,9 @@ type Service struct {
 	txManager         db.TxManager
 	repo              contract.ErrorReportRepository
 	featuresRepo      contract.FeaturesRepository
-	featureParams     contract.FeatureParamsRepository
-	featureTags       contract.FeatureTagsRepository
+	featuresUC        contract.FeaturesUseCase
+	featureParamsRepo contract.FeatureParamsRepository
+	featureTagsRepo   contract.FeatureTagsRepository
 	tagsUC            contract.TagsUseCase
 	projectSettingsUC contract.ProjectSettingsUseCase
 	pendingUC         contract.PendingChangesUseCase
@@ -32,6 +33,7 @@ func New(
 	txManager db.TxManager,
 	repo contract.ErrorReportRepository,
 	featuresRepo contract.FeaturesRepository,
+	featuresUC contract.FeaturesUseCase,
 	featureParams contract.FeatureParamsRepository,
 	featureTags contract.FeatureTagsRepository,
 	tagsUC contract.TagsUseCase,
@@ -43,8 +45,9 @@ func New(
 		txManager:         txManager,
 		repo:              repo,
 		featuresRepo:      featuresRepo,
-		featureParams:     featureParams,
-		featureTags:       featureTags,
+		featuresUC:        featuresUC,
+		featureParamsRepo: featureParams,
+		featureTagsRepo:   featureTags,
 		tagsUC:            tagsUC,
 		projectSettingsUC: projectSettingsUC,
 		pendingUC:         pendingUC,
@@ -61,7 +64,7 @@ func (s *Service) ReportError(
 	reportType string,
 	reportMsg string,
 ) (bool, error) {
-	feature, err := s.featuresRepo.GetByKeyWithEnv(ctx, featureKey, envKey)
+	feature, err := s.featuresUC.GetByKeyWithEnvCached(ctx, featureKey, envKey)
 	if err != nil {
 		return false, err
 	}
@@ -92,7 +95,7 @@ func (s *Service) ReportError(
 		if err != nil {
 			slog.Warn("auto-disable tag not found, skipping auto-disable", "error", err)
 		} else {
-			hasAutoDisableTag, err := s.featureTags.HasFeatureTag(txCtx, feature.ID, tagAutoDisable.ID)
+			hasAutoDisableTag, err := s.featureTagsRepo.HasFeatureTag(txCtx, feature.ID, tagAutoDisable.ID)
 			if err != nil {
 				return err
 			}
@@ -116,7 +119,7 @@ func (s *Service) ReportError(
 						return err
 					}
 					if cnt >= threshold {
-						currentParams, err := s.featureParams.GetForUpdate(txCtx, feature.ID, env.ID)
+						currentParams, err := s.featureParamsRepo.GetForUpdate(txCtx, feature.ID, env.ID)
 						if err != nil {
 							return fmt.Errorf("get feature params for update: %w", err)
 						}
@@ -135,7 +138,7 @@ func (s *Service) ReportError(
 								if err != nil {
 									slog.Error("get guarded tag failed", "error", err)
 								} else {
-									requiresApproval, err = s.featureTags.HasFeatureTag(
+									requiresApproval, err = s.featureTagsRepo.HasFeatureTag(
 										txCtx,
 										feature.ID,
 										tagGuarded.ID,
@@ -188,7 +191,7 @@ func (s *Service) ReportError(
 									DefaultValue:  currentParams.DefaultValue,
 									UpdatedAt:     time.Now(),
 								}
-								if _, err := s.featureParams.Update(txCtx, projectID, params); err != nil {
+								if _, err := s.featureParamsRepo.Update(txCtx, projectID, params); err != nil {
 									return fmt.Errorf("disable feature: %w", err)
 								}
 
@@ -217,7 +220,7 @@ func (s *Service) GetFeatureHealth(
 	featureKey string,
 	envKey string,
 ) (domain.FeatureHealth, error) {
-	feature, err := s.featuresRepo.GetByKeyWithEnv(ctx, featureKey, envKey)
+	feature, err := s.featuresUC.GetByKeyWithEnvCached(ctx, featureKey, envKey)
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}
@@ -233,7 +236,7 @@ func (s *Service) GetFeatureHealth(
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}
-	params, err := s.featureParams.GetByFeatureWithEnv(ctx, feature.ID, env.ID)
+	params, err := s.featureParamsRepo.GetByFeatureWithEnv(ctx, feature.ID, env.ID)
 	if err != nil {
 		return domain.FeatureHealth{}, err
 	}

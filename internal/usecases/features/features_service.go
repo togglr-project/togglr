@@ -12,7 +12,10 @@ import (
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
+	simplecache "github.com/togglr-project/togglr/pkg/simple-cache"
 )
+
+const CacheTTL = 10 * time.Minute
 
 type Service struct {
 	txManager             db.TxManager
@@ -27,6 +30,7 @@ type Service struct {
 	guardService          contract.GuardService
 	guardEngine           contract.GuardEngine
 	pendingChangesUseCase contract.PendingChangesUseCase
+	cache                 *simplecache.Cache[string, domain.Feature]
 }
 
 func New(
@@ -43,6 +47,9 @@ func New(
 	guardEngine contract.GuardEngine,
 	pendingChangesUseCase contract.PendingChangesUseCase,
 ) *Service {
+	cache := simplecache.New[string, domain.Feature]()
+	cache.StartCleanup(time.Minute)
+
 	return &Service{
 		txManager:             txManager,
 		repo:                  repo,
@@ -56,6 +63,7 @@ func New(
 		guardService:          guardService,
 		guardEngine:           guardEngine,
 		pendingChangesUseCase: pendingChangesUseCase,
+		cache:                 cache,
 	}
 }
 
@@ -254,6 +262,23 @@ func (s *Service) GetByKeyWithEnv(ctx context.Context, key, envKey string) (doma
 	}
 
 	return f, nil
+}
+
+func (s *Service) GetByKeyWithEnvCached(ctx context.Context, key, envKey string) (domain.Feature, error) {
+	cacheKey := s.makeFeatureCacheKey(key, envKey)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		return cached, nil
+	}
+
+	feature, err := s.repo.GetByKeyWithEnv(ctx, key, envKey)
+	if err != nil {
+		return domain.Feature{}, fmt.Errorf("get feature by key with environment: %w", err)
+	}
+
+	s.cache.Set(cacheKey, feature, CacheTTL)
+
+	return feature, nil
 }
 
 func (s *Service) List(ctx context.Context, envKey string) ([]domain.Feature, error) {
@@ -1236,4 +1261,19 @@ func (s *Service) reconcileTags(ctx context.Context, featureID domain.FeatureID,
 	}
 
 	return nil
+}
+
+func (s *Service) InvalidateCache(key, envKey string) {
+	cacheKey := s.makeFeatureCacheKey(key, envKey)
+	s.cache.Delete(cacheKey)
+}
+
+func (s *Service) InvalidateProjectCache(projectID domain.ProjectID) {
+	// For now, we'll clear all cache entries since we don't have project-specific keys
+	// In a more sophisticated implementation, we could maintain project-to-keys mapping
+	s.cache.Clear()
+}
+
+func (s *Service) makeFeatureCacheKey(key, envKey string) string {
+	return key + ":" + envKey
 }
