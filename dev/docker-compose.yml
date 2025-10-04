@@ -67,6 +67,8 @@ services:
         condition: service_healthy
       togglr-nats:
         condition: service_healthy
+      togglr-mailhog:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
       interval: 30s

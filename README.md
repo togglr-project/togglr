@@ -29,6 +29,53 @@ It allows developers and product teams to toggle features on/off, run A/B tests,
     * TypeScript (Node.js and browser)
     * Elixir
 
+## Setup Development Environment
+
+### Requirements
+
+- Docker
+- Docker Compose
+
+### Quick Start
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd togglr
+   ```
+
+2. Setup environment files:
+   ```bash
+   make setup
+   ```
+
+3. Start the development environment:
+   ```bash
+   make dev-up
+   ```
+
+4. Access the application:
+   - Frontend: https://localhost
+   - API: https://localhost/api/v1/
+   - SDK: https://localhost/sdk/v1/
+
+### Configuration Notes
+
+- **Domain**: By default, the application is configured for `localhost` in `dev/config.env` and `dev/platform.env`
+- **SSL Certificates**: Self-signed certificates are required in `dev/nginx/ssl/` directory. Pre-generated certificates are included but may be expired
+- **Superuser**: On first startup, a superuser is created with:
+  - Email: `ADMIN_EMAIL` from `dev/config.env` (default: `admin@togglr.dev`)
+  - Password: `ADMIN_TMP_PASSWORD` from `dev/config.env` (default: `password543210`)
+  - You can change these credentials after first login
+
+### Development Commands
+
+- `make dev-up` - Start all services
+- `make dev-down` - Stop all services
+- `make dev-clean` - Stop services and clean up volumes/images
+- `make build` - Build the application (requires Go 1.25+)
+- `make test` - Run tests (requires Go 1.25+)
+
 ## Usage
 
 The server exposes REST API under `/api/v1/*`.
