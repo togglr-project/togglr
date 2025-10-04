@@ -25,9 +25,10 @@ func (s *SDKRestAPI) GetFeatureHealth(
 		lastAt.SetTo(health.LastErrorAt)
 	}
 
-	// Get threshold from project settings
-	threshold := 20 // default threshold
-	// TODO: implement threshold retrieval from project settings
+	threshold, err := s.projectSettingsUC.GetAutoDisableErrorThresholdCached(ctx, projectID)
+	if err != nil {
+		return nil, err
+	}
 
 	return &generatedapi.FeatureHealth{
 		FeatureKey:     featureKey,

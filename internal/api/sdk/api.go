@@ -16,17 +16,20 @@ var _ generatedapi.Handler = (*SDKRestAPI)(nil)
 type SDKRestAPI struct {
 	featureProcessor    contract.FeatureProcessor
 	errorReportsUseCase contract.ErrorReportsUseCase
+	projectSettingsUC   contract.ProjectSettingsUseCase
 	bus                 contract.EventsBus
 }
 
 func New(
 	featureProcessor contract.FeatureProcessor,
 	errorReportsUseCase contract.ErrorReportsUseCase,
+	projectSettingsUC contract.ProjectSettingsUseCase,
 	bus contract.EventsBus,
 ) *SDKRestAPI {
 	return &SDKRestAPI{
 		featureProcessor:    featureProcessor,
 		errorReportsUseCase: errorReportsUseCase,
+		projectSettingsUC:   projectSettingsUC,
 		bus:                 bus,
 	}
 }
