@@ -263,19 +263,24 @@ func (s *Service) GetFeatureHealth(
 		FeatureID:     feature.ID,
 		EnvironmentID: env.ID,
 		Enabled:       params.Enabled,
-		Status:        deriveStatus(params.Enabled, agg.LastErrorAt, timeWindow),
+		Status:        deriveStatus(params.Enabled, agg.ErrorRate, agg.LastErrorAt, timeWindow),
 		ErrorRate:     agg.ErrorRate,
 		LastErrorAt:   agg.LastErrorAt,
 	}, nil
 }
 
-func deriveStatus(enabled bool, lastErr time.Time, timeWindow time.Duration) string {
+func deriveStatus(enabled bool, errorRate float64, lastErr time.Time, timeWindow time.Duration) string {
 	if !enabled {
 		return "disabled"
 	}
 	if lastErr.IsZero() {
 		return "healthy"
 	}
+
+	if errorRate > 0.1 { // 10%
+		return "failing"
+	}
+
 	if time.Since(lastErr) < timeWindow {
 		return "degraded"
 	}
