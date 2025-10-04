@@ -2,4 +2,4 @@ compose.env
 config.env
 platform.env
 tools/*
-nginx/*
+#nginx/*
