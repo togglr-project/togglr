@@ -44,7 +44,7 @@ help: ## Print this message
 	@[ -f $(MOCKERY) ] || GOBIN=$(TOOLS_DIR_ABS) go install github.com/vektra/mockery/v3@$(MOCKERY_VERSION)
 
 .PHONY: setup
-setup: .install-linter .install-mockery ## Setup development environment
+setup: ## Setup development environment
 	@echo "\nCreate .env files in dev/ directory"
 	@cp dev/config.env.example dev/config.env
 	@cp dev/compose.env.example dev/compose.env
