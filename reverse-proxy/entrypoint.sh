@@ -21,7 +21,7 @@ fi
 # shellcheck disable=SC2016,SC2044
 
 for conflist in $(find $NGINX_PATH/templates -name "*.template" -exec basename {} \;); do
-    envsubst '${DOMAIN},${BACKEND_URL},${WS_BACKEND_URL},${FRONTEND_URL},${PG_ACL_LIST},${SSL_CERT},${SSL_CERT_KEY},${SECURE_LINK_MD5}' < "$NGINX_PATH"/templates/"$conflist" > "$NGINX_PATH"/conf.d/"${conflist%.*}".conf
+    envsubst '${DOMAIN},${BACKEND_URL},${WS_BACKEND_URL},${SDK_BACKEND_URL},${FRONTEND_URL},${PG_ACL_LIST},${SSL_CERT},${SSL_CERT_KEY},${SECURE_LINK_MD5}' < "$NGINX_PATH"/templates/"$conflist" > "$NGINX_PATH"/conf.d/"${conflist%.*}".conf
 done
 
 nginx -g "daemon off;"

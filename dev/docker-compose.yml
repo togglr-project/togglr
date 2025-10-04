@@ -12,6 +12,7 @@ services:
       - DOMAIN=${DOMAIN}
       - BACKEND_URL=http://togglr-backend:8080
       - WS_BACKEND_URL=http://togglr-backend:8082
+      - SDK_BACKEND_URL=http://togglr-backend:8090
       - FRONTEND_URL=http://togglr-frontend
       - SSL_CERT=${SSL_CERT}
       - SSL_CERT_KEY=${SSL_CERT_KEY}
