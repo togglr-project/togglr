@@ -21,6 +21,7 @@ import type { FeatureExtended } from '../../generated/api/client';
 import { getNextStateDescription } from '../../utils/timeUtils';
 import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
 import { useRBAC } from '../../auth/permissions';
+import { getHealthStatusColor, getHealthStatusVariant } from '../../utils/healthStatus';
 
 interface FeatureCardProps {
   feature: FeatureExtended;
@@ -149,6 +150,23 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
                 textTransform: 'capitalize',
               }}
             />
+            
+            {feature.enabled && feature.health_status && (
+              <>
+                <Box sx={{ width: 1, height: 12, bgcolor: 'divider', opacity: 0.5 }} />
+                <Chip
+                  size="small"
+                  label={feature.health_status}
+                  color={getHealthStatusColor(feature.health_status)}
+                  variant={getHealthStatusVariant(feature.health_status)}
+                  sx={{ 
+                    fontSize: '0.7rem',
+                    height: 20,
+                    textTransform: 'capitalize',
+                  }}
+                />
+              </>
+            )}
             
             <Box sx={{ width: 1, height: 12, bgcolor: 'divider', opacity: 0.5 }} />
             

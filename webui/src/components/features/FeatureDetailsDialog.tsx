@@ -13,6 +13,7 @@ import GuardResponseHandler from '../pending-changes/GuardResponseHandler';
 import { useApprovePendingChange } from '../../hooks/usePendingChanges';
 import type { AuthCredentialsMethodEnum } from '../../generated/api/client';
 import { useRBAC } from '../../auth/permissions';
+import { getHealthStatusColor, getHealthStatusVariant } from '../../utils/healthStatus';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -333,6 +334,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
               )}
               <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 <Chip size="small" label={`kind: ${featureDetails.feature.kind}`} />
+                {featureDetails.feature.enabled && featureDetails.feature.health_status && (
+                  <Chip 
+                    size="small" 
+                    label={`health: ${featureDetails.feature.health_status}`} 
+                    color={getHealthStatusColor(featureDetails.feature.health_status)} 
+                    variant={getHealthStatusVariant(featureDetails.feature.health_status)} 
+                  />
+                )}
                 <Chip size="small" label={`default: ${featureDetails.feature.default_value}`} />
                 {featureDetails.feature.kind === 'multivariant' && (
                   <Chip size="small" label={`rollout key: ${featureDetails.feature.rollout_key || '-'}`} />

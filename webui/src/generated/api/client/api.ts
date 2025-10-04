@@ -531,6 +531,7 @@ export interface FeatureExtended {
      * Timestamp when the feature will transition to the next state (null if no schedule)
      */
     'next_state_time'?: string;
+    'health_status': string;
     /**
      * Tags associated with this feature
      */

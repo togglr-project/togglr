@@ -55,6 +55,7 @@ import apiClient from '../api/apiClient';
 import { canAddRecurringSchedule, canAddOneShotSchedule, getScheduleType } from '../utils/scheduleHelpers';
 import type { ScheduleBuilderData } from '../utils/cronGenerator';
 import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent, ProjectTag } from '../generated/api/client';
+import { getHealthStatusColor, getHealthStatusVariant } from '../utils/healthStatus';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
@@ -702,6 +703,14 @@ const ProjectSchedulingPage: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">{f.key}</Typography>
                 <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Chip size="small" label={`kind: ${f.kind}`} />
+                  {f.enabled && f.health_status && (
+                    <Chip 
+                      size="small" 
+                      label={`health: ${f.health_status}`} 
+                      color={getHealthStatusColor(f.health_status)} 
+                      variant={getHealthStatusVariant(f.health_status)} 
+                    />
+                  )}
                   <Chip size="small" label={`default: ${f.default_value}`} />
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
