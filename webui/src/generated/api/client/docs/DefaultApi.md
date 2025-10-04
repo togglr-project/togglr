@@ -51,9 +51,7 @@ All URIs are relative to *http://localhost*
 |[**getLDAPSyncLogs**](#getldapsynclogs) | **GET** /api/v1/ldap/sync/logs | Get synchronization logs|
 |[**getLDAPSyncProgress**](#getldapsyncprogress) | **GET** /api/v1/ldap/sync/progress | Get synchronization progress|
 |[**getLDAPSyncStatus**](#getldapsyncstatus) | **GET** /api/v1/ldap/sync/status | Get synchronization status|
-|[**getLicenseStatus**](#getlicensestatus) | **GET** /api/v1/license/status | Get license status|
 |[**getPendingChange**](#getpendingchange) | **GET** /api/v1/pending_changes/{pending_change_id} | Get pending change by ID|
-|[**getProductInfo**](#getproductinfo) | **GET** /api/v1/product/info | Get product information including client ID|
 |[**getProject**](#getproject) | **GET** /api/v1/projects/{project_id} | Get project details|
 |[**getProjectMembership**](#getprojectmembership) | **GET** /api/v1/projects/{project_id}/memberships/{membership_id} | Get membership|
 |[**getProjectSetting**](#getprojectsetting) | **GET** /api/v1/projects/{project_id}/settings/{setting_name} | Get project setting by name|
@@ -106,7 +104,6 @@ All URIs are relative to *http://localhost*
 |[**updateFeature**](#updatefeature) | **PUT** /api/v1/features/{feature_id} | Update feature with rules and variants|
 |[**updateFeatureSchedule**](#updatefeatureschedule) | **PUT** /api/v1/feature-schedules/{schedule_id} | Update feature schedule by ID|
 |[**updateLDAPConfig**](#updateldapconfig) | **POST** /api/v1/ldap/config | Create or update LDAP configuration|
-|[**updateLicense**](#updatelicense) | **PUT** /api/v1/license | Update license|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
 |[**updateProject**](#updateproject) | **PUT** /api/v1/projects/{project_id} | Update project name and description|
 |[**updateProjectMembership**](#updateprojectmembership) | **PUT** /api/v1/projects/{project_id}/memberships/{membership_id} | Update membership|
@@ -2783,52 +2780,6 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getLicenseStatus**
-> LicenseStatusResponse getLicenseStatus()
-
-Returns the current license status including validity, expiration date, and type
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-const { status, data } = await apiInstance.getLicenseStatus();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-**LicenseStatusResponse**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | License status retrieved successfully |  -  |
-|**500** | Internal server error |  -  |
-|**0** | Unexpected error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
 # **getPendingChange**
 > PendingChangeResponse getPendingChange()
 
@@ -2879,53 +2830,6 @@ const { status, data } = await apiInstance.getPendingChange(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Pending change not found |  -  |
-|**500** | Internal server error |  -  |
-|**0** | Unexpected error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **getProductInfo**
-> ProductInfoResponse getProductInfo()
-
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-const { status, data } = await apiInstance.getProductInfo();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-**ProductInfoResponse**
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | Product information retrieved successfully |  -  |
-|**401** | Unauthorized |  -  |
-|**403** | Permission denied |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -5916,63 +5820,6 @@ const { status, data } = await apiInstance.updateLDAPConfig(
 |**400** | Invalid configuration |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
-|**0** | Unexpected error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **updateLicense**
-> LicenseStatusResponse updateLicense(updateLicenseRequest)
-
-Updates the system license with a new license key
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration,
-    UpdateLicenseRequest
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-let updateLicenseRequest: UpdateLicenseRequest; //
-
-const { status, data } = await apiInstance.updateLicense(
-    updateLicenseRequest
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **updateLicenseRequest** | **UpdateLicenseRequest**|  | |
-
-
-### Return type
-
-**LicenseStatusResponse**
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | License updated successfully |  -  |
-|**400** | Invalid license key |  -  |
-|**401** | Unauthorized |  -  |
-|**403** | Permission denied |  -  |
-|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -1789,6 +1789,8 @@ func (s EntityChangeEntity) Validate() error {
 		return nil
 	case "feature_schedule":
 		return nil
+	case "feature_params":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}
@@ -1803,6 +1805,8 @@ func (s EntityType) Validate() error {
 	case "flag_variant":
 		return nil
 	case "feature_schedule":
+		return nil
+	case "feature_params":
 		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)

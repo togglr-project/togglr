@@ -5384,6 +5384,8 @@ func (s *EntityChangeEntity) Decode(d *jx.Decoder) error {
 		*s = EntityChangeEntityRule
 	case EntityChangeEntityFeatureSchedule:
 		*s = EntityChangeEntityFeatureSchedule
+	case EntityChangeEntityFeatureParams:
+		*s = EntityChangeEntityFeatureParams
 	default:
 		*s = EntityChangeEntity(v)
 	}
@@ -5428,6 +5430,8 @@ func (s *EntityType) Decode(d *jx.Decoder) error {
 		*s = EntityTypeFlagVariant
 	case EntityTypeFeatureSchedule:
 		*s = EntityTypeFeatureSchedule
+	case EntityTypeFeatureParams:
+		*s = EntityTypeFeatureParams
 	default:
 		*s = EntityType(v)
 	}

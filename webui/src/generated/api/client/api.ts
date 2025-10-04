@@ -377,7 +377,8 @@ export interface EntityChange {
 export const EntityChangeEntityEnum = {
     Feature: 'feature',
     Rule: 'rule',
-    FeatureSchedule: 'feature_schedule'
+    FeatureSchedule: 'feature_schedule',
+    FeatureParams: 'feature_params'
 } as const;
 
 export type EntityChangeEntityEnum = typeof EntityChangeEntityEnum[keyof typeof EntityChangeEntityEnum];
@@ -397,7 +398,8 @@ export const EntityType = {
     Feature: 'feature',
     Rule: 'rule',
     FlagVariant: 'flag_variant',
-    FeatureSchedule: 'feature_schedule'
+    FeatureSchedule: 'feature_schedule',
+    FeatureParams: 'feature_params'
 } as const;
 
 export type EntityType = typeof EntityType[keyof typeof EntityType];
@@ -818,73 +820,6 @@ export interface LDAPSyncStatus {
     'warnings': number;
     'last_sync_duration'?: string;
 }
-/**
- * Type of license feature
- */
-
-export const LicenseFeature = {
-    Sso: 'sso',
-    Ldap: 'ldap',
-    CorpNotifChannels: 'corp_notif_channels'
-} as const;
-
-export type LicenseFeature = typeof LicenseFeature[keyof typeof LicenseFeature];
-
-
-export interface LicenseStatusResponse {
-    'license': LicenseStatusResponseLicense;
-}
-export interface LicenseStatusResponseLicense {
-    /**
-     * License ID
-     */
-    'id'?: string;
-    'type'?: LicenseType;
-    /**
-     * When the license was issued
-     */
-    'issued_at'?: string;
-    /**
-     * When the license expires
-     */
-    'expires_at'?: string;
-    /**
-     * Whether the license is currently valid
-     */
-    'is_valid'?: boolean;
-    /**
-     * Whether the license has expired
-     */
-    'is_expired'?: boolean;
-    /**
-     * Number of days until license expires (negative if expired)
-     */
-    'days_until_expiry'?: number;
-    /**
-     * The full license text
-     */
-    'license_text'?: string;
-    /**
-     * List of features available in this license
-     */
-    'features'?: Array<LicenseFeature>;
-}
-
-
-/**
- * Type of license
- */
-
-export const LicenseType = {
-    Trial: 'trial',
-    TrialSelfSigned: 'trial-self-signed',
-    Commercial: 'commercial',
-    Individual: 'individual'
-} as const;
-
-export type LicenseType = typeof LicenseType[keyof typeof LicenseType];
-
-
 export interface ListChangesResponse {
     /**
      * Project ID
@@ -1392,12 +1327,6 @@ export interface UpdateLicenseAcceptanceRequest {
      * Flag indicating whether the user accepts the license agreement
      */
     'accepted': boolean;
-}
-export interface UpdateLicenseRequest {
-    /**
-     * The license key text
-     */
-    'license_text': string;
 }
 export interface UpdateMembershipRequest {
     'role_id': string;
@@ -3427,36 +3356,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Returns the current license status including validity, expiration date, and type
-         * @summary Get license status
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getLicenseStatus: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/license/status`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * 
          * @summary Get pending change by ID
          * @param {string} pendingChangeId 
@@ -3468,40 +3367,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('getPendingChange', 'pendingChangeId', pendingChangeId)
             const localVarPath = `/api/v1/pending_changes/{pending_change_id}`
                 .replace(`{${"pending_change_id"}}`, encodeURIComponent(String(pendingChangeId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Get product information including client ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getProductInfo: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/product/info`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5839,46 +5704,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * Updates the system license with a new license key
-         * @summary Update license
-         * @param {UpdateLicenseRequest} updateLicenseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateLicense: async (updateLicenseRequest: UpdateLicenseRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'updateLicenseRequest' is not null or undefined
-            assertParamExists('updateLicense', 'updateLicenseRequest', updateLicenseRequest)
-            const localVarPath = `/api/v1/license`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateLicenseRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * 
          * @summary Update license acceptance status
          * @param {UpdateLicenseAcceptanceRequest} updateLicenseAcceptanceRequest 
@@ -6872,18 +6697,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Returns the current license status including validity, expiration date, and type
-         * @summary Get license status
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getLicenseStatus(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LicenseStatusResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getLicenseStatus(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getLicenseStatus']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * 
          * @summary Get pending change by ID
          * @param {string} pendingChangeId 
@@ -6894,18 +6707,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getPendingChange(pendingChangeId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getPendingChange']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Get product information including client ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getProductInfo(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductInfoResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getProductInfo(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getProductInfo']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7643,19 +7444,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * Updates the system license with a new license key
-         * @summary Update license
-         * @param {UpdateLicenseRequest} updateLicenseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async updateLicense(updateLicenseRequest: UpdateLicenseRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LicenseStatusResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateLicense(updateLicenseRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateLicense']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * 
          * @summary Update license acceptance status
          * @param {UpdateLicenseAcceptanceRequest} updateLicenseAcceptanceRequest 
@@ -8272,15 +8060,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getLDAPSyncStatus(options).then((request) => request(axios, basePath));
         },
         /**
-         * Returns the current license status including validity, expiration date, and type
-         * @summary Get license status
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getLicenseStatus(options?: RawAxiosRequestConfig): AxiosPromise<LicenseStatusResponse> {
-            return localVarFp.getLicenseStatus(options).then((request) => request(axios, basePath));
-        },
-        /**
          * 
          * @summary Get pending change by ID
          * @param {string} pendingChangeId 
@@ -8289,15 +8068,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getPendingChange(pendingChangeId: string, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
             return localVarFp.getPendingChange(pendingChangeId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Get product information including client ID
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getProductInfo(options?: RawAxiosRequestConfig): AxiosPromise<ProductInfoResponse> {
-            return localVarFp.getProductInfo(options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8876,16 +8646,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         updateLDAPConfig(lDAPConfig: LDAPConfig, options?: RawAxiosRequestConfig): AxiosPromise<LDAPConfigResponse> {
             return localVarFp.updateLDAPConfig(lDAPConfig, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * Updates the system license with a new license key
-         * @summary Update license
-         * @param {UpdateLicenseRequest} updateLicenseRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        updateLicense(updateLicenseRequest: UpdateLicenseRequest, options?: RawAxiosRequestConfig): AxiosPromise<LicenseStatusResponse> {
-            return localVarFp.updateLicense(updateLicenseRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9525,16 +9285,6 @@ export class DefaultApi extends BaseAPI {
     }
 
     /**
-     * Returns the current license status including validity, expiration date, and type
-     * @summary Get license status
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public getLicenseStatus(options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getLicenseStatus(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * 
      * @summary Get pending change by ID
      * @param {string} pendingChangeId 
@@ -9543,16 +9293,6 @@ export class DefaultApi extends BaseAPI {
      */
     public getPendingChange(pendingChangeId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getPendingChange(pendingChangeId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Get product information including client ID
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public getProductInfo(options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).getProductInfo(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10183,17 +9923,6 @@ export class DefaultApi extends BaseAPI {
      */
     public updateLDAPConfig(lDAPConfig: LDAPConfig, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).updateLDAPConfig(lDAPConfig, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * Updates the system license with a new license key
-     * @summary Update license
-     * @param {UpdateLicenseRequest} updateLicenseRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public updateLicense(updateLicenseRequest: UpdateLicenseRequest, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).updateLicense(updateLicenseRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

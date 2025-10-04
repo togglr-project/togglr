@@ -84,10 +84,6 @@ docs/LDAPSyncLogs.md
 docs/LDAPSyncProgress.md
 docs/LDAPSyncStartResponse.md
 docs/LDAPSyncStatus.md
-docs/LicenseFeature.md
-docs/LicenseStatusResponse.md
-docs/LicenseStatusResponseLicense.md
-docs/LicenseType.md
 docs/ListChangesResponse.md
 docs/ListEnvironmentsResponse.md
 docs/ListFeaturesResponse.md
@@ -153,7 +149,6 @@ docs/UpdateCategoryRequest.md
 docs/UpdateEnvironmentRequest.md
 docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
-docs/UpdateLicenseRequest.md
 docs/UpdateMembershipRequest.md
 docs/UpdateProjectRequest.md
 docs/UpdateProjectSettingRequest.md

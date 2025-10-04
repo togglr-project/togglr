@@ -7625,7 +7625,7 @@ components:
     EntityType:
       type: string
       description: Type of entity that was changed
-      enum: [feature, rule, flag_variant, feature_schedule]
+      enum: [feature, rule, flag_variant, feature_schedule, feature_params]
 
     AuditAction:
       type: string
@@ -7973,7 +7973,7 @@ components:
         entity:
           type: string
           example: "feature"
-          enum: [feature, rule, feature_schedule]
+          enum: [feature, rule, feature_schedule, feature_params]
         entity_id:
           type: string
           format: uuid

@@ -2185,6 +2185,7 @@ const (
 	EntityChangeEntityFeature         EntityChangeEntity = "feature"
 	EntityChangeEntityRule            EntityChangeEntity = "rule"
 	EntityChangeEntityFeatureSchedule EntityChangeEntity = "feature_schedule"
+	EntityChangeEntityFeatureParams   EntityChangeEntity = "feature_params"
 )
 
 // AllValues returns all EntityChangeEntity values.
@@ -2193,6 +2194,7 @@ func (EntityChangeEntity) AllValues() []EntityChangeEntity {
 		EntityChangeEntityFeature,
 		EntityChangeEntityRule,
 		EntityChangeEntityFeatureSchedule,
+		EntityChangeEntityFeatureParams,
 	}
 }
 
@@ -2204,6 +2206,8 @@ func (s EntityChangeEntity) MarshalText() ([]byte, error) {
 	case EntityChangeEntityRule:
 		return []byte(s), nil
 	case EntityChangeEntityFeatureSchedule:
+		return []byte(s), nil
+	case EntityChangeEntityFeatureParams:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -2222,6 +2226,9 @@ func (s *EntityChangeEntity) UnmarshalText(data []byte) error {
 	case EntityChangeEntityFeatureSchedule:
 		*s = EntityChangeEntityFeatureSchedule
 		return nil
+	case EntityChangeEntityFeatureParams:
+		*s = EntityChangeEntityFeatureParams
+		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
 	}
@@ -2236,6 +2243,7 @@ const (
 	EntityTypeRule            EntityType = "rule"
 	EntityTypeFlagVariant     EntityType = "flag_variant"
 	EntityTypeFeatureSchedule EntityType = "feature_schedule"
+	EntityTypeFeatureParams   EntityType = "feature_params"
 )
 
 // AllValues returns all EntityType values.
@@ -2245,6 +2253,7 @@ func (EntityType) AllValues() []EntityType {
 		EntityTypeRule,
 		EntityTypeFlagVariant,
 		EntityTypeFeatureSchedule,
+		EntityTypeFeatureParams,
 	}
 }
 
@@ -2258,6 +2267,8 @@ func (s EntityType) MarshalText() ([]byte, error) {
 	case EntityTypeFlagVariant:
 		return []byte(s), nil
 	case EntityTypeFeatureSchedule:
+		return []byte(s), nil
+	case EntityTypeFeatureParams:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -2278,6 +2289,9 @@ func (s *EntityType) UnmarshalText(data []byte) error {
 		return nil
 	case EntityTypeFeatureSchedule:
 		*s = EntityTypeFeatureSchedule
+		return nil
+	case EntityTypeFeatureParams:
+		*s = EntityTypeFeatureParams
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
