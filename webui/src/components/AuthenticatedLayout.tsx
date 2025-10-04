@@ -29,7 +29,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
     }
   }, [hasTmpPassword]);
 
-  // Show user agreement dialog when license_accepted is false
+  // Show user agreement dialog when license_accepted is false (this is actually user agreement acceptance)
   useEffect(() => {
     if (user && !user.license_accepted) {
       setShowUserAgreementDialog(true);

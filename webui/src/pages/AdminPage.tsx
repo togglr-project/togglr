@@ -11,7 +11,6 @@ import {
 import {
   People as PeopleIcon,
   AdminPanelSettings as AdminPanelSettingsIcon,
-  VpnKey as LicenseIcon,
   Sync as SyncIcon,
   FolderOutlined as ProjectsIcon,
 } from '@mui/icons-material';
@@ -23,7 +22,6 @@ import Layout from '../components/Layout';
 import TabPanel from '../components/admin/TabPanel';
 import UsersTab from '../components/admin/UsersTab';
 import ProjectsTab from '../components/admin/ProjectsTab';
-import LicenseTab from '../components/admin/LicenseTab';
 import ExternalAuthTab from '../components/admin/ExternalAuthTab';
 import CreateUserDialog from '../components/admin/CreateUserDialog';
 import CreateProjectDialog from '../components/admin/CreateProjectDialog';
@@ -205,7 +203,7 @@ const AdminPage: React.FC = () => {
               fontSize: '1.1rem'
             }}
           >
-            Manage users, projects, licenses, and system configuration.
+            Manage users, projects, and system configuration.
           </Typography>
         </Box>
 
@@ -254,11 +252,6 @@ const AdminPage: React.FC = () => {
                 icon={<SyncIcon />}
                 iconPosition="start"
               />
-              <Tab 
-                label="License" 
-                icon={<LicenseIcon />} 
-                iconPosition="start"
-              />
             </Tabs>
           </Box>
 
@@ -290,11 +283,6 @@ const AdminPage: React.FC = () => {
           {/* External Auth Tab */}
           <TabPanel value={tabValue} index={2}>
             <ExternalAuthTab />
-          </TabPanel>
-
-          {/* License Tab */}
-          <TabPanel value={tabValue} index={3}>
-            <LicenseTab />
           </TabPanel>
         </Paper>
 

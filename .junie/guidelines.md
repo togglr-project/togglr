@@ -2,6 +2,8 @@
 
 This document describes the key architectural decisions, principles, and tools used in the project. It is intended to quickly onboard new developers and synchronize understanding within the team.
 
+* все комментарии пишем на английском языке, если надо. но лучше не писать комментарии в коде. тексты все на английском точно
+
 ## 1. Philosophy: Clean Architecture
 
 The foundation of the project is **Layered Clean Architecture**. The main goal of this approach is Separation of Concerns, making the system flexible, testable, and easy to maintain.
