@@ -31,6 +31,19 @@ func (r *RestAPI) GetFeature(
 		return nil, err
 	}
 
+	env, err := r.environmentsUseCase.GetByID(ctx, feature.EnvironmentID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString("environment not found"),
+			}}, nil
+		}
+
+		slog.Error("get environment failed", "error", err)
+
+		return nil, err
+	}
+
 	if err := r.permissionsService.CanAccessProject(ctx, feature.ProjectID); err != nil {
 		slog.Error("permission denied", "error", err, "project_id", feature.ProjectID)
 
@@ -73,6 +86,14 @@ func (r *RestAPI) GetFeature(
 	// Get next state information
 	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(feature)
 
+	// Get feature health
+	health, err := r.errorReportsUseCase.GetFeatureHealth(ctx, feature.ProjectID, feature.Key, env.Key)
+	if err != nil {
+		slog.Error("get feature health failed", "error", err, "feature_id", featureID)
+
+		return nil, err
+	}
+
 	// Create FeatureExtended with tags
 	featureWithTags := feature
 	featureWithTags.Tags = tags
@@ -92,6 +113,7 @@ func (r *RestAPI) GetFeature(
 		r.featureProcessor.IsFeatureActive(feature),
 		nextStatePtr,
 		nextStateTimePtr,
+		health.Status,
 	)
 
 	resp := &generatedapi.FeatureDetailsResponse{

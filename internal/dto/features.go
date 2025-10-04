@@ -30,6 +30,7 @@ func DomainFeatureExtendedToAPI(
 	isActive bool,
 	nextState *bool,
 	nextStateTime *time.Time,
+	healthStatus string,
 ) generatedapi.FeatureExtended {
 	item := generatedapi.FeatureExtended{
 		ID:           feature.ID.String(),
@@ -44,6 +45,7 @@ func DomainFeatureExtendedToAPI(
 		CreatedAt:    feature.CreatedAt,
 		UpdatedAt:    feature.UpdatedAt,
 		IsActive:     isActive,
+		HealthStatus: healthStatus,
 	}
 
 	// Handle next state

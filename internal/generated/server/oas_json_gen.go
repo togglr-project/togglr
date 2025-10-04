@@ -7860,6 +7860,10 @@ func (s *FeatureExtended) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		e.FieldStart("health_status")
+		e.Str(s.HealthStatus)
+	}
+	{
 		if s.Tags != nil {
 			e.FieldStart("tags")
 			e.ArrStart()
@@ -7871,7 +7875,7 @@ func (s *FeatureExtended) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfFeatureExtended = [15]string{
+var jsonFieldsNameOfFeatureExtended = [16]string{
 	0:  "id",
 	1:  "project_id",
 	2:  "key",
@@ -7886,7 +7890,8 @@ var jsonFieldsNameOfFeatureExtended = [15]string{
 	11: "is_active",
 	12: "next_state",
 	13: "next_state_time",
-	14: "tags",
+	14: "health_status",
+	15: "tags",
 }
 
 // Decode decodes FeatureExtended from json.
@@ -8056,6 +8061,18 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"next_state_time\"")
 			}
+		case "health_status":
+			requiredBitSet[1] |= 1 << 6
+			if err := func() error {
+				v, err := d.Str()
+				s.HealthStatus = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"health_status\"")
+			}
 		case "tags":
 			if err := func() error {
 				s.Tags = make([]ProjectTag, 0)
@@ -8084,7 +8101,7 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 	var failures []validate.FieldError
 	for i, mask := range [2]uint8{
 		0b10101111,
-		0b00001111,
+		0b01001111,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

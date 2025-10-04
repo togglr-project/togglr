@@ -3379,6 +3379,7 @@ type FeatureExtended struct {
 	NextState OptNilBool `json:"next_state"`
 	// Timestamp when the feature will transition to the next state (null if no schedule).
 	NextStateTime OptNilDateTime `json:"next_state_time"`
+	HealthStatus  string         `json:"health_status"`
 	// Tags associated with this feature.
 	Tags []ProjectTag `json:"tags"`
 }
@@ -3451,6 +3452,11 @@ func (s *FeatureExtended) GetNextState() OptNilBool {
 // GetNextStateTime returns the value of NextStateTime.
 func (s *FeatureExtended) GetNextStateTime() OptNilDateTime {
 	return s.NextStateTime
+}
+
+// GetHealthStatus returns the value of HealthStatus.
+func (s *FeatureExtended) GetHealthStatus() string {
+	return s.HealthStatus
 }
 
 // GetTags returns the value of Tags.
@@ -3526,6 +3532,11 @@ func (s *FeatureExtended) SetNextState(val OptNilBool) {
 // SetNextStateTime sets the value of NextStateTime.
 func (s *FeatureExtended) SetNextStateTime(val OptNilDateTime) {
 	s.NextStateTime = val
+}
+
+// SetHealthStatus sets the value of HealthStatus.
+func (s *FeatureExtended) SetHealthStatus(val string) {
+	s.HealthStatus = val
 }
 
 // SetTags sets the value of Tags.

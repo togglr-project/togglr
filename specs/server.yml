@@ -6936,13 +6936,16 @@ components:
               nullable: true
               description: "Timestamp when the feature will transition to the next state (null if no schedule)"
               example: "2025-09-20T14:00:00Z"
+            health_status:
+              type: string
+              example: 'healthy'
             tags:
               type: array
               items:
                 $ref: '#/components/schemas/ProjectTag'
               description: "Tags associated with this feature"
               example: []
-          required: [is_active]
+          required: [is_active, health_status]
 
     CreateFeatureRequest:
       type: object

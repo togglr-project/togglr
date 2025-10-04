@@ -113,6 +113,14 @@ func (r *RestAPI) ListProjectFeatures(
 	itemsResp := make([]generatedapi.FeatureExtended, 0, len(items))
 
 	for _, it := range items {
+		// Get feature health
+		health, err := r.errorReportsUseCase.GetFeatureHealth(ctx, it.ProjectID, it.Key, environmentKey)
+		if err != nil {
+			slog.Error("get feature health failed", "error", err, "feature_id", it.ID)
+
+			return nil, err
+		}
+
 		// Get next state information
 		nextStateEnabled, nextStateTime := r.featureProcessor.NextState(it)
 
@@ -142,6 +150,7 @@ func (r *RestAPI) ListProjectFeatures(
 			r.featureProcessor.IsFeatureActive(it),
 			nextStatePtr,
 			nextStateTimePtr,
+			health.Status,
 		)
 		itemsResp = append(itemsResp, featureExtended)
 	}
