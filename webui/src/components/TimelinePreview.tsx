@@ -164,7 +164,8 @@ const TimelinePreview: React.FC<TimelinePreviewProps> = ({ featureId, environmen
     updated_at: new Date().toISOString(),
     default_variant: '',
     default_value: '',
-    is_active: true
+    is_active: true,
+    health_status: 'healthy'
   };
 
   // Convert timeline events to the format expected by TimelineChart

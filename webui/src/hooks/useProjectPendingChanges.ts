@@ -48,7 +48,7 @@ export const useFeatureHasPendingChanges = (featureId: string, projectId?: strin
   
   const hasPending = pendingChanges?.some(change => 
     change.change.entities?.some(entity => 
-      (entity.entity === 'feature' || entity.entity === 'feature_params') && entity.entity_id === featureId
+      (entity.entity === 'feature') && entity.entity_id === featureId
     )
   ) || false;
   
