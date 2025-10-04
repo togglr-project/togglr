@@ -85,7 +85,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
   const [errors, setErrors] = useState<string[]>([]);
   const [cronExpression, setCronExpression] = useState<string>('');
 
-  // Автоматическая корректировка duration при изменении repeatEvery
+  // Automatic correction of duration when repeatEvery changes
   useEffect(() => {
     if (data.scheduleType === 'repeat_every' && data.repeatEvery) {
       const convertToMinutes = (value: number, unit: 'minutes' | 'hours' | 'days'): number => {
@@ -100,11 +100,11 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
       const repeatIntervalMinutes = convertToMinutes(data.repeatEvery.interval, data.repeatEvery.unit);
       const currentDurationMinutes = convertToMinutes(data.duration.value, data.duration.unit);
       
-      // Если duration больше или равна repeat interval, корректируем его
+      // If duration is greater than or equal to repeat interval, correct it
       if (currentDurationMinutes >= repeatIntervalMinutes) {
         const newDurationMinutes = Math.max(repeatIntervalMinutes - 1, 1);
         
-        // Определяем подходящую единицу для нового duration
+        // Determine the appropriate unit for the new duration
         let newUnit: 'minutes' | 'hours' | 'days' = 'minutes';
         let newValue = newDurationMinutes;
         
@@ -116,7 +116,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
           newValue = newDurationMinutes / 1440;
         }
         
-        // Проверяем, что новая единица разрешена для данного repeatEvery
+        // Check that the new unit is allowed for the given repeatEvery
         if (data.repeatEvery.unit === 'minutes' && newUnit !== 'minutes') {
           newUnit = 'minutes';
           newValue = newDurationMinutes;
@@ -133,7 +133,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
     }
   }, [data.scheduleType, data.repeatEvery?.interval, data.repeatEvery?.unit, data.duration.unit, data.duration.value, data.repeatEvery]);
 
-  // Валидация и генерация cron при изменении данных
+  // Validation and generation of cron when data changes
   useEffect(() => {
     const validationErrors = validateScheduleData(data);
     setErrors(validationErrors);
@@ -143,7 +143,7 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
         const cron = generateCronExpression(data);
         setCronExpression(cron);
         
-        // Проверяем валидность cron
+        // Check the validity of cron
         if (!isValidCron(cron, { seconds: false, allowBlankDay: true, alias: true })) {
           setCronExpression('');
         }
@@ -169,7 +169,6 @@ const ScheduleBuilder: React.FC<ScheduleBuilderProps> = ({
 
   const handleSubmit = () => {
     if (errors.length === 0 && cronExpression) {
-      // Use browser timezone for dates
       const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       
       onSubmit({

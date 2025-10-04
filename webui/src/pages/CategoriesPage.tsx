@@ -186,13 +186,13 @@ const CategoriesPage: React.FC = () => {
         slug: formData.slug,
         description: formData.description || undefined,
         color: formData.color || undefined,
-        // category_type и kind нельзя обновлять
+        // category_type and kind cannot be updated
       }
     });
   };
 
   const handleDelete = (category: Category) => {
-    // Проверяем, можно ли удалить категорию
+    // Check that the category can be deleted
     if ((category.kind as string) === 'system') {
       setError('Cannot delete system categories');
       return;

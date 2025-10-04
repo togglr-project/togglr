@@ -42,9 +42,7 @@ export const userPermissions = () => {
   const claims = getTokenClaims();
   const permissions = claims?.permissions;
 
-  // Проверка прав на проекты
   const canReadProject = (projectId: number): boolean => {
-    // Суперпользователь имеет доступ ко всем проектам
     if (claims?.isSuperuser) return true;
     
     if (!permissions?.project_permissions) return false;
@@ -52,7 +50,6 @@ export const userPermissions = () => {
   };
 
   const canWriteProject = (projectId: number): boolean => {
-    // Суперпользователь имеет доступ ко всем проектам
     if (claims?.isSuperuser) return true;
     
     if (!permissions?.project_permissions) return false;
@@ -60,7 +57,6 @@ export const userPermissions = () => {
   };
 
   const canDeleteProject = (projectId: number): boolean => {
-    // Суперпользователь имеет доступ ко всем проектам
     if (claims?.isSuperuser) return true;
     
     if (!permissions?.project_permissions) return false;
@@ -97,7 +93,6 @@ export const userPermissions = () => {
     return false;
   };
 
-  // Функция для проверки прав на проект на основе роли в команде
   const canManageProjectByTeamRole = (projectTeamId: number): boolean => {
     if (claims?.isSuperuser) return true;
     
@@ -118,7 +113,6 @@ export const userPermissions = () => {
     return permissions.project_permissions[projectId]?.team_role || null;
   };
 
-  // Проверка ролей в командах
   const getTeamRole = (teamId: number): string | null => {
     if (!permissions?.team_roles) return null;
     return permissions.team_roles[teamId] || null;
@@ -138,7 +132,6 @@ export const userPermissions = () => {
     return role === 'owner' || role === 'admin' || role === 'member';
   };
 
-  // Общие права
   const canCreateProjects = (): boolean => {
     const result = claims?.isSuperuser || permissions?.can_create_projects || false;
     return result;
@@ -152,12 +145,10 @@ export const userPermissions = () => {
     return claims?.isSuperuser || permissions?.can_manage_users || false;
   };
 
-  // Проверка superuser
   const isSuperuser = (): boolean => {
     return claims?.isSuperuser || false;
   };
 
-  // Получение всех доступных проектов
   const getAccessibleProjectIds = (): number[] => {
     if (!permissions?.project_permissions) {
       console.log('No project permissions found');
@@ -168,37 +159,31 @@ export const userPermissions = () => {
     return ids;
   };
 
-  // Получение всех команд пользователя
   const getUserTeamIds = (): number[] => {
     if (!permissions?.team_roles) return [];
     return Object.keys(permissions.team_roles).map(Number);
   };
 
   return {
-    // Права на проекты
     canReadProject,
     canWriteProject,
     canDeleteProject,
     canManageProject,
     getProjectTeamRole,
-    
-    // Роли в командах
+
     getTeamRole,
     isTeamOwner,
     isTeamAdmin,
     isTeamMember,
-    
-    // Общие права
+
     canCreateProjects,
     canCreateTeams,
     canManageUsers,
     isSuperuser,
-    
-    // Утилиты
+
     getAccessibleProjectIds,
     getUserTeamIds,
-    
-    // Сырые данные
+
     permissions,
     claims,
   };

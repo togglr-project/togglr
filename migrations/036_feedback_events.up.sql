@@ -23,7 +23,7 @@ select add_retention_policy('monitoring.feedback_events', interval '30 days');
 
 ---------------------------------------------------
 
--- 2. Table for first aggregates (для Evaluate)
+-- 2. Table for first aggregates (for Evaluate)
 create table monitoring.feature_algorithm_stats
 (
     feature_id    uuid not null references public.features on delete cascade,

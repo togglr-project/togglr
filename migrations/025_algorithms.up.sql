@@ -33,7 +33,7 @@ INSERT INTO algorithms (id, name, slug, description, default_settings) VALUES
 CREATE OR REPLACE FUNCTION apply_default_algorithm_settings()
     RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-    -- INSERT case: если settings не переданы → копируем default_settings
+    -- INSERT case: if settings are not passed → copy default_settings
     IF TG_OP = 'INSERT' THEN
         IF NEW.settings IS NULL THEN
             SELECT a.default_settings
@@ -47,7 +47,7 @@ BEGIN
         END IF;
     END IF;
 
-    -- UPDATE case: если сменили algorithm_id → сбрасываем на default_settings
+    -- UPDATE case: if algorithm_id is changed → reset to default_settings
     IF TG_OP = 'UPDATE' AND NEW.algorithm_id <> OLD.algorithm_id THEN
         SELECT a.default_settings
         INTO NEW.settings
@@ -63,13 +63,13 @@ BEGIN
 END;
 $$;
 
--- INSERT: применяем дефолтные настройки, если их не передали
+-- INSERT: apply default settings, if they are not passed
 CREATE TRIGGER trg_apply_default_algorithm_settings_insert
     BEFORE INSERT ON feature_algorithms
     FOR EACH ROW
 EXECUTE FUNCTION apply_default_algorithm_settings();
 
--- UPDATE: сбрасываем настройки при смене алгоритма
+-- UPDATE: reset settings when algorithm_id is changed
 CREATE TRIGGER trg_apply_default_algorithm_settings_update
     BEFORE UPDATE OF algorithm_id ON feature_algorithms
     FOR EACH ROW

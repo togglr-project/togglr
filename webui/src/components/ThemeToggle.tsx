@@ -16,7 +16,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
 
   const iconSize = size === 'small' ? 20 : size === 'large' ? 28 : 24;
   
-  // Определяем, является ли текущая тема темной (только 'dark' считается темной)
+  // Determine if the current theme is dark (only 'dark' is considered dark)
   const isDarkTheme = mode !== 'light';
 
   const button = (
@@ -41,12 +41,12 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
       {isDarkTheme ? (
         <Brightness7 sx={{ 
           fontSize: iconSize,
-          color: '#FFD700' // Золотой цвет для солнца на темном фоне
+          color: '#FFD700' // Golden color for sun on dark background
         }} />
       ) : (
         <Brightness4 sx={{ 
           fontSize: iconSize,
-          color: '#8252FF' // Фиолетовый цвет для луны на светлом фоне
+          color: '#8252FF' // Purple color for moon on light background
         }} />
       )}
     </IconButton>

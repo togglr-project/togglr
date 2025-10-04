@@ -29,7 +29,7 @@ const ProjectsPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
-  const rbac = useRBAC(); // Для проверки суперюзера
+  const rbac = useRBAC(); // For checking superuser
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -42,14 +42,14 @@ const ProjectsPage: React.FC = () => {
     },
   });
 
-  // Фильтрация проектов по правам доступа
+  // Filter projects by access permissions
   const accessibleProjects = React.useMemo(() => {
     if (!projects || !user) return [];
     
-    // Если пользователь суперюзер, показываем все проекты
+    // If user is superuser, show all projects
     if (user.is_superuser) return projects;
     
-    // Иначе фильтруем по project_permissions
+    // Otherwise filter by project_permissions
     return projects.filter(project => {
       const permissions = user.project_permissions?.[project.id];
       return permissions && permissions.includes('project.view');
@@ -135,7 +135,7 @@ const ProjectsPage: React.FC = () => {
         )}
       </Paper>
 
-      {/* Create Project Dialog */}
+      {/* Create project dialog */}
       <CreateProjectDialog
         open={createOpen}
         onClose={() => setCreateOpen(false)}

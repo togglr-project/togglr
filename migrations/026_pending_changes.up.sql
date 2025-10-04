@@ -125,7 +125,7 @@ CREATE TRIGGER trg_project_settings_set_updated_at
 
 ---
 
--- Функция-триггер для добавления дефолтных project_settings
+-- Function-trigger for adding default project_settings
 CREATE OR REPLACE FUNCTION set_default_project_settings()
     RETURNS TRIGGER AS $$
 BEGIN
@@ -158,7 +158,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Триггер на вставку проекта
+-- Trigger on insert project
 CREATE TRIGGER trg_set_default_project_settings
     AFTER INSERT ON projects
     FOR EACH ROW

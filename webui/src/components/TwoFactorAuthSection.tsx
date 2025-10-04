@@ -231,7 +231,6 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
             </Button>
           )}
 
-          {/* Модалка для включения 2FA */}
           <Dialog open={openSetup} onClose={handleCloseSetup} maxWidth="xs" fullWidth>
             <DialogTitle sx={{ color: 'primary.main' }}>Enable Two-Factor Authentication</DialogTitle>
             <DialogContent>
@@ -243,7 +242,6 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
                 </Box>
               ) : setupData ? (
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                  {/* QR-код */}
                   {setupData.qr_code ? (
                     <img
                       src={setupData.qr_code}
@@ -334,7 +332,6 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
             </DialogActions>
           </Dialog>
 
-          {/* Модалка для отключения 2FA */}
           <Dialog open={openDisable} onClose={handleCloseDisable} maxWidth="xs" fullWidth>
             <DialogTitle sx={{ color: 'primary.main' }}>Disable Two-Factor Authentication</DialogTitle>
             <DialogContent>

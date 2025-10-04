@@ -1,12 +1,12 @@
--- расширение нужно для EXCLUDE CONSTRAINT
+-- extension is needed for EXCLUDE CONSTRAINT
 create extension if not exists btree_gist;
 
--- уникальность cron для каждой feature_id
+-- uniqueness of cron for each feature_id
 create unique index if not exists feature_schedules_uniq_cron_guard
     on feature_schedules (feature_id)
     where cron_expr is not null;
 
--- запрет пересекающихся интервалов one-shot расписаний у одной feature_id
+-- prevent overlapping one-shot schedules for one feature_id
 alter table feature_schedules
     add constraint feature_schedules_no_overlap_guard
         exclude using gist (
@@ -15,12 +15,12 @@ alter table feature_schedules
         )
         where (cron_expr is null);
 
--- триггер-функция: запрещает смешивать cron и one-shot
+-- trigger-function: prevents mixing cron and one-shot
 create or replace function check_feature_schedule_mode()
     returns trigger as $$
 begin
     if NEW.cron_expr is not null then
-        -- если добавляем cron, проверим что нет one-shot у этой фичи
+        -- if adding cron, check that there is no one-shot for this feature
         if exists(
             select 1 from feature_schedules
             where feature_id = NEW.feature_id
@@ -30,7 +30,7 @@ begin
             raise exception 'Feature % already has one-shot schedules, cannot add cron', NEW.feature_id;
         end if;
     else
-        -- если добавляем one-shot, проверим что нет cron у этой фичи
+        -- if adding one-shot, check that there is no cron for this feature
         if exists(
             select 1 from feature_schedules
             where feature_id = NEW.feature_id
@@ -45,7 +45,7 @@ begin
 end;
 $$ language plpgsql;
 
--- сам триггер
+-- the trigger
 drop trigger if exists trg_check_feature_schedule_mode on feature_schedules;
 
 create trigger trg_check_feature_schedule_mode

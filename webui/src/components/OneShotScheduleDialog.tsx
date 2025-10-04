@@ -51,7 +51,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
 
   const [errors, setErrors] = useState<string[]>([]);
 
-  // Сброс формы при открытии
+  // Reset form when dialog opens
   useEffect(() => {
     if (open) {
       setData({
@@ -64,7 +64,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
     }
   }, [open, initialData]);
 
-  // Валидация при изменении данных
+  // Validation when data changes
   useEffect(() => {
     const validationErrors = validateOneShotSchedule(data, existingSchedules);
     setErrors(validationErrors);
@@ -331,7 +331,7 @@ const OneShotScheduleDialog: React.FC<OneShotScheduleDialogProps> = ({
 };
 
 /**
- * Валидирует данные разового расписания
+ * Validate one-shot schedule data
  */
 function validateOneShotSchedule(
   data: OneShotScheduleData,

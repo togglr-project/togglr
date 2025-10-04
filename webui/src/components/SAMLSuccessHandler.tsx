@@ -11,7 +11,7 @@ const SAMLSuccessHandler: React.FC = () => {
   useEffect(() => {
     const handleSuccess = async () => {
       try {
-        // Получаем токены из URL параметров
+        // Get tokens from URL parameters
         const accessToken = searchParams.get('access_token');
         const refreshToken = searchParams.get('refresh_token');
 
@@ -20,10 +20,10 @@ const SAMLSuccessHandler: React.FC = () => {
           return;
         }
 
-        // Вызываем функцию логина с токенами из AuthContext
+        // Call login function with tokens from AuthContext
         await loginWithTokens(accessToken, refreshToken);
 
-        // Перенаправляем на dashboard
+        // Redirect to dashboard
         navigate('/dashboard', { replace: true });
       } catch (err) {
         console.error('Error during SAML success handling:', err);

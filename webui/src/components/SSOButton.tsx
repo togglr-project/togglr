@@ -53,10 +53,10 @@ const SSOButton: React.FC<SSOButtonProps> = ({
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     if (providers.length === 1) {
-      // Если только один провайдер, сразу инициируем SSO
+      // If there is only one provider, initiate SSO immediately
       handleSSOInitiate(providers[0].name);
     } else {
-      // Если несколько провайдеров, показываем меню
+      // If there are multiple providers, show the menu
       setAnchorEl(event.currentTarget);
     }
   };
@@ -81,7 +81,7 @@ const SSOButton: React.FC<SSOButtonProps> = ({
     }
   };
 
-  // Если нет доступных провайдеров, не показываем кнопку
+  // If there are no available providers, don't show the button
   if (providers.length === 0 && !loadingProviders) {
     return null;
   }

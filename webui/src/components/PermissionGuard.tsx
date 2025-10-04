@@ -4,18 +4,18 @@ import { userPermissions } from '../hooks/userPermissions.ts';
 interface PermissionGuardProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
-  // Права на проекты
+  // Project permissions
   projectId?: number;
   canRead?: boolean;
   canWrite?: boolean;
   canDelete?: boolean;
   canManage?: boolean;
-  // Права в командах
+  // Team permissions
   teamId?: number;
   requireOwner?: boolean;
   requireAdmin?: boolean;
   requireMember?: boolean;
-  // Общие права
+  // General permissions
   requireCreateProjects?: boolean;
   requireCreateTeams?: boolean;
   requireManageUsers?: boolean;
@@ -54,12 +54,12 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
     isSuperuser,
   } = userPermissions();
 
-  // Проверка superuser
+  // Check superuser
   if (requireSuperuser && !isSuperuser()) {
     return <>{fallback}</>;
   }
 
-  // Проверка общих прав
+  // Check general permissions
   if (requireCreateProjects && !canCreateProjects()) {
     return <>{fallback}</>;
   }
@@ -72,7 +72,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
     return <>{fallback}</>;
   }
 
-  // Проверка прав на проекты
+  // Check project permissions
   if (projectId) {
     if (canRead && !canReadProject(projectId)) {
       return <>{fallback}</>;
@@ -91,7 +91,7 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
     }
   }
 
-  // Проверка прав в командах
+  // Check team permissions
   if (teamId) {
     if (requireOwner && !isTeamOwner(teamId)) {
       return <>{fallback}</>;
@@ -109,4 +109,4 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
   return <>{children}</>;
 };
 
-export default PermissionGuard; 
+export default PermissionGuard;

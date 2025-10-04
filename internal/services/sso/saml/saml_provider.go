@@ -380,7 +380,6 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 		MetadataValidDuration: 24 * time.Hour,
 	}
 
-	// ------------------- ключ/сертификат -------------------
 	switch {
 	case p.privateKey != nil && p.certificate != nil:
 		if rsaKey, ok := p.privateKey.(*rsa.PrivateKey); ok {

@@ -382,7 +382,7 @@ func generate2FASession(userID domain.UserID, username string, ttl time.Duration
 		CreatedAt: time.Now(),
 	}
 	twoFASessionStore.Unlock()
-	// Очистка устаревших сессий (простая, неэффективная, но для in-memory ок)
+
 	go func() {
 		time.Sleep(ttl)
 		twoFASessionStore.Lock()

@@ -180,7 +180,7 @@ const ProjectTagsPage: React.FC = () => {
       return;
     }
     
-    // Проверяем, что выбранная категория имеет правильный kind
+    // Check that the selected category has the correct kind
     if (formData.category_id) {
       const selectedCategory = categories?.find(cat => cat.id === formData.category_id);
       if (selectedCategory && selectedCategory.kind !== 'domain' && selectedCategory.kind !== 'user') {
@@ -199,7 +199,7 @@ const ProjectTagsPage: React.FC = () => {
   };
 
   const handleEdit = (tag: ProjectTag) => {
-    // Проверяем, можно ли редактировать тег (категория не должна быть system)
+    // Check that the tag can be edited (category should not be system)
     if (tag.category && (tag.category.kind as string) === 'system') {
       setError('Cannot edit tags with system categories');
       return;
@@ -236,7 +236,7 @@ const ProjectTagsPage: React.FC = () => {
   };
 
   const handleDelete = (tag: ProjectTag) => {
-    // Проверяем, можно ли удалить тег (категория не должна быть system)
+    // Check that the tag can be deleted (category should not be system)
     if (tag.category && (tag.category.kind as string) === 'system') {
       setError('Cannot delete tags with system categories');
       return;

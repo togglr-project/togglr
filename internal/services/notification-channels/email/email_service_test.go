@@ -48,7 +48,7 @@ func TestService_sendEmailsParallel(t *testing.T) {
 					Password: "test",
 				},
 			}
-			// Подменяем функцию отправки писем на мок
+
 			service.sendEmailFunc = func(ctx context.Context, to []string, subject, body string) error {
 				return nil
 			}

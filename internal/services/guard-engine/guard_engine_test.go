@@ -99,7 +99,7 @@ func TestBuildInsertChanges_FeatureSchedule(t *testing.T) {
 }
 
 func TestBuildChangeDiff_Feature(t *testing.T) {
-	// Test for Feature - полная структура с вложенной BasicFeature
+	// Test for Feature - full structure with nested BasicFeature
 	oldFeature := &domain.Feature{
 		BasicFeature: domain.BasicFeature{
 			ID:          "feature-1",
@@ -134,7 +134,7 @@ func TestBuildChangeDiff_Feature(t *testing.T) {
 
 	changes := BuildChangeDiff(oldFeature, newFeature)
 
-	// Check that changes contain only editable fields из BasicFeature
+	// Check that changes contain only editable fields from BasicFeature
 	expectedChanges := map[string]bool{
 		"name":        true, // from BasicFeature
 		"description": true, // from BasicFeature
@@ -161,7 +161,7 @@ func TestBuildChangeDiff_Feature(t *testing.T) {
 	if _, exists := changes["created_at"]; exists {
 		t.Error("CreatedAt field should not be included in changes")
 	}
-	// enabled и default_value не должны быть включены, так как они не имеют тега editable
+	// enabled and default_value should not be included, since they don't have the editable tag
 	if _, exists := changes["enabled"]; exists {
 		t.Error("Enabled field should not be included in changes (no editable tag)")
 	}
@@ -171,7 +171,7 @@ func TestBuildChangeDiff_Feature(t *testing.T) {
 }
 
 func TestBuildChangeDiff_FeatureParams(t *testing.T) {
-	// Test for FeatureParams - здесь enabled и default_value имеют тег editable
+	// Test for FeatureParams - here enabled and default_value have the editable tag
 	oldParams := &domain.FeatureParams{
 		FeatureID:     "feature-1",
 		EnvironmentID: 1,
@@ -508,7 +508,7 @@ func TestComputeFeatureChanges_Integration(t *testing.T) {
 }
 
 func TestComputeFeatureChanges_OnlyBasicFeature(t *testing.T) {
-	// Test for случая, когда изменяются только поля из BasicFeature
+	// Test for the case when only BasicFeature fields are changed
 	oldFeature := &domain.Feature{
 		BasicFeature: domain.BasicFeature{
 			ID:          "feature-1",
@@ -531,7 +531,7 @@ func TestComputeFeatureChanges_OnlyBasicFeature(t *testing.T) {
 			ProjectID:   "project-1",
 			Key:         "test-feature",
 			Kind:        domain.FeatureKindSimple,
-			Name:        "Updated Test Feature", // Changed только name
+			Name:        "Updated Test Feature", // Changed only name
 			Description: "Test Description",
 			RolloutKey:  "user_id",
 			CreatedAt:   time.Now(),
@@ -567,7 +567,6 @@ func TestComputeFeatureChanges_OnlyBasicFeature(t *testing.T) {
 }
 
 func TestComputeFeatureChanges_OnlyParams(t *testing.T) {
-	// Test for случая, когда изменяются только enabled/default_value
 	oldFeature := &domain.Feature{
 		BasicFeature: domain.BasicFeature{
 			ID:          "feature-1",
@@ -596,8 +595,8 @@ func TestComputeFeatureChanges_OnlyParams(t *testing.T) {
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 		},
-		Enabled:      false,         // Changed только enabled
-		DefaultValue: "new-default", // Changed только default_value
+		Enabled:      false,         // Changed only enabled
+		DefaultValue: "new-default", // Changed only default_value
 	}
 
 	service := &Service{}

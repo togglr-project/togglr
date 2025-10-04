@@ -23,7 +23,6 @@ func New(pool *pgxpool.Pool) *Repository {
 	}
 }
 
-// Create создает новое окружение.
 func (r *Repository) Create(ctx context.Context, env domain.Environment) (domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -71,7 +70,6 @@ RETURNING id, project_id, key, name, api_key, created_at`
 	return newEnv, nil
 }
 
-// GetByID получает окружение по ID.
 func (r *Repository) GetByID(ctx context.Context, id domain.EnvironmentID) (domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -95,7 +93,6 @@ func (r *Repository) GetByID(ctx context.Context, id domain.EnvironmentID) (doma
 	return model.toDomain(), nil
 }
 
-// GetByProjectIDAndKey получает окружение по project_id и key.
 func (r *Repository) GetByProjectIDAndKey(ctx context.Context, projectID domain.ProjectID, key string) (domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -119,7 +116,6 @@ func (r *Repository) GetByProjectIDAndKey(ctx context.Context, projectID domain.
 	return model.toDomain(), nil
 }
 
-// ListByProjectID получает все окружения проекта.
 func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -144,7 +140,6 @@ func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.Proje
 	return environments, nil
 }
 
-// GetByAPIKey получает окружение по API ключу.
 func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -168,7 +163,6 @@ func (r *Repository) GetByAPIKey(ctx context.Context, apiKey string) (domain.Env
 	return model.toDomain(), nil
 }
 
-// Update обновляет окружение.
 func (r *Repository) Update(ctx context.Context, env domain.Environment) (domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
@@ -231,7 +225,6 @@ RETURNING id, project_id, key, name, api_key, created_at`
 	return newEnv, nil
 }
 
-// Delete удаляет окружение.
 func (r *Repository) Delete(ctx context.Context, id domain.EnvironmentID) error {
 	executor := r.getExecutor(ctx)
 

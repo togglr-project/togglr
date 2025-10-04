@@ -104,9 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           // Token is valid
           setIsAuthenticated(true);
-          // setUser(decoded as User); // Не используем, ждем getCurrentUser
 
-          // Fetch user data
           try {
             const userData = await apiClient.getCurrentUser();
             setUser(userData.data);
@@ -147,7 +145,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
     } catch (error: unknown) {
       console.error('Login failed:', error);
-      // Проверяем ошибку 2FA
       if (isAxiosError(error) && error.response?.status === 403 && error.response?.data?.error?.code === '2fa_required') {
         setIs2FARequired(true);
         setSessionId(error.response.data.error.session_id || "");
@@ -166,7 +163,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      // sessionId можно использовать, если потребуется (например, для защиты от перебора)
       const resp = await apiClient.verify2FA({
         code,
         session_id: sessionId || "",
@@ -202,7 +198,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setIsLoading(true);
     setError(null);
     try {
-      // Сохраняем токены
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       setIsAuthenticated(true);
@@ -237,7 +232,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       await apiClient.userChangeMyPassword(changePasswordRequest);
       
-      // Update user data to get the latest is_tmp_password status
       await updateUserData();
     } catch (error: unknown) {
       console.error('Password change failed:', error);
@@ -277,7 +271,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       setError(null);
       try {
-        // POST запрос с SAML response и state в теле
         const apiResponse = await apiClient.sSOCallback({ 
           provider: "ad_saml",
           response, 

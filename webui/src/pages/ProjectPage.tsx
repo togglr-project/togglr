@@ -27,7 +27,7 @@ const ProjectPage: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   
-  // RBAC проверки для проекта
+  // RBAC checks for the project
   const rbac = useRBAC(projectId);
 
   const { data: projectResp, isLoading: loadingProject, error: projectError } = useQuery({
@@ -65,11 +65,11 @@ const ProjectPage: React.FC = () => {
   const [perPage, setPerPage] = useState(20);
   const [selectedTags, setSelectedTags] = useState<ProjectTag[]>([]);
   const [environmentKey, setEnvironmentKey] = useState<string>(() => {
-    // Try to get from localStorage first, fallback to 'prod'
+    // Try to get from localStorage first, fallback to 'prod' if not found
     return localStorage.getItem('currentEnvironmentKey') || 'prod';
   });
 
-  // Initialize environment ID in localStorage when environments are loaded
+  // Initialize environment ID in localStorage when environments are loaded (for the current environment)
   React.useEffect(() => {
     if (environments.length > 0 && environmentKey) {
       const currentEnv = environments.find(env => env.key === environmentKey);
@@ -161,7 +161,7 @@ const ProjectPage: React.FC = () => {
         const res = await apiClient.toggleFeature(featureId, environmentKey, { enabled });
         return { data: res.data, status: res.status };
       } catch (error: any) {
-        // Handle guard workflow responses
+        // Handle guard workflow responses (pending change or conflict)
         if (error.response?.status === 202) {
           // Pending change created
           setGuardResponse({ pendingChange: error.response.data });
@@ -178,13 +178,13 @@ const ProjectPage: React.FC = () => {
     onSuccess: (result, variables) => {
       if (result) {
         if (result.status === 202) {
-          // Pending change created - handle as guard workflow
+          // Pending change created - handle as guard workflow (for guard workflow feature)
           setGuardResponse({ pendingChange: result.data });
         } else if (result.status === 409) {
           // Conflict - feature locked by another pending change
           setGuardResponse({ conflictError: 'Feature is already locked by another pending change' });
         } else if (result.status === 403) {
-          // Forbidden - user doesn't have permission to modify guarded feature
+          // Forbidden - user doesn't have permission to modify guarded feature (for guard workflow feature)
           setGuardResponse({ forbiddenError: 'You don\'t have permission to modify this guarded feature' });
         } else {
           // Normal success - toggle applied immediately
@@ -269,7 +269,7 @@ const ProjectPage: React.FC = () => {
               label="Environment"
               onChange={(e) => {
                 setEnvironmentKey(e.target.value);
-                // Find the environment ID and save it to localStorage
+                // Find the environment ID and save it to localStorage (for the current environment)
                 const selectedEnv = environments.find(env => env.key === e.target.value);
                 if (selectedEnv) {
                   localStorage.setItem('currentEnvId', selectedEnv.id.toString());

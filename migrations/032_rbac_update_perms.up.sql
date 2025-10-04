@@ -13,8 +13,8 @@ JOIN permissions p ON p.key IN ('segment.manage', 'schedule.manage', 'category.m
 WHERE r.key IN ('project_owner', 'project_manager')
 ON CONFLICT DO NOTHING;
 
--- project_member может только toggle/view/manage features,
--- поэтому segment/schedule ему НЕ добавляем
+-- project_member can only toggle/view/manage features,
+-- so segment/schedule are not added to him
 
 CREATE OR REPLACE VIEW v_role_permissions AS
 SELECT
