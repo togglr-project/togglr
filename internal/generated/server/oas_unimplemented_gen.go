@@ -446,30 +446,12 @@ func (UnimplementedHandler) GetLDAPSyncStatus(ctx context.Context) (r GetLDAPSyn
 	return r, ht.ErrNotImplemented
 }
 
-// GetLicenseStatus implements GetLicenseStatus operation.
-//
-// Returns the current license status including validity, expiration date, and type.
-//
-// GET /api/v1/license/status
-func (UnimplementedHandler) GetLicenseStatus(ctx context.Context) (r GetLicenseStatusRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // GetPendingChange implements GetPendingChange operation.
 //
 // Get pending change by ID.
 //
 // GET /api/v1/pending_changes/{pending_change_id}
 func (UnimplementedHandler) GetPendingChange(ctx context.Context, params GetPendingChangeParams) (r GetPendingChangeRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// GetProductInfo implements GetProductInfo operation.
-//
-// Get product information including client ID.
-//
-// GET /api/v1/product/info
-func (UnimplementedHandler) GetProductInfo(ctx context.Context) (r GetProductInfoRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -947,15 +929,6 @@ func (UnimplementedHandler) UpdateFeatureSchedule(ctx context.Context, req *Upda
 //
 // POST /api/v1/ldap/config
 func (UnimplementedHandler) UpdateLDAPConfig(ctx context.Context, req *LDAPConfig) (r UpdateLDAPConfigRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// UpdateLicense implements UpdateLicense operation.
-//
-// Updates the system license with a new license key.
-//
-// PUT /api/v1/license
-func (UnimplementedHandler) UpdateLicense(ctx context.Context, req *UpdateLicenseRequest) (r UpdateLicenseRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

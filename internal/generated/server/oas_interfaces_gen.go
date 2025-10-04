@@ -189,16 +189,8 @@ type GetLDAPSyncStatusRes interface {
 	getLDAPSyncStatusRes()
 }
 
-type GetLicenseStatusRes interface {
-	getLicenseStatusRes()
-}
-
 type GetPendingChangeRes interface {
 	getPendingChangeRes()
-}
-
-type GetProductInfoRes interface {
-	getProductInfoRes()
 }
 
 type GetProjectMembershipRes interface {
@@ -415,10 +407,6 @@ type UpdateLDAPConfigRes interface {
 
 type UpdateLicenseAcceptanceRes interface {
 	updateLicenseAcceptanceRes()
-}
-
-type UpdateLicenseRes interface {
-	updateLicenseRes()
 }
 
 type UpdateProjectMembershipRes interface {

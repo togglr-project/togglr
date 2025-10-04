@@ -18,7 +18,6 @@ type UseCase struct {
 	ldapSyncLogsRepo  contract.LDAPSyncLogsRepository
 	ldapSyncStatsRepo contract.LDAPSyncStatsRepository
 	settingsUseCase   contract.SettingsUseCase
-	licenseUseCase    contract.LicenseUseCase
 }
 
 func New(
@@ -26,14 +25,12 @@ func New(
 	ldapSyncLogsRepo contract.LDAPSyncLogsRepository,
 	ldapSyncStatsRepo contract.LDAPSyncStatsRepository,
 	settingsUseCase contract.SettingsUseCase,
-	licenseUseCase contract.LicenseUseCase,
 ) *UseCase {
 	return &UseCase{
 		ldapService:       ldapService,
 		ldapSyncLogsRepo:  ldapSyncLogsRepo,
 		ldapSyncStatsRepo: ldapSyncStatsRepo,
 		settingsUseCase:   settingsUseCase,
-		licenseUseCase:    licenseUseCase,
 	}
 }
 
@@ -181,18 +178,6 @@ func (uc *UseCase) GetStatistics(ctx context.Context) (domain.LDAPStatistics, er
 }
 
 func (uc *UseCase) UpdateConfig(ctx context.Context, cfg *domain.LDAPConfig) error {
-	// If user is trying to enable LDAP, check if it's available in the license
-	if cfg.Enabled {
-		isAvailable, err := uc.licenseUseCase.IsFeatureAvailable(ctx, domain.FeatureLDAP)
-		if err != nil {
-			return fmt.Errorf("failed to check license for LDAP feature: %w", err)
-		}
-
-		if !isAvailable {
-			return errors.New("LDAP feature is not available in the current license")
-		}
-	}
-
 	if err := uc.settingsUseCase.UpdateLDAPConfig(ctx, cfg); err != nil {
 		return fmt.Errorf("failed to update LDAP config: %w", err)
 	}

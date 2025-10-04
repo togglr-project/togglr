@@ -300,24 +300,12 @@ type Handler interface {
 	//
 	// GET /api/v1/ldap/sync/status
 	GetLDAPSyncStatus(ctx context.Context) (GetLDAPSyncStatusRes, error)
-	// GetLicenseStatus implements GetLicenseStatus operation.
-	//
-	// Returns the current license status including validity, expiration date, and type.
-	//
-	// GET /api/v1/license/status
-	GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error)
 	// GetPendingChange implements GetPendingChange operation.
 	//
 	// Get pending change by ID.
 	//
 	// GET /api/v1/pending_changes/{pending_change_id}
 	GetPendingChange(ctx context.Context, params GetPendingChangeParams) (GetPendingChangeRes, error)
-	// GetProductInfo implements GetProductInfo operation.
-	//
-	// Get product information including client ID.
-	//
-	// GET /api/v1/product/info
-	GetProductInfo(ctx context.Context) (GetProductInfoRes, error)
 	// GetProject implements GetProject operation.
 	//
 	// Get project details.
@@ -636,12 +624,6 @@ type Handler interface {
 	//
 	// POST /api/v1/ldap/config
 	UpdateLDAPConfig(ctx context.Context, req *LDAPConfig) (UpdateLDAPConfigRes, error)
-	// UpdateLicense implements UpdateLicense operation.
-	//
-	// Updates the system license with a new license key.
-	//
-	// PUT /api/v1/license
-	UpdateLicense(ctx context.Context, req *UpdateLicenseRequest) (UpdateLicenseRes, error)
 	// UpdateLicenseAcceptance implements UpdateLicenseAcceptance operation.
 	//
 	// Update license acceptance status.

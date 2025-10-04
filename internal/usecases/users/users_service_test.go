@@ -26,7 +26,6 @@ func TestNew(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	ssoManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 	// Create service
 	service := New(
 		mockUsersRepo,
@@ -34,7 +33,6 @@ func TestNew(t *testing.T) {
 		mockEmailer,
 		mockRateLimiter,
 		ssoManager,
-		mockLicensesUseCase,
 		[]AuthProvider{mockAuthProvider},
 	)
 
@@ -58,7 +56,6 @@ func TestLogin(t *testing.T) {
 			mockAuthProvider *mockusers.MockAuthProvider,
 			mockTokenizer *mockcontract.MockTokenizer,
 			mockUsersRepo *mockcontract.MockUsersRepository,
-			mockLicensesUseCase *mockcontract.MockLicenseUseCase,
 		)
 		username             string
 		password             string
@@ -74,9 +71,7 @@ func TestLogin(t *testing.T) {
 				mockAuthProvider *mockusers.MockAuthProvider,
 				mockTokenizer *mockcontract.MockTokenizer,
 				mockUsersRepo *mockcontract.MockUsersRepository,
-				mockLicensesUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicensesUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				user := &domain.User{
 					ID:            1,
 					Username:      "user1",
@@ -109,9 +104,7 @@ func TestLogin(t *testing.T) {
 				mockAuthProvider *mockusers.MockAuthProvider,
 				mockTokenizer *mockcontract.MockTokenizer,
 				mockUsersRepo *mockcontract.MockUsersRepository,
-				mockLicensesUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicensesUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				user := &domain.User{
 					ID:            2,
 					Username:      "user2",
@@ -144,9 +137,7 @@ func TestLogin(t *testing.T) {
 				mockAuthProvider *mockusers.MockAuthProvider,
 				mockTokenizer *mockcontract.MockTokenizer,
 				mockUsersRepo *mockcontract.MockUsersRepository,
-				mockLicensesUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicensesUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				mockAuthProvider.EXPECT().CanHandle("user3").Return(true)
 				mockAuthProvider.EXPECT().Authenticate(
 					mock.Anything,
@@ -180,9 +171,7 @@ func TestLogin(t *testing.T) {
 				mockAuthProvider *mockusers.MockAuthProvider,
 				mockTokenizer *mockcontract.MockTokenizer,
 				mockUsersRepo *mockcontract.MockUsersRepository,
-				mockLicensesUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicensesUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				user := &domain.User{
 					ID:           4,
 					Username:     "user4",
@@ -213,9 +202,7 @@ func TestLogin(t *testing.T) {
 				mockAuthProvider *mockusers.MockAuthProvider,
 				mockTokenizer *mockcontract.MockTokenizer,
 				mockUsersRepo *mockcontract.MockUsersRepository,
-				mockLicensesUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicensesUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				user := &domain.User{
 					ID:           5,
 					Username:     "user5",
@@ -254,9 +241,8 @@ func TestLogin(t *testing.T) {
 			mockAuthProvider := mockusers.NewMockAuthProvider(t)
 			mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 			ssoManager := mockcontract.NewMockSSOProviderManager(t)
-			mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 			// Setup mocks
-			tt.setupMocks(mockAuthProvider, mockTokenizer, mockUsersRepo, mockLicensesUseCase)
+			tt.setupMocks(mockAuthProvider, mockTokenizer, mockUsersRepo)
 
 			// Create service
 			service := New(
@@ -265,7 +251,6 @@ func TestLogin(t *testing.T) {
 				mockEmailer,
 				mockRateLimiter,
 				ssoManager,
-				mockLicensesUseCase,
 				[]AuthProvider{mockAuthProvider},
 			)
 
@@ -460,7 +445,6 @@ func TestLoginReissue(t *testing.T) {
 			mockAuthProvider := mockusers.NewMockAuthProvider(t)
 			mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 			ssoManager := mockcontract.NewMockSSOProviderManager(t)
-			mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 			// Setup mocks
 			tt.setupMocks(mockTokenizer, mockUsersRepo)
 
@@ -471,7 +455,6 @@ func TestLoginReissue(t *testing.T) {
 				mockEmailer,
 				mockRateLimiter,
 				ssoManager,
-				mockLicensesUseCase,
 				[]AuthProvider{mockAuthProvider},
 			)
 
@@ -553,7 +536,6 @@ func TestGetByID(t *testing.T) {
 			mockAuthProvider := mockusers.NewMockAuthProvider(t)
 			mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 			ssoManager := mockcontract.NewMockSSOProviderManager(t)
-			mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 			// Setup mocks
 			tt.setupMocks(mockUsersRepo)
 
@@ -564,7 +546,6 @@ func TestGetByID(t *testing.T) {
 				mockEmailer,
 				mockRateLimiter,
 				ssoManager,
-				mockLicensesUseCase,
 				[]AuthProvider{mockAuthProvider},
 			)
 
@@ -593,7 +574,6 @@ func TestCreate(t *testing.T) {
 		setupMocks func(
 			mockUsersRepo *mockcontract.MockUsersRepository,
 			mockEmailer *mockcontract.MockEmailer,
-			mockLicenseUseCase *mockcontract.MockLicenseUseCase,
 		)
 		currentUser   domain.User
 		username      string
@@ -609,9 +589,7 @@ func TestCreate(t *testing.T) {
 			setupMocks: func(
 				mockUsersRepo *mockcontract.MockUsersRepository,
 				mockEmailer *mockcontract.MockEmailer,
-				mockLicenseUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicenseUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				// Check if username exists
 				mockUsersRepo.EXPECT().GetByUsername(
 					mock.Anything,
@@ -661,7 +639,6 @@ func TestCreate(t *testing.T) {
 			setupMocks: func(
 				mockUsersRepo *mockcontract.MockUsersRepository,
 				mockEmailer *mockcontract.MockEmailer,
-				mockLicenseUseCase *mockcontract.MockLicenseUseCase,
 			) {
 				// No other mocks needed
 			},
@@ -683,9 +660,7 @@ func TestCreate(t *testing.T) {
 			setupMocks: func(
 				mockUsersRepo *mockcontract.MockUsersRepository,
 				mockEmailer *mockcontract.MockEmailer,
-				mockLicenseUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicenseUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				// Check if username exists
 				mockUsersRepo.EXPECT().GetByUsername(
 					mock.Anything,
@@ -713,9 +688,7 @@ func TestCreate(t *testing.T) {
 			setupMocks: func(
 				mockUsersRepo *mockcontract.MockUsersRepository,
 				mockEmailer *mockcontract.MockEmailer,
-				mockLicenseUseCase *mockcontract.MockLicenseUseCase,
 			) {
-				mockLicenseUseCase.EXPECT().GetLicenseStatus(mock.Anything).Return(domain.LicenseStatus{Type: domain.Commercial}, nil)
 				// Check if username exists
 				mockUsersRepo.EXPECT().GetByUsername(
 					mock.Anything,
@@ -757,9 +730,8 @@ func TestCreate(t *testing.T) {
 			mockAuthProvider := mockusers.NewMockAuthProvider(t)
 			mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 			ssoManager := mockcontract.NewMockSSOProviderManager(t)
-			mockLicenseUseCase := mockcontract.NewMockLicenseUseCase(t)
 			// Setup mocks
-			tt.setupMocks(mockUsersRepo, mockEmailer, mockLicenseUseCase)
+			tt.setupMocks(mockUsersRepo, mockEmailer)
 
 			// Create service
 			service := New(
@@ -768,7 +740,6 @@ func TestCreate(t *testing.T) {
 				mockEmailer,
 				mockRateLimiter,
 				ssoManager,
-				mockLicenseUseCase,
 				[]AuthProvider{mockAuthProvider},
 			)
 

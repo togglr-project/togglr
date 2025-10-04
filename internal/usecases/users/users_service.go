@@ -21,7 +21,6 @@ type UsersService struct {
 	twoFARateLimiter contract.TwoFARateLimiter
 	ssoManager       contract.SSOProviderManager
 	authProvider     AuthProvider
-	licenseUseCase   contract.LicenseUseCase
 }
 
 func New(
@@ -30,7 +29,6 @@ func New(
 	emailer contract.Emailer,
 	twoFARateLimiter contract.TwoFARateLimiter,
 	ssoManager contract.SSOProviderManager,
-	licenseUseCase contract.LicenseUseCase,
 	authProviders []AuthProvider,
 ) *UsersService {
 	// Create a chain of authentication providers
@@ -50,7 +48,6 @@ func New(
 		twoFARateLimiter: twoFARateLimiter,
 		authProvider:     authProvider,
 		ssoManager:       ssoManager,
-		licenseUseCase:   licenseUseCase,
 	}
 }
 

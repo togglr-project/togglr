@@ -404,82 +404,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/v1/license/status:
-    get:
-      summary: Get license status
-      description: Returns the current license status including validity, expiration date, and type
-      operationId: GetLicenseStatus
-      responses:
-        '200':
-          description: License status retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LicenseStatusResponse'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorInternalServerError'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
-  /api/v1/license:
-    put:
-      summary: Update license
-      description: Updates the system license with a new license key
-      operationId: UpdateLicense
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateLicenseRequest'
-      responses:
-        '200':
-          description: License updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LicenseStatusResponse'
-        '400':
-          description: Invalid license key
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBadRequest'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
-        '403':
-          description: Permission denied
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorPermissionDenied'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorInternalServerError'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-
   # --- User Endpoints ---
   /api/v1/users/me:
     get:
@@ -1704,44 +1628,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorPermissionDenied'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-        - bearerAuth: []
-
-  /api/v1/product/info:
-    get:
-      summary: Get product information including client ID
-      operationId: GetProductInfo
-      responses:
-        '200':
-          description: Product information retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductInfoResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
-        '403':
-          description: Permission denied
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorPermissionDenied'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorInternalServerError'
         default:
           description: Unexpected error
           content:
@@ -7686,74 +7572,6 @@ components:
               example: "2FA required"
           required: [code, session_id, message]
       required: [error]
-
-    LicenseFeature:
-      type: string
-      enum: [sso, ldap, corp_notif_channels]
-      description: Type of license feature
-      example: "sso"
-
-    LicenseStatusResponse:
-      type: object
-      properties:
-        license:
-          type: object
-          properties:
-            id:
-              type: string
-              description: License ID
-              example: "550e8400-e29b-41d4-a716-446655440000"
-            type:
-              $ref: '#/components/schemas/LicenseType'
-            issued_at:
-              type: string
-              format: date-time
-              description: When the license was issued
-              example: "2024-01-15T10:30:00Z"
-            expires_at:
-              type: string
-              format: date-time
-              description: When the license expires
-              example: "2024-02-15T10:30:00Z"
-            is_valid:
-              type: boolean
-              description: Whether the license is currently valid
-              example: true
-            is_expired:
-              type: boolean
-              description: Whether the license has expired
-              example: false
-            days_until_expiry:
-              type: integer
-              description: Number of days until license expires (negative if expired)
-              example: 15
-            license_text:
-              type: string
-              description: The full license text
-              example: "-----BEGIN LICENSE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
-            features:
-              type: array
-              description: List of features available in this license
-              items:
-                $ref: '#/components/schemas/LicenseFeature'
-              example: ["sso", "ldap", "corp_notif_channels"]
-      required: [license]
-
-    LicenseType:
-      type: string
-      enum: [trial, trial-self-signed, commercial, individual]
-      description: Type of license
-      example: "trial"
-
-    UpdateLicenseRequest:
-      type: object
-      properties:
-        license_text:
-          type: string
-          description: The license key text
-          example: "-----BEGIN LICENSE-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA..."
-          minLength: 1
-      required: [license_text]
 
     ProductInfoResponse:
       type: object

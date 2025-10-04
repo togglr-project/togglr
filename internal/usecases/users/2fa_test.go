@@ -27,13 +27,12 @@ func TestSetup2FA(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 
 	mockUsersRepo.EXPECT().GetByID(ctx, userID).Return(user, nil)
 	mockTokenizer.EXPECT().SecretKey().Return("testsecret123456")
 	mockUsersRepo.EXPECT().Update2FA(ctx, userID, false, mock.Anything, mock.AnythingOfType("*time.Time")).Return(nil)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	secret, qrURL, qrImage, err := service.Setup2FA(ctx, userID)
 	require.NoError(t, err)
 	require.NotEmpty(t, secret)
@@ -56,7 +55,6 @@ func TestConfirm2FA(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 
 	mockUsersRepo.EXPECT().GetByID(ctx, userID).Return(user, nil)
 	mockTokenizer.EXPECT().SecretKey().Return("testsecret123456")
@@ -64,7 +62,7 @@ func TestConfirm2FA(t *testing.T) {
 	mockRateLimiter.EXPECT().IsBlocked(userID).Return(false)
 	mockRateLimiter.EXPECT().Reset(userID)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	code, _ := totp.GenerateCode(plainSecret, time.Now())
 	err := service.Confirm2FA(ctx, userID, code)
 	require.NoError(t, err)
@@ -81,10 +79,9 @@ func TestConfirm2FA__user_blocked(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 	mockRateLimiter.EXPECT().IsBlocked(userID).Return(true)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	code, _ := totp.GenerateCode(plainSecret, time.Now())
 	err := service.Confirm2FA(ctx, userID, code)
 	require.ErrorIs(t, err, domain.ErrTooMany2FAAttempts)
@@ -101,11 +98,10 @@ func TestSend2FACode(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 	mockUsersRepo.EXPECT().GetByID(ctx, userID).Return(user, nil)
 	mockEmailer.EXPECT().Send2FACodeEmail(ctx, user.Email, mock.AnythingOfType("string"), "disable").Return(nil)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	err := service.Send2FACode(ctx, userID, "disable")
 	require.NoError(t, err)
 }
@@ -120,12 +116,11 @@ func TestDisable2FA(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 
 	store2FACode(userID, "12345678", "disable", time.Minute*2)
 	mockUsersRepo.EXPECT().Update2FA(ctx, userID, false, "", mock.Anything).Return(nil)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	err := service.Disable2FA(ctx, userID, "12345678")
 	require.NoError(t, err)
 }
@@ -142,12 +137,11 @@ func TestReset2FA(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 	mockUsersRepo.EXPECT().GetByID(ctx, userID).Return(user, nil)
 	mockTokenizer.EXPECT().SecretKey().Return("testsecret123456")
 	mockUsersRepo.EXPECT().Update2FA(ctx, userID, false, mock.Anything, mock.AnythingOfType("*time.Time")).Return(nil)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 
 	store2FACode(userID, "87654321", "reset", time.Minute)
 
@@ -173,7 +167,6 @@ func TestVerify2FA(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 	mockUsersRepo.EXPECT().GetByID(ctx, userID).Return(user, nil)
 	mockTokenizer.EXPECT().SecretKey().Return("testsecret123456")
 	mockTokenizer.EXPECT().AccessToken(&user).Return("access_token", nil)
@@ -182,7 +175,7 @@ func TestVerify2FA(t *testing.T) {
 	mockRateLimiter.EXPECT().IsBlocked(userID).Return(false)
 	mockRateLimiter.EXPECT().Reset(userID)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	code, _ := totp.GenerateCode(plainSecret, time.Now())
 	sessionID := generate2FASession(userID, "username", time.Minute)
 	accessToken, refreshToken, expiresIn, err := service.Verify2FA(ctx, code, sessionID)
@@ -203,10 +196,9 @@ func TestVerify2FA__user_blocked(t *testing.T) {
 	mockAuthProvider := mockusers.NewMockAuthProvider(t)
 	mockRateLimiter := mockcontract.NewMockTwoFARateLimiter(t)
 	mockSSOManager := mockcontract.NewMockSSOProviderManager(t)
-	mockLicensesUseCase := mockcontract.NewMockLicenseUseCase(t)
 	mockRateLimiter.EXPECT().IsBlocked(userID).Return(true)
 
-	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, mockLicensesUseCase, []AuthProvider{mockAuthProvider})
+	service := New(mockUsersRepo, mockTokenizer, mockEmailer, mockRateLimiter, mockSSOManager, []AuthProvider{mockAuthProvider})
 	code, _ := totp.GenerateCode(plainSecret, time.Now())
 	sessionID := generate2FASession(userID, "username", time.Minute)
 	_, _, _, err := service.Verify2FA(ctx, code, sessionID)

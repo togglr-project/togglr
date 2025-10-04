@@ -321,24 +321,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/ldap/sync/status
 	GetLDAPSyncStatus(ctx context.Context) (GetLDAPSyncStatusRes, error)
-	// GetLicenseStatus invokes GetLicenseStatus operation.
-	//
-	// Returns the current license status including validity, expiration date, and type.
-	//
-	// GET /api/v1/license/status
-	GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error)
 	// GetPendingChange invokes GetPendingChange operation.
 	//
 	// Get pending change by ID.
 	//
 	// GET /api/v1/pending_changes/{pending_change_id}
 	GetPendingChange(ctx context.Context, params GetPendingChangeParams) (GetPendingChangeRes, error)
-	// GetProductInfo invokes GetProductInfo operation.
-	//
-	// Get product information including client ID.
-	//
-	// GET /api/v1/product/info
-	GetProductInfo(ctx context.Context) (GetProductInfoRes, error)
 	// GetProject invokes GetProject operation.
 	//
 	// Get project details.
@@ -657,12 +645,6 @@ type Invoker interface {
 	//
 	// POST /api/v1/ldap/config
 	UpdateLDAPConfig(ctx context.Context, request *LDAPConfig) (UpdateLDAPConfigRes, error)
-	// UpdateLicense invokes UpdateLicense operation.
-	//
-	// Updates the system license with a new license key.
-	//
-	// PUT /api/v1/license
-	UpdateLicense(ctx context.Context, request *UpdateLicenseRequest) (UpdateLicenseRes, error)
 	// UpdateLicenseAcceptance invokes UpdateLicenseAcceptance operation.
 	//
 	// Update license acceptance status.
@@ -6619,78 +6601,6 @@ func (c *Client) sendGetLDAPSyncStatus(ctx context.Context) (res GetLDAPSyncStat
 	return result, nil
 }
 
-// GetLicenseStatus invokes GetLicenseStatus operation.
-//
-// Returns the current license status including validity, expiration date, and type.
-//
-// GET /api/v1/license/status
-func (c *Client) GetLicenseStatus(ctx context.Context) (GetLicenseStatusRes, error) {
-	res, err := c.sendGetLicenseStatus(ctx)
-	return res, err
-}
-
-func (c *Client) sendGetLicenseStatus(ctx context.Context) (res GetLicenseStatusRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("GetLicenseStatus"),
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/license/status"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, GetLicenseStatusOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/api/v1/license/status"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeGetLicenseStatusResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
 // GetPendingChange invokes GetPendingChange operation.
 //
 // Get pending change by ID.
@@ -6807,111 +6717,6 @@ func (c *Client) sendGetPendingChange(ctx context.Context, params GetPendingChan
 
 	stage = "DecodeResponse"
 	result, err := decodeGetPendingChangeResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// GetProductInfo invokes GetProductInfo operation.
-//
-// Get product information including client ID.
-//
-// GET /api/v1/product/info
-func (c *Client) GetProductInfo(ctx context.Context) (GetProductInfoRes, error) {
-	res, err := c.sendGetProductInfo(ctx)
-	return res, err
-}
-
-func (c *Client) sendGetProductInfo(ctx context.Context) (res GetProductInfoRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("GetProductInfo"),
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/product/info"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, GetProductInfoOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/api/v1/product/info"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:BearerAuth"
-			switch err := c.securityBearerAuth(ctx, GetProductInfoOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"BearerAuth\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeGetProductInfoResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -13931,114 +13736,6 @@ func (c *Client) sendUpdateLDAPConfig(ctx context.Context, request *LDAPConfig) 
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateLDAPConfigResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
-// UpdateLicense invokes UpdateLicense operation.
-//
-// Updates the system license with a new license key.
-//
-// PUT /api/v1/license
-func (c *Client) UpdateLicense(ctx context.Context, request *UpdateLicenseRequest) (UpdateLicenseRes, error) {
-	res, err := c.sendUpdateLicense(ctx, request)
-	return res, err
-}
-
-func (c *Client) sendUpdateLicense(ctx context.Context, request *UpdateLicenseRequest) (res UpdateLicenseRes, err error) {
-	otelAttrs := []attribute.KeyValue{
-		otelogen.OperationID("UpdateLicense"),
-		semconv.HTTPRequestMethodKey.String("PUT"),
-		semconv.HTTPRouteKey.String("/api/v1/license"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, UpdateLicenseOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/api/v1/license"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PUT", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeUpdateLicenseRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	{
-		type bitset = [1]uint8
-		var satisfied bitset
-		{
-			stage = "Security:BearerAuth"
-			switch err := c.securityBearerAuth(ctx, UpdateLicenseOperation, r); {
-			case err == nil: // if NO error
-				satisfied[0] |= 1 << 0
-			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
-				// Skip this security.
-			default:
-				return res, errors.Wrap(err, "security \"BearerAuth\"")
-			}
-		}
-
-		if ok := func() bool {
-		nextRequirement:
-			for _, requirement := range []bitset{
-				{0b00000001},
-			} {
-				for i, mask := range requirement {
-					if satisfied[i]&mask != mask {
-						continue nextRequirement
-					}
-				}
-				return true
-			}
-			return false
-		}(); !ok {
-			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
-		}
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeUpdateLicenseResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

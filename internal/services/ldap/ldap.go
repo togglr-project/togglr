@@ -56,7 +56,6 @@ type Service struct {
 	ldapSyncLogsRepo  contract.LDAPSyncLogsRepository
 	ldapSyncStatsRepo contract.LDAPSyncStatsRepository
 	settingsService   contract.SettingsUseCase
-	licenseUseCase    contract.LicenseUseCase
 	mu                sync.RWMutex
 	syncInterval      time.Duration
 
@@ -75,14 +74,12 @@ func New(
 	ldapSyncLogsRepo contract.LDAPSyncLogsRepository,
 	settingsService contract.SettingsUseCase,
 	ldapSyncStatsRepo contract.LDAPSyncStatsRepository,
-	licenseUseCase contract.LicenseUseCase,
 ) (*Service, error) {
 	service := &Service{
 		userRepo:          userRepo,
 		ldapSyncLogsRepo:  ldapSyncLogsRepo,
 		settingsService:   settingsService,
 		ldapSyncStatsRepo: ldapSyncStatsRepo,
-		licenseUseCase:    licenseUseCase,
 		clientFactory:     func(config *ClientConfig) (ClientService, error) { return NewClient(config) },
 	}
 
@@ -395,15 +392,6 @@ func (s *Service) reloadConfig(ctx context.Context, reason string) error {
 
 	s.enabled = config.Enabled
 
-	if s.enabled {
-		isAvailable, err := s.licenseUseCase.IsFeatureAvailable(ctx, domain.FeatureLDAP)
-		if err != nil {
-			return fmt.Errorf("failed to check if LDAP feature is available: %w", err)
-		}
-
-		s.enabled = isAvailable
-	}
-
 	if !s.enabled {
 		s.client = nil
 
@@ -462,17 +450,5 @@ func (s *Service) reloadConfig(ctx context.Context, reason string) error {
 
 // isEnabled checks if LDAP is enabled both in configuration and by license.
 func (s *Service) isEnabled() bool {
-	if !s.enabled {
-		return false
-	}
-
-	// Check if the LDAP feature is available in the current license
-	isAvailable, err := s.licenseUseCase.IsFeatureAvailable(context.Background(), domain.FeatureLDAP)
-	if err != nil {
-		slog.Error("Failed to check license for LDAP feature", "error", err)
-
-		return false
-	}
-
-	return isAvailable
+	return s.enabled
 }

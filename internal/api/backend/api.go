@@ -22,8 +22,6 @@ type RestAPI struct {
 	ldapService             contract.LDAPService
 	ldapUseCase             contract.LDAPSyncUseCase
 	settingsUseCase         contract.SettingsUseCase
-	licenseUseCase          contract.LicenseUseCase
-	productInfoUseCase      contract.ProductInfoUseCase
 	permissionsService      contract.PermissionsService
 	featuresUseCase         contract.FeaturesUseCase
 	environmentsUseCase     contract.EnvironmentsUseCase
@@ -54,8 +52,6 @@ func New(
 	ldapService contract.LDAPService,
 	ldapUseCase contract.LDAPSyncUseCase,
 	settingsUseCase contract.SettingsUseCase,
-	licenseUseCase contract.LicenseUseCase,
-	productInfoUseCase contract.ProductInfoUseCase,
 	featuresUseCase contract.FeaturesUseCase,
 	environmentsUseCase contract.EnvironmentsUseCase,
 	flagVariantsUseCase contract.FlagVariantsUseCase,
@@ -85,8 +81,6 @@ func New(
 		ldapService:             ldapService,
 		ldapUseCase:             ldapUseCase,
 		settingsUseCase:         settingsUseCase,
-		licenseUseCase:          licenseUseCase,
-		productInfoUseCase:      productInfoUseCase,
 		permissionsService:      permissionsService,
 		featuresUseCase:         featuresUseCase,
 		environmentsUseCase:     environmentsUseCase,

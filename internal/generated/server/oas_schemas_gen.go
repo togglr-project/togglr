@@ -2515,7 +2515,6 @@ func (*ErrorBadRequest) updateEnvironmentRes()        {}
 func (*ErrorBadRequest) updateFeatureRes()            {}
 func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
 func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
-func (*ErrorBadRequest) updateLicenseRes()            {}
 func (*ErrorBadRequest) updateProjectMembershipRes()  {}
 func (*ErrorBadRequest) updateProjectRes()            {}
 func (*ErrorBadRequest) updateProjectSettingRes()     {}
@@ -2662,9 +2661,7 @@ func (*ErrorInternalServerError) getEnvironmentRes()              {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
 func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
-func (*ErrorInternalServerError) getLicenseStatusRes()            {}
 func (*ErrorInternalServerError) getPendingChangeRes()            {}
-func (*ErrorInternalServerError) getProductInfoRes()              {}
 func (*ErrorInternalServerError) getProjectMembershipRes()        {}
 func (*ErrorInternalServerError) getProjectRes()                  {}
 func (*ErrorInternalServerError) getProjectSettingRes()           {}
@@ -2712,7 +2709,6 @@ func (*ErrorInternalServerError) updateEnvironmentRes()           {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
-func (*ErrorInternalServerError) updateLicenseRes()               {}
 func (*ErrorInternalServerError) updateProjectMembershipRes()     {}
 func (*ErrorInternalServerError) updateProjectRes()               {}
 func (*ErrorInternalServerError) updateProjectSettingRes()        {}
@@ -2923,7 +2919,6 @@ func (*ErrorPermissionDenied) getLDAPSyncLogsRes()             {}
 func (*ErrorPermissionDenied) getLDAPSyncProgressRes()         {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()           {}
 func (*ErrorPermissionDenied) getPendingChangeRes()            {}
-func (*ErrorPermissionDenied) getProductInfoRes()              {}
 func (*ErrorPermissionDenied) getProjectMembershipRes()        {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
 func (*ErrorPermissionDenied) getProjectSettingRes()           {}
@@ -2961,7 +2956,6 @@ func (*ErrorPermissionDenied) updateEnvironmentRes()           {}
 func (*ErrorPermissionDenied) updateFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}
-func (*ErrorPermissionDenied) updateLicenseRes()               {}
 func (*ErrorPermissionDenied) updateProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) updateProjectRes()               {}
 func (*ErrorPermissionDenied) updateProjectSettingRes()        {}
@@ -3105,7 +3099,6 @@ func (*ErrorUnauthorized) getLDAPSyncLogsRes()             {}
 func (*ErrorUnauthorized) getLDAPSyncProgressRes()         {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()           {}
 func (*ErrorUnauthorized) getPendingChangeRes()            {}
-func (*ErrorUnauthorized) getProductInfoRes()              {}
 func (*ErrorUnauthorized) getProjectMembershipRes()        {}
 func (*ErrorUnauthorized) getProjectRes()                  {}
 func (*ErrorUnauthorized) getProjectSettingRes()           {}
@@ -3156,7 +3149,6 @@ func (*ErrorUnauthorized) updateFeatureRes()               {}
 func (*ErrorUnauthorized) updateFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()     {}
-func (*ErrorUnauthorized) updateLicenseRes()               {}
 func (*ErrorUnauthorized) updateProjectMembershipRes()     {}
 func (*ErrorUnauthorized) updateProjectRes()               {}
 func (*ErrorUnauthorized) updateProjectSettingRes()        {}
@@ -5214,241 +5206,6 @@ func (s *LDAPSyncStatus) SetLastSyncDuration(val OptString) {
 
 func (*LDAPSyncStatus) getLDAPSyncStatusRes() {}
 
-// Type of license feature.
-// Ref: #/components/schemas/LicenseFeature
-type LicenseFeature string
-
-const (
-	LicenseFeatureSSO               LicenseFeature = "sso"
-	LicenseFeatureLdap              LicenseFeature = "ldap"
-	LicenseFeatureCorpNotifChannels LicenseFeature = "corp_notif_channels"
-)
-
-// AllValues returns all LicenseFeature values.
-func (LicenseFeature) AllValues() []LicenseFeature {
-	return []LicenseFeature{
-		LicenseFeatureSSO,
-		LicenseFeatureLdap,
-		LicenseFeatureCorpNotifChannels,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s LicenseFeature) MarshalText() ([]byte, error) {
-	switch s {
-	case LicenseFeatureSSO:
-		return []byte(s), nil
-	case LicenseFeatureLdap:
-		return []byte(s), nil
-	case LicenseFeatureCorpNotifChannels:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *LicenseFeature) UnmarshalText(data []byte) error {
-	switch LicenseFeature(data) {
-	case LicenseFeatureSSO:
-		*s = LicenseFeatureSSO
-		return nil
-	case LicenseFeatureLdap:
-		*s = LicenseFeatureLdap
-		return nil
-	case LicenseFeatureCorpNotifChannels:
-		*s = LicenseFeatureCorpNotifChannels
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-// Ref: #/components/schemas/LicenseStatusResponse
-type LicenseStatusResponse struct {
-	License LicenseStatusResponseLicense `json:"license"`
-}
-
-// GetLicense returns the value of License.
-func (s *LicenseStatusResponse) GetLicense() LicenseStatusResponseLicense {
-	return s.License
-}
-
-// SetLicense sets the value of License.
-func (s *LicenseStatusResponse) SetLicense(val LicenseStatusResponseLicense) {
-	s.License = val
-}
-
-func (*LicenseStatusResponse) getLicenseStatusRes() {}
-func (*LicenseStatusResponse) updateLicenseRes()    {}
-
-type LicenseStatusResponseLicense struct {
-	// License ID.
-	ID   OptString      `json:"id"`
-	Type OptLicenseType `json:"type"`
-	// When the license was issued.
-	IssuedAt OptDateTime `json:"issued_at"`
-	// When the license expires.
-	ExpiresAt OptDateTime `json:"expires_at"`
-	// Whether the license is currently valid.
-	IsValid OptBool `json:"is_valid"`
-	// Whether the license has expired.
-	IsExpired OptBool `json:"is_expired"`
-	// Number of days until license expires (negative if expired).
-	DaysUntilExpiry OptInt `json:"days_until_expiry"`
-	// The full license text.
-	LicenseText OptString `json:"license_text"`
-	// List of features available in this license.
-	Features []LicenseFeature `json:"features"`
-}
-
-// GetID returns the value of ID.
-func (s *LicenseStatusResponseLicense) GetID() OptString {
-	return s.ID
-}
-
-// GetType returns the value of Type.
-func (s *LicenseStatusResponseLicense) GetType() OptLicenseType {
-	return s.Type
-}
-
-// GetIssuedAt returns the value of IssuedAt.
-func (s *LicenseStatusResponseLicense) GetIssuedAt() OptDateTime {
-	return s.IssuedAt
-}
-
-// GetExpiresAt returns the value of ExpiresAt.
-func (s *LicenseStatusResponseLicense) GetExpiresAt() OptDateTime {
-	return s.ExpiresAt
-}
-
-// GetIsValid returns the value of IsValid.
-func (s *LicenseStatusResponseLicense) GetIsValid() OptBool {
-	return s.IsValid
-}
-
-// GetIsExpired returns the value of IsExpired.
-func (s *LicenseStatusResponseLicense) GetIsExpired() OptBool {
-	return s.IsExpired
-}
-
-// GetDaysUntilExpiry returns the value of DaysUntilExpiry.
-func (s *LicenseStatusResponseLicense) GetDaysUntilExpiry() OptInt {
-	return s.DaysUntilExpiry
-}
-
-// GetLicenseText returns the value of LicenseText.
-func (s *LicenseStatusResponseLicense) GetLicenseText() OptString {
-	return s.LicenseText
-}
-
-// GetFeatures returns the value of Features.
-func (s *LicenseStatusResponseLicense) GetFeatures() []LicenseFeature {
-	return s.Features
-}
-
-// SetID sets the value of ID.
-func (s *LicenseStatusResponseLicense) SetID(val OptString) {
-	s.ID = val
-}
-
-// SetType sets the value of Type.
-func (s *LicenseStatusResponseLicense) SetType(val OptLicenseType) {
-	s.Type = val
-}
-
-// SetIssuedAt sets the value of IssuedAt.
-func (s *LicenseStatusResponseLicense) SetIssuedAt(val OptDateTime) {
-	s.IssuedAt = val
-}
-
-// SetExpiresAt sets the value of ExpiresAt.
-func (s *LicenseStatusResponseLicense) SetExpiresAt(val OptDateTime) {
-	s.ExpiresAt = val
-}
-
-// SetIsValid sets the value of IsValid.
-func (s *LicenseStatusResponseLicense) SetIsValid(val OptBool) {
-	s.IsValid = val
-}
-
-// SetIsExpired sets the value of IsExpired.
-func (s *LicenseStatusResponseLicense) SetIsExpired(val OptBool) {
-	s.IsExpired = val
-}
-
-// SetDaysUntilExpiry sets the value of DaysUntilExpiry.
-func (s *LicenseStatusResponseLicense) SetDaysUntilExpiry(val OptInt) {
-	s.DaysUntilExpiry = val
-}
-
-// SetLicenseText sets the value of LicenseText.
-func (s *LicenseStatusResponseLicense) SetLicenseText(val OptString) {
-	s.LicenseText = val
-}
-
-// SetFeatures sets the value of Features.
-func (s *LicenseStatusResponseLicense) SetFeatures(val []LicenseFeature) {
-	s.Features = val
-}
-
-// Type of license.
-// Ref: #/components/schemas/LicenseType
-type LicenseType string
-
-const (
-	LicenseTypeTrial           LicenseType = "trial"
-	LicenseTypeTrialSelfSigned LicenseType = "trial-self-signed"
-	LicenseTypeCommercial      LicenseType = "commercial"
-	LicenseTypeIndividual      LicenseType = "individual"
-)
-
-// AllValues returns all LicenseType values.
-func (LicenseType) AllValues() []LicenseType {
-	return []LicenseType{
-		LicenseTypeTrial,
-		LicenseTypeTrialSelfSigned,
-		LicenseTypeCommercial,
-		LicenseTypeIndividual,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s LicenseType) MarshalText() ([]byte, error) {
-	switch s {
-	case LicenseTypeTrial:
-		return []byte(s), nil
-	case LicenseTypeTrialSelfSigned:
-		return []byte(s), nil
-	case LicenseTypeCommercial:
-		return []byte(s), nil
-	case LicenseTypeIndividual:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *LicenseType) UnmarshalText(data []byte) error {
-	switch LicenseType(data) {
-	case LicenseTypeTrial:
-		*s = LicenseTypeTrial
-		return nil
-	case LicenseTypeTrialSelfSigned:
-		*s = LicenseTypeTrialSelfSigned
-		return nil
-	case LicenseTypeCommercial:
-		*s = LicenseTypeCommercial
-		return nil
-	case LicenseTypeIndividual:
-		*s = LicenseTypeIndividual
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
 type ListCategoriesResponse []Category
 
 func (*ListCategoriesResponse) listCategoriesRes() {}
@@ -7034,52 +6791,6 @@ func (o OptLDAPConnectionTestResponseDetails) Get() (v LDAPConnectionTestRespons
 
 // Or returns value if set, or given parameter if does not.
 func (o OptLDAPConnectionTestResponseDetails) Or(d LDAPConnectionTestResponseDetails) LDAPConnectionTestResponseDetails {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptLicenseType returns new OptLicenseType with value set to v.
-func NewOptLicenseType(v LicenseType) OptLicenseType {
-	return OptLicenseType{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptLicenseType is optional LicenseType.
-type OptLicenseType struct {
-	Value LicenseType
-	Set   bool
-}
-
-// IsSet returns true if OptLicenseType was set.
-func (o OptLicenseType) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptLicenseType) Reset() {
-	var v LicenseType
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptLicenseType) SetTo(v LicenseType) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptLicenseType) Get() (v LicenseType, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptLicenseType) Or(d LicenseType) LicenseType {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -8928,36 +8639,6 @@ func (s *Permission) SetKey(val string) {
 func (s *Permission) SetName(val string) {
 	s.Name = val
 }
-
-// Ref: #/components/schemas/ProductInfoResponse
-type ProductInfoResponse struct {
-	// Unique client identifier for this installation.
-	ClientID string `json:"client_id"`
-	// When the client ID was created.
-	CreatedAt time.Time `json:"created_at"`
-}
-
-// GetClientID returns the value of ClientID.
-func (s *ProductInfoResponse) GetClientID() string {
-	return s.ClientID
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *ProductInfoResponse) GetCreatedAt() time.Time {
-	return s.CreatedAt
-}
-
-// SetClientID sets the value of ClientID.
-func (s *ProductInfoResponse) SetClientID(val string) {
-	s.ClientID = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *ProductInfoResponse) SetCreatedAt(val time.Time) {
-	s.CreatedAt = val
-}
-
-func (*ProductInfoResponse) getProductInfoRes() {}
 
 // Ref: #/components/schemas/Project
 type Project struct {
@@ -11093,22 +10774,6 @@ func (s *UpdateLicenseAcceptanceRequest) GetAccepted() bool {
 // SetAccepted sets the value of Accepted.
 func (s *UpdateLicenseAcceptanceRequest) SetAccepted(val bool) {
 	s.Accepted = val
-}
-
-// Ref: #/components/schemas/UpdateLicenseRequest
-type UpdateLicenseRequest struct {
-	// The license key text.
-	LicenseText string `json:"license_text"`
-}
-
-// GetLicenseText returns the value of LicenseText.
-func (s *UpdateLicenseRequest) GetLicenseText() string {
-	return s.LicenseText
-}
-
-// SetLicenseText sets the value of LicenseText.
-func (s *UpdateLicenseRequest) SetLicenseText(val string) {
-	s.LicenseText = val
 }
 
 // Ref: #/components/schemas/UpdateMembershipRequest

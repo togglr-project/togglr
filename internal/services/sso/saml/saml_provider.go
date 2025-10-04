@@ -37,15 +37,14 @@ const (
 
 // SAMLProvider implements SSOProvider for SAML.
 type SAMLProvider struct {
-	name           string
-	displayName    string
-	iconURL        string
-	config         *domain.SAMLConfig
-	usersRepo      contract.UsersRepository
-	httpClient     *http.Client
-	certificate    *x509.Certificate
-	privateKey     crypto.Signer
-	licenseUseCase contract.LicenseUseCase
+	name        string
+	displayName string
+	iconURL     string
+	config      *domain.SAMLConfig
+	usersRepo   contract.UsersRepository
+	httpClient  *http.Client
+	certificate *x509.Certificate
+	privateKey  crypto.Signer
 
 	sp         *saml.ServiceProvider
 	requestIDs sync.Map
@@ -63,16 +62,14 @@ func New(
 	params *SAMLParams,
 	manager contract.SSOProviderManager,
 	usersRepo contract.UsersRepository,
-	licenseUseCase contract.LicenseUseCase,
 ) (*SAMLProvider, error) {
 	provider := &SAMLProvider{
-		name:           params.Name,
-		displayName:    params.DisplayName,
-		iconURL:        params.IconURL,
-		config:         params.Config,
-		usersRepo:      usersRepo,
-		licenseUseCase: licenseUseCase,
-		httpClient:     &http.Client{Timeout: 30 * time.Second},
+		name:        params.Name,
+		displayName: params.DisplayName,
+		iconURL:     params.IconURL,
+		config:      params.Config,
+		usersRepo:   usersRepo,
+		httpClient:  &http.Client{Timeout: 30 * time.Second},
 	}
 
 	if params.Config.SkipTLSVerify {
@@ -153,15 +150,7 @@ func (p *SAMLProvider) IsEnabled() bool {
 		return false
 	}
 
-	// Check if SSO feature is available in the current license
-	isAvailable, err := p.licenseUseCase.IsFeatureAvailable(context.Background(), domain.FeatureSSO)
-	if err != nil {
-		slog.Error("Failed to check license for SSO feature", "error", err)
-
-		return false
-	}
-
-	return isAvailable
+	return true
 }
 
 func (p *SAMLProvider) GenerateSPMetadata() ([]byte, error) {
