@@ -42,6 +42,7 @@
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
               "is_active": true,
+              "health_status": "<<PRESENCE>>",
               "tags": []
             },
             "variants": [
@@ -124,6 +125,7 @@
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
               "is_active": true,
+              "health_status": "<<PRESENCE>>",
               "tags": []
             },
             "variants": [],

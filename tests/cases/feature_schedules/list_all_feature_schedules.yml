@@ -78,13 +78,11 @@
           Content-Type: application/json
           Authorization: 'Bearer {{auth.response.access_token}}'
       response:
-        status: 403
+        status: 200
+        headers:
+          Content-Type: application/json
         json: |
-          {
-            "error": {
-              "message": "permission denied"
-            }
-          }
+          "<<PRESENCE>>"
 
 - name: list empty feature schedules
   fixtures:

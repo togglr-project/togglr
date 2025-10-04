@@ -57,6 +57,14 @@ func Run(t *testing.T, testCfg *Config) {
 	require.NoError(t, err)
 	env.Set("POSTGRES_PORT", extractPort(connStr))
 
+	// NATS ----------------------------------------------------------------
+	natsC, natsDown := startNATS(t)
+	defer natsDown()
+
+	natsPort, err := natsC.MappedPort(t.Context(), "4222")
+	require.NoError(t, err)
+	env.Set("NATS_URL", fmt.Sprintf("nats://127.0.0.1:%d", natsPort.Int()))
+
 	// MailHog ----------------------------------------------------------------
 	mailC, mailDown := startMailHog(t)
 	defer mailDown()
@@ -135,6 +143,14 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	connStr, err = pgContainer.ConnectionString(t.Context(), "sslmode=disable")
 	require.NoError(t, err)
 	env.Set("POSTGRES_PORT", extractPort(connStr))
+
+	// NATS ----------------------------------------------------------------
+	natsC, natsDown := startNATS(t)
+	defer natsDown()
+
+	natsPort, err := natsC.MappedPort(t.Context(), "4222")
+	require.NoError(t, err)
+	env.Set("NATS_URL", fmt.Sprintf("nats://127.0.0.1:%d", natsPort.Int()))
 
 	// MailHog ----------------------------------------------------------------
 	mailC, mailDown := startMailHog(t)
@@ -239,6 +255,28 @@ func startMailHog(t *testing.T) (testcontainers.Container, func()) {
 	return container, func() {
 		if err := container.Terminate(context.Background()); err != nil {
 			t.Fatalf("terminate mailhog: %v", err)
+		}
+	}
+}
+
+// NATS ----------------------------------------------------------------.
+func startNATS(t *testing.T) (testcontainers.Container, func()) {
+	t.Helper()
+
+	container, err := testcontainers.GenericContainer(t.Context(), testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Name:         "togglr-nats-test",
+			Image:        "nats:latest",
+			ExposedPorts: []string{"4222/tcp"},
+			WaitingFor:   wait.ForListeningPort("4222"),
+		},
+		Started: true,
+	})
+	require.NoError(t, err)
+
+	return container, func() {
+		if err := container.Terminate(context.Background()); err != nil {
+			t.Fatalf("terminate nats: %v", err)
 		}
 	}
 }

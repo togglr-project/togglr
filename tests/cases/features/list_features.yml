@@ -176,6 +176,7 @@
                 "created_at": "<<PRESENCE>>",
                 "updated_at": "<<PRESENCE>>",
                 "is_active": true,
+                "health_status": "<<PRESENCE>>",
                 "tags": []
               }
             ],
@@ -231,6 +232,7 @@
                 "created_at": "<<PRESENCE>>",
                 "updated_at": "<<PRESENCE>>",
                 "is_active": true,
+                "health_status": "<<PRESENCE>>",
                 "tags": []
               }
             ],
@@ -286,6 +288,7 @@
                 "is_active": false,
                 "enabled": false,
                 "default_value": "control",
+                "health_status": "<<PRESENCE>>",
                 "tags": []
               },
               {
@@ -298,8 +301,10 @@
                 "rollout_key": "user.id",
                 "created_at": "<<PRESENCE>>",
                 "updated_at": "<<PRESENCE>>",
-                "is_active": true,"enabled": true,
+                "is_active": true,
+                "enabled": true,
                 "default_value": "on",
+                "health_status": "<<PRESENCE>>",
                 "tags": []
               }
             ],

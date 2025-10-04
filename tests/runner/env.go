@@ -25,6 +25,7 @@ func NewEnv() Env {
 			"POSTGRES_PASSWORD":     "password",
 			"POSTGRES_DATABASE":     "test_db",
 			"MIGRATIONS_DIR":        "../migrations",
+			"NATS_URL":              "nats://127.0.0.1:4222",
 			"JWT_SECRET_KEY":        "secret_key123456",
 			"ACCESS_TOKEN_TTL":      "3h",
 			"REFRESH_TOKEN_TTL":     "168h",

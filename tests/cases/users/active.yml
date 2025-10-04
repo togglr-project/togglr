@@ -37,7 +37,9 @@
             "created_at": "<<PRESENCE>>",
             "last_login": "<<PRESENCE>>",
             "is_external": false,
-            "license_accepted": false
+            "license_accepted": false,
+            "project_roles": {},
+            "project_permissions": {}
           }
       dbChecks:
         - query: SELECT is_active FROM users WHERE id = 3
@@ -83,7 +85,9 @@
             "created_at": "<<PRESENCE>>",
             "last_login": "<<PRESENCE>>",
             "is_external": false,
-            "license_accepted": false
+            "license_accepted": false,
+            "project_roles": {},
+            "project_permissions": {}
           }
       dbChecks:
         - query: SELECT is_active FROM users WHERE id = 2
@@ -219,7 +223,9 @@
             "created_at": "<<PRESENCE>>",
             "last_login": "<<PRESENCE>>",
             "is_external": false,
-            "license_accepted": false
+            "license_accepted": false,
+            "project_roles": {},
+            "project_permissions": {}
           }
       dbChecks:
         - query: SELECT is_active FROM users WHERE id = 1

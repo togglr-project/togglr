@@ -13,7 +13,7 @@
           Authorization: 545C3E6A-8B17-4204-9558-9106D33B56F7
         body: {"error_type":"timeout","error_message":"Service X timeout"}
       response:
-        status: 200
+        status: 202
         headers:
           Content-Type: application/json
 
@@ -26,19 +26,7 @@
           Authorization: 545C3E6A-8B17-4204-9558-9106D33B56F7
         body: {"error_type":"timeout","error_message":"Service X timeout again"}
       response:
-        status: 200
-        headers:
-          Content-Type: application/json
-        json: |
-          {
-            "feature_key": "new_ui",
-            "environment_key": "prod",
-            "enabled": false,
-            "auto_disabled": true,
-            "error_rate": 0.0,
-            "threshold": 2,
-            "last_error_at": "<<PRESENCE>>"
-          }
+        status: 202
       dbChecks:
         - query: SELECT enabled FROM feature_params WHERE feature_id = '22222222-2222-2222-2222-222222222222' AND environment_id = 1
           result:

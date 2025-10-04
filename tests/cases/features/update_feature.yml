@@ -40,7 +40,8 @@
               "enabled": false,
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
-              "is_active": false
+              "is_active": false,
+              "health_status": "<<PRESENCE>>"
             },
             "variants": [],
             "rules": [],
@@ -97,7 +98,8 @@
               "rollout_key": "user.country",
               "created_at": "<<PRESENCE>>",
               "updated_at": "<<PRESENCE>>",
-              "is_active": true
+              "is_active": true,
+              "health_status": "<<PRESENCE>>"
             },
             "variants": "<<PRESENCE>>",
             "rules": "<<PRESENCE>>",

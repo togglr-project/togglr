@@ -37,7 +37,9 @@
               "created_at": "<<PRESENCE>>",
               "last_login": "<<PRESENCE>>",
               "is_external": false,
-              "license_accepted": false
+              "license_accepted": false,
+              "project_roles": {},
+              "project_permissions": {}
             },
             {
               "id": 2,
@@ -50,7 +52,9 @@
               "created_at": "<<PRESENCE>>",
               "last_login": "<<PRESENCE>>",
               "is_external": false,
-              "license_accepted": false
+              "license_accepted": false,
+              "project_roles": {},
+              "project_permissions": {}
             },
             {
               "id": 3,
@@ -63,7 +67,9 @@
               "created_at": "<<PRESENCE>>",
               "last_login": "<<PRESENCE>>",
               "is_external": false,
-              "license_accepted": false
+              "license_accepted": false,
+              "project_roles": {},
+              "project_permissions": {}
             }
           ]
 
@@ -160,6 +166,8 @@
               "created_at": "<<PRESENCE>>",
               "last_login": "<<PRESENCE>>",
               "is_external": false,
-              "license_accepted": false
+              "license_accepted": false,
+              "project_roles": {},
+              "project_permissions": {}
             }
           ]

@@ -37,6 +37,7 @@
             "last_login": "<<PRESENCE>>",
             "is_external": false,
             "license_accepted": false,
+            "project_roles": {},
             "project_permissions": {}
           }
 
@@ -122,5 +123,6 @@
             "last_login": "<<PRESENCE>>",
             "is_external": false,
             "license_accepted": false,
+            "project_roles": {},
             "project_permissions": {}
           }

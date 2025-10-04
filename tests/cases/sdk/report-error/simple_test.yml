@@ -13,7 +13,7 @@
           Authorization: 545C3E6A-8B17-4204-9558-9106D33B56F7
         body: {"error_type":"timeout","error_message":"Service X timeout"}
       response:
-        status: 200
+        status: 202
         headers:
           Content-Type: application/json
       dbChecks:

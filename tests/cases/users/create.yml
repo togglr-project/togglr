@@ -37,7 +37,9 @@
               "two_fa_enabled": false,
               "created_at": "<<PRESENCE>>",
               "is_external": false,
-              "license_accepted": false
+              "license_accepted": false,
+              "project_roles": {},
+              "project_permissions": {}
             }
           }
       dbChecks:
@@ -91,7 +93,9 @@
               "two_fa_enabled": false,
               "created_at": "<<PRESENCE>>",
               "is_external": false,
-              "license_accepted": false
+              "license_accepted": false,
+              "project_roles": {},
+              "project_permissions": {}
             }
           }
       dbChecks:
