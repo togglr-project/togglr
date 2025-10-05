@@ -95,23 +95,7 @@ const SSOButton: React.FC<SSOButtonProps> = ({
         onClick={handleClick}
         disabled={disabled || isLoading || loadingProviders || initiatingSSO}
         sx={{
-          backgroundColor: '#6366f1',
-          color: '#ffffff',
-          borderColor: '#6366f1',
           minWidth: '80px',
-          '&:hover': {
-            backgroundColor: '#4f46e5',
-            borderColor: '#4f46e5',
-          },
-          '&:active': {
-            backgroundColor: '#4338ca',
-            borderColor: '#4338ca',
-          },
-          '&.Mui-disabled': {
-            backgroundColor: 'rgba(99, 102, 241, 0.3)',
-            color: 'rgba(255, 255, 255, 0.5)',
-            borderColor: 'rgba(99, 102, 241, 0.3)',
-          }
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
