@@ -32,7 +32,17 @@ insert into monitoring.error_reports (
 	error_type, error_message, context, event_id
 ) values ($1, $2, $3, $4, $5, $6, $7)`
 
-	_, err := exec.Exec(ctx, query, report.ProjectID, report.FeatureID, report.EnvironmentID, report.ErrorType, report.ErrorMessage, report.Context, report.EventID)
+	_, err := exec.Exec(
+		ctx,
+		query,
+		report.ProjectID,
+		report.FeatureID,
+		report.EnvironmentID,
+		report.ErrorType,
+		report.ErrorMessage,
+		report.Context,
+		report.EventID,
+	)
 	if err != nil {
 		return fmt.Errorf("insert error report: %w", err)
 	}

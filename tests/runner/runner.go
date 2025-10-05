@@ -93,7 +93,7 @@ func Run(t *testing.T, testCfg *Config) {
 
 	time.Sleep(time.Second * 3)
 
-	if err := upMigrations(connStr, cfg.MigrationsDir); err != nil {
+	if err := upMigrations(t.Context(), connStr, cfg.MigrationsDir); err != nil {
 		t.Fatal(err)
 	}
 
@@ -180,7 +180,7 @@ func RunSDK(t *testing.T, testCfg *Config) {
 
 	time.Sleep(time.Second * 3)
 
-	if err := upMigrations(connStr, cfg.MigrationsDir); err != nil {
+	if err := upMigrations(t.Context(), connStr, cfg.MigrationsDir); err != nil {
 		t.Fatal(err)
 	}
 
@@ -440,7 +440,7 @@ func findOTPSecret(t *testing.T, targetCode string) string {
 func resetFixtureFile(t *testing.T, filePath string) {
 	t.Helper()
 
-	cmd := exec.Command("git", "checkout", "--", filePath)
+	cmd := exec.CommandContext(t.Context(), "git", "checkout", "--", filePath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

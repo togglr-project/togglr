@@ -10,8 +10,18 @@ import (
 // ErrorReportRepository provides access to error reports storage.
 type ErrorReportRepository interface {
 	Insert(ctx context.Context, report domain.ErrorReport) error
-	CountRecent(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID, window time.Duration) (int, error)
-	GetHealth(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID, window time.Duration) (domain.FeatureHealth, error)
+	CountRecent(
+		ctx context.Context,
+		featureID domain.FeatureID,
+		envID domain.EnvironmentID,
+		window time.Duration,
+	) (int, error)
+	GetHealth(
+		ctx context.Context,
+		featureID domain.FeatureID,
+		envID domain.EnvironmentID,
+		window time.Duration,
+	) (domain.FeatureHealth, error)
 }
 
 // ErrorReportsUseCase encapsulates business logic around error reports and feature health.

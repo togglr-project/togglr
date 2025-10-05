@@ -1,3 +1,4 @@
+//nolint:nilerr // TODO: fix it
 package project_settings
 
 import (
@@ -430,7 +431,10 @@ func (s *Service) GetAutoDisableTimeWindowSecCached(ctx context.Context, project
 	return value, nil
 }
 
-func (s *Service) GetAutoDisableTimeWindowCached(ctx context.Context, projectID domain.ProjectID) (time.Duration, error) {
+func (s *Service) GetAutoDisableTimeWindowCached(
+	ctx context.Context,
+	projectID domain.ProjectID,
+) (time.Duration, error) {
 	cacheKey := makeProjectSettingCacheKey(projectID, AutoDisableTimeWindowSecKey)
 
 	if cached, found := s.cache.Get(cacheKey); found {

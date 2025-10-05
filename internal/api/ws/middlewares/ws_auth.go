@@ -12,6 +12,8 @@ import (
 
 // WSAuthMiddleware extracts the user ID from WebSocket subprotocol and sets it in the context.
 // It looks for subprotocol in the format "bearer,<token>" or falls back to the Authorization header.
+//
+//nolint:gocognit // fix later
 func WSAuthMiddleware(tokenizer contract.Tokenizer, usersSrv contract.UsersUseCase) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {

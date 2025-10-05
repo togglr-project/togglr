@@ -6,11 +6,11 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
-func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
+func BuildChangeDiff(oldValue, newValue any) map[string]domain.ChangeValue {
 	changes := make(map[string]domain.ChangeValue)
 
-	vOld := reflect.ValueOf(old)
-	vNew := reflect.ValueOf(new)
+	vOld := reflect.ValueOf(oldValue)
+	vNew := reflect.ValueOf(newValue)
 
 	// Handle pointers
 	if vOld.Kind() == reflect.Ptr {
@@ -23,7 +23,7 @@ func BuildChangeDiff(old, new any) map[string]domain.ChangeValue {
 	typ := vOld.Type()
 
 	// Process struct fields
-	for i := 0; i < typ.NumField(); i++ {
+	for i := range typ.NumField() {
 		f := typ.Field(i)
 
 		// If field has editable tag, process it
@@ -76,7 +76,7 @@ func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.C
 
 	typ := oldField.Type()
 
-	for i := 0; i < typ.NumField(); i++ {
+	for i := range typ.NumField() {
 		f := typ.Field(i)
 		if f.Tag.Get("editable") != "true" {
 			continue
@@ -110,7 +110,7 @@ func BuildInsertChanges(entity any) map[string]domain.ChangeValue {
 	typ := v.Type()
 
 	// Process struct fields
-	for i := 0; i < typ.NumField(); i++ {
+	for i := range typ.NumField() {
 		f := typ.Field(i)
 		fieldName := f.Tag.Get("db")
 
@@ -160,7 +160,7 @@ func buildNestedInsertChanges(field reflect.Value) map[string]domain.ChangeValue
 
 	typ := field.Type()
 
-	for i := 0; i < typ.NumField(); i++ {
+	for i := range typ.NumField() {
 		f := typ.Field(i)
 		fieldName := f.Tag.Get("db")
 		if fieldName == "" {

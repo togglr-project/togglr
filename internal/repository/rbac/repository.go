@@ -257,16 +257,18 @@ func (r *Memberships) GetForUserProject(
 	return roleID, nil
 }
 
-func (r *Memberships) ListForProject(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectMembership, error) {
+func (r *Memberships) ListForProject(
+	ctx context.Context,
+	projectID domain.ProjectID,
+) ([]domain.ProjectMembership, error) {
 	exec := getExecutor(ctx, r.db)
 
 	const query = `
-		select m.id, m.project_id, m.user_id, m.role_id, r.key as role_key, r.name as role_name, m.created_at
-		from memberships m
-		join roles r on r.id = m.role_id
-		where m.project_id = $1
-		order by m.created_at desc
-	`
+select m.id, m.project_id, m.user_id, m.role_id, r.key as role_key, r.name as role_name, m.created_at
+from memberships m
+join roles r on r.id = m.role_id
+where m.project_id = $1
+order by m.created_at desc`
 
 	rows, err := exec.Query(ctx, query, projectID)
 	if err != nil {
@@ -287,42 +289,65 @@ func (r *Memberships) ListForProject(ctx context.Context, projectID domain.Proje
 	return res, nil
 }
 
-func (r *Memberships) Create(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID) (domain.ProjectMembership, error) {
+func (r *Memberships) Create(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	userID int,
+	roleID domain.RoleID,
+) (domain.ProjectMembership, error) {
 	exec := getExecutor(ctx, r.db)
 
 	const query = `
-		with ins as (
-			insert into memberships (project_id, user_id, role_id)
-			values ($1, $2, $3)
-			returning id, project_id, user_id, role_id, created_at
-		)
-		select ins.id, ins.project_id, ins.user_id, ins.role_id, r.key as role_key, r.name as role_name, ins.created_at
-		from ins join roles r on r.id = ins.role_id
-	`
+with ins as (
+	insert into memberships (project_id, user_id, role_id)
+	values ($1, $2, $3)
+	returning id, project_id, user_id, role_id, created_at
+)
+select ins.id, ins.project_id, ins.user_id, ins.role_id, r.key as role_key, r.name as role_name, ins.created_at
+from ins join roles r on r.id = ins.role_id`
 
 	row := exec.QueryRow(ctx, query, projectID, userID, roleID)
 	var model membershipModel
-	if err := row.Scan(&model.ID, &model.ProjectID, &model.UserID, &model.RoleID, &model.RoleKey, &model.RoleName, &model.CreatedAt); err != nil {
+	if err := row.Scan(
+		&model.ID,
+		&model.ProjectID,
+		&model.UserID,
+		&model.RoleID,
+		&model.RoleKey,
+		&model.RoleName,
+		&model.CreatedAt,
+	); err != nil {
 		return domain.ProjectMembership{}, fmt.Errorf("insert membership: %w", err)
 	}
 
 	return model.toDomain(), nil
 }
 
-func (r *Memberships) Get(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) (domain.ProjectMembership, error) {
+func (r *Memberships) Get(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	membershipID domain.MembershipID,
+) (domain.ProjectMembership, error) {
 	exec := getExecutor(ctx, r.db)
 
 	const query = `
-		select m.id, m.project_id, m.user_id, m.role_id, r.key as role_key, r.name as role_name, m.created_at
-		from memberships m
-		join roles r on r.id = m.role_id
-		where m.project_id = $1 and m.id = $2
-		limit 1
-	`
+select m.id, m.project_id, m.user_id, m.role_id, r.key as role_key, r.name as role_name, m.created_at
+from memberships m
+join roles r on r.id = m.role_id
+where m.project_id = $1 and m.id = $2
+limit 1`
 
 	row := exec.QueryRow(ctx, query, projectID, membershipID)
 	var model membershipModel
-	if err := row.Scan(&model.ID, &model.ProjectID, &model.UserID, &model.RoleID, &model.RoleKey, &model.RoleName, &model.CreatedAt); err != nil {
+	if err := row.Scan(
+		&model.ID,
+		&model.ProjectID,
+		&model.UserID,
+		&model.RoleID,
+		&model.RoleKey,
+		&model.RoleName,
+		&model.CreatedAt,
+	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.ProjectMembership{}, domain.ErrEntityNotFound
 		}
@@ -333,22 +358,34 @@ func (r *Memberships) Get(ctx context.Context, projectID domain.ProjectID, membe
 	return model.toDomain(), nil
 }
 
-func (r *Memberships) Update(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID, roleID domain.RoleID) (domain.ProjectMembership, error) {
+func (r *Memberships) Update(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	membershipID domain.MembershipID,
+	roleID domain.RoleID,
+) (domain.ProjectMembership, error) {
 	exec := getExecutor(ctx, r.db)
 
 	const query = `
-		with upd as (
-			update memberships set role_id = $3, updated_at = now()
-			where project_id = $1 and id = $2
-			returning id, project_id, user_id, role_id, created_at
-		)
-		select upd.id, upd.project_id, upd.user_id, upd.role_id, r.key as role_key, r.name as role_name, upd.created_at
-		from upd join roles r on r.id = upd.role_id
-	`
+with upd as (
+	update memberships set role_id = $3, updated_at = now()
+	where project_id = $1 and id = $2
+	returning id, project_id, user_id, role_id, created_at
+)
+select upd.id, upd.project_id, upd.user_id, upd.role_id, r.key as role_key, r.name as role_name, upd.created_at
+from upd join roles r on r.id = upd.role_id`
 
 	row := exec.QueryRow(ctx, query, projectID, membershipID, roleID)
 	var model membershipModel
-	if err := row.Scan(&model.ID, &model.ProjectID, &model.UserID, &model.RoleID, &model.RoleKey, &model.RoleName, &model.CreatedAt); err != nil {
+	if err := row.Scan(
+		&model.ID,
+		&model.ProjectID,
+		&model.UserID,
+		&model.RoleID,
+		&model.RoleKey,
+		&model.RoleName,
+		&model.CreatedAt,
+	); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.ProjectMembership{}, domain.ErrEntityNotFound
 		}

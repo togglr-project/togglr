@@ -392,7 +392,7 @@ func (app *App) newAPIServer() (*httpserver.Server, error) {
 		),
 	)
 
-	lis, err := net.Listen("tcp", cfg.Addr)
+	lis, err := net.Listen("tcp", cfg.Addr) //nolint:noctx // need to refactor
 	if err != nil {
 		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
 	}
@@ -435,7 +435,7 @@ func (app *App) newSDKServer() (*httpserver.Server, error) {
 		),
 	)
 
-	lis, err := net.Listen("tcp", cfg.Addr)
+	lis, err := net.Listen("tcp", cfg.Addr) //nolint:noctx // need to refactor
 	if err != nil {
 		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
 	}
@@ -451,7 +451,7 @@ func (app *App) newSDKServer() (*httpserver.Server, error) {
 
 func (app *App) newTechServer() (*httpserver.Server, error) {
 	cfg := app.Config.TechServer
-	lis, err := net.Listen("tcp", cfg.Addr)
+	lis, err := net.Listen("tcp", cfg.Addr) //nolint:noctx // need to refactor
 
 	if err != nil {
 		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
@@ -598,7 +598,7 @@ func (app *App) newWSServer() (*httpserver.Server, error) {
 	router := httprouter.New()
 	router.Handler(http.MethodGet, "/api/ws", wsHandler)
 
-	lis, err := net.Listen("tcp", cfg.Addr)
+	lis, err := net.Listen("tcp", cfg.Addr) //nolint:noctx // need to refactor
 	if err != nil {
 		return nil, fmt.Errorf("listen %q: %w", cfg.Addr, err)
 	}

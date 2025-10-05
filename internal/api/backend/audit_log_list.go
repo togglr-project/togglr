@@ -9,6 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
+//nolint:nilerr // it's ok here
 func (r *RestAPI) ListProjectAuditLogs(
 	ctx context.Context,
 	params generatedapi.ListProjectAuditLogsParams,

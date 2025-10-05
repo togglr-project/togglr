@@ -13,8 +13,11 @@ type ProjectsUseCase interface {
 	UpdateInfo(ctx context.Context, id domain.ProjectID, name, description string) (domain.Project, error)
 	ArchiveProject(ctx context.Context, id domain.ProjectID) error
 	ListChanges(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error)
-	// GetAPIKeyForEnvironment returns the API key for a specific environment
-	GetAPIKeyForEnvironment(ctx context.Context, projectID domain.ProjectID, environmentID domain.EnvironmentID) (string, error)
+	GetAPIKeyForEnvironment(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		environmentID domain.EnvironmentID,
+	) (string, error)
 }
 
 type ProjectsRepository interface {

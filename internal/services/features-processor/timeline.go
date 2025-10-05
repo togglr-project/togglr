@@ -1,3 +1,4 @@
+//nolint:nestif // This is a complex service implementation.
 package featuresprocessor
 
 import (
@@ -11,6 +12,7 @@ import (
 
 const cronMaxIters = 11_000
 
+//nolint:gocognit // This is a complex service implementation.
 func (*Service) BuildFeatureTimeline(
 	feature domain.FeatureExtended,
 	from time.Time,

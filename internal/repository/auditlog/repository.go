@@ -76,7 +76,8 @@ func (r *Repository) ListSince(ctx context.Context, since time.Time) ([]domain.A
 
 	const query = `
 SELECT audit_log.id, audit_log.project_id, feature_id, entity_id, request_id, entity,
-       actor, username, action, old_value, new_value, environment_id, COALESCE(envs.key, '') AS env_key, audit_log.created_at
+       actor, username, action, old_value, new_value, environment_id, 
+       COALESCE(envs.key, '') AS env_key, audit_log.created_at
 FROM audit_log
 LEFT JOIN environments envs ON audit_log.environment_id = envs.id
 WHERE audit_log.created_at > $1
@@ -111,9 +112,10 @@ func (r *Repository) ListChanges(
 
 	// Build base query for changes
 	builder := sq.Select(
-		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
-		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
-		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
+		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id",
+		"audit_log.request_id", "audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id",
+		"COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
 	).From("audit_log").
 		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
 
@@ -291,9 +293,10 @@ func (r *Repository) ListByProjectIDFiltered(
 	exec := r.getExecutor(ctx)
 
 	builder := sq.Select(
-		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
-		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
-		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
+		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id",
+		"audit_log.request_id", "audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id",
+		"COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
 	).From("audit_log").
 		LeftJoin("environments envs ON audit_log.environment_id = envs.id")
 
@@ -411,9 +414,10 @@ func (r *Repository) GetByID(ctx context.Context, id domain.AuditLogID) (domain.
 	exec := r.getExecutor(ctx)
 
 	builder := sq.Select(
-		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id", "audit_log.request_id",
-		"audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
-		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id", "COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
+		"audit_log.id", "audit_log.project_id", "audit_log.feature_id", "audit_log.entity_id",
+		"audit_log.request_id", "audit_log.entity", "audit_log.actor", "audit_log.username", "audit_log.action",
+		"audit_log.old_value", "audit_log.new_value", "audit_log.environment_id",
+		"COALESCE(envs.key, '') AS env_key", "audit_log.created_at",
 	).From("audit_log").
 		LeftJoin("environments envs ON audit_log.environment_id = envs.id").
 		Where(sq.Eq{"audit_log.id": id})

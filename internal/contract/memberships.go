@@ -23,7 +23,11 @@ type MembershipsUseCase interface {
 		userID int,
 		roleID domain.RoleID,
 	) (domain.ProjectMembership, error)
-	GetProjectMembership(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) (domain.ProjectMembership, error)
+	GetProjectMembership(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		membershipID domain.MembershipID,
+	) (domain.ProjectMembership, error)
 	UpdateProjectMembership(
 		ctx context.Context,
 		projectID domain.ProjectID,

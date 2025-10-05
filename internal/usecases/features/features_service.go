@@ -1,3 +1,4 @@
+//nolint:nestif,maintidx // fix it
 package features
 
 import (
@@ -67,6 +68,7 @@ func New(
 	}
 }
 
+//nolint:gocognit // This is a complex function.
 func (s *Service) CreateWithChildren(
 	ctx context.Context,
 	feature domain.Feature,
@@ -568,11 +570,15 @@ func (s *Service) Toggle(
 	}
 
 	if !proceed {
-		return domain.Feature{}, domain.GuardedResult{}, errors.New("unexpected guard result: no pending change but proceed=false")
+		err = errors.New("unexpected guard result: no pending change but proceed=false")
+
+		return domain.Feature{}, domain.GuardedResult{}, err
 	}
 
 	// This should never be reached for guarded features
-	return domain.Feature{}, domain.GuardedResult{}, errors.New("unexpected: guarded feature but no pending change created")
+	err = errors.New("unexpected: guarded feature but no pending change created")
+
+	return domain.Feature{}, domain.GuardedResult{}, err
 }
 
 // UpdateWithChildren updates the feature and reconciles its child entities (variants and rules).
@@ -619,15 +625,8 @@ func (s *Service) UpdateWithChildren(
 	}
 
 	// Compute changes for variants and rules
-	variantChanges, err := s.computeVariantChanges(env.ID, existingVariants, variants)
-	if err != nil {
-		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("compute variant changes: %w", err)
-	}
-
-	ruleChanges, err := s.computeRuleChanges(env.ID, existingRules, rules)
-	if err != nil {
-		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("compute rule changes: %w", err)
-	}
+	variantChanges := s.computeVariantChanges(env.ID, existingVariants, variants)
+	ruleChanges := s.computeRuleChanges(env.ID, existingRules, rules)
 
 	// Load existing tags and compute tag changes
 	existingTags, err := s.featureTagsRep.ListFeatureTags(ctx, feature.ID)
@@ -644,17 +643,14 @@ func (s *Service) UpdateWithChildren(
 		}
 	}
 
-	tagChanges, err := s.computeTagChanges(feature.ID, existingFeatureTags, tags)
-	if err != nil {
-		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("compute tag changes: %w", err)
-	}
+	tagChanges := s.computeTagChanges(feature.ID, existingFeatureTags, tags)
 
 	// Feature is guarded - create pending change
 	// Compute feature changes using guard engine logic
 	featureChanges := s.computeFeatureChanges(&existing, &feature)
 	paramsChanges := s.computeFeatureParamsChanges(&existing, &feature)
 
-	// Create entities list
+	// Create an entities list
 	entities := make([]domain.EntityChange, 0, 4+len(variantChanges)+len(ruleChanges)+len(tagChanges))
 
 	// Add feature changes if any
@@ -759,7 +755,7 @@ func (s *Service) computeVariantChanges(
 	envID domain.EnvironmentID,
 	existingVariants []domain.FlagVariant,
 	newVariants []domain.FlagVariant,
-) ([]domain.EntityChange, error) {
+) []domain.EntityChange {
 	// Build maps for comparison
 	existingByID := make(map[domain.FlagVariantID]domain.FlagVariant)
 	existingByName := make(map[string]domain.FlagVariant)
@@ -781,9 +777,9 @@ func (s *Service) computeVariantChanges(
 		newVariant.EnvironmentID = envID
 
 		if newVariant.ID != "" {
-			// Check if this is an update to existing variant
+			// Check if this is an update to an existing variant
 			if existing, exists := existingByID[newVariant.ID]; exists {
-				// Use guard engine to compute changes
+				// Use the guard engine to compute changes
 				variantChanges := s.guardEngine.BuildChangeDiff(&existing, &newVariant)
 				// Only create change if there are differences
 				if len(variantChanges) > 0 {
@@ -829,7 +825,7 @@ func (s *Service) computeVariantChanges(
 		}
 	}
 
-	return changes, nil
+	return changes
 }
 
 // computeRuleChanges computes changes for rules by comparing existing and new rules.
@@ -837,7 +833,7 @@ func (s *Service) computeRuleChanges(
 	envID domain.EnvironmentID,
 	existingRules []domain.Rule,
 	newRules []domain.Rule,
-) ([]domain.EntityChange, error) {
+) []domain.EntityChange {
 	// Build maps for comparison
 	existingByID := make(map[domain.RuleID]domain.Rule)
 	for _, r := range existingRules {
@@ -905,10 +901,10 @@ func (s *Service) computeRuleChanges(
 		}
 	}
 
-	return changes, nil
+	return changes
 }
 
-// computeFeatureChanges computes changes for BasicFeature fields using guard engine.
+// computeFeatureChanges computes changes for BasicFeature fields using the guard engine.
 func (s *Service) computeFeatureChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
 	// Extract BasicFeature from both features
 	oldBasic := oldFeature.BasicFeature
@@ -918,7 +914,7 @@ func (s *Service) computeFeatureChanges(oldFeature, newFeature *domain.Feature) 
 	return s.guardEngine.BuildChangeDiff(&oldBasic, &newBasic)
 }
 
-// computeFeatureParamsChanges computes changes for FeatureParams fields using guard engine.
+// computeFeatureParamsChanges computes changes for FeatureParams fields using the guard engine.
 func (s *Service) computeFeatureParamsChanges(oldFeature, newFeature *domain.Feature) map[string]domain.ChangeValue {
 	// Convert features to FeatureParams using the ConvertToFeatureParams method
 	oldParams := oldFeature.ConvertToFeatureParams()
@@ -928,7 +924,9 @@ func (s *Service) computeFeatureParamsChanges(oldFeature, newFeature *domain.Fea
 	return s.guardEngine.BuildChangeDiff(&oldParams, &newParams)
 }
 
-// updateFeatureWithChildrenDirect performs direct update without guard engine.
+// updateFeatureWithChildrenDirect performs direct update without a guard engine.
+//
+//nolint:gocognit // This is a complex function
 func (s *Service) updateFeatureWithChildrenDirect(
 	ctx context.Context,
 	feature domain.Feature,
@@ -1137,7 +1135,9 @@ func (s *Service) updateFeatureWithChildrenDirect(
 		return nil
 	})
 	if err != nil {
-		return domain.FeatureExtended{}, domain.GuardedResult{}, fmt.Errorf("tx update feature with children: %w", err)
+		err = fmt.Errorf("tx update feature with children: %w", err)
+
+		return domain.FeatureExtended{}, domain.GuardedResult{}, err
 	}
 
 	return result, domain.GuardedResult{Pending: false}, nil
@@ -1148,7 +1148,7 @@ func (s *Service) computeTagChanges(
 	featureID domain.FeatureID,
 	existingTags []domain.FeatureTags,
 	newTags []domain.FeatureTags,
-) ([]domain.EntityChange, error) {
+) []domain.EntityChange {
 	// Build maps for comparison
 	existingByID := make(map[domain.TagID]domain.FeatureTags)
 	for _, t := range existingTags {
@@ -1168,9 +1168,9 @@ func (s *Service) computeTagChanges(
 		newTag.FeatureID = featureID
 
 		if newTag.TagID != "" {
-			// Check if this is an update to existing tag
+			// Check if this is an update to the existing tag
 			if existing, exists := existingByID[newTag.TagID]; exists {
-				// Use guard engine to compute changes
+				// Use the guard engine to compute changes
 				tagChanges := s.guardEngine.BuildChangeDiff(&existing, &newTag)
 				// Only create change if there are differences
 				if len(tagChanges) > 0 {
@@ -1220,7 +1220,7 @@ func (s *Service) computeTagChanges(
 		}
 	}
 
-	return changes, nil
+	return changes
 }
 
 // reconcileTags reconciles feature tags by comparing existing and new tags.

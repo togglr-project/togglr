@@ -23,6 +23,7 @@ func New(broadcaster contract.RealtimeBroadcaster) *Handler {
 	return &Handler{broadcaster: broadcaster}
 }
 
+//nolint:nestif,gocognit // fix it
 func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 	// Log connection attempt
 	projectID := domain.ProjectID(req.URL.Query().Get("project_id"))

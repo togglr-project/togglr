@@ -10,6 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
 )
 
+//nolint:nilerr // it's ok here
 func (s *SDKRestAPI) ReportFeatureError(
 	ctx context.Context,
 	req *generatedapi.FeatureErrorReport,

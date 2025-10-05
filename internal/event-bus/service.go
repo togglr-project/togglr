@@ -34,6 +34,7 @@ func New(bus mq.MQ, errorReportUseCase contract.ErrorReportsUseCase) *Service {
 	}
 }
 
+//nolint:contextcheck // false positive
 func (s *Service) Start(context.Context) error {
 	s.dispatchConsumer(topicSDKErrorReports, s.processSDKErrorReportEvent)
 

@@ -1,3 +1,4 @@
+//nolint:nestif // fix it
 package errorreports
 
 import (
@@ -64,6 +65,7 @@ func New(
 	}
 }
 
+//nolint:gocognit // This is a complex function.
 func (s *Service) ReportError(
 	ctx context.Context,
 	projectID domain.ProjectID,

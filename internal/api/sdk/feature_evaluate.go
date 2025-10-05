@@ -9,6 +9,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
 )
 
+//nolint:nilerr // it's ok here
 func (s *SDKRestAPI) SdkV1FeaturesFeatureKeyEvaluatePost(
 	ctx context.Context,
 	req generatedapi.EvaluateRequest,

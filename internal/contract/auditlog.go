@@ -37,6 +37,9 @@ type AuditLogListFilter struct {
 type AuditLogRepository interface {
 	ListSince(ctx context.Context, since time.Time) ([]domain.AuditLog, error)
 	ListChanges(ctx context.Context, filter domain.ChangesListFilter) (domain.ChangesListResult, error)
-	ListByProjectIDFiltered(ctx context.Context, filter AuditLogListFilter) (items []domain.AuditLog, total int, err error)
+	ListByProjectIDFiltered(
+		ctx context.Context,
+		filter AuditLogListFilter,
+	) (items []domain.AuditLog, total int, err error)
 	GetByID(ctx context.Context, id domain.AuditLogID) (domain.AuditLog, error)
 }

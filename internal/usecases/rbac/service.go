@@ -49,7 +49,10 @@ func (s *Service) ListRolePermissions(ctx context.Context) (map[domain.Role][]do
 
 // Memberships
 
-func (s *Service) ListProjectMemberships(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectMembership, error) {
+func (s *Service) ListProjectMemberships(
+	ctx context.Context,
+	projectID domain.ProjectID,
+) ([]domain.ProjectMembership, error) {
 	return s.membershipsRepo.ListForProject(ctx, projectID)
 }
 
@@ -139,7 +142,8 @@ func (s *Service) DeleteProjectMembership(
 
 		actorID := int(appctx.UserID(ctx))
 		exec := db.TxFromContext(ctx)
-		if err := membershipaudit.Write(ctx, exec, string(old.ID), actorID, "delete", old, nil); err != nil {
+		err = membershipaudit.Write(ctx, exec, string(old.ID), actorID, "delete", old, nil)
+		if err != nil {
 			return fmt.Errorf("write membership audit: %w", err)
 		}
 

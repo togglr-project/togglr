@@ -8,13 +8,15 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
+//nolint:nilerr // it's ok here
 func (r *RestAPI) ListProjectMemberships(
 	ctx context.Context,
 	params generatedapi.ListProjectMembershipsParams,
 ) (generatedapi.ListProjectMembershipsRes, error) {
 	projectID := domain.ProjectID(params.ProjectID.String())
 	if err := r.permissionsService.CanAccessProject(ctx, projectID); err != nil {
-		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{Message: generatedapi.NewOptString("permission denied")}}, nil
+		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+			Message: generatedapi.NewOptString("permission denied")}}, nil
 	}
 	items, err := r.membershipsUseCase.ListProjectMemberships(ctx, projectID)
 	if err != nil {

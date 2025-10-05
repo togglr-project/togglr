@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/go-faster/jx"
 	"github.com/google/uuid"
 
 	"github.com/togglr-project/togglr/internal/contract"
@@ -14,6 +13,8 @@ import (
 )
 
 // ListPendingChanges handles GET /api/v1/pending_changes.
+//
+//nolint:nilerr // it's ok here
 func (r *RestAPI) ListPendingChanges(
 	ctx context.Context,
 	params generatedapi.ListPendingChangesParams,
@@ -97,7 +98,7 @@ func (r *RestAPI) ListPendingChanges(
 	}
 
 	// Convert to response format
-	var responseChanges []generatedapi.PendingChangeResponse
+	responseChanges := make([]generatedapi.PendingChangeResponse, 0, len(changes))
 
 	for _, change := range changes {
 		responseChange := convertPendingChangeToResponse(&change)
@@ -117,7 +118,7 @@ func (r *RestAPI) ListPendingChanges(
 // convertPendingChangeToResponse converts domain.PendingChange to generatedapi.PendingChangeResponse.
 func convertPendingChangeToResponse(change *domain.PendingChange) generatedapi.PendingChangeResponse {
 	// Convert entities
-	var entities []generatedapi.EntityChange
+	entities := make([]generatedapi.EntityChange, 0, len(change.Change.Entities))
 
 	for _, entity := range change.Change.Entities {
 		// Convert changes
@@ -129,8 +130,8 @@ func convertPendingChangeToResponse(change *domain.PendingChange) generatedapi.P
 			newJSON, _ := json.Marshal(changeValue.New)
 
 			changes[field] = generatedapi.ChangeValue{
-				Old: jx.Raw(oldJSON),
-				New: jx.Raw(newJSON),
+				Old: oldJSON,
+				New: newJSON,
 			}
 		}
 

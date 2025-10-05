@@ -24,7 +24,7 @@ func ApplyChangesToEntity(currentEntity any, changes map[string]domain.ChangeVal
 	typ := v.Type()
 
 	// Process struct fields
-	for i := 0; i < typ.NumField(); i++ {
+	for i := range typ.NumField() {
 		f := typ.Field(i)
 		fieldName := f.Tag.Get("db")
 		if fieldName == "" {

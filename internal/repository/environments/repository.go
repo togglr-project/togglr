@@ -93,7 +93,11 @@ func (r *Repository) GetByID(ctx context.Context, id domain.EnvironmentID) (doma
 	return model.toDomain(), nil
 }
 
-func (r *Repository) GetByProjectIDAndKey(ctx context.Context, projectID domain.ProjectID, key string) (domain.Environment, error) {
+func (r *Repository) GetByProjectIDAndKey(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	key string,
+) (domain.Environment, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM environments WHERE project_id = $1::uuid AND key = $2 LIMIT 1`

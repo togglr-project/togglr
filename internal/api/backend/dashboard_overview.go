@@ -1,3 +1,4 @@
+//nolint:nestif // fix it
 package apibackend
 
 import (
@@ -9,6 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
+//nolint:maintidx // fix later
 func (r *RestAPI) GetDashboardOverview(
 	ctx context.Context,
 	params generatedapi.GetDashboardOverviewParams,

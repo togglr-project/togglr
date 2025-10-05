@@ -25,14 +25,3 @@ func (m environmentModel) toDomain() domain.Environment {
 		CreatedAt: m.CreatedAt,
 	}
 }
-
-func environmentFromDomain(env domain.Environment) environmentModel {
-	return environmentModel{
-		ID:        int64(env.ID),
-		ProjectID: string(env.ProjectID),
-		Key:       env.Key,
-		Name:      env.Name,
-		APIKey:    env.APIKey,
-		CreatedAt: env.CreatedAt,
-	}
-}

@@ -194,7 +194,16 @@ WHERE id = $6
 RETURNING id, project_id, feature_id, environment_id, name, rollout_percent`
 
 	var model flagVariantModel
-	if err := executor.QueryRow(ctx, query, v.ProjectID, v.FeatureID, int64(v.EnvironmentID), v.Name, int(v.RolloutPercent), v.ID).Scan(
+	if err := executor.QueryRow(
+		ctx,
+		query,
+		v.ProjectID,
+		v.FeatureID,
+		int64(v.EnvironmentID),
+		v.Name,
+		int(v.RolloutPercent),
+		v.ID,
+	).Scan(
 		&model.ID,
 		&model.ProjectID,
 		&model.FeatureID,

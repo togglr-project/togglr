@@ -13,10 +13,9 @@ type Rule struct {
 	SegmentID     *SegmentID        `db:"segment_id"      editable:"true"`
 	IsCustomized  bool              `db:"is_customized"   editable:"true"`
 	Action        RuleAction        `db:"action"          editable:"true"`
-	FlagVariantID *FlagVariantID    `db:"flag_variant_id" editable:"true"` // which variant to assign if the condition matches
+	FlagVariantID *FlagVariantID    `db:"flag_variant_id" editable:"true"` // which variant to assign if matches
 	Priority      uint8             `db:"priority"        editable:"true"`
 	CreatedAt     time.Time         `db:"created_at"`
-	// TODO: updatedAt
 }
 
 type RuleID string

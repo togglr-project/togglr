@@ -15,7 +15,6 @@ import (
 
 type UsersService struct {
 	usersRepo        contract.UsersRepository
-	permissionsRepo  contract.PermissionsRepository
 	tokenizer        contract.Tokenizer
 	emailer          contract.Emailer
 	twoFARateLimiter contract.TwoFARateLimiter

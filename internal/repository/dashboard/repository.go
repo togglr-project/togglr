@@ -47,7 +47,11 @@ type projectHealthRow struct {
 	HealthStatus               string `db:"health_status"`
 }
 
-func (r *Repository) ProjectHealth(ctx context.Context, envKey string, projectID *string) ([]domain.ProjectHealth, error) {
+func (r *Repository) ProjectHealth(
+	ctx context.Context,
+	envKey string,
+	projectID *string,
+) ([]domain.ProjectHealth, error) {
 	exec := r.getExecutor(ctx)
 	query := `SELECT project_id, project_name, environment_id, environment_key,
 		total_features, enabled_features, disabled_features,
@@ -56,7 +60,7 @@ func (r *Repository) ProjectHealth(ctx context.Context, envKey string, projectID
 		FROM v_project_health WHERE environment_key = $1`
 	args := []any{envKey}
 	if projectID != nil {
-		query += ` AND project_id = $2`
+		query += ` AND project_id = $2` //nolint:goconst // false positive
 		args = append(args, *projectID)
 	}
 	rows, err := exec.Query(ctx, query, args...)
@@ -110,12 +114,17 @@ type categoryHealthRow struct {
 	HealthStatus               string `db:"health_status"`
 }
 
-func (r *Repository) CategoryHealth(ctx context.Context, envKey string, projectID *string) ([]domain.CategoryHealth, error) {
+func (r *Repository) CategoryHealth(
+	ctx context.Context,
+	envKey string,
+	projectID *string,
+) ([]domain.CategoryHealth, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, project_name, environment_id, environment_key, category_id, category_name, category_slug,
-		total_features, enabled_features, disabled_features, pending_features, guarded_features,
-		auto_disable_managed_features, pending_guarded_features, health_status
-		FROM v_project_category_health WHERE environment_key = $1`
+	query := `
+SELECT project_id, project_name, environment_id, environment_key, category_id, category_name, 
+	category_slug, total_features, enabled_features, disabled_features, pending_features, guarded_features,
+	auto_disable_managed_features, pending_guarded_features, health_status
+FROM v_project_category_health WHERE environment_key = $1`
 	args := []any{envKey}
 	if projectID != nil {
 		query += ` AND project_id = $2`
@@ -168,10 +177,16 @@ type recentActivityRow struct {
 	Changes        []byte    `db:"changes"`
 }
 
-func (r *Repository) RecentActivity(ctx context.Context, envKey string, projectID *string, limit uint) ([]domain.RecentActivity, error) {
+func (r *Repository) RecentActivity(
+	ctx context.Context,
+	envKey string,
+	projectID *string,
+	limit uint,
+) ([]domain.RecentActivity, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, environment_id, environment_key, project_name, request_id, actor, created_at, status, changes
-		FROM v_project_recent_activity WHERE environment_key = $1`
+	query := `
+SELECT project_id, environment_id, environment_key, project_name, request_id, actor, created_at, status, changes
+FROM v_project_recent_activity WHERE environment_key = $1`
 	args := []any{envKey}
 	if projectID != nil {
 		query += ` AND project_id = $2`
@@ -224,10 +239,17 @@ type riskyFeatureRow struct {
 	HasPending     bool   `db:"has_pending"`
 }
 
-func (r *Repository) RiskyFeatures(ctx context.Context, envKey string, projectID *string, limit uint) ([]domain.RiskyFeature, error) {
+func (r *Repository) RiskyFeatures(
+	ctx context.Context,
+	envKey string,
+	projectID *string,
+	limit uint,
+) ([]domain.RiskyFeature, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, project_name, environment_id, environment_key, feature_id, feature_name, enabled, risky_tags, has_pending
-		FROM v_project_top_risky_features WHERE environment_key = $1`
+	query := `
+SELECT project_id, project_name, environment_id, environment_key, feature_id,
+       feature_name, enabled, risky_tags, has_pending
+FROM v_project_top_risky_features WHERE environment_key = $1`
 	args := []any{envKey}
 	if projectID != nil {
 		query += ` AND project_id = $2`
@@ -275,11 +297,16 @@ type pendingSummaryRow struct {
 	OldestRequestAt       *time.Time `db:"oldest_request_at"`
 }
 
-func (r *Repository) PendingSummary(ctx context.Context, envKey string, projectID *string) ([]domain.PendingSummary, error) {
+func (r *Repository) PendingSummary(
+	ctx context.Context,
+	envKey string,
+	projectID *string,
+) ([]domain.PendingSummary, error) {
 	exec := r.getExecutor(ctx)
-	query := `SELECT project_id, project_name, environment_id, environment_key, total_pending, pending_feature_changes,
-		pending_guarded_changes, oldest_request_at
-		FROM v_project_pending_summary WHERE environment_key = $1`
+	query := `
+SELECT project_id, project_name, environment_id, environment_key, total_pending, pending_feature_changes,
+pending_guarded_changes, oldest_request_at
+FROM v_project_pending_summary WHERE environment_key = $1`
 	args := []any{envKey}
 	if projectID != nil {
 		query += ` AND project_id = $2`

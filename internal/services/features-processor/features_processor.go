@@ -1,3 +1,4 @@
+//nolint:nestif // This is a complex feature processor.
 package featuresprocessor
 
 import (
@@ -79,6 +80,7 @@ func (s *Service) now() time.Time {
 	return s.nowFunc()
 }
 
+//nolint:contextcheck // false positive
 func (s *Service) Start(ctx context.Context) error {
 	if err := s.LoadAllFeatures(ctx); err != nil {
 		return fmt.Errorf("loading all features: %w", err)
@@ -146,6 +148,7 @@ func (s *Service) LoadAllFeatures(ctx context.Context) error {
 	return nil
 }
 
+//nolint:gocognit // This is a complex function.
 func (s *Service) Watch(ctx context.Context) error {
 	if s.auditRepo == nil || s.featuresUC == nil {
 		return errors.New("features processor: dependencies not set")
@@ -220,7 +223,7 @@ func (s *Service) Watch(ctx context.Context) error {
 			for key, action := range changes {
 				if action == domain.AuditActionDelete {
 					ctxRm, cancel := context.WithTimeout(ctx, time.Second*5)
-					defer cancel() // TODO: refactor
+					defer cancel()
 
 					s.removeFeatureFromHolder(ctxRm, key.projectID, key.featureID, key.envKey)
 
@@ -501,7 +504,6 @@ func (s *Service) refreshFeature(
 	featureID domain.FeatureID,
 	envKey string,
 ) error {
-	// TODO: Get environment_key from context or parameter
 	featureExtended, err := s.featuresUC.GetExtendedByID(ctx, featureID, envKey)
 	if err != nil {
 		return fmt.Errorf("get feature extended by id %s: %w", featureID, err)

@@ -231,29 +231,6 @@ func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	return r.db
 }
 
-type tagModel struct {
-	ID          string    `db:"id"`
-	ProjectID   string    `db:"project_id"`
-	CategoryID  *string   `db:"category_id"`
-	Name        string    `db:"name"`
-	Slug        string    `db:"slug"`
-	Description *string   `db:"description"`
-	Color       *string   `db:"color"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
-}
-
-type categoryModel struct {
-	ID          string    `db:"id"`
-	Name        string    `db:"name"`
-	Slug        string    `db:"slug"`
-	Description *string   `db:"description"`
-	Color       *string   `db:"color"`
-	Kind        string    `db:"kind"`
-	CreatedAt   time.Time `db:"created_at"`
-	UpdatedAt   time.Time `db:"updated_at"`
-}
-
 type tagWithCategoryModel struct {
 	ID             string     `db:"id"`
 	ProjectID      string     `db:"project_id"`
@@ -272,39 +249,6 @@ type tagWithCategoryModel struct {
 	CatKind        *string    `db:"cat_kind"`
 	CatCreatedAt   *time.Time `db:"cat_created_at"`
 	CatUpdatedAt   *time.Time `db:"cat_updated_at"`
-}
-
-func (m *tagModel) toDomain() domain.Tag {
-	var categoryID *domain.CategoryID
-	if m.CategoryID != nil {
-		categoryID = (*domain.CategoryID)(m.CategoryID)
-	}
-
-	return domain.Tag{
-		ID:          domain.TagID(m.ID),
-		ProjectID:   domain.ProjectID(m.ProjectID),
-		CategoryID:  categoryID,
-		Name:        m.Name,
-		Slug:        m.Slug,
-		Description: m.Description,
-		Color:       m.Color,
-		CreatedAt:   m.CreatedAt,
-		UpdatedAt:   m.UpdatedAt,
-		Category:    nil,
-	}
-}
-
-func (m *categoryModel) toDomain() domain.Category {
-	return domain.Category{
-		ID:          domain.CategoryID(m.ID),
-		Name:        m.Name,
-		Slug:        m.Slug,
-		Description: m.Description,
-		Color:       m.Color,
-		Kind:        domain.CategoryKind(m.Kind),
-		CreatedAt:   m.CreatedAt,
-		UpdatedAt:   m.UpdatedAt,
-	}
 }
 
 func (m *tagWithCategoryModel) toDomain() domain.Tag {

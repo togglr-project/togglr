@@ -191,10 +191,17 @@ func (r *Repository) List(ctx context.Context, envKey string) ([]domain.Feature,
 	return features, nil
 }
 
-func (r *Repository) ListByProjectID(ctx context.Context, projectID domain.ProjectID, envKey string) ([]domain.Feature, error) {
+func (r *Repository) ListByProjectID(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envKey string,
+) ([]domain.Feature, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM v_features_full WHERE project_id = $1::uuid AND environment_key = $2 ORDER BY created_at DESC`
+	const query = `
+SELECT * FROM v_features_full
+WHERE project_id = $1::uuid AND environment_key = $2
+ORDER BY created_at DESC`
 
 	rows, err := executor.Query(ctx, query, projectID, envKey)
 	if err != nil {
@@ -267,7 +274,9 @@ func (r *Repository) ListByProjectIDFiltered(
 
 	if len(filter.TagIDs) > 0 {
 		// Use subquery to filter by tag IDs to avoid GROUP BY issues
-		subquery := sq.Select("DISTINCT feature_id").From("feature_tags").Where(sq.Eq{"tag_id": filter.TagIDs})
+		subquery := sq.Select("DISTINCT feature_id").
+			From("feature_tags").
+			Where(sq.Eq{"tag_id": filter.TagIDs})
 		subquerySQL, subqueryArgs, _ := subquery.PlaceholderFormat(sq.Question).ToSql()
 
 		builder = builder.Where(sq.Expr("vf.id IN ("+subquerySQL+")", subqueryArgs...))

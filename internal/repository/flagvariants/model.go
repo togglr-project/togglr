@@ -7,13 +7,13 @@ import (
 )
 
 type flagVariantModel struct {
-	ID             string `db:"id"`
-	ProjectID      string `db:"project_id"`
-	FeatureID      string `db:"feature_id"`
-	EnvironmentID  int64  `db:"environment_id"`
-	Name           string `db:"name"`
-	RolloutPercent int    `db:"rollout_percent"`
-	_createdAt     time.Time
+	ID             string    `db:"id"`
+	ProjectID      string    `db:"project_id"`
+	FeatureID      string    `db:"feature_id"`
+	EnvironmentID  int64     `db:"environment_id"`
+	Name           string    `db:"name"`
+	RolloutPercent int       `db:"rollout_percent"`
+	_createdAt     time.Time //nolint:unused // needed for pgx.CollectRows
 }
 
 func (m *flagVariantModel) toDomain() domain.FlagVariant {

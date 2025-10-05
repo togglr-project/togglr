@@ -33,7 +33,8 @@ func (r *Repository) Create(
 	const query = `
 INSERT INTO feature_params (feature_id, environment_id, enabled, default_value, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6)
-ON CONFLICT (feature_id, environment_id) DO UPDATE SET enabled = EXCLUDED.enabled, default_value = EXCLUDED.default_value, updated_at = NOW()
+ON CONFLICT (feature_id, environment_id) DO UPDATE
+SET enabled = EXCLUDED.enabled, default_value = EXCLUDED.default_value, updated_at = NOW()
 RETURNING feature_id, environment_id, enabled, default_value, created_at, updated_at`
 
 	var model featureParamsModel
@@ -76,14 +77,18 @@ RETURNING feature_id, environment_id, enabled, default_value, created_at, update
 	return newParams, nil
 }
 
-func (r *Repository) GetByFeatureWithEnv(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error) {
+func (r *Repository) GetByFeatureWithEnv(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) (domain.FeatureParams, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM feature_params WHERE feature_id = $1 AND environment_id = $2 LIMIT 1`
 
 	rows, err := executor.Query(ctx, query, featureID, envID)
 	if err != nil {
-		return domain.FeatureParams{}, fmt.Errorf("query feature_params by feature_id and environment_id: %w", err)
+		return domain.FeatureParams{}, fmt.Errorf("query feature_params by feature_id and env id: %w", err)
 	}
 	defer rows.Close()
 
@@ -99,7 +104,11 @@ func (r *Repository) GetByFeatureWithEnv(ctx context.Context, featureID domain.F
 	return model.toDomain(), nil
 }
 
-func (r *Repository) GetForUpdate(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) (domain.FeatureParams, error) {
+func (r *Repository) GetForUpdate(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) (domain.FeatureParams, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM feature_params WHERE feature_id = $1 AND environment_id = $2 FOR UPDATE LIMIT 1`
@@ -146,7 +155,10 @@ func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.Featu
 	return params, nil
 }
 
-func (r *Repository) ListByEnvironmentID(ctx context.Context, envID domain.EnvironmentID) ([]domain.FeatureParams, error) {
+func (r *Repository) ListByEnvironmentID(
+	ctx context.Context,
+	envID domain.EnvironmentID,
+) ([]domain.FeatureParams, error) {
 	executor := r.getExecutor(ctx)
 
 	const query = `SELECT * FROM feature_params WHERE environment_id = $1 ORDER BY feature_id`
@@ -170,7 +182,11 @@ func (r *Repository) ListByEnvironmentID(ctx context.Context, envID domain.Envir
 	return params, nil
 }
 
-func (r *Repository) Update(ctx context.Context, projectID domain.ProjectID, params domain.FeatureParams) (domain.FeatureParams, error) {
+func (r *Repository) Update(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	params domain.FeatureParams,
+) (domain.FeatureParams, error) {
 	executor := r.getExecutor(ctx)
 
 	// Read old state for audit within the same transaction.
@@ -231,7 +247,12 @@ RETURNING feature_id, environment_id, enabled, default_value, created_at, update
 	return newParams, nil
 }
 
-func (r *Repository) Delete(ctx context.Context, projectID domain.ProjectID, featureID domain.FeatureID, envID domain.EnvironmentID) error {
+func (r *Repository) Delete(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) error {
 	executor := r.getExecutor(ctx)
 
 	oldParams, err := r.GetByFeatureWithEnv(ctx, featureID, envID)

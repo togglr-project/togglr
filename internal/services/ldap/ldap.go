@@ -1,6 +1,6 @@
 // Package ldap provides functionality for LDAP/Active Directory integration
 //
-//nolint:gocyclo,nestif // need refactoring
+//nolint:gocyclo // need refactoring
 package ldap
 
 import (
@@ -59,7 +59,7 @@ type Service struct {
 	mu                sync.RWMutex
 	syncInterval      time.Duration
 
-	ctx       context.Context
+	ctx       context.Context //nolint:containedctx // it's ok here
 	ctxCancel context.CancelFunc
 
 	// Sync status tracking
@@ -287,7 +287,7 @@ func (s *Service) StartSyncJob(ctx context.Context) {
 			}
 		}
 
-		s.backgroundSync(s.ctx)
+		s.backgroundSync(s.ctx) //nolint:contextcheck // false positive
 	}
 }
 

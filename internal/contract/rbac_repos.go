@@ -22,8 +22,22 @@ type PermissionsRepository interface {
 type MembershipsRepository interface {
 	GetForUserProject(ctx context.Context, userID int, projectID domain.ProjectID) (roleID string, err error)
 	ListForProject(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectMembership, error)
-	Create(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID) (domain.ProjectMembership, error)
-	Get(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) (domain.ProjectMembership, error)
-	Update(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID, roleID domain.RoleID) (domain.ProjectMembership, error)
+	Create(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		userID int,
+		roleID domain.RoleID,
+	) (domain.ProjectMembership, error)
+	Get(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		membershipID domain.MembershipID,
+	) (domain.ProjectMembership, error)
+	Update(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		membershipID domain.MembershipID,
+		roleID domain.RoleID,
+	) (domain.ProjectMembership, error)
 	Delete(ctx context.Context, projectID domain.ProjectID, membershipID domain.MembershipID) error
 }

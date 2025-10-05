@@ -221,7 +221,13 @@ func (s *Service) GetAutoDisableTag(ctx context.Context, projectID domain.Projec
 		return domain.Tag{}, fmt.Errorf("get auto-disable tag: %w", err)
 	}
 
-	return s.createSystemTag(ctx, projectID, AutoDisableTagSlug, "Auto Disable", "Enables automatic feature disabling on errors")
+	return s.createSystemTag(
+		ctx,
+		projectID,
+		AutoDisableTagSlug,
+		"Auto Disable",
+		"Enables automatic feature disabling on errors",
+	)
 }
 
 func (s *Service) GetGuardedTag(ctx context.Context, projectID domain.ProjectID) (domain.Tag, error) {
@@ -296,7 +302,11 @@ func (s *Service) InvalidateCache(projectID domain.ProjectID) {
 	}
 }
 
-func (s *Service) createSystemTag(ctx context.Context, projectID domain.ProjectID, slug, name, description string) (domain.Tag, error) {
+func (s *Service) createSystemTag(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	slug, name, description string,
+) (domain.Tag, error) {
 	descriptionPtr := &description
 	color := "#ff6b6b"
 

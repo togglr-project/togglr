@@ -49,7 +49,7 @@ func APIProjectSettingToDomain(setting generatedapi.ProjectSetting) domain.Proje
 	value := any(nil)
 
 	return domain.ProjectSetting{
-		ID:        int(setting.ID),
+		ID:        setting.ID,
 		ProjectID: domain.ProjectID(setting.ProjectID),
 		Name:      setting.Name,
 		Value:     value,

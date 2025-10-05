@@ -25,14 +25,3 @@ func (m featureParamsModel) toDomain() domain.FeatureParams {
 		UpdatedAt:     m.UpdatedAt,
 	}
 }
-
-func featureParamsFromDomain(params domain.FeatureParams) featureParamsModel {
-	return featureParamsModel{
-		FeatureID:     string(params.FeatureID),
-		EnvironmentID: int64(params.EnvironmentID),
-		Enabled:       params.Enabled,
-		DefaultValue:  params.DefaultValue,
-		CreatedAt:     params.CreatedAt,
-		UpdatedAt:     params.UpdatedAt,
-	}
-}

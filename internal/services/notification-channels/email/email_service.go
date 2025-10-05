@@ -1,4 +1,4 @@
-//nolint:gosec,gocyclo // it's ok
+//nolint:gosec,gocyclo,contextcheck // it's ok
 package email
 
 import (
@@ -254,6 +254,8 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 }
 
 // sendEmailsParallel sends emails in parallel with a limit on the number of workers.
+//
+//nolint:unused // will be need in the future
 func (s *Service) sendEmailsParallel(
 	ctx context.Context,
 	maxWorkers int,

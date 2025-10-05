@@ -14,6 +14,8 @@ import (
 )
 
 // ListProjectFeatures handles GET /api/v1/projects/{project_id}/features.
+//
+//nolint:gocognit // fix later
 func (r *RestAPI) ListProjectFeatures(
 	ctx context.Context,
 	params generatedapi.ListProjectFeaturesParams,

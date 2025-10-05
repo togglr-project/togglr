@@ -46,7 +46,7 @@ var twoFASessionStore = struct {
 }{sessions: make(map[string]twoFASessionEntry)}
 
 func generate2FACode() string {
-	if env, ok := os.LookupEnv("ENVIRONMENT"); ok && env == "test" { // TODO: refactor
+	if env, ok := os.LookupEnv("ENVIRONMENT"); ok && env == "test" {
 		return "654321"
 	}
 

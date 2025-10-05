@@ -8,6 +8,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
+//nolint:nilerr // it's ok here
 func (r *RestAPI) CreateProjectMembership(
 	ctx context.Context,
 	req *generatedapi.CreateMembershipRequest,
@@ -15,10 +16,16 @@ func (r *RestAPI) CreateProjectMembership(
 ) (generatedapi.CreateProjectMembershipRes, error) {
 	projectID := domain.ProjectID(params.ProjectID.String())
 	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
-		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{Message: generatedapi.NewOptString("permission denied")}}, nil
+		return &generatedapi.ErrorPermissionDenied{Error: generatedapi.ErrorPermissionDeniedError{
+			Message: generatedapi.NewOptString("permission denied")}}, nil
 	}
 
-	created, err := r.membershipsUseCase.CreateProjectMembership(ctx, projectID, int(req.UserID), domain.RoleID(req.RoleID.String()))
+	created, err := r.membershipsUseCase.CreateProjectMembership(
+		ctx,
+		projectID,
+		int(req.UserID),
+		domain.RoleID(req.RoleID.String()),
+	)
 	if err != nil {
 		return nil, err
 	}

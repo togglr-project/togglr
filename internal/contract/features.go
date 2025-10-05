@@ -58,8 +58,13 @@ type FeaturesUseCase interface {
 		projectID domain.ProjectID,
 		env string,
 	) ([]domain.FeatureExtended, error)
-	// Toggle enables or disables a feature flag by its ID and returns updated entity.
-	Toggle(ctx context.Context, id domain.FeatureID, enabled bool, env string) (domain.Feature, domain.GuardedResult, error)
+	// Toggle enables or disables a feature flag by its ID and returns an updated entity.
+	Toggle(
+		ctx context.Context,
+		id domain.FeatureID,
+		enabled bool,
+		env string,
+	) (domain.Feature, domain.GuardedResult, error)
 	Delete(ctx context.Context, id domain.FeatureID, env string) (domain.GuardedResult, error)
 	// GetFeatureParams returns feature parameters for all environments
 	GetFeatureParams(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureParams, error)

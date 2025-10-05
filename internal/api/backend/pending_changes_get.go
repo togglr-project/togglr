@@ -10,6 +10,8 @@ import (
 )
 
 // GetPendingChange handles GET /api/v1/pending_changes/{pending_change_id}.
+//
+//nolint:nilerr // it's ok here
 func (r *RestAPI) GetPendingChange(
 	ctx context.Context,
 	params generatedapi.GetPendingChangeParams,

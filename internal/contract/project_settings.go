@@ -54,7 +54,12 @@ type ProjectSettingsUseCase interface {
 	GetBoolSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue bool) (bool, error)
 	GetIntSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue int) (int, error)
 	GetStringSetting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue string) (string, error)
-	GetFloat64Setting(ctx context.Context, projectID domain.ProjectID, name string, defaultValue float64) (float64, error)
+	GetFloat64Setting(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		name string,
+		defaultValue float64,
+	) (float64, error)
 
 	// Auto-disable specific getters with predefined keys and defaults
 	GetAutoDisableEnabled(ctx context.Context, projectID domain.ProjectID) (bool, error)
