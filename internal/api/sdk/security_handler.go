@@ -45,7 +45,10 @@ func (r *SecurityHandler) HandleApiKeyAuth(
 	}
 
 	if v, ok := r.cache.Load(tokenHolder.APIKey); ok {
-		ce := v.(cacheEntry)
+		ce, ok := v.(cacheEntry)
+		if !ok {
+			return nil, errors.New("invalid cache entry type")
+		}
 		if time.Now().Before(ce.expiresAt) {
 			return makeAuthContext(ctx, ce.projectID, ce.envKey), nil
 		}

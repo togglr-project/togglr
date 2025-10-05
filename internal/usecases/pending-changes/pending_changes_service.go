@@ -465,7 +465,11 @@ func (s *Service) applyRuleChange(
 			return fmt.Errorf("create rule from changes: %w", err)
 		}
 
-		_, err = s.rulesRepo.Create(ctx, *rule.(*domain.Rule))
+		rulePtr, ok := rule.(*domain.Rule)
+		if !ok {
+			return fmt.Errorf("invalid rule type: %T", rule)
+		}
+		_, err = s.rulesRepo.Create(ctx, *rulePtr)
 		if err != nil {
 			return fmt.Errorf("create rule: %w", err)
 		}
@@ -513,7 +517,11 @@ func (s *Service) applyFlagVariantChange(
 			return fmt.Errorf("create flag variant from changes: %w", err)
 		}
 
-		_, err = s.flagVariantsRepo.Create(ctx, *variant.(*domain.FlagVariant))
+		variantPtr, ok := variant.(*domain.FlagVariant)
+		if !ok {
+			return fmt.Errorf("invalid flag variant type: %T", variant)
+		}
+		_, err = s.flagVariantsRepo.Create(ctx, *variantPtr)
 		if err != nil {
 			return fmt.Errorf("create flag variant: %w", err)
 		}
@@ -561,7 +569,11 @@ func (s *Service) applyFeatureScheduleChange(
 			return fmt.Errorf("create feature schedule from changes: %w", err)
 		}
 
-		_, err = s.schedulesRepo.Create(ctx, *schedule.(*domain.FeatureSchedule))
+		schedulePtr, ok := schedule.(*domain.FeatureSchedule)
+		if !ok {
+			return fmt.Errorf("invalid feature schedule type: %T", schedule)
+		}
+		_, err = s.schedulesRepo.Create(ctx, *schedulePtr)
 		if err != nil {
 			return fmt.Errorf("create feature schedule: %w", err)
 		}
@@ -605,6 +617,10 @@ func (s *Service) applyFeatureChange(
 		if err != nil {
 			return fmt.Errorf("delete feature: %w", err)
 		}
+
+	case domain.EntityActionInsert:
+		// Insert action is not applicable for feature updates
+		return errors.New("insert action not supported for feature updates")
 
 	default:
 		return fmt.Errorf("unsupported action: %s", entity.Action)
@@ -659,6 +675,9 @@ func (s *Service) applyFeatureTagChange(
 		}
 
 		return nil
+	case domain.EntityActionUpdate:
+		// Update action is not applicable for feature_tag associations
+		return errors.New("update action not supported for feature_tag associations")
 	default:
 		return fmt.Errorf("unsupported action for feature_tag: %s", entity.Action)
 	}

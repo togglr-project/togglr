@@ -26,8 +26,8 @@ func New(repo contract.RealtimeEventsRepository) *Service {
 }
 
 // Start launches a background worker that polls the repository and broadcasts events.
-func (s *Service) Start(context.Context) error {
-	go s.worker(context.Background())
+func (s *Service) Start(ctx context.Context) error {
+	go s.worker(ctx)
 
 	return nil
 }
@@ -102,7 +102,10 @@ func (s *Service) toJSON(evt domain.RealtimeEvent) []byte {
 		EntityID:    evt.EntityID,
 		Action:      evt.Action,
 	}
-	b, _ := json.Marshal(msg)
+	b, err := json.Marshal(msg)
+	if err != nil {
+		return []byte("{}")
+	}
 
 	return b
 }

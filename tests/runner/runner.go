@@ -74,7 +74,7 @@ func Run(t *testing.T, testCfg *Config) {
 	env.Set("MAILER_ADDR", "localhost:"+mailPort.Port())
 
 	mailPort, _ = mailC.MappedPort(t.Context(), "8025")
-	fmt.Println("MailHog UI: http://localhost:" + mailPort.Port())
+	t.Log("MailHog UI: http://localhost:" + mailPort.Port())
 
 	// Config and App initialization ------------------------------------------
 	env.SetUp()
@@ -161,7 +161,7 @@ func RunSDK(t *testing.T, testCfg *Config) {
 	env.Set("MAILER_ADDR", "localhost:"+mailPort.Port())
 
 	mailPort, _ = mailC.MappedPort(t.Context(), "8025")
-	fmt.Println("MailHog UI: http://localhost:" + mailPort.Port())
+	t.Log("MailHog UI: http://localhost:" + mailPort.Port())
 
 	// Config and App initialization ------------------------------------------
 	env.SetUp()
@@ -426,7 +426,7 @@ func findOTPSecret(t *testing.T, targetCode string) string {
 		}
 
 		if code == targetCode && totp.Validate(targetCode, secret) {
-			fmt.Printf(">>> Found valid 2FA OTP secret [iteration: %d]\n", attempt+1)
+			t.Logf(">>> Found valid 2FA OTP secret [iteration: %d]\n", attempt+1)
 
 			return secret
 		}
@@ -444,7 +444,7 @@ func resetFixtureFile(t *testing.T, filePath string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	fmt.Printf("⏪ Resetting fixture: %s\n", filePath)
+	t.Logf("⏪ Resetting fixture: %s\n", filePath)
 
 	_ = cmd.Run()
 }

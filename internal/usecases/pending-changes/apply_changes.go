@@ -138,6 +138,10 @@ func applyChangeToField(field reflect.Value, newValue any) error {
 			return fmt.Errorf("expected string for custom type, got %T", newValue)
 		}
 
+	case reflect.Invalid, reflect.Uintptr, reflect.Complex64, reflect.Complex128,
+		reflect.Array, reflect.Chan, reflect.Func, reflect.Interface, reflect.Map,
+		reflect.Slice, reflect.UnsafePointer:
+		return fmt.Errorf("unsupported field type: %s", fieldType.Kind())
 	default:
 		return fmt.Errorf("unsupported field type: %s", fieldType.Kind())
 	}

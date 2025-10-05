@@ -27,7 +27,8 @@ func BuildChangeDiff(oldValue, newValue any) map[string]domain.ChangeValue {
 		f := typ.Field(i)
 
 		// If field has editable tag, process it
-		if f.Tag.Get("editable") == "true" {
+		const editableTrue = "true"
+		if f.Tag.Get("editable") == editableTrue {
 			fieldName := f.Tag.Get("db")
 			if fieldName == "" {
 				panic("db tag is required for editable fields")
@@ -78,7 +79,7 @@ func buildNestedChangeDiff(oldField, newField reflect.Value) map[string]domain.C
 
 	for i := range typ.NumField() {
 		f := typ.Field(i)
-		if f.Tag.Get("editable") != "true" {
+		if f.Tag.Get("editable") != "true" { //nolint:goconst // string literal is fine here
 			continue
 		}
 

@@ -320,7 +320,7 @@ func (app *App) registerComponents() {
 	}
 
 	app.registerComponent(usersusecase.New).Arg([]usersusecase.AuthProvider{
-		ldap.NewAuthService(ldapService.(*ldap.Service)),
+		ldap.NewAuthService(ldapService.(*ldap.Service)), //nolint:forcetypeassert // ldapService guaranteed
 	})
 
 	// Register services

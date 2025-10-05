@@ -100,7 +100,7 @@ func (s *Service) Overview(
 		RiskyFeatures:  risky,
 		PendingSummary: pending,
 		Upcoming:       upcoming,
-		Recent:         nil, // TODO: integrate audit rules for feature-level recent
+		Recent:         nil, // Feature-level recent changes not implemented yet
 	}, nil
 }
 

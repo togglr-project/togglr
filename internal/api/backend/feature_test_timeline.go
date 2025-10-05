@@ -11,6 +11,8 @@ import (
 )
 
 // TestFeatureTimeline handles POST /api/v1/features/{feature_id}/timeline/test.
+//
+//nolint:gocognit // complex function, refactor later
 func (r *RestAPI) TestFeatureTimeline(
 	ctx context.Context,
 	req *generatedapi.TestFeatureTimelineRequest,

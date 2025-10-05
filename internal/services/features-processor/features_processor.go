@@ -845,6 +845,9 @@ func CompareNumbers(actual any, expected any, op domain.RuleOperator) bool {
 		return av < ev
 	case domain.OpLte:
 		return av <= ev
+	case domain.OpEq, domain.OpNotEq, domain.OpIn, domain.OpNotIn, domain.OpRegex, domain.OpPercentage:
+		// These operators are not applicable for numeric comparison
+		return false
 	}
 
 	return false

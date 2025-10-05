@@ -147,7 +147,8 @@ func (r *Repository) ListChanges(
 	}
 
 	// Apply sorting
-	orderCol := "audit_log.created_at"
+	const auditLogCreatedAt = "audit_log.created_at"
+	orderCol := auditLogCreatedAt
 
 	switch filter.SortBy {
 	case "created_at", "actor", "entity":

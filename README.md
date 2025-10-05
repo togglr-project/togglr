@@ -1,5 +1,8 @@
 # Togglr
 
+[![CI](https://github.com/togglr-project/togglr/actions/workflows/ci.yml/badge.svg)](https://github.com/togglr-project/togglr/actions/workflows/ci.yml)
+[![Lint](https://github.com/togglr-project/togglr/actions/workflows/lint.yml/badge.svg)](https://github.com/togglr-project/togglr/actions/workflows/lint.yml)
+
 Togglr is a feature flag and experimentation platform for developers.
 It allows developers and product teams to toggle features on/off, run A/B tests, roll out features to specific user segments, and track feature stability.
 

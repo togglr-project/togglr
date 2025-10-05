@@ -331,6 +331,9 @@ func (s *Service) computeFeatureChanges(
 		}
 
 		return result, nil
+	case domain.EntityActionInsert:
+		// Insert action is not applicable for feature changes computation
+		return nil, errors.New("insert action not supported for feature changes")
 	case domain.EntityActionDelete:
 		return nil, nil // No changes needed for delete
 	default:

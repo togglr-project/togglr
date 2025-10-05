@@ -183,8 +183,12 @@ func conditionToAPI(in domain.Condition) generatedapi.RuleCondition {
 	var raw jx.Raw
 
 	if in.Value != nil {
-		b, _ := json.Marshal(in.Value)
-		raw = b
+		b, err := json.Marshal(in.Value)
+		if err != nil {
+			raw = jx.Raw("{}")
+		} else {
+			raw = b
+		}
 	}
 
 	return generatedapi.RuleCondition{

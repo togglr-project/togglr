@@ -19,17 +19,31 @@ type AuthService struct {
 func NewAuthService(service *Service) *AuthService {
 	var domainLDAP string
 
-	if service != nil && service.client != nil {
-		// Extract domain from the LDAP URL if available
-		if url := service.client.(*Client).config.URL; strings.HasPrefix(url, "ldap://") {
-			domainLDAP = strings.TrimPrefix(url, "ldap://")
-		} else if strings.HasPrefix(url, "ldaps://") {
-			domainLDAP = strings.TrimPrefix(url, "ldaps://")
+	if service == nil || service.client == nil {
+		return &AuthService{
+			service: service,
+			domain:  domainLDAP,
 		}
-		// Remove port if present
-		if idx := strings.Index(domainLDAP, ":"); idx != -1 {
-			domainLDAP = domainLDAP[:idx]
+	}
+
+	// Extract domain from the LDAP URL if available
+	client, ok := service.client.(*Client)
+	if !ok {
+		return &AuthService{
+			service: service,
+			domain:  domainLDAP,
 		}
+	}
+
+	url := client.config.URL
+	if strings.HasPrefix(url, "ldap://") {
+		domainLDAP = strings.TrimPrefix(url, "ldap://")
+	} else if strings.HasPrefix(url, "ldaps://") {
+		domainLDAP = strings.TrimPrefix(url, "ldaps://")
+	}
+	// Remove port if present
+	if idx := strings.Index(domainLDAP, ":"); idx != -1 {
+		domainLDAP = domainLDAP[:idx]
 	}
 
 	return &AuthService{

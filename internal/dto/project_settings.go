@@ -15,7 +15,7 @@ func DomainProjectSettingToAPI(setting domain.ProjectSetting) generatedapi.Proje
 	if setting.Value != nil {
 		// If Value is already json.RawMessage, unmarshal it
 		if rawMsg, ok := setting.Value.(json.RawMessage); ok {
-			json.Unmarshal(rawMsg, &value)
+			_ = json.Unmarshal(rawMsg, &value)
 		} else {
 			// Otherwise, use the value as is
 			value = setting.Value

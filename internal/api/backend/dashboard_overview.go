@@ -10,7 +10,7 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
-//nolint:maintidx // fix later
+//nolint:maintidx,gocognit // fix later
 func (r *RestAPI) GetDashboardOverview(
 	ctx context.Context,
 	params generatedapi.GetDashboardOverviewParams,

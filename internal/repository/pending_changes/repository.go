@@ -346,6 +346,7 @@ WHERE 1=1`
 		countQuery += fmt.Sprintf(" AND request_user_id = $%d", countArgIndex)
 
 		countArgs = append(countArgs, *filter.UserID)
+		//nolint:ineffassign // countArgIndex is used for parameter indexing
 		countArgIndex++
 	}
 

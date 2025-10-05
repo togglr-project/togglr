@@ -126,8 +126,14 @@ func convertPendingChangeToResponse(change *domain.PendingChange) generatedapi.P
 
 		for field, changeValue := range entity.Changes {
 			// Convert to JSON for storage
-			oldJSON, _ := json.Marshal(changeValue.Old)
-			newJSON, _ := json.Marshal(changeValue.New)
+			oldJSON, err := json.Marshal(changeValue.Old)
+			if err != nil {
+				oldJSON = []byte("null")
+			}
+			newJSON, err := json.Marshal(changeValue.New)
+			if err != nil {
+				newJSON = []byte("null")
+			}
 
 			changes[field] = generatedapi.ChangeValue{
 				Old: oldJSON,

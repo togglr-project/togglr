@@ -65,7 +65,7 @@ ORDER BY trigger_name`)
 	if err != nil {
 		slog.Warn("failed to query triggers", "error", err)
 	} else {
-		defer rows.Close()
+		defer func() { _ = rows.Close() }()
 		slog.Info("existing triggers:")
 		for rows.Next() {
 			var triggerName, tableName string

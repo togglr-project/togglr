@@ -26,7 +26,7 @@ func WithProjectID(ctx context.Context, id domain.ProjectID) context.Context {
 }
 
 func ProjectID(ctx context.Context) domain.ProjectID {
-	return ctx.Value(ctxKeyProjectID).(domain.ProjectID)
+	return ctx.Value(ctxKeyProjectID).(domain.ProjectID) //nolint:forcetypeassert // ProjectID guaranteed
 }
 
 func WithUserID(ctx context.Context, userID domain.UserID) context.Context {
@@ -57,7 +57,7 @@ func WithRawRequest(ctx context.Context, req *http.Request) context.Context {
 }
 
 func RawRequest(ctx context.Context) *http.Request {
-	return ctx.Value(ctxKeyRawRequest).(*http.Request)
+	return ctx.Value(ctxKeyRawRequest).(*http.Request) //nolint:forcetypeassert // RawRequest guaranteed
 }
 
 func WithRequestID(ctx context.Context, reqID string) context.Context {

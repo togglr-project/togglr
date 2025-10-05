@@ -182,8 +182,8 @@ func (uc *UseCase) UpdateConfig(ctx context.Context, cfg *domain.LDAPConfig) err
 		return fmt.Errorf("failed to update LDAP config: %w", err)
 	}
 
-	go func() {
-		if err := uc.ldapService.ReloadConfig(context.TODO()); err != nil {
+	go func() { //nolint:contextcheck // background context is appropriate here
+		if err := uc.ldapService.ReloadConfig(context.Background()); err != nil {
 			slog.Error("Failed to reload LDAP config", "error", err)
 		}
 	}()

@@ -45,6 +45,7 @@ func (r *RestAPI) GetAuditLogEntry(
 	return &resp, nil
 }
 
+//nolint:gocognit // complex conversion function, refactor later
 func convertDomainAuditLog(a domain.AuditLog) generatedapi.AuditLog {
 	var (
 		envKey   generatedapi.OptString

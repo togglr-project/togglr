@@ -228,7 +228,11 @@ func (p *SAMLProvider) Authenticate(
 		return nil, fmt.Errorf("invalid state: %s", state)
 	}
 
-	assertion, err := p.sp.ParseResponse(req, []string{id.(string)})
+	idStr, ok := id.(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid id type: %T", id)
+	}
+	assertion, err := p.sp.ParseResponse(req, []string{idStr})
 	if err != nil {
 		return nil, fmt.Errorf("invalid SAML response: %w", err)
 	}

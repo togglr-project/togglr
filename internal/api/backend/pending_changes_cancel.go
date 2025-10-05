@@ -31,7 +31,7 @@ func (r *RestAPI) CancelPendingChange(
 		}
 
 		// Check for conflict (pending change is not in pending status)
-		if err.Error() == "pending change is not in pending status" {
+		if err.Error() == pendingChangeNotPendingStatus {
 			return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
 				Message: generatedapi.NewOptString("pending change is not in pending status"),
 				Code:    generatedapi.NewOptString("CONFLICT"),

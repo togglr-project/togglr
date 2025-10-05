@@ -9,6 +9,10 @@ import (
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
+const (
+	pendingChangeNotPendingStatus = "pending change is not in pending status"
+)
+
 // ApprovePendingChange handles POST /api/v1/pending_changes/{pending_change_id}/approve.
 func (r *RestAPI) ApprovePendingChange(
 	ctx context.Context,
@@ -47,9 +51,9 @@ func (r *RestAPI) ApprovePendingChange(
 		}
 
 		// Check for conflict (pending change is not in pending status)
-		if err.Error() == "pending change is not in pending status" {
+		if err.Error() == pendingChangeNotPendingStatus {
 			return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
-				Message: generatedapi.NewOptString("pending change is not in pending status"),
+				Message: generatedapi.NewOptString(pendingChangeNotPendingStatus),
 				Code:    generatedapi.NewOptString("CONFLICT"),
 			}}, nil
 		}

@@ -22,7 +22,7 @@ var ServerCmd = &cobra.Command{
 
 var envFile string
 
-func init() {
+func init() { //nolint:gochecknoinits // cobra command initialization
 	ServerCmd.PersistentFlags().StringVarP(
 		&envFile,
 		"env-file",
