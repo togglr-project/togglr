@@ -23,6 +23,37 @@ const LDAPSyncTab: React.FC = () => {
   const queryClient = useQueryClient();
   const [syncStarted, setSyncStarted] = useState(false);
 
+  // Fetch LDAP config to check if LDAP is enabled
+  const {
+    data: ldapConfig,
+    isLoading: isLoadingConfig,
+    error: configError
+  } = useQuery({
+    queryKey: ['ldapConfig'],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.getLDAPConfig();
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching LDAP config:', error);
+        return {
+          enabled: false,
+          url: '',
+          bind_dn: '',
+          bind_password: '',
+          user_base_dn: '',
+          user_filter: '',
+          user_name_attr: '',
+          user_email_attr: '',
+          start_tls: false,
+          insecure_tls: false,
+          timeout: '30s',
+          sync_interval: 3600
+        };
+      }
+    }
+  });
+
   // Fetch LDAP sync status
   const {
     data: syncStatus,
@@ -201,7 +232,7 @@ const LDAPSyncTab: React.FC = () => {
   }, [syncStatus?.is_running, syncStarted]);
 
   // Loading state
-  if (isLoadingStatus) {
+  if (isLoadingStatus || isLoadingConfig) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
         <CircularProgress />
@@ -210,13 +241,16 @@ const LDAPSyncTab: React.FC = () => {
   }
 
   // Error state
-  if (statusError) {
+  if (statusError || configError) {
     return (
       <Alert severity="error" sx={{ mb: 2 }}>
-        Error loading LDAP sync status. Please try again later.
+        Error loading LDAP configuration. Please try again later.
       </Alert>
     );
   }
+
+  // Check if LDAP is enabled
+  const isLDAPEnabled = ldapConfig?.enabled && ldapConfig?.url && ldapConfig?.bind_dn;
 
   return (
     <>
@@ -262,6 +296,12 @@ const LDAPSyncTab: React.FC = () => {
       >
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Synchronization Controls</Typography>
 
+        {!isLDAPEnabled && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            LDAP is not configured or disabled. Please configure LDAP in the Configuration tab first.
+          </Alert>
+        )}
+
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} sm={4}>
             <Button 
@@ -269,7 +309,7 @@ const LDAPSyncTab: React.FC = () => {
               color="primary" 
               fullWidth
               onClick={handleSyncUsers}
-              disabled={syncStatus?.is_running || syncUsersMutation.isPending}
+              disabled={syncStatus?.is_running || syncUsersMutation.isPending || !isLDAPEnabled}
               startIcon={syncUsersMutation.isPending ? <CircularProgress size={20} /> : null}
             >
               Sync Users
@@ -283,7 +323,7 @@ const LDAPSyncTab: React.FC = () => {
               variant="outlined" 
               color="error" 
               onClick={handleCancelSync}
-              disabled={cancelSyncMutation.isPending}
+              disabled={cancelSyncMutation.isPending || !isLDAPEnabled}
               startIcon={cancelSyncMutation.isPending ? <CircularProgress size={20} /> : null}
             >
               Cancel Sync
@@ -306,7 +346,7 @@ const LDAPSyncTab: React.FC = () => {
             processedItems={syncProgress?.processed_items}
             totalItems={syncProgress?.total_items}
             estimatedTime={syncProgress?.estimated_time}
-            startTime={syncProgress?.start_time}
+            startTime={syncProgress?.start_time || undefined}
           />
         )
       )}
@@ -393,11 +433,17 @@ const LDAPSyncTab: React.FC = () => {
             Test the connection to your LDAP server with the current configuration.
           </Typography>
 
+          {!isLDAPEnabled && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              LDAP is not configured or disabled. Please configure LDAP in the Configuration tab first.
+            </Alert>
+          )}
+
           <Button 
             variant="outlined" 
             color="primary" 
             onClick={handleTestConnection}
-            disabled={testConnectionMutation.isPending}
+            disabled={testConnectionMutation.isPending || !isLDAPEnabled}
             startIcon={testConnectionMutation.isPending ? <CircularProgress size={20} /> : null}
           >
             Test Connection
