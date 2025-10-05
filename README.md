@@ -49,19 +49,21 @@ It allows developers and product teams to toggle features on/off, run A/B tests,
    make setup
    ```
 
-3. Start the development environment:
+3. Add hostname togglr.local to /etc/hosts
+
+4. Start the development environment:
    ```bash
    make dev-up
    ```
 
-4. Access the application:
-   - Frontend: https://localhost
-   - API: https://localhost/api/v1/
-   - SDK: https://localhost/sdk/v1/
+5. Access the application:
+   - Frontend: https://togglr.local
+   - API: https://togglr.local/api/v1/
+   - SDK: https://togglr.local/sdk/v1/
 
 ### Configuration Notes
 
-- **Domain**: By default, the application is configured for `localhost` in `dev/config.env` and `dev/platform.env`
+- **Domain**: By default, the application is configured for `togglr.local` in `dev/config.env` and `dev/platform.env`
 - **SSL Certificates**: Self-signed certificates are required in `dev/nginx/ssl/` directory. Pre-generated certificates are included but may be expired
 - **Superuser**: On first startup, a superuser is created with:
   - Email: `ADMIN_EMAIL` from `dev/config.env` (default: `admin@togglr.dev`)
