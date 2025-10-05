@@ -181,5 +181,6 @@ services:
 volumes:
   postgresql_togglr:
   nats_togglr:
+
   ldap_data_togglr:
   ldap_config_togglr:
