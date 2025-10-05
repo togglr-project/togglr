@@ -302,6 +302,7 @@ func (app *App) registerComponents() {
 		IconURL:     "",
 		Config: &domain.SAMLConfig{
 			Enabled:          app.Config.SAML.Enabled,
+			CreateCerts:      app.Config.SAML.CreateCerts,
 			EntityID:         app.Config.SAML.EntityID,
 			CertificatePath:  app.Config.SAML.CertificatePath,
 			PrivateKeyPath:   app.Config.SAML.PrivateKeyPath,

@@ -80,6 +80,15 @@ func New(
 		}
 	}
 
+	if params.Config.CreateCerts {
+		if _, err := os.Stat(params.Config.CertificatePath); err != nil {
+			err := provider.generateSAMLKeys(params.Config.CertificatePath, params.Config.PrivateKeyPath)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate SAML keys: %w", err)
+			}
+		}
+	}
+
 	// Load certificate if provided
 	if params.Config.CertificatePath != "" {
 		cert, err := provider.loadCertificate(params.Config.CertificatePath)
@@ -108,7 +117,10 @@ func New(
 
 		provider.sp, err = provider.makeSP(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("create SAML service provider: %w", err)
+			slog.Error("failed to create SAML service provider, SAML disabled", "error", err)
+			provider.config.Enabled = false
+
+			return provider, nil
 		}
 
 		manager.AddProvider(params.Name, provider, domain.SSOProviderConfig{
@@ -445,6 +457,66 @@ func (p *SAMLProvider) makeSP(ctx context.Context) (*saml.ServiceProvider, error
 	serviceProvider.IDPMetadata = metadata
 
 	return serviceProvider, nil
+}
+
+func (p *SAMLProvider) generateSAMLKeys(certPath, keyPath string) error {
+	key, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return fmt.Errorf("rsa key generation failed: %w", err)
+	}
+
+	now := time.Now()
+	certTemplate := x509.Certificate{
+		SerialNumber: big.NewInt(now.UnixNano()),
+		NotBefore:    now.Add(-time.Hour),
+		NotAfter:     now.Add(365 * 24 * time.Hour),
+
+		Subject: pkix.Name{
+			CommonName:   "togglr",
+			Organization: []string{"Togglr"},
+			Country:      []string{"RU"},
+		},
+		Issuer: pkix.Name{
+			CommonName:   "togglr",
+			Organization: []string{"Togglr"},
+			Country:      []string{"RU"},
+		},
+
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+	}
+
+	certDER, err := x509.CreateCertificate(rand.Reader, &certTemplate, &certTemplate, &key.PublicKey, key)
+	if err != nil {
+		return fmt.Errorf("certificate creation failed: %w", err)
+	}
+
+	keyFile, err := os.OpenFile(keyPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600)
+	if err != nil {
+		return fmt.Errorf("open key file: %w", err)
+	}
+	err = pem.Encode(keyFile, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(key)})
+	if err != nil {
+		_ = keyFile.Close()
+
+		return fmt.Errorf("write key: %w", err)
+	}
+	_ = keyFile.Close()
+
+	certFile, err := os.OpenFile(certPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+	if err != nil {
+		return fmt.Errorf("open cert file: %w", err)
+	}
+	if err = pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: certDER}); err != nil {
+		_ = certFile.Close()
+
+		return fmt.Errorf("write cert: %w", err)
+	}
+	_ = certFile.Close()
+
+	return nil
 }
 
 func dumpOrStoreKeyPair(cert *x509.Certificate, key *rsa.PrivateKey, certFile, keyFile string) error {

@@ -5,7 +5,7 @@ dev-up: ## Up the environment in docker compose (base services only)
 	${_COMPOSE_BASE} up -d
 
 dev-up-ext: ## Up the environment in docker compose with LDAP services
-	./dev/generate-ext.sh
+	#./dev/generate-ext.sh
 	${_COMPOSE_EXT} up -d
 
 dev-down: ## Down the environment in docker compose

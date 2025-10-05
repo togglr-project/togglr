@@ -19,6 +19,7 @@ type SSOProviderConfig struct {
 
 type SAMLConfig struct {
 	Enabled          bool              `json:"enabled"`
+	CreateCerts      bool              `json:"create_certs"`
 	EntityID         string            `json:"entity_id"`
 	CertificatePath  string            `json:"certificate_path"`
 	PrivateKeyPath   string            `json:"private_key_path"`

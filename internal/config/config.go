@@ -69,6 +69,7 @@ type Server struct {
 // SAMLConfig holds SAML configuration.
 type SAMLConfig struct {
 	Enabled          bool              `default:"false" envconfig:"ENABLED"`
+	CreateCerts      bool              `default:"false" envconfig:"CREATE_CERTS"`
 	EntityID         string            `default:""      envconfig:"ENTITY_ID"`
 	CertificatePath  string            `default:""      envconfig:"CERTIFICATE_PATH"`
 	PrivateKeyPath   string            `default:""      envconfig:"PRIVATE_KEY_PATH"`
