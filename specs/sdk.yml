@@ -147,6 +147,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /sdk/v1/health:
     get:
