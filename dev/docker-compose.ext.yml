@@ -69,6 +69,8 @@ services:
         condition: service_healthy
       togglr-mailhog:
         condition: service_healthy
+      togglr-openldap:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
       interval: 30s
@@ -131,6 +133,53 @@ services:
       retries: 3
       start_period: 60s
 
+  togglr-openldap:
+    container_name: togglr-openldap
+    image: osixia/openldap:1.5.0
+    environment:
+      LDAP_ORGANISATION: "Togglr"
+      LDAP_DOMAIN: "togglr.local"
+      LDAP_ADMIN_PASSWORD: "Dev123456"
+      LDAP_CONFIG_PASSWORD: "Dev123456"
+      LDAP_READONLY_USER: "false"
+      LDAP_TLS_VERIFY_CLIENT: "never"
+    volumes:
+      - ldap_data_togglr:/var/lib/ldap
+      - ldap_config_togglr:/etc/ldap/slapd.d
+      - ./ldap/ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom
+    ports:
+      - "389:389"
+      - "636:636"
+    restart: always
+    command: ["--copy-service", "--loglevel", "debug"]
+    healthcheck:
+      test: ["CMD", "ldapwhoami", "-x", "-H", "ldap://localhost:389"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  togglr-phpldapadmin:
+    container_name: togglr-phpldapadmin
+    image: osixia/phpldapadmin:0.9.0
+    ports:
+      - "9080:80"
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "togglr-openldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    depends_on:
+      togglr-openldap:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/80'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
 volumes:
   postgresql_togglr:
   nats_togglr:
+  ldap_data_togglr:
+  ldap_config_togglr:
