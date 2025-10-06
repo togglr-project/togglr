@@ -51,7 +51,7 @@ It allows developers and product teams to toggle features on/off, run A/B tests,
    make setup
    ```
 
-3. Add hostname togglr.local to /etc/hosts
+3. Add hostname `togglr.local` to `/etc/hosts`
 
 4. Start the development environment:
    ```bash
