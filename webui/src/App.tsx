@@ -85,6 +85,7 @@ const NotificationProvider: React.FC<NotificationProviderProps> = ({ children })
 
 import { useEffect, useState } from 'react';
 import { initRealtime, stopRealtime } from './realtime';
+import NotificationsPageWrapper from "./pages/NotificationsPageWrapper.tsx";
 
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -280,7 +281,7 @@ function App() {
     }
 
     return () => {
-      try { stop?.(); } catch {}
+      try { stop?.(); } catch { /* empty */ }
       stopRealtime();
     };
   }, [currentPath]);
@@ -313,10 +314,11 @@ function App() {
                         <Route path="/projects/:projectId/tags" element={<LicenseGuard><ProjectTagsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/permissions" element={<LicenseGuard><ProjectPermissionsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/pending-changes" element={<LicenseGuard><PendingChangesPage /></LicenseGuard>} />
-                                                <Route path="/projects/:projectId/audit-log" element={<LicenseGuard><AuditLogPage /></LicenseGuard>} />
+                        <Route path="/projects/:projectId/audit-log" element={<LicenseGuard><AuditLogPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/settings" element={<LicenseGuard><ProjectSettingsPage /></LicenseGuard>} />
                         <Route path="/admin" element={<LicenseGuard><AdminPage /></LicenseGuard>} />
                         <Route path="/account" element={<LicenseGuard><AccountPage /></LicenseGuard>} />
+                        <Route path="/notifications" element={<LicenseGuard><NotificationsPageWrapper /></LicenseGuard>} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                         <Route path="*" element={<Navigate to="/dashboard" replace />} />
                       </Routes>

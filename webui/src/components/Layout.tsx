@@ -17,7 +17,8 @@ import {
   Avatar,
   Tooltip,
   Tabs,
-  Tab
+  Tab,
+  Badge,
 } from '@mui/material';
 import { APP_NAME } from '../constants/app';
 import { 
@@ -37,7 +38,8 @@ import {
   Schedule as ScheduleIcon,
   PeopleOutline as PeopleIcon,
   Assignment as ChangesIcon,
-  Security as SecurityIcon
+  Security as SecurityIcon,
+  NotificationsNone as NotificationsIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -47,6 +49,8 @@ import Breadcrumbs from './Breadcrumbs';
 // import SkipLink from './SkipLink';
 import WardenLogo from "./WardenLogo.tsx";
 import { useRBAC } from '../auth/permissions';
+import {useNotifications} from "../hooks/useNotifications.ts";
+import NotificationPopover from "./NotificationPopover.tsx";
 
 // Component for showing pending changes count badge
 const PendingChangesBadge: React.FC<{ projectId: string }> = ({ projectId }) => {
@@ -109,6 +113,9 @@ const Layout: React.FC<LayoutProps> = ({
     }
   });
 
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState<null | HTMLElement>(null);
+  const { unreadCount } = useNotifications();
+
   const handleDrawerToggle = () => {
     const newOpen = !open;
     setOpen(newOpen);
@@ -121,6 +128,17 @@ const Layout: React.FC<LayoutProps> = ({
     }
   };
 
+  const handleNotificationOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
+  };
+
+  const handleViewAllNotifications = () => {
+    navigate('/notifications');
+  };
 
   // Define menu items based on user role
   const getMenuItems = () => {
@@ -217,7 +235,29 @@ const Layout: React.FC<LayoutProps> = ({
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-
+            <Tooltip title="Notifications">
+              <IconButton
+                size="medium"
+                aria-label="notifications"
+                onClick={handleNotificationOpen}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: theme.palette.mode === 'dark'
+                      ? 'rgba(255, 255, 255, 0.08)'
+                      : 'rgba(130, 82, 255, 0.08)',
+                  },
+                }}
+              >
+                <Badge badgeContent={unreadCount} color="error">
+                  <NotificationsIcon className="gradient-text" />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+            <NotificationPopover
+              anchorEl={notificationAnchorEl}
+              onClose={handleNotificationClose}
+              onViewAll={handleViewAllNotifications}
+            />
 
             <ThemeToggle />
 
