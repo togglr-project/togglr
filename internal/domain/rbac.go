@@ -14,7 +14,7 @@ type MembershipID string
 
 type ProjectMembership struct {
 	ID        MembershipID
-	UserID    int
+	UserID    UserID
 	ProjectID ProjectID
 	RoleID    RoleID
 	RoleKey   string

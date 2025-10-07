@@ -59,7 +59,7 @@ func (s *Service) HasProjectPermission(
 		return false, domain.ErrUserNotFound
 	}
 
-	roleID, err := s.member.GetForUserProject(ctx, int(userID), projectID)
+	roleID, err := s.member.GetForUserProject(ctx, userID, projectID)
 	if err != nil || roleID == "" {
 		return false, err
 	}
@@ -95,7 +95,7 @@ func (s *Service) CanViewProject(ctx context.Context, projectID domain.ProjectID
 	}
 
 	// Check if a user has any membership in the project (any role)
-	roleID, err := s.member.GetForUserProject(ctx, int(userID), projectID)
+	roleID, err := s.member.GetForUserProject(ctx, userID, projectID)
 	if err != nil {
 		return err
 	}
@@ -239,7 +239,7 @@ func (s *Service) CanManageCategories(ctx context.Context) error {
 
 	// Check if user has category.manage permission on any project
 	for _, project := range all {
-		roleID, err := s.member.GetForUserProject(ctx, int(userID), project.ID)
+		roleID, err := s.member.GetForUserProject(ctx, userID, project.ID)
 		if err != nil || roleID == "" {
 			continue // no membership or error
 		}
@@ -320,7 +320,7 @@ func (s *Service) GetMyProjectPermissions(
 		project := all[i]
 
 		// Check membership directly, do not use superuser bypass here
-		roleID, mErr := s.member.GetForUserProject(ctx, int(userID), project.ID)
+		roleID, mErr := s.member.GetForUserProject(ctx, userID, project.ID)
 		if mErr != nil {
 			return nil, mErr
 		}
@@ -368,7 +368,7 @@ func (s *Service) GetMyProjectRoles(ctx context.Context) (map[domain.ProjectID]d
 		project := all[i]
 
 		// Check membership directly, do not use superuser bypass here
-		roleID, err := s.member.GetForUserProject(ctx, int(userID), project.ID)
+		roleID, err := s.member.GetForUserProject(ctx, userID, project.ID)
 		if err != nil {
 			return nil, err
 		}

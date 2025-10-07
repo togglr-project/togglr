@@ -8,6 +8,7 @@ import (
 	"context"
 
 	mock "github.com/stretchr/testify/mock"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // NewMockEmailer creates a new instance of MockEmailer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -165,6 +166,75 @@ func (_c *MockEmailer_SendResetPasswordEmail_Call) Return(err error) *MockEmaile
 }
 
 func (_c *MockEmailer_SendResetPasswordEmail_Call) RunAndReturn(run func(ctx context.Context, email string, token string) error) *MockEmailer_SendResetPasswordEmail_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SendUserNotificationEmail provides a mock function for the type MockEmailer
+func (_mock *MockEmailer) SendUserNotificationEmail(ctx context.Context, toEmail string, notifType domain.UserNotificationType, content domain.UserNotificationContent) error {
+	ret := _mock.Called(ctx, toEmail, notifType, content)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendUserNotificationEmail")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, domain.UserNotificationType, domain.UserNotificationContent) error); ok {
+		r0 = returnFunc(ctx, toEmail, notifType, content)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockEmailer_SendUserNotificationEmail_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendUserNotificationEmail'
+type MockEmailer_SendUserNotificationEmail_Call struct {
+	*mock.Call
+}
+
+// SendUserNotificationEmail is a helper method to define mock.On call
+//   - ctx context.Context
+//   - toEmail string
+//   - notifType domain.UserNotificationType
+//   - content domain.UserNotificationContent
+func (_e *MockEmailer_Expecter) SendUserNotificationEmail(ctx interface{}, toEmail interface{}, notifType interface{}, content interface{}) *MockEmailer_SendUserNotificationEmail_Call {
+	return &MockEmailer_SendUserNotificationEmail_Call{Call: _e.mock.On("SendUserNotificationEmail", ctx, toEmail, notifType, content)}
+}
+
+func (_c *MockEmailer_SendUserNotificationEmail_Call) Run(run func(ctx context.Context, toEmail string, notifType domain.UserNotificationType, content domain.UserNotificationContent)) *MockEmailer_SendUserNotificationEmail_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 domain.UserNotificationType
+		if args[2] != nil {
+			arg2 = args[2].(domain.UserNotificationType)
+		}
+		var arg3 domain.UserNotificationContent
+		if args[3] != nil {
+			arg3 = args[3].(domain.UserNotificationContent)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+		)
+	})
+	return _c
+}
+
+func (_c *MockEmailer_SendUserNotificationEmail_Call) Return(err error) *MockEmailer_SendUserNotificationEmail_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockEmailer_SendUserNotificationEmail_Call) RunAndReturn(run func(ctx context.Context, toEmail string, notifType domain.UserNotificationType, content domain.UserNotificationContent) error) *MockEmailer_SendUserNotificationEmail_Call {
 	_c.Call.Return(run)
 	return _c
 }

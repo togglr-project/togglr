@@ -48,17 +48,24 @@ import (
 	segmentsrepo "github.com/togglr-project/togglr/internal/repository/segments"
 	"github.com/togglr-project/togglr/internal/repository/settings"
 	"github.com/togglr-project/togglr/internal/repository/tags"
+	usernotifrepo "github.com/togglr-project/togglr/internal/repository/user-notifications"
 	"github.com/togglr-project/togglr/internal/repository/users"
 	ratelimiter2fa "github.com/togglr-project/togglr/internal/services/2fa/ratelimiter"
 	featuresprocessor "github.com/togglr-project/togglr/internal/services/features-processor"
 	guardengine "github.com/togglr-project/togglr/internal/services/guard-engine"
 	"github.com/togglr-project/togglr/internal/services/ldap"
 	"github.com/togglr-project/togglr/internal/services/notification-channels/email"
+	"github.com/togglr-project/togglr/internal/services/notification-channels/mattermost"
+	"github.com/togglr-project/togglr/internal/services/notification-channels/pachca"
+	"github.com/togglr-project/togglr/internal/services/notification-channels/slack"
+	"github.com/togglr-project/togglr/internal/services/notification-channels/telegram"
+	"github.com/togglr-project/togglr/internal/services/notification-channels/webhook"
 	"github.com/togglr-project/togglr/internal/services/permissions"
 	realtimechanges "github.com/togglr-project/togglr/internal/services/realtime-changes"
 	ssoprovidermanager "github.com/togglr-project/togglr/internal/services/sso/provider-manager"
 	samlprovider "github.com/togglr-project/togglr/internal/services/sso/saml"
 	"github.com/togglr-project/togglr/internal/services/tokenizer"
+	usernotificator "github.com/togglr-project/togglr/internal/services/user-notificator"
 	categoriesusecase "github.com/togglr-project/togglr/internal/usecases/categories"
 	dashboardusecase "github.com/togglr-project/togglr/internal/usecases/dashboard"
 	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
@@ -77,6 +84,7 @@ import (
 	segmentsusecase "github.com/togglr-project/togglr/internal/usecases/segments"
 	settingsusecase "github.com/togglr-project/togglr/internal/usecases/settings"
 	tagsusecase "github.com/togglr-project/togglr/internal/usecases/tags"
+	usernotifusecase "github.com/togglr-project/togglr/internal/usecases/user-notifications"
 	usersusecase "github.com/togglr-project/togglr/internal/usecases/users"
 	"github.com/togglr-project/togglr/pkg/db"
 	"github.com/togglr-project/togglr/pkg/httpserver"
@@ -238,6 +246,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(dashboardrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(realtimerepo.New).Arg(app.PostgresPool)
 	app.registerComponent(errorreports.New).Arg(app.PostgresPool)
+	app.registerComponent(usernotifrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -271,7 +280,22 @@ func (app *App) registerComponents() {
 	app.registerComponent(realtimechanges.New)
 	app.registerComponent(rbacusecase.New)
 	app.registerComponent(errorreportsusecase.New)
+	app.registerComponent(usernotifusecase.New)
 
+	// Register channels
+	app.registerComponent(mattermost.New).Arg(&mattermost.ServiceParams{
+		BaseURL: app.Config.FrontendURL,
+	})
+	app.registerComponent(webhook.New).Arg(app.Config.FrontendURL)
+	app.registerComponent(telegram.New).Arg(&telegram.ServiceParams{
+		BaseURL: app.Config.FrontendURL,
+	})
+	app.registerComponent(slack.New).Arg(&slack.ServiceParams{
+		BaseURL: app.Config.FrontendURL,
+	})
+	app.registerComponent(pachca.New).Arg(&pachca.ServiceParams{
+		BaseURL: app.Config.FrontendURL,
+	})
 	app.registerComponent(email.New).Arg(&email.Config{
 		SMTPHost:      app.Config.Mailer.Addr,
 		Username:      app.Config.Mailer.User,
@@ -331,6 +355,13 @@ func (app *App) registerComponents() {
 		ResetPasswordTTL: app.Config.ResetPasswordTTL,
 	})
 	app.registerComponent(ratelimiter2fa.New)
+
+	// Register user notifications service
+	app.registerComponent(usernotificator.New).Arg(3)
+	var userNotificator *usernotificator.Service
+	if err := app.container.Resolve(&userNotificator); err != nil {
+		panic(err)
+	}
 
 	// Register guard engine service
 	app.registerComponent(guardengine.New)

@@ -47,7 +47,7 @@ type membershipModel struct {
 func (m *membershipModel) toDomain() domain.ProjectMembership {
 	return domain.ProjectMembership{
 		ID:        domain.MembershipID(m.ID),
-		UserID:    m.UserID,
+		UserID:    domain.UserID(m.UserID),
 		ProjectID: domain.ProjectID(m.ProjectID),
 		RoleID:    domain.RoleID(m.RoleID),
 		RoleKey:   m.RoleKey,

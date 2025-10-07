@@ -14,6 +14,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/alexbrainman/sspi v0.0.0-20231016080023-1a75b4708caa h1:LHTHcTQiSGT7VVbI0o4wBRNQIgn917usHWOd6VAffYI=
 github.com/alexbrainman/sspi v0.0.0-20231016080023-1a75b4708caa/go.mod h1:cEWa1LVoE5KvSD9ONXsZrj0z6KqySlCCNKHlLzbqAt4=
+github.com/avast/retry-go v2.7.0+incompatible h1:XaGnzl7gESAideSjr+I8Hki/JBi+Yb9baHlMRPeSC84=
+github.com/avast/retry-go v2.7.0+incompatible/go.mod h1:XtSnn+n/sHqQIpZ10K1qAevBhOOCWBLXXy3hyiqqBrY=
 github.com/beevik/etree v1.6.0 h1:u8Kwy8pp9D9XeITj2Z0XtA5qqZEmtJtuXZRQi+j03eE=
 github.com/beevik/etree v1.6.0/go.mod h1:bh4zJxiIr62SOf9pRzN7UUYaEDa9HEKafK25+sLc0Gc=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
@@ -227,6 +229,8 @@ github.com/rom8726/di v1.1.1 h1:aPTTPpZTBOEIQYHi1XJlWwU1PQ3jo0aE3HNUgfaAJ4E=
 github.com/rom8726/di v1.1.1/go.mod h1:0SBniZSi3tKTBw3qi1RA+Ui+gpgIWTlVHLQtQsG4X7o=
 github.com/rom8726/pgfixtures v1.3.0 h1:DPtS7VbPTb30vzoUiLuiOnWSI9+60FSTzoFPk5vE+QA=
 github.com/rom8726/pgfixtures v1.3.0/go.mod h1:aEbnlpmFgv9OnWXOQSWpe7DpiC5v6WzlAZU9OAcXK2Y=
+github.com/rom8726/resilience v1.0.0 h1:TbVRmPMcSil/i2NGXTpqyezRCSbIJPpgFCakNq0pUKU=
+github.com/rom8726/resilience v1.0.0/go.mod h1:rBsNb+XrKN9Kn0i//pnTWqm3YjCMYeX/I+wY6aRLk/c=
 github.com/rom8726/testy v1.6.5 h1:K2dtfH7c7EPD09COu+qV2BtGZw28Myj7hQNXZlSXmT0=
 github.com/rom8726/testy v1.6.5/go.mod h1:4nR7bumBBcwHmGqYhX+x5w4RO1e72/WAFgIYeKu6dKc=
 github.com/russellhaering/goxmldsig v1.5.0 h1:AU2UkkYIUOTyZRbe08XMThaOCelArgvNfYapcmSjBNw=

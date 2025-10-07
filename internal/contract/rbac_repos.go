@@ -20,12 +20,12 @@ type PermissionsRepository interface {
 }
 
 type MembershipsRepository interface {
-	GetForUserProject(ctx context.Context, userID int, projectID domain.ProjectID) (roleID string, err error)
+	GetForUserProject(ctx context.Context, userID domain.UserID, projectID domain.ProjectID) (roleID string, err error)
 	ListForProject(ctx context.Context, projectID domain.ProjectID) ([]domain.ProjectMembership, error)
 	Create(
 		ctx context.Context,
 		projectID domain.ProjectID,
-		userID int,
+		userID domain.UserID,
 		roleID domain.RoleID,
 	) (domain.ProjectMembership, error)
 	Get(

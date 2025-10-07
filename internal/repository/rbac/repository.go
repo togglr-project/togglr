@@ -238,7 +238,7 @@ func NewMemberships(pool *pgxpool.Pool) *Memberships {
 
 func (r *Memberships) GetForUserProject(
 	ctx context.Context,
-	userID int,
+	userID domain.UserID,
 	projectID domain.ProjectID,
 ) (string, error) { // roleID
 	exec := getExecutor(ctx, r.db)
@@ -292,7 +292,7 @@ order by m.created_at desc`
 func (r *Memberships) Create(
 	ctx context.Context,
 	projectID domain.ProjectID,
-	userID int,
+	userID domain.UserID,
 	roleID domain.RoleID,
 ) (domain.ProjectMembership, error) {
 	exec := getExecutor(ctx, r.db)

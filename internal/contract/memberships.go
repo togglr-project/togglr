@@ -20,7 +20,7 @@ type MembershipsUseCase interface {
 	CreateProjectMembership(
 		ctx context.Context,
 		projectID domain.ProjectID,
-		userID int,
+		userID domain.UserID,
 		roleID domain.RoleID,
 	) (domain.ProjectMembership, error)
 	GetProjectMembership(

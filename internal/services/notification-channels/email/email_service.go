@@ -31,6 +31,9 @@ var resetPasswordEmailTemplate string
 //go:embed templates/2fa_code_email.tmpl
 var twoFACodeEmailTemplate string
 
+//go:embed templates/user_notification_email.tmpl
+var userNotificationEmailTemplate string
+
 type Service struct {
 	cfg          *Config
 	usersRepo    UsersRepository
@@ -156,7 +159,8 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	slog.Debug("starting email send", "to", strings.Join(toEmails, ", "), "subject", subject, "smtp_host", s.cfg.SMTPHost)
+	slog.Debug("starting email send",
+		"to", strings.Join(toEmails, ", "), "subject", subject, "smtp_host", s.cfg.SMTPHost)
 
 	from := s.cfg.From
 	if from == "" {
@@ -251,6 +255,39 @@ func (s *Service) SendEmail(ctx context.Context, toEmails []string, subject, bod
 	slog.Debug("email sent successfully", "to", strings.Join(toEmails, ", "), "subject", subject)
 
 	return nil
+}
+
+func (s *Service) SendUserNotificationEmail(
+	ctx context.Context,
+	toEmail string,
+	notifType domain.UserNotificationType,
+	content domain.UserNotificationContent,
+) error {
+	tpl, err := template.New("user_notification").Parse(userNotificationEmailTemplate)
+	if err != nil {
+		slog.Error("failed to parse user notification template", "error", err)
+
+		return fmt.Errorf("parse template: %w", err)
+	}
+
+	subject := "Togglr: New notification"
+	switch notifType {
+	case domain.UserNotificationTypeProjectAdded:
+		subject = "Togglr: You've been added to a project"
+	case domain.UserNotificationTypeProjectRemoved:
+		subject = "Togglr: You've been removed from a project"
+	case domain.UserNotificationTypeRoleChanged:
+		subject = "Togglr: Your project role has been changed"
+	}
+
+	var body bytes.Buffer
+	if err := tpl.ExecuteTemplate(&body, "UserNotificationEmail", content); err != nil {
+		slog.Error("failed to execute user notification template", "error", err)
+
+		return fmt.Errorf("execute template: %w", err)
+	}
+
+	return s.SendEmail(ctx, []string{toEmail}, subject, body.String())
 }
 
 // sendEmailsParallel sends emails in parallel with a limit on the number of workers.

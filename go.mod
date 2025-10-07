@@ -27,6 +27,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/rom8726/di v1.1.1
 	github.com/rom8726/pgfixtures v1.3.0
+	github.com/rom8726/resilience v1.0.0
 	github.com/rom8726/testy v1.6.5
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.10.1
@@ -47,6 +48,7 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/avast/retry-go v2.7.0+incompatible // indirect
 	github.com/beevik/etree v1.6.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/boombuler/barcode v1.1.0 // indirect

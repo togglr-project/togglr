@@ -72,6 +72,10 @@ func New(
 		httpClient:  &http.Client{Timeout: 30 * time.Second},
 	}
 
+	if !params.Config.Enabled {
+		return provider, nil
+	}
+
 	if params.Config.SkipTLSVerify {
 		provider.httpClient.Transport = &http.Transport{
 			TLSClientConfig: &tls.Config{
@@ -109,29 +113,27 @@ func New(
 		provider.privateKey = key
 	}
 
-	if params.Config.Enabled {
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
-		var err error
+	var err error
 
-		provider.sp, err = provider.makeSP(ctx)
-		if err != nil {
-			slog.Error("failed to create SAML service provider, SAML disabled", "error", err)
-			provider.config.Enabled = false
+	provider.sp, err = provider.makeSP(ctx)
+	if err != nil {
+		slog.Error("failed to create SAML service provider, SAML disabled", "error", err)
+		provider.config.Enabled = false
 
-			return provider, nil
-		}
-
-		manager.AddProvider(params.Name, provider, domain.SSOProviderConfig{
-			Type:        domain.SSOProviderSAML,
-			Enabled:     params.Config.Enabled,
-			Name:        params.Name,
-			DisplayName: params.DisplayName,
-			IconURL:     params.IconURL,
-			SAMLConfig:  params.Config,
-		})
+		return provider, nil
 	}
+
+	manager.AddProvider(params.Name, provider, domain.SSOProviderConfig{
+		Type:        domain.SSOProviderSAML,
+		Enabled:     params.Config.Enabled,
+		Name:        params.Name,
+		DisplayName: params.DisplayName,
+		IconURL:     params.IconURL,
+		SAMLConfig:  params.Config,
+	})
 
 	return provider, nil
 }

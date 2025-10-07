@@ -23,7 +23,7 @@ func (r *RestAPI) CreateProjectMembership(
 	created, err := r.membershipsUseCase.CreateProjectMembership(
 		ctx,
 		projectID,
-		int(req.UserID),
+		domain.UserID(req.UserID),
 		domain.RoleID(req.RoleID.String()),
 	)
 	if err != nil {

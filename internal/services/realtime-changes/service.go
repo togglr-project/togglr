@@ -13,6 +13,7 @@ import (
 type Service struct {
 	repo         contract.RealtimeEventsRepository
 	pollInterval time.Duration
+	stopCh       chan struct{}
 
 	manager *connManager
 }
@@ -21,18 +22,21 @@ func New(repo contract.RealtimeEventsRepository) *Service {
 	return &Service{
 		repo:         repo,
 		pollInterval: 3 * time.Second,
+		stopCh:       make(chan struct{}),
 		manager:      newConnManager(),
 	}
 }
 
 // Start launches a background worker that polls the repository and broadcasts events.
-func (s *Service) Start(ctx context.Context) error {
-	go s.worker(ctx)
+func (s *Service) Start(context.Context) error {
+	go s.worker() //nolint:contextcheck // it's ok to ignore context check here
 
 	return nil
 }
 
 func (s *Service) Stop(context.Context) error {
+	close(s.stopCh)
+
 	return nil
 }
 
@@ -40,7 +44,7 @@ func (s *Service) Broadcaster() contract.RealtimeBroadcaster { // expose broadca
 	return s.manager
 }
 
-func (s *Service) worker(ctx context.Context) {
+func (s *Service) worker() {
 	lastSeen := time.Now().Add(-1 * time.Minute)
 	ticker := time.NewTicker(s.pollInterval)
 	defer ticker.Stop()
@@ -49,12 +53,12 @@ func (s *Service) worker(ctx context.Context) {
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-s.stopCh:
 			slog.Info("realtime worker stopped")
 
 			return
 		case <-ticker.C:
-			events, err := s.repo.FetchAfter(ctx, lastSeen)
+			events, err := s.repo.FetchAfter(context.Background(), lastSeen)
 			if err != nil {
 				slog.Error("realtime: fetch events", "err", err)
 

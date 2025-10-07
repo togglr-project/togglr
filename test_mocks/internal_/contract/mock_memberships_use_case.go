@@ -39,7 +39,7 @@ func (_m *MockMembershipsUseCase) EXPECT() *MockMembershipsUseCase_Expecter {
 }
 
 // CreateProjectMembership provides a mock function for the type MockMembershipsUseCase
-func (_mock *MockMembershipsUseCase) CreateProjectMembership(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID) (domain.ProjectMembership, error) {
+func (_mock *MockMembershipsUseCase) CreateProjectMembership(ctx context.Context, projectID domain.ProjectID, userID domain.UserID, roleID domain.RoleID) (domain.ProjectMembership, error) {
 	ret := _mock.Called(ctx, projectID, userID, roleID)
 
 	if len(ret) == 0 {
@@ -48,15 +48,15 @@ func (_mock *MockMembershipsUseCase) CreateProjectMembership(ctx context.Context
 
 	var r0 domain.ProjectMembership
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, int, domain.RoleID) (domain.ProjectMembership, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.UserID, domain.RoleID) (domain.ProjectMembership, error)); ok {
 		return returnFunc(ctx, projectID, userID, roleID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, int, domain.RoleID) domain.ProjectMembership); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.UserID, domain.RoleID) domain.ProjectMembership); ok {
 		r0 = returnFunc(ctx, projectID, userID, roleID)
 	} else {
 		r0 = ret.Get(0).(domain.ProjectMembership)
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, int, domain.RoleID) error); ok {
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.UserID, domain.RoleID) error); ok {
 		r1 = returnFunc(ctx, projectID, userID, roleID)
 	} else {
 		r1 = ret.Error(1)
@@ -72,13 +72,13 @@ type MockMembershipsUseCase_CreateProjectMembership_Call struct {
 // CreateProjectMembership is a helper method to define mock.On call
 //   - ctx context.Context
 //   - projectID domain.ProjectID
-//   - userID int
+//   - userID domain.UserID
 //   - roleID domain.RoleID
 func (_e *MockMembershipsUseCase_Expecter) CreateProjectMembership(ctx interface{}, projectID interface{}, userID interface{}, roleID interface{}) *MockMembershipsUseCase_CreateProjectMembership_Call {
 	return &MockMembershipsUseCase_CreateProjectMembership_Call{Call: _e.mock.On("CreateProjectMembership", ctx, projectID, userID, roleID)}
 }
 
-func (_c *MockMembershipsUseCase_CreateProjectMembership_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID)) *MockMembershipsUseCase_CreateProjectMembership_Call {
+func (_c *MockMembershipsUseCase_CreateProjectMembership_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, userID domain.UserID, roleID domain.RoleID)) *MockMembershipsUseCase_CreateProjectMembership_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -88,9 +88,9 @@ func (_c *MockMembershipsUseCase_CreateProjectMembership_Call) Run(run func(ctx 
 		if args[1] != nil {
 			arg1 = args[1].(domain.ProjectID)
 		}
-		var arg2 int
+		var arg2 domain.UserID
 		if args[2] != nil {
-			arg2 = args[2].(int)
+			arg2 = args[2].(domain.UserID)
 		}
 		var arg3 domain.RoleID
 		if args[3] != nil {
@@ -111,7 +111,7 @@ func (_c *MockMembershipsUseCase_CreateProjectMembership_Call) Return(projectMem
 	return _c
 }
 
-func (_c *MockMembershipsUseCase_CreateProjectMembership_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, userID int, roleID domain.RoleID) (domain.ProjectMembership, error)) *MockMembershipsUseCase_CreateProjectMembership_Call {
+func (_c *MockMembershipsUseCase_CreateProjectMembership_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, userID domain.UserID, roleID domain.RoleID) (domain.ProjectMembership, error)) *MockMembershipsUseCase_CreateProjectMembership_Call {
 	_c.Call.Return(run)
 	return _c
 }

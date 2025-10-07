@@ -14,19 +14,30 @@ import (
 var _ contract.MembershipsUseCase = (*Service)(nil)
 
 type Service struct {
-	rolesRepo       contract.RolesRepository
-	permsRepo       contract.PermissionsRepository
-	membershipsRepo contract.MembershipsRepository
-	tx              db.TxManager
+	projectsRepo        contract.ProjectsRepository
+	rolesRepo           contract.RolesRepository
+	permsRepo           contract.PermissionsRepository
+	membershipsRepo     contract.MembershipsRepository
+	userNotificationsUC contract.UserNotificationsUseCase
+	tx                  db.TxManager
 }
 
 func New(
+	projectsRepo contract.ProjectsRepository,
 	rolesRepo contract.RolesRepository,
 	permsRepo contract.PermissionsRepository,
 	membershipsRepo contract.MembershipsRepository,
+	userNotificationsUC contract.UserNotificationsUseCase,
 	tx db.TxManager,
 ) *Service {
-	return &Service{rolesRepo: rolesRepo, permsRepo: permsRepo, membershipsRepo: membershipsRepo, tx: tx}
+	return &Service{
+		projectsRepo:        projectsRepo,
+		rolesRepo:           rolesRepo,
+		permsRepo:           permsRepo,
+		membershipsRepo:     membershipsRepo,
+		userNotificationsUC: userNotificationsUC,
+		tx:                  tx,
+	}
 }
 
 // Roles & permissions
@@ -56,24 +67,66 @@ func (s *Service) ListProjectMemberships(
 	return s.membershipsRepo.ListForProject(ctx, projectID)
 }
 
+func (s *Service) GetProjectMembership(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	membershipID domain.MembershipID,
+) (domain.ProjectMembership, error) {
+	return s.membershipsRepo.Get(ctx, projectID, membershipID)
+}
+
 func (s *Service) CreateProjectMembership(
 	ctx context.Context,
 	projectID domain.ProjectID,
-	userID int,
+	userID domain.UserID,
 	roleID domain.RoleID,
 ) (domain.ProjectMembership, error) {
+	project, err := s.projectsRepo.GetByID(ctx, projectID)
+	if err != nil {
+		return domain.ProjectMembership{}, fmt.Errorf("get project: %w", err)
+	}
+
+	role, err := s.rolesRepo.GetByID(ctx, roleID)
+	if err != nil {
+		return domain.ProjectMembership{}, fmt.Errorf("get role: %w", err)
+	}
+
 	var created domain.ProjectMembership
 	if err := s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
-		m, err := s.membershipsRepo.Create(ctx, projectID, userID, roleID)
+		membership, err := s.membershipsRepo.Create(ctx, projectID, userID, roleID)
 		if err != nil {
 			return err
 		}
-		created = m
+		created = membership
 
 		actorID := int(appctx.UserID(ctx))
 		exec := db.TxFromContext(ctx)
-		if err := membershipaudit.Write(ctx, exec, string(m.ID), actorID, "create", nil, m); err != nil {
+		err = membershipaudit.Write(ctx, exec,
+			string(membership.ID),
+			actorID,
+			"create",
+			nil,
+			membership,
+		)
+		if err != nil {
 			return fmt.Errorf("write membership audit: %w", err)
+		}
+
+		content := domain.UserNotificationContent{
+			UserAddedToProject: &domain.UserAddedToProjectContent{
+				ProjectName: project.Name,
+				RoleName:    role.Name,
+				ByUser:      appctx.Username(ctx),
+			},
+		}
+		err = s.userNotificationsUC.CreateNotification(
+			ctx,
+			userID,
+			domain.UserNotificationTypeProjectAdded,
+			content,
+		)
+		if err != nil {
+			return fmt.Errorf("create user notification: %w", err)
 		}
 
 		return nil
@@ -84,20 +137,33 @@ func (s *Service) CreateProjectMembership(
 	return created, nil
 }
 
-func (s *Service) GetProjectMembership(
-	ctx context.Context,
-	projectID domain.ProjectID,
-	membershipID domain.MembershipID,
-) (domain.ProjectMembership, error) {
-	return s.membershipsRepo.Get(ctx, projectID, membershipID)
-}
-
 func (s *Service) UpdateProjectMembership(
 	ctx context.Context,
 	projectID domain.ProjectID,
 	membershipID domain.MembershipID,
 	roleID domain.RoleID,
 ) (domain.ProjectMembership, error) {
+	project, err := s.projectsRepo.GetByID(ctx, projectID)
+	if err != nil {
+		return domain.ProjectMembership{}, fmt.Errorf("get project: %w", err)
+	}
+
+	roleNew, err := s.rolesRepo.GetByID(ctx, roleID)
+	if err != nil {
+		return domain.ProjectMembership{}, fmt.Errorf("get new role: %w", err)
+	}
+
+	membership, err := s.membershipsRepo.Get(ctx, projectID, membershipID)
+	if err != nil {
+		return domain.ProjectMembership{}, fmt.Errorf("get membership: %w", err)
+	}
+
+	userID := membership.UserID
+	roleOld, err := s.rolesRepo.GetByID(ctx, membership.RoleID)
+	if err != nil {
+		return domain.ProjectMembership{}, fmt.Errorf("get old role: %w", err)
+	}
+
 	var updated domain.ProjectMembership
 	if err := s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
 		old, err := s.membershipsRepo.Get(ctx, projectID, membershipID)
@@ -117,6 +183,24 @@ func (s *Service) UpdateProjectMembership(
 			return fmt.Errorf("write membership audit: %w", err)
 		}
 
+		content := domain.UserNotificationContent{
+			UserRoleChanged: &domain.UserRoleChangedContent{
+				ProjectName: project.Name,
+				RoleNameOld: roleOld.Name,
+				RoleNameNew: roleNew.Name,
+				ByUser:      appctx.Username(ctx),
+			},
+		}
+		err = s.userNotificationsUC.CreateNotification(
+			ctx,
+			userID,
+			domain.UserNotificationTypeRoleChanged,
+			content,
+		)
+		if err != nil {
+			return fmt.Errorf("create user notification: %w", err)
+		}
+
 		return nil
 	}); err != nil {
 		return domain.ProjectMembership{}, err
@@ -130,6 +214,16 @@ func (s *Service) DeleteProjectMembership(
 	projectID domain.ProjectID,
 	membershipID domain.MembershipID,
 ) error {
+	project, err := s.projectsRepo.GetByID(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("get project: %w", err)
+	}
+
+	membership, err := s.membershipsRepo.Get(ctx, projectID, membershipID)
+	if err != nil {
+		return fmt.Errorf("get membership: %w", err)
+	}
+
 	return s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
 		old, err := s.membershipsRepo.Get(ctx, projectID, membershipID)
 		if err != nil {
@@ -145,6 +239,22 @@ func (s *Service) DeleteProjectMembership(
 		err = membershipaudit.Write(ctx, exec, string(old.ID), actorID, "delete", old, nil)
 		if err != nil {
 			return fmt.Errorf("write membership audit: %w", err)
+		}
+
+		content := domain.UserNotificationContent{
+			UserRemovedFromProject: &domain.UserRemovedFromProjectContent{
+				ProjectName: project.Name,
+				ByUser:      appctx.Username(ctx),
+			},
+		}
+		err = s.userNotificationsUC.CreateNotification(
+			ctx,
+			membership.UserID,
+			domain.UserNotificationTypeProjectRemoved,
+			content,
+		)
+		if err != nil {
+			return fmt.Errorf("create user notification: %w", err)
 		}
 
 		return nil
