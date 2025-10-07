@@ -5985,6 +5985,130 @@ paths:
       security:
         - bearerAuth: []
 
+  # User Notifications Endpoints
+  /api/v1/notifications:
+    get:
+      summary: Get user notifications
+      operationId: GetUserNotifications
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            format: uint
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            format: uint
+            default: 0
+      responses:
+        '200':
+          description: List of user notifications
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserNotificationsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/notifications/{notification_id}/read:
+    put:
+      summary: Mark notification as read
+      operationId: MarkNotificationAsRead
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      responses:
+        '204':
+          description: Notification marked as read
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/notifications/read-all:
+    put:
+      summary: Mark all notifications as read
+      operationId: MarkAllNotificationsAsRead
+      responses:
+        '204':
+          description: All notifications marked as read
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
+  /api/v1/notifications/unread-count:
+    get:
+      summary: Get unread notifications count
+      operationId: GetUnreadNotificationsCount
+      responses:
+        '200':
+          description: Unread notifications count
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCountResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+        - bearerAuth: []
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -8688,3 +8812,49 @@ components:
           format: date-time
       required:
         [id, project_id, environment_id, entity, entity_id, action, actor, created_at]
+
+    UserNotification:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint
+        user_id:
+          type: integer
+          format: uint
+        type:
+          type: string
+          enum: [project_added, project_removed, role_changed]
+        content:
+          type: object
+          additionalProperties: true
+        is_read:
+          type: boolean
+        email_sent:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required: [id, user_id, type, content, is_read, email_sent, created_at, updated_at]
+
+    UserNotificationsResponse:
+      type: object
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserNotification'
+        total:
+          type: integer
+      required: [notifications, total]
+
+    UnreadCountResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          format: uint
+      required: [count]

@@ -2842,6 +2842,7 @@ func (*ErrorNotFound) listProjectSettingsRes()         {}
 func (*ErrorNotFound) listProjectTagsRes()             {}
 func (*ErrorNotFound) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorNotFound) listUsersRes()                   {}
+func (*ErrorNotFound) markNotificationAsReadRes()      {}
 func (*ErrorNotFound) rejectPendingChangeRes()         {}
 func (*ErrorNotFound) removeFeatureTagRes()            {}
 func (*ErrorNotFound) setSuperuserStatusRes()          {}
@@ -3119,6 +3120,8 @@ func (*ErrorUnauthorized) getProjectSettingRes()           {}
 func (*ErrorUnauthorized) getProjectTagRes()               {}
 func (*ErrorUnauthorized) getRolePermissionsRes()          {}
 func (*ErrorUnauthorized) getSegmentRes()                  {}
+func (*ErrorUnauthorized) getUnreadNotificationsCountRes() {}
+func (*ErrorUnauthorized) getUserNotificationsRes()        {}
 func (*ErrorUnauthorized) initiateTOTPApprovalRes()        {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listCategoriesRes()              {}
@@ -3142,6 +3145,8 @@ func (*ErrorUnauthorized) listRolesRes()                   {}
 func (*ErrorUnauthorized) listRuleAttributesRes()          {}
 func (*ErrorUnauthorized) listSegmentDesyncFeatureIDsRes() {}
 func (*ErrorUnauthorized) listUsersRes()                   {}
+func (*ErrorUnauthorized) markAllNotificationsAsReadRes()  {}
+func (*ErrorUnauthorized) markNotificationAsReadRes()      {}
 func (*ErrorUnauthorized) refreshTokenRes()                {}
 func (*ErrorUnauthorized) rejectPendingChangeRes()         {}
 func (*ErrorUnauthorized) removeFeatureTagRes()            {}
@@ -5989,6 +5994,16 @@ func (s *LoginResponse) SetIsTmpPassword(val bool) {
 
 func (*LoginResponse) loginRes()       {}
 func (*LoginResponse) sSOCallbackRes() {}
+
+// MarkAllNotificationsAsReadNoContent is response for MarkAllNotificationsAsRead operation.
+type MarkAllNotificationsAsReadNoContent struct{}
+
+func (*MarkAllNotificationsAsReadNoContent) markAllNotificationsAsReadRes() {}
+
+// MarkNotificationAsReadNoContent is response for MarkNotificationAsRead operation.
+type MarkNotificationAsReadNoContent struct{}
+
+func (*MarkNotificationAsReadNoContent) markNotificationAsReadRes() {}
 
 // Ref: #/components/schemas/Membership
 type Membership struct {
@@ -10633,6 +10648,23 @@ func (s *TwoFAVerifyResponse) SetExpiresIn(val int) {
 
 func (*TwoFAVerifyResponse) verify2FARes() {}
 
+// Ref: #/components/schemas/UnreadCountResponse
+type UnreadCountResponse struct {
+	Count uint `json:"count"`
+}
+
+// GetCount returns the value of Count.
+func (s *UnreadCountResponse) GetCount() uint {
+	return s.Count
+}
+
+// SetCount sets the value of Count.
+func (s *UnreadCountResponse) SetCount(val uint) {
+	s.Count = val
+}
+
+func (*UnreadCountResponse) getUnreadNotificationsCountRes() {}
+
 // Ref: #/components/schemas/UpdateCategoryRequest
 type UpdateCategoryRequest struct {
 	Name        string    `json:"name"`
@@ -11104,6 +11136,185 @@ func (*User) setUserActiveStatusRes() {}
 type UserChangeMyPasswordNoContent struct{}
 
 func (*UserChangeMyPasswordNoContent) userChangeMyPasswordRes() {}
+
+// Ref: #/components/schemas/UserNotification
+type UserNotification struct {
+	ID        uint                    `json:"id"`
+	UserID    uint                    `json:"user_id"`
+	Type      UserNotificationType    `json:"type"`
+	Content   UserNotificationContent `json:"content"`
+	IsRead    bool                    `json:"is_read"`
+	EmailSent bool                    `json:"email_sent"`
+	CreatedAt time.Time               `json:"created_at"`
+	UpdatedAt time.Time               `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *UserNotification) GetID() uint {
+	return s.ID
+}
+
+// GetUserID returns the value of UserID.
+func (s *UserNotification) GetUserID() uint {
+	return s.UserID
+}
+
+// GetType returns the value of Type.
+func (s *UserNotification) GetType() UserNotificationType {
+	return s.Type
+}
+
+// GetContent returns the value of Content.
+func (s *UserNotification) GetContent() UserNotificationContent {
+	return s.Content
+}
+
+// GetIsRead returns the value of IsRead.
+func (s *UserNotification) GetIsRead() bool {
+	return s.IsRead
+}
+
+// GetEmailSent returns the value of EmailSent.
+func (s *UserNotification) GetEmailSent() bool {
+	return s.EmailSent
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *UserNotification) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *UserNotification) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *UserNotification) SetID(val uint) {
+	s.ID = val
+}
+
+// SetUserID sets the value of UserID.
+func (s *UserNotification) SetUserID(val uint) {
+	s.UserID = val
+}
+
+// SetType sets the value of Type.
+func (s *UserNotification) SetType(val UserNotificationType) {
+	s.Type = val
+}
+
+// SetContent sets the value of Content.
+func (s *UserNotification) SetContent(val UserNotificationContent) {
+	s.Content = val
+}
+
+// SetIsRead sets the value of IsRead.
+func (s *UserNotification) SetIsRead(val bool) {
+	s.IsRead = val
+}
+
+// SetEmailSent sets the value of EmailSent.
+func (s *UserNotification) SetEmailSent(val bool) {
+	s.EmailSent = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *UserNotification) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *UserNotification) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+type UserNotificationContent map[string]jx.Raw
+
+func (s *UserNotificationContent) init() UserNotificationContent {
+	m := *s
+	if m == nil {
+		m = map[string]jx.Raw{}
+		*s = m
+	}
+	return m
+}
+
+type UserNotificationType string
+
+const (
+	UserNotificationTypeProjectAdded   UserNotificationType = "project_added"
+	UserNotificationTypeProjectRemoved UserNotificationType = "project_removed"
+	UserNotificationTypeRoleChanged    UserNotificationType = "role_changed"
+)
+
+// AllValues returns all UserNotificationType values.
+func (UserNotificationType) AllValues() []UserNotificationType {
+	return []UserNotificationType{
+		UserNotificationTypeProjectAdded,
+		UserNotificationTypeProjectRemoved,
+		UserNotificationTypeRoleChanged,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s UserNotificationType) MarshalText() ([]byte, error) {
+	switch s {
+	case UserNotificationTypeProjectAdded:
+		return []byte(s), nil
+	case UserNotificationTypeProjectRemoved:
+		return []byte(s), nil
+	case UserNotificationTypeRoleChanged:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *UserNotificationType) UnmarshalText(data []byte) error {
+	switch UserNotificationType(data) {
+	case UserNotificationTypeProjectAdded:
+		*s = UserNotificationTypeProjectAdded
+		return nil
+	case UserNotificationTypeProjectRemoved:
+		*s = UserNotificationTypeProjectRemoved
+		return nil
+	case UserNotificationTypeRoleChanged:
+		*s = UserNotificationTypeRoleChanged
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/UserNotificationsResponse
+type UserNotificationsResponse struct {
+	Notifications []UserNotification `json:"notifications"`
+	Total         int                `json:"total"`
+}
+
+// GetNotifications returns the value of Notifications.
+func (s *UserNotificationsResponse) GetNotifications() []UserNotification {
+	return s.Notifications
+}
+
+// GetTotal returns the value of Total.
+func (s *UserNotificationsResponse) GetTotal() int {
+	return s.Total
+}
+
+// SetNotifications sets the value of Notifications.
+func (s *UserNotificationsResponse) SetNotifications(val []UserNotification) {
+	s.Notifications = val
+}
+
+// SetTotal sets the value of Total.
+func (s *UserNotificationsResponse) SetTotal(val int) {
+	s.Total = val
+}
+
+func (*UserNotificationsResponse) getUserNotificationsRes() {}
 
 // Map of project_id to list of permission keys for that project. Contains only projects where user
 // has membership.

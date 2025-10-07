@@ -527,6 +527,24 @@ func (UnimplementedHandler) GetSegment(ctx context.Context, params GetSegmentPar
 	return r, ht.ErrNotImplemented
 }
 
+// GetUnreadNotificationsCount implements GetUnreadNotificationsCount operation.
+//
+// Get unread notifications count.
+//
+// GET /api/v1/notifications/unread-count
+func (UnimplementedHandler) GetUnreadNotificationsCount(ctx context.Context) (r GetUnreadNotificationsCountRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetUserNotifications implements GetUserNotifications operation.
+//
+// Get user notifications.
+//
+// GET /api/v1/notifications
+func (UnimplementedHandler) GetUserNotifications(ctx context.Context, params GetUserNotificationsParams) (r GetUserNotificationsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // InitiateTOTPApproval implements InitiateTOTPApproval operation.
 //
 // Initiate TOTP approval session.
@@ -740,6 +758,24 @@ func (UnimplementedHandler) ListUsers(ctx context.Context) (r ListUsersRes, _ er
 //
 // POST /api/v1/auth/login
 func (UnimplementedHandler) Login(ctx context.Context, req *LoginRequest) (r LoginRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MarkAllNotificationsAsRead implements MarkAllNotificationsAsRead operation.
+//
+// Mark all notifications as read.
+//
+// PUT /api/v1/notifications/read-all
+func (UnimplementedHandler) MarkAllNotificationsAsRead(ctx context.Context) (r MarkAllNotificationsAsReadRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// MarkNotificationAsRead implements MarkNotificationAsRead operation.
+//
+// Mark notification as read.
+//
+// PUT /api/v1/notifications/{notification_id}/read
+func (UnimplementedHandler) MarkNotificationAsRead(ctx context.Context, params MarkNotificationAsReadParams) (r MarkNotificationAsReadRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

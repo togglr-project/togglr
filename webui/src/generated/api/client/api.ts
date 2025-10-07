@@ -1297,6 +1297,9 @@ export interface TwoFAVerifyResponse {
     'refresh_token': string;
     'expires_in': number;
 }
+export interface UnreadCountResponse {
+    'count': number;
+}
 export interface UpdateCategoryRequest {
     'name': string;
     'slug': string;
@@ -1376,6 +1379,29 @@ export interface User {
      * Map of project_id to role object. Contains only projects where user has membership.
      */
     'project_roles': { [key: string]: Role; };
+}
+export interface UserNotification {
+    'id': number;
+    'user_id': number;
+    'type': UserNotificationTypeEnum;
+    'content': { [key: string]: any; };
+    'is_read': boolean;
+    'email_sent': boolean;
+    'created_at': string;
+    'updated_at': string;
+}
+
+export const UserNotificationTypeEnum = {
+    ProjectAdded: 'project_added',
+    ProjectRemoved: 'project_removed',
+    RoleChanged: 'role_changed'
+} as const;
+
+export type UserNotificationTypeEnum = typeof UserNotificationTypeEnum[keyof typeof UserNotificationTypeEnum];
+
+export interface UserNotificationsResponse {
+    'notifications': Array<UserNotification>;
+    'total': number;
 }
 
 /**
@@ -3695,6 +3721,84 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Get unread notifications count
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUnreadNotificationsCount: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/notifications/unread-count`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get user notifications
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserNotifications: async (limit?: number, offset?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/notifications`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Initiate TOTP approval session
          * @param {string} pendingChangeId 
          * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
@@ -4828,6 +4932,78 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(loginRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Mark all notifications as read
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        markAllNotificationsAsRead: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/notifications/read-all`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Mark notification as read
+         * @param {number} notificationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        markNotificationAsRead: async (notificationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'notificationId' is not null or undefined
+            assertParamExists('markNotificationAsRead', 'notificationId', notificationId)
+            const localVarPath = `/api/v1/notifications/{notification_id}/read`
+                .replace(`{${"notification_id"}}`, encodeURIComponent(String(notificationId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -6816,6 +6992,32 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get unread notifications count
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUnreadNotificationsCount(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UnreadCountResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUnreadNotificationsCount(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getUnreadNotificationsCount']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get user notifications
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getUserNotifications(limit?: number, offset?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<UserNotificationsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getUserNotifications(limit, offset, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getUserNotifications']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Initiate TOTP approval session
          * @param {string} pendingChangeId 
          * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
@@ -7165,6 +7367,31 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.login(loginRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.login']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Mark all notifications as read
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async markAllNotificationsAsRead(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.markAllNotificationsAsRead(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.markAllNotificationsAsRead']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Mark notification as read
+         * @param {number} notificationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async markNotificationAsRead(notificationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.markNotificationAsRead(notificationId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.markNotificationAsRead']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -8152,6 +8379,26 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get unread notifications count
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUnreadNotificationsCount(options?: RawAxiosRequestConfig): AxiosPromise<UnreadCountResponse> {
+            return localVarFp.getUnreadNotificationsCount(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get user notifications
+         * @param {number} [limit] 
+         * @param {number} [offset] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getUserNotifications(limit?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<UserNotificationsResponse> {
+            return localVarFp.getUserNotifications(limit, offset, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Initiate TOTP approval session
          * @param {string} pendingChangeId 
          * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
@@ -8430,6 +8677,25 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         login(loginRequest: LoginRequest, options?: RawAxiosRequestConfig): AxiosPromise<LoginResponse> {
             return localVarFp.login(loginRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Mark all notifications as read
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        markAllNotificationsAsRead(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.markAllNotificationsAsRead(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Mark notification as read
+         * @param {number} notificationId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        markNotificationAsRead(notificationId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.markNotificationAsRead(notificationId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9386,6 +9652,28 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get unread notifications count
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getUnreadNotificationsCount(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUnreadNotificationsCount(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get user notifications
+     * @param {number} [limit] 
+     * @param {number} [offset] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getUserNotifications(limit?: number, offset?: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getUserNotifications(limit, offset, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Initiate TOTP approval session
      * @param {string} pendingChangeId 
      * @param {InitiateTOTPApprovalRequest} initiateTOTPApprovalRequest 
@@ -9687,6 +9975,27 @@ export class DefaultApi extends BaseAPI {
      */
     public login(loginRequest: LoginRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).login(loginRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Mark all notifications as read
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public markAllNotificationsAsRead(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).markAllNotificationsAsRead(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Mark notification as read
+     * @param {number} notificationId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public markNotificationAsRead(notificationId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).markNotificationAsRead(notificationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

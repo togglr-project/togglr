@@ -145,6 +145,7 @@ docs/TwoFAResetRequest.md
 docs/TwoFASetupResponse.md
 docs/TwoFAVerifyRequest.md
 docs/TwoFAVerifyResponse.md
+docs/UnreadCountResponse.md
 docs/UpdateCategoryRequest.md
 docs/UpdateEnvironmentRequest.md
 docs/UpdateFeatureScheduleRequest.md
@@ -155,6 +156,8 @@ docs/UpdateProjectSettingRequest.md
 docs/UpdateProjectTagRequest.md
 docs/UpdateSegmentRequest.md
 docs/User.md
+docs/UserNotification.md
+docs/UserNotificationsResponse.md
 docs/UsersApi.md
 git_push.sh
 index.ts

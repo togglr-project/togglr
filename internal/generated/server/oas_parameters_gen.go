@@ -3676,6 +3676,155 @@ func decodeGetSegmentParams(args [1]string, argsEscaped bool, r *http.Request) (
 	return params, nil
 }
 
+// GetUserNotificationsParams is parameters of GetUserNotifications operation.
+type GetUserNotificationsParams struct {
+	Limit  OptUint
+	Offset OptUint
+}
+
+func unpackGetUserNotificationsParams(packed middleware.Parameters) (params GetUserNotificationsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "limit",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Limit = v.(OptUint)
+		}
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "offset",
+			In:   "query",
+		}
+		if v, ok := packed[key]; ok {
+			params.Offset = v.(OptUint)
+		}
+	}
+	return params
+}
+
+func decodeGetUserNotificationsParams(args [0]string, argsEscaped bool, r *http.Request) (params GetUserNotificationsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Set default value for query: limit.
+	{
+		val := uint(50)
+		params.Limit.SetTo(val)
+	}
+	// Decode query: limit.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "limit",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotLimitVal uint
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToUint(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotLimitVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Limit.SetTo(paramsDotLimitVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+			if err := func() error {
+				if value, ok := params.Limit.Get(); ok {
+					if err := func() error {
+						if err := (validate.Int{
+							MinSet:        false,
+							Min:           0,
+							MaxSet:        true,
+							Max:           100,
+							MinExclusive:  false,
+							MaxExclusive:  false,
+							MultipleOfSet: false,
+							MultipleOf:    0,
+						}).Validate(int64(value)); err != nil {
+							return errors.Wrap(err, "int")
+						}
+						return nil
+					}(); err != nil {
+						return err
+					}
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "limit",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	// Set default value for query: offset.
+	{
+		val := uint(0)
+		params.Offset.SetTo(val)
+	}
+	// Decode query: offset.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "offset",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				var paramsDotOffsetVal uint
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToUint(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotOffsetVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.Offset.SetTo(paramsDotOffsetVal)
+				return nil
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "offset",
+			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // InitiateTOTPApprovalParams is parameters of InitiateTOTPApproval operation.
 type InitiateTOTPApprovalParams struct {
 	PendingChangeID uuid.UUID
@@ -7687,6 +7836,71 @@ func decodeListSegmentDesyncFeatureIDsParams(args [1]string, argsEscaped bool, r
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
 			Name: "segment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// MarkNotificationAsReadParams is parameters of MarkNotificationAsRead operation.
+type MarkNotificationAsReadParams struct {
+	NotificationID uint
+}
+
+func unpackMarkNotificationAsReadParams(packed middleware.Parameters) (params MarkNotificationAsReadParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "notification_id",
+			In:   "path",
+		}
+		params.NotificationID = packed[key].(uint)
+	}
+	return params
+}
+
+func decodeMarkNotificationAsReadParams(args [1]string, argsEscaped bool, r *http.Request) (params MarkNotificationAsReadParams, _ error) {
+	// Decode path: notification_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "notification_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToUint(val)
+				if err != nil {
+					return err
+				}
+
+				params.NotificationID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "notification_id",
 			In:   "path",
 			Err:  err,
 		}

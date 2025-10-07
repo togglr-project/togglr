@@ -1031,6 +1031,119 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 				}
 
+			case 'n': // Prefix: "notifications"
+
+				if l := len("notifications"); len(elem) >= l && elem[0:l] == "notifications" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch r.Method {
+					case "GET":
+						s.handleGetUserNotificationsRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'r': // Prefix: "read-all"
+						origElem := elem
+						if l := len("read-all"); len(elem) >= l && elem[0:l] == "read-all" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "PUT":
+								s.handleMarkAllNotificationsAsReadRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "PUT")
+							}
+
+							return
+						}
+
+						elem = origElem
+					case 'u': // Prefix: "unread-count"
+						origElem := elem
+						if l := len("unread-count"); len(elem) >= l && elem[0:l] == "unread-count" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "GET":
+								s.handleGetUnreadNotificationsCountRequest([0]string{}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "GET")
+							}
+
+							return
+						}
+
+						elem = origElem
+					}
+					// Param: "notification_id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/read"
+
+						if l := len("/read"); len(elem) >= l && elem[0:l] == "/read" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "PUT":
+								s.handleMarkNotificationAsReadRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "PUT")
+							}
+
+							return
+						}
+
+					}
+
+				}
+
 			case 'p': // Prefix: "p"
 
 				if l := len("p"); len(elem) >= l && elem[0:l] == "p" {
@@ -3523,6 +3636,133 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						default:
 							return
 						}
+					}
+
+				}
+
+			case 'n': // Prefix: "notifications"
+
+				if l := len("notifications"); len(elem) >= l && elem[0:l] == "notifications" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					switch method {
+					case "GET":
+						r.name = GetUserNotificationsOperation
+						r.summary = "Get user notifications"
+						r.operationID = "GetUserNotifications"
+						r.pathPattern = "/api/v1/notifications"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+				switch elem[0] {
+				case '/': // Prefix: "/"
+
+					if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+						elem = elem[l:]
+					} else {
+						break
+					}
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case 'r': // Prefix: "read-all"
+						origElem := elem
+						if l := len("read-all"); len(elem) >= l && elem[0:l] == "read-all" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "PUT":
+								r.name = MarkAllNotificationsAsReadOperation
+								r.summary = "Mark all notifications as read"
+								r.operationID = "MarkAllNotificationsAsRead"
+								r.pathPattern = "/api/v1/notifications/read-all"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+						elem = origElem
+					case 'u': // Prefix: "unread-count"
+						origElem := elem
+						if l := len("unread-count"); len(elem) >= l && elem[0:l] == "unread-count" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "GET":
+								r.name = GetUnreadNotificationsCountOperation
+								r.summary = "Get unread notifications count"
+								r.operationID = "GetUnreadNotificationsCount"
+								r.pathPattern = "/api/v1/notifications/unread-count"
+								r.args = args
+								r.count = 0
+								return r, true
+							default:
+								return
+							}
+						}
+
+						elem = origElem
+					}
+					// Param: "notification_id"
+					// Match until "/"
+					idx := strings.IndexByte(elem, '/')
+					if idx < 0 {
+						idx = len(elem)
+					}
+					args[0] = elem[:idx]
+					elem = elem[idx:]
+
+					if len(elem) == 0 {
+						break
+					}
+					switch elem[0] {
+					case '/': // Prefix: "/read"
+
+						if l := len("/read"); len(elem) >= l && elem[0:l] == "/read" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "PUT":
+								r.name = MarkNotificationAsReadOperation
+								r.summary = "Mark notification as read"
+								r.operationID = "MarkNotificationAsRead"
+								r.pathPattern = "/api/v1/notifications/{notification_id}/read"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
 					}
 
 				}

@@ -354,6 +354,18 @@ type Handler interface {
 	//
 	// GET /api/v1/segments/{segment_id}
 	GetSegment(ctx context.Context, params GetSegmentParams) (GetSegmentRes, error)
+	// GetUnreadNotificationsCount implements GetUnreadNotificationsCount operation.
+	//
+	// Get unread notifications count.
+	//
+	// GET /api/v1/notifications/unread-count
+	GetUnreadNotificationsCount(ctx context.Context) (GetUnreadNotificationsCountRes, error)
+	// GetUserNotifications implements GetUserNotifications operation.
+	//
+	// Get user notifications.
+	//
+	// GET /api/v1/notifications
+	GetUserNotifications(ctx context.Context, params GetUserNotificationsParams) (GetUserNotificationsRes, error)
 	// InitiateTOTPApproval implements InitiateTOTPApproval operation.
 	//
 	// Initiate TOTP approval session.
@@ -498,6 +510,18 @@ type Handler interface {
 	//
 	// POST /api/v1/auth/login
 	Login(ctx context.Context, req *LoginRequest) (LoginRes, error)
+	// MarkAllNotificationsAsRead implements MarkAllNotificationsAsRead operation.
+	//
+	// Mark all notifications as read.
+	//
+	// PUT /api/v1/notifications/read-all
+	MarkAllNotificationsAsRead(ctx context.Context) (MarkAllNotificationsAsReadRes, error)
+	// MarkNotificationAsRead implements MarkNotificationAsRead operation.
+	//
+	// Mark notification as read.
+	//
+	// PUT /api/v1/notifications/{notification_id}/read
+	MarkNotificationAsRead(ctx context.Context, params MarkNotificationAsReadParams) (MarkNotificationAsReadRes, error)
 	// RefreshToken implements RefreshToken operation.
 	//
 	// Refresh access token.

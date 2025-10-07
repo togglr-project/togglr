@@ -60,6 +60,8 @@ All URIs are relative to *http://localhost*
 |[**getSAMLMetadata**](#getsamlmetadata) | **GET** /api/v1/saml/metadata | Get SAML metadata|
 |[**getSSOProviders**](#getssoproviders) | **GET** /api/v1/auth/sso/providers | Get available SSO providers|
 |[**getSegment**](#getsegment) | **GET** /api/v1/segments/{segment_id} | Get segment by ID|
+|[**getUnreadNotificationsCount**](#getunreadnotificationscount) | **GET** /api/v1/notifications/unread-count | Get unread notifications count|
+|[**getUserNotifications**](#getusernotifications) | **GET** /api/v1/notifications | Get user notifications|
 |[**initiateTOTPApproval**](#initiatetotpapproval) | **POST** /api/v1/pending_changes/{pending_change_id}/initiate-totp | Initiate TOTP approval session|
 |[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/feature-schedules | List all feature schedules|
 |[**listCategories**](#listcategories) | **GET** /api/v1/categories | Get categories list|
@@ -84,6 +86,8 @@ All URIs are relative to *http://localhost*
 |[**listSegmentDesyncFeatureIDs**](#listsegmentdesyncfeatureids) | **GET** /api/v1/segments/{segment_id}/desync-features | Get desync feature IDs by segment ID|
 |[**listUsers**](#listusers) | **GET** /api/v1/users | List all users (superuser only)|
 |[**login**](#login) | **POST** /api/v1/auth/login | Authenticate user and get access token|
+|[**markAllNotificationsAsRead**](#markallnotificationsasread) | **PUT** /api/v1/notifications/read-all | Mark all notifications as read|
+|[**markNotificationAsRead**](#marknotificationasread) | **PUT** /api/v1/notifications/{notification_id}/read | Mark notification as read|
 |[**refreshToken**](#refreshtoken) | **POST** /api/v1/auth/refresh | Refresh access token|
 |[**rejectPendingChange**](#rejectpendingchange) | **POST** /api/v1/pending_changes/{pending_change_id}/reject | Reject a pending change|
 |[**removeFeatureTag**](#removefeaturetag) | **DELETE** /api/v1/features/{feature_id}/tags | Remove tag from feature|
@@ -3264,6 +3268,106 @@ const { status, data } = await apiInstance.getSegment(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getUnreadNotificationsCount**
+> UnreadCountResponse getUnreadNotificationsCount()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.getUnreadNotificationsCount();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**UnreadCountResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Unread notifications count |  -  |
+|**401** | Unauthorized |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getUserNotifications**
+> UserNotificationsResponse getUserNotifications()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let limit: number; // (optional) (default to 50)
+let offset: number; // (optional) (default to 0)
+
+const { status, data } = await apiInstance.getUserNotifications(
+    limit,
+    offset
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **limit** | [**number**] |  | (optional) defaults to 50|
+| **offset** | [**number**] |  | (optional) defaults to 0|
+
+
+### Return type
+
+**UserNotificationsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of user notifications |  -  |
+|**401** | Unauthorized |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **initiateTOTPApproval**
 > InitiateTOTPApprovalResponse initiateTOTPApproval(initiateTOTPApprovalRequest)
 
@@ -4662,6 +4766,104 @@ No authorization required
 |**401** | Invalid credentials |  -  |
 |**403** | 2FA required |  -  |
 |**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **markAllNotificationsAsRead**
+> markAllNotificationsAsRead()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+const { status, data } = await apiInstance.markAllNotificationsAsRead();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | All notifications marked as read |  -  |
+|**401** | Unauthorized |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **markNotificationAsRead**
+> markNotificationAsRead()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let notificationId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.markNotificationAsRead(
+    notificationId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **notificationId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Notification marked as read |  -  |
+|**401** | Unauthorized |  -  |
+|**404** | Notification not found |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

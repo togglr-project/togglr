@@ -225,6 +225,14 @@ type GetSegmentRes interface {
 	getSegmentRes()
 }
 
+type GetUnreadNotificationsCountRes interface {
+	getUnreadNotificationsCountRes()
+}
+
+type GetUserNotificationsRes interface {
+	getUserNotificationsRes()
+}
+
 type InitiateTOTPApprovalRes interface {
 	initiateTOTPApprovalRes()
 }
@@ -319,6 +327,14 @@ type ListUsersRes interface {
 
 type LoginRes interface {
 	loginRes()
+}
+
+type MarkAllNotificationsAsReadRes interface {
+	markAllNotificationsAsReadRes()
+}
+
+type MarkNotificationAsReadRes interface {
+	markNotificationAsReadRes()
 }
 
 type RefreshTokenRes interface {
