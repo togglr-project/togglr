@@ -230,9 +230,11 @@ const NotificationsPage: React.FC = () => {
               <React.Fragment key={notification.id}>
                 <ListItem 
                   sx={{ 
-                    bgcolor: notification.is_read ? 'background.paper' : 'action.selected',
+                    bgcolor: notification.is_read ? 'background.paper' : 'primary.50',
+                    borderLeft: notification.is_read ? 'none' : '4px solid',
+                    borderLeftColor: 'primary.main',
                     '&:hover': {
-                      bgcolor: notification.is_read ? 'action.hover' : 'action.selected'
+                      bgcolor: notification.is_read ? 'action.hover' : 'primary.100'
                     }
                   }}
                 >
@@ -244,9 +246,10 @@ const NotificationsPage: React.FC = () => {
                   <ListItemAvatar>
                     <Avatar 
                       sx={{ 
-                        bgcolor: notification.is_read ? 'grey.400' : 'primary.main',
+                        bgcolor: notification.is_read ? 'grey.300' : 'primary.main',
                         width: 48,
-                        height: 48
+                        height: 48,
+                        opacity: notification.is_read ? 0.7 : 1
                       }}
                     >
                       {getNotificationIcon(notification.type)}
