@@ -16,11 +16,13 @@ import (
 var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 
 type Handler struct {
-	broadcaster contract.RealtimeBroadcaster
+	eventsBroadcaster contract.RealtimeBroadcaster
 }
 
-func New(broadcaster contract.RealtimeBroadcaster) *Handler {
-	return &Handler{broadcaster: broadcaster}
+func New(eventsBroadcaster contract.RealtimeBroadcaster) *Handler {
+	return &Handler{
+		eventsBroadcaster: eventsBroadcaster,
+	}
 }
 
 //nolint:nestif,gocognit // fix it
@@ -79,14 +81,14 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 	slog.Debug("adding WebSocket connection to broadcaster",
 		"project_id", projectID,
 		"environment_id", envID)
-	h.broadcaster.Add(projectID, envID, wsConnection)
+	h.eventsBroadcaster.Add(projectID, envID, wsConnection)
 	defer func() {
 		slog.Debug("removing WebSocket connection from broadcaster")
-		h.broadcaster.Remove(projectID, envID, wsConnection)
+		h.eventsBroadcaster.Remove(projectID, envID, wsConnection)
 		wsConnection.Close()
 	}()
 
-	// Set up ping/pong to keep connection alive
+	// Set up ping/pong to keep the connection alive
 	conn.SetPingHandler(func(message string) error {
 		slog.Debug("WebSocket ping received", slog.String("message", message))
 		// Respond to ping with pong
@@ -125,7 +127,7 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 			slog.Int("message_type", messageType),
 			slog.String("message", string(message)))
 
-		// Handle ping messages from client
+		// Handle ping messages from a client
 		if messageType == websocket.TextMessage {
 			var msg map[string]interface{}
 			if err := json.Unmarshal(message, &msg); err == nil {
