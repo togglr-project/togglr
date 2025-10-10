@@ -5119,6 +5119,8 @@ func (s UserNotificationType) Validate() error {
 		return nil
 	case "role_changed":
 		return nil
+	case "need_approve":
+		return nil
 	default:
 		return errors.Errorf("invalid value: %v", s)
 	}

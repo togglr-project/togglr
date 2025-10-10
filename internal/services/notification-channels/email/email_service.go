@@ -278,6 +278,8 @@ func (s *Service) SendUserNotificationEmail(
 		subject = "Togglr: You've been removed from a project"
 	case domain.UserNotificationTypeRoleChanged:
 		subject = "Togglr: Your project role has been changed"
+	case domain.UserNotificationTypeNeedApprove:
+		subject = "Togglr: Your approve requested to change entity"
 	}
 
 	var body bytes.Buffer

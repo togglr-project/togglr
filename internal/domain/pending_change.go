@@ -74,7 +74,7 @@ type PendingChangeEntity struct {
 
 type ProjectApprover struct {
 	ProjectID ProjectID
-	UserID    int
+	UserID    UserID
 	Role      string
 	CreatedAt time.Time
 }
@@ -112,4 +112,18 @@ func (action EntityAction) IsValid() bool {
 	return action == EntityActionInsert ||
 		action == EntityActionUpdate ||
 		action == EntityActionDelete
+}
+
+func (payload *PendingChangePayload) FeatureEntityOrFirst() string {
+	if len(payload.Entities) > 0 {
+		for _, entity := range payload.Entities {
+			if entity.Entity == "feature" {
+				return "feature"
+			}
+		}
+
+		return payload.Entities[0].Entity
+	}
+
+	return "unknown"
 }

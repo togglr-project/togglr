@@ -66,6 +66,8 @@ const getNotificationMessage = (notification: UserNotification): string => {
       return `You have been removed from project '${content.projectName}'`;
     case 'role_changed':
       return `Your role in project '${content.projectName}' has been changed from ${content.roleNameOld} to ${content.roleNameNew}`;
+    case 'need_approve':
+      return `You need to approve entity change in project '${content.projectName}'`;
     default:
       return 'You have a new notification';
   }
@@ -79,6 +81,8 @@ const getNotificationTypeLabel = (type: string): string => {
       return 'Project Removed';
     case 'role_changed':
       return 'Role Changed';
+    case 'need_approve':
+      return 'Entity Change Approval';
     default:
       return 'Notification';
   }

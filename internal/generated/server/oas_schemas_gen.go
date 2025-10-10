@@ -11246,6 +11246,7 @@ const (
 	UserNotificationTypeProjectAdded   UserNotificationType = "project_added"
 	UserNotificationTypeProjectRemoved UserNotificationType = "project_removed"
 	UserNotificationTypeRoleChanged    UserNotificationType = "role_changed"
+	UserNotificationTypeNeedApprove    UserNotificationType = "need_approve"
 )
 
 // AllValues returns all UserNotificationType values.
@@ -11254,6 +11255,7 @@ func (UserNotificationType) AllValues() []UserNotificationType {
 		UserNotificationTypeProjectAdded,
 		UserNotificationTypeProjectRemoved,
 		UserNotificationTypeRoleChanged,
+		UserNotificationTypeNeedApprove,
 	}
 }
 
@@ -11265,6 +11267,8 @@ func (s UserNotificationType) MarshalText() ([]byte, error) {
 	case UserNotificationTypeProjectRemoved:
 		return []byte(s), nil
 	case UserNotificationTypeRoleChanged:
+		return []byte(s), nil
+	case UserNotificationTypeNeedApprove:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -11282,6 +11286,9 @@ func (s *UserNotificationType) UnmarshalText(data []byte) error {
 		return nil
 	case UserNotificationTypeRoleChanged:
 		*s = UserNotificationTypeRoleChanged
+		return nil
+	case UserNotificationTypeNeedApprove:
+		*s = UserNotificationTypeNeedApprove
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)

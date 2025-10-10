@@ -14,6 +14,7 @@ const (
 	UserNotificationTypeProjectAdded   UserNotificationType = "project_added"
 	UserNotificationTypeProjectRemoved UserNotificationType = "project_removed"
 	UserNotificationTypeRoleChanged    UserNotificationType = "role_changed"
+	UserNotificationTypeNeedApprove    UserNotificationType = "need_approve"
 )
 
 type UserNotification struct {
@@ -31,6 +32,7 @@ type UserNotificationContent struct {
 	UserAddedToProject     *UserAddedToProjectContent     `json:"userAddedToProject"`
 	UserRemovedFromProject *UserRemovedFromProjectContent `json:"userRemovedFromProject"`
 	UserRoleChanged        *UserRoleChangedContent        `json:"userRoleChanged"`
+	NeedApproveChange      *NeedApproveChangeContent      `json:"needApproveChange"`
 }
 
 type UserAddedToProjectContent struct {
@@ -49,4 +51,10 @@ type UserRoleChangedContent struct {
 type UserRemovedFromProjectContent struct {
 	ProjectName string `json:"projectName"`
 	ByUser      string `json:"byUser"`
+}
+
+type NeedApproveChangeContent struct {
+	ProjectName string `json:"projectName"`
+	Entity      string `json:"entity"`
+	RequestedBy string `json:"requestedBy"`
 }

@@ -23442,6 +23442,8 @@ func (s *UserNotificationType) Decode(d *jx.Decoder) error {
 		*s = UserNotificationTypeProjectRemoved
 	case UserNotificationTypeRoleChanged:
 		*s = UserNotificationTypeRoleChanged
+	case UserNotificationTypeNeedApprove:
+		*s = UserNotificationTypeNeedApprove
 	default:
 		*s = UserNotificationType(v)
 	}

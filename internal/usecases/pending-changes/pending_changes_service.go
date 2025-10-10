@@ -21,14 +21,15 @@ type Service struct {
 	guardService         contract.GuardService
 	featuresRepo         contract.FeaturesRepository
 	featureParamsRepo    contract.FeatureParamsRepository
-	// Added repositories to apply changes for child entities
-	rulesRepo          contract.RulesRepository
-	flagVariantsRepo   contract.FlagVariantsRepository
-	schedulesRepo      contract.FeatureSchedulesRepository
-	featureTagsRepo    contract.FeatureTagsRepository
-	auditLogRepo       contract.AuditLogRepository
-	usersUseCase       contract.UsersUseCase
-	permissionsService contract.PermissionsService
+	rulesRepo            contract.RulesRepository
+	flagVariantsRepo     contract.FlagVariantsRepository
+	schedulesRepo        contract.FeatureSchedulesRepository
+	featureTagsRepo      contract.FeatureTagsRepository
+	auditLogRepo         contract.AuditLogRepository
+	usersUseCase         contract.UsersUseCase
+	projectsUseCase      contract.ProjectsUseCase
+	userNotificationsUC  contract.UserNotificationsUseCase
+	permissionsService   contract.PermissionsService
 }
 
 func New(
@@ -45,6 +46,8 @@ func New(
 	featureTagsRepo contract.FeatureTagsRepository,
 	auditLogRepo contract.AuditLogRepository,
 	usersUseCase contract.UsersUseCase,
+	projectsUseCase contract.ProjectsUseCase,
+	userNotificationsUC contract.UserNotificationsUseCase,
 	permissionsService contract.PermissionsService,
 ) *Service {
 	return &Service{
@@ -61,6 +64,8 @@ func New(
 		featureTagsRepo:      featureTagsRepo,
 		auditLogRepo:         auditLogRepo,
 		usersUseCase:         usersUseCase,
+		userNotificationsUC:  userNotificationsUC,
+		projectsUseCase:      projectsUseCase,
 		permissionsService:   permissionsService,
 	}
 }
@@ -74,13 +79,62 @@ func (s *Service) Create(
 	requestUserID *int,
 	change domain.PendingChangePayload,
 ) (domain.PendingChange, error) {
-	var created domain.PendingChange
+	var sendNotificationUsers []domain.UserID //nolint:prealloc // it's ok here
 
+	approvers, err := s.GetProjectApprovers(ctx, projectID)
+	if err != nil {
+		return domain.PendingChange{}, fmt.Errorf("get project approvers: %w", err)
+	}
+
+	for _, approver := range approvers {
+		sendNotificationUsers = append(sendNotificationUsers, approver.UserID)
+	}
+
+	if len(sendNotificationUsers) == 0 {
+		sendNotificationUsers, err = s.guardService.GetProjectActiveUsers(ctx, projectID)
+		if err != nil {
+			return domain.PendingChange{}, fmt.Errorf("get project active user count: %w", err)
+		}
+	}
+
+	var created domain.PendingChange
 	if err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
 		var err error
 		created, err = s.pendingChangesRepo.Create(ctx, projectID, environmentID, requestedBy, requestUserID, change)
 		if err != nil {
 			return fmt.Errorf("create pending change: %w", err)
+		}
+
+		if len(sendNotificationUsers) > 0 {
+			project, err := s.projectsUseCase.GetProject(ctx, projectID)
+			if err != nil {
+				return fmt.Errorf("get project: %w", err)
+			}
+
+			notificationContent := domain.UserNotificationContent{
+				NeedApproveChange: &domain.NeedApproveChangeContent{
+					ProjectName: project.Name,
+					Entity:      change.FeatureEntityOrFirst(),
+					RequestedBy: requestedBy,
+				},
+			}
+
+			currUserID := appcontext.UserID(ctx)
+			for _, approverID := range sendNotificationUsers {
+				if approverID == currUserID {
+					continue
+				}
+
+				err := s.userNotificationsUC.CreateNotification(
+					ctx,
+					approverID,
+					domain.UserNotificationTypeNeedApprove,
+					notificationContent,
+				)
+				if err != nil {
+					return fmt.Errorf("create notification: %w", err)
+				}
+			}
 		}
 
 		return nil

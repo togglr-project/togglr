@@ -8824,7 +8824,7 @@ components:
           format: uint
         type:
           type: string
-          enum: [project_added, project_removed, role_changed]
+          enum: [project_added, project_removed, role_changed, need_approve]
         content:
           type: object
           additionalProperties: true

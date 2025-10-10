@@ -33,7 +33,7 @@ type projectApproverModel struct {
 func (m *projectApproverModel) toDomain() domain.ProjectApprover {
 	return domain.ProjectApprover{
 		ProjectID: domain.ProjectID(m.ProjectID),
-		UserID:    m.UserID,
+		UserID:    domain.UserID(m.UserID),
 		Role:      m.Role,
 		CreatedAt: m.CreatedAt,
 	}

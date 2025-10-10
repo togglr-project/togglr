@@ -64,6 +64,9 @@
         {{if .UserRoleChanged}}
             <p>Your role in project <b>{{.UserRoleChanged.ProjectName}}</b> has been changed from <b>{{.UserRoleChanged.RoleNameOld}}</b> to <b>{{.UserRoleChanged.RoleNameNew}}</b> by user <b>{{.UserRoleChanged.ByUser}}</b>.</p>
         {{end}}
+        {{if .NeedApproveChange}}
+            <p>{{.NeedApproveChange.RequestedBy}} requires approve to change {{.NeedApproveChange.Entity}} entity in project {{.NeedApproveChange.ProjectName}}</p>
+        {{end}}
     </div>
     <div class="footer">
         This is an automated notification. Please do not reply to this email.

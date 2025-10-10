@@ -93,6 +93,48 @@ SELECT
 	return count, nil
 }
 
+// GetProjectActiveUsers returns active user IDs who can approve changes in a project.
+func (r *Repository) GetProjectActiveUsers(ctx context.Context, projectID domain.ProjectID) ([]domain.UserID, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT DISTINCT user_id FROM (
+	SELECT DISTINCT m.user_id AS user_id
+	FROM memberships m
+	JOIN roles r ON m.role_id = r.id
+	WHERE m.project_id = $1::uuid 
+		AND r.key IN ('project_owner', 'project_manager')
+		AND EXISTS (SELECT 1 FROM users u WHERE u.id = m.user_id AND u.is_active = true)
+
+	UNION ALL
+
+	SELECT id AS user_id FROM users WHERE is_superuser = true AND is_active = true
+) AS united`
+
+	var userIDs []domain.UserID
+
+	rows, err := executor.Query(ctx, query, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("get project active user count: %w", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var userID domain.UserID
+		if err := rows.Scan(&userID); err != nil {
+			return nil, fmt.Errorf("scan user ID: %w", err)
+		}
+
+		userIDs = append(userIDs, userID)
+	}
+
+	if rows.Err() != nil {
+		return nil, fmt.Errorf("iterate rows: %w", rows.Err())
+	}
+
+	return userIDs, nil
+}
+
 //nolint:ireturn // it's ok here
 func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {

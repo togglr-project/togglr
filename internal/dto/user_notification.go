@@ -19,6 +19,8 @@ func UserNotificationToDTO(notification domain.UserNotification) (generatedapi.U
 		apiType = generatedapi.UserNotificationTypeProjectRemoved
 	case domain.UserNotificationTypeRoleChanged:
 		apiType = generatedapi.UserNotificationTypeRoleChanged
+	case domain.UserNotificationTypeNeedApprove:
+		apiType = generatedapi.UserNotificationTypeNeedApprove
 	default:
 		return generatedapi.UserNotification{}, fmt.Errorf("unknown notification type: %s", notification.Type)
 	}
@@ -39,6 +41,8 @@ func UserNotificationToDTO(notification domain.UserNotification) (generatedapi.U
 			concrete = notifContent.UserRemovedFromProject
 		case domain.UserNotificationTypeRoleChanged:
 			concrete = notifContent.UserRoleChanged
+		case domain.UserNotificationTypeNeedApprove:
+			concrete = notifContent.NeedApproveChange
 		default:
 			err := fmt.Errorf("unknown notification type: %s", notification.Type)
 

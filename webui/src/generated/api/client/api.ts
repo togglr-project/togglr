@@ -1394,7 +1394,8 @@ export interface UserNotification {
 export const UserNotificationTypeEnum = {
     ProjectAdded: 'project_added',
     ProjectRemoved: 'project_removed',
-    RoleChanged: 'role_changed'
+    RoleChanged: 'role_changed',
+    NeedApprove: 'need_approve'
 } as const;
 
 export type UserNotificationTypeEnum = typeof UserNotificationTypeEnum[keyof typeof UserNotificationTypeEnum];

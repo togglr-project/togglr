@@ -140,6 +140,9 @@ type GuardService interface {
 	// IsEntityGuarded checks if any entity in the list is guarded
 	IsEntityGuarded(ctx context.Context, entities []domain.EntityChange) (bool, error)
 
-	// GetProjectActiveUserCount returns the number of active users in a project
+	// GetProjectActiveUserCount returns the number of active users in a project who can approve pending changes
 	GetProjectActiveUserCount(ctx context.Context, projectID domain.ProjectID) (int, error)
+
+	// GetProjectActiveUsers returns active users in a project who can approve pending changes
+	GetProjectActiveUsers(ctx context.Context, projectID domain.ProjectID) ([]domain.UserID, error)
 }

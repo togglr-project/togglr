@@ -55,10 +55,10 @@ services:
       context: ../
       target: prod
       dockerfile: Dockerfile
-    # ports:
+    ports:
     #   - "8080:8080"
     #   - "8081:8081"
-    #   - "8082:8082"
+      - "8090:8090"
     env_file:
       - compose.env
     command: ["/bin/app", "server"]
