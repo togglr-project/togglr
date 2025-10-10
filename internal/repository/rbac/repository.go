@@ -211,10 +211,10 @@ func (r *Permissions) RoleHasPermission(
 	exec := getExecutor(ctx, r.db)
 
 	const query = `select exists(
-		select 1 from role_permissions rp
-		join permissions p on p.id = rp.permission_id
-		where rp.role_id = $1 and p.key = $2
-	)`
+select 1 from role_permissions rp
+join permissions p on p.id = rp.permission_id
+where rp.role_id = $1 and p.key = $2
+)`
 
 	var has bool
 	if err := exec.QueryRow(ctx, query, roleID, string(key)).Scan(&has); err != nil {

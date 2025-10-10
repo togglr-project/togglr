@@ -25,7 +25,7 @@ select r.id, p.id
 from r
 join p on (
     (r.key = 'project_owner') or
-    (r.key = 'project_manager' and p.key in ('project.view','feature.view','feature.toggle','feature.manage','rule.manage','audit.view')) or
+    (r.key = 'project_manager' and p.key in ('project.view','project.manage','feature.view','feature.toggle','feature.manage','rule.manage','audit.view')) or
     (r.key = 'project_member' and p.key in ('feature.view','feature.toggle','project.view')) or
     (r.key = 'project_viewer' and p.key in ('project.view','feature.view'))
 )
