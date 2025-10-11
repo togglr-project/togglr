@@ -1,5 +1,10 @@
 package domain
 
+import (
+	"encoding/json"
+	"time"
+)
+
 // NotificationType represents the type of notification.
 type NotificationType string
 
@@ -19,3 +24,44 @@ const (
 	NotificationStatusSent    NotificationStatus = "sent"
 	NotificationStatusFailed  NotificationStatus = "failed"
 )
+
+type NotificationSettingID uint
+
+// NotificationSetting represents a notification setting for a project.
+type NotificationSetting struct {
+	ID            NotificationSettingID
+	ProjectID     ProjectID
+	EnvironmentID EnvironmentID
+	Type          NotificationType
+	Config        json.RawMessage
+	Enabled       bool
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type NotificationSettingDTO struct {
+	ProjectID     ProjectID
+	EnvironmentID EnvironmentID
+	Type          NotificationType
+	Config        json.RawMessage
+	Enabled       bool
+}
+
+type FeatureNotificationID uint
+type FeatureNotification struct {
+	ID            FeatureNotificationID
+	ProjectID     ProjectID
+	EnvironmentID EnvironmentID
+	FeatureID     FeatureID
+	Payload       json.RawMessage
+	SentAt        *time.Time
+	Status        NotificationStatus
+	FailReason    *string
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type FeatureNotificationWithSettings struct {
+	FeatureNotification
+	Settings []NotificationSetting
+}
