@@ -418,41 +418,41 @@ const ProjectSegmentsPage: React.FC = () => {
   return (
     <AuthenticatedLayout showBackButton backTo="/dashboard">
       <Paper sx={{ p: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Segments</Typography>
-          {rbac.canManageSegment() && (
-            <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)} size="small">
-              Add Segment
-            </Button>
-          )}
-        </Box>
-
-        {/* Environment selector */}
-        <Box sx={{ mb: 2 }}>
-          <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel>Environment</InputLabel>
-            <Select
-              value={environmentKey}
-              label="Environment"
-              onChange={(e) => {
-                setEnvironmentKey(e.target.value);
-                // Find the environment ID and save it to localStorage
-                const selectedEnv = environments.find(env => env.key === e.target.value);
-                if (selectedEnv) {
-                  localStorage.setItem('currentEnvId', selectedEnv.id.toString());
-                  localStorage.setItem('currentEnvironmentKey', selectedEnv.key);
-                  console.log('[ProjectSegmentsPage] Saved environment to localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
-                }
-              }}
-              disabled={loadingEnvironments}
-            >
-              {environments.map((env) => (
-                <MenuItem key={env.id} value={env.key} data-env-id={env.id}>
-                  {env.name} ({env.key})
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Environment selector */}
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>Environment</InputLabel>
+              <Select
+                value={environmentKey}
+                label="Environment"
+                size="small"
+                onChange={(e) => {
+                  setEnvironmentKey(e.target.value);
+                  // Find the environment ID and save it to localStorage
+                  const selectedEnv = environments.find(env => env.key === e.target.value);
+                  if (selectedEnv) {
+                    localStorage.setItem('currentEnvId', selectedEnv.id.toString());
+                    localStorage.setItem('currentEnvironmentKey', selectedEnv.key);
+                    console.log('[ProjectSegmentsPage] Saved environment to localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
+                  }
+                }}
+                disabled={loadingEnvironments}
+              >
+                {environments.map((env) => (
+                  <MenuItem key={env.id} value={env.key} data-env-id={env.id}>
+                    {env.name} ({env.key})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {rbac.canManageSegment() && (
+              <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenCreate(true)} size="small">
+                Add Segment
+              </Button>
+            )}
+          </Box>
         </Box>
 
         {/* Search and filters */}

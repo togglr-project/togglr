@@ -199,26 +199,9 @@ const PendingChangesPage: React.FC = () => {
         subtitle="Manage pending changes and approvals"
         icon={<ChangesIcon />}
       />
-      {/* Environment selector */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
-        <FormControl size="small" sx={{ minWidth: 220 }} disabled={loadingEnvironments}>
-          <InputLabel>Environment</InputLabel>
-          <Select
-            label="Environment"
-            value={environmentKey}
-            onChange={(e) => setEnvironmentKey(e.target.value)}
-          >
-            {(environments || []).map((env: any) => (
-              <MenuItem key={env.id} value={env.key}>
-                {env.name} ({env.key})
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
       
       <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="pending changes tabs">
             <Tab 
               label={`Pending (${pendingCount})`} 
@@ -241,9 +224,27 @@ const PendingChangesPage: React.FC = () => {
               aria-controls="pending-tabpanel-3"
             />
           </Tabs>
-          <Button onClick={handleRefresh} startIcon={<RefreshIcon />} sx={{ mr: 2 }}>
-            Refresh
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {/* Environment selector */}
+            <FormControl size="small" sx={{ minWidth: 220 }} disabled={loadingEnvironments}>
+              <InputLabel>Environment</InputLabel>
+              <Select
+                label="Environment"
+                value={environmentKey}
+                size="small"
+                onChange={(e) => setEnvironmentKey(e.target.value)}
+              >
+                {(environments || []).map((env: any) => (
+                  <MenuItem key={env.id} value={env.key}>
+                    {env.name} ({env.key})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button onClick={handleRefresh} startIcon={<RefreshIcon />}>
+              Refresh
+            </Button>
+          </Box>
         </Box>
 
       <TabPanel value={tabValue} index={0}>

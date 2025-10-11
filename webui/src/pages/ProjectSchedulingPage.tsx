@@ -870,13 +870,15 @@ const ProjectSchedulingPage: React.FC = () => {
 
       {!loadingFeatures && features && features.length > 0 ? (
         <Box>
-          {/* Environment selector */}
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+          {/* Header with Environment selector */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" sx={{ color: 'primary.light' }}>Feature Scheduling</Typography>
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <InputLabel>Environment</InputLabel>
               <Select
                 label="Environment"
                 value={environmentKey}
+                size="small"
                 onChange={(e) => {
                   setEnvironmentKey(e.target.value);
                   // Find the environment ID and save it to localStorage
