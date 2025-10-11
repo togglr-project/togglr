@@ -3,6 +3,7 @@ package notificator
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/pkg/db"
 )
 
 const (
@@ -40,9 +42,10 @@ type notificationResult struct {
 }
 
 type Service struct {
-	userNotificationsUseCase contract.UserNotificationsUseCase
-	emailService             contract.Emailer
-	userRepo                 contract.UsersRepository
+	userNotificationsRepo contract.UserNotificationsRepository
+	emailService          contract.Emailer
+	userRepo              contract.UsersRepository
+	txManager             db.TxManager
 
 	stopCh chan struct{}
 
@@ -54,7 +57,8 @@ type Service struct {
 }
 
 func New(
-	userNotificationsUseCase contract.UserNotificationsUseCase,
+	txManager db.TxManager,
+	userNotificationsRepo contract.UserNotificationsRepository,
 	emailService contract.Emailer,
 	userRepo contract.UsersRepository,
 	workerCount int,
@@ -64,14 +68,15 @@ func New(
 	}
 
 	return &Service{
-		userNotificationsUseCase: userNotificationsUseCase,
-		emailService:             emailService,
-		userRepo:                 userRepo,
-		stopCh:                   make(chan struct{}),
-		batchSize:                defaultBatchSize,
-		interval:                 defaultInterval,
-		workerCount:              max2Ints(workerCount, 1),
-		circuitBreaker:           resilience.NewDefaultCircuitBreaker("user-notifications"),
+		userNotificationsRepo: userNotificationsRepo,
+		emailService:          emailService,
+		userRepo:              userRepo,
+		txManager:             txManager,
+		stopCh:                make(chan struct{}),
+		batchSize:             defaultBatchSize,
+		interval:              defaultInterval,
+		workerCount:           max2Ints(workerCount, 1),
+		circuitBreaker:        resilience.NewDefaultCircuitBreaker("user-notifications"),
 	}
 }
 
@@ -105,7 +110,7 @@ func (s *Service) run() {
 
 // ProcessOutbox processes pending email notifications in the outbox.
 func (s *Service) ProcessOutbox() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), s.interval)
 	defer cancel()
 
 	for {
@@ -115,18 +120,24 @@ func (s *Service) ProcessOutbox() {
 			break
 		}
 
-		sent := 0
-		notifications, err := s.userNotificationsUseCase.TakePendingEmailNotifications(ctx, s.batchSize)
-		if err != nil {
-			slog.Error("take pending email notifications failed", "error", err)
-
+		if processed := s.processBatch(ctx); processed == 0 {
 			break
+		}
+	}
+}
+
+func (s *Service) processBatch(ctx context.Context) (processed uint) {
+	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		sent := 0
+		notifications, err := s.userNotificationsRepo.GetPendingEmailNotificationsForUpdate(ctx, s.batchSize)
+		if err != nil {
+			return fmt.Errorf("get pending email notifications: %w", err)
 		}
 
 		if len(notifications) == 0 {
 			slog.Debug("no pending email notifications")
 
-			break
+			return nil
 		}
 
 		slog.Debug("got pending email notifications", "count", len(notifications))
@@ -168,7 +179,7 @@ func (s *Service) ProcessOutbox() {
 			if result.skipped {
 				slog.Debug("notification skipped",
 					"notification_id", result.notificationID, "reason", result.skipReason)
-				err = s.userNotificationsUseCase.MarkEmailAsFailed(ctx, result.notificationID, result.skipReason)
+				err = s.userNotificationsRepo.MarkEmailAsFailed(ctx, result.notificationID, result.skipReason)
 				if err != nil {
 					slog.Error("mark notification as failed",
 						"error", err, "notification_id", result.notificationID)
@@ -180,8 +191,16 @@ func (s *Service) ProcessOutbox() {
 
 		if sent > 0 {
 			slog.Info("sent email notifications", "sent", sent)
+			processed = uint(sent)
 		}
+
+		return nil
+	})
+	if err != nil {
+		slog.Error("process notifications batch failed", "error", err)
 	}
+
+	return processed
 }
 
 func (s *Service) checkAndNotify(
@@ -222,7 +241,7 @@ func (s *Service) checkAndNotify(
 		slog.Error("send email notification failed",
 			"error", err, "notification_id", notification.ID)
 
-		err = s.userNotificationsUseCase.MarkEmailAsFailed(ctx, notification.ID, err.Error())
+		err = s.userNotificationsRepo.MarkEmailAsFailed(ctx, notification.ID, err.Error())
 		if err != nil {
 			slog.Error("mark notification as failed",
 				"error", err, "notification_id", notification.ID)
@@ -231,7 +250,7 @@ func (s *Service) checkAndNotify(
 		slog.Debug("sent email notification",
 			"notification_id", notification.ID)
 
-		err = s.userNotificationsUseCase.MarkEmailAsSent(ctx, notification.ID)
+		err = s.userNotificationsRepo.MarkEmailAsSent(ctx, notification.ID)
 		if err != nil {
 			slog.Error("mark notification as sent failed",
 				"error", err, "notification_id", notification.ID)

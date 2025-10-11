@@ -202,6 +202,38 @@ LIMIT $1`
 	return notifications, nil
 }
 
+func (r *Repository) GetPendingEmailNotificationsForUpdate(
+	ctx context.Context,
+	limit uint,
+) ([]domain.UserNotification, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT * FROM user_notifications
+WHERE email_sent = false
+ORDER BY created_at ASC
+LIMIT $1
+FOR UPDATE SKIP LOCKED`
+
+	rows, err := executor.Query(ctx, query, limit)
+	if err != nil {
+		return nil, fmt.Errorf("query pending email notifications: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[userNotificationModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect pending email notifications: %w", err)
+	}
+
+	notifications := make([]domain.UserNotification, 0, len(models))
+	for _, model := range models {
+		notifications = append(notifications, model.toDomain())
+	}
+
+	return notifications, nil
+}
+
 func (r *Repository) MarkEmailAsSent(ctx context.Context, id domain.UserNotificationID) error {
 	executor := r.getExecutor(ctx)
 

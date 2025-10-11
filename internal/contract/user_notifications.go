@@ -43,6 +43,7 @@ type UserNotificationsRepository interface {
 	MarkAllAsRead(ctx context.Context, userID domain.UserID) error
 	DeleteOld(ctx context.Context, maxAge time.Duration, limit uint) (uint, error)
 	GetPendingEmailNotifications(ctx context.Context, limit uint) ([]domain.UserNotification, error)
+	GetPendingEmailNotificationsForUpdate(ctx context.Context, limit uint) ([]domain.UserNotification, error)
 	MarkEmailAsSent(ctx context.Context, id domain.UserNotificationID) error
 	MarkEmailAsFailed(ctx context.Context, id domain.UserNotificationID, reason string) error
 }
