@@ -24,16 +24,6 @@ const (
 
 var _ di.Servicer = (*Service)(nil)
 
-type Channel interface {
-	Type() domain.NotificationType
-	Send(
-		ctx context.Context,
-		project *domain.Project,
-		feature *domain.Feature,
-		config json.RawMessage,
-	) error
-}
-
 type notificationResult struct {
 	notificationID domain.UserNotificationID
 	skipped        bool

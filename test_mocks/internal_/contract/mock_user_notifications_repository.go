@@ -404,6 +404,74 @@ func (_c *MockUserNotificationsRepository_GetPendingEmailNotifications_Call) Run
 	return _c
 }
 
+// GetPendingEmailNotificationsForUpdate provides a mock function for the type MockUserNotificationsRepository
+func (_mock *MockUserNotificationsRepository) GetPendingEmailNotificationsForUpdate(ctx context.Context, limit uint) ([]domain.UserNotification, error) {
+	ret := _mock.Called(ctx, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPendingEmailNotificationsForUpdate")
+	}
+
+	var r0 []domain.UserNotification
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) ([]domain.UserNotification, error)); ok {
+		return returnFunc(ctx, limit)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) []domain.UserNotification); ok {
+		r0 = returnFunc(ctx, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.UserNotification)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = returnFunc(ctx, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetPendingEmailNotificationsForUpdate'
+type MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call struct {
+	*mock.Call
+}
+
+// GetPendingEmailNotificationsForUpdate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - limit uint
+func (_e *MockUserNotificationsRepository_Expecter) GetPendingEmailNotificationsForUpdate(ctx interface{}, limit interface{}) *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call {
+	return &MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call{Call: _e.mock.On("GetPendingEmailNotificationsForUpdate", ctx, limit)}
+}
+
+func (_c *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call) Run(run func(ctx context.Context, limit uint)) *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uint
+		if args[1] != nil {
+			arg1 = args[1].(uint)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call) Return(userNotifications []domain.UserNotification, err error) *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call {
+	_c.Call.Return(userNotifications, err)
+	return _c
+}
+
+func (_c *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call) RunAndReturn(run func(ctx context.Context, limit uint) ([]domain.UserNotification, error)) *MockUserNotificationsRepository_GetPendingEmailNotificationsForUpdate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUnreadCount provides a mock function for the type MockUserNotificationsRepository
 func (_mock *MockUserNotificationsRepository) GetUnreadCount(ctx context.Context, userID domain.UserID) (uint, error) {
 	ret := _mock.Called(ctx, userID)

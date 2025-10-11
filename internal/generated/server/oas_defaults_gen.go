@@ -9,3 +9,11 @@ func (s *CreateFeatureScheduleRequest) setDefaults() {
 		s.Timezone = val
 	}
 }
+
+// setDefaults set default value of fields.
+func (s *CreateNotificationSettingRequest) setDefaults() {
+	{
+		val := bool(true)
+		s.Enabled.SetTo(val)
+	}
+}

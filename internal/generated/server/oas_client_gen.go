@@ -111,6 +111,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/features/{feature_id}/schedules
 	CreateFeatureSchedule(ctx context.Context, request *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (CreateFeatureScheduleRes, error)
+	// CreateNotificationSetting invokes CreateNotificationSetting operation.
+	//
+	// Create a new notification setting.
+	//
+	// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+	CreateNotificationSetting(ctx context.Context, request *CreateNotificationSettingRequest, params CreateNotificationSettingParams) (CreateNotificationSettingRes, error)
 	// CreateProjectFeature invokes CreateProjectFeature operation.
 	//
 	// Create feature for project.
@@ -183,6 +189,12 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteNotificationSetting invokes DeleteNotificationSetting operation.
+	//
+	// Delete a notification setting.
+	//
+	// DELETE /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+	DeleteNotificationSetting(ctx context.Context, params DeleteNotificationSettingParams) (DeleteNotificationSettingRes, error)
 	// DeleteProjectMembership invokes DeleteProjectMembership operation.
 	//
 	// Delete membership.
@@ -321,6 +333,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/ldap/sync/status
 	GetLDAPSyncStatus(ctx context.Context) (GetLDAPSyncStatusRes, error)
+	// GetNotificationSetting invokes GetNotificationSetting operation.
+	//
+	// Get a specific notification setting.
+	//
+	// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+	GetNotificationSetting(ctx context.Context, params GetNotificationSettingParams) (GetNotificationSettingRes, error)
 	// GetPendingChange invokes GetPendingChange operation.
 	//
 	// Get pending change by ID.
@@ -429,6 +447,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/features/{feature_id}/tags
 	ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (ListFeatureTagsRes, error)
+	// ListNotificationSettings invokes ListNotificationSettings operation.
+	//
+	// List all notification settings for a project.
+	//
+	// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+	ListNotificationSettings(ctx context.Context, params ListNotificationSettingsParams) (ListNotificationSettingsRes, error)
 	// ListPendingChanges invokes ListPendingChanges operation.
 	//
 	// List pending changes.
@@ -591,6 +615,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/users/me/2fa/send_code
 	Send2FACode(ctx context.Context) (Send2FACodeRes, error)
+	// SendTestNotification invokes sendTestNotification operation.
+	//
+	// Send test notification.
+	//
+	// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test
+	SendTestNotification(ctx context.Context, params SendTestNotificationParams) (SendTestNotificationRes, error)
 	// SetSuperuserStatus invokes SetSuperuserStatus operation.
 	//
 	// Set or unset superuser status (superuser only, cannot modify admin user).
@@ -675,6 +705,12 @@ type Invoker interface {
 	//
 	// PUT /api/v1/users/me/license-acceptance
 	UpdateLicenseAcceptance(ctx context.Context, request *UpdateLicenseAcceptanceRequest) (UpdateLicenseAcceptanceRes, error)
+	// UpdateNotificationSetting invokes UpdateNotificationSetting operation.
+	//
+	// Update a notification setting.
+	//
+	// PUT /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+	UpdateNotificationSetting(ctx context.Context, request *UpdateNotificationSettingRequest, params UpdateNotificationSettingParams) (UpdateNotificationSettingRes, error)
 	// UpdateProject invokes UpdateProject operation.
 	//
 	// Update project name and description.
@@ -2342,6 +2378,152 @@ func (c *Client) sendCreateFeatureSchedule(ctx context.Context, request *CreateF
 	return result, nil
 }
 
+// CreateNotificationSetting invokes CreateNotificationSetting operation.
+//
+// Create a new notification setting.
+//
+// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+func (c *Client) CreateNotificationSetting(ctx context.Context, request *CreateNotificationSettingRequest, params CreateNotificationSettingParams) (CreateNotificationSettingRes, error) {
+	res, err := c.sendCreateNotificationSetting(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateNotificationSetting(ctx context.Context, request *CreateNotificationSettingRequest, params CreateNotificationSettingParams) (res CreateNotificationSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CreateNotificationSetting"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/notification-settings"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateNotificationSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/notification-settings"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateNotificationSettingRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, CreateNotificationSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateNotificationSettingResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // CreateProjectFeature invokes CreateProjectFeature operation.
 //
 // Create feature for project.
@@ -3801,6 +3983,167 @@ func (c *Client) sendDeleteLDAPConfig(ctx context.Context) (res DeleteLDAPConfig
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteLDAPConfigResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteNotificationSetting invokes DeleteNotificationSetting operation.
+//
+// Delete a notification setting.
+//
+// DELETE /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+func (c *Client) DeleteNotificationSetting(ctx context.Context, params DeleteNotificationSettingParams) (DeleteNotificationSettingRes, error) {
+	res, err := c.sendDeleteNotificationSetting(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteNotificationSetting(ctx context.Context, params DeleteNotificationSettingParams) (res DeleteNotificationSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("DeleteNotificationSetting"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteNotificationSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [6]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/notification-settings/"
+	{
+		// Encode "setting_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UintToString(params.SettingID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[5] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, DeleteNotificationSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteNotificationSettingResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -6625,6 +6968,167 @@ func (c *Client) sendGetLDAPSyncStatus(ctx context.Context) (res GetLDAPSyncStat
 	return result, nil
 }
 
+// GetNotificationSetting invokes GetNotificationSetting operation.
+//
+// Get a specific notification setting.
+//
+// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+func (c *Client) GetNotificationSetting(ctx context.Context, params GetNotificationSettingParams) (GetNotificationSettingRes, error) {
+	res, err := c.sendGetNotificationSetting(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetNotificationSetting(ctx context.Context, params GetNotificationSettingParams) (res GetNotificationSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetNotificationSetting"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetNotificationSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [6]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/notification-settings/"
+	{
+		// Encode "setting_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UintToString(params.SettingID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[5] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetNotificationSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetNotificationSettingResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // GetPendingChange invokes GetPendingChange operation.
 //
 // Get pending change by ID.
@@ -8816,6 +9320,149 @@ func (c *Client) sendListFeatureTags(ctx context.Context, params ListFeatureTags
 
 	stage = "DecodeResponse"
 	result, err := decodeListFeatureTagsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ListNotificationSettings invokes ListNotificationSettings operation.
+//
+// List all notification settings for a project.
+//
+// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+func (c *Client) ListNotificationSettings(ctx context.Context, params ListNotificationSettingsParams) (ListNotificationSettingsRes, error) {
+	res, err := c.sendListNotificationSettings(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendListNotificationSettings(ctx context.Context, params ListNotificationSettingsParams) (res ListNotificationSettingsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListNotificationSettings"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/notification-settings"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListNotificationSettingsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [5]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/notification-settings"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListNotificationSettingsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListNotificationSettingsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -12549,6 +13196,135 @@ func (c *Client) sendSend2FACode(ctx context.Context) (res Send2FACodeRes, err e
 	return result, nil
 }
 
+// SendTestNotification invokes sendTestNotification operation.
+//
+// Send test notification.
+//
+// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test
+func (c *Client) SendTestNotification(ctx context.Context, params SendTestNotificationParams) (SendTestNotificationRes, error) {
+	res, err := c.sendSendTestNotification(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendSendTestNotification(ctx context.Context, params SendTestNotificationParams) (res SendTestNotificationRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("sendTestNotification"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, SendTestNotificationOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [7]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/notification-settings/"
+	{
+		// Encode "setting_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UintToString(params.SettingID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[5] = encoded
+	}
+	pathParts[6] = "/test"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeSendTestNotificationResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // SetSuperuserStatus invokes SetSuperuserStatus operation.
 //
 // Set or unset superuser status (superuser only, cannot modify admin user).
@@ -14345,6 +15121,170 @@ func (c *Client) sendUpdateLicenseAcceptance(ctx context.Context, request *Updat
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateLicenseAcceptanceResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateNotificationSetting invokes UpdateNotificationSetting operation.
+//
+// Update a notification setting.
+//
+// PUT /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+func (c *Client) UpdateNotificationSetting(ctx context.Context, request *UpdateNotificationSettingRequest, params UpdateNotificationSettingParams) (UpdateNotificationSettingRes, error) {
+	res, err := c.sendUpdateNotificationSetting(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateNotificationSetting(ctx context.Context, request *UpdateNotificationSettingRequest, params UpdateNotificationSettingParams) (res UpdateNotificationSettingRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateNotificationSetting"),
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateNotificationSettingOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [6]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UUIDToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/notification-settings/"
+	{
+		// Encode "setting_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "setting_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.UintToString(params.SettingID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[5] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateNotificationSettingRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, UpdateNotificationSettingOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateNotificationSettingResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

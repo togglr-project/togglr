@@ -17,6 +17,7 @@ All URIs are relative to *http://localhost*
 |[**createFeatureFlagVariant**](#createfeatureflagvariant) | **POST** /api/v1/features/{feature_id}/variants | Create flag variant for feature|
 |[**createFeatureRule**](#createfeaturerule) | **POST** /api/v1/features/{feature_id}/rules | Create rule for feature|
 |[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
+|[**createNotificationSetting**](#createnotificationsetting) | **POST** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings | Create a new notification setting|
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
 |[**createProjectMembership**](#createprojectmembership) | **POST** /api/v1/projects/{project_id}/memberships | Add membership to project|
 |[**createProjectSegment**](#createprojectsegment) | **POST** /api/v1/projects/{project_id}/segments | Create segment for project|
@@ -29,6 +30,7 @@ All URIs are relative to *http://localhost*
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
 |[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
+|[**deleteNotificationSetting**](#deletenotificationsetting) | **DELETE** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id} | Delete a notification setting|
 |[**deleteProjectMembership**](#deleteprojectmembership) | **DELETE** /api/v1/projects/{project_id}/memberships/{membership_id} | Delete membership|
 |[**deleteProjectSetting**](#deleteprojectsetting) | **DELETE** /api/v1/projects/{project_id}/settings/{setting_name} | Delete project setting|
 |[**deleteProjectTag**](#deleteprojecttag) | **DELETE** /api/v1/projects/{project_id}/tags/{tag_id} | Delete tag|
@@ -51,6 +53,7 @@ All URIs are relative to *http://localhost*
 |[**getLDAPSyncLogs**](#getldapsynclogs) | **GET** /api/v1/ldap/sync/logs | Get synchronization logs|
 |[**getLDAPSyncProgress**](#getldapsyncprogress) | **GET** /api/v1/ldap/sync/progress | Get synchronization progress|
 |[**getLDAPSyncStatus**](#getldapsyncstatus) | **GET** /api/v1/ldap/sync/status | Get synchronization status|
+|[**getNotificationSetting**](#getnotificationsetting) | **GET** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id} | Get a specific notification setting|
 |[**getPendingChange**](#getpendingchange) | **GET** /api/v1/pending_changes/{pending_change_id} | Get pending change by ID|
 |[**getProject**](#getproject) | **GET** /api/v1/projects/{project_id} | Get project details|
 |[**getProjectMembership**](#getprojectmembership) | **GET** /api/v1/projects/{project_id}/memberships/{membership_id} | Get membership|
@@ -69,6 +72,7 @@ All URIs are relative to *http://localhost*
 |[**listFeatureRules**](#listfeaturerules) | **GET** /api/v1/features/{feature_id}/rules | List rules for feature|
 |[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
 |[**listFeatureTags**](#listfeaturetags) | **GET** /api/v1/features/{feature_id}/tags | List feature tags|
+|[**listNotificationSettings**](#listnotificationsettings) | **GET** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings | List all notification settings for a project|
 |[**listPendingChanges**](#listpendingchanges) | **GET** /api/v1/pending_changes | List pending changes|
 |[**listPermissions**](#listpermissions) | **GET** /api/v1/permissions | List all permissions|
 |[**listProjectAuditLogs**](#listprojectauditlogs) | **GET** /api/v1/projects/{project_id}/audit | List audit log entries for project|
@@ -95,6 +99,7 @@ All URIs are relative to *http://localhost*
 |[**resetPassword**](#resetpassword) | **POST** /api/v1/auth/reset-password | Reset password using token|
 |[**sSOCallback**](#ssocallback) | **POST** /api/v1/auth/sso/callback | Handle SSO callback from Keycloak|
 |[**sSOInitiate**](#ssoinitiate) | **GET** /api/v1/auth/sso/initiate | Initiate SSO login flow|
+|[**sendTestNotification**](#sendtestnotification) | **POST** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test | Send test notification|
 |[**setSuperuserStatus**](#setsuperuserstatus) | **PUT** /api/v1/users/{user_id}/superuser | Set or unset superuser status (superuser only, cannot modify admin user)|
 |[**setUserActiveStatus**](#setuseractivestatus) | **PUT** /api/v1/users/{user_id}/active | Set or unset user active status (superuser only)|
 |[**setup2FA**](#setup2fa) | **POST** /api/v1/users/me/2fa/setup | Begin setup 2FA (generate secret and QR-code)|
@@ -109,6 +114,7 @@ All URIs are relative to *http://localhost*
 |[**updateFeatureSchedule**](#updatefeatureschedule) | **PUT** /api/v1/feature-schedules/{schedule_id} | Update feature schedule by ID|
 |[**updateLDAPConfig**](#updateldapconfig) | **POST** /api/v1/ldap/config | Create or update LDAP configuration|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
+|[**updateNotificationSetting**](#updatenotificationsetting) | **PUT** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id} | Update a notification setting|
 |[**updateProject**](#updateproject) | **PUT** /api/v1/projects/{project_id} | Update project name and description|
 |[**updateProjectMembership**](#updateprojectmembership) | **PUT** /api/v1/projects/{project_id}/memberships/{membership_id} | Update membership|
 |[**updateProjectSetting**](#updateprojectsetting) | **PUT** /api/v1/projects/{project_id}/settings/{setting_name} | Update project setting|
@@ -885,6 +891,69 @@ const { status, data } = await apiInstance.createFeatureSchedule(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **createNotificationSetting**
+> NotificationSetting createNotificationSetting(createNotificationSettingRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateNotificationSettingRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+let createNotificationSettingRequest: CreateNotificationSettingRequest; //
+
+const { status, data } = await apiInstance.createNotificationSetting(
+    projectId,
+    environmentKey,
+    createNotificationSettingRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createNotificationSettingRequest** | **CreateNotificationSettingRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**NotificationSetting**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Notification setting created successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden - Not authorized to modify this project |  -  |
+|**404** | Project not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **createProjectFeature**
 > FeatureResponse createProjectFeature(createFeatureRequest)
 
@@ -1569,6 +1638,67 @@ This endpoint does not have any parameters.
 |**200** | LDAP configuration deleted |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Forbidden - Superuser access required |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteNotificationSetting**
+> deleteNotificationSetting()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+let settingId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteNotificationSetting(
+    projectId,
+    environmentKey,
+    settingId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
+| **settingId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Notification setting deleted successfully |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden - Not authorized to delete this notification setting |  -  |
+|**404** | Notification setting not found |  -  |
+|**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -2784,6 +2914,67 @@ This endpoint does not have any parameters.
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **getNotificationSetting**
+> NotificationSetting getNotificationSetting()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+let settingId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.getNotificationSetting(
+    projectId,
+    environmentKey,
+    settingId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
+| **settingId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**NotificationSetting**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Notification setting details |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden - Not authorized to access this notification setting |  -  |
+|**404** | Notification setting not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **getPendingChange**
 > PendingChangeResponse getPendingChange()
 
@@ -3747,6 +3938,64 @@ const { status, data } = await apiInstance.listFeatureTags(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listNotificationSettings**
+> ListNotificationSettingsResponse listNotificationSettings()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+
+const { status, data } = await apiInstance.listNotificationSettings(
+    projectId,
+    environmentKey
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
+
+
+### Return type
+
+**ListNotificationSettingsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of notification settings |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden - Not authorized to access this project |  -  |
+|**404** | Project not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -5260,6 +5509,64 @@ No authorization required
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **sendTestNotification**
+> sendTestNotification()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+let settingId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.sendTestNotification(
+    projectId,
+    environmentKey,
+    settingId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
+| **settingId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Notification successfully sent |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **setSuperuserStatus**
 > User setSuperuserStatus(setSuperuserStatusRequest)
 
@@ -6076,6 +6383,72 @@ void (empty response body)
 |**204** | License acceptance status updated successfully |  -  |
 |**401** | Unauthorized |  -  |
 |**400** | Bad request |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateNotificationSetting**
+> NotificationSetting updateNotificationSetting(updateNotificationSettingRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    UpdateNotificationSettingRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+let settingId: number; // (default to undefined)
+let updateNotificationSettingRequest: UpdateNotificationSettingRequest; //
+
+const { status, data } = await apiInstance.updateNotificationSetting(
+    projectId,
+    environmentKey,
+    settingId,
+    updateNotificationSettingRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateNotificationSettingRequest** | **UpdateNotificationSettingRequest**|  | |
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
+| **settingId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**NotificationSetting**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Notification setting updated successfully |  -  |
+|**400** | Bad request |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Forbidden - Not authorized to modify this notification setting |  -  |
+|**404** | Notification setting not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

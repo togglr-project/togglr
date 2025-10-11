@@ -12,20 +12,26 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Tabs,
+  Tab
 } from '@mui/material';
+import type { AlertColor } from '@mui/material';
 import {
   Settings as SettingsIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   ContentCopy as ContentCopyIcon,
   DeleteOutline as DeleteIcon,
-  Save as SaveIcon
+  Save as SaveIcon,
+  Notifications as NotificationsIcon,
+  Tune as TuneIcon
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
+import NotificationSettings from '../components/NotificationSettings';
 import apiClient from '../api/apiClient';
 import type { Project } from '../generated/api/client';
 import { useNotification } from '../App';
@@ -33,9 +39,35 @@ import { useRBAC } from '../auth/permissions';
 
 interface ProjectResponse { project: Project }
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
 interface ApiKeysSectionProps {
   projectId?: string;
-  showNotification: (message: string, severity?: 'success' | 'error' | 'info' | 'warning', durationMs?: number) => void;
+  showNotification: (message: string, type: AlertColor, duration?: number) => void;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`settings-tabpanel-${index}`}
+      aria-labelledby={`settings-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
 }
 
 const ApiKeysSection: React.FC<ApiKeysSectionProps> = ({ projectId = '', showNotification }) => {
@@ -121,11 +153,27 @@ const ProjectSettingsPage: React.FC = () => {
     enabled: !!projectId,
   });
 
+  // Get environments for the project
+  const { data: envResp, isLoading: loadingEnvs } = useQuery({
+    queryKey: ['project-environments', projectId],
+    queryFn: async () => {
+      const res = await apiClient.listProjectEnvironments(projectId);
+      return res.data;
+    },
+    enabled: !!projectId,
+  });
+
+  const environments = envResp?.items ?? [];
+  const [environmentKey, setEnvironmentKey] = useState<string>(() => {
+    return localStorage.getItem('currentEnvironmentKey') || 'prod';
+  });
+
   const project = data?.project;
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
 
   React.useEffect(() => {
     if (project) {
@@ -133,6 +181,10 @@ const ProjectSettingsPage: React.FC = () => {
       setDescription(project.description || '');
     }
   }, [project?.id]);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
 
   const changed = useMemo(() => {
     return project ? (name !== project.name || (description || '') !== (project.description || '')) : false;
@@ -184,60 +236,107 @@ const ProjectSettingsPage: React.FC = () => {
       )}
 
       {project && (
-        <Paper sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-              gap: 3,
-              alignItems: 'start'
-            }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField
-                label="Project name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
+        <Paper sx={{ width: '100%' }}>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={tabValue} onChange={handleTabChange} aria-label="project settings tabs">
+              <Tab 
+                icon={<SettingsIcon />} 
+                label="General" 
+                id="settings-tab-0"
+                aria-controls="settings-tabpanel-0"
               />
-              <TextField
-                label="Description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                fullWidth
-                multiline
-                minRows={3}
+              <Tab 
+                icon={<TuneIcon />} 
+                label="Settings" 
+                id="settings-tab-1"
+                aria-controls="settings-tabpanel-1"
               />
-            </Box>
-
-            <Box>
-              {/* API Keys per environment */}
-              <ApiKeysSection projectId={projectId} showNotification={showNotification} />
-            </Box>
+              <Tab 
+                icon={<NotificationsIcon />} 
+                label="Notifications" 
+                id="settings-tab-2"
+                aria-controls="settings-tabpanel-2"
+              />
+            </Tabs>
           </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-            {rbac.canManageProject() && (
-              <Button
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={() => setConfirmOpen(true)}
+          <TabPanel value={tabValue} index={0}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                  gap: 3,
+                  alignItems: 'start'
+                }}
               >
-                Delete project
-              </Button>
-            )}
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <TextField
+                    label="Project name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={3}
+                  />
+                </Box>
 
-            {rbac.canManageProject() && (
-              <Button
-                variant="contained"
-                startIcon={<SaveIcon />}
-                disabled={!changed || saveMut.isPending}
-                onClick={() => saveMut.mutate()}
-              >
-                Save changes
-              </Button>
-            )}
-          </Box>
+                <Box>
+                  {/* API Keys per environment */}
+                  <ApiKeysSection projectId={projectId} showNotification={showNotification} />
+                </Box>
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                {rbac.canManageProject() && (
+                  <Button
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={() => setConfirmOpen(true)}
+                  >
+                    Delete project
+                  </Button>
+                )}
+
+                {rbac.canManageProject() && (
+                  <Button
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    disabled={!changed || saveMut.isPending}
+                    onClick={() => saveMut.mutate()}
+                  >
+                    Save changes
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={1}>
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="h6" color="text.secondary" gutterBottom>
+                Settings
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                This section will contain additional project settings in the future.
+              </Typography>
+            </Box>
+          </TabPanel>
+
+          <TabPanel value={tabValue} index={2}>
+            <NotificationSettings 
+              projectId={projectId} 
+              environmentKey={environmentKey}
+              environments={environments}
+              loadingEnvironments={loadingEnvs}
+            />
+          </TabPanel>
         </Paper>
       )}
 

@@ -194,6 +194,20 @@ func encodeCreateFeatureScheduleRequest(
 	return nil
 }
 
+func encodeCreateNotificationSettingRequest(
+	req *CreateNotificationSettingRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
 func encodeCreateProjectFeatureRequest(
 	req *CreateFeatureRequest,
 	r *http.Request,
@@ -560,6 +574,20 @@ func encodeUpdateLDAPConfigRequest(
 
 func encodeUpdateLicenseAcceptanceRequest(
 	req *UpdateLicenseAcceptanceRequest,
+	r *http.Request,
+) error {
+	const contentType = "application/json"
+	e := new(jx.Encoder)
+	{
+		req.Encode(e)
+	}
+	encoded := e.Bytes()
+	ht.SetBody(r, bytes.NewReader(encoded), contentType)
+	return nil
+}
+
+func encodeUpdateNotificationSettingRequest(
+	req *UpdateNotificationSettingRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

@@ -1528,6 +1528,44 @@ func (s *CreateMembershipRequest) SetRoleID(val uuid.UUID) {
 	s.RoleID = val
 }
 
+// Ref: #/components/schemas/CreateNotificationSettingRequest
+type CreateNotificationSettingRequest struct {
+	Type NotificationChannelType `json:"type"`
+	// Configuration for the notification channel (JSONB in database).
+	Config  string  `json:"config"`
+	Enabled OptBool `json:"enabled"`
+}
+
+// GetType returns the value of Type.
+func (s *CreateNotificationSettingRequest) GetType() NotificationChannelType {
+	return s.Type
+}
+
+// GetConfig returns the value of Config.
+func (s *CreateNotificationSettingRequest) GetConfig() string {
+	return s.Config
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *CreateNotificationSettingRequest) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// SetType sets the value of Type.
+func (s *CreateNotificationSettingRequest) SetType(val NotificationChannelType) {
+	s.Type = val
+}
+
+// SetConfig sets the value of Config.
+func (s *CreateNotificationSettingRequest) SetConfig(val string) {
+	s.Config = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *CreateNotificationSettingRequest) SetEnabled(val OptBool) {
+	s.Enabled = val
+}
+
 // Ref: #/components/schemas/CreateProjectSettingRequest
 type CreateProjectSettingRequest struct {
 	Name  string                           `json:"name"`
@@ -2037,6 +2075,11 @@ type DeleteFeatureScheduleNoContent struct{}
 
 func (*DeleteFeatureScheduleNoContent) deleteFeatureScheduleRes() {}
 
+// DeleteNotificationSettingNoContent is response for DeleteNotificationSetting operation.
+type DeleteNotificationSettingNoContent struct{}
+
+func (*DeleteNotificationSettingNoContent) deleteNotificationSettingRes() {}
+
 // DeleteProjectMembershipNoContent is response for DeleteProjectMembership operation.
 type DeleteProjectMembershipNoContent struct{}
 
@@ -2488,54 +2531,56 @@ func (s *ErrorBadRequest) SetError(val ErrorBadRequestError) {
 	s.Error = val
 }
 
-func (*ErrorBadRequest) addFeatureTagRes()            {}
-func (*ErrorBadRequest) addProjectRes()               {}
-func (*ErrorBadRequest) approvePendingChangeRes()     {}
-func (*ErrorBadRequest) cancelPendingChangeRes()      {}
-func (*ErrorBadRequest) confirm2FARes()               {}
-func (*ErrorBadRequest) consumeSAMLAssertionRes()     {}
-func (*ErrorBadRequest) createCategoryRes()           {}
-func (*ErrorBadRequest) createEnvironmentRes()        {}
-func (*ErrorBadRequest) createFeatureFlagVariantRes() {}
-func (*ErrorBadRequest) createFeatureRuleRes()        {}
-func (*ErrorBadRequest) createFeatureScheduleRes()    {}
-func (*ErrorBadRequest) createProjectFeatureRes()     {}
-func (*ErrorBadRequest) createProjectMembershipRes()  {}
-func (*ErrorBadRequest) createProjectSegmentRes()     {}
-func (*ErrorBadRequest) createProjectSettingRes()     {}
-func (*ErrorBadRequest) createProjectTagRes()         {}
-func (*ErrorBadRequest) createRuleAttributeRes()      {}
-func (*ErrorBadRequest) createUserRes()               {}
-func (*ErrorBadRequest) deleteRuleAttributeRes()      {}
-func (*ErrorBadRequest) deleteUserRes()               {}
-func (*ErrorBadRequest) disable2FARes()               {}
-func (*ErrorBadRequest) forgotPasswordRes()           {}
-func (*ErrorBadRequest) getDashboardOverviewRes()     {}
-func (*ErrorBadRequest) getFeatureTimelineRes()       {}
-func (*ErrorBadRequest) initiateTOTPApprovalRes()     {}
-func (*ErrorBadRequest) listPendingChangesRes()       {}
-func (*ErrorBadRequest) rejectPendingChangeRes()      {}
-func (*ErrorBadRequest) reset2FARes()                 {}
-func (*ErrorBadRequest) resetPasswordRes()            {}
-func (*ErrorBadRequest) sSOCallbackRes()              {}
-func (*ErrorBadRequest) sSOInitiateRes()              {}
-func (*ErrorBadRequest) send2FACodeRes()              {}
-func (*ErrorBadRequest) setSuperuserStatusRes()       {}
-func (*ErrorBadRequest) setUserActiveStatusRes()      {}
-func (*ErrorBadRequest) testFeatureTimelineRes()      {}
-func (*ErrorBadRequest) toggleFeatureRes()            {}
-func (*ErrorBadRequest) updateCategoryRes()           {}
-func (*ErrorBadRequest) updateEnvironmentRes()        {}
-func (*ErrorBadRequest) updateFeatureRes()            {}
-func (*ErrorBadRequest) updateFeatureScheduleRes()    {}
-func (*ErrorBadRequest) updateLicenseAcceptanceRes()  {}
-func (*ErrorBadRequest) updateProjectMembershipRes()  {}
-func (*ErrorBadRequest) updateProjectRes()            {}
-func (*ErrorBadRequest) updateProjectSettingRes()     {}
-func (*ErrorBadRequest) updateProjectTagRes()         {}
-func (*ErrorBadRequest) updateSegmentRes()            {}
-func (*ErrorBadRequest) userChangeMyPasswordRes()     {}
-func (*ErrorBadRequest) verify2FARes()                {}
+func (*ErrorBadRequest) addFeatureTagRes()             {}
+func (*ErrorBadRequest) addProjectRes()                {}
+func (*ErrorBadRequest) approvePendingChangeRes()      {}
+func (*ErrorBadRequest) cancelPendingChangeRes()       {}
+func (*ErrorBadRequest) confirm2FARes()                {}
+func (*ErrorBadRequest) consumeSAMLAssertionRes()      {}
+func (*ErrorBadRequest) createCategoryRes()            {}
+func (*ErrorBadRequest) createEnvironmentRes()         {}
+func (*ErrorBadRequest) createFeatureFlagVariantRes()  {}
+func (*ErrorBadRequest) createFeatureRuleRes()         {}
+func (*ErrorBadRequest) createFeatureScheduleRes()     {}
+func (*ErrorBadRequest) createNotificationSettingRes() {}
+func (*ErrorBadRequest) createProjectFeatureRes()      {}
+func (*ErrorBadRequest) createProjectMembershipRes()   {}
+func (*ErrorBadRequest) createProjectSegmentRes()      {}
+func (*ErrorBadRequest) createProjectSettingRes()      {}
+func (*ErrorBadRequest) createProjectTagRes()          {}
+func (*ErrorBadRequest) createRuleAttributeRes()       {}
+func (*ErrorBadRequest) createUserRes()                {}
+func (*ErrorBadRequest) deleteRuleAttributeRes()       {}
+func (*ErrorBadRequest) deleteUserRes()                {}
+func (*ErrorBadRequest) disable2FARes()                {}
+func (*ErrorBadRequest) forgotPasswordRes()            {}
+func (*ErrorBadRequest) getDashboardOverviewRes()      {}
+func (*ErrorBadRequest) getFeatureTimelineRes()        {}
+func (*ErrorBadRequest) initiateTOTPApprovalRes()      {}
+func (*ErrorBadRequest) listPendingChangesRes()        {}
+func (*ErrorBadRequest) rejectPendingChangeRes()       {}
+func (*ErrorBadRequest) reset2FARes()                  {}
+func (*ErrorBadRequest) resetPasswordRes()             {}
+func (*ErrorBadRequest) sSOCallbackRes()               {}
+func (*ErrorBadRequest) sSOInitiateRes()               {}
+func (*ErrorBadRequest) send2FACodeRes()               {}
+func (*ErrorBadRequest) setSuperuserStatusRes()        {}
+func (*ErrorBadRequest) setUserActiveStatusRes()       {}
+func (*ErrorBadRequest) testFeatureTimelineRes()       {}
+func (*ErrorBadRequest) toggleFeatureRes()             {}
+func (*ErrorBadRequest) updateCategoryRes()            {}
+func (*ErrorBadRequest) updateEnvironmentRes()         {}
+func (*ErrorBadRequest) updateFeatureRes()             {}
+func (*ErrorBadRequest) updateFeatureScheduleRes()     {}
+func (*ErrorBadRequest) updateLicenseAcceptanceRes()   {}
+func (*ErrorBadRequest) updateNotificationSettingRes() {}
+func (*ErrorBadRequest) updateProjectMembershipRes()   {}
+func (*ErrorBadRequest) updateProjectRes()             {}
+func (*ErrorBadRequest) updateProjectSettingRes()      {}
+func (*ErrorBadRequest) updateProjectTagRes()          {}
+func (*ErrorBadRequest) updateSegmentRes()             {}
+func (*ErrorBadRequest) userChangeMyPasswordRes()      {}
+func (*ErrorBadRequest) verify2FARes()                 {}
 
 type ErrorBadRequestError struct {
 	Message OptString `json:"message"`
@@ -2649,6 +2694,7 @@ func (*ErrorInternalServerError) createEnvironmentRes()           {}
 func (*ErrorInternalServerError) createFeatureFlagVariantRes()    {}
 func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
+func (*ErrorInternalServerError) createNotificationSettingRes()   {}
 func (*ErrorInternalServerError) createProjectFeatureRes()        {}
 func (*ErrorInternalServerError) createProjectMembershipRes()     {}
 func (*ErrorInternalServerError) createProjectSegmentRes()        {}
@@ -2660,6 +2706,7 @@ func (*ErrorInternalServerError) deleteCategoryRes()              {}
 func (*ErrorInternalServerError) deleteEnvironmentRes()           {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
+func (*ErrorInternalServerError) deleteNotificationSettingRes()   {}
 func (*ErrorInternalServerError) deleteProjectMembershipRes()     {}
 func (*ErrorInternalServerError) deleteProjectSettingRes()        {}
 func (*ErrorInternalServerError) deleteProjectTagRes()            {}
@@ -2675,6 +2722,7 @@ func (*ErrorInternalServerError) getEnvironmentRes()              {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
 func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
+func (*ErrorInternalServerError) getNotificationSettingRes()      {}
 func (*ErrorInternalServerError) getPendingChangeRes()            {}
 func (*ErrorInternalServerError) getProjectMembershipRes()        {}
 func (*ErrorInternalServerError) getProjectRes()                  {}
@@ -2690,6 +2738,7 @@ func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
 func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
 func (*ErrorInternalServerError) listFeatureTagsRes()             {}
+func (*ErrorInternalServerError) listNotificationSettingsRes()    {}
 func (*ErrorInternalServerError) listPendingChangesRes()          {}
 func (*ErrorInternalServerError) listPermissionsRes()             {}
 func (*ErrorInternalServerError) listProjectAuditLogsRes()        {}
@@ -2713,6 +2762,7 @@ func (*ErrorInternalServerError) removeFeatureTagRes()            {}
 func (*ErrorInternalServerError) resetPasswordRes()               {}
 func (*ErrorInternalServerError) sSOCallbackRes()                 {}
 func (*ErrorInternalServerError) sSOInitiateRes()                 {}
+func (*ErrorInternalServerError) sendTestNotificationRes()        {}
 func (*ErrorInternalServerError) setSuperuserStatusRes()          {}
 func (*ErrorInternalServerError) setUserActiveStatusRes()         {}
 func (*ErrorInternalServerError) syncCustomizedFeatureRuleRes()   {}
@@ -2723,6 +2773,7 @@ func (*ErrorInternalServerError) updateEnvironmentRes()           {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
+func (*ErrorInternalServerError) updateNotificationSettingRes()   {}
 func (*ErrorInternalServerError) updateProjectMembershipRes()     {}
 func (*ErrorInternalServerError) updateProjectRes()               {}
 func (*ErrorInternalServerError) updateProjectSettingRes()        {}
@@ -2799,6 +2850,7 @@ func (*ErrorNotFound) cancelPendingChangeRes()         {}
 func (*ErrorNotFound) createFeatureFlagVariantRes()    {}
 func (*ErrorNotFound) createFeatureRuleRes()           {}
 func (*ErrorNotFound) createFeatureScheduleRes()       {}
+func (*ErrorNotFound) createNotificationSettingRes()   {}
 func (*ErrorNotFound) createProjectFeatureRes()        {}
 func (*ErrorNotFound) createProjectMembershipRes()     {}
 func (*ErrorNotFound) createProjectSegmentRes()        {}
@@ -2808,6 +2860,7 @@ func (*ErrorNotFound) deleteCategoryRes()              {}
 func (*ErrorNotFound) deleteEnvironmentRes()           {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
+func (*ErrorNotFound) deleteNotificationSettingRes()   {}
 func (*ErrorNotFound) deleteProjectMembershipRes()     {}
 func (*ErrorNotFound) deleteProjectSettingRes()        {}
 func (*ErrorNotFound) deleteProjectTagRes()            {}
@@ -2820,6 +2873,7 @@ func (*ErrorNotFound) getEnvironmentRes()              {}
 func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
 func (*ErrorNotFound) getFeatureTimelineRes()          {}
+func (*ErrorNotFound) getNotificationSettingRes()      {}
 func (*ErrorNotFound) getPendingChangeRes()            {}
 func (*ErrorNotFound) getProjectMembershipRes()        {}
 func (*ErrorNotFound) getProjectRes()                  {}
@@ -2833,6 +2887,7 @@ func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
 func (*ErrorNotFound) listFeatureTagsRes()             {}
+func (*ErrorNotFound) listNotificationSettingsRes()    {}
 func (*ErrorNotFound) listProjectAuditLogsRes()        {}
 func (*ErrorNotFound) listProjectChangesRes()          {}
 func (*ErrorNotFound) listProjectFeaturesRes()         {}
@@ -2854,6 +2909,7 @@ func (*ErrorNotFound) updateCategoryRes()              {}
 func (*ErrorNotFound) updateEnvironmentRes()           {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
+func (*ErrorNotFound) updateNotificationSettingRes()   {}
 func (*ErrorNotFound) updateProjectMembershipRes()     {}
 func (*ErrorNotFound) updateProjectRes()               {}
 func (*ErrorNotFound) updateProjectSettingRes()        {}
@@ -2901,6 +2957,7 @@ func (*ErrorPermissionDenied) createEnvironmentRes()           {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
+func (*ErrorPermissionDenied) createNotificationSettingRes()   {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()        {}
 func (*ErrorPermissionDenied) createProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) createProjectSegmentRes()        {}
@@ -2913,6 +2970,7 @@ func (*ErrorPermissionDenied) deleteEnvironmentRes()           {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) deleteNotificationSettingRes()   {}
 func (*ErrorPermissionDenied) deleteProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) deleteProjectSettingRes()        {}
 func (*ErrorPermissionDenied) deleteProjectTagRes()            {}
@@ -2933,6 +2991,7 @@ func (*ErrorPermissionDenied) getLDAPSyncLogDetailsRes()       {}
 func (*ErrorPermissionDenied) getLDAPSyncLogsRes()             {}
 func (*ErrorPermissionDenied) getLDAPSyncProgressRes()         {}
 func (*ErrorPermissionDenied) getLDAPSyncStatusRes()           {}
+func (*ErrorPermissionDenied) getNotificationSettingRes()      {}
 func (*ErrorPermissionDenied) getPendingChangeRes()            {}
 func (*ErrorPermissionDenied) getProjectMembershipRes()        {}
 func (*ErrorPermissionDenied) getProjectRes()                  {}
@@ -2946,6 +3005,7 @@ func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
 func (*ErrorPermissionDenied) listFeatureTagsRes()             {}
+func (*ErrorPermissionDenied) listNotificationSettingsRes()    {}
 func (*ErrorPermissionDenied) listPendingChangesRes()          {}
 func (*ErrorPermissionDenied) listProjectAuditLogsRes()        {}
 func (*ErrorPermissionDenied) listProjectChangesRes()          {}
@@ -2971,6 +3031,7 @@ func (*ErrorPermissionDenied) updateEnvironmentRes()           {}
 func (*ErrorPermissionDenied) updateFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}
+func (*ErrorPermissionDenied) updateNotificationSettingRes()   {}
 func (*ErrorPermissionDenied) updateProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) updateProjectRes()               {}
 func (*ErrorPermissionDenied) updateProjectSettingRes()        {}
@@ -3080,6 +3141,7 @@ func (*ErrorUnauthorized) createEnvironmentRes()           {}
 func (*ErrorUnauthorized) createFeatureFlagVariantRes()    {}
 func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
+func (*ErrorUnauthorized) createNotificationSettingRes()   {}
 func (*ErrorUnauthorized) createProjectFeatureRes()        {}
 func (*ErrorUnauthorized) createProjectMembershipRes()     {}
 func (*ErrorUnauthorized) createProjectSegmentRes()        {}
@@ -3092,6 +3154,7 @@ func (*ErrorUnauthorized) deleteEnvironmentRes()           {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
+func (*ErrorUnauthorized) deleteNotificationSettingRes()   {}
 func (*ErrorUnauthorized) deleteProjectMembershipRes()     {}
 func (*ErrorUnauthorized) deleteProjectSettingRes()        {}
 func (*ErrorUnauthorized) deleteProjectTagRes()            {}
@@ -3113,6 +3176,7 @@ func (*ErrorUnauthorized) getLDAPSyncLogDetailsRes()       {}
 func (*ErrorUnauthorized) getLDAPSyncLogsRes()             {}
 func (*ErrorUnauthorized) getLDAPSyncProgressRes()         {}
 func (*ErrorUnauthorized) getLDAPSyncStatusRes()           {}
+func (*ErrorUnauthorized) getNotificationSettingRes()      {}
 func (*ErrorUnauthorized) getPendingChangeRes()            {}
 func (*ErrorUnauthorized) getProjectMembershipRes()        {}
 func (*ErrorUnauthorized) getProjectRes()                  {}
@@ -3129,6 +3193,7 @@ func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
 func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
 func (*ErrorUnauthorized) listFeatureTagsRes()             {}
+func (*ErrorUnauthorized) listNotificationSettingsRes()    {}
 func (*ErrorUnauthorized) listPendingChangesRes()          {}
 func (*ErrorUnauthorized) listPermissionsRes()             {}
 func (*ErrorUnauthorized) listProjectAuditLogsRes()        {}
@@ -3168,6 +3233,7 @@ func (*ErrorUnauthorized) updateFeatureRes()               {}
 func (*ErrorUnauthorized) updateFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
 func (*ErrorUnauthorized) updateLicenseAcceptanceRes()     {}
+func (*ErrorUnauthorized) updateNotificationSettingRes()   {}
 func (*ErrorUnauthorized) updateProjectMembershipRes()     {}
 func (*ErrorUnauthorized) updateProjectRes()               {}
 func (*ErrorUnauthorized) updateProjectSettingRes()        {}
@@ -5339,6 +5405,23 @@ type ListFlagVariantsResponse []FlagVariant
 
 func (*ListFlagVariantsResponse) listFeatureFlagVariantsRes() {}
 
+// Ref: #/components/schemas/ListNotificationSettingsResponse
+type ListNotificationSettingsResponse struct {
+	NotificationSettings []NotificationSetting `json:"notification_settings"`
+}
+
+// GetNotificationSettings returns the value of NotificationSettings.
+func (s *ListNotificationSettingsResponse) GetNotificationSettings() []NotificationSetting {
+	return s.NotificationSettings
+}
+
+// SetNotificationSettings sets the value of NotificationSettings.
+func (s *ListNotificationSettingsResponse) SetNotificationSettings(val []NotificationSetting) {
+	s.NotificationSettings = val
+}
+
+func (*ListNotificationSettingsResponse) listNotificationSettingsRes() {}
+
 type ListPendingChangesSortBy string
 
 const (
@@ -6089,6 +6172,186 @@ func (s *Membership) SetCreatedAt(val time.Time) {
 func (*Membership) createProjectMembershipRes() {}
 func (*Membership) getProjectMembershipRes()    {}
 func (*Membership) updateProjectMembershipRes() {}
+
+// Type of notification channel (email, mattermost, slack, etc.).
+// Ref: #/components/schemas/NotificationChannelType
+type NotificationChannelType string
+
+const (
+	NotificationChannelTypeEmail      NotificationChannelType = "email"
+	NotificationChannelTypeTelegram   NotificationChannelType = "telegram"
+	NotificationChannelTypeSlack      NotificationChannelType = "slack"
+	NotificationChannelTypeMattermost NotificationChannelType = "mattermost"
+	NotificationChannelTypeWebhook    NotificationChannelType = "webhook"
+	NotificationChannelTypePachca     NotificationChannelType = "pachca"
+)
+
+// AllValues returns all NotificationChannelType values.
+func (NotificationChannelType) AllValues() []NotificationChannelType {
+	return []NotificationChannelType{
+		NotificationChannelTypeEmail,
+		NotificationChannelTypeTelegram,
+		NotificationChannelTypeSlack,
+		NotificationChannelTypeMattermost,
+		NotificationChannelTypeWebhook,
+		NotificationChannelTypePachca,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s NotificationChannelType) MarshalText() ([]byte, error) {
+	switch s {
+	case NotificationChannelTypeEmail:
+		return []byte(s), nil
+	case NotificationChannelTypeTelegram:
+		return []byte(s), nil
+	case NotificationChannelTypeSlack:
+		return []byte(s), nil
+	case NotificationChannelTypeMattermost:
+		return []byte(s), nil
+	case NotificationChannelTypeWebhook:
+		return []byte(s), nil
+	case NotificationChannelTypePachca:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *NotificationChannelType) UnmarshalText(data []byte) error {
+	switch NotificationChannelType(data) {
+	case NotificationChannelTypeEmail:
+		*s = NotificationChannelTypeEmail
+		return nil
+	case NotificationChannelTypeTelegram:
+		*s = NotificationChannelTypeTelegram
+		return nil
+	case NotificationChannelTypeSlack:
+		*s = NotificationChannelTypeSlack
+		return nil
+	case NotificationChannelTypeMattermost:
+		*s = NotificationChannelTypeMattermost
+		return nil
+	case NotificationChannelTypeWebhook:
+		*s = NotificationChannelTypeWebhook
+		return nil
+	case NotificationChannelTypePachca:
+		*s = NotificationChannelTypePachca
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
+// Ref: #/components/schemas/NotificationSetting
+type NotificationSetting struct {
+	ID             uint      `json:"id"`
+	ProjectID      uuid.UUID `json:"project_id"`
+	EnvironmentID  uint      `json:"environment_id"`
+	EnvironmentKey string    `json:"environment_key"`
+	// Type of notification channel (email, mattermost, slack, etc.).
+	Type string `json:"type"`
+	// Configuration for the notification channel (JSONB in database).
+	Config    string    `json:"config"`
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// GetID returns the value of ID.
+func (s *NotificationSetting) GetID() uint {
+	return s.ID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *NotificationSetting) GetProjectID() uuid.UUID {
+	return s.ProjectID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *NotificationSetting) GetEnvironmentID() uint {
+	return s.EnvironmentID
+}
+
+// GetEnvironmentKey returns the value of EnvironmentKey.
+func (s *NotificationSetting) GetEnvironmentKey() string {
+	return s.EnvironmentKey
+}
+
+// GetType returns the value of Type.
+func (s *NotificationSetting) GetType() string {
+	return s.Type
+}
+
+// GetConfig returns the value of Config.
+func (s *NotificationSetting) GetConfig() string {
+	return s.Config
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *NotificationSetting) GetEnabled() bool {
+	return s.Enabled
+}
+
+// GetCreatedAt returns the value of CreatedAt.
+func (s *NotificationSetting) GetCreatedAt() time.Time {
+	return s.CreatedAt
+}
+
+// GetUpdatedAt returns the value of UpdatedAt.
+func (s *NotificationSetting) GetUpdatedAt() time.Time {
+	return s.UpdatedAt
+}
+
+// SetID sets the value of ID.
+func (s *NotificationSetting) SetID(val uint) {
+	s.ID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *NotificationSetting) SetProjectID(val uuid.UUID) {
+	s.ProjectID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *NotificationSetting) SetEnvironmentID(val uint) {
+	s.EnvironmentID = val
+}
+
+// SetEnvironmentKey sets the value of EnvironmentKey.
+func (s *NotificationSetting) SetEnvironmentKey(val string) {
+	s.EnvironmentKey = val
+}
+
+// SetType sets the value of Type.
+func (s *NotificationSetting) SetType(val string) {
+	s.Type = val
+}
+
+// SetConfig sets the value of Config.
+func (s *NotificationSetting) SetConfig(val string) {
+	s.Config = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *NotificationSetting) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// SetCreatedAt sets the value of CreatedAt.
+func (s *NotificationSetting) SetCreatedAt(val time.Time) {
+	s.CreatedAt = val
+}
+
+// SetUpdatedAt sets the value of UpdatedAt.
+func (s *NotificationSetting) SetUpdatedAt(val time.Time) {
+	s.UpdatedAt = val
+}
+
+func (*NotificationSetting) createNotificationSettingRes() {}
+func (*NotificationSetting) getNotificationSettingRes()    {}
+func (*NotificationSetting) updateNotificationSettingRes() {}
 
 // NewOptAuditAction returns new OptAuditAction with value set to v.
 func NewOptAuditAction(v AuditAction) OptAuditAction {
@@ -10262,6 +10525,11 @@ type Send2FACodeNoContent struct{}
 
 func (*Send2FACodeNoContent) send2FACodeRes() {}
 
+// SendTestNotificationNoContent is response for SendTestNotification operation.
+type SendTestNotificationNoContent struct{}
+
+func (*SendTestNotificationNoContent) sendTestNotificationRes() {}
+
 // Ref: #/components/schemas/SetSuperuserStatusRequest
 type SetSuperuserStatusRequest struct {
 	IsSuperuser bool `json:"is_superuser"`
@@ -10835,6 +11103,45 @@ func (s *UpdateMembershipRequest) GetRoleID() uuid.UUID {
 // SetRoleID sets the value of RoleID.
 func (s *UpdateMembershipRequest) SetRoleID(val uuid.UUID) {
 	s.RoleID = val
+}
+
+// Ref: #/components/schemas/UpdateNotificationSettingRequest
+type UpdateNotificationSettingRequest struct {
+	// Type of notification channel (email, mattermost, slack, etc.).
+	Type OptString `json:"type"`
+	// Configuration for the notification channel (JSONB in database).
+	Config  OptString `json:"config"`
+	Enabled OptBool   `json:"enabled"`
+}
+
+// GetType returns the value of Type.
+func (s *UpdateNotificationSettingRequest) GetType() OptString {
+	return s.Type
+}
+
+// GetConfig returns the value of Config.
+func (s *UpdateNotificationSettingRequest) GetConfig() OptString {
+	return s.Config
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *UpdateNotificationSettingRequest) GetEnabled() OptBool {
+	return s.Enabled
+}
+
+// SetType sets the value of Type.
+func (s *UpdateNotificationSettingRequest) SetType(val OptString) {
+	s.Type = val
+}
+
+// SetConfig sets the value of Config.
+func (s *UpdateNotificationSettingRequest) SetConfig(val OptString) {
+	s.Config = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *UpdateNotificationSettingRequest) SetEnabled(val OptBool) {
+	s.Enabled = val
 }
 
 // Ref: #/components/schemas/UpdateProjectRequest

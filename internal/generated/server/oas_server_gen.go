@@ -90,6 +90,12 @@ type Handler interface {
 	//
 	// POST /api/v1/features/{feature_id}/schedules
 	CreateFeatureSchedule(ctx context.Context, req *CreateFeatureScheduleRequest, params CreateFeatureScheduleParams) (CreateFeatureScheduleRes, error)
+	// CreateNotificationSetting implements CreateNotificationSetting operation.
+	//
+	// Create a new notification setting.
+	//
+	// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+	CreateNotificationSetting(ctx context.Context, req *CreateNotificationSettingRequest, params CreateNotificationSettingParams) (CreateNotificationSettingRes, error)
 	// CreateProjectFeature implements CreateProjectFeature operation.
 	//
 	// Create feature for project.
@@ -162,6 +168,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/ldap/config
 	DeleteLDAPConfig(ctx context.Context) (DeleteLDAPConfigRes, error)
+	// DeleteNotificationSetting implements DeleteNotificationSetting operation.
+	//
+	// Delete a notification setting.
+	//
+	// DELETE /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+	DeleteNotificationSetting(ctx context.Context, params DeleteNotificationSettingParams) (DeleteNotificationSettingRes, error)
 	// DeleteProjectMembership implements DeleteProjectMembership operation.
 	//
 	// Delete membership.
@@ -300,6 +312,12 @@ type Handler interface {
 	//
 	// GET /api/v1/ldap/sync/status
 	GetLDAPSyncStatus(ctx context.Context) (GetLDAPSyncStatusRes, error)
+	// GetNotificationSetting implements GetNotificationSetting operation.
+	//
+	// Get a specific notification setting.
+	//
+	// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+	GetNotificationSetting(ctx context.Context, params GetNotificationSettingParams) (GetNotificationSettingRes, error)
 	// GetPendingChange implements GetPendingChange operation.
 	//
 	// Get pending change by ID.
@@ -408,6 +426,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}/tags
 	ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (ListFeatureTagsRes, error)
+	// ListNotificationSettings implements ListNotificationSettings operation.
+	//
+	// List all notification settings for a project.
+	//
+	// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+	ListNotificationSettings(ctx context.Context, params ListNotificationSettingsParams) (ListNotificationSettingsRes, error)
 	// ListPendingChanges implements ListPendingChanges operation.
 	//
 	// List pending changes.
@@ -570,6 +594,12 @@ type Handler interface {
 	//
 	// POST /api/v1/users/me/2fa/send_code
 	Send2FACode(ctx context.Context) (Send2FACodeRes, error)
+	// SendTestNotification implements sendTestNotification operation.
+	//
+	// Send test notification.
+	//
+	// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test
+	SendTestNotification(ctx context.Context, params SendTestNotificationParams) (SendTestNotificationRes, error)
 	// SetSuperuserStatus implements SetSuperuserStatus operation.
 	//
 	// Set or unset superuser status (superuser only, cannot modify admin user).
@@ -654,6 +684,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/users/me/license-acceptance
 	UpdateLicenseAcceptance(ctx context.Context, req *UpdateLicenseAcceptanceRequest) (UpdateLicenseAcceptanceRes, error)
+	// UpdateNotificationSetting implements UpdateNotificationSetting operation.
+	//
+	// Update a notification setting.
+	//
+	// PUT /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+	UpdateNotificationSetting(ctx context.Context, req *UpdateNotificationSettingRequest, params UpdateNotificationSettingParams) (UpdateNotificationSettingRes, error)
 	// UpdateProject implements UpdateProject operation.
 	//
 	// Update project name and description.

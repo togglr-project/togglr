@@ -6109,6 +6109,357 @@ paths:
       security:
         - bearerAuth: []
 
+  # --- Notification Settings Endpoints ---
+  /api/v1/projects/{project_id}/env/{environment_key}/notification-settings:
+    get:
+      summary: List all notification settings for a project
+      operationId: ListNotificationSettings
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of notification settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListNotificationSettingsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not authorized to access this project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new notification setting
+      operationId: CreateNotificationSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationSettingRequest'
+      responses:
+        '201':
+          description: Notification setting created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSetting'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not authorized to modify this project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}:
+    get:
+      summary: Get a specific notification setting
+      operationId: GetNotificationSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Notification setting details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSetting'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not authorized to access this notification setting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Notification setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update a notification setting
+      operationId: UpdateNotificationSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNotificationSettingRequest'
+      responses:
+        '200':
+          description: Notification setting updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSetting'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not authorized to modify this notification setting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Notification setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete a notification setting
+      operationId: DeleteNotificationSetting
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Notification setting deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Forbidden - Not authorized to delete this notification setting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Notification setting not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test:
+    post:
+      summary: Send test notification
+      operationId: sendTestNotification
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: setting_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: uint
+      responses:
+        '204':
+          description: Notification successfully sent
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -8858,3 +9209,85 @@ components:
           type: integer
           format: uint
       required: [count]
+
+    # ---- Notification Settings ----
+    NotificationChannelType:
+      type: string
+      enum: [email, telegram, slack, mattermost, webhook, pachca]
+      description: "Type of notification channel (email, mattermost, slack, etc.)"
+
+    NotificationSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: uint
+          example: 1
+        project_id:
+          type: string
+          format: uuid
+        environment_id:
+          type: integer
+          format: uint
+          example: 2
+        environment_key:
+          type: string
+          example: "prod"
+        type:
+          type: string
+          example: "email"
+          description: "Type of notification channel (email, mattermost, slack, etc.)"
+        config:
+          type: string
+          description: "Configuration for the notification channel (JSONB in database)"
+        enabled:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-01-02T00:00:00Z"
+      required: [id, project_id, environment_id, environment_key, type, config, enabled, created_at, updated_at]
+
+    CreateNotificationSettingRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/NotificationChannelType'
+        config:
+          type: string
+          minLength: 2
+          description: "Configuration for the notification channel (JSONB in database)"
+        enabled:
+          type: boolean
+          example: true
+          default: true
+      required: [type, config]
+
+    UpdateNotificationSettingRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "email"
+          description: "Type of notification channel (email, mattermost, slack, etc.)"
+        config:
+          type: string
+          description: "Configuration for the notification channel (JSONB in database)"
+        enabled:
+          type: boolean
+          example: true
+      required: []
+
+    ListNotificationSettingsResponse:
+      type: object
+      properties:
+        notification_settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSetting'
+      required: [notification_settings]

@@ -1101,6 +1101,48 @@ func (s *CreateFlagVariantRequest) Validate() error {
 	return nil
 }
 
+func (s *CreateNotificationSettingRequest) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if err := s.Type.Validate(); err != nil {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "type",
+			Error: err,
+		})
+	}
+	if err := func() error {
+		if err := (validate.String{
+			MinLength:    2,
+			MinLengthSet: true,
+			MaxLength:    0,
+			MaxLengthSet: false,
+			Email:        false,
+			Hostname:     false,
+			Regex:        nil,
+		}).Validate(string(s.Config)); err != nil {
+			return errors.Wrap(err, "string")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "config",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
 func (s *CreateProjectSettingRequest) Validate() error {
 	if s == nil {
 		return validate.ErrNilPointer
@@ -2790,6 +2832,29 @@ func (s ListFlagVariantsResponse) Validate() error {
 	return nil
 }
 
+func (s *ListNotificationSettingsResponse) Validate() error {
+	if s == nil {
+		return validate.ErrNilPointer
+	}
+
+	var failures []validate.FieldError
+	if err := func() error {
+		if s.NotificationSettings == nil {
+			return errors.New("nil is invalid value")
+		}
+		return nil
+	}(); err != nil {
+		failures = append(failures, validate.FieldError{
+			Name:  "notification_settings",
+			Error: err,
+		})
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+	return nil
+}
+
 func (s ListPendingChangesSortBy) Validate() error {
 	switch s {
 	case "created_at":
@@ -3211,6 +3276,25 @@ func (s *LoginRequest) Validate() error {
 		return &validate.Error{Fields: failures}
 	}
 	return nil
+}
+
+func (s NotificationChannelType) Validate() error {
+	switch s {
+	case "email":
+		return nil
+	case "telegram":
+		return nil
+	case "slack":
+		return nil
+	case "mattermost":
+		return nil
+	case "webhook":
+		return nil
+	case "pachca":
+		return nil
+	default:
+		return errors.Errorf("invalid value: %v", s)
+	}
 }
 
 func (s *Pagination) Validate() error {

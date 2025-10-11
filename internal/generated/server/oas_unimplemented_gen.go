@@ -134,6 +134,15 @@ func (UnimplementedHandler) CreateFeatureSchedule(ctx context.Context, req *Crea
 	return r, ht.ErrNotImplemented
 }
 
+// CreateNotificationSetting implements CreateNotificationSetting operation.
+//
+// Create a new notification setting.
+//
+// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+func (UnimplementedHandler) CreateNotificationSetting(ctx context.Context, req *CreateNotificationSettingRequest, params CreateNotificationSettingParams) (r CreateNotificationSettingRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateProjectFeature implements CreateProjectFeature operation.
 //
 // Create feature for project.
@@ -239,6 +248,15 @@ func (UnimplementedHandler) DeleteFeatureSchedule(ctx context.Context, params De
 //
 // DELETE /api/v1/ldap/config
 func (UnimplementedHandler) DeleteLDAPConfig(ctx context.Context) (r DeleteLDAPConfigRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteNotificationSetting implements DeleteNotificationSetting operation.
+//
+// Delete a notification setting.
+//
+// DELETE /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+func (UnimplementedHandler) DeleteNotificationSetting(ctx context.Context, params DeleteNotificationSettingParams) (r DeleteNotificationSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -446,6 +464,15 @@ func (UnimplementedHandler) GetLDAPSyncStatus(ctx context.Context) (r GetLDAPSyn
 	return r, ht.ErrNotImplemented
 }
 
+// GetNotificationSetting implements GetNotificationSetting operation.
+//
+// Get a specific notification setting.
+//
+// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+func (UnimplementedHandler) GetNotificationSetting(ctx context.Context, params GetNotificationSettingParams) (r GetNotificationSettingRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // GetPendingChange implements GetPendingChange operation.
 //
 // Get pending change by ID.
@@ -605,6 +632,15 @@ func (UnimplementedHandler) ListFeatureSchedules(ctx context.Context, params Lis
 //
 // GET /api/v1/features/{feature_id}/tags
 func (UnimplementedHandler) ListFeatureTags(ctx context.Context, params ListFeatureTagsParams) (r ListFeatureTagsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListNotificationSettings implements ListNotificationSettings operation.
+//
+// List all notification settings for a project.
+//
+// GET /api/v1/projects/{project_id}/env/{environment_key}/notification-settings
+func (UnimplementedHandler) ListNotificationSettings(ctx context.Context, params ListNotificationSettingsParams) (r ListNotificationSettingsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -851,6 +887,15 @@ func (UnimplementedHandler) Send2FACode(ctx context.Context) (r Send2FACodeRes, 
 	return r, ht.ErrNotImplemented
 }
 
+// SendTestNotification implements sendTestNotification operation.
+//
+// Send test notification.
+//
+// POST /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test
+func (UnimplementedHandler) SendTestNotification(ctx context.Context, params SendTestNotificationParams) (r SendTestNotificationRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // SetSuperuserStatus implements SetSuperuserStatus operation.
 //
 // Set or unset superuser status (superuser only, cannot modify admin user).
@@ -974,6 +1019,15 @@ func (UnimplementedHandler) UpdateLDAPConfig(ctx context.Context, req *LDAPConfi
 //
 // PUT /api/v1/users/me/license-acceptance
 func (UnimplementedHandler) UpdateLicenseAcceptance(ctx context.Context, req *UpdateLicenseAcceptanceRequest) (r UpdateLicenseAcceptanceRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateNotificationSetting implements UpdateNotificationSetting operation.
+//
+// Update a notification setting.
+//
+// PUT /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}
+func (UnimplementedHandler) UpdateNotificationSetting(ctx context.Context, req *UpdateNotificationSettingRequest, params UpdateNotificationSettingParams) (r UpdateNotificationSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

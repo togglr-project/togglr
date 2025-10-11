@@ -15,34 +15,35 @@ import (
 var _ generatedapi.Handler = (*RestAPI)(nil)
 
 type RestAPI struct {
-	config                   *config.Config
-	tokenizer                contract.Tokenizer
-	usersUseCase             contract.UsersUseCase
-	projectsUseCase          contract.ProjectsUseCase
-	ldapService              contract.LDAPService
-	ldapUseCase              contract.LDAPSyncUseCase
-	settingsUseCase          contract.SettingsUseCase
-	permissionsService       contract.PermissionsService
-	featuresUseCase          contract.FeaturesUseCase
-	environmentsUseCase      contract.EnvironmentsUseCase
-	flagVariantsUseCase      contract.FlagVariantsUseCase
-	rulesUseCase             contract.RulesUseCase
-	featureSchedulesUseCase  contract.FeatureSchedulesUseCase
-	ruleAttributesUseCase    contract.RuleAttributesUseCase
-	segmentsUseCase          contract.SegmentsUseCase
-	featureProcessor         contract.FeatureProcessor
-	categoriesUseCase        contract.CategoriesUseCase
-	tagsUseCase              contract.TagsUseCase
-	featureTagsUseCase       contract.FeatureTagsUseCase
-	pendingChangesUseCase    contract.PendingChangesUseCase
-	guardService             contract.GuardService
-	guardEngine              contract.GuardEngine
-	projectSettingsUseCase   contract.ProjectSettingsUseCase
-	dashboardUseCase         contract.DashboardUseCase
-	membershipsUseCase       contract.MembershipsUseCase
-	auditLogRepo             contract.AuditLogRepository
-	errorReportsUseCase      contract.ErrorReportsUseCase
-	userNotificationsUseCase contract.UserNotificationsUseCase
+	config                      *config.Config
+	tokenizer                   contract.Tokenizer
+	usersUseCase                contract.UsersUseCase
+	projectsUseCase             contract.ProjectsUseCase
+	ldapService                 contract.LDAPService
+	ldapUseCase                 contract.LDAPSyncUseCase
+	settingsUseCase             contract.SettingsUseCase
+	permissionsService          contract.PermissionsService
+	featuresUseCase             contract.FeaturesUseCase
+	environmentsUseCase         contract.EnvironmentsUseCase
+	flagVariantsUseCase         contract.FlagVariantsUseCase
+	rulesUseCase                contract.RulesUseCase
+	featureSchedulesUseCase     contract.FeatureSchedulesUseCase
+	ruleAttributesUseCase       contract.RuleAttributesUseCase
+	segmentsUseCase             contract.SegmentsUseCase
+	featureProcessor            contract.FeatureProcessor
+	categoriesUseCase           contract.CategoriesUseCase
+	tagsUseCase                 contract.TagsUseCase
+	featureTagsUseCase          contract.FeatureTagsUseCase
+	pendingChangesUseCase       contract.PendingChangesUseCase
+	guardService                contract.GuardService
+	guardEngine                 contract.GuardEngine
+	projectSettingsUseCase      contract.ProjectSettingsUseCase
+	dashboardUseCase            contract.DashboardUseCase
+	membershipsUseCase          contract.MembershipsUseCase
+	auditLogRepo                contract.AuditLogRepository
+	errorReportsUseCase         contract.ErrorReportsUseCase
+	userNotificationsUseCase    contract.UserNotificationsUseCase
+	featureNotificationsUseCase contract.FeatureNotificationsUseCase
 }
 
 func New(
@@ -74,36 +75,38 @@ func New(
 	auditLogRepo contract.AuditLogRepository,
 	errorReportsUseCase contract.ErrorReportsUseCase,
 	userNotificationsUseCase contract.UserNotificationsUseCase,
+	featureNotificationsUseCase contract.FeatureNotificationsUseCase,
 ) *RestAPI {
 	return &RestAPI{
-		config:                   config,
-		usersUseCase:             usersService,
-		tokenizer:                tokenizer,
-		projectsUseCase:          projectsUseCase,
-		ldapService:              ldapService,
-		ldapUseCase:              ldapUseCase,
-		settingsUseCase:          settingsUseCase,
-		permissionsService:       permissionsService,
-		featuresUseCase:          featuresUseCase,
-		environmentsUseCase:      environmentsUseCase,
-		flagVariantsUseCase:      flagVariantsUseCase,
-		rulesUseCase:             rulesUseCase,
-		featureSchedulesUseCase:  featureSchedulesUseCase,
-		ruleAttributesUseCase:    ruleAttributesUseCase,
-		segmentsUseCase:          segmentsUseCase,
-		featureProcessor:         featureProcessor,
-		categoriesUseCase:        categoriesUseCase,
-		tagsUseCase:              tagsUseCase,
-		featureTagsUseCase:       featureTagsUseCase,
-		pendingChangesUseCase:    pendingChangesUseCase,
-		guardService:             guardService,
-		guardEngine:              guardEngine,
-		projectSettingsUseCase:   projectSettingsUseCase,
-		dashboardUseCase:         dashboardUseCase,
-		membershipsUseCase:       membershipsUseCase,
-		errorReportsUseCase:      errorReportsUseCase,
-		auditLogRepo:             auditLogRepo,
-		userNotificationsUseCase: userNotificationsUseCase,
+		config:                      config,
+		usersUseCase:                usersService,
+		tokenizer:                   tokenizer,
+		projectsUseCase:             projectsUseCase,
+		ldapService:                 ldapService,
+		ldapUseCase:                 ldapUseCase,
+		settingsUseCase:             settingsUseCase,
+		permissionsService:          permissionsService,
+		featuresUseCase:             featuresUseCase,
+		environmentsUseCase:         environmentsUseCase,
+		flagVariantsUseCase:         flagVariantsUseCase,
+		rulesUseCase:                rulesUseCase,
+		featureSchedulesUseCase:     featureSchedulesUseCase,
+		ruleAttributesUseCase:       ruleAttributesUseCase,
+		segmentsUseCase:             segmentsUseCase,
+		featureProcessor:            featureProcessor,
+		categoriesUseCase:           categoriesUseCase,
+		tagsUseCase:                 tagsUseCase,
+		featureTagsUseCase:          featureTagsUseCase,
+		pendingChangesUseCase:       pendingChangesUseCase,
+		guardService:                guardService,
+		guardEngine:                 guardEngine,
+		projectSettingsUseCase:      projectSettingsUseCase,
+		dashboardUseCase:            dashboardUseCase,
+		membershipsUseCase:          membershipsUseCase,
+		errorReportsUseCase:         errorReportsUseCase,
+		auditLogRepo:                auditLogRepo,
+		userNotificationsUseCase:    userNotificationsUseCase,
+		featureNotificationsUseCase: featureNotificationsUseCase,
 	}
 }
 

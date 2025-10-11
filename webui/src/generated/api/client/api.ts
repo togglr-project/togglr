@@ -277,6 +277,16 @@ export interface CreateMembershipRequest {
     'user_id': number;
     'role_id': string;
 }
+export interface CreateNotificationSettingRequest {
+    'type': NotificationChannelType;
+    /**
+     * Configuration for the notification channel (JSONB in database)
+     */
+    'config': string;
+    'enabled'?: boolean;
+}
+
+
 export interface CreateProjectSettingRequest {
     'name': string;
     'value': object;
@@ -839,6 +849,9 @@ export interface ListFeaturesResponse {
     'items': Array<FeatureExtended>;
     'pagination': Pagination;
 }
+export interface ListNotificationSettingsResponse {
+    'notification_settings': Array<NotificationSetting>;
+}
 export interface ListProjectAuditLogs200Response {
     'items': Array<AuditLog>;
     'pagination': Pagination;
@@ -886,6 +899,39 @@ export interface Membership {
 }
 export interface ModelError {
     'error': ErrorError;
+}
+/**
+ * Type of notification channel (email, mattermost, slack, etc.)
+ */
+
+export const NotificationChannelType = {
+    Email: 'email',
+    Telegram: 'telegram',
+    Slack: 'slack',
+    Mattermost: 'mattermost',
+    Webhook: 'webhook',
+    Pachca: 'pachca'
+} as const;
+
+export type NotificationChannelType = typeof NotificationChannelType[keyof typeof NotificationChannelType];
+
+
+export interface NotificationSetting {
+    'id': number;
+    'project_id': string;
+    'environment_id': number;
+    'environment_key': string;
+    /**
+     * Type of notification channel (email, mattermost, slack, etc.)
+     */
+    'type': string;
+    /**
+     * Configuration for the notification channel (JSONB in database)
+     */
+    'config': string;
+    'enabled': boolean;
+    'created_at': string;
+    'updated_at': string;
 }
 export interface Pagination {
     'total': number;
@@ -1333,6 +1379,17 @@ export interface UpdateLicenseAcceptanceRequest {
 }
 export interface UpdateMembershipRequest {
     'role_id': string;
+}
+export interface UpdateNotificationSettingRequest {
+    /**
+     * Type of notification channel (email, mattermost, slack, etc.)
+     */
+    'type'?: string;
+    /**
+     * Configuration for the notification channel (JSONB in database)
+     */
+    'config'?: string;
+    'enabled'?: boolean;
 }
 export interface UpdateProjectRequest {
     'name': string;
@@ -1981,6 +2038,54 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Create a new notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {CreateNotificationSettingRequest} createNotificationSettingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createNotificationSetting: async (projectId: string, environmentKey: string, createNotificationSettingRequest: CreateNotificationSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('createNotificationSetting', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('createNotificationSetting', 'environmentKey', environmentKey)
+            // verify required parameter 'createNotificationSettingRequest' is not null or undefined
+            assertParamExists('createNotificationSetting', 'createNotificationSettingRequest', createNotificationSettingRequest)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/notification-settings`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createNotificationSettingRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Create feature for project
          * @param {string} projectId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -2446,6 +2551,52 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
          */
         deleteLDAPConfig: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/ldap/config`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete a notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteNotificationSetting: async (projectId: string, environmentKey: string, settingId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('deleteNotificationSetting', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('deleteNotificationSetting', 'environmentKey', environmentKey)
+            // verify required parameter 'settingId' is not null or undefined
+            assertParamExists('deleteNotificationSetting', 'settingId', settingId)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)))
+                .replace(`{${"setting_id"}}`, encodeURIComponent(String(settingId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3384,6 +3535,52 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Get a specific notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNotificationSetting: async (projectId: string, environmentKey: string, settingId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('getNotificationSetting', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('getNotificationSetting', 'environmentKey', environmentKey)
+            // verify required parameter 'settingId' is not null or undefined
+            assertParamExists('getNotificationSetting', 'settingId', settingId)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)))
+                .replace(`{${"setting_id"}}`, encodeURIComponent(String(settingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Get pending change by ID
          * @param {string} pendingChangeId 
          * @param {*} [options] Override http request option.
@@ -4057,6 +4254,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('listFeatureTags', 'featureId', featureId)
             const localVarPath = `/api/v1/features/{feature_id}/tags`
                 .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List all notification settings for a project
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listNotificationSettings: async (projectId: string, environmentKey: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listNotificationSettings', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('listNotificationSettings', 'environmentKey', environmentKey)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/notification-settings`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5287,6 +5526,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Send test notification
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendTestNotification: async (projectId: string, environmentKey: string, settingId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('sendTestNotification', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('sendTestNotification', 'environmentKey', environmentKey)
+            // verify required parameter 'settingId' is not null or undefined
+            assertParamExists('sendTestNotification', 'settingId', settingId)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)))
+                .replace(`{${"setting_id"}}`, encodeURIComponent(String(settingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Set or unset superuser status (superuser only, cannot modify admin user)
          * @param {number} userId 
          * @param {SetSuperuserStatusRequest} setSuperuserStatusRequest 
@@ -5922,6 +6203,58 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update a notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {UpdateNotificationSettingRequest} updateNotificationSettingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateNotificationSetting: async (projectId: string, environmentKey: string, settingId: number, updateNotificationSettingRequest: UpdateNotificationSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('updateNotificationSetting', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('updateNotificationSetting', 'environmentKey', environmentKey)
+            // verify required parameter 'settingId' is not null or undefined
+            assertParamExists('updateNotificationSetting', 'settingId', settingId)
+            // verify required parameter 'updateNotificationSettingRequest' is not null or undefined
+            assertParamExists('updateNotificationSetting', 'updateNotificationSettingRequest', updateNotificationSettingRequest)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)))
+                .replace(`{${"setting_id"}}`, encodeURIComponent(String(settingId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateNotificationSettingRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update project name and description
          * @param {string} projectId 
          * @param {UpdateProjectRequest} updateProjectRequest 
@@ -6418,6 +6751,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create a new notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {CreateNotificationSettingRequest} createNotificationSettingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createNotificationSetting(projectId: string, environmentKey: string, createNotificationSettingRequest: CreateNotificationSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NotificationSetting>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createNotificationSetting(projectId, environmentKey, createNotificationSettingRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createNotificationSetting']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create feature for project
          * @param {string} projectId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -6575,6 +6923,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteLDAPConfig(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteLDAPConfig']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete a notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteNotificationSetting(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteNotificationSetting(projectId, environmentKey, settingId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteNotificationSetting']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -6875,6 +7238,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Get a specific notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getNotificationSetting(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NotificationSetting>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getNotificationSetting(projectId, environmentKey, settingId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getNotificationSetting']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Get pending change by ID
          * @param {string} pendingChangeId 
          * @param {*} [options] Override http request option.
@@ -7108,6 +7486,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listFeatureTags(featureId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listFeatureTags']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List all notification settings for a project
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listNotificationSettings(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListNotificationSettingsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listNotificationSettings(projectId, environmentKey, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listNotificationSettings']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7490,6 +7882,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Send test notification
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sendTestNotification(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sendTestNotification(projectId, environmentKey, settingId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.sendTestNotification']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Set or unset superuser status (superuser only, cannot modify admin user)
          * @param {number} userId 
          * @param {SetSuperuserStatusRequest} setSuperuserStatusRequest 
@@ -7682,6 +8089,22 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateLicenseAcceptance(updateLicenseAcceptanceRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateLicenseAcceptance']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Update a notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {UpdateNotificationSettingRequest} updateNotificationSettingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateNotificationSetting(projectId: string, environmentKey: string, settingId: number, updateNotificationSettingRequest: UpdateNotificationSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NotificationSetting>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateNotificationSetting(projectId, environmentKey, settingId, updateNotificationSettingRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateNotificationSetting']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7934,6 +8357,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create a new notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {CreateNotificationSettingRequest} createNotificationSettingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createNotificationSetting(projectId: string, environmentKey: string, createNotificationSettingRequest: CreateNotificationSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<NotificationSetting> {
+            return localVarFp.createNotificationSetting(projectId, environmentKey, createNotificationSettingRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create feature for project
          * @param {string} projectId 
          * @param {CreateFeatureRequest} createFeatureRequest 
@@ -8056,6 +8491,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteLDAPConfig(options?: RawAxiosRequestConfig): AxiosPromise<SuccessResponse> {
             return localVarFp.deleteLDAPConfig(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete a notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteNotificationSetting(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteNotificationSetting(projectId, environmentKey, settingId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8289,6 +8736,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Get a specific notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getNotificationSetting(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig): AxiosPromise<NotificationSetting> {
+            return localVarFp.getNotificationSetting(projectId, environmentKey, settingId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Get pending change by ID
          * @param {string} pendingChangeId 
          * @param {*} [options] Override http request option.
@@ -8469,6 +8928,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listFeatureTags(featureId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProjectTag>> {
             return localVarFp.listFeatureTags(featureId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List all notification settings for a project
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listNotificationSettings(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig): AxiosPromise<ListNotificationSettingsResponse> {
+            return localVarFp.listNotificationSettings(projectId, environmentKey, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8772,6 +9242,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Send test notification
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendTestNotification(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.sendTestNotification(projectId, environmentKey, settingId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Set or unset superuser status (superuser only, cannot modify admin user)
          * @param {number} userId 
          * @param {SetSuperuserStatusRequest} setSuperuserStatusRequest 
@@ -8923,6 +9405,19 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         updateLicenseAcceptance(updateLicenseAcceptanceRequest: UpdateLicenseAcceptanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.updateLicenseAcceptance(updateLicenseAcceptanceRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Update a notification setting
+         * @param {string} projectId 
+         * @param {string} environmentKey 
+         * @param {number} settingId 
+         * @param {UpdateNotificationSettingRequest} updateNotificationSettingRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateNotificationSetting(projectId: string, environmentKey: string, settingId: number, updateNotificationSettingRequest: UpdateNotificationSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<NotificationSetting> {
+            return localVarFp.updateNotificationSetting(projectId, environmentKey, settingId, updateNotificationSettingRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9164,6 +9659,19 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create a new notification setting
+     * @param {string} projectId 
+     * @param {string} environmentKey 
+     * @param {CreateNotificationSettingRequest} createNotificationSettingRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createNotificationSetting(projectId: string, environmentKey: string, createNotificationSettingRequest: CreateNotificationSettingRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createNotificationSetting(projectId, environmentKey, createNotificationSettingRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create feature for project
      * @param {string} projectId 
      * @param {CreateFeatureRequest} createFeatureRequest 
@@ -9297,6 +9805,19 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteLDAPConfig(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteLDAPConfig(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete a notification setting
+     * @param {string} projectId 
+     * @param {string} environmentKey 
+     * @param {number} settingId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteNotificationSetting(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteNotificationSetting(projectId, environmentKey, settingId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -9553,6 +10074,19 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Get a specific notification setting
+     * @param {string} projectId 
+     * @param {string} environmentKey 
+     * @param {number} settingId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getNotificationSetting(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getNotificationSetting(projectId, environmentKey, settingId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Get pending change by ID
      * @param {string} pendingChangeId 
      * @param {*} [options] Override http request option.
@@ -9750,6 +10284,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listFeatureTags(featureId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listFeatureTags(featureId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List all notification settings for a project
+     * @param {string} projectId 
+     * @param {string} environmentKey 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listNotificationSettings(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listNotificationSettings(projectId, environmentKey, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10080,6 +10626,19 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Send test notification
+     * @param {string} projectId 
+     * @param {string} environmentKey 
+     * @param {number} settingId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sendTestNotification(projectId: string, environmentKey: string, settingId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).sendTestNotification(projectId, environmentKey, settingId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Set or unset superuser status (superuser only, cannot modify admin user)
      * @param {number} userId 
      * @param {SetSuperuserStatusRequest} setSuperuserStatusRequest 
@@ -10244,6 +10803,20 @@ export class DefaultApi extends BaseAPI {
      */
     public updateLicenseAcceptance(updateLicenseAcceptanceRequest: UpdateLicenseAcceptanceRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).updateLicenseAcceptance(updateLicenseAcceptanceRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update a notification setting
+     * @param {string} projectId 
+     * @param {string} environmentKey 
+     * @param {number} settingId 
+     * @param {UpdateNotificationSettingRequest} updateNotificationSettingRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateNotificationSetting(projectId: string, environmentKey: string, settingId: number, updateNotificationSettingRequest: UpdateNotificationSettingRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateNotificationSetting(projectId, environmentKey, settingId, updateNotificationSettingRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

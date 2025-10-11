@@ -53,6 +53,10 @@ type CreateFeatureScheduleRes interface {
 	createFeatureScheduleRes()
 }
 
+type CreateNotificationSettingRes interface {
+	createNotificationSettingRes()
+}
+
 type CreateProjectFeatureRes interface {
 	createProjectFeatureRes()
 }
@@ -99,6 +103,10 @@ type DeleteFeatureScheduleRes interface {
 
 type DeleteLDAPConfigRes interface {
 	deleteLDAPConfigRes()
+}
+
+type DeleteNotificationSettingRes interface {
+	deleteNotificationSettingRes()
 }
 
 type DeleteProjectMembershipRes interface {
@@ -189,6 +197,10 @@ type GetLDAPSyncStatusRes interface {
 	getLDAPSyncStatusRes()
 }
 
+type GetNotificationSettingRes interface {
+	getNotificationSettingRes()
+}
+
 type GetPendingChangeRes interface {
 	getPendingChangeRes()
 }
@@ -259,6 +271,10 @@ type ListFeatureSchedulesRes interface {
 
 type ListFeatureTagsRes interface {
 	listFeatureTagsRes()
+}
+
+type ListNotificationSettingsRes interface {
+	listNotificationSettingsRes()
 }
 
 type ListPendingChangesRes interface {
@@ -369,6 +385,10 @@ type Send2FACodeRes interface {
 	send2FACodeRes()
 }
 
+type SendTestNotificationRes interface {
+	sendTestNotificationRes()
+}
+
 type SetSuperuserStatusRes interface {
 	setSuperuserStatusRes()
 }
@@ -423,6 +443,10 @@ type UpdateLDAPConfigRes interface {
 
 type UpdateLicenseAcceptanceRes interface {
 	updateLicenseAcceptanceRes()
+}
+
+type UpdateNotificationSettingRes interface {
+	updateNotificationSettingRes()
 }
 
 type UpdateProjectMembershipRes interface {

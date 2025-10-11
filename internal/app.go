@@ -27,6 +27,7 @@ import (
 	dashboardrepo "github.com/togglr-project/togglr/internal/repository/dashboard"
 	environmentsrepo "github.com/togglr-project/togglr/internal/repository/environments"
 	"github.com/togglr-project/togglr/internal/repository/errorreports"
+	featurenotifsrepo "github.com/togglr-project/togglr/internal/repository/feature-notifications"
 	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
 	"github.com/togglr-project/togglr/internal/repository/features"
@@ -36,6 +37,7 @@ import (
 	"github.com/togglr-project/togglr/internal/repository/ldapsynclogs"
 	"github.com/togglr-project/togglr/internal/repository/ldapsyncstats"
 	"github.com/togglr-project/togglr/internal/repository/licenses"
+	notificationsettingsrepo "github.com/togglr-project/togglr/internal/repository/notification-settings"
 	"github.com/togglr-project/togglr/internal/repository/pending_changes"
 	"github.com/togglr-project/togglr/internal/repository/productinfo"
 	"github.com/togglr-project/togglr/internal/repository/project_approvers"
@@ -70,6 +72,7 @@ import (
 	dashboardusecase "github.com/togglr-project/togglr/internal/usecases/dashboard"
 	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
 	errorreportsusecase "github.com/togglr-project/togglr/internal/usecases/errorreports"
+	featurenotificationsuc "github.com/togglr-project/togglr/internal/usecases/feature-notifications"
 	featuretagsusecase "github.com/togglr-project/togglr/internal/usecases/feature-tags"
 	featuresusecase "github.com/togglr-project/togglr/internal/usecases/features"
 	featureschedulesusecase "github.com/togglr-project/togglr/internal/usecases/featureschedules"
@@ -247,6 +250,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(realtimerepo.New).Arg(app.PostgresPool)
 	app.registerComponent(errorreports.New).Arg(app.PostgresPool)
 	app.registerComponent(usernotifrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(notificationsettingsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(featurenotifsrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
@@ -259,28 +264,6 @@ func (app *App) registerComponents() {
 	app.registerComponent(featuresprocessor.New).Arg(time.Second * 3)
 	// Register events bus
 	app.registerComponent(eventsbus.New)
-
-	// Register use cases
-	app.registerComponent(projectsusecase.New)
-	app.registerComponent(ldapusecase.New)
-	app.registerComponent(settingsusecase.New).Arg(app.Config.SecretKey)
-	app.registerComponent(categoriesusecase.New)
-	app.registerComponent(tagsusecase.New)
-	app.registerComponent(featuretagsusecase.New)
-	app.registerComponent(featuresusecase.New)
-	app.registerComponent(flagvariantsusecase.New)
-	app.registerComponent(rulesusecase.New)
-	app.registerComponent(featureschedulesusecase.New)
-	app.registerComponent(segmentsusecase.New)
-	app.registerComponent(ruleattributesusecase.New)
-	app.registerComponent(pendingchangesusecase.New)
-	app.registerComponent(projectsettingsusecase.New)
-	app.registerComponent(environmentsusecase.New)
-	app.registerComponent(dashboardusecase.New)
-	app.registerComponent(realtimechanges.New)
-	app.registerComponent(rbacusecase.New)
-	app.registerComponent(errorreportsusecase.New)
-	app.registerComponent(usernotifusecase.New)
 
 	// Register channels
 	app.registerComponent(mattermost.New).Arg(&mattermost.ServiceParams{
@@ -306,6 +289,66 @@ func (app *App) registerComponents() {
 		UseTLS:        app.Config.Mailer.UseTLS,
 		BaseURL:       app.Config.FrontendURL,
 		From:          app.Config.Mailer.From,
+	})
+
+	// Resolve channels
+	var emailChannel *email.Service
+	if err := app.container.Resolve(&emailChannel); err != nil {
+		panic(err)
+	}
+
+	var mattermostChannel *mattermost.Service
+	if err := app.container.Resolve(&mattermostChannel); err != nil {
+		panic(err)
+	}
+
+	var webhookChannel *webhook.Service
+	if err := app.container.Resolve(&webhookChannel); err != nil {
+		panic(err)
+	}
+
+	var telegramChannel *telegram.Service
+	if err := app.container.Resolve(&telegramChannel); err != nil {
+		panic(err)
+	}
+
+	var slackChannel *slack.Service
+	if err := app.container.Resolve(&slackChannel); err != nil {
+		panic(err)
+	}
+
+	var pachcaChannel *pachca.Service
+	if err := app.container.Resolve(&pachcaChannel); err != nil {
+		panic(err)
+	}
+
+	// Register use cases
+	app.registerComponent(projectsusecase.New)
+	app.registerComponent(ldapusecase.New)
+	app.registerComponent(settingsusecase.New).Arg(app.Config.SecretKey)
+	app.registerComponent(categoriesusecase.New)
+	app.registerComponent(tagsusecase.New)
+	app.registerComponent(featuretagsusecase.New)
+	app.registerComponent(featuresusecase.New)
+	app.registerComponent(flagvariantsusecase.New)
+	app.registerComponent(rulesusecase.New)
+	app.registerComponent(featureschedulesusecase.New)
+	app.registerComponent(segmentsusecase.New)
+	app.registerComponent(ruleattributesusecase.New)
+	app.registerComponent(pendingchangesusecase.New)
+	app.registerComponent(projectsettingsusecase.New)
+	app.registerComponent(environmentsusecase.New)
+	app.registerComponent(dashboardusecase.New)
+	app.registerComponent(realtimechanges.New)
+	app.registerComponent(rbacusecase.New)
+	app.registerComponent(errorreportsusecase.New)
+	app.registerComponent(usernotifusecase.New)
+	app.registerComponent(featurenotificationsuc.New).Arg([]contract.NotificationChannel{
+		mattermostChannel,
+		webhookChannel,
+		telegramChannel,
+		slackChannel,
+		pachcaChannel,
 	})
 
 	// Register LDAP service
