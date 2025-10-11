@@ -26,7 +26,6 @@ It allows developers and product teams to toggle features on/off, run A/B tests,
 
     * Go
     * Ruby
-    * PHP
     * Python
     * TypeScript (Node.js and browser)
     * Elixir

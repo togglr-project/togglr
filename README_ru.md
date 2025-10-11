@@ -23,7 +23,6 @@ Togglr — это система управления feature flags и эксп�
 
     * Go
     * Ruby
-    * PHP
     * Python
     * TypeScript (Node.js и браузер)
     * Elixir
