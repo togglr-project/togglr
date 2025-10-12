@@ -26,4 +26,9 @@ type NotificationSettingsRepository interface {
 		ctx context.Context,
 		projectID domain.ProjectID,
 	) ([]domain.NotificationSetting, error)
+	CountSettings(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		envID domain.EnvironmentID,
+	) (uint, error)
 }

@@ -20,20 +20,20 @@ import (
 const CacheTTL = 10 * time.Minute
 
 type Service struct {
-	txManager                db.TxManager
-	repo                     contract.FeaturesRepository
-	flagVariantsRep          contract.FlagVariantsRepository
-	rulesRep                 contract.RulesRepository
-	schedulesRep             contract.FeatureSchedulesRepository
-	featureParamsRep         contract.FeatureParamsRepository
-	featureTagsRep           contract.FeatureTagsRepository
-	tagsRep                  contract.TagsRepository
-	environmentsRep          contract.EnvironmentsRepository
-	featureNotificationsRepo contract.FeatureNotificationRepository
-	guardService             contract.GuardService
-	guardEngine              contract.GuardEngine
-	pendingChangesUseCase    contract.PendingChangesUseCase
-	cache                    *simplecache.Cache[string, domain.Feature]
+	txManager                   db.TxManager
+	repo                        contract.FeaturesRepository
+	flagVariantsRep             contract.FlagVariantsRepository
+	rulesRep                    contract.RulesRepository
+	schedulesRep                contract.FeatureSchedulesRepository
+	featureParamsRep            contract.FeatureParamsRepository
+	featureTagsRep              contract.FeatureTagsRepository
+	tagsRep                     contract.TagsRepository
+	environmentsRep             contract.EnvironmentsRepository
+	featureNotificationsUseCase contract.FeatureNotificationsUseCase
+	guardService                contract.GuardService
+	guardEngine                 contract.GuardEngine
+	pendingChangesUseCase       contract.PendingChangesUseCase
+	cache                       *simplecache.Cache[string, domain.Feature]
 }
 
 func New(
@@ -46,7 +46,7 @@ func New(
 	featureTagsRep contract.FeatureTagsRepository,
 	tagsRep contract.TagsRepository,
 	environmentsRep contract.EnvironmentsRepository,
-	featureNotificationsRepo contract.FeatureNotificationRepository,
+	featureNotificationsUseCase contract.FeatureNotificationsUseCase,
 	guardService contract.GuardService,
 	guardEngine contract.GuardEngine,
 	pendingChangesUseCase contract.PendingChangesUseCase,
@@ -55,20 +55,20 @@ func New(
 	cache.StartCleanup(time.Minute)
 
 	return &Service{
-		txManager:                txManager,
-		repo:                     repo,
-		flagVariantsRep:          flagVariantsRep,
-		rulesRep:                 rulesRep,
-		schedulesRep:             schedulesRep,
-		featureParamsRep:         featureParamsRep,
-		featureTagsRep:           featureTagsRep,
-		tagsRep:                  tagsRep,
-		environmentsRep:          environmentsRep,
-		featureNotificationsRepo: featureNotificationsRepo,
-		guardService:             guardService,
-		guardEngine:              guardEngine,
-		pendingChangesUseCase:    pendingChangesUseCase,
-		cache:                    cache,
+		txManager:                   txManager,
+		repo:                        repo,
+		flagVariantsRep:             flagVariantsRep,
+		rulesRep:                    rulesRep,
+		schedulesRep:                schedulesRep,
+		featureParamsRep:            featureParamsRep,
+		featureTagsRep:              featureTagsRep,
+		tagsRep:                     tagsRep,
+		environmentsRep:             environmentsRep,
+		featureNotificationsUseCase: featureNotificationsUseCase,
+		guardService:                guardService,
+		guardEngine:                 guardEngine,
+		pendingChangesUseCase:       pendingChangesUseCase,
+		cache:                       cache,
 	}
 }
 
@@ -531,7 +531,7 @@ func (s *Service) Toggle(
 			updated = existing
 			updated.Enabled = enabled
 
-			errNotif := s.featureNotificationsRepo.AddNotification(
+			errNotif := s.featureNotificationsUseCase.AddNotification(
 				ctx,
 				existing.ProjectID,
 				env.ID,
@@ -989,7 +989,7 @@ func (s *Service) updateFeatureWithChildrenDirect(
 		}
 
 		if feature.Enabled != existing.Enabled {
-			errNotif := s.featureNotificationsRepo.AddNotification(
+			errNotif := s.featureNotificationsUseCase.AddNotification(
 				ctx,
 				feature.ProjectID,
 				feature.EnvironmentID,

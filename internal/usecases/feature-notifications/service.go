@@ -148,6 +148,27 @@ func (s *Service) ListNotificationSettings(
 	return settings, nil
 }
 
+func (s *Service) AddNotification(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envID domain.EnvironmentID,
+	featureID domain.FeatureID,
+	payload domain.FeatureNotificationPayload,
+) error {
+	settingsCount, err := s.notificationSettingsRepo.CountSettings(ctx, projectID, envID)
+	if err != nil {
+		return fmt.Errorf("count notification settings: %w", err)
+	}
+
+	if settingsCount == 0 {
+		return nil
+	}
+
+	return s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.featureNotificationsRepo.AddNotification(ctx, projectID, envID, featureID, payload)
+	})
+}
+
 func (s *Service) TakePendingNotificationsWithSettings(
 	ctx context.Context,
 	limit uint,

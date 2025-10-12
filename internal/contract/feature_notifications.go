@@ -49,6 +49,13 @@ type FeatureNotificationsUseCase interface {
 	) ([]domain.NotificationSetting, error)
 
 	// FeatureNotifications
+	AddNotification(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		envID domain.EnvironmentID,
+		featureID domain.FeatureID,
+		payload domain.FeatureNotificationPayload,
+	) error
 	TakePendingNotificationsWithSettings(
 		ctx context.Context,
 		limit uint,

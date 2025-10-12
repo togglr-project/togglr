@@ -192,6 +192,27 @@ ORDER BY id`
 	return settings, nil
 }
 
+func (r *Repository) CountSettings(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envID domain.EnvironmentID,
+) (uint, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT COUNT(*)
+FROM notification_settings
+WHERE project_id = $1 AND environment_id = $2`
+
+	var count uint
+	err := executor.QueryRow(ctx, query, projectID, envID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("count notification settings: %w", err)
+	}
+
+	return count, nil
+}
+
 //nolint:ireturn // it's ok here
 func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {
