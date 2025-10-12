@@ -536,7 +536,7 @@ func (s *Service) Toggle(
 				existing.ProjectID,
 				env.ID,
 				existing.ID,
-				makeStateNotificationPayload(ctx, existing.Enabled),
+				makeStateNotificationPayload(ctx, enabled),
 			)
 			if errNotif != nil {
 				slog.Error("failed to add notification", "error", errNotif)
