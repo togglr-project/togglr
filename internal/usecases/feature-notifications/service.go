@@ -148,6 +148,62 @@ func (s *Service) ListNotificationSettings(
 	return settings, nil
 }
 
+func (s *Service) TakePendingNotificationsWithSettings(
+	ctx context.Context,
+	envID domain.EnvironmentID,
+	limit uint,
+) ([]domain.FeatureNotificationWithSettings, error) {
+	notifications, err := s.featureNotificationsRepo.TakePending(ctx, limit)
+	if err != nil {
+		return nil, fmt.Errorf("take pending notifications: %w", err)
+	}
+
+	projectsMap := make(map[domain.ProjectID][]domain.NotificationSetting)
+	for i := range notifications {
+		notification := notifications[i]
+		projectsMap[notification.ProjectID] = nil
+	}
+
+	for projectID := range projectsMap {
+		settingsWithRules, err := s.notificationSettingsRepo.ListSettings(ctx, projectID, envID)
+		if err != nil {
+			return nil, fmt.Errorf("list notification settings: %w", err)
+		}
+
+		projectsMap[projectID] = settingsWithRules
+	}
+
+	result := make([]domain.FeatureNotificationWithSettings, 0, len(notifications))
+	for i := range notifications {
+		notification := notifications[i]
+		settings := projectsMap[notification.ProjectID]
+		result = append(result, domain.FeatureNotificationWithSettings{
+			FeatureNotification: notification,
+			Settings:            settings,
+		})
+	}
+
+	return result, nil
+}
+
+func (s *Service) MarkNotificationAsSent(ctx context.Context, id domain.FeatureNotificationID) error {
+	return s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.featureNotificationsRepo.MarkAsSent(ctx, id)
+	})
+}
+
+func (s *Service) MarkNotificationAsFailed(ctx context.Context, id domain.FeatureNotificationID, reason string) error {
+	return s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.featureNotificationsRepo.MarkAsFailed(ctx, id, reason)
+	})
+}
+
+func (s *Service) MarkNotificationAsSkipped(ctx context.Context, id domain.FeatureNotificationID, reason string) error {
+	return s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+		return s.featureNotificationsRepo.MarkAsSkipped(ctx, id, reason)
+	})
+}
+
 func (s *Service) SendTestNotification(
 	ctx context.Context,
 	projectID domain.ProjectID,

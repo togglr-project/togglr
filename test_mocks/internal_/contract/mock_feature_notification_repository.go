@@ -7,6 +7,7 @@ package mockcontract
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	mock "github.com/stretchr/testify/mock"
 	"github.com/togglr-project/togglr/internal/domain"
@@ -114,6 +115,78 @@ func (_c *MockFeatureNotificationRepository_AddNotification_Call) RunAndReturn(r
 	return _c
 }
 
+// DeleteOld provides a mock function for the type MockFeatureNotificationRepository
+func (_mock *MockFeatureNotificationRepository) DeleteOld(ctx context.Context, maxAge time.Duration, limit uint) (uint, error) {
+	ret := _mock.Called(ctx, maxAge, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteOld")
+	}
+
+	var r0 uint
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, time.Duration, uint) (uint, error)); ok {
+		return returnFunc(ctx, maxAge, limit)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, time.Duration, uint) uint); ok {
+		r0 = returnFunc(ctx, maxAge, limit)
+	} else {
+		r0 = ret.Get(0).(uint)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, time.Duration, uint) error); ok {
+		r1 = returnFunc(ctx, maxAge, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureNotificationRepository_DeleteOld_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteOld'
+type MockFeatureNotificationRepository_DeleteOld_Call struct {
+	*mock.Call
+}
+
+// DeleteOld is a helper method to define mock.On call
+//   - ctx context.Context
+//   - maxAge time.Duration
+//   - limit uint
+func (_e *MockFeatureNotificationRepository_Expecter) DeleteOld(ctx interface{}, maxAge interface{}, limit interface{}) *MockFeatureNotificationRepository_DeleteOld_Call {
+	return &MockFeatureNotificationRepository_DeleteOld_Call{Call: _e.mock.On("DeleteOld", ctx, maxAge, limit)}
+}
+
+func (_c *MockFeatureNotificationRepository_DeleteOld_Call) Run(run func(ctx context.Context, maxAge time.Duration, limit uint)) *MockFeatureNotificationRepository_DeleteOld_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 time.Duration
+		if args[1] != nil {
+			arg1 = args[1].(time.Duration)
+		}
+		var arg2 uint
+		if args[2] != nil {
+			arg2 = args[2].(uint)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_DeleteOld_Call) Return(v uint, err error) *MockFeatureNotificationRepository_DeleteOld_Call {
+	_c.Call.Return(v, err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_DeleteOld_Call) RunAndReturn(run func(ctx context.Context, maxAge time.Duration, limit uint) (uint, error)) *MockFeatureNotificationRepository_DeleteOld_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByID provides a mock function for the type MockFeatureNotificationRepository
 func (_mock *MockFeatureNotificationRepository) GetByID(ctx context.Context, id domain.FeatureNotificationID) (domain.FeatureNotification, error) {
 	ret := _mock.Called(ctx, id)
@@ -176,6 +249,257 @@ func (_c *MockFeatureNotificationRepository_GetByID_Call) Return(featureNotifica
 }
 
 func (_c *MockFeatureNotificationRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID) (domain.FeatureNotification, error)) *MockFeatureNotificationRepository_GetByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkAsFailed provides a mock function for the type MockFeatureNotificationRepository
+func (_mock *MockFeatureNotificationRepository) MarkAsFailed(ctx context.Context, id domain.FeatureNotificationID, reason string) error {
+	ret := _mock.Called(ctx, id, reason)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkAsFailed")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureNotificationID, string) error); ok {
+		r0 = returnFunc(ctx, id, reason)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationRepository_MarkAsFailed_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkAsFailed'
+type MockFeatureNotificationRepository_MarkAsFailed_Call struct {
+	*mock.Call
+}
+
+// MarkAsFailed is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureNotificationID
+//   - reason string
+func (_e *MockFeatureNotificationRepository_Expecter) MarkAsFailed(ctx interface{}, id interface{}, reason interface{}) *MockFeatureNotificationRepository_MarkAsFailed_Call {
+	return &MockFeatureNotificationRepository_MarkAsFailed_Call{Call: _e.mock.On("MarkAsFailed", ctx, id, reason)}
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsFailed_Call) Run(run func(ctx context.Context, id domain.FeatureNotificationID, reason string)) *MockFeatureNotificationRepository_MarkAsFailed_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureNotificationID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureNotificationID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsFailed_Call) Return(err error) *MockFeatureNotificationRepository_MarkAsFailed_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsFailed_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID, reason string) error) *MockFeatureNotificationRepository_MarkAsFailed_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkAsSent provides a mock function for the type MockFeatureNotificationRepository
+func (_mock *MockFeatureNotificationRepository) MarkAsSent(ctx context.Context, id domain.FeatureNotificationID) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkAsSent")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureNotificationID) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationRepository_MarkAsSent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkAsSent'
+type MockFeatureNotificationRepository_MarkAsSent_Call struct {
+	*mock.Call
+}
+
+// MarkAsSent is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureNotificationID
+func (_e *MockFeatureNotificationRepository_Expecter) MarkAsSent(ctx interface{}, id interface{}) *MockFeatureNotificationRepository_MarkAsSent_Call {
+	return &MockFeatureNotificationRepository_MarkAsSent_Call{Call: _e.mock.On("MarkAsSent", ctx, id)}
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsSent_Call) Run(run func(ctx context.Context, id domain.FeatureNotificationID)) *MockFeatureNotificationRepository_MarkAsSent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureNotificationID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureNotificationID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsSent_Call) Return(err error) *MockFeatureNotificationRepository_MarkAsSent_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsSent_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID) error) *MockFeatureNotificationRepository_MarkAsSent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkAsSkipped provides a mock function for the type MockFeatureNotificationRepository
+func (_mock *MockFeatureNotificationRepository) MarkAsSkipped(ctx context.Context, id domain.FeatureNotificationID, reason string) error {
+	ret := _mock.Called(ctx, id, reason)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkAsSkipped")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureNotificationID, string) error); ok {
+		r0 = returnFunc(ctx, id, reason)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationRepository_MarkAsSkipped_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkAsSkipped'
+type MockFeatureNotificationRepository_MarkAsSkipped_Call struct {
+	*mock.Call
+}
+
+// MarkAsSkipped is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureNotificationID
+//   - reason string
+func (_e *MockFeatureNotificationRepository_Expecter) MarkAsSkipped(ctx interface{}, id interface{}, reason interface{}) *MockFeatureNotificationRepository_MarkAsSkipped_Call {
+	return &MockFeatureNotificationRepository_MarkAsSkipped_Call{Call: _e.mock.On("MarkAsSkipped", ctx, id, reason)}
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsSkipped_Call) Run(run func(ctx context.Context, id domain.FeatureNotificationID, reason string)) *MockFeatureNotificationRepository_MarkAsSkipped_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureNotificationID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureNotificationID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsSkipped_Call) Return(err error) *MockFeatureNotificationRepository_MarkAsSkipped_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_MarkAsSkipped_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID, reason string) error) *MockFeatureNotificationRepository_MarkAsSkipped_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TakePending provides a mock function for the type MockFeatureNotificationRepository
+func (_mock *MockFeatureNotificationRepository) TakePending(ctx context.Context, limit uint) ([]domain.FeatureNotification, error) {
+	ret := _mock.Called(ctx, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TakePending")
+	}
+
+	var r0 []domain.FeatureNotification
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) ([]domain.FeatureNotification, error)); ok {
+		return returnFunc(ctx, limit)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) []domain.FeatureNotification); ok {
+		r0 = returnFunc(ctx, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureNotification)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = returnFunc(ctx, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureNotificationRepository_TakePending_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TakePending'
+type MockFeatureNotificationRepository_TakePending_Call struct {
+	*mock.Call
+}
+
+// TakePending is a helper method to define mock.On call
+//   - ctx context.Context
+//   - limit uint
+func (_e *MockFeatureNotificationRepository_Expecter) TakePending(ctx interface{}, limit interface{}) *MockFeatureNotificationRepository_TakePending_Call {
+	return &MockFeatureNotificationRepository_TakePending_Call{Call: _e.mock.On("TakePending", ctx, limit)}
+}
+
+func (_c *MockFeatureNotificationRepository_TakePending_Call) Run(run func(ctx context.Context, limit uint)) *MockFeatureNotificationRepository_TakePending_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uint
+		if args[1] != nil {
+			arg1 = args[1].(uint)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_TakePending_Call) Return(featureNotifications []domain.FeatureNotification, err error) *MockFeatureNotificationRepository_TakePending_Call {
+	_c.Call.Return(featureNotifications, err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_TakePending_Call) RunAndReturn(run func(ctx context.Context, limit uint) ([]domain.FeatureNotification, error)) *MockFeatureNotificationRepository_TakePending_Call {
 	_c.Call.Return(run)
 	return _c
 }

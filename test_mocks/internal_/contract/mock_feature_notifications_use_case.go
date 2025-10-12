@@ -301,6 +301,189 @@ func (_c *MockFeatureNotificationsUseCase_ListNotificationSettings_Call) RunAndR
 	return _c
 }
 
+// MarkNotificationAsFailed provides a mock function for the type MockFeatureNotificationsUseCase
+func (_mock *MockFeatureNotificationsUseCase) MarkNotificationAsFailed(ctx context.Context, id domain.FeatureNotificationID, reason string) error {
+	ret := _mock.Called(ctx, id, reason)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkNotificationAsFailed")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureNotificationID, string) error); ok {
+		r0 = returnFunc(ctx, id, reason)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkNotificationAsFailed'
+type MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call struct {
+	*mock.Call
+}
+
+// MarkNotificationAsFailed is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureNotificationID
+//   - reason string
+func (_e *MockFeatureNotificationsUseCase_Expecter) MarkNotificationAsFailed(ctx interface{}, id interface{}, reason interface{}) *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call {
+	return &MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call{Call: _e.mock.On("MarkNotificationAsFailed", ctx, id, reason)}
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call) Run(run func(ctx context.Context, id domain.FeatureNotificationID, reason string)) *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureNotificationID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureNotificationID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call) Return(err error) *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID, reason string) error) *MockFeatureNotificationsUseCase_MarkNotificationAsFailed_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkNotificationAsSent provides a mock function for the type MockFeatureNotificationsUseCase
+func (_mock *MockFeatureNotificationsUseCase) MarkNotificationAsSent(ctx context.Context, id domain.FeatureNotificationID) error {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkNotificationAsSent")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureNotificationID) error); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkNotificationAsSent'
+type MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call struct {
+	*mock.Call
+}
+
+// MarkNotificationAsSent is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureNotificationID
+func (_e *MockFeatureNotificationsUseCase_Expecter) MarkNotificationAsSent(ctx interface{}, id interface{}) *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call {
+	return &MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call{Call: _e.mock.On("MarkNotificationAsSent", ctx, id)}
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call) Run(run func(ctx context.Context, id domain.FeatureNotificationID)) *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureNotificationID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureNotificationID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call) Return(err error) *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID) error) *MockFeatureNotificationsUseCase_MarkNotificationAsSent_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// MarkNotificationAsSkipped provides a mock function for the type MockFeatureNotificationsUseCase
+func (_mock *MockFeatureNotificationsUseCase) MarkNotificationAsSkipped(ctx context.Context, id domain.FeatureNotificationID, reason string) error {
+	ret := _mock.Called(ctx, id, reason)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkNotificationAsSkipped")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureNotificationID, string) error); ok {
+		r0 = returnFunc(ctx, id, reason)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'MarkNotificationAsSkipped'
+type MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call struct {
+	*mock.Call
+}
+
+// MarkNotificationAsSkipped is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureNotificationID
+//   - reason string
+func (_e *MockFeatureNotificationsUseCase_Expecter) MarkNotificationAsSkipped(ctx interface{}, id interface{}, reason interface{}) *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call {
+	return &MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call{Call: _e.mock.On("MarkNotificationAsSkipped", ctx, id, reason)}
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call) Run(run func(ctx context.Context, id domain.FeatureNotificationID, reason string)) *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureNotificationID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureNotificationID)
+		}
+		var arg2 string
+		if args[2] != nil {
+			arg2 = args[2].(string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call) Return(err error) *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureNotificationID, reason string) error) *MockFeatureNotificationsUseCase_MarkNotificationAsSkipped_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // SendTestNotification provides a mock function for the type MockFeatureNotificationsUseCase
 func (_mock *MockFeatureNotificationsUseCase) SendTestNotification(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, notificationSettingID domain.NotificationSettingID) error {
 	ret := _mock.Called(ctx, projectID, envID, notificationSettingID)
@@ -366,6 +549,80 @@ func (_c *MockFeatureNotificationsUseCase_SendTestNotification_Call) Return(err 
 }
 
 func (_c *MockFeatureNotificationsUseCase_SendTestNotification_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, notificationSettingID domain.NotificationSettingID) error) *MockFeatureNotificationsUseCase_SendTestNotification_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// TakePendingNotificationsWithSettings provides a mock function for the type MockFeatureNotificationsUseCase
+func (_mock *MockFeatureNotificationsUseCase) TakePendingNotificationsWithSettings(ctx context.Context, envID domain.EnvironmentID, limit uint) ([]domain.FeatureNotificationWithSettings, error) {
+	ret := _mock.Called(ctx, envID, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TakePendingNotificationsWithSettings")
+	}
+
+	var r0 []domain.FeatureNotificationWithSettings
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, uint) ([]domain.FeatureNotificationWithSettings, error)); ok {
+		return returnFunc(ctx, envID, limit)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, uint) []domain.FeatureNotificationWithSettings); ok {
+		r0 = returnFunc(ctx, envID, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureNotificationWithSettings)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.EnvironmentID, uint) error); ok {
+		r1 = returnFunc(ctx, envID, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TakePendingNotificationsWithSettings'
+type MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call struct {
+	*mock.Call
+}
+
+// TakePendingNotificationsWithSettings is a helper method to define mock.On call
+//   - ctx context.Context
+//   - envID domain.EnvironmentID
+//   - limit uint
+func (_e *MockFeatureNotificationsUseCase_Expecter) TakePendingNotificationsWithSettings(ctx interface{}, envID interface{}, limit interface{}) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
+	return &MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call{Call: _e.mock.On("TakePendingNotificationsWithSettings", ctx, envID, limit)}
+}
+
+func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) Run(run func(ctx context.Context, envID domain.EnvironmentID, limit uint)) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.EnvironmentID
+		if args[1] != nil {
+			arg1 = args[1].(domain.EnvironmentID)
+		}
+		var arg2 uint
+		if args[2] != nil {
+			arg2 = args[2].(uint)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) Return(featureNotificationWithSettingss []domain.FeatureNotificationWithSettings, err error) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
+	_c.Call.Return(featureNotificationWithSettingss, err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) RunAndReturn(run func(ctx context.Context, envID domain.EnvironmentID, limit uint) ([]domain.FeatureNotificationWithSettings, error)) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
 	_c.Call.Return(run)
 	return _c
 }

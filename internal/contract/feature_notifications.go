@@ -3,6 +3,7 @@ package contract
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/togglr-project/togglr/internal/domain"
 )
@@ -16,6 +17,11 @@ type FeatureNotificationRepository interface {
 		payload json.RawMessage,
 	) error
 	GetByID(ctx context.Context, id domain.FeatureNotificationID) (domain.FeatureNotification, error)
+	TakePending(ctx context.Context, limit uint) ([]domain.FeatureNotification, error)
+	MarkAsSent(ctx context.Context, id domain.FeatureNotificationID) error
+	MarkAsFailed(ctx context.Context, id domain.FeatureNotificationID, reason string) error
+	MarkAsSkipped(ctx context.Context, id domain.FeatureNotificationID, reason string) error
+	DeleteOld(ctx context.Context, maxAge time.Duration, limit uint) (uint, error)
 }
 
 type FeatureNotificationsUseCase interface {
@@ -41,6 +47,16 @@ type FeatureNotificationsUseCase interface {
 		projectID domain.ProjectID,
 		envID domain.EnvironmentID,
 	) ([]domain.NotificationSetting, error)
+
+	// FeatureNotifications
+	TakePendingNotificationsWithSettings(
+		ctx context.Context,
+		envID domain.EnvironmentID,
+		limit uint,
+	) ([]domain.FeatureNotificationWithSettings, error)
+	MarkNotificationAsSent(ctx context.Context, id domain.FeatureNotificationID) error
+	MarkNotificationAsFailed(ctx context.Context, id domain.FeatureNotificationID, reason string) error
+	MarkNotificationAsSkipped(ctx context.Context, id domain.FeatureNotificationID, reason string) error
 
 	SendTestNotification(
 		ctx context.Context,
