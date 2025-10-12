@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	topicSDKErrorReports = "sdk.error_reports"
+	TopicSDKErrorReports = "sdk__error_reports"
 )
 
 type Service struct {
@@ -36,7 +36,7 @@ func New(bus mq.MQ, errorReportUseCase contract.ErrorReportsUseCase) *Service {
 
 //nolint:contextcheck // false positive
 func (s *Service) Start(context.Context) error {
-	s.dispatchConsumer(topicSDKErrorReports, s.processSDKErrorReportEvent)
+	s.dispatchConsumer(TopicSDKErrorReports, s.processSDKErrorReportEvent)
 
 	return nil
 }
@@ -54,7 +54,7 @@ func (s *Service) PublishErrorReport(ctx context.Context, event contract.ErrorRe
 		return fmt.Errorf("marshal event: %w", err)
 	}
 
-	return s.bus.Publish(ctx, topicSDKErrorReports, data)
+	return s.bus.Publish(ctx, TopicSDKErrorReports, data)
 }
 
 func (s *Service) dispatchConsumer(topic string, processFn func(ctx context.Context, data []byte) error) {

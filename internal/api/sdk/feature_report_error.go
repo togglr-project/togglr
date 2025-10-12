@@ -3,6 +3,7 @@ package apisdk
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 
 	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/contract"
@@ -46,6 +47,8 @@ func (s *SDKRestAPI) ReportFeatureError(
 		ErrorMessage: req.ErrorMessage,
 	})
 	if err != nil {
+		slog.Error("report feature error failed", "error", err)
+
 		return &generatedapi.ErrorInternalServerError{
 			Error: generatedapi.ErrorInternalServerErrorError{
 				Message: generatedapi.NewOptString(err.Error()),

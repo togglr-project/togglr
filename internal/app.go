@@ -130,7 +130,15 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 		return nil, fmt.Errorf("create postgres pool: %w", err)
 	}
 
-	bus, err := natsmq.New(cfg.NATS.URL)
+	bus, err := natsmq.New(&natsmq.Config{
+		URL: cfg.NATS.URL,
+		JetStreams: []natsmq.JetStreamConfig{
+			{
+				StreamName: eventsbus.TopicSDKErrorReports,
+				MaxAge:     time.Hour * 3,
+			},
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("init message queue: %w", err)
 	}
