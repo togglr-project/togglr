@@ -38,6 +38,10 @@ func (m *TxManagerImpl) RepeatableRead(ctx context.Context, fn func(ctx context.
 }
 
 func (m *TxManagerImpl) run(ctx context.Context, opts pgx.TxOptions, fn func(ctx context.Context) error) error {
+	if txOpened := TxFromContext(ctx); txOpened != nil {
+		return fn(ctx)
+	}
+
 	tx, err := m.pool.BeginTx(ctx, opts)
 	if err != nil {
 		return err
