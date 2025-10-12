@@ -21,16 +21,17 @@ const PendingChangeCacheTTL = time.Minute
 var _ contract.ErrorReportsUseCase = (*Service)(nil)
 
 type Service struct {
-	txManager         db.TxManager
-	repo              contract.ErrorReportRepository
-	featuresRepo      contract.FeaturesRepository
-	featuresUC        contract.FeaturesUseCase
-	featureParamsRepo contract.FeatureParamsRepository
-	featureTagsRepo   contract.FeatureTagsRepository
-	tagsUC            contract.TagsUseCase
-	projectSettingsUC contract.ProjectSettingsUseCase
-	pendingUC         contract.PendingChangesUseCase
-	envsUC            contract.EnvironmentsUseCase
+	txManager              db.TxManager
+	repo                   contract.ErrorReportRepository
+	featuresRepo           contract.FeaturesRepository
+	featuresUC             contract.FeaturesUseCase
+	featureParamsRepo      contract.FeatureParamsRepository
+	featureTagsRepo        contract.FeatureTagsRepository
+	tagsUC                 contract.TagsUseCase
+	projectSettingsUC      contract.ProjectSettingsUseCase
+	pendingUC              contract.PendingChangesUseCase
+	envsUC                 contract.EnvironmentsUseCase
+	featureNotificationsUC contract.FeatureNotificationsUseCase
 
 	pendingCache *simplecache.Cache[string, bool]
 }
@@ -46,22 +47,24 @@ func New(
 	projectSettingsUC contract.ProjectSettingsUseCase,
 	pendingUC contract.PendingChangesUseCase,
 	envsUC contract.EnvironmentsUseCase,
+	featureNotificationsUC contract.FeatureNotificationsUseCase,
 ) *Service {
 	pendingCache := simplecache.New[string, bool]()
 	pendingCache.StartCleanup(30 * time.Second)
 
 	return &Service{
-		txManager:         txManager,
-		repo:              repo,
-		featuresRepo:      featuresRepo,
-		featuresUC:        featuresUC,
-		featureParamsRepo: featureParams,
-		featureTagsRepo:   featureTags,
-		tagsUC:            tagsUC,
-		projectSettingsUC: projectSettingsUC,
-		pendingUC:         pendingUC,
-		envsUC:            envsUC,
-		pendingCache:      pendingCache,
+		txManager:              txManager,
+		repo:                   repo,
+		featuresRepo:           featuresRepo,
+		featuresUC:             featuresUC,
+		featureParamsRepo:      featureParams,
+		featureTagsRepo:        featureTags,
+		tagsUC:                 tagsUC,
+		projectSettingsUC:      projectSettingsUC,
+		pendingUC:              pendingUC,
+		envsUC:                 envsUC,
+		pendingCache:           pendingCache,
+		featureNotificationsUC: featureNotificationsUC,
 	}
 }
 
@@ -213,6 +216,22 @@ func (s *Service) ReportError(
 								}
 								if _, err := s.featureParamsRepo.Update(txCtx, projectID, params); err != nil {
 									return fmt.Errorf("disable feature: %w", err)
+								}
+
+								payload := domain.FeatureNotificationPayload{
+									AutoDisabled: &domain.FeatureNotificationAutoDisabledPayload{
+										DisabledAt: time.Now(),
+									},
+								}
+								errNotif := s.featureNotificationsUC.AddNotification(
+									ctx,
+									feature.ProjectID,
+									env.ID,
+									feature.ID,
+									payload,
+								)
+								if errNotif != nil {
+									slog.Error("failed to add notification", "error", errNotif)
 								}
 
 								slog.Warn("feature auto-disabled",

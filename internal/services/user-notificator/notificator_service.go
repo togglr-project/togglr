@@ -18,7 +18,7 @@ import (
 
 const (
 	defaultBatchSize   = 100
-	defaultInterval    = time.Minute
+	defaultInterval    = time.Second * 10
 	defaultWorkerCount = 4
 )
 
@@ -117,9 +117,9 @@ func (s *Service) ProcessOutbox() {
 }
 
 func (s *Service) processBatch(ctx context.Context) (processed uint) {
-	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+	err := func() error {
 		sent := 0
-		notifications, err := s.userNotificationsRepo.GetPendingEmailNotificationsForUpdate(ctx, s.batchSize)
+		notifications, err := s.userNotificationsRepo.GetPendingEmailNotifications(ctx, s.batchSize)
 		if err != nil {
 			return fmt.Errorf("get pending email notifications: %w", err)
 		}
@@ -185,7 +185,7 @@ func (s *Service) processBatch(ctx context.Context) (processed uint) {
 		}
 
 		return nil
-	})
+	}()
 	if err != nil {
 		slog.Error("process notifications batch failed", "error", err)
 	}

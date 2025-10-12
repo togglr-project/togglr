@@ -18,7 +18,7 @@ import (
 
 const (
 	defaultBatchSize   = 100
-	defaultInterval    = time.Minute
+	defaultInterval    = time.Second * 10
 	defaultWorkerCount = 4
 )
 
@@ -130,7 +130,7 @@ func (s *Service) ProcessOutbox() {
 }
 
 func (s *Service) processBatch(ctx context.Context) (processed uint) {
-	err := s.txManager.ReadCommitted(ctx, func(ctx context.Context) error {
+	err := func() error {
 		sent := 0
 
 		notifications, err := s.notificationsUseCase.TakePendingNotificationsWithSettings(ctx, s.batchSize)
@@ -202,7 +202,7 @@ func (s *Service) processBatch(ctx context.Context) (processed uint) {
 		}
 
 		return nil
-	})
+	}()
 	if err != nil {
 		slog.Error("process feature notifications batch failed", "error", err)
 	}
