@@ -6173,12 +6173,11 @@ func (*Membership) createProjectMembershipRes() {}
 func (*Membership) getProjectMembershipRes()    {}
 func (*Membership) updateProjectMembershipRes() {}
 
-// Type of notification channel (email, mattermost, slack, etc.).
+// Type of notification channel (mattermost, slack, etc.).
 // Ref: #/components/schemas/NotificationChannelType
 type NotificationChannelType string
 
 const (
-	NotificationChannelTypeEmail      NotificationChannelType = "email"
 	NotificationChannelTypeTelegram   NotificationChannelType = "telegram"
 	NotificationChannelTypeSlack      NotificationChannelType = "slack"
 	NotificationChannelTypeMattermost NotificationChannelType = "mattermost"
@@ -6189,7 +6188,6 @@ const (
 // AllValues returns all NotificationChannelType values.
 func (NotificationChannelType) AllValues() []NotificationChannelType {
 	return []NotificationChannelType{
-		NotificationChannelTypeEmail,
 		NotificationChannelTypeTelegram,
 		NotificationChannelTypeSlack,
 		NotificationChannelTypeMattermost,
@@ -6201,8 +6199,6 @@ func (NotificationChannelType) AllValues() []NotificationChannelType {
 // MarshalText implements encoding.TextMarshaler.
 func (s NotificationChannelType) MarshalText() ([]byte, error) {
 	switch s {
-	case NotificationChannelTypeEmail:
-		return []byte(s), nil
 	case NotificationChannelTypeTelegram:
 		return []byte(s), nil
 	case NotificationChannelTypeSlack:
@@ -6221,9 +6217,6 @@ func (s NotificationChannelType) MarshalText() ([]byte, error) {
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (s *NotificationChannelType) UnmarshalText(data []byte) error {
 	switch NotificationChannelType(data) {
-	case NotificationChannelTypeEmail:
-		*s = NotificationChannelTypeEmail
-		return nil
 	case NotificationChannelTypeTelegram:
 		*s = NotificationChannelTypeTelegram
 		return nil

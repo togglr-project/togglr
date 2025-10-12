@@ -1,10 +1,8 @@
 # NotificationChannelType
 
-Type of notification channel (email, mattermost, slack, etc.)
+Type of notification channel (mattermost, slack, etc.)
 
 ## Enum
-
-* `Email` (value: `'email'`)
 
 * `Telegram` (value: `'telegram'`)
 

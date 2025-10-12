@@ -9213,8 +9213,8 @@ components:
     # ---- Notification Settings ----
     NotificationChannelType:
       type: string
-      enum: [email, telegram, slack, mattermost, webhook, pachca]
-      description: "Type of notification channel (email, mattermost, slack, etc.)"
+      enum: [telegram, slack, mattermost, webhook, pachca]
+      description: "Type of notification channel (mattermost, slack, etc.)"
 
     NotificationSetting:
       type: object

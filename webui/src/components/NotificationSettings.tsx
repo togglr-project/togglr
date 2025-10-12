@@ -20,10 +20,6 @@ import {
   DialogActions,
   Alert,
   Collapse,
-  Card,
-  CardContent,
-  CardActions,
-  Chip,
   Tabs,
   Tab,
   Tooltip
@@ -61,9 +57,9 @@ interface NotificationSettingsProps {
 // Use the standard NotificationSetting interface
 type ExtendedNotificationSetting = NotificationSetting;
 
-interface EmailConfig {
-  email_to: string;
-}
+// interface EmailConfig {
+//   email_to: string;
+// }
 
 interface MattermostConfig {
   webhook_url: string;
@@ -98,7 +94,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
   const [openValidationDialog, setOpenValidationDialog] = useState(false);
 
   // State for field validation
-  const [emailFieldError, setEmailFieldError] = useState(false);
+  // const [emailFieldError, setEmailFieldError] = useState(false);
   const [mattermostWebhookError, setMattermostWebhookError] = useState(false);
   const [mattermostChannelError, setMattermostChannelError] = useState(false);
   const [webhookUrlError, setWebhookUrlError] = useState(false);
@@ -119,9 +115,9 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
   const [openSettingDialog, setOpenSettingDialog] = useState(false);
   const [settingDialogMode, setSettingDialogMode] = useState<'add' | 'edit'>('add');
   const [currentSetting, setCurrentSetting] = useState<ExtendedNotificationSetting | null>(null);
-  const [settingType, setSettingType] = useState<string>('email');
+  const [settingType, setSettingType] = useState<string>('webhook');
   const [settingEnabled, setSettingEnabled] = useState(true);
-  const [emailConfig, setEmailConfig] = useState<EmailConfig>({ email_to: '' });
+  // const [emailConfig, setEmailConfig] = useState<EmailConfig>({ email_to: '' });
   const [mattermostConfig, setMattermostConfig] = useState<MattermostConfig>({ webhook_url: '', channel_name: '' });
   const [webhookConfig, setWebhookConfig] = useState<WebhookConfig>({ webhook_url: '' });
   const [telegramConfig, setTelegramConfig] = useState<TelegramConfig>({ bot_token: '', chat_id: '' });
@@ -167,16 +163,16 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
     fetchSettingsAndRules();
   }, [projectId, currentEnvironmentKey]);
 
-  const hasEmailChannel = () => {
-    return settings.some(setting => setting.type === 'email');
-  };
+  // const hasEmailChannel = () => {
+  //   return settings.some(setting => setting.type === 'email');
+  // };
 
   const handleAddSetting = (channelType?: string) => {
     setSettingDialogMode('add');
     setCurrentSetting(null);
     setSettingType(channelType || 'email');
     setSettingEnabled(true);
-    setEmailConfig({ email_to: '' });
+    // setEmailConfig({ email_to: '' });
     setMattermostConfig({ webhook_url: '', channel_name: '' });
     setWebhookConfig({ webhook_url: '' });
     setTelegramConfig({ bot_token: '', chat_id: '' });
@@ -186,7 +182,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
   };
 
   // Helper functions for each channel type
-  const handleAddEmailSetting = () => handleAddSetting('email');
+  // const handleAddEmailSetting = () => handleAddSetting('email');
   const handleAddTelegramSetting = () => handleAddSetting('telegram');
   const handleAddMattermostSetting = () => handleAddSetting('mattermost');
   const handleAddSlackSetting = () => handleAddSetting('slack');
@@ -203,9 +199,9 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
     try {
       const config = JSON.parse(setting.config);
       switch (setting.type) {
-        case 'email':
-          setEmailConfig(config);
-          break;
+        // case 'email':
+        //   setEmailConfig(config);
+        //   break;
         case 'mattermost':
           setMattermostConfig(config);
           break;
@@ -260,15 +256,15 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
     let isValid = true;
 
     switch (settingType) {
-      case 'email':
-        if (!emailConfig.email_to || !isValidEmail(emailConfig.email_to)) {
-          setEmailFieldError(true);
-          isValid = false;
-        } else {
-          setEmailFieldError(false);
-          config = emailConfig;
-        }
-        break;
+      // case 'email':
+      //   if (!emailConfig.email_to || !isValidEmail(emailConfig.email_to)) {
+      //     setEmailFieldError(true);
+      //     isValid = false;
+      //   } else {
+      //     setEmailFieldError(false);
+      //     config = emailConfig;
+      //   }
+      //   break;
       case 'mattermost':
         if (!mattermostConfig.webhook_url || !isValidUrl(mattermostConfig.webhook_url)) {
           setMattermostWebhookError(true);
@@ -371,18 +367,18 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
 
   const renderSettingConfigForm = () => {
     switch (settingType) {
-      case 'email':
-        return (
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Email Address"
-            value={emailConfig.email_to}
-            onChange={(e) => setEmailConfig({ ...emailConfig, email_to: e.target.value })}
-            error={emailFieldError}
-            helperText={emailFieldError ? 'Please enter a valid email address' : ''}
-          />
-        );
+      // case 'email':
+      //   return (
+      //     <TextField
+      //       fullWidth
+      //       margin="normal"
+      //       label="Email Address"
+      //       value={emailConfig.email_to}
+      //       onChange={(e) => setEmailConfig({ ...emailConfig, email_to: e.target.value })}
+      //       error={emailFieldError}
+      //       helperText={emailFieldError ? 'Please enter a valid email address' : ''}
+      //     />
+      //   );
       case 'mattermost':
         return (
           <>
@@ -481,10 +477,10 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
     }
   };
 
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  // const isValidEmail = (email: string): boolean => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   return emailRegex.test(email);
+  // };
 
   const isValidUrl = (url: string): boolean => {
     try {
@@ -611,7 +607,7 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
           scrollButtons="auto"
         >
           <Tab label="All" value="all" />
-          <Tab label="Email" value="email" />
+          {/*<Tab label="Email" value="email" />*/}
           <Tab label="Telegram" value="telegram" />
           <Tab label="Mattermost" value="mattermost" />
           <Tab label="Slack" value="slack" />
@@ -641,9 +637,9 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
             startIcon={<AddIcon />}
             onClick={() => {
               switch (selectedTab) {
-                case 'email':
-                  handleAddEmailSetting();
-                  break;
+                // case 'email':
+                //   handleAddEmailSetting();
+                //   break;
                 case 'telegram':
                   handleAddTelegramSetting();
                   break;
@@ -660,12 +656,12 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
                   handleAddPachcaSetting();
                   break;
                 default:
-                  handleAddEmailSetting();
+                  handleAddWebhookSetting();
                   break;
               }
             }}
           >
-            Add {selectedTab !== 'all' ? selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1) : 'Email'} Channel
+            Add {selectedTab !== 'all' ? selectedTab.charAt(0).toUpperCase() + selectedTab.slice(1) : 'Webhook'} Channel
           </Button>
         </Paper>
       )}
@@ -688,26 +684,26 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
                       </Typography>
                     </Box>
                     <Box sx={{ ml: 4, flex: 1 }}>
-                      {setting.type === 'email' && (
-                        project.team_id ? (
-                          <Typography variant="body2">
-                            Notifications are sent to all project team members.
-                          </Typography>
-                        ) : (
-                          <Typography variant="body2">
-                            Email: {
-                            (() => {
-                              try {
-                                const config = JSON.parse(setting.config) as EmailConfig;
-                                return config.email_to;
-                              } catch (e) {
-                                return 'Invalid configuration';
-                              }
-                            })()
-                          }
-                          </Typography>
-                        )
-                      )}
+                    {/*  {setting.type === 'email' && (*/}
+                    {/*    project.team_id ? (*/}
+                    {/*      <Typography variant="body2">*/}
+                    {/*        Notifications are sent to all project team members.*/}
+                    {/*      </Typography>*/}
+                    {/*    ) : (*/}
+                    {/*      <Typography variant="body2">*/}
+                    {/*        Email: {*/}
+                    {/*        (() => {*/}
+                    {/*          try {*/}
+                    {/*            const config = JSON.parse(setting.config) as EmailConfig;*/}
+                    {/*            return config.email_to;*/}
+                    {/*          } catch (e) {*/}
+                    {/*            return 'Invalid configuration';*/}
+                    {/*          }*/}
+                    {/*        })()*/}
+                    {/*      }*/}
+                    {/*      </Typography>*/}
+                    {/*    )*/}
+                    {/*  )}*/}
                       {setting.type === 'mattermost' && (
                         <Typography variant="body2">
                           Mattermost: {
@@ -800,26 +796,26 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
                       Configuration Details:
                     </Typography>
                     <Box sx={{ pl: 2 }}>
-                      {setting.type === 'email' && (
-                        project.team_id ? (
-                          <Typography variant="body2">
-                            Notifications are sent to all project team members.
-                          </Typography>
-                        ) : (
-                          <Typography variant="body2">
-                            Email: {
-                            (() => {
-                              try {
-                                const config = JSON.parse(setting.config) as EmailConfig;
-                                return config.email_to;
-                              } catch (e) {
-                                return 'Invalid configuration';
-                              }
-                            })()
-                          }
-                          </Typography>
-                        )
-                      )}
+                      {/*{setting.type === 'email' && (*/}
+                      {/*  project.team_id ? (*/}
+                      {/*    <Typography variant="body2">*/}
+                      {/*      Notifications are sent to all project team members.*/}
+                      {/*    </Typography>*/}
+                      {/*  ) : (*/}
+                      {/*    <Typography variant="body2">*/}
+                      {/*      Email: {*/}
+                      {/*      (() => {*/}
+                      {/*        try {*/}
+                      {/*          const config = JSON.parse(setting.config) as EmailConfig;*/}
+                      {/*          return config.email_to;*/}
+                      {/*        } catch (e) {*/}
+                      {/*          return 'Invalid configuration';*/}
+                      {/*        }*/}
+                      {/*      })()*/}
+                      {/*    }*/}
+                      {/*    </Typography>*/}
+                      {/*  )*/}
+                      {/*)}*/}
                       {setting.type === 'mattermost' && (
                         <>
                           <Typography variant="body2">
@@ -956,9 +952,9 @@ const NotificationSettings: React.FC<NotificationSettingsProps> = ({ projectId, 
               disabled={settingDialogMode === 'edit'}
             >
               {/* Only show email option if we're editing an existing email channel or if no email channel exists */}
-              {(settingDialogMode === 'edit' && currentSetting?.type === 'email') || (settingDialogMode === 'add' && !hasEmailChannel()) ? (
-                <MenuItem value="email">Email</MenuItem>
-              ) : null}
+              {/*{(settingDialogMode === 'edit' && currentSetting?.type === 'email') || (settingDialogMode === 'add' && !hasEmailChannel()) ? (*/}
+              {/*  <MenuItem value="email">Email</MenuItem>*/}
+              {/*) : null}*/}
               <MenuItem value="mattermost">Mattermost</MenuItem>
               <MenuItem value="webhook">Webhook</MenuItem>
               <MenuItem value="telegram">Telegram</MenuItem>

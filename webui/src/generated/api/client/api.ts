@@ -901,11 +901,10 @@ export interface ModelError {
     'error': ErrorError;
 }
 /**
- * Type of notification channel (email, mattermost, slack, etc.)
+ * Type of notification channel (mattermost, slack, etc.)
  */
 
 export const NotificationChannelType = {
-    Email: 'email',
     Telegram: 'telegram',
     Slack: 'slack',
     Mattermost: 'mattermost',

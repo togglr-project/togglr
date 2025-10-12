@@ -253,7 +253,7 @@ const ProjectSettingsPage: React.FC = () => {
               />
               <Tab 
                 icon={<NotificationsIcon />} 
-                label="Notifications" 
+                label="Feature Notifications"
                 id="settings-tab-2"
                 aria-controls="settings-tabpanel-2"
               />

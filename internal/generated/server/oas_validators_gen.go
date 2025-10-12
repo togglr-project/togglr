@@ -3280,8 +3280,6 @@ func (s *LoginRequest) Validate() error {
 
 func (s NotificationChannelType) Validate() error {
 	switch s {
-	case "email":
-		return nil
 	case "telegram":
 		return nil
 	case "slack":

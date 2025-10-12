@@ -625,7 +625,7 @@ func (s *Service) UpdateWithChildren(
 	// If a feature is not guarded, proceed with a direct update
 	if !isGuarded {
 		// Proceed with normal update - use existing logic
-		return s.updateFeatureWithChildrenDirect(ctx, feature, env, variants, rules, tags)
+		return s.updateFeatureWithChildrenDirect(ctx, feature, existing, env, variants, rules, tags)
 	}
 
 	// Load existing variants and rules for comparison
@@ -945,6 +945,7 @@ func (s *Service) computeFeatureParamsChanges(oldFeature, newFeature *domain.Fea
 func (s *Service) updateFeatureWithChildrenDirect(
 	ctx context.Context,
 	feature domain.Feature,
+	existing domain.Feature,
 	env domain.Environment,
 	variants []domain.FlagVariant,
 	rules []domain.Rule,
@@ -984,6 +985,19 @@ func (s *Service) updateFeatureWithChildrenDirect(
 				}
 			} else {
 				return fmt.Errorf("update feature params: %w", err)
+			}
+		}
+
+		if feature.Enabled != existing.Enabled {
+			errNotif := s.featureNotificationsRepo.AddNotification(
+				ctx,
+				feature.ProjectID,
+				feature.EnvironmentID,
+				feature.ID,
+				makeStateNotificationPayload(ctx, feature.Enabled),
+			)
+			if errNotif != nil {
+				slog.Error("failed to add feature notification", "error", errNotif)
 			}
 		}
 

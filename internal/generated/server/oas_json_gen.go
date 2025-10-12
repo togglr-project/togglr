@@ -14171,8 +14171,6 @@ func (s *NotificationChannelType) Decode(d *jx.Decoder) error {
 	}
 	// Try to use constant string.
 	switch NotificationChannelType(v) {
-	case NotificationChannelTypeEmail:
-		*s = NotificationChannelTypeEmail
 	case NotificationChannelTypeTelegram:
 		*s = NotificationChannelTypeTelegram
 	case NotificationChannelTypeSlack:
