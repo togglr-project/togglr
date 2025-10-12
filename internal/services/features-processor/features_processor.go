@@ -286,7 +286,7 @@ func (s *Service) Evaluate(
 		}
 	}
 
-	// assign → сильнее include
+	// assign -> сильнее include
 	if bestAssign != nil {
 		if bestAssign.FlagVariantID != nil {
 			if variant, ok := findVariantByID(feature.FlagVariants, *bestAssign.FlagVariantID); ok {
@@ -299,12 +299,12 @@ func (s *Service) Evaluate(
 
 	// если были include-правила
 	if hasInclude {
-		// но не нашли подходящего → значит фича выключена
+		// но не нашли подходящего -> значит фича выключена
 		if bestInclude == nil {
 			return "", false, true
 		}
 
-		// есть include → идём в rollout
+		// есть include -> идём в rollout
 		value = rolloutOrDefault(
 			feature.Kind,
 			feature.FlagVariants,
@@ -316,7 +316,7 @@ func (s *Service) Evaluate(
 		return value, true, true
 	}
 
-	// нет include → обычный rollout
+	// нет include -> обычный rollout
 	value = rolloutOrDefault(
 		feature.Kind,
 		feature.FlagVariants,
@@ -611,17 +611,17 @@ func EvaluateExpression(expr domain.BooleanExpression, reqCtx map[domain.RuleAtt
 }
 
 func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
-	// Master Enable = OFF → фича полностью выключена
+	// Master Enable = OFF -> фича полностью выключена
 	if !feature.Enabled {
 		return false
 	}
 
-	// Master Enable = ON, но нет расписаний → остается в ручном состоянии
+	// Master Enable = ON, но нет расписаний -> остается в ручном состоянии
 	if len(feature.Schedules) == 0 {
 		return feature.Enabled
 	}
 
-	// Master Enable = ON и есть расписания → фича полностью управляется ими
+	// Master Enable = ON и есть расписания -> фича полностью управляется ими
 	var chosenAction *domain.FeatureScheduleAction
 
 	var chosenCreatedAt time.Time
@@ -655,7 +655,7 @@ func IsFeatureActiveNow(feature FeaturePrepared, now time.Time) bool {
 		return *chosenAction == domain.FeatureScheduleActionEnable
 	}
 
-	// Есть расписания, но ни одно не активно сейчас → возвращаем baseline
+	// Есть расписания, но ни одно не активно сейчас -> возвращаем baseline
 	return getScheduleBaseline(feature.Schedules)
 }
 
@@ -676,14 +676,14 @@ func getScheduleBaseline(schedules []domain.FeatureSchedule) bool {
 		}
 	}
 
-	// One-shot расписания: если любой deactivate → baseline ON, иначе OFF
+	// One-shot расписания: если любой deactivate -> baseline ON, иначе OFF
 	for _, schedule := range schedules {
 		if schedule.Action == domain.FeatureScheduleActionDisable {
-			return true // любой deactivate → baseline ON
+			return true // любой deactivate -> baseline ON
 		}
 	}
 
-	return false // все activate → baseline OFF
+	return false // все activate -> baseline OFF
 }
 
 func IsScheduleActive(
