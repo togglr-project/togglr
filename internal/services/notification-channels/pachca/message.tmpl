@@ -1,3 +1,17 @@
 {{ define "pachca" }}
-**[{{.ProjectName}}] {{.FeatureName}}>**
+{{ if .State }}
+**[{{.ProjectName}}] {{.FeatureName}}** ({{.EnvKey}})
+Feature {{.Status}} by **{{.ChangedBy}}**
+{{ else if .AutoDisabled }}
+**[{{.ProjectName}}] {{.FeatureName}}** ({{.EnvKey}})
+Feature automatically disabled due to error threshold exceeded
+Disabled at: {{.DisabledAt}}
+{{ else if .ChangeRequest }}
+**[{{.ProjectName}}] {{.FeatureName}}** ({{.EnvKey}})
+Change request created
+Requested by: **{{.RequestedBy}}**
+Approval required to apply changes
+{{ else }}
+**[{{.ProjectName}}] {{.FeatureName}}** ({{.EnvKey}})
+{{ end }}
 {{ end }}

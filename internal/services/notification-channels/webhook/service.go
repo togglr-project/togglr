@@ -30,19 +30,25 @@ func (s *Service) Send(
 	ctx context.Context,
 	project *domain.Project,
 	feature *domain.Feature,
+	envKey string,
 	configData json.RawMessage,
+	payload domain.FeatureNotificationPayload,
 ) error {
 	var cfg WebhookConfig
 	if err := json.Unmarshal(configData, &cfg); err != nil {
 		return fmt.Errorf("unmarshal config: %w", err)
 	}
 
-	payload := map[string]any{
-		"project_id": project.ID.String(),
-		"feature_id": feature.ID.String(),
+	payloadMap := map[string]any{
+		"project_id":   project.ID.String(),
+		"project_name": project.Name,
+		"feature_id":   feature.ID.String(),
+		"feature_key":  feature.Key,
+		"env_key":      envKey,
+		"event":        payload,
 	}
 
-	reqBody, err := json.Marshal(payload)
+	reqBody, err := json.Marshal(payloadMap)
 	if err != nil {
 		return fmt.Errorf("marshal request body: %w", err)
 	}

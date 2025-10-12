@@ -40,16 +40,16 @@ func (_m *MockNotificationChannel) EXPECT() *MockNotificationChannel_Expecter {
 }
 
 // Send provides a mock function for the type MockNotificationChannel
-func (_mock *MockNotificationChannel) Send(ctx context.Context, project *domain.Project, feature *domain.Feature, config json.RawMessage) error {
-	ret := _mock.Called(ctx, project, feature, config)
+func (_mock *MockNotificationChannel) Send(ctx context.Context, project *domain.Project, feature *domain.Feature, envKey string, config json.RawMessage, payload domain.FeatureNotificationPayload) error {
+	ret := _mock.Called(ctx, project, feature, envKey, config, payload)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Send")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Project, *domain.Feature, json.RawMessage) error); ok {
-		r0 = returnFunc(ctx, project, feature, config)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *domain.Project, *domain.Feature, string, json.RawMessage, domain.FeatureNotificationPayload) error); ok {
+		r0 = returnFunc(ctx, project, feature, envKey, config, payload)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -65,12 +65,14 @@ type MockNotificationChannel_Send_Call struct {
 //   - ctx context.Context
 //   - project *domain.Project
 //   - feature *domain.Feature
+//   - envKey string
 //   - config json.RawMessage
-func (_e *MockNotificationChannel_Expecter) Send(ctx interface{}, project interface{}, feature interface{}, config interface{}) *MockNotificationChannel_Send_Call {
-	return &MockNotificationChannel_Send_Call{Call: _e.mock.On("Send", ctx, project, feature, config)}
+//   - payload domain.FeatureNotificationPayload
+func (_e *MockNotificationChannel_Expecter) Send(ctx interface{}, project interface{}, feature interface{}, envKey interface{}, config interface{}, payload interface{}) *MockNotificationChannel_Send_Call {
+	return &MockNotificationChannel_Send_Call{Call: _e.mock.On("Send", ctx, project, feature, envKey, config, payload)}
 }
 
-func (_c *MockNotificationChannel_Send_Call) Run(run func(ctx context.Context, project *domain.Project, feature *domain.Feature, config json.RawMessage)) *MockNotificationChannel_Send_Call {
+func (_c *MockNotificationChannel_Send_Call) Run(run func(ctx context.Context, project *domain.Project, feature *domain.Feature, envKey string, config json.RawMessage, payload domain.FeatureNotificationPayload)) *MockNotificationChannel_Send_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -84,15 +86,25 @@ func (_c *MockNotificationChannel_Send_Call) Run(run func(ctx context.Context, p
 		if args[2] != nil {
 			arg2 = args[2].(*domain.Feature)
 		}
-		var arg3 json.RawMessage
+		var arg3 string
 		if args[3] != nil {
-			arg3 = args[3].(json.RawMessage)
+			arg3 = args[3].(string)
+		}
+		var arg4 json.RawMessage
+		if args[4] != nil {
+			arg4 = args[4].(json.RawMessage)
+		}
+		var arg5 domain.FeatureNotificationPayload
+		if args[5] != nil {
+			arg5 = args[5].(domain.FeatureNotificationPayload)
 		}
 		run(
 			arg0,
 			arg1,
 			arg2,
 			arg3,
+			arg4,
+			arg5,
 		)
 	})
 	return _c
@@ -103,7 +115,7 @@ func (_c *MockNotificationChannel_Send_Call) Return(err error) *MockNotification
 	return _c
 }
 
-func (_c *MockNotificationChannel_Send_Call) RunAndReturn(run func(ctx context.Context, project *domain.Project, feature *domain.Feature, config json.RawMessage) error) *MockNotificationChannel_Send_Call {
+func (_c *MockNotificationChannel_Send_Call) RunAndReturn(run func(ctx context.Context, project *domain.Project, feature *domain.Feature, envKey string, config json.RawMessage, payload domain.FeatureNotificationPayload) error) *MockNotificationChannel_Send_Call {
 	_c.Call.Return(run)
 	return _c
 }

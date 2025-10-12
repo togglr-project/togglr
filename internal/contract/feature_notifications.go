@@ -2,7 +2,6 @@ package contract
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/togglr-project/togglr/internal/domain"
@@ -14,7 +13,7 @@ type FeatureNotificationRepository interface {
 		projectID domain.ProjectID,
 		envID domain.EnvironmentID,
 		featureID domain.FeatureID,
-		payload json.RawMessage,
+		payload domain.FeatureNotificationPayload,
 	) error
 	GetByID(ctx context.Context, id domain.FeatureNotificationID) (domain.FeatureNotification, error)
 	TakePending(ctx context.Context, limit uint) ([]domain.FeatureNotification, error)

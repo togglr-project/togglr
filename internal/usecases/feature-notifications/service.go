@@ -231,6 +231,11 @@ func (s *Service) SendTestNotification(
 		return fmt.Errorf("get notification setting: %w", err)
 	}
 
+	env, err := s.envsRepo.GetByID(ctx, envID)
+	if err != nil {
+		return fmt.Errorf("get environment by ID: %w", err)
+	}
+
 	for _, channel := range s.notificationChannels {
 		if channel.Type() == settings.Type {
 			feature := domain.Feature{
@@ -247,7 +252,14 @@ func (s *Service) SendTestNotification(
 				DefaultValue:  "on",
 			}
 
-			return channel.Send(ctx, &project, &feature, settings.Config)
+			payload := domain.FeatureNotificationPayload{
+				State: &domain.FeatureNotificationStatePayload{
+					Enabled:   true,
+					ChangedBy: "test",
+				},
+			}
+
+			return channel.Send(ctx, &project, &feature, env.Key, settings.Config, payload)
 		}
 	}
 

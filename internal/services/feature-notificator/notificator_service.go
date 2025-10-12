@@ -250,7 +250,7 @@ func (s *Service) checkAndNotify(
 			ctx,
 			s.circuitBreaker,
 			func(ctx context.Context) error {
-				return channel.Send(ctx, &project, &feature, setting.Config)
+				return channel.Send(ctx, &project, &feature, envKey, setting.Config, notification.Payload)
 			},
 			resilience.DefaultRetryOptions()...,
 		)

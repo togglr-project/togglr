@@ -24,6 +24,8 @@ type NotificationChannel interface {
 		ctx context.Context,
 		project *domain.Project,
 		feature *domain.Feature,
+		envKey string,
 		config json.RawMessage,
+		payload domain.FeatureNotificationPayload,
 	) error
 }

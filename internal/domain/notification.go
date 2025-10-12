@@ -53,7 +53,7 @@ type FeatureNotification struct {
 	ProjectID     ProjectID
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID
-	Payload       json.RawMessage
+	Payload       FeatureNotificationPayload
 	SentAt        *time.Time
 	Status        NotificationStatus
 	FailReason    *string
@@ -64,4 +64,23 @@ type FeatureNotification struct {
 type FeatureNotificationWithSettings struct {
 	FeatureNotification
 	Settings []NotificationSetting
+}
+
+type FeatureNotificationPayload struct {
+	State         *FeatureNotificationStatePayload         `json:"state,omitempty"`
+	AutoDisabled  *FeatureNotificationAutoDisabledPayload  `json:"autoDisabled,omitempty"`
+	ChangeRequest *FeatureNotificationChangeRequestPayload `json:"changeRequest,omitempty"`
+}
+
+type FeatureNotificationStatePayload struct {
+	Enabled   bool   `json:"enabled"`
+	ChangedBy string `json:"changedBy"`
+}
+
+type FeatureNotificationAutoDisabledPayload struct {
+	DisabledAt time.Time `json:"disabledAt"`
+}
+
+type FeatureNotificationChangeRequestPayload struct {
+	RequestedBy string `json:"requestedBy"`
 }

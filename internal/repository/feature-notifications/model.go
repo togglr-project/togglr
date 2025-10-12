@@ -2,6 +2,7 @@ package feature_notifications
 
 import (
 	"encoding/json"
+	"log/slog"
 	"time"
 
 	"github.com/togglr-project/togglr/internal/domain"
@@ -21,12 +22,17 @@ type notificationModel struct {
 }
 
 func (m *notificationModel) toDomain() domain.FeatureNotification {
+	var payload domain.FeatureNotificationPayload
+	if err := json.Unmarshal(m.Payload, &payload); err != nil {
+		slog.Error("unmarshal notification payload", "payload", string(m.Payload), "error", err)
+	}
+
 	return domain.FeatureNotification{
 		ID:            domain.FeatureNotificationID(m.ID),
 		ProjectID:     domain.ProjectID(m.ProjectID),
 		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
-		Payload:       m.Payload,
+		Payload:       payload,
 		SentAt:        m.SentAt,
 		Status:        domain.NotificationStatus(m.Status),
 		FailReason:    m.FailReason,

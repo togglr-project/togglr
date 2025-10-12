@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,19 +20,20 @@ import (
 const CacheTTL = 10 * time.Minute
 
 type Service struct {
-	txManager             db.TxManager
-	repo                  contract.FeaturesRepository
-	flagVariantsRep       contract.FlagVariantsRepository
-	rulesRep              contract.RulesRepository
-	schedulesRep          contract.FeatureSchedulesRepository
-	featureParamsRep      contract.FeatureParamsRepository
-	featureTagsRep        contract.FeatureTagsRepository
-	tagsRep               contract.TagsRepository
-	environmentsRep       contract.EnvironmentsRepository
-	guardService          contract.GuardService
-	guardEngine           contract.GuardEngine
-	pendingChangesUseCase contract.PendingChangesUseCase
-	cache                 *simplecache.Cache[string, domain.Feature]
+	txManager                db.TxManager
+	repo                     contract.FeaturesRepository
+	flagVariantsRep          contract.FlagVariantsRepository
+	rulesRep                 contract.RulesRepository
+	schedulesRep             contract.FeatureSchedulesRepository
+	featureParamsRep         contract.FeatureParamsRepository
+	featureTagsRep           contract.FeatureTagsRepository
+	tagsRep                  contract.TagsRepository
+	environmentsRep          contract.EnvironmentsRepository
+	featureNotificationsRepo contract.FeatureNotificationRepository
+	guardService             contract.GuardService
+	guardEngine              contract.GuardEngine
+	pendingChangesUseCase    contract.PendingChangesUseCase
+	cache                    *simplecache.Cache[string, domain.Feature]
 }
 
 func New(
@@ -44,6 +46,7 @@ func New(
 	featureTagsRep contract.FeatureTagsRepository,
 	tagsRep contract.TagsRepository,
 	environmentsRep contract.EnvironmentsRepository,
+	featureNotificationsRepo contract.FeatureNotificationRepository,
 	guardService contract.GuardService,
 	guardEngine contract.GuardEngine,
 	pendingChangesUseCase contract.PendingChangesUseCase,
@@ -52,19 +55,20 @@ func New(
 	cache.StartCleanup(time.Minute)
 
 	return &Service{
-		txManager:             txManager,
-		repo:                  repo,
-		flagVariantsRep:       flagVariantsRep,
-		rulesRep:              rulesRep,
-		schedulesRep:          schedulesRep,
-		featureParamsRep:      featureParamsRep,
-		featureTagsRep:        featureTagsRep,
-		tagsRep:               tagsRep,
-		environmentsRep:       environmentsRep,
-		guardService:          guardService,
-		guardEngine:           guardEngine,
-		pendingChangesUseCase: pendingChangesUseCase,
-		cache:                 cache,
+		txManager:                txManager,
+		repo:                     repo,
+		flagVariantsRep:          flagVariantsRep,
+		rulesRep:                 rulesRep,
+		schedulesRep:             schedulesRep,
+		featureParamsRep:         featureParamsRep,
+		featureTagsRep:           featureTagsRep,
+		tagsRep:                  tagsRep,
+		environmentsRep:          environmentsRep,
+		featureNotificationsRepo: featureNotificationsRepo,
+		guardService:             guardService,
+		guardEngine:              guardEngine,
+		pendingChangesUseCase:    pendingChangesUseCase,
+		cache:                    cache,
 	}
 }
 
@@ -267,7 +271,7 @@ func (s *Service) GetByKeyWithEnv(ctx context.Context, key, envKey string) (doma
 }
 
 func (s *Service) GetByKeyWithEnvCached(ctx context.Context, key, envKey string) (domain.Feature, error) {
-	cacheKey := s.makeFeatureCacheKey(key, envKey)
+	cacheKey := makeFeatureCacheKey(key, envKey)
 
 	if cached, found := s.cache.Get(cacheKey); found {
 		return cached, nil
@@ -526,6 +530,17 @@ func (s *Service) Toggle(
 			// Update the feature object to return
 			updated = existing
 			updated.Enabled = enabled
+
+			errNotif := s.featureNotificationsRepo.AddNotification(
+				ctx,
+				existing.ProjectID,
+				env.ID,
+				existing.ID,
+				makeStateNotificationPayload(ctx, existing.Enabled),
+			)
+			if errNotif != nil {
+				slog.Error("failed to add notification", "error", errNotif)
+			}
 
 			return nil
 		}); err != nil {
@@ -1264,7 +1279,7 @@ func (s *Service) reconcileTags(ctx context.Context, featureID domain.FeatureID,
 }
 
 func (s *Service) InvalidateCache(key, envKey string) {
-	cacheKey := s.makeFeatureCacheKey(key, envKey)
+	cacheKey := makeFeatureCacheKey(key, envKey)
 	s.cache.Delete(cacheKey)
 }
 
@@ -1274,6 +1289,15 @@ func (s *Service) InvalidateProjectCache(projectID domain.ProjectID) {
 	s.cache.Clear()
 }
 
-func (s *Service) makeFeatureCacheKey(key, envKey string) string {
+func makeFeatureCacheKey(key, envKey string) string {
 	return key + ":" + envKey
+}
+
+func makeStateNotificationPayload(ctx context.Context, enabled bool) domain.FeatureNotificationPayload {
+	return domain.FeatureNotificationPayload{
+		State: &domain.FeatureNotificationStatePayload{
+			Enabled:   enabled,
+			ChangedBy: appcontext.Username(ctx),
+		},
+	}
 }

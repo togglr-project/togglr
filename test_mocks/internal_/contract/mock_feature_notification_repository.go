@@ -6,7 +6,6 @@ package mockcontract
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	mock "github.com/stretchr/testify/mock"
@@ -41,7 +40,7 @@ func (_m *MockFeatureNotificationRepository) EXPECT() *MockFeatureNotificationRe
 }
 
 // AddNotification provides a mock function for the type MockFeatureNotificationRepository
-func (_mock *MockFeatureNotificationRepository) AddNotification(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload json.RawMessage) error {
+func (_mock *MockFeatureNotificationRepository) AddNotification(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload domain.FeatureNotificationPayload) error {
 	ret := _mock.Called(ctx, projectID, envID, featureID, payload)
 
 	if len(ret) == 0 {
@@ -49,7 +48,7 @@ func (_mock *MockFeatureNotificationRepository) AddNotification(ctx context.Cont
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID, domain.FeatureID, json.RawMessage) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID, domain.FeatureID, domain.FeatureNotificationPayload) error); ok {
 		r0 = returnFunc(ctx, projectID, envID, featureID, payload)
 	} else {
 		r0 = ret.Error(0)
@@ -67,12 +66,12 @@ type MockFeatureNotificationRepository_AddNotification_Call struct {
 //   - projectID domain.ProjectID
 //   - envID domain.EnvironmentID
 //   - featureID domain.FeatureID
-//   - payload json.RawMessage
+//   - payload domain.FeatureNotificationPayload
 func (_e *MockFeatureNotificationRepository_Expecter) AddNotification(ctx interface{}, projectID interface{}, envID interface{}, featureID interface{}, payload interface{}) *MockFeatureNotificationRepository_AddNotification_Call {
 	return &MockFeatureNotificationRepository_AddNotification_Call{Call: _e.mock.On("AddNotification", ctx, projectID, envID, featureID, payload)}
 }
 
-func (_c *MockFeatureNotificationRepository_AddNotification_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload json.RawMessage)) *MockFeatureNotificationRepository_AddNotification_Call {
+func (_c *MockFeatureNotificationRepository_AddNotification_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload domain.FeatureNotificationPayload)) *MockFeatureNotificationRepository_AddNotification_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -90,9 +89,9 @@ func (_c *MockFeatureNotificationRepository_AddNotification_Call) Run(run func(c
 		if args[3] != nil {
 			arg3 = args[3].(domain.FeatureID)
 		}
-		var arg4 json.RawMessage
+		var arg4 domain.FeatureNotificationPayload
 		if args[4] != nil {
-			arg4 = args[4].(json.RawMessage)
+			arg4 = args[4].(domain.FeatureNotificationPayload)
 		}
 		run(
 			arg0,
@@ -110,7 +109,7 @@ func (_c *MockFeatureNotificationRepository_AddNotification_Call) Return(err err
 	return _c
 }
 
-func (_c *MockFeatureNotificationRepository_AddNotification_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload json.RawMessage) error) *MockFeatureNotificationRepository_AddNotification_Call {
+func (_c *MockFeatureNotificationRepository_AddNotification_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload domain.FeatureNotificationPayload) error) *MockFeatureNotificationRepository_AddNotification_Call {
 	_c.Call.Return(run)
 	return _c
 }

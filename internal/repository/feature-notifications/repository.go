@@ -32,19 +32,25 @@ func (r *Repository) AddNotification(
 	projectID domain.ProjectID,
 	envID domain.EnvironmentID,
 	featureID domain.FeatureID,
-	payload json.RawMessage,
+	payload domain.FeatureNotificationPayload,
 ) error {
 	executor := r.getExecutor(ctx)
 	const query = `
 INSERT INTO feature_notifications (project_id, environment_id, feature_id, payload, status, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`
-	_, err := executor.Exec(
+
+	payloadData, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	_, err = executor.Exec(
 		ctx,
 		query,
 		projectID,
 		envID,
 		featureID,
-		payload,
+		payloadData,
 		domain.NotificationStatusPending,
 	)
 	if err != nil {
@@ -133,7 +139,10 @@ FOR UPDATE SKIP LOCKED`
 
 func (r *Repository) MarkAsSent(ctx context.Context, id domain.FeatureNotificationID) error {
 	executor := r.getExecutor(ctx)
-	const query = "UPDATE feature_notifications SET status = 'sent', updated_at = NOW() WHERE id = $1"
+	const query = `
+UPDATE feature_notifications
+SET status = 'sent', sent_at = NOW(), updated_at = NOW()
+WHERE id = $1`
 
 	_, err := executor.Exec(ctx, query, id)
 	if err != nil {
