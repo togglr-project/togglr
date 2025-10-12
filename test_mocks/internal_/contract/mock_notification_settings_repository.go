@@ -38,6 +38,78 @@ func (_m *MockNotificationSettingsRepository) EXPECT() *MockNotificationSettings
 	return &MockNotificationSettingsRepository_Expecter{mock: &_m.Mock}
 }
 
+// CountSettings provides a mock function for the type MockNotificationSettingsRepository
+func (_mock *MockNotificationSettingsRepository) CountSettings(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID) (uint, error) {
+	ret := _mock.Called(ctx, projectID, envID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CountSettings")
+	}
+
+	var r0 uint
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID) (uint, error)); ok {
+		return returnFunc(ctx, projectID, envID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID) uint); ok {
+		r0 = returnFunc(ctx, projectID, envID)
+	} else {
+		r0 = ret.Get(0).(uint)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, projectID, envID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockNotificationSettingsRepository_CountSettings_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CountSettings'
+type MockNotificationSettingsRepository_CountSettings_Call struct {
+	*mock.Call
+}
+
+// CountSettings is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - envID domain.EnvironmentID
+func (_e *MockNotificationSettingsRepository_Expecter) CountSettings(ctx interface{}, projectID interface{}, envID interface{}) *MockNotificationSettingsRepository_CountSettings_Call {
+	return &MockNotificationSettingsRepository_CountSettings_Call{Call: _e.mock.On("CountSettings", ctx, projectID, envID)}
+}
+
+func (_c *MockNotificationSettingsRepository_CountSettings_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID)) *MockNotificationSettingsRepository_CountSettings_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockNotificationSettingsRepository_CountSettings_Call) Return(v uint, err error) *MockNotificationSettingsRepository_CountSettings_Call {
+	_c.Call.Return(v, err)
+	return _c
+}
+
+func (_c *MockNotificationSettingsRepository_CountSettings_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID) (uint, error)) *MockNotificationSettingsRepository_CountSettings_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateSetting provides a mock function for the type MockNotificationSettingsRepository
 func (_mock *MockNotificationSettingsRepository) CreateSetting(ctx context.Context, settingDTO domain.NotificationSettingDTO) (domain.NotificationSetting, error) {
 	ret := _mock.Called(ctx, settingDTO)

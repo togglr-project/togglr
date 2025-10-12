@@ -38,6 +38,81 @@ func (_m *MockFeatureNotificationsUseCase) EXPECT() *MockFeatureNotificationsUse
 	return &MockFeatureNotificationsUseCase_Expecter{mock: &_m.Mock}
 }
 
+// AddNotification provides a mock function for the type MockFeatureNotificationsUseCase
+func (_mock *MockFeatureNotificationsUseCase) AddNotification(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload domain.FeatureNotificationPayload) error {
+	ret := _mock.Called(ctx, projectID, envID, featureID, payload)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AddNotification")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID, domain.FeatureID, domain.FeatureNotificationPayload) error); ok {
+		r0 = returnFunc(ctx, projectID, envID, featureID, payload)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureNotificationsUseCase_AddNotification_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AddNotification'
+type MockFeatureNotificationsUseCase_AddNotification_Call struct {
+	*mock.Call
+}
+
+// AddNotification is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - envID domain.EnvironmentID
+//   - featureID domain.FeatureID
+//   - payload domain.FeatureNotificationPayload
+func (_e *MockFeatureNotificationsUseCase_Expecter) AddNotification(ctx interface{}, projectID interface{}, envID interface{}, featureID interface{}, payload interface{}) *MockFeatureNotificationsUseCase_AddNotification_Call {
+	return &MockFeatureNotificationsUseCase_AddNotification_Call{Call: _e.mock.On("AddNotification", ctx, projectID, envID, featureID, payload)}
+}
+
+func (_c *MockFeatureNotificationsUseCase_AddNotification_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload domain.FeatureNotificationPayload)) *MockFeatureNotificationsUseCase_AddNotification_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		var arg3 domain.FeatureID
+		if args[3] != nil {
+			arg3 = args[3].(domain.FeatureID)
+		}
+		var arg4 domain.FeatureNotificationPayload
+		if args[4] != nil {
+			arg4 = args[4].(domain.FeatureNotificationPayload)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+			arg3,
+			arg4,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_AddNotification_Call) Return(err error) *MockFeatureNotificationsUseCase_AddNotification_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationsUseCase_AddNotification_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID, featureID domain.FeatureID, payload domain.FeatureNotificationPayload) error) *MockFeatureNotificationsUseCase_AddNotification_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateNotificationSetting provides a mock function for the type MockFeatureNotificationsUseCase
 func (_mock *MockFeatureNotificationsUseCase) CreateNotificationSetting(ctx context.Context, settingDTO domain.NotificationSettingDTO) (domain.NotificationSetting, error) {
 	ret := _mock.Called(ctx, settingDTO)

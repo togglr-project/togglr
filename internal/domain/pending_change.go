@@ -114,16 +114,12 @@ func (action EntityAction) IsValid() bool {
 		action == EntityActionDelete
 }
 
-func (payload *PendingChangePayload) FeatureEntityOrFirst() string {
-	if len(payload.Entities) > 0 {
-		for _, entity := range payload.Entities {
-			if entity.Entity == "feature" {
-				return "feature"
-			}
+func (payload *PendingChangePayload) GetFeatureID() (FeatureID, bool) {
+	for _, entity := range payload.Entities {
+		if entity.Entity == string(EntityFeature) {
+			return FeatureID(entity.EntityID), true
 		}
-
-		return payload.Entities[0].Entity
 	}
 
-	return "unknown"
+	return "", false
 }

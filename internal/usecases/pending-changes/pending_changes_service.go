@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"time"
 
@@ -14,22 +15,23 @@ import (
 )
 
 type Service struct {
-	txManager            db.TxManager
-	pendingChangesRepo   contract.PendingChangesRepository
-	projectApproversRepo contract.ProjectApproversRepository
-	projectSettingsRepo  contract.ProjectSettingsRepository
-	guardService         contract.GuardService
-	featuresRepo         contract.FeaturesRepository
-	featureParamsRepo    contract.FeatureParamsRepository
-	rulesRepo            contract.RulesRepository
-	flagVariantsRepo     contract.FlagVariantsRepository
-	schedulesRepo        contract.FeatureSchedulesRepository
-	featureTagsRepo      contract.FeatureTagsRepository
-	auditLogRepo         contract.AuditLogRepository
-	usersUseCase         contract.UsersUseCase
-	projectsUseCase      contract.ProjectsUseCase
-	userNotificationsUC  contract.UserNotificationsUseCase
-	permissionsService   contract.PermissionsService
+	txManager              db.TxManager
+	pendingChangesRepo     contract.PendingChangesRepository
+	projectApproversRepo   contract.ProjectApproversRepository
+	projectSettingsRepo    contract.ProjectSettingsRepository
+	guardService           contract.GuardService
+	featuresRepo           contract.FeaturesRepository
+	featureParamsRepo      contract.FeatureParamsRepository
+	rulesRepo              contract.RulesRepository
+	flagVariantsRepo       contract.FlagVariantsRepository
+	schedulesRepo          contract.FeatureSchedulesRepository
+	featureTagsRepo        contract.FeatureTagsRepository
+	auditLogRepo           contract.AuditLogRepository
+	usersUseCase           contract.UsersUseCase
+	projectsUseCase        contract.ProjectsUseCase
+	userNotificationsUC    contract.UserNotificationsUseCase
+	featureNotificationsUC contract.FeatureNotificationsUseCase
+	permissionsService     contract.PermissionsService
 }
 
 func New(
@@ -48,25 +50,27 @@ func New(
 	usersUseCase contract.UsersUseCase,
 	projectsUseCase contract.ProjectsUseCase,
 	userNotificationsUC contract.UserNotificationsUseCase,
+	featureNotificationsUC contract.FeatureNotificationsUseCase,
 	permissionsService contract.PermissionsService,
 ) *Service {
 	return &Service{
-		txManager:            txManager,
-		pendingChangesRepo:   pendingChangesRepo,
-		projectApproversRepo: projectApproversRepo,
-		projectSettingsRepo:  projectSettingsRepo,
-		guardService:         guardService,
-		featuresRepo:         featuresRepo,
-		featureParamsRepo:    featureParamsRepo,
-		rulesRepo:            rulesRepo,
-		flagVariantsRepo:     flagVariantsRepo,
-		schedulesRepo:        schedulesRepo,
-		featureTagsRepo:      featureTagsRepo,
-		auditLogRepo:         auditLogRepo,
-		usersUseCase:         usersUseCase,
-		userNotificationsUC:  userNotificationsUC,
-		projectsUseCase:      projectsUseCase,
-		permissionsService:   permissionsService,
+		txManager:              txManager,
+		pendingChangesRepo:     pendingChangesRepo,
+		projectApproversRepo:   projectApproversRepo,
+		projectSettingsRepo:    projectSettingsRepo,
+		guardService:           guardService,
+		featuresRepo:           featuresRepo,
+		featureParamsRepo:      featureParamsRepo,
+		rulesRepo:              rulesRepo,
+		flagVariantsRepo:       flagVariantsRepo,
+		schedulesRepo:          schedulesRepo,
+		featureTagsRepo:        featureTagsRepo,
+		auditLogRepo:           auditLogRepo,
+		usersUseCase:           usersUseCase,
+		userNotificationsUC:    userNotificationsUC,
+		projectsUseCase:        projectsUseCase,
+		featureNotificationsUC: featureNotificationsUC,
+		permissionsService:     permissionsService,
 	}
 }
 
@@ -105,6 +109,19 @@ func (s *Service) Create(
 			return fmt.Errorf("create pending change: %w", err)
 		}
 
+		featureID, hasFeature := change.GetFeatureID()
+		if hasFeature {
+			payload := domain.FeatureNotificationPayload{
+				ChangeRequest: &domain.FeatureNotificationChangeRequestPayload{
+					RequestedBy: requestedBy,
+				},
+			}
+			errNotif := s.featureNotificationsUC.AddNotification(ctx, projectID, environmentID, featureID, payload)
+			if errNotif != nil {
+				slog.Error("failed to add notification", "error", errNotif)
+			}
+		}
+
 		if len(sendNotificationUsers) > 0 {
 			project, err := s.projectsUseCase.GetProject(ctx, projectID)
 			if err != nil {
@@ -114,7 +131,7 @@ func (s *Service) Create(
 			notificationContent := domain.UserNotificationContent{
 				NeedApproveChange: &domain.NeedApproveChangeContent{
 					ProjectName: project.Name,
-					Entity:      change.FeatureEntityOrFirst(),
+					Entity:      string(domain.EntityFeature),
 					RequestedBy: requestedBy,
 				},
 			}
