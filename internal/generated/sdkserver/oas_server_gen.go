@@ -33,6 +33,14 @@ type Handler interface {
 	//
 	// GET /sdk/v1/health
 	SdkV1HealthGet(ctx context.Context) (SdkV1HealthGetRes, error)
+	// TrackFeatureEvent implements TrackFeatureEvent operation.
+	//
+	// Send a feedback event related to a feature evaluation. Events are written to TimescaleDB
+	// (hypertable) and used for analytics, auto-disable and training MAB algorithms.
+	// The project is derived from the API key.
+	//
+	// POST /sdk/v1/features/{feature_key}/track
+	TrackFeatureEvent(ctx context.Context, req *TrackRequest, params TrackFeatureEventParams) (TrackFeatureEventRes, error)
 }
 
 // Server implements http server based on OpenAPI v3 specification and

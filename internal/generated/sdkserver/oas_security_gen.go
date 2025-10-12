@@ -37,6 +37,7 @@ var operationRolesApiKeyAuth = map[string][]string{
 	GetFeatureHealthOperation:                    []string{},
 	ReportFeatureErrorOperation:                  []string{},
 	SdkV1FeaturesFeatureKeyEvaluatePostOperation: []string{},
+	TrackFeatureEventOperation:                   []string{},
 }
 
 func (s *Server) securityApiKeyAuth(ctx context.Context, operationName OperationName, req *http.Request) (context.Context, bool, error) {

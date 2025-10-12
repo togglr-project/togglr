@@ -16,3 +16,7 @@ type SdkV1FeaturesFeatureKeyEvaluatePostRes interface {
 type SdkV1HealthGetRes interface {
 	sdkV1HealthGetRes()
 }
+
+type TrackFeatureEventRes interface {
+	trackFeatureEventRes()
+}

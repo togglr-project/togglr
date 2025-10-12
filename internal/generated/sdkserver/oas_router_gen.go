@@ -160,6 +160,28 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 
+					case 't': // Prefix: "track"
+
+						if l := len("track"); len(elem) >= l && elem[0:l] == "track" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "POST":
+								s.handleTrackFeatureEventRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "POST")
+							}
+
+							return
+						}
+
 					}
 
 				}
@@ -375,6 +397,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								r.summary = "Report feature execution error (for auto-disable)"
 								r.operationID = "ReportFeatureError"
 								r.pathPattern = "/sdk/v1/features/{feature_key}/report-error"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
+							}
+						}
+
+					case 't': // Prefix: "track"
+
+						if l := len("track"); len(elem) >= l && elem[0:l] == "track" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "POST":
+								r.name = TrackFeatureEventOperation
+								r.summary = "Track event for a feature (impression / conversion / error / custom)"
+								r.operationID = "TrackFeatureEvent"
+								r.pathPattern = "/sdk/v1/features/{feature_key}/track"
 								r.args = args
 								r.count = 1
 								return r, true

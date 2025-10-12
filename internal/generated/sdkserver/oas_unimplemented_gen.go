@@ -49,3 +49,14 @@ func (UnimplementedHandler) SdkV1FeaturesFeatureKeyEvaluatePost(ctx context.Cont
 func (UnimplementedHandler) SdkV1HealthGet(ctx context.Context) (r SdkV1HealthGetRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
+
+// TrackFeatureEvent implements TrackFeatureEvent operation.
+//
+// Send a feedback event related to a feature evaluation. Events are written to TimescaleDB
+// (hypertable) and used for analytics, auto-disable and training MAB algorithms.
+// The project is derived from the API key.
+//
+// POST /sdk/v1/features/{feature_key}/track
+func (UnimplementedHandler) TrackFeatureEvent(ctx context.Context, req *TrackRequest, params TrackFeatureEventParams) (r TrackFeatureEventRes, _ error) {
+	return r, ht.ErrNotImplemented
+}

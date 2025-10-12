@@ -10,4 +10,5 @@ const (
 	ReportFeatureErrorOperation                  OperationName = "ReportFeatureError"
 	SdkV1FeaturesFeatureKeyEvaluatePostOperation OperationName = "SdkV1FeaturesFeatureKeyEvaluatePost"
 	SdkV1HealthGetOperation                      OperationName = "SdkV1HealthGet"
+	TrackFeatureEventOperation                   OperationName = "TrackFeatureEvent"
 )

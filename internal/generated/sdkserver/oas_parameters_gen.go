@@ -209,3 +209,68 @@ func decodeSdkV1FeaturesFeatureKeyEvaluatePostParams(args [1]string, argsEscaped
 	}
 	return params, nil
 }
+
+// TrackFeatureEventParams is parameters of TrackFeatureEvent operation.
+type TrackFeatureEventParams struct {
+	FeatureKey string
+}
+
+func unpackTrackFeatureEventParams(packed middleware.Parameters) (params TrackFeatureEventParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_key",
+			In:   "path",
+		}
+		params.FeatureKey = packed[key].(string)
+	}
+	return params
+}
+
+func decodeTrackFeatureEventParams(args [1]string, argsEscaped bool, r *http.Request) (params TrackFeatureEventParams, _ error) {
+	// Decode path: feature_key.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_key",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureKey = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_key",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
