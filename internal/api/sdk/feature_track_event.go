@@ -11,6 +11,6 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 	req *generatedapi.TrackRequest,
 	params generatedapi.TrackFeatureEventParams,
 ) (generatedapi.TrackFeatureEventRes, error) {
-	//TODO implement me
+	// TODO implement me
 	panic("implement me")
 }

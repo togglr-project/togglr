@@ -12,6 +12,12 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
+const (
+	nackDelay          = 30 * time.Second
+	batchMaxWait       = 5 * time.Second
+	maxConcurrentPulls = 8
+)
+
 type Config struct {
 	URL        string
 	JetStreams []JetStreamConfig
@@ -46,8 +52,8 @@ func New(cfg *Config) (*NATSMq, error) {
 		}
 
 		subjects := []string{
-			fmt.Sprintf("%s", jsCfg.StreamName),
-			fmt.Sprintf("%s.>", jsCfg.StreamName),
+			jsCfg.StreamName,
+			jsCfg.StreamName + ".>",
 		}
 
 		if _, err := js.StreamInfo(jsCfg.StreamName); err != nil {
@@ -113,7 +119,7 @@ func (n *NATSMq) Subscribe(
 		return fmt.Errorf("stream not found: %s", streamName)
 	}
 
-	subject := fmt.Sprintf("%s.>", streamName)
+	subject := streamName + ".>"
 	queue := streamName
 
 	sub, err := js.QueueSubscribe(subject, queue, func(msg *nats.Msg) {
@@ -134,7 +140,7 @@ func (n *NATSMq) Subscribe(
 			}
 
 			slog.Error("nats: message failed", "subject", msg.Subject, "err", err)
-			_ = msg.NakWithDelay(30 * time.Second)
+			_ = msg.NakWithDelay(nackDelay)
 
 			return
 		}
@@ -154,6 +160,81 @@ func (n *NATSMq) Subscribe(
 	<-ctx.Done()
 
 	return nil
+}
+
+func (n *NATSMq) SubscribeBatch(
+	ctx context.Context,
+	streamName string,
+	batchSize int,
+	processFn func(ctx context.Context, messages [][]byte) error,
+) error {
+	js, ok := n.streams[streamName]
+	if !ok {
+		return fmt.Errorf("stream not found: %s", streamName)
+	}
+
+	subject := streamName + ".>"
+	durable := streamName + "_batch"
+
+	sub, err := js.PullSubscribe(subject, durable,
+		nats.BindStream(streamName),
+		nats.PullMaxWaiting(maxConcurrentPulls), // max concurrent pulls
+	)
+	if err != nil {
+		return fmt.Errorf("create pull subscriber failed: %w", err)
+	}
+
+	slog.Info("nats: pull subscriber started",
+		"stream", streamName,
+		"subject", subject,
+		"batch_size", batchSize,
+	)
+
+	for {
+		select {
+		case <-ctx.Done():
+			slog.Info("nats: stopping batch subscriber", "stream", streamName)
+
+			return sub.Drain()
+
+		default:
+			// Try to fetch a batch of messages
+			msgs, err := sub.Fetch(batchSize, nats.MaxWait(batchMaxWait))
+			if err != nil {
+				if errors.Is(err, nats.ErrTimeout) {
+					continue // just no messages — not an error
+				}
+
+				slog.Error("nats: fetch failed", "err", err)
+				time.Sleep(time.Second)
+
+				continue
+			}
+
+			// Collect payloads
+			payloads := make([][]byte, 0, len(msgs))
+			for _, msg := range msgs {
+				payloads = append(payloads, msg.Data)
+			}
+
+			// Process batch
+			if err := processFn(ctx, payloads); err != nil {
+				slog.Error("nats: batch processing failed", "stream", streamName, "err", err)
+				for _, msg := range msgs {
+					_ = msg.NakWithDelay(nackDelay)
+				}
+
+				continue
+			}
+
+			// Ack all messages
+			for _, msg := range msgs {
+				if err := msg.Ack(); err != nil {
+					slog.Warn("nats: ack failed", "err", err)
+				}
+			}
+		}
+	}
 }
 
 func (n *NATSMq) Close() {

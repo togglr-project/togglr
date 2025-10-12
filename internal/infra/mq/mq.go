@@ -11,4 +11,10 @@ type MQ interface {
 		topic string,
 		processFn func(ctx context.Context, data []byte) error,
 	) error
+	SubscribeBatch(
+		ctx context.Context,
+		streamName string,
+		batchSize int,
+		processFn func(ctx context.Context, messages [][]byte) error,
+	) error
 }
