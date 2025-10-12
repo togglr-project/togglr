@@ -125,7 +125,7 @@ func (s *Service) processBatch(ctx context.Context) (processed uint) {
 		}
 
 		if len(notifications) == 0 {
-			slog.Debug("no pending email notifications")
+			slog.Debug("no pending user notifications")
 
 			return nil
 		}

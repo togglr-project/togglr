@@ -141,12 +141,12 @@ func (s *Service) processBatch(ctx context.Context) (processed uint) {
 		}
 
 		if len(notifications) == 0 {
-			slog.Debug("no pending notifications")
+			slog.Debug("no pending feature notifications")
 
 			return nil
 		}
 
-		slog.Debug("got pending notifications", "count", len(notifications))
+		slog.Debug("got pending feature notifications", "count", len(notifications))
 
 		// Create channels for parallel processing
 		notificationChan := make(chan *domain.FeatureNotificationWithSettings, len(notifications))
@@ -204,7 +204,7 @@ func (s *Service) processBatch(ctx context.Context) (processed uint) {
 		return nil
 	})
 	if err != nil {
-		slog.Error("process notifications batch failed", "error", err)
+		slog.Error("process feature notifications batch failed", "error", err)
 	}
 
 	return processed
