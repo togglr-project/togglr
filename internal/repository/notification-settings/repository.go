@@ -160,6 +160,38 @@ ORDER BY id`
 	return settings, nil
 }
 
+func (r *Repository) ListSettingsAll(
+	ctx context.Context,
+	projectID domain.ProjectID,
+) ([]domain.NotificationSetting, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT *
+FROM notification_settings
+WHERE project_id = $1
+ORDER BY id`
+
+	rows, err := executor.Query(ctx, query, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("query notification settings: %w", err)
+	}
+	defer rows.Close()
+
+	listModels, err := pgx.CollectRows(rows, pgx.RowToStructByName[notificationSettingModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect notification settings: %w", err)
+	}
+
+	settings := make([]domain.NotificationSetting, 0, len(listModels))
+	for i := range listModels {
+		model := listModels[i]
+		settings = append(settings, model.toDomain())
+	}
+
+	return settings, nil
+}
+
 //nolint:ireturn // it's ok here
 func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {

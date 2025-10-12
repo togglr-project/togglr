@@ -301,6 +301,74 @@ func (_c *MockNotificationSettingsRepository_ListSettings_Call) RunAndReturn(run
 	return _c
 }
 
+// ListSettingsAll provides a mock function for the type MockNotificationSettingsRepository
+func (_mock *MockNotificationSettingsRepository) ListSettingsAll(ctx context.Context, projectID domain.ProjectID) ([]domain.NotificationSetting, error) {
+	ret := _mock.Called(ctx, projectID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListSettingsAll")
+	}
+
+	var r0 []domain.NotificationSetting
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) ([]domain.NotificationSetting, error)); ok {
+		return returnFunc(ctx, projectID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID) []domain.NotificationSetting); ok {
+		r0 = returnFunc(ctx, projectID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.NotificationSetting)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID) error); ok {
+		r1 = returnFunc(ctx, projectID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockNotificationSettingsRepository_ListSettingsAll_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListSettingsAll'
+type MockNotificationSettingsRepository_ListSettingsAll_Call struct {
+	*mock.Call
+}
+
+// ListSettingsAll is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+func (_e *MockNotificationSettingsRepository_Expecter) ListSettingsAll(ctx interface{}, projectID interface{}) *MockNotificationSettingsRepository_ListSettingsAll_Call {
+	return &MockNotificationSettingsRepository_ListSettingsAll_Call{Call: _e.mock.On("ListSettingsAll", ctx, projectID)}
+}
+
+func (_c *MockNotificationSettingsRepository_ListSettingsAll_Call) Run(run func(ctx context.Context, projectID domain.ProjectID)) *MockNotificationSettingsRepository_ListSettingsAll_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockNotificationSettingsRepository_ListSettingsAll_Call) Return(notificationSettings []domain.NotificationSetting, err error) *MockNotificationSettingsRepository_ListSettingsAll_Call {
+	_c.Call.Return(notificationSettings, err)
+	return _c
+}
+
+func (_c *MockNotificationSettingsRepository_ListSettingsAll_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID) ([]domain.NotificationSetting, error)) *MockNotificationSettingsRepository_ListSettingsAll_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateSetting provides a mock function for the type MockNotificationSettingsRepository
 func (_mock *MockNotificationSettingsRepository) UpdateSetting(ctx context.Context, setting domain.NotificationSetting) error {
 	ret := _mock.Called(ctx, setting)

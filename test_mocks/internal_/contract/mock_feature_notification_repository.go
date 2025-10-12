@@ -503,3 +503,71 @@ func (_c *MockFeatureNotificationRepository_TakePending_Call) RunAndReturn(run f
 	_c.Call.Return(run)
 	return _c
 }
+
+// TakePendingForUpdate provides a mock function for the type MockFeatureNotificationRepository
+func (_mock *MockFeatureNotificationRepository) TakePendingForUpdate(ctx context.Context, limit uint) ([]domain.FeatureNotification, error) {
+	ret := _mock.Called(ctx, limit)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TakePendingForUpdate")
+	}
+
+	var r0 []domain.FeatureNotification
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) ([]domain.FeatureNotification, error)); ok {
+		return returnFunc(ctx, limit)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) []domain.FeatureNotification); ok {
+		r0 = returnFunc(ctx, limit)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureNotification)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = returnFunc(ctx, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureNotificationRepository_TakePendingForUpdate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TakePendingForUpdate'
+type MockFeatureNotificationRepository_TakePendingForUpdate_Call struct {
+	*mock.Call
+}
+
+// TakePendingForUpdate is a helper method to define mock.On call
+//   - ctx context.Context
+//   - limit uint
+func (_e *MockFeatureNotificationRepository_Expecter) TakePendingForUpdate(ctx interface{}, limit interface{}) *MockFeatureNotificationRepository_TakePendingForUpdate_Call {
+	return &MockFeatureNotificationRepository_TakePendingForUpdate_Call{Call: _e.mock.On("TakePendingForUpdate", ctx, limit)}
+}
+
+func (_c *MockFeatureNotificationRepository_TakePendingForUpdate_Call) Run(run func(ctx context.Context, limit uint)) *MockFeatureNotificationRepository_TakePendingForUpdate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 uint
+		if args[1] != nil {
+			arg1 = args[1].(uint)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_TakePendingForUpdate_Call) Return(featureNotifications []domain.FeatureNotification, err error) *MockFeatureNotificationRepository_TakePendingForUpdate_Call {
+	_c.Call.Return(featureNotifications, err)
+	return _c
+}
+
+func (_c *MockFeatureNotificationRepository_TakePendingForUpdate_Call) RunAndReturn(run func(ctx context.Context, limit uint) ([]domain.FeatureNotification, error)) *MockFeatureNotificationRepository_TakePendingForUpdate_Call {
+	_c.Call.Return(run)
+	return _c
+}

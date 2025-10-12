@@ -104,6 +104,33 @@ LIMIT $2`
 	return result, nil
 }
 
+func (r *Repository) TakePendingForUpdate(ctx context.Context, limit uint) ([]domain.FeatureNotification, error) {
+	executor := r.getExecutor(ctx)
+	const query = `
+SELECT * FROM feature_notifications
+WHERE status = $1
+ORDER BY created_at ASC
+LIMIT $2
+FOR UPDATE SKIP LOCKED`
+	rows, err := executor.Query(ctx, query, domain.NotificationStatusPending, limit)
+	if err != nil {
+		return nil, fmt.Errorf("query: %w", err)
+	}
+	defer rows.Close()
+
+	list, err := pgx.CollectRows(rows, pgx.RowToStructByName[notificationModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect: %w", err)
+	}
+
+	result := make([]domain.FeatureNotification, 0, len(list))
+	for _, model := range list {
+		result = append(result, model.toDomain())
+	}
+
+	return result, nil
+}
+
 func (r *Repository) MarkAsSent(ctx context.Context, id domain.FeatureNotificationID) error {
 	executor := r.getExecutor(ctx)
 	const query = "UPDATE feature_notifications SET status = 'sent', updated_at = NOW() WHERE id = $1"

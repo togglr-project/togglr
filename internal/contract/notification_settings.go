@@ -22,4 +22,8 @@ type NotificationSettingsRepository interface {
 		projectID domain.ProjectID,
 		envID domain.EnvironmentID,
 	) ([]domain.NotificationSetting, error)
+	ListSettingsAll(
+		ctx context.Context,
+		projectID domain.ProjectID,
+	) ([]domain.NotificationSetting, error)
 }

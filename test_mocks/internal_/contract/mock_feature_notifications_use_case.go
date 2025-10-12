@@ -554,8 +554,8 @@ func (_c *MockFeatureNotificationsUseCase_SendTestNotification_Call) RunAndRetur
 }
 
 // TakePendingNotificationsWithSettings provides a mock function for the type MockFeatureNotificationsUseCase
-func (_mock *MockFeatureNotificationsUseCase) TakePendingNotificationsWithSettings(ctx context.Context, envID domain.EnvironmentID, limit uint) ([]domain.FeatureNotificationWithSettings, error) {
-	ret := _mock.Called(ctx, envID, limit)
+func (_mock *MockFeatureNotificationsUseCase) TakePendingNotificationsWithSettings(ctx context.Context, limit uint) ([]domain.FeatureNotificationWithSettings, error) {
+	ret := _mock.Called(ctx, limit)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TakePendingNotificationsWithSettings")
@@ -563,18 +563,18 @@ func (_mock *MockFeatureNotificationsUseCase) TakePendingNotificationsWithSettin
 
 	var r0 []domain.FeatureNotificationWithSettings
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, uint) ([]domain.FeatureNotificationWithSettings, error)); ok {
-		return returnFunc(ctx, envID, limit)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) ([]domain.FeatureNotificationWithSettings, error)); ok {
+		return returnFunc(ctx, limit)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID, uint) []domain.FeatureNotificationWithSettings); ok {
-		r0 = returnFunc(ctx, envID, limit)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, uint) []domain.FeatureNotificationWithSettings); ok {
+		r0 = returnFunc(ctx, limit)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.FeatureNotificationWithSettings)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.EnvironmentID, uint) error); ok {
-		r1 = returnFunc(ctx, envID, limit)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, uint) error); ok {
+		r1 = returnFunc(ctx, limit)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -588,30 +588,24 @@ type MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call s
 
 // TakePendingNotificationsWithSettings is a helper method to define mock.On call
 //   - ctx context.Context
-//   - envID domain.EnvironmentID
 //   - limit uint
-func (_e *MockFeatureNotificationsUseCase_Expecter) TakePendingNotificationsWithSettings(ctx interface{}, envID interface{}, limit interface{}) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
-	return &MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call{Call: _e.mock.On("TakePendingNotificationsWithSettings", ctx, envID, limit)}
+func (_e *MockFeatureNotificationsUseCase_Expecter) TakePendingNotificationsWithSettings(ctx interface{}, limit interface{}) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
+	return &MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call{Call: _e.mock.On("TakePendingNotificationsWithSettings", ctx, limit)}
 }
 
-func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) Run(run func(ctx context.Context, envID domain.EnvironmentID, limit uint)) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
+func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) Run(run func(ctx context.Context, limit uint)) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.EnvironmentID
+		var arg1 uint
 		if args[1] != nil {
-			arg1 = args[1].(domain.EnvironmentID)
-		}
-		var arg2 uint
-		if args[2] != nil {
-			arg2 = args[2].(uint)
+			arg1 = args[1].(uint)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -622,7 +616,7 @@ func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_C
 	return _c
 }
 
-func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) RunAndReturn(run func(ctx context.Context, envID domain.EnvironmentID, limit uint) ([]domain.FeatureNotificationWithSettings, error)) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
+func (_c *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call) RunAndReturn(run func(ctx context.Context, limit uint) ([]domain.FeatureNotificationWithSettings, error)) *MockFeatureNotificationsUseCase_TakePendingNotificationsWithSettings_Call {
 	_c.Call.Return(run)
 	return _c
 }

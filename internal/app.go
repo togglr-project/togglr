@@ -53,6 +53,7 @@ import (
 	usernotifrepo "github.com/togglr-project/togglr/internal/repository/user-notifications"
 	"github.com/togglr-project/togglr/internal/repository/users"
 	ratelimiter2fa "github.com/togglr-project/togglr/internal/services/2fa/ratelimiter"
+	featurenotificator "github.com/togglr-project/togglr/internal/services/feature-notificator"
 	featuresprocessor "github.com/togglr-project/togglr/internal/services/features-processor"
 	guardengine "github.com/togglr-project/togglr/internal/services/guard-engine"
 	"github.com/togglr-project/togglr/internal/services/ldap"
@@ -399,6 +400,9 @@ func (app *App) registerComponents() {
 	})
 	app.registerComponent(ratelimiter2fa.New)
 
+	// Register guard engine service
+	app.registerComponent(guardengine.New)
+
 	// Register user notifications service
 	app.registerComponent(usernotificator.New).Arg(3)
 	var userNotificator *usernotificator.Service
@@ -406,8 +410,18 @@ func (app *App) registerComponents() {
 		panic(err)
 	}
 
-	// Register guard engine service
-	app.registerComponent(guardengine.New)
+	// Register feature notifications service
+	app.registerComponent(featurenotificator.New).Arg(3).Arg([]contract.NotificationChannel{
+		mattermostChannel,
+		webhookChannel,
+		telegramChannel,
+		slackChannel,
+		pachcaChannel,
+	})
+	var featureNotificator *featurenotificator.Service
+	if err := app.container.Resolve(&featureNotificator); err != nil {
+		panic(err)
+	}
 
 	// Register API components
 	app.registerComponent(apibackend.NewSecurityHandler)

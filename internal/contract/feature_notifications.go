@@ -18,6 +18,7 @@ type FeatureNotificationRepository interface {
 	) error
 	GetByID(ctx context.Context, id domain.FeatureNotificationID) (domain.FeatureNotification, error)
 	TakePending(ctx context.Context, limit uint) ([]domain.FeatureNotification, error)
+	TakePendingForUpdate(ctx context.Context, limit uint) ([]domain.FeatureNotification, error)
 	MarkAsSent(ctx context.Context, id domain.FeatureNotificationID) error
 	MarkAsFailed(ctx context.Context, id domain.FeatureNotificationID, reason string) error
 	MarkAsSkipped(ctx context.Context, id domain.FeatureNotificationID, reason string) error
@@ -51,7 +52,6 @@ type FeatureNotificationsUseCase interface {
 	// FeatureNotifications
 	TakePendingNotificationsWithSettings(
 		ctx context.Context,
-		envID domain.EnvironmentID,
 		limit uint,
 	) ([]domain.FeatureNotificationWithSettings, error)
 	MarkNotificationAsSent(ctx context.Context, id domain.FeatureNotificationID) error

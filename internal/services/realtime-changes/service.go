@@ -49,7 +49,7 @@ func (s *Service) worker() {
 	ticker := time.NewTicker(s.pollInterval)
 	defer ticker.Stop()
 
-	slog.Info("realtime worker started", "poll_interval", s.pollInterval)
+	slog.Info("Realtime worker started", "poll_interval", s.pollInterval)
 
 	for {
 		select {

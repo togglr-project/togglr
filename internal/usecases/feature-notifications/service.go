@@ -150,33 +150,44 @@ func (s *Service) ListNotificationSettings(
 
 func (s *Service) TakePendingNotificationsWithSettings(
 	ctx context.Context,
-	envID domain.EnvironmentID,
 	limit uint,
 ) ([]domain.FeatureNotificationWithSettings, error) {
-	notifications, err := s.featureNotificationsRepo.TakePending(ctx, limit)
+	notifications, err := s.featureNotificationsRepo.TakePendingForUpdate(ctx, limit)
 	if err != nil {
 		return nil, fmt.Errorf("take pending notifications: %w", err)
 	}
 
-	projectsMap := make(map[domain.ProjectID][]domain.NotificationSetting)
-	for i := range notifications {
-		notification := notifications[i]
-		projectsMap[notification.ProjectID] = nil
+	projectsMap := make(map[domain.ProjectID]struct{})
+	for _, notification := range notifications {
+		projectsMap[notification.ProjectID] = struct{}{}
 	}
 
+	projectEnvsMap := make(map[projectIDWithEnvID][]domain.NotificationSetting)
+
 	for projectID := range projectsMap {
-		settingsWithRules, err := s.notificationSettingsRepo.ListSettings(ctx, projectID, envID)
+		settings, err := s.notificationSettingsRepo.ListSettingsAll(ctx, projectID)
 		if err != nil {
 			return nil, fmt.Errorf("list notification settings: %w", err)
 		}
 
-		projectsMap[projectID] = settingsWithRules
+		for _, setting := range settings {
+			projectEnvsMap[projectIDWithEnvID{
+				ProjectID: setting.ProjectID,
+				EnvID:     setting.EnvironmentID,
+			}] = append(projectEnvsMap[projectIDWithEnvID{
+				ProjectID: setting.ProjectID,
+				EnvID:     setting.EnvironmentID,
+			}], setting)
+		}
 	}
 
 	result := make([]domain.FeatureNotificationWithSettings, 0, len(notifications))
 	for i := range notifications {
 		notification := notifications[i]
-		settings := projectsMap[notification.ProjectID]
+		settings := projectEnvsMap[projectIDWithEnvID{
+			ProjectID: notification.ProjectID,
+			EnvID:     notification.EnvironmentID,
+		}]
 		result = append(result, domain.FeatureNotificationWithSettings{
 			FeatureNotification: notification,
 			Settings:            settings,
