@@ -6,6 +6,8 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/shopspring/decimal"
+
 	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/sdkserver"
@@ -62,7 +64,7 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 		AlgorithmID: algorithmIDRef,
 		VariantKey:  req.VariantKey,
 		EventType:   req.EventType,
-		Reward:      float64(req.Reward.Or(0.0)),
+		Reward:      decimal.NewFromFloat32(req.Reward.Or(0.0)),
 		Context:     reqCtx,
 	}
 

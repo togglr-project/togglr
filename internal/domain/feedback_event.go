@@ -2,6 +2,8 @@ package domain
 
 import (
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type FeedbackEventID uint64
@@ -12,16 +14,16 @@ type FeedbackEvent struct {
 	AlgorithmID AlgorithmID
 	VariantKey  string
 	EventType   string
-	Reward      float64
+	Reward      decimal.Decimal
 	Context     map[string]any
 	CreatedAt   time.Time
 }
 
 type FeedbackEventDTO struct {
-	FeatureID   FeatureID      `json:"featureID"`
-	AlgorithmID *AlgorithmID   `json:"algorithmID"`
-	VariantKey  string         `json:"variantKey"`
-	EventType   string         `json:"eventType"`
-	Reward      float64        `json:"reward"`
-	Context     map[string]any `json:"context"`
+	FeatureID   FeatureID       `json:"featureID"`
+	AlgorithmID *AlgorithmID    `json:"algorithmID"`
+	VariantKey  string          `json:"variantKey"`
+	EventType   string          `json:"eventType"`
+	Reward      decimal.Decimal `json:"reward"`
+	Context     map[string]any  `json:"context"`
 }

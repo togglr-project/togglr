@@ -29,6 +29,7 @@ require (
 	github.com/rom8726/pgfixtures v1.3.0
 	github.com/rom8726/resilience v1.0.0
 	github.com/rom8726/testy v1.6.5
+	github.com/shopspring/decimal v1.4.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
