@@ -6,7 +6,7 @@ create table monitoring.feedback_events
     algorithm_id uuid references public.algorithms,
     variant_key  varchar(100) not null,
     event_type   varchar(50) not null, -- evaluation, success, failure, error, custom
-    reward       double precision default 0,
+    reward       numeric(18,6) not null default 0.0,
     context      jsonb,
     created_at   timestamptz not null default now(),
 
@@ -38,7 +38,7 @@ create table monitoring.feature_algorithm_stats
     evaluations   bigint default 0 not null,     -- number of feature evaluations
     successes     bigint default 0 not null,     -- positive outcomes
     failures      bigint default 0 not null,     -- negative outcomes
-    metric_sum    double precision default 0 not null, -- accumulated metric/reward values
+    metric_sum    numeric(24,6) default 0 not null, -- accumulated metric/reward values
 
     updated_at    timestamptz default now() not null,
     primary key (feature_id, algorithm_id, variant_key)

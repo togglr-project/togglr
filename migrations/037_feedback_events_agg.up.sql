@@ -19,6 +19,6 @@ with no data;
 
 select add_retention_policy('monitoring.feedback_events_agg', interval '180 days');
 select add_continuous_aggregate_policy('monitoring.feedback_events_agg',
-    start_offset => interval '2 days',
-    end_offset   => interval '1 hour',
-    schedule_interval => interval '5 minutes');
+    start_offset => interval '6 hours',
+    end_offset   => interval '5 minutes',
+    schedule_interval => interval '1 minute');
