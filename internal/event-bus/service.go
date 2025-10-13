@@ -2,20 +2,21 @@ package event_bus
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"sync"
 
-	appcontext "github.com/togglr-project/togglr/internal/context"
 	"github.com/togglr-project/togglr/internal/contract"
-	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/internal/infra/mq"
 )
 
 const (
-	TopicSDKErrorReports = "sdk__error_reports"
+	TopicSDKErrorReports   = "sdk__error_reports"
+	TopicSDKFeedbackEvents = "sdk__feedback_events"
+)
+
+const (
+	eventsBatchSize = 50
 )
 
 type Service struct {
@@ -24,19 +25,26 @@ type Service struct {
 	stop chan struct{}
 
 	errorReportUseCase contract.ErrorReportsUseCase
+	feedbackEventsRepo contract.FeedbackEventsRepository
 }
 
-func New(bus mq.MQ, errorReportUseCase contract.ErrorReportsUseCase) *Service {
+func New(
+	bus mq.MQ,
+	errorReportUseCase contract.ErrorReportsUseCase,
+	feedbackEventsRepo contract.FeedbackEventsRepository,
+) *Service {
 	return &Service{
 		bus:                bus,
 		stop:               make(chan struct{}),
 		errorReportUseCase: errorReportUseCase,
+		feedbackEventsRepo: feedbackEventsRepo,
 	}
 }
 
 //nolint:contextcheck // false positive
 func (s *Service) Start(context.Context) error {
 	s.dispatchConsumer(TopicSDKErrorReports, s.processSDKErrorReportEvent)
+	s.dispatchBatchConsumer(TopicSDKFeedbackEvents, s.processSDKFeedbackEvents)
 
 	return nil
 }
@@ -46,15 +54,6 @@ func (s *Service) Stop(context.Context) error {
 	s.wg.Wait()
 
 	return nil
-}
-
-func (s *Service) PublishErrorReport(ctx context.Context, event contract.ErrorReportEvent) error {
-	data, err := json.Marshal(event)
-	if err != nil {
-		return fmt.Errorf("marshal event: %w", err)
-	}
-
-	return s.bus.Publish(ctx, TopicSDKErrorReports, data)
 }
 
 func (s *Service) dispatchConsumer(topic string, processFn func(ctx context.Context, data []byte) error) {
@@ -84,41 +83,29 @@ func (s *Service) dispatchConsumer(topic string, processFn func(ctx context.Cont
 	}()
 }
 
-func (s *Service) processSDKErrorReportEvent(ctx context.Context, data []byte) error {
-	var event contract.ErrorReportEvent
-	if err := json.Unmarshal(data, &event); err != nil {
-		return domain.NewSkippableError(err)
-	}
+func (s *Service) dispatchBatchConsumer(topic string, processFn func(ctx context.Context, messages [][]byte) error) {
+	s.wg.Add(1)
 
-	requestID := event.RequestID
-	ctx = appcontext.WithUsername(ctx, "sdk")
-	ctx = appcontext.WithRequestID(ctx, requestID)
+	go func() {
+		defer s.wg.Done()
+		defer func() {
+			if r := recover(); r != nil {
+				slog.Error(fmt.Sprintf("panic: %v", r))
+			}
+		}()
 
-	accepted, err := s.errorReportUseCase.ReportError(
-		ctx,
-		event.ProjectID,
-		event.FeatureKey,
-		event.EnvKey,
-		event.Context,
-		event.ErrorType,
-		event.ErrorMessage,
-	)
-	if err != nil {
-		if errors.Is(err, domain.ErrEntityNotFound) {
-			return domain.NewSkippableError(err)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		go func() {
+			<-s.stop
+			cancel()
+		}()
+
+		err := s.bus.SubscribeBatch(ctx, topic, eventsBatchSize, processFn)
+		if err != nil {
+			message := fmt.Sprintf("batch subscribe to topic %q: %v", topic, err)
+			slog.Error(message)
 		}
-
-		return err
-	}
-
-	if accepted {
-		slog.Warn("error report accepted (pending change)",
-			"feature_key", event.FeatureKey, "project_id", event.ProjectID,
-			"env_key", event.EnvKey, "request_id", requestID)
-	}
-
-	slog.Debug("error report processed",
-		"feature_key", event.FeatureKey, "project_id", event.ProjectID, "env_key", event.EnvKey)
-
-	return nil
+	}()
 }

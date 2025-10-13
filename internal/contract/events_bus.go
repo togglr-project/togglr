@@ -18,4 +18,5 @@ type ErrorReportEvent struct {
 
 type EventsBus interface {
 	PublishErrorReport(ctx context.Context, event ErrorReportEvent) error
+	PublishFeedbackEvent(ctx context.Context, event domain.FeedbackEventDTO) error
 }

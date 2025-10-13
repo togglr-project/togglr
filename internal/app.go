@@ -32,6 +32,7 @@ import (
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
 	"github.com/togglr-project/togglr/internal/repository/features"
 	"github.com/togglr-project/togglr/internal/repository/featureschedules"
+	feedbackeventsrepo "github.com/togglr-project/togglr/internal/repository/feedback-events"
 	"github.com/togglr-project/togglr/internal/repository/flagvariants"
 	"github.com/togglr-project/togglr/internal/repository/guard_service"
 	"github.com/togglr-project/togglr/internal/repository/ldapsynclogs"
@@ -135,6 +136,10 @@ func NewApp(ctx context.Context, cfg *config.Config, logger *slog.Logger) (*App,
 		JetStreams: []natsmq.JetStreamConfig{
 			{
 				StreamName: eventsbus.TopicSDKErrorReports,
+				MaxAge:     time.Hour * 3,
+			},
+			{
+				StreamName: eventsbus.TopicSDKFeedbackEvents,
 				MaxAge:     time.Hour * 3,
 			},
 		},
@@ -261,6 +266,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(usernotifrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(notificationsettingsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(featurenotifsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(feedbackeventsrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)

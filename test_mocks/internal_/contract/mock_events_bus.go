@@ -9,6 +9,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 	"github.com/togglr-project/togglr/internal/contract"
+	"github.com/togglr-project/togglr/internal/domain"
 )
 
 // NewMockEventsBus creates a new instance of MockEventsBus. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
@@ -91,6 +92,63 @@ func (_c *MockEventsBus_PublishErrorReport_Call) Return(err error) *MockEventsBu
 }
 
 func (_c *MockEventsBus_PublishErrorReport_Call) RunAndReturn(run func(ctx context.Context, event contract.ErrorReportEvent) error) *MockEventsBus_PublishErrorReport_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// PublishFeedbackEvent provides a mock function for the type MockEventsBus
+func (_mock *MockEventsBus) PublishFeedbackEvent(ctx context.Context, event domain.FeedbackEventDTO) error {
+	ret := _mock.Called(ctx, event)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PublishFeedbackEvent")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeedbackEventDTO) error); ok {
+		r0 = returnFunc(ctx, event)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockEventsBus_PublishFeedbackEvent_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PublishFeedbackEvent'
+type MockEventsBus_PublishFeedbackEvent_Call struct {
+	*mock.Call
+}
+
+// PublishFeedbackEvent is a helper method to define mock.On call
+//   - ctx context.Context
+//   - event domain.FeedbackEventDTO
+func (_e *MockEventsBus_Expecter) PublishFeedbackEvent(ctx interface{}, event interface{}) *MockEventsBus_PublishFeedbackEvent_Call {
+	return &MockEventsBus_PublishFeedbackEvent_Call{Call: _e.mock.On("PublishFeedbackEvent", ctx, event)}
+}
+
+func (_c *MockEventsBus_PublishFeedbackEvent_Call) Run(run func(ctx context.Context, event domain.FeedbackEventDTO)) *MockEventsBus_PublishFeedbackEvent_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeedbackEventDTO
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeedbackEventDTO)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockEventsBus_PublishFeedbackEvent_Call) Return(err error) *MockEventsBus_PublishFeedbackEvent_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockEventsBus_PublishFeedbackEvent_Call) RunAndReturn(run func(ctx context.Context, event domain.FeedbackEventDTO) error) *MockEventsBus_PublishFeedbackEvent_Call {
 	_c.Call.Return(run)
 	return _c
 }

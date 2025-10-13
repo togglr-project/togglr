@@ -276,3 +276,62 @@ func (_c *MockTx_QueryRow_Call) RunAndReturn(run func(ctx context.Context, sql s
 	_c.Call.Return(run)
 	return _c
 }
+
+// SendBatch provides a mock function for the type MockTx
+func (_mock *MockTx) SendBatch(ctx context.Context, b *pgx.Batch) pgx.BatchResults {
+	ret := _mock.Called(ctx, b)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendBatch")
+	}
+
+	var r0 pgx.BatchResults
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *pgx.Batch) pgx.BatchResults); ok {
+		r0 = returnFunc(ctx, b)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(pgx.BatchResults)
+		}
+	}
+	return r0
+}
+
+// MockTx_SendBatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendBatch'
+type MockTx_SendBatch_Call struct {
+	*mock.Call
+}
+
+// SendBatch is a helper method to define mock.On call
+//   - ctx context.Context
+//   - b *pgx.Batch
+func (_e *MockTx_Expecter) SendBatch(ctx interface{}, b interface{}) *MockTx_SendBatch_Call {
+	return &MockTx_SendBatch_Call{Call: _e.mock.On("SendBatch", ctx, b)}
+}
+
+func (_c *MockTx_SendBatch_Call) Run(run func(ctx context.Context, b *pgx.Batch)) *MockTx_SendBatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 *pgx.Batch
+		if args[1] != nil {
+			arg1 = args[1].(*pgx.Batch)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockTx_SendBatch_Call) Return(batchResults pgx.BatchResults) *MockTx_SendBatch_Call {
+	_c.Call.Return(batchResults)
+	return _c
+}
+
+func (_c *MockTx_SendBatch_Call) RunAndReturn(run func(ctx context.Context, b *pgx.Batch) pgx.BatchResults) *MockTx_SendBatch_Call {
+	_c.Call.Return(run)
+	return _c
+}
