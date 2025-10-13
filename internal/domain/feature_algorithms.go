@@ -10,7 +10,6 @@ type FeatureAlgorithm struct {
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID
 	AlgorithmID   AlgorithmID
-	FlagVariantID *FlagVariantID
 	Settings      map[string]decimal.Decimal
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -20,6 +19,5 @@ type FeatureAlgorithmDTO struct {
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID
 	AlgorithmID   AlgorithmID
-	FlagVariantID *FlagVariantID
 	Settings      map[string]decimal.Decimal
 }

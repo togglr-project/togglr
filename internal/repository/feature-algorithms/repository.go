@@ -32,7 +32,6 @@ INSERT INTO feature_algorithms (
 	feature_id,
 	environment_id,
 	algorithm_id,
-	flag_variant_id,
 	settings,
 	created_at,
 	updated_at
@@ -45,7 +44,6 @@ VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
 		featureAlgorithm.AlgorithmID,
-		featureAlgorithm.FlagVariantID,
 		featureAlgorithm.Settings,
 	)
 
@@ -61,18 +59,16 @@ func (r *Repository) Update(
 	const query = `
 UPDATE feature_algorithms
 SET
-	flag_variant_id = $1,
-	settings = $2,
+	settings = $1,
 	updated_at = NOW()
 WHERE
-	feature_id = $3 AND
-	environment_id = $4 AND
-	algorithm_id = $5`
+	feature_id = $2 AND
+	environment_id = $3 AND
+	algorithm_id = $4`
 
 	_, err := executor.Exec(
 		ctx,
 		query,
-		featureAlgorithm.FlagVariantID,
 		featureAlgorithm.Settings,
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
