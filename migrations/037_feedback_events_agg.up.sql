@@ -17,7 +17,7 @@ from monitoring.feedback_events
 group by bucket, feature_id, algorithm_id, variant_key
 with no data;
 
-select add_retention_policy('monitoring.feedback_events_agg', interval '180 days');
+select add_retention_policy('monitoring.feedback_events_agg', interval '30 days');
 select add_continuous_aggregate_policy('monitoring.feedback_events_agg',
     start_offset => interval '6 hours',
     end_offset   => interval '5 minutes',
