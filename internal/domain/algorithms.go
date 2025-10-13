@@ -26,7 +26,7 @@ const (
 type Algorithm struct {
 	ID              AlgorithmID
 	Name            string
-	Slug            AlgorithmType
+	Slug            string
 	Kind            AlgorithmKind
 	Description     string
 	DefaultSettings map[string]decimal.Decimal
