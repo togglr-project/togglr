@@ -23,8 +23,10 @@ type algorithmModel struct {
 
 func (m *algorithmModel) toDomain() domain.Algorithm {
 	var settings map[string]decimal.Decimal
-	if err := json.Unmarshal(m.DefaultSettings, &settings); err != nil {
-		slog.Error("unmarshal algorithm settings", "settings", string(m.DefaultSettings), "error", err)
+	if m.DefaultSettings != nil {
+		if err := json.Unmarshal(m.DefaultSettings, &settings); err != nil {
+			slog.Error("unmarshal algorithm settings", "settings", string(m.DefaultSettings), "error", err)
+		}
 	}
 
 	return domain.Algorithm{
