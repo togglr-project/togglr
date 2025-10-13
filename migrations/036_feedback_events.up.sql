@@ -31,9 +31,10 @@ select add_retention_policy('monitoring.feedback_events', interval '30 days');
 -- 2. Aggregated per-variant statistics for runtime evaluation (used by bandit algorithms)
 create table monitoring.feature_algorithm_stats
 (
-    feature_id    uuid not null references public.features on delete cascade,
-    algorithm_id  uuid not null references public.algorithms on delete cascade,
-    variant_key   varchar(100) not null,
+    feature_id     uuid not null references public.features(id) on delete cascade,
+    environment_id BIGINT NOT NULL REFERENCES public.environments(id) ON DELETE CASCADE,
+    algorithm_id   uuid not null references public.algorithms(id) on delete cascade,
+    variant_key    varchar(100) not null,
 
     evaluations   bigint default 0 not null,     -- number of feature evaluations
     successes     bigint default 0 not null,     -- positive outcomes
@@ -41,7 +42,7 @@ create table monitoring.feature_algorithm_stats
     metric_sum    numeric(24,6) default 0 not null, -- accumulated metric/reward values
 
     updated_at    timestamptz default now() not null,
-    primary key (feature_id, algorithm_id, variant_key)
+    primary key (feature_id, environment_id, algorithm_id, variant_key)
 );
 
 comment on table monitoring.feature_algorithm_stats is
