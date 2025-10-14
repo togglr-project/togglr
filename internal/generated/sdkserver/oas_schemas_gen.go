@@ -771,18 +771,16 @@ func (*TrackFeatureEventAccepted) trackFeatureEventRes() {}
 // Conversions / errors / custom events are used to update algorithm statistics.
 // Ref: #/components/schemas/TrackRequest
 type TrackRequest struct {
-	// Variant key returned by evaluate (e.g. "A", "control", "v2").
+	// Variant key returned by evaluate (e.g. "A", "v2").
 	VariantKey string `json:"variant_key"`
-	// Type of event (e.g. "impression", "conversion", "error", "custom").
-	EventType string `json:"event_type"`
+	// Type of event (e.g. "success", "failure", "error").
+	EventType TrackRequestEventType `json:"event_type"`
 	// Numeric reward associated with event (e.g. 1.0 for conversion). Default 0.
 	Reward OptFloat32 `json:"reward"`
 	// Arbitrary context passed by SDK (user id, session, metadata).
 	Context OptTrackRequestContext `json:"context"`
 	// Event timestamp. If omitted, server time will be used.
 	CreatedAt OptDateTime `json:"created_at"`
-	// Optional algorithm slug this event is associated with.
-	AlgorithmSlug OptString `json:"algorithm_slug"`
 	// Optional idempotency key to deduplicate duplicate events from SDK retries.
 	DedupKey OptString `json:"dedup_key"`
 }
@@ -793,7 +791,7 @@ func (s *TrackRequest) GetVariantKey() string {
 }
 
 // GetEventType returns the value of EventType.
-func (s *TrackRequest) GetEventType() string {
+func (s *TrackRequest) GetEventType() TrackRequestEventType {
 	return s.EventType
 }
 
@@ -812,11 +810,6 @@ func (s *TrackRequest) GetCreatedAt() OptDateTime {
 	return s.CreatedAt
 }
 
-// GetAlgorithmSlug returns the value of AlgorithmSlug.
-func (s *TrackRequest) GetAlgorithmSlug() OptString {
-	return s.AlgorithmSlug
-}
-
 // GetDedupKey returns the value of DedupKey.
 func (s *TrackRequest) GetDedupKey() OptString {
 	return s.DedupKey
@@ -828,7 +821,7 @@ func (s *TrackRequest) SetVariantKey(val string) {
 }
 
 // SetEventType sets the value of EventType.
-func (s *TrackRequest) SetEventType(val string) {
+func (s *TrackRequest) SetEventType(val TrackRequestEventType) {
 	s.EventType = val
 }
 
@@ -847,11 +840,6 @@ func (s *TrackRequest) SetCreatedAt(val OptDateTime) {
 	s.CreatedAt = val
 }
 
-// SetAlgorithmSlug sets the value of AlgorithmSlug.
-func (s *TrackRequest) SetAlgorithmSlug(val OptString) {
-	s.AlgorithmSlug = val
-}
-
 // SetDedupKey sets the value of DedupKey.
 func (s *TrackRequest) SetDedupKey(val OptString) {
 	s.DedupKey = val
@@ -867,4 +855,53 @@ func (s *TrackRequestContext) init() TrackRequestContext {
 		*s = m
 	}
 	return m
+}
+
+// Type of event (e.g. "success", "failure", "error").
+type TrackRequestEventType string
+
+const (
+	TrackRequestEventTypeSuccess TrackRequestEventType = "success"
+	TrackRequestEventTypeFailure TrackRequestEventType = "failure"
+	TrackRequestEventTypeError   TrackRequestEventType = "error"
+)
+
+// AllValues returns all TrackRequestEventType values.
+func (TrackRequestEventType) AllValues() []TrackRequestEventType {
+	return []TrackRequestEventType{
+		TrackRequestEventTypeSuccess,
+		TrackRequestEventTypeFailure,
+		TrackRequestEventTypeError,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s TrackRequestEventType) MarshalText() ([]byte, error) {
+	switch s {
+	case TrackRequestEventTypeSuccess:
+		return []byte(s), nil
+	case TrackRequestEventTypeFailure:
+		return []byte(s), nil
+	case TrackRequestEventTypeError:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *TrackRequestEventType) UnmarshalText(data []byte) error {
+	switch TrackRequestEventType(data) {
+	case TrackRequestEventTypeSuccess:
+		*s = TrackRequestEventTypeSuccess
+		return nil
+	case TrackRequestEventTypeFailure:
+		*s = TrackRequestEventTypeFailure
+		return nil
+	case TrackRequestEventTypeError:
+		*s = TrackRequestEventTypeError
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
 }

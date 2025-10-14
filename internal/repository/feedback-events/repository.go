@@ -30,12 +30,11 @@ func (r *Repository) AddEvent(ctx context.Context, event domain.FeedbackEventDTO
 
 	const query = `
 INSERT INTO monitoring.feedback_events
-	(feature_id, algorithm_slug, variant_key, event_type, reward, context, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, NOW())`
+	(feature_id, variant_key, event_type, reward, context, created_at)
+VALUES ($1, $2, $3, $4, $5, NOW())`
 
 	_, err = executor.Exec(ctx, query,
 		event.FeatureID,
-		event.AlgorithmSlug,
 		event.VariantKey,
 		event.EventType,
 		event.Reward,
@@ -55,8 +54,8 @@ func (r *Repository) AddEventsBatch(ctx context.Context, events []domain.Feedbac
 
 	const query = `
 INSERT INTO monitoring.feedback_events
-    (feature_id, algorithm_slug, variant_key, event_type, reward, context, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, NOW())`
+    (feature_id, variant_key, event_type, reward, context, created_at)
+VALUES ($1, $2, $3, $4, $5, NOW())`
 
 	for _, e := range events {
 		contextData, err := json.Marshal(e.Context)
@@ -66,7 +65,6 @@ VALUES ($1, $2, $3, $4, $5, $6, NOW())`
 
 		batch.Queue(query,
 			e.FeatureID,
-			e.AlgorithmSlug,
 			e.VariantKey,
 			e.EventType,
 			e.Reward,

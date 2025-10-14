@@ -85,7 +85,7 @@ func (m *BanditManager) GetAlgorithmState(
 	return state, ok
 }
 
-// EvaluateFeature chooses a variant according to algorithm.
+// EvaluateFeature chooses a variant according to the algorithm.
 func (m *BanditManager) EvaluateFeature(
 	featureID domain.FeatureID,
 	envID domain.EnvironmentID,
