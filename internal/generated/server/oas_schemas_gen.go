@@ -3491,12 +3491,85 @@ func (s *Feature) SetUpdatedAt(val time.Time) {
 	s.UpdatedAt = val
 }
 
+// Ref: #/components/schemas/FeatureAlgorithm
+type FeatureAlgorithm struct {
+	FeatureID     string `json:"feature_id"`
+	EnvironmentID int64  `json:"environment_id"`
+	AlgorithmSlug string `json:"algorithm_slug"`
+	Enabled       bool   `json:"enabled"`
+	// Numeric settings for the feature algorithm.
+	Settings FeatureAlgorithmSettings `json:"settings"`
+}
+
+// GetFeatureID returns the value of FeatureID.
+func (s *FeatureAlgorithm) GetFeatureID() string {
+	return s.FeatureID
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *FeatureAlgorithm) GetEnvironmentID() int64 {
+	return s.EnvironmentID
+}
+
+// GetAlgorithmSlug returns the value of AlgorithmSlug.
+func (s *FeatureAlgorithm) GetAlgorithmSlug() string {
+	return s.AlgorithmSlug
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *FeatureAlgorithm) GetEnabled() bool {
+	return s.Enabled
+}
+
+// GetSettings returns the value of Settings.
+func (s *FeatureAlgorithm) GetSettings() FeatureAlgorithmSettings {
+	return s.Settings
+}
+
+// SetFeatureID sets the value of FeatureID.
+func (s *FeatureAlgorithm) SetFeatureID(val string) {
+	s.FeatureID = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *FeatureAlgorithm) SetEnvironmentID(val int64) {
+	s.EnvironmentID = val
+}
+
+// SetAlgorithmSlug sets the value of AlgorithmSlug.
+func (s *FeatureAlgorithm) SetAlgorithmSlug(val string) {
+	s.AlgorithmSlug = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *FeatureAlgorithm) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// SetSettings sets the value of Settings.
+func (s *FeatureAlgorithm) SetSettings(val FeatureAlgorithmSettings) {
+	s.Settings = val
+}
+
+// Numeric settings for the feature algorithm.
+type FeatureAlgorithmSettings map[string]float64
+
+func (s *FeatureAlgorithmSettings) init() FeatureAlgorithmSettings {
+	m := *s
+	if m == nil {
+		m = map[string]float64{}
+		*s = m
+	}
+	return m
+}
+
 // Ref: #/components/schemas/FeatureDetailsResponse
 type FeatureDetailsResponse struct {
-	Feature  FeatureExtended `json:"feature"`
-	Variants []FlagVariant   `json:"variants"`
-	Rules    []Rule          `json:"rules"`
-	Tags     []ProjectTag    `json:"tags"`
+	Feature    FeatureExtended    `json:"feature"`
+	Variants   []FlagVariant      `json:"variants"`
+	Rules      []Rule             `json:"rules"`
+	Tags       []ProjectTag       `json:"tags"`
+	Algorithms []FeatureAlgorithm `json:"algorithms"`
 }
 
 // GetFeature returns the value of Feature.
@@ -3519,6 +3592,11 @@ func (s *FeatureDetailsResponse) GetTags() []ProjectTag {
 	return s.Tags
 }
 
+// GetAlgorithms returns the value of Algorithms.
+func (s *FeatureDetailsResponse) GetAlgorithms() []FeatureAlgorithm {
+	return s.Algorithms
+}
+
 // SetFeature sets the value of Feature.
 func (s *FeatureDetailsResponse) SetFeature(val FeatureExtended) {
 	s.Feature = val
@@ -3537,6 +3615,11 @@ func (s *FeatureDetailsResponse) SetRules(val []Rule) {
 // SetTags sets the value of Tags.
 func (s *FeatureDetailsResponse) SetTags(val []ProjectTag) {
 	s.Tags = val
+}
+
+// SetAlgorithms sets the value of Algorithms.
+func (s *FeatureDetailsResponse) SetAlgorithms(val []FeatureAlgorithm) {
+	s.Algorithms = val
 }
 
 func (*FeatureDetailsResponse) getFeatureRes()    {}
@@ -3566,7 +3649,8 @@ type FeatureExtended struct {
 	NextStateTime OptNilDateTime `json:"next_state_time"`
 	HealthStatus  string         `json:"health_status"`
 	// Tags associated with this feature.
-	Tags []ProjectTag `json:"tags"`
+	Tags       []ProjectTag       `json:"tags"`
+	Algorithms []FeatureAlgorithm `json:"algorithms"`
 }
 
 // GetID returns the value of ID.
@@ -3649,6 +3733,11 @@ func (s *FeatureExtended) GetTags() []ProjectTag {
 	return s.Tags
 }
 
+// GetAlgorithms returns the value of Algorithms.
+func (s *FeatureExtended) GetAlgorithms() []FeatureAlgorithm {
+	return s.Algorithms
+}
+
 // SetID sets the value of ID.
 func (s *FeatureExtended) SetID(val string) {
 	s.ID = val
@@ -3727,6 +3816,11 @@ func (s *FeatureExtended) SetHealthStatus(val string) {
 // SetTags sets the value of Tags.
 func (s *FeatureExtended) SetTags(val []ProjectTag) {
 	s.Tags = val
+}
+
+// SetAlgorithms sets the value of Algorithms.
+func (s *FeatureExtended) SetAlgorithms(val []FeatureAlgorithm) {
+	s.Algorithms = val
 }
 
 // Ref: #/components/schemas/FeatureKind

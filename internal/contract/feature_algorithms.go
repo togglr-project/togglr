@@ -24,6 +24,11 @@ type FeatureAlgorithmsRepository interface {
 		ctx context.Context,
 		featureID domain.FeatureID,
 	) ([]domain.FeatureAlgorithm, error)
+	ListByFeatureIDWithEnvID(
+		ctx context.Context,
+		featureID domain.FeatureID,
+		envID domain.EnvironmentID,
+	) ([]domain.FeatureAlgorithm, error)
 	ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 	ListAll(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 }

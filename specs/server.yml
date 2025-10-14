@@ -7336,7 +7336,11 @@ components:
               items:
                 $ref: '#/components/schemas/ProjectTag'
               description: "Tags associated with this feature"
-              example: []
+              example: [auto-disable, guarded]
+            algorithms:
+              type: array
+              items:
+                $ref: '#/components/schemas/FeatureAlgorithm'
           required: [is_active, health_status]
 
     CreateFeatureRequest:
@@ -7423,6 +7427,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProjectTag'
+        algorithms:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureAlgorithm'
       required: [feature, variants, rules, tags]
 
     ListFeaturesResponse:
@@ -9355,3 +9363,25 @@ components:
           items:
             $ref: '#/components/schemas/Algorithm'
       required: [ algorithms ]
+
+    FeatureAlgorithm:
+      type: object
+      properties:
+        feature_id:
+          type: string
+        environment_id:
+          type: integer
+          format: int64
+        algorithm_slug:
+          type: string
+          example: ucb
+        enabled:
+          type: boolean
+        settings:
+          type: object
+          description: Numeric settings for the feature algorithm
+          additionalProperties:
+            type: number
+          example:
+            confidence: 2.0
+      required: [feature_id, environment_id, algorithm_slug, enabled, settings]

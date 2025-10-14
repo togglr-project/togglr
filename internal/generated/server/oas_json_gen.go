@@ -7999,6 +7999,224 @@ func (s *Feature) UnmarshalJSON(data []byte) error {
 }
 
 // Encode implements json.Marshaler.
+func (s *FeatureAlgorithm) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields encodes fields.
+func (s *FeatureAlgorithm) encodeFields(e *jx.Encoder) {
+	{
+		e.FieldStart("feature_id")
+		e.Str(s.FeatureID)
+	}
+	{
+		e.FieldStart("environment_id")
+		e.Int64(s.EnvironmentID)
+	}
+	{
+		e.FieldStart("algorithm_slug")
+		e.Str(s.AlgorithmSlug)
+	}
+	{
+		e.FieldStart("enabled")
+		e.Bool(s.Enabled)
+	}
+	{
+		e.FieldStart("settings")
+		s.Settings.Encode(e)
+	}
+}
+
+var jsonFieldsNameOfFeatureAlgorithm = [5]string{
+	0: "feature_id",
+	1: "environment_id",
+	2: "algorithm_slug",
+	3: "enabled",
+	4: "settings",
+}
+
+// Decode decodes FeatureAlgorithm from json.
+func (s *FeatureAlgorithm) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode FeatureAlgorithm to nil")
+	}
+	var requiredBitSet [1]uint8
+
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		switch string(k) {
+		case "feature_id":
+			requiredBitSet[0] |= 1 << 0
+			if err := func() error {
+				v, err := d.Str()
+				s.FeatureID = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"feature_id\"")
+			}
+		case "environment_id":
+			requiredBitSet[0] |= 1 << 1
+			if err := func() error {
+				v, err := d.Int64()
+				s.EnvironmentID = int64(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"environment_id\"")
+			}
+		case "algorithm_slug":
+			requiredBitSet[0] |= 1 << 2
+			if err := func() error {
+				v, err := d.Str()
+				s.AlgorithmSlug = string(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"algorithm_slug\"")
+			}
+		case "enabled":
+			requiredBitSet[0] |= 1 << 3
+			if err := func() error {
+				v, err := d.Bool()
+				s.Enabled = bool(v)
+				if err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"enabled\"")
+			}
+		case "settings":
+			requiredBitSet[0] |= 1 << 4
+			if err := func() error {
+				if err := s.Settings.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"settings\"")
+			}
+		default:
+			return d.Skip()
+		}
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode FeatureAlgorithm")
+	}
+	// Validate required fields.
+	var failures []validate.FieldError
+	for i, mask := range [1]uint8{
+		0b00011111,
+	} {
+		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
+			// Mask only required fields and check equality to mask using XOR.
+			//
+			// If XOR result is not zero, result is not equal to expected, so some fields are missed.
+			// Bits of fields which would be set are actually bits of missed fields.
+			missed := bits.OnesCount8(result)
+			for bitN := 0; bitN < missed; bitN++ {
+				bitIdx := bits.TrailingZeros8(result)
+				fieldIdx := i*8 + bitIdx
+				var name string
+				if fieldIdx < len(jsonFieldsNameOfFeatureAlgorithm) {
+					name = jsonFieldsNameOfFeatureAlgorithm[fieldIdx]
+				} else {
+					name = strconv.Itoa(fieldIdx)
+				}
+				failures = append(failures, validate.FieldError{
+					Name:  name,
+					Error: validate.ErrFieldRequired,
+				})
+				// Reset bit.
+				result &^= 1 << bitIdx
+			}
+		}
+	}
+	if len(failures) > 0 {
+		return &validate.Error{Fields: failures}
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s *FeatureAlgorithm) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *FeatureAlgorithm) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
+func (s FeatureAlgorithmSettings) Encode(e *jx.Encoder) {
+	e.ObjStart()
+	s.encodeFields(e)
+	e.ObjEnd()
+}
+
+// encodeFields implements json.Marshaler.
+func (s FeatureAlgorithmSettings) encodeFields(e *jx.Encoder) {
+	for k, elem := range s {
+		e.FieldStart(k)
+
+		e.Float64(elem)
+	}
+}
+
+// Decode decodes FeatureAlgorithmSettings from json.
+func (s *FeatureAlgorithmSettings) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode FeatureAlgorithmSettings to nil")
+	}
+	m := s.init()
+	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
+		var elem float64
+		if err := func() error {
+			v, err := d.Float64()
+			elem = float64(v)
+			if err != nil {
+				return err
+			}
+			return nil
+		}(); err != nil {
+			return errors.Wrapf(err, "decode field %q", k)
+		}
+		m[string(k)] = elem
+		return nil
+	}); err != nil {
+		return errors.Wrap(err, "decode FeatureAlgorithmSettings")
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s FeatureAlgorithmSettings) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *FeatureAlgorithmSettings) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode implements json.Marshaler.
 func (s *FeatureDetailsResponse) Encode(e *jx.Encoder) {
 	e.ObjStart()
 	s.encodeFields(e)
@@ -8035,13 +8253,24 @@ func (s *FeatureDetailsResponse) encodeFields(e *jx.Encoder) {
 		}
 		e.ArrEnd()
 	}
+	{
+		if s.Algorithms != nil {
+			e.FieldStart("algorithms")
+			e.ArrStart()
+			for _, elem := range s.Algorithms {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
 }
 
-var jsonFieldsNameOfFeatureDetailsResponse = [4]string{
+var jsonFieldsNameOfFeatureDetailsResponse = [5]string{
 	0: "feature",
 	1: "variants",
 	2: "rules",
 	3: "tags",
+	4: "algorithms",
 }
 
 // Decode decodes FeatureDetailsResponse from json.
@@ -8116,6 +8345,23 @@ func (s *FeatureDetailsResponse) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"tags\"")
+			}
+		case "algorithms":
+			if err := func() error {
+				s.Algorithms = make([]FeatureAlgorithm, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem FeatureAlgorithm
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Algorithms = append(s.Algorithms, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"algorithms\"")
 			}
 		default:
 			return d.Skip()
@@ -8260,9 +8506,19 @@ func (s *FeatureExtended) encodeFields(e *jx.Encoder) {
 			e.ArrEnd()
 		}
 	}
+	{
+		if s.Algorithms != nil {
+			e.FieldStart("algorithms")
+			e.ArrStart()
+			for _, elem := range s.Algorithms {
+				elem.Encode(e)
+			}
+			e.ArrEnd()
+		}
+	}
 }
 
-var jsonFieldsNameOfFeatureExtended = [16]string{
+var jsonFieldsNameOfFeatureExtended = [17]string{
 	0:  "id",
 	1:  "project_id",
 	2:  "key",
@@ -8279,6 +8535,7 @@ var jsonFieldsNameOfFeatureExtended = [16]string{
 	13: "next_state_time",
 	14: "health_status",
 	15: "tags",
+	16: "algorithms",
 }
 
 // Decode decodes FeatureExtended from json.
@@ -8286,7 +8543,7 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 	if s == nil {
 		return errors.New("invalid: unable to decode FeatureExtended to nil")
 	}
-	var requiredBitSet [2]uint8
+	var requiredBitSet [3]uint8
 
 	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
 		switch string(k) {
@@ -8477,6 +8734,23 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"tags\"")
 			}
+		case "algorithms":
+			if err := func() error {
+				s.Algorithms = make([]FeatureAlgorithm, 0)
+				if err := d.Arr(func(d *jx.Decoder) error {
+					var elem FeatureAlgorithm
+					if err := elem.Decode(d); err != nil {
+						return err
+					}
+					s.Algorithms = append(s.Algorithms, elem)
+					return nil
+				}); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"algorithms\"")
+			}
 		default:
 			return d.Skip()
 		}
@@ -8486,9 +8760,10 @@ func (s *FeatureExtended) Decode(d *jx.Decoder) error {
 	}
 	// Validate required fields.
 	var failures []validate.FieldError
-	for i, mask := range [2]uint8{
+	for i, mask := range [3]uint8{
 		0b10101111,
 		0b01001111,
+		0b00000000,
 	} {
 		if result := (requiredBitSet[i] & mask) ^ mask; result != 0 {
 			// Mask only required fields and check equality to mask using XOR.

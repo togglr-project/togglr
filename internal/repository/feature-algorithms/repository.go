@@ -123,6 +123,36 @@ func (r *Repository) ListByFeatureID(
 	return result, nil
 }
 
+func (r *Repository) ListByFeatureIDWithEnvID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) ([]domain.FeatureAlgorithm, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT * FROM feature_algorithms
+WHERE feature_id = $1 AND environment_id = $2`
+
+	rows, err := executor.Query(ctx, query, featureID, envID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureAlgorithmModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect feature_algorithms rows: %w", err)
+	}
+
+	result := make([]domain.FeatureAlgorithm, 0, len(models))
+	for _, m := range models {
+		result = append(result, m.toDomain())
+	}
+
+	return result, nil
+}
+
 func (r *Repository) ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error) {
 	executor := r.getExecutor(ctx)
 

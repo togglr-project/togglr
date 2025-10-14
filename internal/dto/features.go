@@ -46,6 +46,8 @@ func DomainFeatureExtendedToAPI(
 		UpdatedAt:    feature.UpdatedAt,
 		IsActive:     isActive,
 		HealthStatus: healthStatus,
+		Tags:         DomainTagsToAPI(feature.Tags),
+		Algorithms:   DomainFeatureAlgorithmsToAPI(feature.Algorithms),
 	}
 
 	// Handle next state
@@ -53,9 +55,6 @@ func DomainFeatureExtendedToAPI(
 		item.NextState = generatedapi.NewOptNilBool(*nextState)
 		item.NextStateTime = generatedapi.NewOptNilDateTime(*nextStateTime)
 	}
-
-	// Convert tags
-	item.Tags = DomainTagsToAPI(feature.Tags)
 
 	return item
 }

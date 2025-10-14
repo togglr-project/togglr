@@ -288,6 +288,80 @@ func (_c *MockFeatureAlgorithmsRepository_ListByFeatureID_Call) RunAndReturn(run
 	return _c
 }
 
+// ListByFeatureIDWithEnvID provides a mock function for the type MockFeatureAlgorithmsRepository
+func (_mock *MockFeatureAlgorithmsRepository) ListByFeatureIDWithEnvID(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) ([]domain.FeatureAlgorithm, error) {
+	ret := _mock.Called(ctx, featureID, envID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListByFeatureIDWithEnvID")
+	}
+
+	var r0 []domain.FeatureAlgorithm
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) ([]domain.FeatureAlgorithm, error)); ok {
+		return returnFunc(ctx, featureID, envID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) []domain.FeatureAlgorithm); ok {
+		r0 = returnFunc(ctx, featureID, envID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureAlgorithm)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureID, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, featureID, envID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListByFeatureIDWithEnvID'
+type MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call struct {
+	*mock.Call
+}
+
+// ListByFeatureIDWithEnvID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - featureID domain.FeatureID
+//   - envID domain.EnvironmentID
+func (_e *MockFeatureAlgorithmsRepository_Expecter) ListByFeatureIDWithEnvID(ctx interface{}, featureID interface{}, envID interface{}) *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call {
+	return &MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call{Call: _e.mock.On("ListByFeatureIDWithEnvID", ctx, featureID, envID)}
+}
+
+func (_c *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call) Run(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID)) *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call) Return(featureAlgorithms []domain.FeatureAlgorithm, err error) *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call {
+	_c.Call.Return(featureAlgorithms, err)
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call) RunAndReturn(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) ([]domain.FeatureAlgorithm, error)) *MockFeatureAlgorithmsRepository_ListByFeatureIDWithEnvID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListEnabled provides a mock function for the type MockFeatureAlgorithmsRepository
 func (_mock *MockFeatureAlgorithmsRepository) ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error) {
 	ret := _mock.Called(ctx)
