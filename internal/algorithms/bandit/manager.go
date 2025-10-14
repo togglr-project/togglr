@@ -23,7 +23,7 @@ type VariantStats struct {
 	MetricSum   decimal.Decimal
 }
 
-// AlgorithmState holds stats for one algorithm (per feature)
+// AlgorithmState holds stats for one algorithm (per feature).
 type AlgorithmState struct {
 	AlgorithmType domain.AlgorithmType
 	Enabled       bool
@@ -85,7 +85,7 @@ func (m *BanditManager) GetAlgorithmState(
 	return state, ok
 }
 
-// EvaluateFeature chooses a variant according to algorithm
+// EvaluateFeature chooses a variant according to algorithm.
 func (m *BanditManager) EvaluateFeature(
 	featureID domain.FeatureID,
 	envID domain.EnvironmentID,
@@ -111,6 +111,8 @@ func (m *BanditManager) EvaluateFeature(
 		variant, err = m.evalThompson(state)
 	case domain.AlgorithmTypeUCB:
 		variant, err = m.evalUCB(state)
+	case domain.AlgorithmTypeUnknown:
+		return "", false, errors.New("unknown algorithm")
 	default:
 		return "", false, fmt.Errorf("unknown algorithm: %v", state.AlgorithmType)
 	}
@@ -118,7 +120,7 @@ func (m *BanditManager) EvaluateFeature(
 	return variant, true, err
 }
 
-// HandleTrackEvent called by track consumer to update in-memory counters
+// HandleTrackEvent called by track consumer to update in-memory counters.
 func (m *BanditManager) HandleTrackEvent(
 	featureID domain.FeatureID,
 	envID domain.EnvironmentID,
@@ -256,7 +258,7 @@ func (m *BanditManager) loadState() error {
 }
 
 //// SyncToDBLoop periodically flushes in-memory counters to DB (UPSERT)
-//func (m *BanditManager) SyncToDBLoop(ctx context.Context) {
+// func (m *BanditManager) SyncToDBLoop(ctx context.Context) {
 //	ticker := time.NewTicker(m.syncInterval)
 //	defer ticker.Stop()
 //	for {
@@ -271,7 +273,7 @@ func (m *BanditManager) loadState() error {
 //	}
 //}
 //
-//func (m *BanditManager) flushAllToDB(ctx context.Context) error {
+// func (m *BanditManager) flushAllToDB(ctx context.Context) error {
 //	type dumpKey struct {
 //		FeatureID domain.FeatureID
 //		EnvID     domain.EnvironmentID
@@ -298,7 +300,8 @@ func (m *BanditManager) loadState() error {
 //
 //	batch := &pgx.Batch{}
 //	query := `INSERT INTO monitoring.feature_algorithm_stats
-//      (feature_id, environment_id, algorithm_slug, variant_key, evaluations, successes, failures, metric_sum, updated_at)
+//      (feature_id, environment_id, algorithm_slug, variant_key,
+//     evaluations, successes, failures, metric_sum, updated_at)
 //      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
 //      ON CONFLICT (feature_id, environment_id, algorithm_slug, variant_key) DO UPDATE SET
 //        evaluations = monitoring.feature_algorithm_stats.evaluations + EXCLUDED.evaluations,
@@ -313,7 +316,8 @@ func (m *BanditManager) loadState() error {
 //			if vs.Evaluations == 0 && vs.Successes == 0 && vs.Failures == 0 && vs.MetricSum.IsZero() {
 //				continue
 //			}
-//			batch.Queue(query, feat.FeatureID, feat.EnvID, feat.AlgSlug, vk, vs.Evaluations, vs.Successes, vs.Failures, vs.MetricSum)
+//			batch.Queue(query, feat.FeatureID, feat.EnvID, feat.AlgSlug, vk,
+//			vs.Evaluations, vs.Successes, vs.Failures, vs.MetricSum)
 //		}
 //	}
 //

@@ -10,9 +10,9 @@ type AlgorithmType string
 
 const (
 	AlgorithmTypeUnknown          AlgorithmType = "unknown"
-	AlgorithmTypeEpsilonGreedy                  = "epsilon-greedy"
-	AlgorithmTypeThompsonSampling               = "thompson-sampling"
-	AlgorithmTypeUCB                            = "ucb"
+	AlgorithmTypeEpsilonGreedy    AlgorithmType = "epsilon-greedy"
+	AlgorithmTypeThompsonSampling AlgorithmType = "thompson-sampling"
+	AlgorithmTypeUCB              AlgorithmType = "ucb"
 )
 
 type AlgorithmKind string
