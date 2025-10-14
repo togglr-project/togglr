@@ -85,6 +85,12 @@ const Breadcrumbs: React.FC = () => {
                 path: subpagePath
               });
               break;
+            case 'experiments':
+              breadcrumbs.push({
+                label: 'Experiments',
+                path: subpagePath
+              });
+              break;
             case 'settings':
               breadcrumbs.push({
                 label: 'Settings',

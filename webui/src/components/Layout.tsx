@@ -40,6 +40,7 @@ import {
   Assignment as ChangesIcon,
   Security as SecurityIcon,
   NotificationsNone as NotificationsIcon,
+  Science as ScienceIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -544,6 +545,52 @@ const Layout: React.FC<LayoutProps> = ({
                       opacity: open ? 1 : 0,
                       ml: 0.5,
                     }} 
+                  />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Experiments menu item */}
+              <ListItem disablePadding sx={{ display: 'block', mb: 0.8 }}>
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                    py: 1.2,
+                    borderRadius: 2,
+                    backgroundColor: location.pathname.startsWith(`/projects/${currentProjectId}/experiments`) ? (
+                      theme.palette.mode === 'dark' ? 'rgba(130, 82, 255, 0.15)' : 'rgba(130, 82, 255, 0.1)'
+                    ) : 'transparent',
+                    '&:hover': {
+                      backgroundColor: theme.palette.mode === 'dark'
+                        ? 'rgba(255, 255, 255, 0.06)'
+                        : 'rgba(130, 82, 255, 0.06)',
+                    },
+                  }}
+                  onClick={() => {
+                    if (currentProjectId) navigate(`/projects/${currentProjectId}/experiments`);
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 3 : 'auto',
+                      justifyContent: 'center',
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/experiments`) ? 'primary.main' : 'inherit',
+                    }}
+                  >
+                    <ScienceIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={'Experiments'}
+                    primaryTypographyProps={{
+                      fontWeight: location.pathname.startsWith(`/projects/${currentProjectId}/experiments`) ? 600 : 500,
+                      color: location.pathname.startsWith(`/projects/${currentProjectId}/experiments`) ? 'primary.main' : 'inherit',
+                    }}
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      ml: 0.5,
+                    }}
                   />
                 </ListItemButton>
               </ListItem>
