@@ -28,6 +28,7 @@ import (
 	dashboardrepo "github.com/togglr-project/togglr/internal/repository/dashboard"
 	environmentsrepo "github.com/togglr-project/togglr/internal/repository/environments"
 	"github.com/togglr-project/togglr/internal/repository/errorreports"
+	featurealgorithmsrepo "github.com/togglr-project/togglr/internal/repository/feature-algorithms"
 	featurenotifsrepo "github.com/togglr-project/togglr/internal/repository/feature-notifications"
 	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
@@ -269,6 +270,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(featurenotifsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(feedbackeventsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(algorithms.New).Arg(app.PostgresPool)
+	app.registerComponent(featurealgorithmsrepo.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)

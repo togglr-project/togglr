@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **variants** | [**Array&lt;FlagVariant&gt;**](FlagVariant.md) |  | [default to undefined]
 **rules** | [**Array&lt;Rule&gt;**](Rule.md) |  | [default to undefined]
 **tags** | [**Array&lt;ProjectTag&gt;**](ProjectTag.md) |  | [default to undefined]
+**algorithms** | [**Array&lt;FeatureAlgorithm&gt;**](FeatureAlgorithm.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -20,6 +21,7 @@ const instance: FeatureDetailsResponse = {
     variants,
     rules,
     tags,
+    algorithms,
 };
 ```
 

@@ -33,6 +33,23 @@ export interface AddProjectRequest {
     'name': string;
     'description': string;
 }
+export interface Algorithm {
+    'slug': string;
+    'name': string;
+    'description': string;
+    'kind': AlgorithmKindEnum;
+    /**
+     * Default numeric settings for the algorithm
+     */
+    'default_settings': { [key: string]: number; };
+}
+
+export const AlgorithmKindEnum = {
+    Bandit: 'bandit'
+} as const;
+
+export type AlgorithmKindEnum = typeof AlgorithmKindEnum[keyof typeof AlgorithmKindEnum];
+
 export interface ApprovePendingChangeRequest {
     'approver_user_id': number;
     'approver_name': string;
@@ -507,11 +524,22 @@ export interface Feature {
 }
 
 
+export interface FeatureAlgorithm {
+    'feature_id': string;
+    'environment_id': number;
+    'algorithm_slug': string;
+    'enabled': boolean;
+    /**
+     * Numeric settings for the feature algorithm
+     */
+    'settings': { [key: string]: number; };
+}
 export interface FeatureDetailsResponse {
     'feature': FeatureExtended;
     'variants': Array<FlagVariant>;
     'rules': Array<Rule>;
     'tags': Array<ProjectTag>;
+    'algorithms'?: Array<FeatureAlgorithm>;
 }
 export interface FeatureExtended {
     'id': string;
@@ -548,6 +576,7 @@ export interface FeatureExtended {
      * Tags associated with this feature
      */
     'tags'?: Array<ProjectTag>;
+    'algorithms'?: Array<FeatureAlgorithm>;
 }
 
 
@@ -829,6 +858,9 @@ export interface LDAPSyncStatus {
     'errors': number;
     'warnings': number;
     'last_sync_duration'?: string;
+}
+export interface ListAlgorithmsResponse {
+    'algorithms': Array<Algorithm>;
 }
 export interface ListChangesResponse {
     /**
@@ -4032,6 +4064,40 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(initiateTOTPApprovalRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List of algorithms
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAlgorithms: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/algorithms`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -7410,6 +7476,18 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary List of algorithms
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listAlgorithms(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListAlgorithmsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAlgorithms(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listAlgorithms']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -8869,6 +8947,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary List of algorithms
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listAlgorithms(options?: RawAxiosRequestConfig): AxiosPromise<ListAlgorithmsResponse> {
+            return localVarFp.listAlgorithms(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary List all feature schedules
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -10216,6 +10303,16 @@ export class DefaultApi extends BaseAPI {
      */
     public initiateTOTPApproval(pendingChangeId: string, initiateTOTPApprovalRequest: InitiateTOTPApprovalRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).initiateTOTPApproval(pendingChangeId, initiateTOTPApprovalRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List of algorithms
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listAlgorithms(options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listAlgorithms(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

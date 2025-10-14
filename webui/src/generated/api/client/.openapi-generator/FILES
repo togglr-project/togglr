@@ -6,6 +6,7 @@ common.ts
 configuration.ts
 docs/AddFeatureTagRequest.md
 docs/AddProjectRequest.md
+docs/Algorithm.md
 docs/ApprovePendingChangeRequest.md
 docs/AuditAction.md
 docs/AuditLog.md
@@ -56,6 +57,7 @@ docs/ErrorPermissionDenied.md
 docs/ErrorTooManyRequests.md
 docs/ErrorUnauthorized.md
 docs/Feature.md
+docs/FeatureAlgorithm.md
 docs/FeatureDetailsResponse.md
 docs/FeatureExtended.md
 docs/FeatureKind.md
@@ -85,6 +87,7 @@ docs/LDAPSyncLogs.md
 docs/LDAPSyncProgress.md
 docs/LDAPSyncStartResponse.md
 docs/LDAPSyncStatus.md
+docs/ListAlgorithmsResponse.md
 docs/ListChangesResponse.md
 docs/ListEnvironmentsResponse.md
 docs/ListFeaturesResponse.md

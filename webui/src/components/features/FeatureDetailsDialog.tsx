@@ -14,6 +14,7 @@ import { useApprovePendingChange } from '../../hooks/usePendingChanges';
 import type { AuthCredentialsMethodEnum } from '../../generated/api/client';
 import { useRBAC } from '../../auth/permissions';
 import { getHealthStatusColor, getHealthStatusVariant } from '../../utils/healthStatus';
+import { getFirstEnabledAlgorithmSlug } from '../../utils/algorithmUtils';
 
 export interface FeatureDetailsDialogProps {
   open: boolean;
@@ -39,7 +40,6 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
   const projectId = featureDetails?.feature.project_id;
   const rbac = useRBAC(projectId || '');
   const canToggleFeature = rbac.canToggleFeature();
-  const canManageFeature = rbac.canManageFeature();
   const { data: segments } = useQuery<Segment[]>({
     queryKey: ['project-segments', projectId],
     queryFn: async () => {
@@ -345,6 +345,14 @@ const FeatureDetailsDialog: React.FC<FeatureDetailsDialogProps> = ({ open, onClo
                 <Chip size="small" label={`default: ${featureDetails.feature.default_value}`} />
                 {featureDetails.feature.kind === 'multivariant' && (
                   <Chip size="small" label={`rollout key: ${featureDetails.feature.rollout_key || '-'}`} />
+                )}
+                {getFirstEnabledAlgorithmSlug(featureDetails.feature.algorithms) && (
+                  <Chip 
+                    size="small" 
+                    label={`Algorithm: ${getFirstEnabledAlgorithmSlug(featureDetails.feature.algorithms)}`}
+                    color="info"
+                    variant="outlined"
+                  />
                 )}
                 <Chip size="small" label={featureDetails.feature.is_active ? 'active' : 'not active'} color={featureDetails.feature.is_active ? 'success' : 'default'} />
                 {featureDetails.feature.next_state !== undefined && featureDetails.feature.next_state_time && (

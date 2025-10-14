@@ -22,6 +22,7 @@ import { getNextStateDescription } from '../../utils/timeUtils';
 import { useFeatureHasPendingChanges } from '../../hooks/useProjectPendingChanges';
 import { useRBAC } from '../../auth/permissions';
 import { getHealthStatusColor, getHealthStatusVariant } from '../../utils/healthStatus';
+import { getFirstEnabledAlgorithmSlug } from '../../utils/algorithmUtils';
 
 interface FeatureCardProps {
   feature: FeatureExtended;
@@ -52,6 +53,9 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   // RBAC: compute manage capability for edit action
   const rbac = useRBAC(projectId || '');
   const canManageFeature = rbac.canManageFeature();
+
+  // Get first enabled algorithm
+  const algorithmSlug = getFirstEnabledAlgorithmSlug(feature.algorithms);
 
   const getKindColor = (kind: string) => {
     switch (kind) {
@@ -188,6 +192,22 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
                   icon={<ScheduleIcon />}
                   label={getNextStateDescription(feature.next_state, feature.next_state_time) || 'Scheduled'} 
                   color={feature.next_state ? 'info' : 'warning'}
+                  variant="outlined"
+                  sx={{ 
+                    fontSize: '0.7rem',
+                    height: 20,
+                  }}
+                />
+              </>
+            )}
+
+            {algorithmSlug && (
+              <>
+                <Box sx={{ width: 1, height: 12, bgcolor: 'divider', opacity: 0.5 }} />
+                <Chip 
+                  size="small" 
+                  label={`Algorithm: ${algorithmSlug}`}
+                  color="info"
                   variant="outlined"
                   sx={{ 
                     fontSize: '0.7rem',
