@@ -31,19 +31,19 @@ func (r *Repository) Create(
 INSERT INTO feature_algorithms (
 	feature_id,
 	environment_id,
-	algorithm_id,
+	algorithm_slug,
 	settings,
 	created_at,
 	updated_at
 )
-VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`
+VALUES ($1, $2, $3, $4, NOW(), NOW())`
 
 	_, err := executor.Exec(
 		ctx,
 		query,
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
-		featureAlgorithm.AlgorithmID,
+		featureAlgorithm.AlgorithmSlug,
 		featureAlgorithm.Settings,
 	)
 
@@ -63,8 +63,7 @@ SET
 	updated_at = NOW()
 WHERE
 	feature_id = $2 AND
-	environment_id = $3 AND
-	algorithm_id = $4`
+	environment_id = $3`
 
 	_, err := executor.Exec(
 		ctx,
@@ -72,7 +71,6 @@ WHERE
 		featureAlgorithm.Settings,
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
-		featureAlgorithm.AlgorithmID,
 	)
 
 	return err
@@ -82,27 +80,25 @@ func (r *Repository) Delete(
 	ctx context.Context,
 	featureID domain.FeatureID,
 	envID domain.EnvironmentID,
-	algorithmID domain.AlgorithmID,
 ) error {
 	executor := r.getExecutor(ctx)
 
-	const query = `DELETE FROM feature_algorithms WHERE feature_id = $1 AND environment_id = $2 AND algorithm_id = $3`
+	const query = `DELETE FROM feature_algorithms WHERE feature_id = $1 AND environment_id = $2`
 
-	_, err := executor.Exec(ctx, query, featureID, envID, algorithmID)
+	_, err := executor.Exec(ctx, query, featureID, envID)
 
 	return err
 }
 
-func (r *Repository) ListByFeatureAndEnvironment(
+func (r *Repository) ListByFeatureID(
 	ctx context.Context,
 	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
 ) ([]domain.FeatureAlgorithm, error) {
 	executor := r.getExecutor(ctx)
 
-	const query = `SELECT * FROM feature_algorithms WHERE feature_id = $1 AND environment_id = $2`
+	const query = `SELECT * FROM feature_algorithms WHERE feature_id = $1`
 
-	rows, err := executor.Query(ctx, query, featureID, envID)
+	rows, err := executor.Query(ctx, query, featureID)
 	if err != nil {
 		return nil, err
 	}

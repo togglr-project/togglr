@@ -22,10 +22,9 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 	envKey := appcontext.EnvKey(ctx)
 	featureKey := params.FeatureKey
 
-	var algorithmIDRef *domain.AlgorithmID
-	if req.AlgorithmID.IsSet() {
-		algorithmID := domain.AlgorithmID(req.AlgorithmID.Value.String())
-		algorithmIDRef = &algorithmID
+	var algorithmSlugRef *string
+	if req.AlgorithmSlug.IsSet() {
+		algorithmSlugRef = &req.AlgorithmSlug.Value
 	}
 
 	var reqCtx map[string]any
@@ -60,12 +59,12 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 	}
 
 	event := domain.FeedbackEventDTO{
-		FeatureID:   feature.ID,
-		AlgorithmID: algorithmIDRef,
-		VariantKey:  req.VariantKey,
-		EventType:   req.EventType,
-		Reward:      decimal.NewFromFloat32(req.Reward.Or(0.0)),
-		Context:     reqCtx,
+		FeatureID:     feature.ID,
+		AlgorithmSlug: algorithmSlugRef,
+		VariantKey:    req.VariantKey,
+		EventType:     req.EventType,
+		Reward:        decimal.NewFromFloat32(req.Reward.Or(0.0)),
+		Context:       reqCtx,
 	}
 
 	err = s.bus.PublishFeedbackEvent(ctx, event)

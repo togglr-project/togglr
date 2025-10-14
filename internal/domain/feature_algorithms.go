@@ -9,7 +9,7 @@ import (
 type FeatureAlgorithm struct {
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID
-	AlgorithmID   AlgorithmID
+	AlgorithmSlug string
 	Settings      map[string]decimal.Decimal
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -18,6 +18,6 @@ type FeatureAlgorithm struct {
 type FeatureAlgorithmDTO struct {
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID
-	AlgorithmID   AlgorithmID
+	AlgorithmSlug string
 	Settings      map[string]decimal.Decimal
 }

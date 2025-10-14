@@ -1,7 +1,6 @@
 package feature_algorithms
 
 import (
-	"database/sql"
 	"encoding/json"
 	"log/slog"
 	"time"
@@ -14,8 +13,7 @@ import (
 type featureAlgorithmModel struct {
 	EnvironmentID int64           `db:"environment_id"`
 	FeatureID     string          `db:"feature_id"`
-	AlgorithmID   string          `db:"algorithm_id"`
-	FlagVariantID sql.NullString  `db:"flag_variant_id"`
+	AlgorithmSlug string          `db:"algorithm_slug"`
 	Settings      json.RawMessage `db:"settings"`
 	CreatedAt     time.Time       `db:"created_at"`
 	UpdatedAt     time.Time       `db:"updated_at"`
@@ -29,17 +27,10 @@ func (m *featureAlgorithmModel) toDomain() domain.FeatureAlgorithm {
 		}
 	}
 
-	var flagVariantIDRef *domain.FlagVariantID
-	if m.FlagVariantID.Valid {
-		flagVariantID := domain.FlagVariantID(m.FlagVariantID.String)
-		flagVariantIDRef = &flagVariantID
-	}
-
 	return domain.FeatureAlgorithm{
 		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
-		AlgorithmID:   domain.AlgorithmID(m.AlgorithmID),
-		FlagVariantID: flagVariantIDRef,
+		AlgorithmSlug: m.AlgorithmSlug,
 		Settings:      settings,
 		CreatedAt:     m.CreatedAt,
 		UpdatedAt:     m.UpdatedAt,

@@ -433,10 +433,9 @@ components:
           type: string
           format: date-time
           description: Event timestamp. If omitted, server time will be used.
-        algorithm_id:
+        algorithm_slug:
           type: string
-          format: uuid
-          description: Optional algorithm id this event is associated with.
+          description: Optional algorithm slug this event is associated with.
         dedup_key:
           type: string
           description: Optional idempotency key to deduplicate duplicate events from SDK retries.

@@ -4,7 +4,7 @@ create materialized view monitoring.feedback_events_agg
 select
     time_bucket('1 hour', created_at) as bucket,
     feature_id,
-    algorithm_id,
+    algorithm_slug,
     variant_key,
 
     count(*) filter (where event_type = 'evaluation') as evaluations,
@@ -14,7 +14,7 @@ select
 
     sum(reward) as metric_sum
 from monitoring.feedback_events
-group by bucket, feature_id, algorithm_id, variant_key
+group by bucket, feature_id, algorithm_slug, variant_key
 with no data;
 
 select add_retention_policy('monitoring.feedback_events_agg', interval '30 days');

@@ -6,7 +6,7 @@ alter table public.feature_algorithms
 comment on column public.feature_algorithms.environment_id is
     'Environment where this algorithm configuration applies.';
 
--- 2. Drop old primary key (feature_id, algorithm_id)
+-- 2. Drop old primary key (feature_id, algorithm_slug)
 alter table public.feature_algorithms
     drop constraint if exists feature_algorithms_pkey;
 

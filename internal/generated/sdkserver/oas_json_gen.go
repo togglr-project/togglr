@@ -1852,41 +1852,6 @@ func (s *OptTrackRequestContext) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes uuid.UUID as json.
-func (o OptUUID) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	json.EncodeUUID(e, o.Value)
-}
-
-// Decode decodes uuid.UUID from json.
-func (o *OptUUID) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptUUID to nil")
-	}
-	o.Set = true
-	v, err := json.DecodeUUID(d)
-	if err != nil {
-		return err
-	}
-	o.Value = v
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptUUID) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptUUID) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *TrackRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -1923,9 +1888,9 @@ func (s *TrackRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.AlgorithmID.Set {
-			e.FieldStart("algorithm_id")
-			s.AlgorithmID.Encode(e)
+		if s.AlgorithmSlug.Set {
+			e.FieldStart("algorithm_slug")
+			s.AlgorithmSlug.Encode(e)
 		}
 	}
 	{
@@ -1942,7 +1907,7 @@ var jsonFieldsNameOfTrackRequest = [7]string{
 	2: "reward",
 	3: "context",
 	4: "created_at",
-	5: "algorithm_id",
+	5: "algorithm_slug",
 	6: "dedup_key",
 }
 
@@ -2009,15 +1974,15 @@ func (s *TrackRequest) Decode(d *jx.Decoder) error {
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"created_at\"")
 			}
-		case "algorithm_id":
+		case "algorithm_slug":
 			if err := func() error {
-				s.AlgorithmID.Reset()
-				if err := s.AlgorithmID.Decode(d); err != nil {
+				s.AlgorithmSlug.Reset()
+				if err := s.AlgorithmSlug.Decode(d); err != nil {
 					return err
 				}
 				return nil
 			}(); err != nil {
-				return errors.Wrap(err, "decode field \"algorithm_id\"")
+				return errors.Wrap(err, "decode field \"algorithm_slug\"")
 			}
 		case "dedup_key":
 			if err := func() error {

@@ -22,29 +22,6 @@ func New(pool *pgxpool.Pool) *Repository {
 	}
 }
 
-func (r *Repository) GetByID(ctx context.Context, id domain.AlgorithmID) (domain.Algorithm, error) {
-	executor := r.getExecutor(ctx)
-
-	const query = `SELECT * FROM algorithms WHERE id = $1 LIMIT 1`
-
-	rows, err := executor.Query(ctx, query, id)
-	if err != nil {
-		return domain.Algorithm{}, err
-	}
-	defer rows.Close()
-
-	alg, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[algorithmModel])
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Algorithm{}, domain.ErrEntityNotFound
-		}
-
-		return domain.Algorithm{}, fmt.Errorf("collect algorithm: %w", err)
-	}
-
-	return alg.toDomain(), nil
-}
-
 func (r *Repository) GetBySlug(ctx context.Context, slug string) (domain.Algorithm, error) {
 	executor := r.getExecutor(ctx)
 

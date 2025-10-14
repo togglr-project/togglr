@@ -11,10 +11,9 @@ import (
 )
 
 type algorithmModel struct {
-	ID              string          `db:"id"`
+	Slug            string          `db:"slug"` // pk
 	Name            string          `db:"name"`
 	Description     string          `db:"description"`
-	Slug            string          `db:"slug"`
 	Kind            string          `db:"kind"`
 	DefaultSettings json.RawMessage `db:"default_settings"`
 	CreatedAt       time.Time       `db:"created_at"`
@@ -30,9 +29,8 @@ func (m *algorithmModel) toDomain() domain.Algorithm {
 	}
 
 	return domain.Algorithm{
-		ID:              domain.AlgorithmID(m.ID),
-		Name:            m.Name,
 		Slug:            m.Slug,
+		Name:            m.Name,
 		Kind:            domain.AlgorithmKind(m.Kind),
 		Description:     m.Description,
 		DefaultSettings: settings,

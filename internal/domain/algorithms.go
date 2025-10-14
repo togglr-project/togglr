@@ -6,8 +6,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type AlgorithmID string
-
 type AlgorithmType uint8
 
 const (
@@ -24,9 +22,8 @@ const (
 )
 
 type Algorithm struct {
-	ID              AlgorithmID
-	Name            string
 	Slug            string
+	Name            string
 	Kind            AlgorithmKind
 	Description     string
 	DefaultSettings map[string]decimal.Decimal

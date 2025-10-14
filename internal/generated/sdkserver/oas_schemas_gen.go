@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-faster/errors"
 	"github.com/go-faster/jx"
-	"github.com/google/uuid"
 )
 
 type ApiKeyAuth struct {
@@ -741,52 +740,6 @@ func (o OptTrackRequestContext) Or(d TrackRequestContext) TrackRequestContext {
 	return d
 }
 
-// NewOptUUID returns new OptUUID with value set to v.
-func NewOptUUID(v uuid.UUID) OptUUID {
-	return OptUUID{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptUUID is optional uuid.UUID.
-type OptUUID struct {
-	Value uuid.UUID
-	Set   bool
-}
-
-// IsSet returns true if OptUUID was set.
-func (o OptUUID) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptUUID) Reset() {
-	var v uuid.UUID
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptUUID) SetTo(v uuid.UUID) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptUUID) Get() (v uuid.UUID, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptUUID) Or(d uuid.UUID) uuid.UUID {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
 // ReportFeatureErrorAccepted is response for ReportFeatureError operation.
 type ReportFeatureErrorAccepted struct{}
 
@@ -828,8 +781,8 @@ type TrackRequest struct {
 	Context OptTrackRequestContext `json:"context"`
 	// Event timestamp. If omitted, server time will be used.
 	CreatedAt OptDateTime `json:"created_at"`
-	// Optional algorithm id this event is associated with.
-	AlgorithmID OptUUID `json:"algorithm_id"`
+	// Optional algorithm slug this event is associated with.
+	AlgorithmSlug OptString `json:"algorithm_slug"`
 	// Optional idempotency key to deduplicate duplicate events from SDK retries.
 	DedupKey OptString `json:"dedup_key"`
 }
@@ -859,9 +812,9 @@ func (s *TrackRequest) GetCreatedAt() OptDateTime {
 	return s.CreatedAt
 }
 
-// GetAlgorithmID returns the value of AlgorithmID.
-func (s *TrackRequest) GetAlgorithmID() OptUUID {
-	return s.AlgorithmID
+// GetAlgorithmSlug returns the value of AlgorithmSlug.
+func (s *TrackRequest) GetAlgorithmSlug() OptString {
+	return s.AlgorithmSlug
 }
 
 // GetDedupKey returns the value of DedupKey.
@@ -894,9 +847,9 @@ func (s *TrackRequest) SetCreatedAt(val OptDateTime) {
 	s.CreatedAt = val
 }
 
-// SetAlgorithmID sets the value of AlgorithmID.
-func (s *TrackRequest) SetAlgorithmID(val OptUUID) {
-	s.AlgorithmID = val
+// SetAlgorithmSlug sets the value of AlgorithmSlug.
+func (s *TrackRequest) SetAlgorithmSlug(val OptString) {
+	s.AlgorithmSlug = val
 }
 
 // SetDedupKey sets the value of DedupKey.
