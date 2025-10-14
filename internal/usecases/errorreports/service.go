@@ -88,23 +88,23 @@ func (s *Service) ReportError(
 		return false, err
 	}
 
+	report := domain.ErrorReport{
+		EventID:       generateEventID(),
+		ProjectID:     projectID,
+		FeatureID:     feature.ID,
+		EnvironmentID: env.ID,
+		ErrorType:     reportType,
+		ErrorMessage:  reportMsg,
+		Context:       anyMap(reqCtx),
+		CreatedAt:     time.Now(),
+	}
+	if err := s.repo.Insert(ctx, report); err != nil {
+		return false, fmt.Errorf("insert error report: %w", err)
+	}
+
 	var accepted bool
 
 	err = s.txManager.ReadCommitted(ctx, func(txCtx context.Context) error {
-		report := domain.ErrorReport{
-			EventID:       generateEventID(),
-			ProjectID:     projectID,
-			FeatureID:     feature.ID,
-			EnvironmentID: env.ID,
-			ErrorType:     reportType,
-			ErrorMessage:  reportMsg,
-			Context:       anyMap(reqCtx),
-			CreatedAt:     time.Now(),
-		}
-		if err := s.repo.Insert(txCtx, report); err != nil {
-			return err
-		}
-
 		tagAutoDisable, err := s.tagsUC.GetAutoDisableTagCached(txCtx, projectID)
 		if err != nil {
 			slog.Warn("auto-disable tag not found, skipping auto-disable", "error", err)
