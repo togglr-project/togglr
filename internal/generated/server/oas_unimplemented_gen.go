@@ -581,6 +581,15 @@ func (UnimplementedHandler) InitiateTOTPApproval(ctx context.Context, req *Initi
 	return r, ht.ErrNotImplemented
 }
 
+// ListAlgorithms implements ListAlgorithms operation.
+//
+// List of algorithms.
+//
+// GET /api/v1/algorithms
+func (UnimplementedHandler) ListAlgorithms(ctx context.Context) (r ListAlgorithmsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 //
 // List all feature schedules.

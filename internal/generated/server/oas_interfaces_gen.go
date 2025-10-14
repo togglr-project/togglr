@@ -249,6 +249,10 @@ type InitiateTOTPApprovalRes interface {
 	initiateTOTPApprovalRes()
 }
 
+type ListAlgorithmsRes interface {
+	listAlgorithmsRes()
+}
+
 type ListAllFeatureSchedulesRes interface {
 	listAllFeatureSchedulesRes()
 }

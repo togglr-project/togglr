@@ -22,6 +22,7 @@ import (
 	generatedsdk "github.com/togglr-project/togglr/internal/generated/sdkserver"
 	generatedserver "github.com/togglr-project/togglr/internal/generated/server"
 	natsmq "github.com/togglr-project/togglr/internal/infra/mq/nats"
+	"github.com/togglr-project/togglr/internal/repository/algorithms"
 	"github.com/togglr-project/togglr/internal/repository/auditlog"
 	"github.com/togglr-project/togglr/internal/repository/categories"
 	dashboardrepo "github.com/togglr-project/togglr/internal/repository/dashboard"
@@ -267,6 +268,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(notificationsettingsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(featurenotifsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(feedbackeventsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(algorithms.New).Arg(app.PostgresPool)
 
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)

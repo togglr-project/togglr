@@ -68,6 +68,112 @@ func (s *AddProjectRequest) SetDescription(val string) {
 	s.Description = val
 }
 
+// Ref: #/components/schemas/Algorithm
+type Algorithm struct {
+	Slug        string        `json:"slug"`
+	Name        string        `json:"name"`
+	Description string        `json:"description"`
+	Kind        AlgorithmKind `json:"kind"`
+	// Default numeric settings for the algorithm.
+	DefaultSettings AlgorithmDefaultSettings `json:"default_settings"`
+}
+
+// GetSlug returns the value of Slug.
+func (s *Algorithm) GetSlug() string {
+	return s.Slug
+}
+
+// GetName returns the value of Name.
+func (s *Algorithm) GetName() string {
+	return s.Name
+}
+
+// GetDescription returns the value of Description.
+func (s *Algorithm) GetDescription() string {
+	return s.Description
+}
+
+// GetKind returns the value of Kind.
+func (s *Algorithm) GetKind() AlgorithmKind {
+	return s.Kind
+}
+
+// GetDefaultSettings returns the value of DefaultSettings.
+func (s *Algorithm) GetDefaultSettings() AlgorithmDefaultSettings {
+	return s.DefaultSettings
+}
+
+// SetSlug sets the value of Slug.
+func (s *Algorithm) SetSlug(val string) {
+	s.Slug = val
+}
+
+// SetName sets the value of Name.
+func (s *Algorithm) SetName(val string) {
+	s.Name = val
+}
+
+// SetDescription sets the value of Description.
+func (s *Algorithm) SetDescription(val string) {
+	s.Description = val
+}
+
+// SetKind sets the value of Kind.
+func (s *Algorithm) SetKind(val AlgorithmKind) {
+	s.Kind = val
+}
+
+// SetDefaultSettings sets the value of DefaultSettings.
+func (s *Algorithm) SetDefaultSettings(val AlgorithmDefaultSettings) {
+	s.DefaultSettings = val
+}
+
+// Default numeric settings for the algorithm.
+type AlgorithmDefaultSettings map[string]float64
+
+func (s *AlgorithmDefaultSettings) init() AlgorithmDefaultSettings {
+	m := *s
+	if m == nil {
+		m = map[string]float64{}
+		*s = m
+	}
+	return m
+}
+
+type AlgorithmKind string
+
+const (
+	AlgorithmKindBandit AlgorithmKind = "bandit"
+)
+
+// AllValues returns all AlgorithmKind values.
+func (AlgorithmKind) AllValues() []AlgorithmKind {
+	return []AlgorithmKind{
+		AlgorithmKindBandit,
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler.
+func (s AlgorithmKind) MarshalText() ([]byte, error) {
+	switch s {
+	case AlgorithmKindBandit:
+		return []byte(s), nil
+	default:
+		return nil, errors.Errorf("invalid value: %q", s)
+	}
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler.
+func (s *AlgorithmKind) UnmarshalText(data []byte) error {
+	switch AlgorithmKind(data) {
+	case AlgorithmKindBandit:
+		*s = AlgorithmKindBandit
+		return nil
+	default:
+		return errors.Errorf("invalid value: %q", data)
+	}
+}
+
 // Ref: #/components/schemas/ApprovePendingChangeRequest
 type ApprovePendingChangeRequest struct {
 	ApproverUserID uint            `json:"approver_user_id"`
@@ -2732,6 +2838,7 @@ func (*ErrorInternalServerError) getRolePermissionsRes()          {}
 func (*ErrorInternalServerError) getSAMLMetadataRes()             {}
 func (*ErrorInternalServerError) getSSOProvidersRes()             {}
 func (*ErrorInternalServerError) getSegmentRes()                  {}
+func (*ErrorInternalServerError) listAlgorithmsRes()              {}
 func (*ErrorInternalServerError) listAllFeatureSchedulesRes()     {}
 func (*ErrorInternalServerError) listCategoriesRes()              {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
@@ -3187,6 +3294,7 @@ func (*ErrorUnauthorized) getSegmentRes()                  {}
 func (*ErrorUnauthorized) getUnreadNotificationsCountRes() {}
 func (*ErrorUnauthorized) getUserNotificationsRes()        {}
 func (*ErrorUnauthorized) initiateTOTPApprovalRes()        {}
+func (*ErrorUnauthorized) listAlgorithmsRes()              {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listCategoriesRes()              {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
@@ -5290,6 +5398,23 @@ func (s *LDAPSyncStatus) SetLastSyncDuration(val OptString) {
 }
 
 func (*LDAPSyncStatus) getLDAPSyncStatusRes() {}
+
+// Ref: #/components/schemas/ListAlgorithmsResponse
+type ListAlgorithmsResponse struct {
+	Algorithms []Algorithm `json:"algorithms"`
+}
+
+// GetAlgorithms returns the value of Algorithms.
+func (s *ListAlgorithmsResponse) GetAlgorithms() []Algorithm {
+	return s.Algorithms
+}
+
+// SetAlgorithms sets the value of Algorithms.
+func (s *ListAlgorithmsResponse) SetAlgorithms(val []Algorithm) {
+	s.Algorithms = val
+}
+
+func (*ListAlgorithmsResponse) listAlgorithmsRes() {}
 
 type ListCategoriesResponse []Category
 

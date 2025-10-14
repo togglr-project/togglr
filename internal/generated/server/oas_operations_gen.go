@@ -68,6 +68,7 @@ const (
 	GetUnreadNotificationsCountOperation OperationName = "GetUnreadNotificationsCount"
 	GetUserNotificationsOperation        OperationName = "GetUserNotifications"
 	InitiateTOTPApprovalOperation        OperationName = "InitiateTOTPApproval"
+	ListAlgorithmsOperation              OperationName = "ListAlgorithms"
 	ListAllFeatureSchedulesOperation     OperationName = "ListAllFeatureSchedules"
 	ListCategoriesOperation              OperationName = "ListCategories"
 	ListFeatureFlagVariantsOperation     OperationName = "ListFeatureFlagVariants"

@@ -390,6 +390,12 @@ type Handler interface {
 	//
 	// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
 	InitiateTOTPApproval(ctx context.Context, req *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (InitiateTOTPApprovalRes, error)
+	// ListAlgorithms implements ListAlgorithms operation.
+	//
+	// List of algorithms.
+	//
+	// GET /api/v1/algorithms
+	ListAlgorithms(ctx context.Context) (ListAlgorithmsRes, error)
 	// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 	//
 	// List all feature schedules.

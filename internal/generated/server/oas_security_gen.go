@@ -92,6 +92,7 @@ var operationRolesBearerAuth = map[string][]string{
 	GetUnreadNotificationsCountOperation: []string{},
 	GetUserNotificationsOperation:        []string{},
 	InitiateTOTPApprovalOperation:        []string{},
+	ListAlgorithmsOperation:              []string{},
 	ListAllFeatureSchedulesOperation:     []string{},
 	ListCategoriesOperation:              []string{},
 	ListFeatureFlagVariantsOperation:     []string{},

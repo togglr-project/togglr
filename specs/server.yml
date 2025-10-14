@@ -6460,6 +6460,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/algorithms:
+    get:
+      summary: List of algorithms
+      operationId: ListAlgorithms
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of tags for project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAlgorithmsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -9291,3 +9322,36 @@ components:
           items:
             $ref: '#/components/schemas/NotificationSetting'
       required: [notification_settings]
+
+    Algorithm:
+      type: object
+      properties:
+        slug:
+          type: string
+          example: ucb
+        name:
+          type: string
+          example: Upper Confidence Bound
+        description:
+          type: string
+          example: Selects variant with highest upper confidence bound
+        kind:
+          type: string
+          enum: [ bandit ]
+        default_settings:
+          type: object
+          description: Default numeric settings for the algorithm
+          additionalProperties:
+            type: number
+          example:
+            confidence: 2.0
+      required: [ slug, name, description, kind, default_settings ]
+
+    ListAlgorithmsResponse:
+      type: object
+      properties:
+        algorithms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Algorithm'
+      required: [ algorithms ]

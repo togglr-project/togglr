@@ -61,9 +61,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "au"
+			case 'a': // Prefix: "a"
 
-				if l := len("au"); len(elem) >= l && elem[0:l] == "au" {
+				if l := len("a"); len(elem) >= l && elem[0:l] == "a" {
 					elem = elem[l:]
 				} else {
 					break
@@ -73,30 +73,19 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case 'd': // Prefix: "dit/"
+				case 'l': // Prefix: "lgorithms"
 
-					if l := len("dit/"); len(elem) >= l && elem[0:l] == "dit/" {
+					if l := len("lgorithms"); len(elem) >= l && elem[0:l] == "lgorithms" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "id"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
 					if len(elem) == 0 {
 						// Leaf node.
 						switch r.Method {
 						case "GET":
-							s.handleGetAuditLogEntryRequest([1]string{
-								args[0],
-							}, elemIsEscaped, w, r)
+							s.handleListAlgorithmsRequest([0]string{}, elemIsEscaped, w, r)
 						default:
 							s.notAllowed(w, r, "GET")
 						}
@@ -104,9 +93,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 
-				case 't': // Prefix: "th/"
+				case 'u': // Prefix: "u"
 
-					if l := len("th/"); len(elem) >= l && elem[0:l] == "th/" {
+					if l := len("u"); len(elem) >= l && elem[0:l] == "u" {
 						elem = elem[l:]
 					} else {
 						break
@@ -116,69 +105,40 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						break
 					}
 					switch elem[0] {
-					case '2': // Prefix: "2fa/verify"
+					case 'd': // Prefix: "dit/"
 
-						if l := len("2fa/verify"); len(elem) >= l && elem[0:l] == "2fa/verify" {
+						if l := len("dit/"); len(elem) >= l && elem[0:l] == "dit/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
-						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "POST":
-								s.handleVerify2FARequest([0]string{}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "POST")
-							}
-
-							return
-						}
-
-					case 'f': // Prefix: "forgot-password"
-
-						if l := len("forgot-password"); len(elem) >= l && elem[0:l] == "forgot-password" {
-							elem = elem[l:]
-						} else {
+						// Param: "id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
 							break
 						}
+						args[0] = elem
+						elem = ""
 
 						if len(elem) == 0 {
 							// Leaf node.
 							switch r.Method {
-							case "POST":
-								s.handleForgotPasswordRequest([0]string{}, elemIsEscaped, w, r)
+							case "GET":
+								s.handleGetAuditLogEntryRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
 							default:
-								s.notAllowed(w, r, "POST")
+								s.notAllowed(w, r, "GET")
 							}
 
 							return
 						}
 
-					case 'l': // Prefix: "login"
+					case 't': // Prefix: "th/"
 
-						if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "POST":
-								s.handleLoginRequest([0]string{}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "POST")
-							}
-
-							return
-						}
-
-					case 'r': // Prefix: "re"
-
-						if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
+						if l := len("th/"); len(elem) >= l && elem[0:l] == "th/" {
 							elem = elem[l:]
 						} else {
 							break
@@ -188,9 +148,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 						switch elem[0] {
-						case 'f': // Prefix: "fresh"
+						case '2': // Prefix: "2fa/verify"
 
-							if l := len("fresh"); len(elem) >= l && elem[0:l] == "fresh" {
+							if l := len("2fa/verify"); len(elem) >= l && elem[0:l] == "2fa/verify" {
 								elem = elem[l:]
 							} else {
 								break
@@ -200,7 +160,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "POST":
-									s.handleRefreshTokenRequest([0]string{}, elemIsEscaped, w, r)
+									s.handleVerify2FARequest([0]string{}, elemIsEscaped, w, r)
 								default:
 									s.notAllowed(w, r, "POST")
 								}
@@ -208,9 +168,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								return
 							}
 
-						case 's': // Prefix: "set-password"
+						case 'f': // Prefix: "forgot-password"
 
-							if l := len("set-password"); len(elem) >= l && elem[0:l] == "set-password" {
+							if l := len("forgot-password"); len(elem) >= l && elem[0:l] == "forgot-password" {
 								elem = elem[l:]
 							} else {
 								break
@@ -220,7 +180,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "POST":
-									s.handleResetPasswordRequest([0]string{}, elemIsEscaped, w, r)
+									s.handleForgotPasswordRequest([0]string{}, elemIsEscaped, w, r)
 								default:
 									s.notAllowed(w, r, "POST")
 								}
@@ -228,23 +188,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								return
 							}
 
-						}
+						case 'l': // Prefix: "login"
 
-					case 's': // Prefix: "sso/"
-
-						if l := len("sso/"); len(elem) >= l && elem[0:l] == "sso/" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "callback"
-
-							if l := len("callback"); len(elem) >= l && elem[0:l] == "callback" {
+							if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
 								elem = elem[l:]
 							} else {
 								break
@@ -254,7 +200,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								// Leaf node.
 								switch r.Method {
 								case "POST":
-									s.handleSSOCallbackRequest([0]string{}, elemIsEscaped, w, r)
+									s.handleLoginRequest([0]string{}, elemIsEscaped, w, r)
 								default:
 									s.notAllowed(w, r, "POST")
 								}
@@ -262,44 +208,132 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 								return
 							}
 
-						case 'i': // Prefix: "initiate"
+						case 'r': // Prefix: "re"
 
-							if l := len("initiate"); len(elem) >= l && elem[0:l] == "initiate" {
+							if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleSSOInitiateRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
+								break
+							}
+							switch elem[0] {
+							case 'f': // Prefix: "fresh"
+
+								if l := len("fresh"); len(elem) >= l && elem[0:l] == "fresh" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleRefreshTokenRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 's': // Prefix: "set-password"
+
+								if l := len("set-password"); len(elem) >= l && elem[0:l] == "set-password" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleResetPasswordRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
 							}
 
-						case 'p': // Prefix: "providers"
+						case 's': // Prefix: "sso/"
 
-							if l := len("providers"); len(elem) >= l && elem[0:l] == "providers" {
+							if l := len("sso/"); len(elem) >= l && elem[0:l] == "sso/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "GET":
-									s.handleGetSSOProvidersRequest([0]string{}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "GET")
+								break
+							}
+							switch elem[0] {
+							case 'c': // Prefix: "callback"
+
+								if l := len("callback"); len(elem) >= l && elem[0:l] == "callback" {
+									elem = elem[l:]
+								} else {
+									break
 								}
 
-								return
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "POST":
+										s.handleSSOCallbackRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "POST")
+									}
+
+									return
+								}
+
+							case 'i': // Prefix: "initiate"
+
+								if l := len("initiate"); len(elem) >= l && elem[0:l] == "initiate" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleSSOInitiateRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+
+							case 'p': // Prefix: "providers"
+
+								if l := len("providers"); len(elem) >= l && elem[0:l] == "providers" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch r.Method {
+									case "GET":
+										s.handleGetSSOProvidersRequest([0]string{}, elemIsEscaped, w, r)
+									default:
+										s.notAllowed(w, r, "GET")
+									}
+
+									return
+								}
+
 							}
 
 						}
@@ -2633,9 +2667,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
-			case 'a': // Prefix: "au"
+			case 'a': // Prefix: "a"
 
-				if l := len("au"); len(elem) >= l && elem[0:l] == "au" {
+				if l := len("a"); len(elem) >= l && elem[0:l] == "a" {
 					elem = elem[l:]
 				} else {
 					break
@@ -2645,42 +2679,33 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case 'd': // Prefix: "dit/"
+				case 'l': // Prefix: "lgorithms"
 
-					if l := len("dit/"); len(elem) >= l && elem[0:l] == "dit/" {
+					if l := len("lgorithms"); len(elem) >= l && elem[0:l] == "lgorithms" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
-					// Param: "id"
-					// Leaf parameter, slashes are prohibited
-					idx := strings.IndexByte(elem, '/')
-					if idx >= 0 {
-						break
-					}
-					args[0] = elem
-					elem = ""
-
 					if len(elem) == 0 {
 						// Leaf node.
 						switch method {
 						case "GET":
-							r.name = GetAuditLogEntryOperation
-							r.summary = "Get audit log entry by ID"
-							r.operationID = "GetAuditLogEntry"
-							r.pathPattern = "/api/v1/audit/{id}"
+							r.name = ListAlgorithmsOperation
+							r.summary = "List of algorithms"
+							r.operationID = "ListAlgorithms"
+							r.pathPattern = "/api/v1/algorithms"
 							r.args = args
-							r.count = 1
+							r.count = 0
 							return r, true
 						default:
 							return
 						}
 					}
 
-				case 't': // Prefix: "th/"
+				case 'u': // Prefix: "u"
 
-					if l := len("th/"); len(elem) >= l && elem[0:l] == "th/" {
+					if l := len("u"); len(elem) >= l && elem[0:l] == "u" {
 						elem = elem[l:]
 					} else {
 						break
@@ -2690,81 +2715,42 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						break
 					}
 					switch elem[0] {
-					case '2': // Prefix: "2fa/verify"
+					case 'd': // Prefix: "dit/"
 
-						if l := len("2fa/verify"); len(elem) >= l && elem[0:l] == "2fa/verify" {
+						if l := len("dit/"); len(elem) >= l && elem[0:l] == "dit/" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
+						// Param: "id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
 						if len(elem) == 0 {
 							// Leaf node.
 							switch method {
-							case "POST":
-								r.name = Verify2FAOperation
-								r.summary = "Verify 2FA-code on login"
-								r.operationID = "Verify2FA"
-								r.pathPattern = "/api/v1/auth/2fa/verify"
+							case "GET":
+								r.name = GetAuditLogEntryOperation
+								r.summary = "Get audit log entry by ID"
+								r.operationID = "GetAuditLogEntry"
+								r.pathPattern = "/api/v1/audit/{id}"
 								r.args = args
-								r.count = 0
+								r.count = 1
 								return r, true
 							default:
 								return
 							}
 						}
 
-					case 'f': // Prefix: "forgot-password"
+					case 't': // Prefix: "th/"
 
-						if l := len("forgot-password"); len(elem) >= l && elem[0:l] == "forgot-password" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "POST":
-								r.name = ForgotPasswordOperation
-								r.summary = "Request a password reset"
-								r.operationID = "ForgotPassword"
-								r.pathPattern = "/api/v1/auth/forgot-password"
-								r.args = args
-								r.count = 0
-								return r, true
-							default:
-								return
-							}
-						}
-
-					case 'l': // Prefix: "login"
-
-						if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "POST":
-								r.name = LoginOperation
-								r.summary = "Authenticate user and get access token"
-								r.operationID = "Login"
-								r.pathPattern = "/api/v1/auth/login"
-								r.args = args
-								r.count = 0
-								return r, true
-							default:
-								return
-							}
-						}
-
-					case 'r': // Prefix: "re"
-
-						if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
+						if l := len("th/"); len(elem) >= l && elem[0:l] == "th/" {
 							elem = elem[l:]
 						} else {
 							break
@@ -2774,9 +2760,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							break
 						}
 						switch elem[0] {
-						case 'f': // Prefix: "fresh"
+						case '2': // Prefix: "2fa/verify"
 
-							if l := len("fresh"); len(elem) >= l && elem[0:l] == "fresh" {
+							if l := len("2fa/verify"); len(elem) >= l && elem[0:l] == "2fa/verify" {
 								elem = elem[l:]
 							} else {
 								break
@@ -2786,10 +2772,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								// Leaf node.
 								switch method {
 								case "POST":
-									r.name = RefreshTokenOperation
-									r.summary = "Refresh access token"
-									r.operationID = "RefreshToken"
-									r.pathPattern = "/api/v1/auth/refresh"
+									r.name = Verify2FAOperation
+									r.summary = "Verify 2FA-code on login"
+									r.operationID = "Verify2FA"
+									r.pathPattern = "/api/v1/auth/2fa/verify"
 									r.args = args
 									r.count = 0
 									return r, true
@@ -2798,9 +2784,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								}
 							}
 
-						case 's': // Prefix: "set-password"
+						case 'f': // Prefix: "forgot-password"
 
-							if l := len("set-password"); len(elem) >= l && elem[0:l] == "set-password" {
+							if l := len("forgot-password"); len(elem) >= l && elem[0:l] == "forgot-password" {
 								elem = elem[l:]
 							} else {
 								break
@@ -2810,10 +2796,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								// Leaf node.
 								switch method {
 								case "POST":
-									r.name = ResetPasswordOperation
-									r.summary = "Reset password using token"
-									r.operationID = "ResetPassword"
-									r.pathPattern = "/api/v1/auth/reset-password"
+									r.name = ForgotPasswordOperation
+									r.summary = "Request a password reset"
+									r.operationID = "ForgotPassword"
+									r.pathPattern = "/api/v1/auth/forgot-password"
 									r.args = args
 									r.count = 0
 									return r, true
@@ -2822,23 +2808,9 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								}
 							}
 
-						}
+						case 'l': // Prefix: "login"
 
-					case 's': // Prefix: "sso/"
-
-						if l := len("sso/"); len(elem) >= l && elem[0:l] == "sso/" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						if len(elem) == 0 {
-							break
-						}
-						switch elem[0] {
-						case 'c': // Prefix: "callback"
-
-							if l := len("callback"); len(elem) >= l && elem[0:l] == "callback" {
+							if l := len("login"); len(elem) >= l && elem[0:l] == "login" {
 								elem = elem[l:]
 							} else {
 								break
@@ -2848,10 +2820,10 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								// Leaf node.
 								switch method {
 								case "POST":
-									r.name = SSOCallbackOperation
-									r.summary = "Handle SSO callback from Keycloak"
-									r.operationID = "SSOCallback"
-									r.pathPattern = "/api/v1/auth/sso/callback"
+									r.name = LoginOperation
+									r.summary = "Authenticate user and get access token"
+									r.operationID = "Login"
+									r.pathPattern = "/api/v1/auth/login"
 									r.args = args
 									r.count = 0
 									return r, true
@@ -2860,52 +2832,152 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								}
 							}
 
-						case 'i': // Prefix: "initiate"
+						case 'r': // Prefix: "re"
 
-							if l := len("initiate"); len(elem) >= l && elem[0:l] == "initiate" {
+							if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = SSOInitiateOperation
-									r.summary = "Initiate SSO login flow"
-									r.operationID = "SSOInitiate"
-									r.pathPattern = "/api/v1/auth/sso/initiate"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'f': // Prefix: "fresh"
+
+								if l := len("fresh"); len(elem) >= l && elem[0:l] == "fresh" {
+									elem = elem[l:]
+								} else {
+									break
 								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = RefreshTokenOperation
+										r.summary = "Refresh access token"
+										r.operationID = "RefreshToken"
+										r.pathPattern = "/api/v1/auth/refresh"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 's': // Prefix: "set-password"
+
+								if l := len("set-password"); len(elem) >= l && elem[0:l] == "set-password" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = ResetPasswordOperation
+										r.summary = "Reset password using token"
+										r.operationID = "ResetPassword"
+										r.pathPattern = "/api/v1/auth/reset-password"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
 							}
 
-						case 'p': // Prefix: "providers"
+						case 's': // Prefix: "sso/"
 
-							if l := len("providers"); len(elem) >= l && elem[0:l] == "providers" {
+							if l := len("sso/"); len(elem) >= l && elem[0:l] == "sso/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
 							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "GET":
-									r.name = GetSSOProvidersOperation
-									r.summary = "Get available SSO providers"
-									r.operationID = "GetSSOProviders"
-									r.pathPattern = "/api/v1/auth/sso/providers"
-									r.args = args
-									r.count = 0
-									return r, true
-								default:
-									return
+								break
+							}
+							switch elem[0] {
+							case 'c': // Prefix: "callback"
+
+								if l := len("callback"); len(elem) >= l && elem[0:l] == "callback" {
+									elem = elem[l:]
+								} else {
+									break
 								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "POST":
+										r.name = SSOCallbackOperation
+										r.summary = "Handle SSO callback from Keycloak"
+										r.operationID = "SSOCallback"
+										r.pathPattern = "/api/v1/auth/sso/callback"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'i': // Prefix: "initiate"
+
+								if l := len("initiate"); len(elem) >= l && elem[0:l] == "initiate" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = SSOInitiateOperation
+										r.summary = "Initiate SSO login flow"
+										r.operationID = "SSOInitiate"
+										r.pathPattern = "/api/v1/auth/sso/initiate"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
+							case 'p': // Prefix: "providers"
+
+								if l := len("providers"); len(elem) >= l && elem[0:l] == "providers" {
+									elem = elem[l:]
+								} else {
+									break
+								}
+
+								if len(elem) == 0 {
+									// Leaf node.
+									switch method {
+									case "GET":
+										r.name = GetSSOProvidersOperation
+										r.summary = "Get available SSO providers"
+										r.operationID = "GetSSOProviders"
+										r.pathPattern = "/api/v1/auth/sso/providers"
+										r.args = args
+										r.count = 0
+										return r, true
+									default:
+										return
+									}
+								}
+
 							}
 
 						}
