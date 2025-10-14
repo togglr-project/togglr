@@ -1,7 +1,10 @@
--- 1. Add environment_id column (non-null, references environments)
+-- 1. Add environment_id column (non-null, references environments) enabled column
 alter table public.feature_algorithms
     add column environment_id bigint not null default 0
         references environments on delete cascade;
+
+alter table public.feature_algorithms
+    add column enabled bool not null default false;
 
 comment on column public.feature_algorithms.environment_id is
     'Environment where this algorithm configuration applies.';

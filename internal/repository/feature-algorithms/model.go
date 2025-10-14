@@ -15,6 +15,7 @@ type featureAlgorithmModel struct {
 	FeatureID     string          `db:"feature_id"`
 	AlgorithmSlug string          `db:"algorithm_slug"`
 	Settings      json.RawMessage `db:"settings"`
+	Enabled       bool            `db:"enabled"`
 	CreatedAt     time.Time       `db:"created_at"`
 	UpdatedAt     time.Time       `db:"updated_at"`
 }
@@ -32,6 +33,7 @@ func (m *featureAlgorithmModel) toDomain() domain.FeatureAlgorithm {
 		FeatureID:     domain.FeatureID(m.FeatureID),
 		AlgorithmSlug: m.AlgorithmSlug,
 		Settings:      settings,
+		Enabled:       m.Enabled,
 		CreatedAt:     m.CreatedAt,
 		UpdatedAt:     m.UpdatedAt,
 	}

@@ -33,10 +33,11 @@ INSERT INTO feature_algorithms (
 	environment_id,
 	algorithm_slug,
 	settings,
+	enabled,
 	created_at,
 	updated_at
 )
-VALUES ($1, $2, $3, $4, NOW(), NOW())`
+VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`
 
 	_, err := executor.Exec(
 		ctx,
@@ -45,6 +46,7 @@ VALUES ($1, $2, $3, $4, NOW(), NOW())`
 		featureAlgorithm.EnvironmentID,
 		featureAlgorithm.AlgorithmSlug,
 		featureAlgorithm.Settings,
+		featureAlgorithm.Enabled,
 	)
 
 	return err
@@ -60,15 +62,19 @@ func (r *Repository) Update(
 UPDATE feature_algorithms
 SET
 	settings = $1,
+	algorithm_slug = $2,
+	enabled = $3,
 	updated_at = NOW()
 WHERE
-	feature_id = $2 AND
-	environment_id = $3`
+	feature_id = $4 AND
+	environment_id = $5`
 
 	_, err := executor.Exec(
 		ctx,
 		query,
 		featureAlgorithm.Settings,
+		featureAlgorithm.AlgorithmSlug,
+		featureAlgorithm.Enabled,
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
 	)
@@ -99,6 +105,54 @@ func (r *Repository) ListByFeatureID(
 	const query = `SELECT * FROM feature_algorithms WHERE feature_id = $1`
 
 	rows, err := executor.Query(ctx, query, featureID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureAlgorithmModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect feature_algorithms rows: %w", err)
+	}
+
+	result := make([]domain.FeatureAlgorithm, 0, len(models))
+	for _, m := range models {
+		result = append(result, m.toDomain())
+	}
+
+	return result, nil
+}
+
+func (r *Repository) ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM feature_algorithms WHERE enabled = true`
+
+	rows, err := executor.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureAlgorithmModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect feature_algorithms rows: %w", err)
+	}
+
+	result := make([]domain.FeatureAlgorithm, 0, len(models))
+	for _, m := range models {
+		result = append(result, m.toDomain())
+	}
+
+	return result, nil
+}
+
+func (r *Repository) ListAll(ctx context.Context) ([]domain.FeatureAlgorithm, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM feature_algorithms`
+
+	rows, err := executor.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}

@@ -6,13 +6,13 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type AlgorithmType uint8
+type AlgorithmType string
 
 const (
-	AlgorithmTypeUnknown AlgorithmType = iota
-	AlgorithmTypeEpsilonGreedy
-	AlgorithmTypeThompsonSampling
-	AlgorithmTypeUCB
+	AlgorithmTypeUnknown          AlgorithmType = "unknown"
+	AlgorithmTypeEpsilonGreedy                  = "epsilon-greedy"
+	AlgorithmTypeThompsonSampling               = "thompson-sampling"
+	AlgorithmTypeUCB                            = "ucb"
 )
 
 type AlgorithmKind string
@@ -29,4 +29,25 @@ type Algorithm struct {
 	DefaultSettings map[string]decimal.Decimal
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+}
+
+func (alg *Algorithm) AlgorithmType() AlgorithmType {
+	return AlgorithmSlugToType(alg.Slug)
+}
+
+func AlgorithmSlugToType(slug string) AlgorithmType {
+	switch slug {
+	case "epsilon-greedy":
+		return AlgorithmTypeEpsilonGreedy
+	case "thompson-sampling":
+		return AlgorithmTypeThompsonSampling
+	case "ucb":
+		return AlgorithmTypeUCB
+	default:
+		return AlgorithmTypeUnknown
+	}
+}
+
+func (algType AlgorithmType) Slug() string {
+	return string(algType)
 }
