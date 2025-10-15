@@ -16,6 +16,12 @@ type FeatureAlgorithm struct {
 	UpdatedAt     time.Time
 }
 
+type FeatureAlgorithmExtended struct {
+	FeatureAlgorithm
+	FeatureKey string
+	EnvKey     string
+}
+
 type FeatureAlgorithmDTO struct {
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID

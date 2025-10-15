@@ -11,6 +11,12 @@ type FlagVariant struct {
 	RolloutPercent uint8         `db:"rollout_percent" editable:"true"` // % of traffic (0..100)
 }
 
+type FlagVariantExtended struct {
+	FlagVariant
+	FeatureKey string
+	EnvKey     string
+}
+
 func (id FlagVariantID) String() string {
 	return string(id)
 }

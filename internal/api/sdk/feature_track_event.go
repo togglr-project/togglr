@@ -54,6 +54,8 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 	}
 
 	event := domain.FeedbackEventDTO{
+		FeatureKey:    featureKey,
+		EnvKey:        envKey,
 		FeatureID:     feature.ID,
 		EnvironmentID: feature.EnvironmentID,
 		VariantKey:    req.VariantKey,

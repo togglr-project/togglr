@@ -30,6 +30,8 @@ type FeedbackEvent struct {
 }
 
 type FeedbackEventDTO struct {
+	FeatureKey    string            `json:"feature_key"`
+	EnvKey        string            `json:"env_key"`
 	FeatureID     FeatureID         `json:"featureID"`
 	EnvironmentID EnvironmentID     `json:"environmentID"`
 	VariantKey    string            `json:"variantKey"`

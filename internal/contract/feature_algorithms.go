@@ -31,4 +31,5 @@ type FeatureAlgorithmsRepository interface {
 	) ([]domain.FeatureAlgorithm, error)
 	ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 	ListAll(ctx context.Context) ([]domain.FeatureAlgorithm, error)
+	ListAllExtended(ctx context.Context) ([]domain.FeatureAlgorithmExtended, error)
 }

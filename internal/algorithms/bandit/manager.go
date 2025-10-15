@@ -34,8 +34,8 @@ type AlgorithmState struct {
 }
 
 type StateKey struct {
-	FeatureID domain.FeatureID
-	EnvID     domain.EnvironmentID
+	FeatureKey string
+	EnvKey     string
 }
 
 type BanditManager struct {
@@ -48,12 +48,14 @@ type BanditManager struct {
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository
 	featureVariantsRepo   contract.FlagVariantsRepository
 	statsRepo             contract.FeatureAlgorithmStatsRepository
+	featuresUseCase       contract.FeaturesUseCase
 }
 
 func New(
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository,
 	featureVariantsRepo contract.FlagVariantsRepository,
 	statsRepo contract.FeatureAlgorithmStatsRepository,
+	featuresUseCase contract.FeaturesUseCase,
 ) (*BanditManager, error) {
 	mngr := &BanditManager{
 		state:                 make(map[StateKey]*AlgorithmState),
@@ -62,6 +64,7 @@ func New(
 		featureAlgorithmsRepo: featureAlgorithmsRepo,
 		featureVariantsRepo:   featureVariantsRepo,
 		statsRepo:             statsRepo,
+		featuresUseCase:       featuresUseCase,
 		stopCh:                make(chan struct{}),
 	}
 
@@ -81,28 +84,35 @@ func (m *BanditManager) Start(context.Context) error {
 func (m *BanditManager) Stop(context.Context) error {
 	close(m.stopCh)
 
+	if err := m.flushAllToDB(); err != nil {
+		slog.Error("bandit: failed flush", "error", err)
+	}
+
 	return nil
 }
 
-func (m *BanditManager) GetAlgorithmState(
-	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
-) (*AlgorithmState, bool) {
+func (m *BanditManager) GetAlgorithmState(featureKey, envKey string) (*AlgorithmState, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	key := StateKey{FeatureID: featureID, EnvID: envID}
+	key := StateKey{FeatureKey: featureKey, EnvKey: envKey}
 	state, ok := m.state[key]
 
 	return state, ok
 }
 
+func (m *BanditManager) HasAlgorithm(featureKey, envKey string) bool {
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
+	if !ok {
+		return false
+	}
+
+	return state.Enabled
+}
+
 // EvaluateFeature chooses a variant according to the algorithm.
-func (m *BanditManager) EvaluateFeature(
-	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
-) (string, bool) {
-	state, ok := m.GetAlgorithmState(featureID, envID)
+func (m *BanditManager) EvaluateFeature(featureKey, envKey string) (string, bool) {
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
 	if !ok {
 		return "", false
 	}
@@ -132,13 +142,13 @@ func (m *BanditManager) EvaluateFeature(
 
 // HandleTrackEvent called by track consumer to update in-memory counters.
 func (m *BanditManager) HandleTrackEvent(
-	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
+	featureKey string,
+	envKey string,
 	variantKey string,
 	eventType domain.FeedbackEventType,
 	metric decimal.Decimal,
 ) {
-	state, ok := m.GetAlgorithmState(featureID, envID)
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
 	if !ok {
 		return
 	}
@@ -172,7 +182,7 @@ func (m *BanditManager) loadState() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	records, err := m.featureAlgorithmsRepo.ListAll(ctx)
+	records, err := m.featureAlgorithmsRepo.ListAllExtended(ctx)
 	if err != nil {
 		return fmt.Errorf("list feature algorithms: %w", err)
 	}
@@ -182,7 +192,7 @@ func (m *BanditManager) loadState() error {
 		return fmt.Errorf("load all stats: %w", err)
 	}
 
-	allVariants, err := m.featureVariantsRepo.List(ctx)
+	allVariants, err := m.featureVariantsRepo.ListExtended(ctx)
 	if err != nil {
 		return fmt.Errorf("load all variants: %w", err)
 	}
@@ -190,8 +200,8 @@ func (m *BanditManager) loadState() error {
 	allVariantsMap := make(map[StateKey][]string)
 	for _, variant := range allVariants {
 		key := StateKey{
-			FeatureID: variant.FeatureID,
-			EnvID:     variant.EnvironmentID,
+			FeatureKey: variant.FeatureKey,
+			EnvKey:     variant.EnvKey,
 		}
 		value, ok := allVariantsMap[key]
 		if !ok {
@@ -228,8 +238,8 @@ func (m *BanditManager) loadState() error {
 	state := make(map[StateKey]*AlgorithmState, len(records))
 	for _, record := range records {
 		key := StateKey{
-			FeatureID: record.FeatureID,
-			EnvID:     record.EnvironmentID,
+			FeatureKey: record.FeatureKey,
+			EnvKey:     record.EnvKey,
 		}
 
 		variantsArr, ok := allVariantsMap[key]
@@ -273,10 +283,6 @@ func (m *BanditManager) syncToDBLoop() {
 	for {
 		select {
 		case <-m.stopCh:
-			if err := m.flushAllToDB(); err != nil {
-				slog.Error("bandit: failed flush", "error", err)
-			}
-
 			return
 		case <-ticker.C:
 			if err := m.flushAllToDB(); err != nil {
@@ -287,15 +293,24 @@ func (m *BanditManager) syncToDBLoop() {
 }
 
 func (m *BanditManager) flushAllToDB() error {
+	start := time.Now()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
 	var records []domain.FeatureAlgorithmStats
 
 	m.mu.RLock()
 	for feat, algState := range m.state {
+		feature, err := m.featuresUseCase.GetByKeyWithEnvCached(ctx, feat.FeatureKey, feat.EnvKey)
+		if err != nil {
+			return fmt.Errorf("get feature: %w", err)
+		}
+
 		algState.mu.RLock()
 		for variant, variantStats := range algState.Variants {
 			records = append(records, domain.FeatureAlgorithmStats{
-				FeatureID:     feat.FeatureID,
-				EnvironmentID: feat.EnvID,
+				FeatureID:     feature.ID,
+				EnvironmentID: feature.EnvironmentID,
 				AlgorithmSlug: algState.AlgorithmType.Slug(),
 				VariantKey:    variant,
 				Evaluations:   variantStats.Evaluations,
@@ -308,8 +323,12 @@ func (m *BanditManager) flushAllToDB() error {
 	}
 	m.mu.RUnlock()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
+	err := m.statsRepo.InsertBatch(ctx, records)
+	if err != nil {
+		return fmt.Errorf("insert batch: %w", err)
+	}
 
-	return m.statsRepo.InsertBatch(ctx, records)
+	slog.Debug("bandit: flushed all features", "elapsed", time.Since(start))
+
+	return nil
 }

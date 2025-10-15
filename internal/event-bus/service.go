@@ -24,6 +24,7 @@ type Service struct {
 	wg   sync.WaitGroup
 	stop chan struct{}
 
+	featuresUseCase    contract.FeaturesUseCase
 	errorReportUseCase contract.ErrorReportsUseCase
 	feedbackEventsRepo contract.FeedbackEventsRepository
 	algProcessor       contract.AlgorithmsProcessor
@@ -31,6 +32,7 @@ type Service struct {
 
 func New(
 	bus mq.MQ,
+	featuresUseCase contract.FeaturesUseCase,
 	errorReportUseCase contract.ErrorReportsUseCase,
 	feedbackEventsRepo contract.FeedbackEventsRepository,
 	algProcessor contract.AlgorithmsProcessor,
@@ -38,6 +40,7 @@ func New(
 	return &Service{
 		bus:                bus,
 		stop:               make(chan struct{}),
+		featuresUseCase:    featuresUseCase,
 		errorReportUseCase: errorReportUseCase,
 		feedbackEventsRepo: feedbackEventsRepo,
 		algProcessor:       algProcessor,

@@ -30,8 +30,8 @@ func (s *Service) processSDKFeedbackEvents(ctx context.Context, messages [][]byt
 		}
 
 		s.algProcessor.HandleTrackEvent(
-			event.FeatureID,
-			event.EnvironmentID,
+			event.FeatureKey,
+			event.EnvKey,
 			event.VariantKey,
 			event.EventType,
 			event.Reward,

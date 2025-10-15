@@ -7,13 +7,11 @@ import (
 )
 
 type AlgorithmsProcessor interface {
-	EvaluateFeature(
-		featureID domain.FeatureID,
-		envID domain.EnvironmentID,
-	) (string, bool)
+	HasAlgorithm(featureKey, envKey string) bool
+	EvaluateFeature(featureKy, envKey string) (string, bool)
 	HandleTrackEvent(
-		featureID domain.FeatureID,
-		envID domain.EnvironmentID,
+		featureKey string,
+		envKey string,
 		variantKey string,
 		eventType domain.FeedbackEventType,
 		metric decimal.Decimal,

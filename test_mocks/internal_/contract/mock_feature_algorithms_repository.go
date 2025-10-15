@@ -220,6 +220,68 @@ func (_c *MockFeatureAlgorithmsRepository_ListAll_Call) RunAndReturn(run func(ct
 	return _c
 }
 
+// ListAllExtended provides a mock function for the type MockFeatureAlgorithmsRepository
+func (_mock *MockFeatureAlgorithmsRepository) ListAllExtended(ctx context.Context) ([]domain.FeatureAlgorithmExtended, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllExtended")
+	}
+
+	var r0 []domain.FeatureAlgorithmExtended
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.FeatureAlgorithmExtended, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.FeatureAlgorithmExtended); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureAlgorithmExtended)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureAlgorithmsRepository_ListAllExtended_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListAllExtended'
+type MockFeatureAlgorithmsRepository_ListAllExtended_Call struct {
+	*mock.Call
+}
+
+// ListAllExtended is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockFeatureAlgorithmsRepository_Expecter) ListAllExtended(ctx interface{}) *MockFeatureAlgorithmsRepository_ListAllExtended_Call {
+	return &MockFeatureAlgorithmsRepository_ListAllExtended_Call{Call: _e.mock.On("ListAllExtended", ctx)}
+}
+
+func (_c *MockFeatureAlgorithmsRepository_ListAllExtended_Call) Run(run func(ctx context.Context)) *MockFeatureAlgorithmsRepository_ListAllExtended_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmsRepository_ListAllExtended_Call) Return(featureAlgorithmExtendeds []domain.FeatureAlgorithmExtended, err error) *MockFeatureAlgorithmsRepository_ListAllExtended_Call {
+	_c.Call.Return(featureAlgorithmExtendeds, err)
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmsRepository_ListAllExtended_Call) RunAndReturn(run func(ctx context.Context) ([]domain.FeatureAlgorithmExtended, error)) *MockFeatureAlgorithmsRepository_ListAllExtended_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // ListByFeatureID provides a mock function for the type MockFeatureAlgorithmsRepository
 func (_mock *MockFeatureAlgorithmsRepository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureAlgorithm, error) {
 	ret := _mock.Called(ctx, featureID)
