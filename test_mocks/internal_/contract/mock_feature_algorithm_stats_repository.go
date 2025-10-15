@@ -38,6 +38,63 @@ func (_m *MockFeatureAlgorithmStatsRepository) EXPECT() *MockFeatureAlgorithmSta
 	return &MockFeatureAlgorithmStatsRepository_Expecter{mock: &_m.Mock}
 }
 
+// InsertBatch provides a mock function for the type MockFeatureAlgorithmStatsRepository
+func (_mock *MockFeatureAlgorithmStatsRepository) InsertBatch(ctx context.Context, records []domain.FeatureAlgorithmStats) error {
+	ret := _mock.Called(ctx, records)
+
+	if len(ret) == 0 {
+		panic("no return value specified for InsertBatch")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, []domain.FeatureAlgorithmStats) error); ok {
+		r0 = returnFunc(ctx, records)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockFeatureAlgorithmStatsRepository_InsertBatch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'InsertBatch'
+type MockFeatureAlgorithmStatsRepository_InsertBatch_Call struct {
+	*mock.Call
+}
+
+// InsertBatch is a helper method to define mock.On call
+//   - ctx context.Context
+//   - records []domain.FeatureAlgorithmStats
+func (_e *MockFeatureAlgorithmStatsRepository_Expecter) InsertBatch(ctx interface{}, records interface{}) *MockFeatureAlgorithmStatsRepository_InsertBatch_Call {
+	return &MockFeatureAlgorithmStatsRepository_InsertBatch_Call{Call: _e.mock.On("InsertBatch", ctx, records)}
+}
+
+func (_c *MockFeatureAlgorithmStatsRepository_InsertBatch_Call) Run(run func(ctx context.Context, records []domain.FeatureAlgorithmStats)) *MockFeatureAlgorithmStatsRepository_InsertBatch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 []domain.FeatureAlgorithmStats
+		if args[1] != nil {
+			arg1 = args[1].([]domain.FeatureAlgorithmStats)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmStatsRepository_InsertBatch_Call) Return(err error) *MockFeatureAlgorithmStatsRepository_InsertBatch_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmStatsRepository_InsertBatch_Call) RunAndReturn(run func(ctx context.Context, records []domain.FeatureAlgorithmStats) error) *MockFeatureAlgorithmStatsRepository_InsertBatch_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // LoadAll provides a mock function for the type MockFeatureAlgorithmStatsRepository
 func (_mock *MockFeatureAlgorithmStatsRepository) LoadAll(ctx context.Context) ([]domain.FeatureAlgorithmStats, error) {
 	ret := _mock.Called(ctx)

@@ -5,7 +5,7 @@ import (
 	"gonum.org/v1/gonum/stat/distuv"
 )
 
-func (m *BanditManager) evalThompson(state *AlgorithmState) (string, error) {
+func (m *BanditManager) evalThompson(state *AlgorithmState) string {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 
@@ -34,9 +34,9 @@ func (m *BanditManager) evalThompson(state *AlgorithmState) (string, error) {
 	}
 	if bestKey == "" {
 		// fallback
-		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))], nil
+		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))]
 	}
 	state.Variants[bestKey].Evaluations++
 
-	return bestKey, nil
+	return bestKey
 }

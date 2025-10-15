@@ -2,7 +2,6 @@ package bandit
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"math/rand"
@@ -44,6 +43,7 @@ type BanditManager struct {
 	state        map[StateKey]*AlgorithmState
 	randSrc      *rand.Rand
 	syncInterval time.Duration
+	stopCh       chan struct{}
 
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository
 	featureVariantsRepo   contract.FlagVariantsRepository
@@ -54,15 +54,15 @@ func New(
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository,
 	featureVariantsRepo contract.FlagVariantsRepository,
 	statsRepo contract.FeatureAlgorithmStatsRepository,
-	syncInterval time.Duration,
 ) (*BanditManager, error) {
 	mngr := &BanditManager{
 		state:                 make(map[StateKey]*AlgorithmState),
 		randSrc:               rand.New(rand.NewSource(time.Now().UnixNano())),
-		syncInterval:          syncInterval,
+		syncInterval:          time.Second * 5,
 		featureAlgorithmsRepo: featureAlgorithmsRepo,
 		featureVariantsRepo:   featureVariantsRepo,
 		statsRepo:             statsRepo,
+		stopCh:                make(chan struct{}),
 	}
 
 	if err := mngr.loadState(); err != nil {
@@ -70,6 +70,18 @@ func New(
 	}
 
 	return mngr, nil
+}
+
+func (m *BanditManager) Start(context.Context) error {
+	go m.syncToDBLoop() //nolint:contextcheck // false positive
+
+	return nil
+}
+
+func (m *BanditManager) Stop(context.Context) error {
+	close(m.stopCh)
+
+	return nil
 }
 
 func (m *BanditManager) GetAlgorithmState(
@@ -89,35 +101,33 @@ func (m *BanditManager) GetAlgorithmState(
 func (m *BanditManager) EvaluateFeature(
 	featureID domain.FeatureID,
 	envID domain.EnvironmentID,
-) (string, bool, error) {
+) (string, bool) {
 	state, ok := m.GetAlgorithmState(featureID, envID)
 	if !ok {
-		return "", false, errors.New("no such feature")
+		return "", false
 	}
 
 	if !state.Enabled {
-		return "", false, nil
+		return "", false
 	}
+
+	var variant string
 
 	// choose algorithm
-	var (
-		variant string
-		err     error
-	)
 	switch state.AlgorithmType {
 	case domain.AlgorithmTypeEpsilonGreedy:
-		variant, err = m.evalEpsilonGreedy(state)
+		variant = m.evalEpsilonGreedy(state)
 	case domain.AlgorithmTypeThompsonSampling:
-		variant, err = m.evalThompson(state)
+		variant = m.evalThompson(state)
 	case domain.AlgorithmTypeUCB:
-		variant, err = m.evalUCB(state)
+		variant = m.evalUCB(state)
 	case domain.AlgorithmTypeUnknown:
-		return "", false, errors.New("unknown algorithm")
+		return "", false
 	default:
-		return "", false, fmt.Errorf("unknown algorithm: %v", state.AlgorithmType)
+		return "", false
 	}
 
-	return variant, true, err
+	return variant, true
 }
 
 // HandleTrackEvent called by track consumer to update in-memory counters.
@@ -125,12 +135,12 @@ func (m *BanditManager) HandleTrackEvent(
 	featureID domain.FeatureID,
 	envID domain.EnvironmentID,
 	variantKey string,
-	eventType string,
+	eventType domain.FeedbackEventType,
 	metric decimal.Decimal,
-) error {
+) {
 	state, ok := m.GetAlgorithmState(featureID, envID)
 	if !ok {
-		return errors.New("unknown state")
+		return
 	}
 
 	state.mu.Lock()
@@ -140,22 +150,22 @@ func (m *BanditManager) HandleTrackEvent(
 	if !ok {
 		vs = &VariantStats{}
 		state.Variants[variantKey] = vs
+		state.VariantsArr = append(state.VariantsArr, variantKey)
 	}
 	switch eventType {
-	case "evaluation":
+	case domain.FeedbackEventTypeEvaluation:
 		vs.Evaluations++
-	case "success":
+	case domain.FeedbackEventTypeSuccess:
 		vs.Successes++
 		vs.MetricSum = vs.MetricSum.Add(metric)
-	case "failure":
+	case domain.FeedbackEventTypeFailure:
 		vs.Failures++
-	case "error":
+	case domain.FeedbackEventTypeError:
 		vs.Failures++
+	case domain.FeedbackEventTypeUnknown:
 	default:
 		// custom handling
 	}
-
-	return nil
 }
 
 func (m *BanditManager) loadState() error {
@@ -251,87 +261,55 @@ func (m *BanditManager) loadState() error {
 	}
 
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	m.state = state
+	m.mu.Unlock()
 
 	return nil
 }
 
-//// SyncToDBLoop periodically flushes in-memory counters to DB (UPSERT)
-// func (m *BanditManager) SyncToDBLoop(ctx context.Context) {
-//	ticker := time.NewTicker(m.syncInterval)
-//	defer ticker.Stop()
-//	for {
-//		select {
-//		case <-ctx.Done():
-//			return
-//		case <-ticker.C:
-//			if err := m.flushAllToDB(ctx); err != nil {
-//				fmt.Printf("bandit: failed flush: %v\n", err)
-//			}
-//		}
-//	}
-//}
-//
-// func (m *BanditManager) flushAllToDB(ctx context.Context) error {
-//	type dumpKey struct {
-//		FeatureID domain.FeatureID
-//		EnvID     domain.EnvironmentID
-//		AlgSlug   string
-//	}
-//
-//	m.mu.RLock()
-//	snapshot := make(map[dumpKey]map[string]VariantStats)
-//	for feat, algState := range m.state {
-//		snapKey := dumpKey{
-//			FeatureID: feat.FeatureID,
-//			EnvID:     feat.EnvID,
-//			AlgSlug:   algState.AlgorithmType.Slug(),
-//		}
-//		snapshot[snapKey] = make(map[string]VariantStats)
-//
-//		algState.mu.RLock()
-//		for variant, variantStats := range algState.Variants {
-//			snapshot[snapKey][variant] = *variantStats
-//		}
-//		algState.mu.RUnlock()
-//	}
-//	m.mu.RUnlock()
-//
-//	batch := &pgx.Batch{}
-//	query := `INSERT INTO monitoring.feature_algorithm_stats
-//      (feature_id, environment_id, algorithm_slug, variant_key,
-//     evaluations, successes, failures, metric_sum, updated_at)
-//      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
-//      ON CONFLICT (feature_id, environment_id, algorithm_slug, variant_key) DO UPDATE SET
-//        evaluations = monitoring.feature_algorithm_stats.evaluations + EXCLUDED.evaluations,
-//        successes   = monitoring.feature_algorithm_stats.successes + EXCLUDED.successes,
-//        failures    = monitoring.feature_algorithm_stats.failures + EXCLUDED.failures,
-//        metric_sum  = monitoring.feature_algorithm_stats.metric_sum + EXCLUDED.metric_sum,
-//        updated_at  = NOW();`
-//
-//	for feat, vsmap := range snapshot {
-//		for vk, vs := range vsmap {
-//			// skip zeros
-//			if vs.Evaluations == 0 && vs.Successes == 0 && vs.Failures == 0 && vs.MetricSum.IsZero() {
-//				continue
-//			}
-//			batch.Queue(query, feat.FeatureID, feat.EnvID, feat.AlgSlug, vk,
-//			vs.Evaluations, vs.Successes, vs.Failures, vs.MetricSum)
-//		}
-//	}
-//
-//	if batch.Len() == 0 {
-//		return nil
-//	}
-//
-//	// send batch using m.db (pgx.Conn)
-//	batchResults := m.db.SendBatch(ctx, batch)
-//	defer batchResults.Close()
-//	for i := 0; i < batch.Len(); i++ {
-//		if _, err := batchResults.Exec(); err != nil {
-//			return err
-//		}
-//	}
-//	return nil
-//}
+func (m *BanditManager) syncToDBLoop() {
+	ticker := time.NewTicker(m.syncInterval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-m.stopCh:
+			if err := m.flushAllToDB(); err != nil {
+				slog.Error("bandit: failed flush", "error", err)
+			}
+
+			return
+		case <-ticker.C:
+			if err := m.flushAllToDB(); err != nil {
+				slog.Error("bandit: failed flush", "error", err)
+			}
+		}
+	}
+}
+
+func (m *BanditManager) flushAllToDB() error {
+	var records []domain.FeatureAlgorithmStats
+
+	m.mu.RLock()
+	for feat, algState := range m.state {
+		algState.mu.RLock()
+		for variant, variantStats := range algState.Variants {
+			records = append(records, domain.FeatureAlgorithmStats{
+				FeatureID:     feat.FeatureID,
+				EnvironmentID: feat.EnvID,
+				AlgorithmSlug: algState.AlgorithmType.Slug(),
+				VariantKey:    variant,
+				Evaluations:   variantStats.Evaluations,
+				Successes:     variantStats.Successes,
+				Failures:      variantStats.Failures,
+				MetricSum:     variantStats.MetricSum,
+			})
+		}
+		algState.mu.RUnlock()
+	}
+	m.mu.RUnlock()
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	return m.statsRepo.InsertBatch(ctx, records)
+}

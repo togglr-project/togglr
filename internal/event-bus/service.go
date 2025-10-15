@@ -26,18 +26,21 @@ type Service struct {
 
 	errorReportUseCase contract.ErrorReportsUseCase
 	feedbackEventsRepo contract.FeedbackEventsRepository
+	algProcessor       contract.AlgorithmsProcessor
 }
 
 func New(
 	bus mq.MQ,
 	errorReportUseCase contract.ErrorReportsUseCase,
 	feedbackEventsRepo contract.FeedbackEventsRepository,
+	algProcessor contract.AlgorithmsProcessor,
 ) *Service {
 	return &Service{
 		bus:                bus,
 		stop:               make(chan struct{}),
 		errorReportUseCase: errorReportUseCase,
 		feedbackEventsRepo: feedbackEventsRepo,
+		algProcessor:       algProcessor,
 	}
 }
 

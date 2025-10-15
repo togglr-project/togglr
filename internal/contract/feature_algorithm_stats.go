@@ -14,4 +14,5 @@ type FeatureAlgorithmStatsRepository interface {
 		envID domain.EnvironmentID,
 		algSlug string,
 	) (domain.FeatureAlgorithmStats, error)
+	InsertBatch(ctx context.Context, records []domain.FeatureAlgorithmStats) error
 }

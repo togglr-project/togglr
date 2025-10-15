@@ -71,6 +71,48 @@ WHERE feature_id = $1 AND environment_id = $2 AND algorithm_slug = $3`
 	return model.toDomain(), nil
 }
 
+func (r *Repository) InsertBatch(ctx context.Context, records []domain.FeatureAlgorithmStats) error {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+INSERT INTO monitoring.feature_algorithm_stats
+(feature_id, environment_id, algorithm_slug, variant_key,
+	evaluations, successes, failures, metric_sum, updated_at)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+ON CONFLICT (feature_id, environment_id, algorithm_slug, variant_key) DO UPDATE SET
+	evaluations = EXCLUDED.evaluations,
+	successes   = EXCLUDED.successes,
+	failures    = EXCLUDED.failures,
+	metric_sum  = EXCLUDED.metric_sum,
+	updated_at  = NOW();`
+
+	batch := &pgx.Batch{}
+	for _, record := range records {
+		// skip zeros
+		if record.Evaluations == 0 && record.Successes == 0 && record.Failures == 0 && record.MetricSum.IsZero() {
+			continue
+		}
+
+		batch.Queue(query, record.FeatureID, record.EnvironmentID, record.AlgorithmSlug, record.VariantKey,
+			record.Evaluations, record.Successes, record.Failures, record.MetricSum)
+	}
+
+	if batch.Len() == 0 {
+		return nil
+	}
+
+	br := executor.SendBatch(ctx, batch)
+	defer func() { _ = br.Close() }()
+
+	for range batch.Len() {
+		if _, err := br.Exec(); err != nil {
+			return fmt.Errorf("batch insert failed: %w", err)
+		}
+	}
+
+	return nil
+}
+
 //nolint:ireturn // it's ok here
 func (r *Repository) getExecutor(ctx context.Context) db.Tx {
 	if tx := db.TxFromContext(ctx); tx != nil {

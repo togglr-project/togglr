@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func (m *BanditManager) evalUCB(state *AlgorithmState) (string, error) {
+func (m *BanditManager) evalUCB(state *AlgorithmState) string {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 
@@ -23,7 +23,7 @@ func (m *BanditManager) evalUCB(state *AlgorithmState) (string, error) {
 		if stats.Evaluations == 0 {
 			state.Variants[key].Evaluations++
 
-			return key, nil
+			return key
 		}
 	}
 
@@ -39,10 +39,10 @@ func (m *BanditManager) evalUCB(state *AlgorithmState) (string, error) {
 	}
 
 	if bestKey == "" {
-		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))], nil
+		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))]
 	}
 
 	state.Variants[bestKey].Evaluations++
 
-	return bestKey, nil
+	return bestKey
 }

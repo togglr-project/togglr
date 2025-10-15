@@ -4,7 +4,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (m *BanditManager) evalEpsilonGreedy(state *AlgorithmState) (string, error) {
+func (m *BanditManager) evalEpsilonGreedy(state *AlgorithmState) string {
 	state.mu.Lock()
 	defer state.mu.Unlock()
 
@@ -16,7 +16,7 @@ func (m *BanditManager) evalEpsilonGreedy(state *AlgorithmState) (string, error)
 	// exploration?
 	if decimal.NewFromFloat(m.randSrc.Float64()).LessThan(epsilon) {
 		// choose uniformly random variant
-		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))], nil
+		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))]
 	}
 
 	// exploitation: choose the best success rate (successes / impressions) or metric_avg if you prefer
@@ -37,11 +37,11 @@ func (m *BanditManager) evalEpsilonGreedy(state *AlgorithmState) (string, error)
 
 	// If all zero (cold start), pick random
 	if bestKey == "" {
-		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))], nil
+		return state.VariantsArr[m.randSrc.Intn(len(state.VariantsArr))]
 	}
 
 	// increment impression (evaluation) immediately for real-time accounting
 	state.Variants[bestKey].Evaluations++
 
-	return bestKey, nil
+	return bestKey
 }

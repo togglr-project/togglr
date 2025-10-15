@@ -54,11 +54,12 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 	}
 
 	event := domain.FeedbackEventDTO{
-		FeatureID:  feature.ID,
-		VariantKey: req.VariantKey,
-		EventType:  string(req.EventType),
-		Reward:     decimal.NewFromFloat32(req.Reward.Or(0.0)),
-		Context:    reqCtx,
+		FeatureID:     feature.ID,
+		EnvironmentID: feature.EnvironmentID,
+		VariantKey:    req.VariantKey,
+		EventType:     domain.FeedbackEventType(req.EventType),
+		Reward:        decimal.NewFromFloat32(req.Reward.Or(0.0)),
+		Context:       reqCtx,
 	}
 
 	err = s.bus.PublishFeedbackEvent(ctx, event)
