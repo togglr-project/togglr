@@ -1,14 +1,18 @@
 -- 1. Raw feedback events (source of truth)
 create table monitoring.feedback_events
 (
-    id             bigserial,
-    feature_id     uuid not null references public.features(id) on delete cascade,
-    algorithm_slug varchar(100) references public.algorithms(slug),
-    variant_key    varchar(100) not null,
-    event_type     varchar(50) not null, -- evaluation, success, failure, error, custom
-    reward         numeric(18,6) not null default 0.0,
-    context        jsonb,
-    created_at     timestamptz not null default now(),
+    id              bigserial,
+    project_id      uuid not null references public.projects(id) on delete cascade,
+    environment_id  bigint not null references public.environments on delete cascade,
+    feature_id      uuid not null references public.features(id) on delete cascade,
+    feature_key     varchar(50) not null,
+    environment_key varchar(20) not null,
+    algorithm_slug  varchar(100) references public.algorithms(slug),
+    variant_key     varchar(100) not null,
+    event_type      varchar(50) not null, -- evaluation, success, failure, error, custom
+    reward          numeric(18,6) not null default 0.0,
+    context         jsonb,
+    created_at      timestamptz not null default now(),
 
     primary key (id, created_at)
 );
@@ -31,10 +35,13 @@ select add_retention_policy('monitoring.feedback_events', interval '30 days');
 -- 2. Aggregated per-variant statistics for runtime evaluation (used by bandit algorithms)
 create table monitoring.feature_algorithm_stats
 (
+    project_id       uuid not null references public.projects(id) on delete cascade,
     feature_id       uuid not null references public.features(id) on delete cascade,
     environment_id   BIGINT NOT NULL REFERENCES public.environments(id) ON DELETE CASCADE,
     algorithm_slug   varchar(100) not null references public.algorithms(slug) on delete cascade,
     variant_key      varchar(100) not null,
+    feature_key      varchar(50) not null,
+    environment_key  varchar(20) not null,
 
     evaluations   bigint default 0 not null,     -- number of feature evaluations
     successes     bigint default 0 not null,     -- positive outcomes
