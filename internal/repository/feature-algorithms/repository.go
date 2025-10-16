@@ -242,6 +242,49 @@ WHERE feature_id = $1 AND environment_id = $2`
 	return result, nil
 }
 
+func (r *Repository) ListExtendedByFeatureIDWithEnvID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) ([]domain.FeatureAlgorithmExtended, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT fa.id,
+       fa.feature_id,
+       fa.project_id,
+       fa.algorithm_slug,
+       fa.settings,
+       fa.environment_id, 
+       fa.enabled,
+       fa.created_at,
+       fa.updated_at,
+       e.key AS env_key,
+       f.key AS feature_key
+FROM feature_algorithms fa
+INNER JOIN public.environments e on e.id = fa.environment_id
+INNER JOIN public.features f on f.id = fa.feature_id
+WHERE feature_id = $1 AND environment_id = $2`
+
+	rows, err := executor.Query(ctx, query, featureID, envID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[featureAlgorithmExtModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect feature_algorithms rows: %w", err)
+	}
+
+	result := make([]domain.FeatureAlgorithmExtended, 0, len(models))
+	for _, m := range models {
+		result = append(result, m.toDomain())
+	}
+
+	return result, nil
+}
+
 func (r *Repository) ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error) {
 	executor := r.getExecutor(ctx)
 
@@ -294,7 +337,9 @@ func (r *Repository) ListAllExtended(ctx context.Context) ([]domain.FeatureAlgor
 	executor := r.getExecutor(ctx)
 
 	const query = `
-SELECT fa.feature_id,
+SELECT fa.id,
+       fa.project_id,
+       fa.feature_id,
        fa.algorithm_slug,
        fa.settings,
        fa.environment_id, 

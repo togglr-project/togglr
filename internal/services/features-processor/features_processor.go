@@ -225,10 +225,7 @@ func (s *Service) Watch(ctx context.Context) error {
 
 			for key, action := range changes {
 				if action == domain.AuditActionDelete {
-					ctxRm, cancel := context.WithTimeout(ctx, time.Second*5)
-					defer cancel()
-
-					s.removeFeatureFromHolder(ctxRm, key.projectID, key.featureID, key.envKey)
+					s.removeFeatureFromHolder(ctx, key.projectID, key.featureID, key.envKey)
 
 					continue
 				}

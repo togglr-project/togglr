@@ -15,6 +15,11 @@ import (
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
+const (
+	defaultSyncStatsInterval = time.Second * 5
+	defaultPollInterval      = time.Second * 5
+)
+
 type VariantStats struct {
 	Evaluations uint64
 	Successes   uint64
@@ -39,36 +44,45 @@ type StateKey struct {
 }
 
 type BanditManager struct {
-	mu           sync.RWMutex
-	state        map[StateKey]*AlgorithmState
-	randSrc      *rand.Rand
-	syncInterval time.Duration
-	stopCh       chan struct{}
+	mu                sync.RWMutex
+	state             map[StateKey]*AlgorithmState
+	randSrc           *rand.Rand
+	syncStatsInterval time.Duration
+	pollInterval      time.Duration
+	lastSeen          time.Time
+	stopCh            chan struct{}
 
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository
 	featureVariantsRepo   contract.FlagVariantsRepository
 	statsRepo             contract.FeatureAlgorithmStatsRepository
+	auditRepo             contract.AuditLogRepository
 	featuresUseCase       contract.FeaturesUseCase
 	envsUseCase           contract.EnvironmentsUseCase
+
+	nowFunc func() time.Time
 }
 
 func New(
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository,
 	featureVariantsRepo contract.FlagVariantsRepository,
 	statsRepo contract.FeatureAlgorithmStatsRepository,
+	auditRepo contract.AuditLogRepository,
 	featuresUseCase contract.FeaturesUseCase,
 	envsUseCase contract.EnvironmentsUseCase,
 ) (*BanditManager, error) {
 	mngr := &BanditManager{
 		state:                 make(map[StateKey]*AlgorithmState),
 		randSrc:               rand.New(rand.NewSource(time.Now().UnixNano())),
-		syncInterval:          time.Second * 5,
+		syncStatsInterval:     defaultSyncStatsInterval,
+		pollInterval:          defaultPollInterval,
 		featureAlgorithmsRepo: featureAlgorithmsRepo,
 		featureVariantsRepo:   featureVariantsRepo,
 		statsRepo:             statsRepo,
+		auditRepo:             auditRepo,
 		featuresUseCase:       featuresUseCase,
 		envsUseCase:           envsUseCase,
 		stopCh:                make(chan struct{}),
+		nowFunc:               time.Now,
 	}
 
 	if err := mngr.loadState(); err != nil {
@@ -80,6 +94,12 @@ func New(
 
 func (m *BanditManager) Start(context.Context) error {
 	go m.syncToDBLoop() //nolint:contextcheck // false positive
+
+	go func() { //nolint:contextcheck // false positive
+		if err := m.Watch(context.Background()); err != nil {
+			slog.Error("Bandits: failed to watch features updates", "error", err)
+		}
+	}()
 
 	return nil
 }
@@ -181,7 +201,105 @@ func (m *BanditManager) HandleTrackEvent(
 	}
 }
 
+//nolint:gocognit // This is a complex function.
+func (m *BanditManager) Watch(ctx context.Context) error {
+	slog.Info("Bandit Manager: start watching features")
+
+	ticker := time.NewTicker(m.pollInterval)
+	defer ticker.Stop()
+
+	last := m.lastSeen
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case <-m.stopCh:
+			return nil
+		case <-ticker.C:
+			windowEnd := m.nowFunc().UTC()
+
+			logs, err := m.auditRepo.ListSince(ctx, last)
+			if err != nil {
+				slog.Error("Watcher: audit log list since failed", "err", err)
+
+				last = windowEnd
+
+				continue
+			}
+
+			if len(logs) == 0 {
+				continue
+			}
+
+			slog.Info("Bandits Manager: changes on features detected", "count", len(logs))
+
+			// Deduplicate by project+feature; keep delete if any delete for a feature entity appears.
+			type changeKey struct {
+				featureID domain.FeatureID
+				envID     domain.EnvironmentID
+				envKey    string
+			}
+
+			changes := make(map[changeKey]domain.AuditAction)
+
+			for _, row := range logs {
+				if row.FeatureID == "" {
+					continue
+				}
+
+				key := changeKey{
+					featureID: row.FeatureID,
+					envID:     row.EnvironmentID,
+					envKey:    row.EnvKey,
+				}
+
+				if row.Entity == domain.EntityFeatureAlgorithm && row.Action == domain.AuditActionDelete {
+					changes[key] = domain.AuditActionDelete
+
+					continue
+				}
+
+				if row.Entity == domain.EntityFeatureAlgorithm || row.Entity == domain.EntityFlagVariant {
+					if _, ok := changes[key]; !ok {
+						changes[key] = domain.AuditActionUpdate
+					}
+				}
+			}
+
+			for key, action := range changes {
+				if action == domain.AuditActionDelete {
+					if err := m.removeFeatureFromState(
+						ctx,
+						key.featureID,
+						key.envID,
+					); err != nil {
+						slog.Error("Bandit Manager: delete feature from state failed",
+							"featureID", key.featureID, "env", key.envKey, "err", err)
+					}
+
+					continue
+				}
+
+				// refresh feature by loading from repo
+				if err := m.refreshFeature(
+					ctx,
+					key.featureID,
+					key.envID,
+					key.envKey,
+				); err != nil {
+					slog.Error("Bandit Manager: refresh feature failed",
+						"feature", key.featureID, "error", err)
+				}
+			}
+
+			last = windowEnd
+		}
+	}
+}
+
 func (m *BanditManager) loadState() error {
+	now := m.nowFunc()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
@@ -275,13 +393,103 @@ func (m *BanditManager) loadState() error {
 
 	m.mu.Lock()
 	m.state = state
+	m.lastSeen = now
 	m.mu.Unlock()
 
 	return nil
 }
 
+func (m *BanditManager) removeFeatureFromState(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) error {
+	records, err := m.featureAlgorithmsRepo.ListExtendedByFeatureIDWithEnvID(ctx, featureID, envID)
+	if err != nil {
+		return fmt.Errorf("find feature algorithms: %w", err)
+	}
+
+	for _, record := range records {
+		key := StateKey{
+			FeatureKey: record.FeatureKey,
+			EnvKey:     record.EnvKey,
+		}
+
+		m.mu.Lock()
+		delete(m.state, key)
+		m.mu.Unlock()
+	}
+
+	return nil
+}
+
+func (m *BanditManager) refreshFeature(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+	envKey string,
+) error {
+	records, err := m.featureAlgorithmsRepo.ListExtendedByFeatureIDWithEnvID(ctx, featureID, envID)
+	if err != nil {
+		return fmt.Errorf("find feature algorithms: %w", err)
+	}
+
+	variants, err := m.featureVariantsRepo.ListByFeatureIDWithEnvID(ctx, featureID, envID)
+	if err != nil {
+		return fmt.Errorf("find feature variants: %w", err)
+	}
+
+	actualVariantsMap := make(map[string]*VariantStats, len(variants))
+	actualVariantsArr := make([]string, 0, len(variants))
+	for _, variant := range variants {
+		actualVariantsArr = append(actualVariantsArr, variant.Name)
+		actualVariantsMap[variant.Name] = &VariantStats{}
+	}
+
+	for _, record := range records {
+		key := StateKey{
+			FeatureKey: record.FeatureKey,
+			EnvKey:     envKey,
+		}
+
+		state, ok := m.GetAlgorithmState(record.FeatureKey, envKey)
+		if !ok {
+			// add new
+			state = &AlgorithmState{
+				AlgorithmType: domain.AlgorithmSlugToType(record.AlgorithmSlug),
+				Enabled:       record.Enabled,
+				Variants:      actualVariantsMap,
+				VariantsArr:   slices.Clone(actualVariantsArr),
+				Settings:      record.Settings,
+			}
+			m.mu.Lock()
+			m.state[key] = state
+			m.mu.Unlock()
+		} else {
+			// update existing
+			state.mu.Lock()
+			state.Enabled = record.Enabled
+			state.Settings = record.Settings
+			for _, variantKey := range state.VariantsArr {
+				if _, ok := actualVariantsMap[variantKey]; !ok {
+					delete(state.Variants, variantKey)
+				}
+			}
+			for _, variantKey := range actualVariantsArr {
+				if _, ok := state.Variants[variantKey]; !ok {
+					state.Variants[variantKey] = &VariantStats{}
+				}
+			}
+			state.VariantsArr = slices.Clone(actualVariantsArr)
+			state.mu.Unlock()
+		}
+	}
+
+	return nil
+}
+
 func (m *BanditManager) syncToDBLoop() {
-	ticker := time.NewTicker(m.syncInterval)
+	ticker := time.NewTicker(m.syncStatsInterval)
 	defer ticker.Stop()
 	for {
 		select {

@@ -11,6 +11,8 @@ import (
 )
 
 type featureAlgorithmModel struct {
+	ID            string          `db:"id"`
+	ProjectID     string          `db:"project_id"`
 	EnvironmentID int64           `db:"environment_id"`
 	FeatureID     string          `db:"feature_id"`
 	AlgorithmSlug string          `db:"algorithm_slug"`
@@ -29,6 +31,8 @@ func (m *featureAlgorithmModel) toDomain() domain.FeatureAlgorithm {
 	}
 
 	return domain.FeatureAlgorithm{
+		ID:            domain.FeatureAlgorithmID(m.ID),
+		ProjectID:     domain.ProjectID(m.ProjectID),
 		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
 		FeatureID:     domain.FeatureID(m.FeatureID),
 		AlgorithmSlug: m.AlgorithmSlug,
@@ -40,6 +44,8 @@ func (m *featureAlgorithmModel) toDomain() domain.FeatureAlgorithm {
 }
 
 type featureAlgorithmExtModel struct {
+	ID            string          `db:"id"`
+	ProjectID     string          `db:"project_id"`
 	EnvironmentID int64           `db:"environment_id"`
 	FeatureID     string          `db:"feature_id"`
 	AlgorithmSlug string          `db:"algorithm_slug"`
@@ -61,6 +67,8 @@ func (m *featureAlgorithmExtModel) toDomain() domain.FeatureAlgorithmExtended {
 
 	return domain.FeatureAlgorithmExtended{
 		FeatureAlgorithm: domain.FeatureAlgorithm{
+			ID:            domain.FeatureAlgorithmID(m.ID),
+			ProjectID:     domain.ProjectID(m.ProjectID),
 			EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
 			FeatureID:     domain.FeatureID(m.FeatureID),
 			AlgorithmSlug: m.AlgorithmSlug,

@@ -29,6 +29,11 @@ type FeatureAlgorithmsRepository interface {
 		featureID domain.FeatureID,
 		envID domain.EnvironmentID,
 	) ([]domain.FeatureAlgorithm, error)
+	ListExtendedByFeatureIDWithEnvID(
+		ctx context.Context,
+		featureID domain.FeatureID,
+		envID domain.EnvironmentID,
+	) ([]domain.FeatureAlgorithmExtended, error)
 	ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 	ListAll(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 	ListAllExtended(ctx context.Context) ([]domain.FeatureAlgorithmExtended, error)
