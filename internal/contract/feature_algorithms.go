@@ -13,13 +13,13 @@ type FeatureAlgorithmsRepository interface {
 	) error
 	Update(
 		ctx context.Context,
-		featureAlgorithm domain.FeatureAlgorithmDTO,
+		featureAlgorithm domain.FeatureAlgorithm,
 	) error
 	Delete(
 		ctx context.Context,
-		featureID domain.FeatureID,
-		envID domain.EnvironmentID,
+		id domain.FeatureAlgorithmID,
 	) error
+	GetByID(ctx context.Context, id domain.FeatureAlgorithmID) (domain.FeatureAlgorithm, error)
 	ListByFeatureID(
 		ctx context.Context,
 		featureID domain.FeatureID,

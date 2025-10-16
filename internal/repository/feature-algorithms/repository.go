@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/togglr-project/togglr/internal/domain"
+	"github.com/togglr-project/togglr/internal/repository/auditlog"
 	"github.com/togglr-project/togglr/pkg/db"
 )
 
@@ -29,6 +30,7 @@ func (r *Repository) Create(
 
 	const query = `
 INSERT INTO feature_algorithms (
+	project_id,
 	feature_id,
 	environment_id,
 	algorithm_slug,
@@ -37,26 +39,53 @@ INSERT INTO feature_algorithms (
 	created_at,
 	updated_at
 )
-VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`
+VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+RETURNING id`
 
-	_, err := executor.Exec(
+	var id string
+	err := executor.QueryRow(
 		ctx,
 		query,
+		featureAlgorithm.ProjectID,
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
 		featureAlgorithm.AlgorithmSlug,
 		featureAlgorithm.Settings,
 		featureAlgorithm.Enabled,
-	)
+	).Scan(&id)
+	if err != nil {
+		return err
+	}
 
-	return err
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		featureAlgorithm.ProjectID,
+		featureAlgorithm.FeatureID,
+		domain.EntityFeatureAlgorithm,
+		id,
+		domain.AuditActionCreate,
+		nil,
+		featureAlgorithm,
+		featureAlgorithm.EnvironmentID,
+	); err != nil {
+		return fmt.Errorf("audit feature_algorithm create: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Repository) Update(
 	ctx context.Context,
-	featureAlgorithm domain.FeatureAlgorithmDTO,
+	featureAlgorithm domain.FeatureAlgorithm,
 ) error {
 	executor := r.getExecutor(ctx)
+
+	// Read old state for audit within the same transaction.
+	oldFeatAlg, err := r.GetByID(ctx, featureAlgorithm.ID)
+	if err != nil {
+		return fmt.Errorf("get feature_algorithm before update: %w", err)
+	}
 
 	const query = `
 UPDATE feature_algorithms
@@ -69,7 +98,7 @@ WHERE
 	feature_id = $4 AND
 	environment_id = $5`
 
-	_, err := executor.Exec(
+	_, err = executor.Exec(
 		ctx,
 		query,
 		featureAlgorithm.Settings,
@@ -78,22 +107,63 @@ WHERE
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
 	)
+	if err != nil {
+		return fmt.Errorf("update feature_algorithm: %w", err)
+	}
 
-	return err
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		featureAlgorithm.ProjectID,
+		featureAlgorithm.FeatureID,
+		domain.EntityFeatureAlgorithm,
+		featureAlgorithm.ID.String(),
+		domain.AuditActionUpdate,
+		oldFeatAlg,
+		featureAlgorithm,
+		featureAlgorithm.EnvironmentID,
+	); err != nil {
+		return fmt.Errorf("audit feature_algorithm create: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Repository) Delete(
 	ctx context.Context,
-	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
+	id domain.FeatureAlgorithmID,
 ) error {
 	executor := r.getExecutor(ctx)
 
-	const query = `DELETE FROM feature_algorithms WHERE feature_id = $1 AND environment_id = $2`
+	// Read old state for audit within the same transaction.
+	oldFeatAlg, err := r.GetByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("get feature_algorithm before update: %w", err)
+	}
 
-	_, err := executor.Exec(ctx, query, featureID, envID)
+	const query = `DELETE FROM feature_algorithms WHERE id = $1`
 
-	return err
+	_, err = executor.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		oldFeatAlg.ProjectID,
+		oldFeatAlg.FeatureID,
+		domain.EntityFeatureAlgorithm,
+		id.String(),
+		domain.AuditActionDelete,
+		oldFeatAlg,
+		nil,
+		oldFeatAlg.EnvironmentID,
+	); err != nil {
+		return fmt.Errorf("audit feature_algorithm create: %w", err)
+	}
+
+	return nil
 }
 
 func (r *Repository) ListByFeatureID(
@@ -121,6 +191,25 @@ func (r *Repository) ListByFeatureID(
 	}
 
 	return result, nil
+}
+
+func (r *Repository) GetByID(ctx context.Context, id domain.FeatureAlgorithmID) (domain.FeatureAlgorithm, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM feature_algorithms WHERE id = $1`
+
+	rows, err := executor.Query(ctx, query, id)
+	if err != nil {
+		return domain.FeatureAlgorithm{}, err
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureAlgorithmModel])
+	if err != nil {
+		return domain.FeatureAlgorithm{}, fmt.Errorf("collect feature_algorithms rows: %w", err)
+	}
+
+	return model.toDomain(), nil
 }
 
 func (r *Repository) ListByFeatureIDWithEnvID(

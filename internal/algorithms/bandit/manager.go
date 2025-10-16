@@ -49,6 +49,7 @@ type BanditManager struct {
 	featureVariantsRepo   contract.FlagVariantsRepository
 	statsRepo             contract.FeatureAlgorithmStatsRepository
 	featuresUseCase       contract.FeaturesUseCase
+	envsUseCase           contract.EnvironmentsUseCase
 }
 
 func New(
@@ -56,6 +57,7 @@ func New(
 	featureVariantsRepo contract.FlagVariantsRepository,
 	statsRepo contract.FeatureAlgorithmStatsRepository,
 	featuresUseCase contract.FeaturesUseCase,
+	envsUseCase contract.EnvironmentsUseCase,
 ) (*BanditManager, error) {
 	mngr := &BanditManager{
 		state:                 make(map[StateKey]*AlgorithmState),
@@ -65,6 +67,7 @@ func New(
 		featureVariantsRepo:   featureVariantsRepo,
 		statsRepo:             statsRepo,
 		featuresUseCase:       featuresUseCase,
+		envsUseCase:           envsUseCase,
 		stopCh:                make(chan struct{}),
 	}
 
@@ -84,7 +87,7 @@ func (m *BanditManager) Start(context.Context) error {
 func (m *BanditManager) Stop(context.Context) error {
 	close(m.stopCh)
 
-	if err := m.flushAllToDB(); err != nil {
+	if err := m.flushAllToDB(); err != nil { //nolint:contextcheck // false positive
 		slog.Error("bandit: failed flush", "error", err)
 	}
 
@@ -306,17 +309,26 @@ func (m *BanditManager) flushAllToDB() error {
 			return fmt.Errorf("get feature: %w", err)
 		}
 
+		env, err := m.envsUseCase.GetByIDCached(ctx, feature.EnvironmentID)
+		if err != nil {
+			return fmt.Errorf("get env: %w", err)
+		}
+
 		algState.mu.RLock()
 		for variant, variantStats := range algState.Variants {
 			records = append(records, domain.FeatureAlgorithmStats{
-				FeatureID:     feature.ID,
-				EnvironmentID: feature.EnvironmentID,
-				AlgorithmSlug: algState.AlgorithmType.Slug(),
-				VariantKey:    variant,
-				Evaluations:   variantStats.Evaluations,
-				Successes:     variantStats.Successes,
-				Failures:      variantStats.Failures,
-				MetricSum:     variantStats.MetricSum,
+				ProjectID:      feature.ProjectID,
+				EnvironmentID:  feature.EnvironmentID,
+				FeatureID:      feature.ID,
+				AlgorithmSlug:  algState.AlgorithmType.Slug(),
+				VariantKey:     variant,
+				FeatureKey:     feature.Key,
+				EnvironmentKey: env.Key,
+				Evaluations:    variantStats.Evaluations,
+				Successes:      variantStats.Successes,
+				Failures:       variantStats.Failures,
+				MetricSum:      variantStats.MetricSum,
+				UpdatedAt:      time.Time{},
 			})
 		}
 		algState.mu.RUnlock()

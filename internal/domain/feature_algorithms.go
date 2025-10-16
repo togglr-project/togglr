@@ -6,14 +6,18 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type FeatureAlgorithmID string
+
 type FeatureAlgorithm struct {
-	EnvironmentID EnvironmentID
-	FeatureID     FeatureID
-	AlgorithmSlug string
-	Settings      map[string]decimal.Decimal
-	Enabled       bool
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
+	ID            FeatureAlgorithmID         `db:"id"`
+	ProjectID     ProjectID                  `db:"project_id"`
+	EnvironmentID EnvironmentID              `db:"environment_id"`
+	FeatureID     FeatureID                  `db:"feature_id"`
+	AlgorithmSlug string                     `db:"algorithm_slug" editable:"true"`
+	Settings      map[string]decimal.Decimal `db:"settings"       editable:"true"`
+	Enabled       bool                       `db:"enabled"        editable:"true"`
+	CreatedAt     time.Time                  `db:"created_at"`
+	UpdatedAt     time.Time                  `db:"updated_at"`
 }
 
 type FeatureAlgorithmExtended struct {
@@ -23,9 +27,14 @@ type FeatureAlgorithmExtended struct {
 }
 
 type FeatureAlgorithmDTO struct {
+	ProjectID     ProjectID
 	EnvironmentID EnvironmentID
 	FeatureID     FeatureID
 	AlgorithmSlug string
 	Enabled       bool
 	Settings      map[string]decimal.Decimal
+}
+
+func (id FeatureAlgorithmID) String() string {
+	return string(id)
 }

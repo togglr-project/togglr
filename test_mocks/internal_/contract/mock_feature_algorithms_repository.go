@@ -96,16 +96,16 @@ func (_c *MockFeatureAlgorithmsRepository_Create_Call) RunAndReturn(run func(ctx
 }
 
 // Delete provides a mock function for the type MockFeatureAlgorithmsRepository
-func (_mock *MockFeatureAlgorithmsRepository) Delete(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) error {
-	ret := _mock.Called(ctx, featureID, envID)
+func (_mock *MockFeatureAlgorithmsRepository) Delete(ctx context.Context, id domain.FeatureAlgorithmID) error {
+	ret := _mock.Called(ctx, id)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Delete")
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureID, domain.EnvironmentID) error); ok {
-		r0 = returnFunc(ctx, featureID, envID)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureAlgorithmID) error); ok {
+		r0 = returnFunc(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -119,30 +119,24 @@ type MockFeatureAlgorithmsRepository_Delete_Call struct {
 
 // Delete is a helper method to define mock.On call
 //   - ctx context.Context
-//   - featureID domain.FeatureID
-//   - envID domain.EnvironmentID
-func (_e *MockFeatureAlgorithmsRepository_Expecter) Delete(ctx interface{}, featureID interface{}, envID interface{}) *MockFeatureAlgorithmsRepository_Delete_Call {
-	return &MockFeatureAlgorithmsRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, featureID, envID)}
+//   - id domain.FeatureAlgorithmID
+func (_e *MockFeatureAlgorithmsRepository_Expecter) Delete(ctx interface{}, id interface{}) *MockFeatureAlgorithmsRepository_Delete_Call {
+	return &MockFeatureAlgorithmsRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
 }
 
-func (_c *MockFeatureAlgorithmsRepository_Delete_Call) Run(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID)) *MockFeatureAlgorithmsRepository_Delete_Call {
+func (_c *MockFeatureAlgorithmsRepository_Delete_Call) Run(run func(ctx context.Context, id domain.FeatureAlgorithmID)) *MockFeatureAlgorithmsRepository_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.FeatureID
+		var arg1 domain.FeatureAlgorithmID
 		if args[1] != nil {
-			arg1 = args[1].(domain.FeatureID)
-		}
-		var arg2 domain.EnvironmentID
-		if args[2] != nil {
-			arg2 = args[2].(domain.EnvironmentID)
+			arg1 = args[1].(domain.FeatureAlgorithmID)
 		}
 		run(
 			arg0,
 			arg1,
-			arg2,
 		)
 	})
 	return _c
@@ -153,7 +147,73 @@ func (_c *MockFeatureAlgorithmsRepository_Delete_Call) Return(err error) *MockFe
 	return _c
 }
 
-func (_c *MockFeatureAlgorithmsRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, featureID domain.FeatureID, envID domain.EnvironmentID) error) *MockFeatureAlgorithmsRepository_Delete_Call {
+func (_c *MockFeatureAlgorithmsRepository_Delete_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureAlgorithmID) error) *MockFeatureAlgorithmsRepository_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetByID provides a mock function for the type MockFeatureAlgorithmsRepository
+func (_mock *MockFeatureAlgorithmsRepository) GetByID(ctx context.Context, id domain.FeatureAlgorithmID) (domain.FeatureAlgorithm, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByID")
+	}
+
+	var r0 domain.FeatureAlgorithm
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureAlgorithmID) (domain.FeatureAlgorithm, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureAlgorithmID) domain.FeatureAlgorithm); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.FeatureAlgorithm)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.FeatureAlgorithmID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureAlgorithmsRepository_GetByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByID'
+type MockFeatureAlgorithmsRepository_GetByID_Call struct {
+	*mock.Call
+}
+
+// GetByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.FeatureAlgorithmID
+func (_e *MockFeatureAlgorithmsRepository_Expecter) GetByID(ctx interface{}, id interface{}) *MockFeatureAlgorithmsRepository_GetByID_Call {
+	return &MockFeatureAlgorithmsRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
+}
+
+func (_c *MockFeatureAlgorithmsRepository_GetByID_Call) Run(run func(ctx context.Context, id domain.FeatureAlgorithmID)) *MockFeatureAlgorithmsRepository_GetByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.FeatureAlgorithmID
+		if args[1] != nil {
+			arg1 = args[1].(domain.FeatureAlgorithmID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmsRepository_GetByID_Call) Return(featureAlgorithm domain.FeatureAlgorithm, err error) *MockFeatureAlgorithmsRepository_GetByID_Call {
+	_c.Call.Return(featureAlgorithm, err)
+	return _c
+}
+
+func (_c *MockFeatureAlgorithmsRepository_GetByID_Call) RunAndReturn(run func(ctx context.Context, id domain.FeatureAlgorithmID) (domain.FeatureAlgorithm, error)) *MockFeatureAlgorithmsRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -487,7 +547,7 @@ func (_c *MockFeatureAlgorithmsRepository_ListEnabled_Call) RunAndReturn(run fun
 }
 
 // Update provides a mock function for the type MockFeatureAlgorithmsRepository
-func (_mock *MockFeatureAlgorithmsRepository) Update(ctx context.Context, featureAlgorithm domain.FeatureAlgorithmDTO) error {
+func (_mock *MockFeatureAlgorithmsRepository) Update(ctx context.Context, featureAlgorithm domain.FeatureAlgorithm) error {
 	ret := _mock.Called(ctx, featureAlgorithm)
 
 	if len(ret) == 0 {
@@ -495,7 +555,7 @@ func (_mock *MockFeatureAlgorithmsRepository) Update(ctx context.Context, featur
 	}
 
 	var r0 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureAlgorithmDTO) error); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.FeatureAlgorithm) error); ok {
 		r0 = returnFunc(ctx, featureAlgorithm)
 	} else {
 		r0 = ret.Error(0)
@@ -510,20 +570,20 @@ type MockFeatureAlgorithmsRepository_Update_Call struct {
 
 // Update is a helper method to define mock.On call
 //   - ctx context.Context
-//   - featureAlgorithm domain.FeatureAlgorithmDTO
+//   - featureAlgorithm domain.FeatureAlgorithm
 func (_e *MockFeatureAlgorithmsRepository_Expecter) Update(ctx interface{}, featureAlgorithm interface{}) *MockFeatureAlgorithmsRepository_Update_Call {
 	return &MockFeatureAlgorithmsRepository_Update_Call{Call: _e.mock.On("Update", ctx, featureAlgorithm)}
 }
 
-func (_c *MockFeatureAlgorithmsRepository_Update_Call) Run(run func(ctx context.Context, featureAlgorithm domain.FeatureAlgorithmDTO)) *MockFeatureAlgorithmsRepository_Update_Call {
+func (_c *MockFeatureAlgorithmsRepository_Update_Call) Run(run func(ctx context.Context, featureAlgorithm domain.FeatureAlgorithm)) *MockFeatureAlgorithmsRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
 			arg0 = args[0].(context.Context)
 		}
-		var arg1 domain.FeatureAlgorithmDTO
+		var arg1 domain.FeatureAlgorithm
 		if args[1] != nil {
-			arg1 = args[1].(domain.FeatureAlgorithmDTO)
+			arg1 = args[1].(domain.FeatureAlgorithm)
 		}
 		run(
 			arg0,
@@ -538,7 +598,7 @@ func (_c *MockFeatureAlgorithmsRepository_Update_Call) Return(err error) *MockFe
 	return _c
 }
 
-func (_c *MockFeatureAlgorithmsRepository_Update_Call) RunAndReturn(run func(ctx context.Context, featureAlgorithm domain.FeatureAlgorithmDTO) error) *MockFeatureAlgorithmsRepository_Update_Call {
+func (_c *MockFeatureAlgorithmsRepository_Update_Call) RunAndReturn(run func(ctx context.Context, featureAlgorithm domain.FeatureAlgorithm) error) *MockFeatureAlgorithmsRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

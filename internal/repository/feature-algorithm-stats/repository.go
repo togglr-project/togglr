@@ -76,9 +76,9 @@ func (r *Repository) InsertBatch(ctx context.Context, records []domain.FeatureAl
 
 	const query = `
 INSERT INTO monitoring.feature_algorithm_stats
-(feature_id, environment_id, algorithm_slug, variant_key,
+(project_id, feature_id, environment_id, algorithm_slug, variant_key, feature_key, environment_key,
 	evaluations, successes, failures, metric_sum, updated_at)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW())
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())
 ON CONFLICT (feature_id, environment_id, algorithm_slug, variant_key) DO UPDATE SET
 	evaluations = EXCLUDED.evaluations,
 	successes   = EXCLUDED.successes,
@@ -93,7 +93,8 @@ ON CONFLICT (feature_id, environment_id, algorithm_slug, variant_key) DO UPDATE 
 			continue
 		}
 
-		batch.Queue(query, record.FeatureID, record.EnvironmentID, record.AlgorithmSlug, record.VariantKey,
+		batch.Queue(query, record.ProjectID, record.FeatureID, record.EnvironmentID, record.AlgorithmSlug,
+			record.VariantKey, record.FeatureKey, record.EnvironmentKey,
 			record.Evaluations, record.Successes, record.Failures, record.MetricSum)
 	}
 
