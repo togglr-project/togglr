@@ -272,7 +272,7 @@ func (m *BanditManager) Watch(ctx context.Context) error {
 					if err := m.removeFeatureFromState(
 						ctx,
 						key.featureID,
-						key.envID,
+						key.envKey,
 					); err != nil {
 						slog.Error("Bandit Manager: delete feature from state failed",
 							"featureID", key.featureID, "env", key.envKey, "err", err)
@@ -402,23 +402,21 @@ func (m *BanditManager) loadState() error {
 func (m *BanditManager) removeFeatureFromState(
 	ctx context.Context,
 	featureID domain.FeatureID,
-	envID domain.EnvironmentID,
+	envKey string,
 ) error {
-	records, err := m.featureAlgorithmsRepo.ListExtendedByFeatureIDWithEnvID(ctx, featureID, envID)
+	feature, err := m.featuresUseCase.GetByIDWithEnv(ctx, featureID, envKey)
 	if err != nil {
 		return fmt.Errorf("find feature algorithms: %w", err)
 	}
 
-	for _, record := range records {
-		key := StateKey{
-			FeatureKey: record.FeatureKey,
-			EnvKey:     record.EnvKey,
-		}
-
-		m.mu.Lock()
-		delete(m.state, key)
-		m.mu.Unlock()
+	key := StateKey{
+		FeatureKey: feature.Key,
+		EnvKey:     envKey,
 	}
+
+	m.mu.Lock()
+	delete(m.state, key)
+	m.mu.Unlock()
 
 	return nil
 }
