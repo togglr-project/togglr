@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -117,7 +118,9 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 			}
 
 			// Log other errors
-			slog.Error("ws socket client error", "error", err)
+			if !strings.Contains(err.Error(), "close 1005 (no status)") {
+				slog.Error("ws socket client error", "error", err)
+			}
 
 			return
 		}
