@@ -14,7 +14,6 @@ services:
       - FRONTEND_URL=http://togglr-frontend
       - SSL_CERT=${SSL_CERT}
       - SSL_CERT_KEY=${SSL_CERT_KEY}
-      - SECURE_LINK_MD5=${SECURE_LINK_MD5}
     volumes:
       - "/opt/togglr/nginx/ssl:/etc/nginx/ssl"
     depends_on:
@@ -51,14 +50,12 @@ services:
     ports:
        - "8081:8081"
     env_file:
-      - compose.env
+      - config.env
     command: ["/bin/app", "server"]
     depends_on:
       togglr-postgresql:
         condition: service_healthy
       togglr-nats:
-        condition: service_healthy
-      togglr-mailhog:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "--silent", "http://localhost:8081/health"]
@@ -72,16 +69,16 @@ services:
     container_name: togglr-postgresql
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: db
+      POSTGRES_USER: togglr
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: togglr
       PGDATA: /var/lib/postgresql/data/main
     volumes:
       - "/opt/togglr/postgresql:/var/lib/postgresql/data/main"
 #    ports:
 #      - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "PG_PASSWORD=password pg_isready -U user -d db"]
+      test: ["CMD-SHELL", "PG_PASSWORD=${DB_PASSWORD} pg_isready -U togglr -d togglr"]
       interval: 10s
       timeout: 5s
       retries: 5
