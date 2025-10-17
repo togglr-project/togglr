@@ -90,8 +90,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check if token exists and is valid on mount
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('[AuthContext] Checking authentication on mount...');
       const accessToken = localStorage.getItem('accessToken');
-      if (!accessToken) return;
+      if (!accessToken) {
+        console.log('[AuthContext] No access token found');
+        return;
+      }
 
       try {
         // Check if token is expired
@@ -99,21 +103,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const currentTime = Date.now() / 1000;
 
         if (decoded.exp && decoded.exp < currentTime) {
+          console.log('[AuthContext] Token expired, trying to refresh...');
           // Token is expired, try to refresh
           await refreshToken();
         } else {
+          console.log('[AuthContext] Token is valid, setting authenticated...');
           // Token is valid
           setIsAuthenticated(true);
 
           try {
             const userData = await apiClient.getCurrentUser();
             setUser(userData.data);
+            console.log('[AuthContext] User data fetched successfully');
           } catch (error) {
-            console.error('Failed to fetch user data:', error);
+            console.error('[AuthContext] Failed to fetch user data:', error);
           }
         }
       } catch (error) {
-        console.error('Invalid token:', error);
+        console.error('[AuthContext] Invalid token:', error);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
       }

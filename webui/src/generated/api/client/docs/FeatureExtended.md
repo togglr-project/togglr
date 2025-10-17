@@ -21,6 +21,7 @@ Name | Type | Description | Notes
 **next_state_time** | **string** | Timestamp when the feature will transition to the next state (null if no schedule) | [optional] [default to undefined]
 **health_status** | **string** |  | [default to undefined]
 **tags** | [**Array&lt;ProjectTag&gt;**](ProjectTag.md) | Tags associated with this feature | [optional] [default to undefined]
+**algorithms** | [**Array&lt;FeatureAlgorithm&gt;**](FeatureAlgorithm.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -44,6 +45,7 @@ const instance: FeatureExtended = {
     next_state_time,
     health_status,
     tags,
+    algorithms,
 };
 ```
 

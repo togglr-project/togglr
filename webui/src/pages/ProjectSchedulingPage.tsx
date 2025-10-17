@@ -56,6 +56,7 @@ import { canAddRecurringSchedule, canAddOneShotSchedule, getScheduleType } from 
 import type { ScheduleBuilderData } from '../utils/cronGenerator';
 import type { FeatureExtended, FeatureSchedule, FeatureScheduleAction, Project, ListProjectFeaturesKindEnum, ListProjectFeaturesSortByEnum, SortOrder, ListFeaturesResponse, FeatureTimelineResponse, FeatureTimelineEvent, ProjectTag } from '../generated/api/client';
 import { getHealthStatusColor, getHealthStatusVariant } from '../utils/healthStatus';
+import { getFirstEnabledAlgorithmSlug } from '../utils/algorithmUtils';
 import { isValidCron } from 'cron-validator';
 import cronstrue from 'cronstrue';
 import { listTimeZones, findTimeZone, getZonedTime, getUTCOffset } from 'timezone-support';
@@ -712,6 +713,14 @@ const ProjectSchedulingPage: React.FC = () => {
                     />
                   )}
                   <Chip size="small" label={`default: ${f.default_value}`} />
+                  {getFirstEnabledAlgorithmSlug(f.algorithms) && (
+                    <Chip 
+                      size="small" 
+                      label={`Algorithm: ${getFirstEnabledAlgorithmSlug(f.algorithms)}`}
+                      color="info"
+                      variant="outlined"
+                    />
+                  )}
                   <Chip size="small" label={f.is_active ? 'active' : 'not active'} color={f.is_active ? 'success' : 'default'} />
                 </Box>
               </Box>

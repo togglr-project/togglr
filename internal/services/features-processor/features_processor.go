@@ -43,6 +43,7 @@ type Service struct {
 	projectsUC       contract.ProjectsUseCase
 	environmentsRepo contract.EnvironmentsRepository
 	auditRepo        contract.AuditLogRepository
+	algProcessor     contract.AlgorithmsProcessor
 	pollInterval     time.Duration
 	lastSeen         time.Time
 
@@ -57,6 +58,7 @@ func New(
 	projectsUC contract.ProjectsUseCase,
 	environmentsRepo contract.EnvironmentsRepository,
 	auditRepo contract.AuditLogRepository,
+	algProcessor contract.AlgorithmsProcessor,
 	pollInterval time.Duration,
 ) *Service {
 	if pollInterval <= 0 {
@@ -69,6 +71,7 @@ func New(
 		projectsUC:       projectsUC,
 		environmentsRepo: environmentsRepo,
 		auditRepo:        auditRepo,
+		algProcessor:     algProcessor,
 		pollInterval:     pollInterval,
 		stopChan:         make(chan struct{}),
 		nowFunc:          time.Now, // дефолтная функция времени
@@ -222,10 +225,7 @@ func (s *Service) Watch(ctx context.Context) error {
 
 			for key, action := range changes {
 				if action == domain.AuditActionDelete {
-					ctxRm, cancel := context.WithTimeout(ctx, time.Second*5)
-					defer cancel()
-
-					s.removeFeatureFromHolder(ctxRm, key.projectID, key.featureID, key.envKey)
+					s.removeFeatureFromHolder(ctx, key.projectID, key.featureID, key.envKey)
 
 					continue
 				}
@@ -264,6 +264,10 @@ func (s *Service) Evaluate(
 	hasInclude := false
 
 	for _, rule := range feature.Rules {
+		if rule.Action == domain.RuleActionInclude {
+			hasInclude = true
+		}
+
 		if !EvaluateExpression(rule.Conditions, reqCtx) {
 			continue
 		}
@@ -276,18 +280,17 @@ func (s *Service) Evaluate(
 			if bestAssign == nil || rule.Priority < bestAssign.Priority {
 				bestAssign = &rule
 			}
-
 		case domain.RuleActionInclude:
-			hasInclude = true
-
 			if bestInclude == nil || rule.Priority < bestInclude.Priority {
 				bestInclude = &rule
 			}
 		}
 	}
 
+	hasAlg := s.algProcessor.HasAlgorithm(featureKey, envKey)
+
 	// assign -> сильнее include
-	if bestAssign != nil {
+	if bestAssign != nil && !hasAlg {
 		if bestAssign.FlagVariantID != nil {
 			if variant, ok := findVariantByID(feature.FlagVariants, *bestAssign.FlagVariantID); ok {
 				return variant.Name, true, true
@@ -297,14 +300,25 @@ func (s *Service) Evaluate(
 		return feature.DefaultValue, true, true
 	}
 
-	// если были include-правила
-	if hasInclude {
-		// но не нашли подходящего -> значит фича выключена
-		if bestInclude == nil {
-			return "", false, true
-		}
+	// если были include-правила, но не нашли подходящего -> значит фича выключена
+	if hasInclude && bestInclude == nil {
+		return "", false, true
+	}
 
-		// есть include -> идём в rollout
+	if hasAlg {
+		var success bool
+		value, success = s.algProcessor.EvaluateFeature(featureKey, envKey)
+		if !success {
+			// Если алгоритм вернул ошибку, используем fallback
+			value = rolloutOrDefault(
+				feature.Kind,
+				feature.FlagVariants,
+				feature.RolloutKey,
+				reqCtx,
+				feature.DefaultValue,
+			)
+		}
+	} else {
 		value = rolloutOrDefault(
 			feature.Kind,
 			feature.FlagVariants,
@@ -312,18 +326,7 @@ func (s *Service) Evaluate(
 			reqCtx,
 			feature.DefaultValue,
 		)
-
-		return value, true, true
 	}
-
-	// нет include -> обычный rollout
-	value = rolloutOrDefault(
-		feature.Kind,
-		feature.FlagVariants,
-		feature.RolloutKey,
-		reqCtx,
-		feature.DefaultValue,
-	)
 
 	return value, true, true
 }

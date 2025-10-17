@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/togglr-project/togglr/internal/domain"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 )
 
 func TestBuildFeatureTimeline(t *testing.T) {
@@ -132,7 +133,8 @@ func TestBuildFeatureTimeline(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, nil, 0)
+			algProcMock := mockcontract.NewMockAlgorithmsProcessor(t)
+			svc := New(nil, nil, nil, nil, algProcMock, 0)
 			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err)
 			assert.Len(t, got, len(tt.wantTimes), "unexpected number of events")
@@ -263,7 +265,8 @@ func TestBuildFeatureTimeline_BaselineLogic(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, nil, 0)
+			algProcMock := mockcontract.NewMockAlgorithmsProcessor(t)
+			svc := New(nil, nil, nil, nil, algProcMock, 0)
 			got, err := svc.BuildFeatureTimeline(tt.feature, tt.from, tt.to)
 			assert.NoError(t, err, tt.desc)
 			assert.Len(t, got, len(tt.wantTimes), "unexpected number of events: %s", tt.desc)

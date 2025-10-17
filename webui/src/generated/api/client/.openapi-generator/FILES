@@ -6,6 +6,7 @@ common.ts
 configuration.ts
 docs/AddFeatureTagRequest.md
 docs/AddProjectRequest.md
+docs/Algorithm.md
 docs/ApprovePendingChangeRequest.md
 docs/AuditAction.md
 docs/AuditLog.md
@@ -20,6 +21,7 @@ docs/ChangeUserPasswordRequest.md
 docs/ChangeValue.md
 docs/CreateCategoryRequest.md
 docs/CreateEnvironmentRequest.md
+docs/CreateFeatureAlgorithmRequest.md
 docs/CreateFeatureRequest.md
 docs/CreateFeatureScheduleRequest.md
 docs/CreateFlagVariantInline.md
@@ -56,6 +58,7 @@ docs/ErrorPermissionDenied.md
 docs/ErrorTooManyRequests.md
 docs/ErrorUnauthorized.md
 docs/Feature.md
+docs/FeatureAlgorithm.md
 docs/FeatureDetailsResponse.md
 docs/FeatureExtended.md
 docs/FeatureKind.md
@@ -85,8 +88,10 @@ docs/LDAPSyncLogs.md
 docs/LDAPSyncProgress.md
 docs/LDAPSyncStartResponse.md
 docs/LDAPSyncStatus.md
+docs/ListAlgorithmsResponse.md
 docs/ListChangesResponse.md
 docs/ListEnvironmentsResponse.md
+docs/ListFeatureAlgorithmsResponse.md
 docs/ListFeaturesResponse.md
 docs/ListNotificationSettingsResponse.md
 docs/ListProjectAuditLogs200Response.md
@@ -152,6 +157,7 @@ docs/TwoFAVerifyResponse.md
 docs/UnreadCountResponse.md
 docs/UpdateCategoryRequest.md
 docs/UpdateEnvironmentRequest.md
+docs/UpdateFeatureAlgorithmRequest.md
 docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
 docs/UpdateMembershipRequest.md

@@ -18,6 +18,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
 import ProjectSchedulingPage from './pages/ProjectSchedulingPage';
 import ProjectSegmentsPage from './pages/ProjectSegmentsPage';
+import ProjectExperimentsPage from './pages/ProjectExperimentsPage';
 import ProjectSettingsPage from './pages/ProjectSettingsPage';
 import ProjectsPage from './pages/ProjectsPage';
 import CategoriesPage from './pages/CategoriesPage';
@@ -311,6 +312,7 @@ function App() {
                         <Route path="/projects/:projectId" element={<LicenseGuard><ProjectPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/scheduling" element={<LicenseGuard><ProjectSchedulingPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/segments" element={<LicenseGuard><ProjectSegmentsPage /></LicenseGuard>} />
+                        <Route path="/projects/:projectId/experiments" element={<LicenseGuard><ProjectExperimentsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/tags" element={<LicenseGuard><ProjectTagsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/permissions" element={<LicenseGuard><ProjectPermissionsPage /></LicenseGuard>} />
                         <Route path="/projects/:projectId/pending-changes" element={<LicenseGuard><PendingChangesPage /></LicenseGuard>} />

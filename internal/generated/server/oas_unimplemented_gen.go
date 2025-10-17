@@ -107,6 +107,15 @@ func (UnimplementedHandler) CreateEnvironment(ctx context.Context, req *CreateEn
 	return r, ht.ErrNotImplemented
 }
 
+// CreateFeatureAlgorithm implements CreateFeatureAlgorithm operation.
+//
+// Create or attach algorithm to feature in environment.
+//
+// POST /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (UnimplementedHandler) CreateFeatureAlgorithm(ctx context.Context, req *CreateFeatureAlgorithmRequest, params CreateFeatureAlgorithmParams) (r CreateFeatureAlgorithmRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
 //
 // Create flag variant for feature.
@@ -230,6 +239,15 @@ func (UnimplementedHandler) DeleteEnvironment(ctx context.Context, params Delete
 //
 // DELETE /api/v1/features/{feature_id}
 func (UnimplementedHandler) DeleteFeature(ctx context.Context, params DeleteFeatureParams) (r DeleteFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// DeleteFeatureAlgorithm implements DeleteFeatureAlgorithm operation.
+//
+// Delete feature algorithm from feature.
+//
+// DELETE /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (UnimplementedHandler) DeleteFeatureAlgorithm(ctx context.Context, params DeleteFeatureAlgorithmParams) (r DeleteFeatureAlgorithmRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -389,6 +407,15 @@ func (UnimplementedHandler) GetEnvironment(ctx context.Context, params GetEnviro
 //
 // GET /api/v1/features/{feature_id}
 func (UnimplementedHandler) GetFeature(ctx context.Context, params GetFeatureParams) (r GetFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// GetFeatureAlgorithm implements GetFeatureAlgorithm operation.
+//
+// Get algorithm configuration for a feature in environment.
+//
+// GET /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (UnimplementedHandler) GetFeatureAlgorithm(ctx context.Context, params GetFeatureAlgorithmParams) (r GetFeatureAlgorithmRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -581,6 +608,15 @@ func (UnimplementedHandler) InitiateTOTPApproval(ctx context.Context, req *Initi
 	return r, ht.ErrNotImplemented
 }
 
+// ListAlgorithms implements ListAlgorithms operation.
+//
+// List of algorithms.
+//
+// GET /api/v1/algorithms
+func (UnimplementedHandler) ListAlgorithms(ctx context.Context) (r ListAlgorithmsRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 //
 // List all feature schedules.
@@ -596,6 +632,15 @@ func (UnimplementedHandler) ListAllFeatureSchedules(ctx context.Context) (r List
 //
 // GET /api/v1/categories
 func (UnimplementedHandler) ListCategories(ctx context.Context) (r ListCategoriesRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// ListFeatureAlgorithms implements ListFeatureAlgorithms operation.
+//
+// List feature algorithms for a feature.
+//
+// GET /api/v1/projects/{project_id}/feature-algorithms
+func (UnimplementedHandler) ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (r ListFeatureAlgorithmsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -992,6 +1037,15 @@ func (UnimplementedHandler) UpdateEnvironment(ctx context.Context, req *UpdateEn
 //
 // PUT /api/v1/features/{feature_id}
 func (UnimplementedHandler) UpdateFeature(ctx context.Context, req *CreateFeatureRequest, params UpdateFeatureParams) (r UpdateFeatureRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// UpdateFeatureAlgorithm implements UpdateFeatureAlgorithm operation.
+//
+// Update feature algorithm configuration.
+//
+// PATCH /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (UnimplementedHandler) UpdateFeatureAlgorithm(ctx context.Context, req *UpdateFeatureAlgorithmRequest, params UpdateFeatureAlgorithmParams) (r UpdateFeatureAlgorithmRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

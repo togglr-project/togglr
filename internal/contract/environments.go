@@ -9,6 +9,7 @@ import (
 type EnvironmentsUseCase interface {
 	Create(ctx context.Context, projectID domain.ProjectID, key, name string) (domain.Environment, error)
 	GetByID(ctx context.Context, id domain.EnvironmentID) (domain.Environment, error)
+	GetByIDCached(ctx context.Context, id domain.EnvironmentID) (domain.Environment, error)
 	GetByProjectIDAndKey(ctx context.Context, projectID domain.ProjectID, key string) (domain.Environment, error)
 	ListByProjectID(ctx context.Context, projectID domain.ProjectID) ([]domain.Environment, error)
 	Update(ctx context.Context, id domain.EnvironmentID, name string) (domain.Environment, error)

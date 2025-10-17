@@ -25,13 +25,14 @@ const (
 type EntityType string
 
 const (
-	EntityFeature         EntityType = "feature"
-	EntityRule            EntityType = "rule"
-	EntityFlagVariant     EntityType = "flag_variant"
-	EntityFeatureSchedule EntityType = "feature_schedule"
-	EntityEnvironment     EntityType = "environment"
-	EntityFeatureParams   EntityType = "feature_params"
-	EntityFeatureTag      EntityType = "feature_tag"
+	EntityFeature          EntityType = "feature"
+	EntityRule             EntityType = "rule"
+	EntityFlagVariant      EntityType = "flag_variant"
+	EntityFeatureSchedule  EntityType = "feature_schedule"
+	EntityEnvironment      EntityType = "environment"
+	EntityFeatureParams    EntityType = "feature_params"
+	EntityFeatureTag       EntityType = "feature_tag"
+	EntityFeatureAlgorithm EntityType = "feature_algorithm"
 )
 
 type AuditLogID uint64

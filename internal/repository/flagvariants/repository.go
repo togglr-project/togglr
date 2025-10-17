@@ -122,6 +122,42 @@ func (r *Repository) List(ctx context.Context) ([]domain.FlagVariant, error) {
 	return items, nil
 }
 
+func (r *Repository) ListExtended(ctx context.Context) ([]domain.FlagVariantExtended, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `
+SELECT fv.id,
+       fv.project_id,
+       fv.feature_id,
+       fv.environment_id,
+       fv.name,
+       fv.rollout_percent,
+       e.key AS env_key,
+       f.key AS feature_key
+FROM flag_variants fv
+INNER JOIN public.environments e on e.id = fv.environment_id
+Inner join public.features f on f.id = fv.feature_id
+ORDER BY name`
+
+	rows, err := executor.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("query flag_variants: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[flagVariantExtModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect flag_variant rows: %w", err)
+	}
+
+	items := make([]domain.FlagVariantExtended, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	return items, nil
+}
+
 func (r *Repository) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FlagVariant, error) {
 	executor := r.getExecutor(ctx)
 

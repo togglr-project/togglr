@@ -41,6 +41,10 @@ type CreateEnvironmentRes interface {
 	createEnvironmentRes()
 }
 
+type CreateFeatureAlgorithmRes interface {
+	createFeatureAlgorithmRes()
+}
+
 type CreateFeatureFlagVariantRes interface {
 	createFeatureFlagVariantRes()
 }
@@ -91,6 +95,10 @@ type DeleteCategoryRes interface {
 
 type DeleteEnvironmentRes interface {
 	deleteEnvironmentRes()
+}
+
+type DeleteFeatureAlgorithmRes interface {
+	deleteFeatureAlgorithmRes()
 }
 
 type DeleteFeatureRes interface {
@@ -159,6 +167,10 @@ type GetDashboardOverviewRes interface {
 
 type GetEnvironmentRes interface {
 	getEnvironmentRes()
+}
+
+type GetFeatureAlgorithmRes interface {
+	getFeatureAlgorithmRes()
 }
 
 type GetFeatureRes interface {
@@ -249,12 +261,20 @@ type InitiateTOTPApprovalRes interface {
 	initiateTOTPApprovalRes()
 }
 
+type ListAlgorithmsRes interface {
+	listAlgorithmsRes()
+}
+
 type ListAllFeatureSchedulesRes interface {
 	listAllFeatureSchedulesRes()
 }
 
 type ListCategoriesRes interface {
 	listCategoriesRes()
+}
+
+type ListFeatureAlgorithmsRes interface {
+	listFeatureAlgorithmsRes()
 }
 
 type ListFeatureFlagVariantsRes interface {
@@ -427,6 +447,10 @@ type UpdateCategoryRes interface {
 
 type UpdateEnvironmentRes interface {
 	updateEnvironmentRes()
+}
+
+type UpdateFeatureAlgorithmRes interface {
+	updateFeatureAlgorithmRes()
 }
 
 type UpdateFeatureRes interface {

@@ -15,7 +15,7 @@ import (
 
 // ListProjectFeatures handles GET /api/v1/projects/{project_id}/features.
 //
-//nolint:gocognit // fix later
+
 func (r *RestAPI) ListProjectFeatures(
 	ctx context.Context,
 	params generatedapi.ListProjectFeaturesParams,
@@ -114,29 +114,17 @@ func (r *RestAPI) ListProjectFeatures(
 
 	itemsResp := make([]generatedapi.FeatureExtended, 0, len(items))
 
-	for _, it := range items {
+	for _, feature := range items {
 		// Get feature health
-		health, err := r.errorReportsUseCase.GetFeatureHealth(ctx, it.ProjectID, it.Key, environmentKey)
+		health, err := r.errorReportsUseCase.GetFeatureHealth(ctx, feature.ProjectID, feature.Key, environmentKey)
 		if err != nil {
-			slog.Error("get feature health failed", "error", err, "feature_id", it.ID)
+			slog.Error("get feature health failed", "error", err, "feature_id", feature.ID)
 
 			return nil, err
 		}
 
 		// Get next state information
-		nextStateEnabled, nextStateTime := r.featureProcessor.NextState(it)
-
-		// Get feature tags
-		tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, it.ID)
-		if err != nil {
-			slog.Warn("failed to load feature tags", "error", err, "feature_id", it.ID)
-
-			tags = []domain.Tag{} // Continue with empty tags
-		}
-
-		// Create FeatureExtended with tags
-		featureWithTags := it
-		featureWithTags.Tags = tags
+		nextStateEnabled, nextStateTime := r.featureProcessor.NextState(feature)
 
 		// Get next state information
 		var nextStatePtr *bool
@@ -148,12 +136,13 @@ func (r *RestAPI) ListProjectFeatures(
 		}
 
 		featureExtended := dto.DomainFeatureExtendedToAPI(
-			featureWithTags,
-			r.featureProcessor.IsFeatureActive(it),
+			feature,
+			r.featureProcessor.IsFeatureActive(feature),
 			nextStatePtr,
 			nextStateTimePtr,
 			health.Status,
 		)
+
 		itemsResp = append(itemsResp, featureExtended)
 	}
 

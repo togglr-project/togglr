@@ -33,6 +33,7 @@ type Service struct {
 	guardService                contract.GuardService
 	guardEngine                 contract.GuardEngine
 	pendingChangesUseCase       contract.PendingChangesUseCase
+	featureAlgorithmsRepo       contract.FeatureAlgorithmsRepository
 	cache                       *simplecache.Cache[string, domain.Feature]
 }
 
@@ -50,6 +51,7 @@ func New(
 	guardService contract.GuardService,
 	guardEngine contract.GuardEngine,
 	pendingChangesUseCase contract.PendingChangesUseCase,
+	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository,
 ) *Service {
 	cache := simplecache.New[string, domain.Feature]()
 	cache.StartCleanup(time.Minute)
@@ -68,6 +70,7 @@ func New(
 		guardService:                guardService,
 		guardEngine:                 guardEngine,
 		pendingChangesUseCase:       pendingChangesUseCase,
+		featureAlgorithmsRepo:       featureAlgorithmsRepo,
 		cache:                       cache,
 	}
 }
@@ -253,11 +256,23 @@ func (s *Service) GetExtendedByID(
 		return domain.FeatureExtended{}, fmt.Errorf("list schedules: %w", err)
 	}
 
+	tags, err := s.featureTagsRep.ListFeatureTags(ctx, feature.ID)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("list tags: %w", err)
+	}
+
+	algorithms, err := s.featureAlgorithmsRepo.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
+	if err != nil {
+		return domain.FeatureExtended{}, fmt.Errorf("list feature algorithms: %w", err)
+	}
+
 	return domain.FeatureExtended{
 		Feature:      feature,
 		FlagVariants: variants,
 		Rules:        rules,
 		Schedules:    schedules,
+		Tags:         tags,
+		Algorithms:   algorithms,
 	}, nil
 }
 
@@ -357,11 +372,23 @@ func (s *Service) ListExtendedByProjectID(
 			return nil, fmt.Errorf("list schedules: %w", err)
 		}
 
+		tags, err := s.featureTagsRep.ListFeatureTags(ctx, feature.ID)
+		if err != nil {
+			return nil, fmt.Errorf("list tags: %w", err)
+		}
+
+		algorithms, err := s.featureAlgorithmsRepo.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
+		if err != nil {
+			return nil, fmt.Errorf("list feature algorithms: %w", err)
+		}
+
 		result = append(result, domain.FeatureExtended{
 			Feature:      feature,
 			FlagVariants: variants,
 			Rules:        rules,
 			Schedules:    schedules,
+			Tags:         tags,
+			Algorithms:   algorithms,
 		})
 	}
 
@@ -403,11 +430,23 @@ func (s *Service) ListExtendedByProjectIDFiltered(
 			return nil, 0, fmt.Errorf("list schedules: %w", err)
 		}
 
+		tags, err := s.featureTagsRep.ListFeatureTags(ctx, feature.ID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("list tags: %w", err)
+		}
+
+		algorithms, err := s.featureAlgorithmsRepo.ListByFeatureIDWithEnvID(ctx, feature.ID, env.ID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("list feature algorithms: %w", err)
+		}
+
 		result = append(result, domain.FeatureExtended{
 			Feature:      feature,
 			FlagVariants: variants,
 			Rules:        rules,
 			Schedules:    schedules,
+			Tags:         tags,
+			Algorithms:   algorithms,
 		})
 	}
 

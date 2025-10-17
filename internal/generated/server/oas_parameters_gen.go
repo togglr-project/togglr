@@ -342,6 +342,124 @@ func decodeCreateEnvironmentParams(args [1]string, argsEscaped bool, r *http.Req
 	return params, nil
 }
 
+// CreateFeatureAlgorithmParams is parameters of CreateFeatureAlgorithm operation.
+type CreateFeatureAlgorithmParams struct {
+	FeatureID     string
+	EnvironmentID int64
+}
+
+func unpackCreateFeatureAlgorithmParams(packed middleware.Parameters) (params CreateFeatureAlgorithmParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeCreateFeatureAlgorithmParams(args [2]string, argsEscaped bool, r *http.Request) (params CreateFeatureAlgorithmParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // CreateFeatureFlagVariantParams is parameters of CreateFeatureFlagVariant operation.
 type CreateFeatureFlagVariantParams struct {
 	FeatureID      string
@@ -1349,6 +1467,124 @@ func decodeDeleteFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 		return params, &ogenerrors.DecodeParamError{
 			Name: "environment_key",
 			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// DeleteFeatureAlgorithmParams is parameters of DeleteFeatureAlgorithm operation.
+type DeleteFeatureAlgorithmParams struct {
+	FeatureID     string
+	EnvironmentID int64
+}
+
+func unpackDeleteFeatureAlgorithmParams(packed middleware.Parameters) (params DeleteFeatureAlgorithmParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeDeleteFeatureAlgorithmParams(args [2]string, argsEscaped bool, r *http.Request) (params DeleteFeatureAlgorithmParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
 			Err:  err,
 		}
 	}
@@ -2606,6 +2842,124 @@ func decodeGetFeatureParams(args [1]string, argsEscaped bool, r *http.Request) (
 		return params, &ogenerrors.DecodeParamError{
 			Name: "environment_key",
 			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// GetFeatureAlgorithmParams is parameters of GetFeatureAlgorithm operation.
+type GetFeatureAlgorithmParams struct {
+	FeatureID     string
+	EnvironmentID int64
+}
+
+func unpackGetFeatureAlgorithmParams(packed middleware.Parameters) (params GetFeatureAlgorithmParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeGetFeatureAlgorithmParams(args [2]string, argsEscaped bool, r *http.Request) (params GetFeatureAlgorithmParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
 			Err:  err,
 		}
 	}
@@ -4344,6 +4698,117 @@ func decodeInitiateTOTPApprovalParams(args [1]string, argsEscaped bool, r *http.
 		return params, &ogenerrors.DecodeParamError{
 			Name: "pending_change_id",
 			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// ListFeatureAlgorithmsParams is parameters of ListFeatureAlgorithms operation.
+type ListFeatureAlgorithmsParams struct {
+	ProjectID string
+	// Filter by environment key.
+	EnvironmentKey string
+}
+
+func unpackListFeatureAlgorithmsParams(packed middleware.Parameters) (params ListFeatureAlgorithmsParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "project_id",
+			In:   "path",
+		}
+		params.ProjectID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_key",
+			In:   "query",
+		}
+		params.EnvironmentKey = packed[key].(string)
+	}
+	return params
+}
+
+func decodeListFeatureAlgorithmsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListFeatureAlgorithmsParams, _ error) {
+	q := uri.NewQueryDecoder(r.URL.Query())
+	// Decode path: project_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "project_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.ProjectID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "project_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode query: environment_key.
+	if err := func() error {
+		cfg := uri.QueryParameterDecodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.HasParam(cfg); err == nil {
+			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
+				return nil
+			}); err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_key",
+			In:   "query",
 			Err:  err,
 		}
 	}
@@ -9773,6 +10238,124 @@ func decodeUpdateFeatureParams(args [1]string, argsEscaped bool, r *http.Request
 		return params, &ogenerrors.DecodeParamError{
 			Name: "environment_key",
 			In:   "query",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// UpdateFeatureAlgorithmParams is parameters of UpdateFeatureAlgorithm operation.
+type UpdateFeatureAlgorithmParams struct {
+	FeatureID     string
+	EnvironmentID int64
+}
+
+func unpackUpdateFeatureAlgorithmParams(packed middleware.Parameters) (params UpdateFeatureAlgorithmParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "feature_id",
+			In:   "path",
+		}
+		params.FeatureID = packed[key].(string)
+	}
+	{
+		key := middleware.ParameterKey{
+			Name: "environment_id",
+			In:   "path",
+		}
+		params.EnvironmentID = packed[key].(int64)
+	}
+	return params
+}
+
+func decodeUpdateFeatureAlgorithmParams(args [2]string, argsEscaped bool, r *http.Request) (params UpdateFeatureAlgorithmParams, _ error) {
+	// Decode path: feature_id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "feature_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.FeatureID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "feature_id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	// Decode path: environment_id.
+	if err := func() error {
+		param := args[1]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[1])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "environment_id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToInt64(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "environment_id",
+			In:   "path",
 			Err:  err,
 		}
 	}

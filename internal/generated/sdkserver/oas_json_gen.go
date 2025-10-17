@@ -1852,41 +1852,6 @@ func (s *OptTrackRequestContext) UnmarshalJSON(data []byte) error {
 	return s.Decode(d)
 }
 
-// Encode encodes uuid.UUID as json.
-func (o OptUUID) Encode(e *jx.Encoder) {
-	if !o.Set {
-		return
-	}
-	json.EncodeUUID(e, o.Value)
-}
-
-// Decode decodes uuid.UUID from json.
-func (o *OptUUID) Decode(d *jx.Decoder) error {
-	if o == nil {
-		return errors.New("invalid: unable to decode OptUUID to nil")
-	}
-	o.Set = true
-	v, err := json.DecodeUUID(d)
-	if err != nil {
-		return err
-	}
-	o.Value = v
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s OptUUID) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *OptUUID) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
 // Encode implements json.Marshaler.
 func (s *TrackRequest) Encode(e *jx.Encoder) {
 	e.ObjStart()
@@ -1902,7 +1867,7 @@ func (s *TrackRequest) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("event_type")
-		e.Str(s.EventType)
+		s.EventType.Encode(e)
 	}
 	{
 		if s.Reward.Set {
@@ -1923,12 +1888,6 @@ func (s *TrackRequest) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
-		if s.AlgorithmID.Set {
-			e.FieldStart("algorithm_id")
-			s.AlgorithmID.Encode(e)
-		}
-	}
-	{
 		if s.DedupKey.Set {
 			e.FieldStart("dedup_key")
 			s.DedupKey.Encode(e)
@@ -1936,14 +1895,13 @@ func (s *TrackRequest) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfTrackRequest = [7]string{
+var jsonFieldsNameOfTrackRequest = [6]string{
 	0: "variant_key",
 	1: "event_type",
 	2: "reward",
 	3: "context",
 	4: "created_at",
-	5: "algorithm_id",
-	6: "dedup_key",
+	5: "dedup_key",
 }
 
 // Decode decodes TrackRequest from json.
@@ -1970,9 +1928,7 @@ func (s *TrackRequest) Decode(d *jx.Decoder) error {
 		case "event_type":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				v, err := d.Str()
-				s.EventType = string(v)
-				if err != nil {
+				if err := s.EventType.Decode(d); err != nil {
 					return err
 				}
 				return nil
@@ -2008,16 +1964,6 @@ func (s *TrackRequest) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"created_at\"")
-			}
-		case "algorithm_id":
-			if err := func() error {
-				s.AlgorithmID.Reset()
-				if err := s.AlgorithmID.Decode(d); err != nil {
-					return err
-				}
-				return nil
-			}(); err != nil {
-				return errors.Wrap(err, "decode field \"algorithm_id\"")
 			}
 		case "dedup_key":
 			if err := func() error {
@@ -2139,6 +2085,48 @@ func (s TrackRequestContext) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *TrackRequestContext) UnmarshalJSON(data []byte) error {
+	d := jx.DecodeBytes(data)
+	return s.Decode(d)
+}
+
+// Encode encodes TrackRequestEventType as json.
+func (s TrackRequestEventType) Encode(e *jx.Encoder) {
+	e.Str(string(s))
+}
+
+// Decode decodes TrackRequestEventType from json.
+func (s *TrackRequestEventType) Decode(d *jx.Decoder) error {
+	if s == nil {
+		return errors.New("invalid: unable to decode TrackRequestEventType to nil")
+	}
+	v, err := d.StrBytes()
+	if err != nil {
+		return err
+	}
+	// Try to use constant string.
+	switch TrackRequestEventType(v) {
+	case TrackRequestEventTypeSuccess:
+		*s = TrackRequestEventTypeSuccess
+	case TrackRequestEventTypeFailure:
+		*s = TrackRequestEventTypeFailure
+	case TrackRequestEventTypeError:
+		*s = TrackRequestEventTypeError
+	default:
+		*s = TrackRequestEventType(v)
+	}
+
+	return nil
+}
+
+// MarshalJSON implements stdjson.Marshaler.
+func (s TrackRequestEventType) MarshalJSON() ([]byte, error) {
+	e := jx.Encoder{}
+	s.Encode(&e)
+	return e.Bytes(), nil
+}
+
+// UnmarshalJSON implements stdjson.Unmarshaler.
+func (s *TrackRequestEventType) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

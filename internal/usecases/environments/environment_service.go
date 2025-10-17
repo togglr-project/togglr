@@ -80,6 +80,23 @@ func (s *Service) Delete(ctx context.Context, id domain.EnvironmentID) error {
 	return s.envRepo.Delete(ctx, id)
 }
 
+func (s *Service) GetByIDCached(ctx context.Context, id domain.EnvironmentID) (domain.Environment, error) {
+	cacheKey := makeEnvIDCacheKey(id)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		return cached, nil
+	}
+
+	env, err := s.envRepo.GetByID(ctx, id)
+	if err != nil {
+		return domain.Environment{}, err
+	}
+
+	s.cache.Set(cacheKey, env, CacheTTL)
+
+	return env, nil
+}
+
 func (s *Service) GetByProjectIDAndKeyCached(
 	ctx context.Context,
 	projectID domain.ProjectID,
@@ -101,15 +118,19 @@ func (s *Service) GetByProjectIDAndKeyCached(
 	return env, nil
 }
 
-func (s *Service) InvalidateCache(projectID domain.ProjectID, envKey string) {
-	cacheKey := makeEnvironmentCacheKey(projectID, envKey)
-	s.cache.Delete(cacheKey)
-}
-
-func (s *Service) InvalidateProjectCache(projectID domain.ProjectID) {
-	s.cache.Clear()
-}
+// func (s *Service) InvalidateCache(projectID domain.ProjectID, envKey string) {
+//	cacheKey := makeEnvironmentCacheKey(projectID, envKey)
+//	s.cache.Delete(cacheKey)
+//}
+//
+// func (s *Service) InvalidateProjectCache(projectID domain.ProjectID) {
+//	s.cache.Clear()
+//}
 
 func makeEnvironmentCacheKey(projectID domain.ProjectID, envKey string) string {
 	return string(projectID) + ":" + envKey
+}
+
+func makeEnvIDCacheKey(envID domain.EnvironmentID) string {
+	return envID.String()
 }

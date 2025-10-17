@@ -214,6 +214,8 @@ func (s *Service) determineEntityTypeAndChanges(
 		return s.computeFeatureScheduleChanges(oldEntity, newEntity, action)
 	case string(domain.EntityFeatureTag):
 		return s.computeFeatureTagChanges(oldEntity, newEntity, action)
+	case string(domain.EntityFeatureAlgorithm):
+		return s.computeFeatureAlgorithmChanges(oldEntity, newEntity, action)
 	default:
 		return nil, fmt.Errorf("unsupported entity type: %s", entityType)
 	}
@@ -242,6 +244,10 @@ func (s *Service) getEntityTypeAndID(entity any) (entityType, entityID string, e
 		return string(domain.EntityFeatureParams), string(e.FeatureID), nil
 	case domain.FeatureParams:
 		return string(domain.EntityFeatureParams), string(e.FeatureID), nil
+	case domain.FeatureAlgorithm:
+		return string(domain.EntityFeatureAlgorithm), string(e.ID), nil
+	case *domain.FeatureAlgorithm:
+		return string(domain.EntityFeatureAlgorithm), string(e.ID), nil
 	// FeatureTag is not a separate entity type, it's a relationship
 	// We'll handle it differently in computeFeatureTagChanges
 	default:
@@ -510,6 +516,51 @@ func (s *Service) computeFeatureScheduleChanges(
 	}
 }
 
+func (s *Service) computeFeatureAlgorithmChanges(
+	oldEntity, newEntity any,
+	action domain.EntityAction,
+) ([]EntityChanges, error) {
+	switch action {
+	case domain.EntityActionUpdate:
+		oldAlgorithm, err := s.convertToFeatureAlgorithmPtr(oldEntity)
+		if err != nil {
+			return nil, fmt.Errorf("old entity: %w", err)
+		}
+		newAlgorithm, err := s.convertToFeatureAlgorithmPtr(newEntity)
+		if err != nil {
+			return nil, fmt.Errorf("new entity: %w", err)
+		}
+
+		changes := BuildChangeDiff(oldAlgorithm, newAlgorithm)
+		if len(changes) == 0 {
+			return nil, nil
+		}
+
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFeatureAlgorithm),
+			EntityID:   string(newAlgorithm.ID),
+			Changes:    changes,
+		}}, nil
+	case domain.EntityActionInsert:
+		newAlgorithm, err := s.convertToFeatureAlgorithmPtr(newEntity)
+		if err != nil {
+			return nil, fmt.Errorf("new entity: %w", err)
+		}
+
+		changes := BuildInsertChanges(newAlgorithm)
+
+		return []EntityChanges{{
+			EntityType: string(domain.EntityFeatureAlgorithm),
+			EntityID:   string(newAlgorithm.ID),
+			Changes:    changes,
+		}}, nil
+	case domain.EntityActionDelete:
+		return nil, nil // No changes needed for delete
+	default:
+		return nil, fmt.Errorf("unsupported action for feature algorithm: %s", action)
+	}
+}
+
 // computeFeatureTagChanges computes changes for feature tag entities.
 // For feature tags, we expect a struct with FeatureID and TagID fields.
 //
@@ -677,5 +728,16 @@ func (s *Service) convertToFeatureTagPtr(entity any) (*domain.FeatureTags, error
 		return &e, nil
 	default:
 		return nil, fmt.Errorf("expected *domain.FeatureTags or domain.FeatureTags, got %T", entity)
+	}
+}
+
+func (s *Service) convertToFeatureAlgorithmPtr(entity any) (*domain.FeatureAlgorithm, error) {
+	switch e := entity.(type) {
+	case *domain.FeatureAlgorithm:
+		return e, nil
+	case domain.FeatureAlgorithm:
+		return &e, nil
+	default:
+		return nil, fmt.Errorf("expected *domain.FeatureAlgorithm or domain.FeatureAlgorithm, got %T", entity)
 	}
 }

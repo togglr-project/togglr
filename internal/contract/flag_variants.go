@@ -19,6 +19,7 @@ type FlagVariantsRepository interface {
 	Create(ctx context.Context, variant domain.FlagVariant) (domain.FlagVariant, error)
 	GetByID(ctx context.Context, id domain.FlagVariantID) (domain.FlagVariant, error)
 	List(ctx context.Context) ([]domain.FlagVariant, error)
+	ListExtended(ctx context.Context) ([]domain.FlagVariantExtended, error)
 	ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FlagVariant, error)
 	ListByFeatureIDWithEnvID(
 		ctx context.Context,

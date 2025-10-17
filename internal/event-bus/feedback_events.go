@@ -29,6 +29,14 @@ func (s *Service) processSDKFeedbackEvents(ctx context.Context, messages [][]byt
 			continue
 		}
 
+		s.algProcessor.HandleTrackEvent(
+			event.FeatureKey,
+			event.EnvKey,
+			event.VariantKey,
+			event.EventType,
+			event.Reward,
+		)
+
 		batch = append(batch, event)
 	}
 

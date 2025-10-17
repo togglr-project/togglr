@@ -21,6 +21,7 @@ import type { FeatureExtended, FeatureDetailsResponse, ListChangesResponse, Chan
 import SimpleTimelinePreview from './SimpleTimelinePreview';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
+import { getFirstEnabledAlgorithmSlug } from '../../utils/algorithmUtils';
 
 interface FeaturePreviewPanelProps {
   selectedFeature: FeatureExtended | null;
@@ -200,6 +201,22 @@ const FeaturePreviewPanel: React.FC<FeaturePreviewPanelProps> = ({
               />
             ))}
           </Stack>
+        </Box>
+      )}
+
+      {/* Algorithm */}
+      {getFirstEnabledAlgorithmSlug(selectedFeature.algorithms) && (
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, color: 'text.secondary' }}>
+            Algorithm
+          </Typography>
+          <Chip
+            label={`Algorithm: ${getFirstEnabledAlgorithmSlug(selectedFeature.algorithms)}`}
+            color="info"
+            variant="outlined"
+            size="small"
+            sx={{ fontSize: '0.7rem', height: 20 }}
+          />
         </Box>
       )}
 

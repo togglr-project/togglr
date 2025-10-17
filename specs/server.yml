@@ -6460,6 +6460,357 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/algorithms:
+    get:
+      summary: List of algorithms
+      operationId: ListAlgorithms
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of tags for project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAlgorithmsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/projects/{project_id}/feature-algorithms:
+    get:
+      summary: List feature algorithms for a feature
+      operationId: ListFeatureAlgorithms
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Filter by environment key
+      responses:
+        '200':
+          description: List of feature algorithms
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListFeatureAlgorithmsResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/features/{feature_id}/algorithms/{environment_id}:
+    get:
+      summary: Get algorithm configuration for a feature in environment
+      operationId: GetFeatureAlgorithm
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Feature algorithm configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureAlgorithm'
+        '404':
+          description: Algorithm not found for feature/environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create or attach algorithm to feature in environment
+      operationId: CreateFeatureAlgorithm
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeatureAlgorithmRequest'
+      responses:
+        '201':
+          description: Feature algorithm created
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorBadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '409':
+          description: Algorithm already exists for this feature/environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: Update feature algorithm configuration
+      operationId: UpdateFeatureAlgorithm
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFeatureAlgorithmRequest'
+      responses:
+        '200':
+          description: Updated feature algorithm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureAlgorithm'
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
+        '404':
+          description: Algorithm not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete feature algorithm from feature
+      operationId: DeleteFeatureAlgorithm
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: feature_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '202':
+          description: Change is pending approval (for guarded features)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingChangeResponse'
+        '204':
+          description: Feature algorithm deleted
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflict'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorInternalServerError'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 # ---------------------------------------------------
 #                Components / Schemas
 # ---------------------------------------------------
@@ -7305,7 +7656,11 @@ components:
               items:
                 $ref: '#/components/schemas/ProjectTag'
               description: "Tags associated with this feature"
-              example: []
+              example: [auto-disable, guarded]
+            algorithms:
+              type: array
+              items:
+                $ref: '#/components/schemas/FeatureAlgorithm'
           required: [is_active, health_status]
 
     CreateFeatureRequest:
@@ -7392,6 +7747,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ProjectTag'
+        algorithms:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureAlgorithm'
       required: [feature, variants, rules, tags]
 
     ListFeaturesResponse:
@@ -9291,3 +9650,114 @@ components:
           items:
             $ref: '#/components/schemas/NotificationSetting'
       required: [notification_settings]
+
+    Algorithm:
+      type: object
+      properties:
+        slug:
+          type: string
+          example: ucb
+        name:
+          type: string
+          example: Upper Confidence Bound
+        description:
+          type: string
+          example: Selects variant with highest upper confidence bound
+        kind:
+          type: string
+          enum: [ bandit ]
+        default_settings:
+          type: object
+          description: Default numeric settings for the algorithm
+          additionalProperties:
+            type: number
+          example:
+            confidence: 2.0
+      required: [ slug, name, description, kind, default_settings ]
+
+    ListAlgorithmsResponse:
+      type: object
+      properties:
+        algorithms:
+          type: array
+          items:
+            $ref: '#/components/schemas/Algorithm'
+      required: [ algorithms ]
+
+    FeatureAlgorithm:
+      type: object
+      properties:
+        id:
+          type: string
+        feature_id:
+          type: string
+        project_id:
+          type: string
+        environment_id:
+          type: integer
+          format: int64
+        algorithm_slug:
+          type: string
+          example: ucb
+        enabled:
+          type: boolean
+        settings:
+          type: object
+          description: Numeric settings for the feature algorithm
+          additionalProperties:
+            type: number
+          example:
+            confidence: 2.0
+        feature:
+          type: object
+          $ref: '#/components/schemas/Feature'
+      required: [id, project_id, feature_id, environment_id, algorithm_slug, enabled, settings, feature]
+
+    ListFeatureAlgorithmsResponse:
+      type: object
+      properties:
+        feature_algorithms:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureAlgorithm'
+      required: [feature_algorithms]
+
+    CreateFeatureAlgorithmRequest:
+      type: object
+      properties:
+        algorithm_slug:
+          type: string
+          example: ucb
+          description: "Algorithm slug from the /api/v1/algorithms list"
+        environment_id:
+          type: integer
+          format: int64
+          example: 1
+          description: "Environment ID for which the algorithm applies"
+        settings:
+          type: object
+          description: "Numeric algorithm settings overriding defaults"
+          additionalProperties:
+            type: number
+          example:
+            confidence: 2.0
+        enabled:
+          type: boolean
+          example: true
+          default: false
+      required: [algorithm_slug, environment_id, enabled, settings]
+
+    UpdateFeatureAlgorithmRequest:
+      type: object
+      properties:
+        settings:
+          type: object
+          description: "Updated numeric algorithm settings"
+          additionalProperties:
+            type: number
+          example:
+            epsilon: 0.15
+        enabled:
+          type: boolean
+          example: true
+      required: [enabled, settings]

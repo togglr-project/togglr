@@ -26,6 +26,7 @@ type Service struct {
 	flagVariantsRepo       contract.FlagVariantsRepository
 	schedulesRepo          contract.FeatureSchedulesRepository
 	featureTagsRepo        contract.FeatureTagsRepository
+	featureAlgorithmsRepo  contract.FeatureAlgorithmsRepository
 	auditLogRepo           contract.AuditLogRepository
 	usersUseCase           contract.UsersUseCase
 	projectsUseCase        contract.ProjectsUseCase
@@ -46,6 +47,7 @@ func New(
 	flagVariantsRepo contract.FlagVariantsRepository,
 	schedulesRepo contract.FeatureSchedulesRepository,
 	featureTagsRepo contract.FeatureTagsRepository,
+	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository,
 	auditLogRepo contract.AuditLogRepository,
 	usersUseCase contract.UsersUseCase,
 	projectsUseCase contract.ProjectsUseCase,
@@ -65,6 +67,7 @@ func New(
 		flagVariantsRepo:       flagVariantsRepo,
 		schedulesRepo:          schedulesRepo,
 		featureTagsRepo:        featureTagsRepo,
+		featureAlgorithmsRepo:  featureAlgorithmsRepo,
 		auditLogRepo:           auditLogRepo,
 		usersUseCase:           usersUseCase,
 		userNotificationsUC:    userNotificationsUC,
@@ -439,6 +442,10 @@ func (s *Service) applyChanges(ctx context.Context, pendingChange domain.Pending
 			if err := s.applyFeatureTagChange(ctx, entity); err != nil {
 				return fmt.Errorf("apply feature_tag change: %w", err)
 			}
+		case string(domain.EntityFeatureAlgorithm):
+			if err := s.applyFeatureAlgorithmChange(ctx, entity); err != nil {
+				return fmt.Errorf("apply feature_algorithm change: %w", err)
+			}
 		default:
 			return fmt.Errorf("unsupported entity type: %s", entity.Entity)
 		}
@@ -751,5 +758,66 @@ func (s *Service) applyFeatureTagChange(
 		return errors.New("update action not supported for feature_tag associations")
 	default:
 		return fmt.Errorf("unsupported action for feature_tag: %s", entity.Action)
+	}
+}
+
+func (s *Service) applyFeatureAlgorithmChange(
+	ctx context.Context,
+	entity domain.EntityChange,
+) error {
+	id := domain.FeatureAlgorithmID(entity.EntityID)
+
+	switch entity.Action {
+	case domain.EntityActionDelete:
+		if err := s.featureAlgorithmsRepo.Delete(ctx, id); err != nil {
+			return fmt.Errorf("delete feature algorithm: %w", err)
+		}
+
+		return nil
+	case domain.EntityActionUpdate:
+		current, err := s.featureAlgorithmsRepo.GetByID(ctx, id)
+		if err != nil {
+			return fmt.Errorf("get current feature algorithm: %w", err)
+		}
+
+		// Apply changes using reflection
+		if err := ApplyChangesToEntity(&current, entity.Changes); err != nil {
+			return fmt.Errorf("apply changes to feature algorithm: %w", err)
+		}
+
+		if err := s.featureAlgorithmsRepo.Update(ctx, current); err != nil {
+			return fmt.Errorf("update feature algorithm: %w", err)
+		}
+
+		return nil
+	case domain.EntityActionInsert:
+		// Create new feature algorithm from changes using reflection
+		algorithm, err := CreateEntityFromChanges(reflect.TypeOf(domain.FeatureAlgorithm{}), entity.Changes)
+		if err != nil {
+			return fmt.Errorf("create feature algorithm from changes: %w", err)
+		}
+
+		algorithmPtr, ok := algorithm.(*domain.FeatureAlgorithm)
+		if !ok {
+			return fmt.Errorf("invalid feature algorithm type: %T", algorithm)
+		}
+
+		// Convert to DTO for repository
+		dto := domain.FeatureAlgorithmDTO{
+			ProjectID:     algorithmPtr.ProjectID,
+			EnvironmentID: algorithmPtr.EnvironmentID,
+			FeatureID:     algorithmPtr.FeatureID,
+			AlgorithmSlug: algorithmPtr.AlgorithmSlug,
+			Enabled:       algorithmPtr.Enabled,
+			Settings:      algorithmPtr.Settings,
+		}
+
+		if err := s.featureAlgorithmsRepo.Create(ctx, dto); err != nil {
+			return fmt.Errorf("create feature algorithm: %w", err)
+		}
+
+		return nil
+	default:
+		return fmt.Errorf("unsupported action: %s", entity.Action)
 	}
 }

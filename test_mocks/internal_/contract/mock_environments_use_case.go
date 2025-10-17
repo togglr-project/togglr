@@ -239,6 +239,72 @@ func (_c *MockEnvironmentsUseCase_GetByID_Call) RunAndReturn(run func(ctx contex
 	return _c
 }
 
+// GetByIDCached provides a mock function for the type MockEnvironmentsUseCase
+func (_mock *MockEnvironmentsUseCase) GetByIDCached(ctx context.Context, id domain.EnvironmentID) (domain.Environment, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetByIDCached")
+	}
+
+	var r0 domain.Environment
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID) (domain.Environment, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.EnvironmentID) domain.Environment); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		r0 = ret.Get(0).(domain.Environment)
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockEnvironmentsUseCase_GetByIDCached_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetByIDCached'
+type MockEnvironmentsUseCase_GetByIDCached_Call struct {
+	*mock.Call
+}
+
+// GetByIDCached is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id domain.EnvironmentID
+func (_e *MockEnvironmentsUseCase_Expecter) GetByIDCached(ctx interface{}, id interface{}) *MockEnvironmentsUseCase_GetByIDCached_Call {
+	return &MockEnvironmentsUseCase_GetByIDCached_Call{Call: _e.mock.On("GetByIDCached", ctx, id)}
+}
+
+func (_c *MockEnvironmentsUseCase_GetByIDCached_Call) Run(run func(ctx context.Context, id domain.EnvironmentID)) *MockEnvironmentsUseCase_GetByIDCached_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.EnvironmentID
+		if args[1] != nil {
+			arg1 = args[1].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockEnvironmentsUseCase_GetByIDCached_Call) Return(environment domain.Environment, err error) *MockEnvironmentsUseCase_GetByIDCached_Call {
+	_c.Call.Return(environment, err)
+	return _c
+}
+
+func (_c *MockEnvironmentsUseCase_GetByIDCached_Call) RunAndReturn(run func(ctx context.Context, id domain.EnvironmentID) (domain.Environment, error)) *MockEnvironmentsUseCase_GetByIDCached_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetByProjectIDAndKey provides a mock function for the type MockEnvironmentsUseCase
 func (_mock *MockEnvironmentsUseCase) GetByProjectIDAndKey(ctx context.Context, projectID domain.ProjectID, key string) (domain.Environment, error) {
 	ret := _mock.Called(ctx, projectID, key)

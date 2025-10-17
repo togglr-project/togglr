@@ -10,6 +10,7 @@ import (
 	"path"
 	"time"
 
+	"github.com/togglr-project/togglr/internal/algorithms/bandit"
 	apibackend "github.com/togglr-project/togglr/internal/api/backend"
 	"github.com/togglr-project/togglr/internal/api/backend/middlewares"
 	apisdk "github.com/togglr-project/togglr/internal/api/sdk"
@@ -22,11 +23,14 @@ import (
 	generatedsdk "github.com/togglr-project/togglr/internal/generated/sdkserver"
 	generatedserver "github.com/togglr-project/togglr/internal/generated/server"
 	natsmq "github.com/togglr-project/togglr/internal/infra/mq/nats"
+	"github.com/togglr-project/togglr/internal/repository/algorithms"
 	"github.com/togglr-project/togglr/internal/repository/auditlog"
 	"github.com/togglr-project/togglr/internal/repository/categories"
 	dashboardrepo "github.com/togglr-project/togglr/internal/repository/dashboard"
 	environmentsrepo "github.com/togglr-project/togglr/internal/repository/environments"
 	"github.com/togglr-project/togglr/internal/repository/errorreports"
+	featurealgorithmstatsrepo "github.com/togglr-project/togglr/internal/repository/feature-algorithm-stats"
+	featurealgorithmsrepo "github.com/togglr-project/togglr/internal/repository/feature-algorithms"
 	featurenotifsrepo "github.com/togglr-project/togglr/internal/repository/feature-notifications"
 	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
@@ -74,6 +78,7 @@ import (
 	dashboardusecase "github.com/togglr-project/togglr/internal/usecases/dashboard"
 	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
 	errorreportsusecase "github.com/togglr-project/togglr/internal/usecases/errorreports"
+	featalgorithmsusecase "github.com/togglr-project/togglr/internal/usecases/feature-algorithms"
 	featurenotificationsuc "github.com/togglr-project/togglr/internal/usecases/feature-notifications"
 	featuretagsusecase "github.com/togglr-project/togglr/internal/usecases/feature-tags"
 	featuresusecase "github.com/togglr-project/togglr/internal/usecases/features"
@@ -267,7 +272,9 @@ func (app *App) registerComponents() {
 	app.registerComponent(notificationsettingsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(featurenotifsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(feedbackeventsrepo.New).Arg(app.PostgresPool)
-
+	app.registerComponent(algorithms.New).Arg(app.PostgresPool)
+	app.registerComponent(featurealgorithmsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(featurealgorithmstatsrepo.New).Arg(app.PostgresPool)
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
 	app.registerComponent(rbac.NewPermissions).Arg(app.PostgresPool)
@@ -358,6 +365,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(rbacusecase.New)
 	app.registerComponent(errorreportsusecase.New)
 	app.registerComponent(usernotifusecase.New)
+	app.registerComponent(featalgorithmsusecase.New)
 	app.registerComponent(featurenotificationsuc.New).Arg([]contract.NotificationChannel{
 		mattermostChannel,
 		webhookChannel,
@@ -436,6 +444,8 @@ func (app *App) registerComponents() {
 	if err := app.container.Resolve(&featureNotificator); err != nil {
 		panic(err)
 	}
+
+	app.registerComponent(bandit.New)
 
 	// Register API components
 	app.registerComponent(apibackend.NewSecurityHandler)

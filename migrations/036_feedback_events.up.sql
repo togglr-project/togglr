@@ -1,14 +1,18 @@
 -- 1. Raw feedback events (source of truth)
 create table monitoring.feedback_events
 (
-    id           bigserial,
-    feature_id   uuid not null references public.features on delete cascade,
-    algorithm_id uuid references public.algorithms,
-    variant_key  varchar(100) not null,
-    event_type   varchar(50) not null, -- evaluation, success, failure, error, custom
-    reward       numeric(18,6) not null default 0.0,
-    context      jsonb,
-    created_at   timestamptz not null default now(),
+    id              bigserial,
+    project_id      uuid not null references public.projects(id) on delete cascade,
+    environment_id  bigint not null references public.environments on delete cascade,
+    feature_id      uuid not null references public.features(id) on delete cascade,
+    feature_key     varchar(50) not null,
+    environment_key varchar(20) not null,
+    algorithm_slug  varchar(100) references public.algorithms(slug),
+    variant_key     varchar(100) not null,
+    event_type      varchar(50) not null, -- evaluation, success, failure, error, custom
+    reward          numeric(18,6) not null default 0.0,
+    context         jsonb,
+    created_at      timestamptz not null default now(),
 
     primary key (id, created_at)
 );
@@ -18,7 +22,7 @@ comment on table monitoring.feedback_events is
 comment on column monitoring.feedback_events.reward is
     'Optional numeric value representing feature metric or reward (used by bandit algorithms)';
 
-create index on monitoring.feedback_events (feature_id, algorithm_id, variant_key, created_at desc);
+create index on monitoring.feedback_events (feature_id, algorithm_slug, variant_key, created_at desc);
 
 -- Convert to hypertable
 select create_hypertable('monitoring.feedback_events', 'created_at', if_not_exists => true);
@@ -31,10 +35,13 @@ select add_retention_policy('monitoring.feedback_events', interval '30 days');
 -- 2. Aggregated per-variant statistics for runtime evaluation (used by bandit algorithms)
 create table monitoring.feature_algorithm_stats
 (
-    feature_id     uuid not null references public.features(id) on delete cascade,
-    environment_id BIGINT NOT NULL REFERENCES public.environments(id) ON DELETE CASCADE,
-    algorithm_id   uuid not null references public.algorithms(id) on delete cascade,
-    variant_key    varchar(100) not null,
+    project_id       uuid not null references public.projects(id) on delete cascade,
+    feature_id       uuid not null references public.features(id) on delete cascade,
+    environment_id   BIGINT NOT NULL REFERENCES public.environments(id) ON DELETE CASCADE,
+    algorithm_slug   varchar(100) not null references public.algorithms(slug) on delete cascade,
+    variant_key      varchar(100) not null,
+    feature_key      varchar(50) not null,
+    environment_key  varchar(20) not null,
 
     evaluations   bigint default 0 not null,     -- number of feature evaluations
     successes     bigint default 0 not null,     -- positive outcomes
@@ -42,7 +49,7 @@ create table monitoring.feature_algorithm_stats
     metric_sum    numeric(24,6) default 0 not null, -- accumulated metric/reward values
 
     updated_at    timestamptz default now() not null,
-    primary key (feature_id, environment_id, algorithm_id, variant_key)
+    primary key (feature_id, environment_id, algorithm_slug, variant_key)
 );
 
 comment on table monitoring.feature_algorithm_stats is

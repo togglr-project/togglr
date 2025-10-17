@@ -40,6 +40,7 @@ type FeatureExtended struct {
 	Rules        []Rule
 	Schedules    []FeatureSchedule
 	Tags         []Tag
+	Algorithms   []FeatureAlgorithm
 }
 
 func (id FeatureID) String() string {

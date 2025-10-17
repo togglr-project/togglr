@@ -431,6 +431,68 @@ func (_c *MockFlagVariantsRepository_ListByFeatureIDWithEnvID_Call) RunAndReturn
 	return _c
 }
 
+// ListExtended provides a mock function for the type MockFlagVariantsRepository
+func (_mock *MockFlagVariantsRepository) ListExtended(ctx context.Context) ([]domain.FlagVariantExtended, error) {
+	ret := _mock.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListExtended")
+	}
+
+	var r0 []domain.FlagVariantExtended
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context) ([]domain.FlagVariantExtended, error)); ok {
+		return returnFunc(ctx)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context) []domain.FlagVariantExtended); ok {
+		r0 = returnFunc(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FlagVariantExtended)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = returnFunc(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFlagVariantsRepository_ListExtended_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListExtended'
+type MockFlagVariantsRepository_ListExtended_Call struct {
+	*mock.Call
+}
+
+// ListExtended is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockFlagVariantsRepository_Expecter) ListExtended(ctx interface{}) *MockFlagVariantsRepository_ListExtended_Call {
+	return &MockFlagVariantsRepository_ListExtended_Call{Call: _e.mock.On("ListExtended", ctx)}
+}
+
+func (_c *MockFlagVariantsRepository_ListExtended_Call) Run(run func(ctx context.Context)) *MockFlagVariantsRepository_ListExtended_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFlagVariantsRepository_ListExtended_Call) Return(flagVariantExtendeds []domain.FlagVariantExtended, err error) *MockFlagVariantsRepository_ListExtended_Call {
+	_c.Call.Return(flagVariantExtendeds, err)
+	return _c
+}
+
+func (_c *MockFlagVariantsRepository_ListExtended_Call) RunAndReturn(run func(ctx context.Context) ([]domain.FlagVariantExtended, error)) *MockFlagVariantsRepository_ListExtended_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function for the type MockFlagVariantsRepository
 func (_mock *MockFlagVariantsRepository) Update(ctx context.Context, variant domain.FlagVariant) (domain.FlagVariant, error) {
 	ret := _mock.Called(ctx, variant)

@@ -87,24 +87,15 @@ paths:
             schema:
               $ref: '#/components/schemas/TrackRequest'
             examples:
-              impression:
+              success:
                 summary: Impression example
                 value:
                   variant_key: "A"
-                  event_type: "impression"
+                  event_type: "success"
                   reward: 0
                   context:
                     user.id: "123"
                     country: "RU"
-              conversion:
-                summary: Conversion with reward example
-                value:
-                  variant_key: "A"
-                  event_type: "conversion"
-                  reward: 1.0
-                  context:
-                    user.id: "123"
-                    order_id: "ord_987"
               error:
                 summary: Error reporting via /track
                 value:
@@ -417,10 +408,11 @@ components:
       properties:
         variant_key:
           type: string
-          description: Variant key returned by evaluate (e.g. "A", "control", "v2").
+          description: Variant key returned by evaluate (e.g. "A", "v2").
         event_type:
           type: string
-          description: Type of event (e.g. "impression", "conversion", "error", "custom").
+          enum: [success, failure, error]
+          description: Type of event (e.g. "success", "failure", "error").
         reward:
           type: number
           format: float
@@ -433,10 +425,6 @@ components:
           type: string
           format: date-time
           description: Event timestamp. If omitted, server time will be used.
-        algorithm_id:
-          type: string
-          format: uuid
-          description: Optional algorithm id this event is associated with.
         dedup_key:
           type: string
           description: Optional idempotency key to deduplicate duplicate events from SDK retries.

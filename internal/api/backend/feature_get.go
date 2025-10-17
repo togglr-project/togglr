@@ -72,17 +72,6 @@ func (r *RestAPI) GetFeature(
 		return nil, err
 	}
 
-	// Get tags
-	tags, err := r.featureTagsUseCase.ListFeatureTags(ctx, featureID)
-	if err != nil {
-		slog.Error("list feature tags failed", "error", err, "feature_id", featureID)
-
-		return nil, err
-	}
-
-	// Convert tags to response
-	respTags := dto.DomainTagsToAPI(tags)
-
 	// Get next state information
 	nextStateEnabled, nextStateTime := r.featureProcessor.NextState(feature)
 
@@ -94,13 +83,8 @@ func (r *RestAPI) GetFeature(
 		return nil, err
 	}
 
-	// Create FeatureExtended with tags
-	featureWithTags := feature
-	featureWithTags.Tags = tags
-
 	// Get next state information
 	var nextStatePtr *bool
-
 	var nextStateTimePtr *time.Time
 
 	if !nextStateTime.IsZero() {
@@ -109,7 +93,7 @@ func (r *RestAPI) GetFeature(
 	}
 
 	featureExtended := dto.DomainFeatureExtendedToAPI(
-		featureWithTags,
+		feature,
 		r.featureProcessor.IsFeatureActive(feature),
 		nextStatePtr,
 		nextStateTimePtr,
@@ -117,10 +101,11 @@ func (r *RestAPI) GetFeature(
 	)
 
 	resp := &generatedapi.FeatureDetailsResponse{
-		Feature:  featureExtended,
-		Variants: respVariants,
-		Rules:    respRules,
-		Tags:     respTags,
+		Feature:    featureExtended,
+		Variants:   respVariants,
+		Rules:      respRules,
+		Tags:       dto.DomainTagsToAPI(feature.Tags),
+		Algorithms: dto.DomainFeatureAlgorithmsToAPI(feature.Algorithms),
 	}
 
 	return resp, nil

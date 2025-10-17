@@ -93,6 +93,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/projects/{project_id}/environments
 	CreateEnvironment(ctx context.Context, request *CreateEnvironmentRequest, params CreateEnvironmentParams) (CreateEnvironmentRes, error)
+	// CreateFeatureAlgorithm invokes CreateFeatureAlgorithm operation.
+	//
+	// Create or attach algorithm to feature in environment.
+	//
+	// POST /api/v1/features/{feature_id}/algorithms/{environment_id}
+	CreateFeatureAlgorithm(ctx context.Context, request *CreateFeatureAlgorithmRequest, params CreateFeatureAlgorithmParams) (CreateFeatureAlgorithmRes, error)
 	// CreateFeatureFlagVariant invokes CreateFeatureFlagVariant operation.
 	//
 	// Create flag variant for feature.
@@ -177,6 +183,12 @@ type Invoker interface {
 	//
 	// DELETE /api/v1/features/{feature_id}
 	DeleteFeature(ctx context.Context, params DeleteFeatureParams) (DeleteFeatureRes, error)
+	// DeleteFeatureAlgorithm invokes DeleteFeatureAlgorithm operation.
+	//
+	// Delete feature algorithm from feature.
+	//
+	// DELETE /api/v1/features/{feature_id}/algorithms/{environment_id}
+	DeleteFeatureAlgorithm(ctx context.Context, params DeleteFeatureAlgorithmParams) (DeleteFeatureAlgorithmRes, error)
 	// DeleteFeatureSchedule invokes DeleteFeatureSchedule operation.
 	//
 	// Delete feature schedule by ID.
@@ -285,6 +297,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/features/{feature_id}
 	GetFeature(ctx context.Context, params GetFeatureParams) (GetFeatureRes, error)
+	// GetFeatureAlgorithm invokes GetFeatureAlgorithm operation.
+	//
+	// Get algorithm configuration for a feature in environment.
+	//
+	// GET /api/v1/features/{feature_id}/algorithms/{environment_id}
+	GetFeatureAlgorithm(ctx context.Context, params GetFeatureAlgorithmParams) (GetFeatureAlgorithmRes, error)
 	// GetFeatureSchedule invokes GetFeatureSchedule operation.
 	//
 	// Get feature schedule by ID.
@@ -411,6 +429,12 @@ type Invoker interface {
 	//
 	// POST /api/v1/pending_changes/{pending_change_id}/initiate-totp
 	InitiateTOTPApproval(ctx context.Context, request *InitiateTOTPApprovalRequest, params InitiateTOTPApprovalParams) (InitiateTOTPApprovalRes, error)
+	// ListAlgorithms invokes ListAlgorithms operation.
+	//
+	// List of algorithms.
+	//
+	// GET /api/v1/algorithms
+	ListAlgorithms(ctx context.Context) (ListAlgorithmsRes, error)
 	// ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
 	//
 	// List all feature schedules.
@@ -423,6 +447,12 @@ type Invoker interface {
 	//
 	// GET /api/v1/categories
 	ListCategories(ctx context.Context) (ListCategoriesRes, error)
+	// ListFeatureAlgorithms invokes ListFeatureAlgorithms operation.
+	//
+	// List feature algorithms for a feature.
+	//
+	// GET /api/v1/projects/{project_id}/feature-algorithms
+	ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (ListFeatureAlgorithmsRes, error)
 	// ListFeatureFlagVariants invokes ListFeatureFlagVariants operation.
 	//
 	// List flag variants for feature.
@@ -687,6 +717,12 @@ type Invoker interface {
 	//
 	// PUT /api/v1/features/{feature_id}
 	UpdateFeature(ctx context.Context, request *CreateFeatureRequest, params UpdateFeatureParams) (UpdateFeatureRes, error)
+	// UpdateFeatureAlgorithm invokes UpdateFeatureAlgorithm operation.
+	//
+	// Update feature algorithm configuration.
+	//
+	// PATCH /api/v1/features/{feature_id}/algorithms/{environment_id}
+	UpdateFeatureAlgorithm(ctx context.Context, request *UpdateFeatureAlgorithmRequest, params UpdateFeatureAlgorithmParams) (UpdateFeatureAlgorithmRes, error)
 	// UpdateFeatureSchedule invokes UpdateFeatureSchedule operation.
 	//
 	// Update feature schedule by ID.
@@ -1936,6 +1972,151 @@ func (c *Client) sendCreateEnvironment(ctx context.Context, request *CreateEnvir
 
 	stage = "DecodeResponse"
 	result, err := decodeCreateEnvironmentResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CreateFeatureAlgorithm invokes CreateFeatureAlgorithm operation.
+//
+// Create or attach algorithm to feature in environment.
+//
+// POST /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (c *Client) CreateFeatureAlgorithm(ctx context.Context, request *CreateFeatureAlgorithmRequest, params CreateFeatureAlgorithmParams) (CreateFeatureAlgorithmRes, error) {
+	res, err := c.sendCreateFeatureAlgorithm(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendCreateFeatureAlgorithm(ctx context.Context, request *CreateFeatureAlgorithmRequest, params CreateFeatureAlgorithmParams) (res CreateFeatureAlgorithmRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("CreateFeatureAlgorithm"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/algorithms/{environment_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, CreateFeatureAlgorithmOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/features/"
+	{
+		// Encode "feature_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/algorithms/"
+	{
+		// Encode "environment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.Int64ToString(params.EnvironmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeCreateFeatureAlgorithmRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, CreateFeatureAlgorithmOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeCreateFeatureAlgorithmResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -3755,6 +3936,148 @@ func (c *Client) sendDeleteFeature(ctx context.Context, params DeleteFeaturePara
 
 	stage = "DecodeResponse"
 	result, err := decodeDeleteFeatureResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// DeleteFeatureAlgorithm invokes DeleteFeatureAlgorithm operation.
+//
+// Delete feature algorithm from feature.
+//
+// DELETE /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (c *Client) DeleteFeatureAlgorithm(ctx context.Context, params DeleteFeatureAlgorithmParams) (DeleteFeatureAlgorithmRes, error) {
+	res, err := c.sendDeleteFeatureAlgorithm(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendDeleteFeatureAlgorithm(ctx context.Context, params DeleteFeatureAlgorithmParams) (res DeleteFeatureAlgorithmRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("DeleteFeatureAlgorithm"),
+		semconv.HTTPRequestMethodKey.String("DELETE"),
+		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/algorithms/{environment_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, DeleteFeatureAlgorithmOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/features/"
+	{
+		// Encode "feature_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/algorithms/"
+	{
+		// Encode "environment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.Int64ToString(params.EnvironmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "DELETE", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, DeleteFeatureAlgorithmOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeDeleteFeatureAlgorithmResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -5900,6 +6223,148 @@ func (c *Client) sendGetFeature(ctx context.Context, params GetFeatureParams) (r
 
 	stage = "DecodeResponse"
 	result, err := decodeGetFeatureResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// GetFeatureAlgorithm invokes GetFeatureAlgorithm operation.
+//
+// Get algorithm configuration for a feature in environment.
+//
+// GET /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (c *Client) GetFeatureAlgorithm(ctx context.Context, params GetFeatureAlgorithmParams) (GetFeatureAlgorithmRes, error) {
+	res, err := c.sendGetFeatureAlgorithm(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendGetFeatureAlgorithm(ctx context.Context, params GetFeatureAlgorithmParams) (res GetFeatureAlgorithmRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("GetFeatureAlgorithm"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/algorithms/{environment_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, GetFeatureAlgorithmOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/features/"
+	{
+		// Encode "feature_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/algorithms/"
+	{
+		// Encode "environment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.Int64ToString(params.EnvironmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, GetFeatureAlgorithmOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeGetFeatureAlgorithmResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -8567,6 +9032,111 @@ func (c *Client) sendInitiateTOTPApproval(ctx context.Context, request *Initiate
 	return result, nil
 }
 
+// ListAlgorithms invokes ListAlgorithms operation.
+//
+// List of algorithms.
+//
+// GET /api/v1/algorithms
+func (c *Client) ListAlgorithms(ctx context.Context) (ListAlgorithmsRes, error) {
+	res, err := c.sendListAlgorithms(ctx)
+	return res, err
+}
+
+func (c *Client) sendListAlgorithms(ctx context.Context) (res ListAlgorithmsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListAlgorithms"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/algorithms"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListAlgorithmsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/api/v1/algorithms"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListAlgorithmsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListAlgorithmsResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
 // ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
 //
 // List all feature schedules.
@@ -8770,6 +9340,148 @@ func (c *Client) sendListCategories(ctx context.Context) (res ListCategoriesRes,
 
 	stage = "DecodeResponse"
 	result, err := decodeListCategoriesResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// ListFeatureAlgorithms invokes ListFeatureAlgorithms operation.
+//
+// List feature algorithms for a feature.
+//
+// GET /api/v1/projects/{project_id}/feature-algorithms
+func (c *Client) ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (ListFeatureAlgorithmsRes, error) {
+	res, err := c.sendListFeatureAlgorithms(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (res ListFeatureAlgorithmsRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("ListFeatureAlgorithms"),
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/feature-algorithms"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, ListFeatureAlgorithmsOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [3]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/feature-algorithms"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeQueryParams"
+	q := uri.NewQueryEncoder()
+	{
+		// Encode "environment_key" parameter.
+		cfg := uri.QueryParameterEncodingConfig{
+			Name:    "environment_key",
+			Style:   uri.QueryStyleForm,
+			Explode: true,
+		}
+
+		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}); err != nil {
+			return res, errors.Wrap(err, "encode query")
+		}
+	}
+	u.RawQuery = q.Values().Encode()
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, ListFeatureAlgorithmsOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeListFeatureAlgorithmsResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -14779,6 +15491,151 @@ func (c *Client) sendUpdateFeature(ctx context.Context, request *CreateFeatureRe
 
 	stage = "DecodeResponse"
 	result, err := decodeUpdateFeatureResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// UpdateFeatureAlgorithm invokes UpdateFeatureAlgorithm operation.
+//
+// Update feature algorithm configuration.
+//
+// PATCH /api/v1/features/{feature_id}/algorithms/{environment_id}
+func (c *Client) UpdateFeatureAlgorithm(ctx context.Context, request *UpdateFeatureAlgorithmRequest, params UpdateFeatureAlgorithmParams) (UpdateFeatureAlgorithmRes, error) {
+	res, err := c.sendUpdateFeatureAlgorithm(ctx, request, params)
+	return res, err
+}
+
+func (c *Client) sendUpdateFeatureAlgorithm(ctx context.Context, request *UpdateFeatureAlgorithmRequest, params UpdateFeatureAlgorithmParams) (res UpdateFeatureAlgorithmRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("UpdateFeatureAlgorithm"),
+		semconv.HTTPRequestMethodKey.String("PATCH"),
+		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/algorithms/{environment_id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, UpdateFeatureAlgorithmOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [4]string
+	pathParts[0] = "/api/v1/features/"
+	{
+		// Encode "feature_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "feature_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.FeatureID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/algorithms/"
+	{
+		// Encode "environment_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.Int64ToString(params.EnvironmentID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PATCH", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeUpdateFeatureAlgorithmRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	{
+		type bitset = [1]uint8
+		var satisfied bitset
+		{
+			stage = "Security:BearerAuth"
+			switch err := c.securityBearerAuth(ctx, UpdateFeatureAlgorithmOperation, r); {
+			case err == nil: // if NO error
+				satisfied[0] |= 1 << 0
+			case errors.Is(err, ogenerrors.ErrSkipClientSecurity):
+				// Skip this security.
+			default:
+				return res, errors.Wrap(err, "security \"BearerAuth\"")
+			}
+		}
+
+		if ok := func() bool {
+		nextRequirement:
+			for _, requirement := range []bitset{
+				{0b00000001},
+			} {
+				for i, mask := range requirement {
+					if satisfied[i]&mask != mask {
+						continue nextRequirement
+					}
+				}
+				return true
+			}
+			return false
+		}(); !ok {
+			return res, ogenerrors.ErrSecurityRequirementIsNotSatisfied
+		}
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeUpdateFeatureAlgorithmResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
