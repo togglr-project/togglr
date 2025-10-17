@@ -70,7 +70,7 @@ All URIs are relative to *http://localhost*
 |[**getUserNotifications**](#getusernotifications) | **GET** /api/v1/notifications | Get user notifications|
 |[**initiateTOTPApproval**](#initiatetotpapproval) | **POST** /api/v1/pending_changes/{pending_change_id}/initiate-totp | Initiate TOTP approval session|
 |[**listAlgorithms**](#listalgorithms) | **GET** /api/v1/algorithms | List of algorithms|
-|[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/feature-schedules | List all feature schedules|
+|[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules | List all feature schedules for project|
 |[**listCategories**](#listcategories) | **GET** /api/v1/categories | Get categories list|
 |[**listFeatureAlgorithms**](#listfeaturealgorithms) | **GET** /api/v1/projects/{project_id}/feature-algorithms | List feature algorithms for a feature|
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
@@ -756,8 +756,10 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | Feature algorithm created |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**400** | Invalid request data |  -  |
 |**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
 |**409** | Algorithm already exists for this feature/environment |  -  |
 |**500** | Internal server error |  -  |
@@ -1609,7 +1611,7 @@ const { status, data } = await apiInstance.deleteFeature(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteFeatureAlgorithm**
-> deleteFeatureAlgorithm()
+> PendingChangeResponse deleteFeatureAlgorithm()
 
 
 ### Example
@@ -1642,7 +1644,7 @@ const { status, data } = await apiInstance.deleteFeatureAlgorithm(
 
 ### Return type
 
-void (empty response body)
+**PendingChangeResponse**
 
 ### Authorization
 
@@ -1657,9 +1659,12 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**204** | Feature algorithm deleted |  -  |
 |**404** | Not found |  -  |
 |**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**409** | Conflict |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -3865,11 +3870,21 @@ import {
 const configuration = new Configuration();
 const apiInstance = new DefaultApi(configuration);
 
-const { status, data } = await apiInstance.listAllFeatureSchedules();
+let projectId: string; // (default to undefined)
+let environmentKey: string; // (default to undefined)
+
+const { status, data } = await apiInstance.listAllFeatureSchedules(
+    projectId,
+    environmentKey
+);
 ```
 
 ### Parameters
-This endpoint does not have any parameters.
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] |  | defaults to undefined|
 
 
 ### Return type
@@ -3889,9 +3904,10 @@ This endpoint does not have any parameters.
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | List of feature schedules |  -  |
+|**200** | List of feature schedules for project |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
+|**404** | Not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -6558,8 +6574,11 @@ const { status, data } = await apiInstance.updateFeatureAlgorithm(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | Updated feature algorithm |  -  |
+|**202** | Change is pending approval (for guarded features) |  -  |
 |**404** | Algorithm not found |  -  |
 |**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**409** | Conflict |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

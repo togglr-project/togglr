@@ -4266,12 +4266,20 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary List all feature schedules
+         * @summary List all feature schedules for project
+         * @param {string} projectId 
+         * @param {string} environmentKey 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAllFeatureSchedules: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/feature-schedules`;
+        listAllFeatureSchedules: async (projectId: string, environmentKey: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listAllFeatureSchedules', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('listAllFeatureSchedules', 'environmentKey', environmentKey)
+            const localVarPath = `/api/v1/projects/{project_id}/env/{environment_key}/feature-schedules`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
+                .replace(`{${"environment_key"}}`, encodeURIComponent(String(environmentKey)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7241,7 +7249,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PendingChangeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeatureAlgorithm(featureId, environmentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeatureAlgorithm']?.[localVarOperationServerIndex]?.url;
@@ -7784,12 +7792,14 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary List all feature schedules
+         * @summary List all feature schedules for project
+         * @param {string} projectId 
+         * @param {string} environmentKey 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listAllFeatureSchedules(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FeatureSchedule>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listAllFeatureSchedules(options);
+        async listAllFeatureSchedules(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<FeatureSchedule>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAllFeatureSchedules(projectId, environmentKey, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listAllFeatureSchedules']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -8895,7 +8905,7 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
             return localVarFp.deleteFeatureAlgorithm(featureId, environmentId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -9315,12 +9325,14 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary List all feature schedules
+         * @summary List all feature schedules for project
+         * @param {string} projectId 
+         * @param {string} environmentKey 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAllFeatureSchedules(options?: RawAxiosRequestConfig): AxiosPromise<Array<FeatureSchedule>> {
-            return localVarFp.listAllFeatureSchedules(options).then((request) => request(axios, basePath));
+        listAllFeatureSchedules(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<FeatureSchedule>> {
+            return localVarFp.listAllFeatureSchedules(projectId, environmentKey, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10736,12 +10748,14 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary List all feature schedules
+     * @summary List all feature schedules for project
+     * @param {string} projectId 
+     * @param {string} environmentKey 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public listAllFeatureSchedules(options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).listAllFeatureSchedules(options).then((request) => request(this.axios, this.basePath));
+    public listAllFeatureSchedules(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listAllFeatureSchedules(projectId, environmentKey, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

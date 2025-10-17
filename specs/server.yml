@@ -2327,13 +2327,25 @@ paths:
       security:
         - bearerAuth: []
 
-  /api/v1/feature-schedules:
+  /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules:
     get:
-      summary: List all feature schedules
+      summary: List all feature schedules for project
       operationId: ListAllFeatureSchedules
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_key
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Filter by environment key
       responses:
         '200':
-          description: List of feature schedules
+          description: List of feature schedules for project
           content:
             application/json:
               schema:
@@ -2350,6 +2362,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorPermissionDenied'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorNotFound'
         '500':
           description: Internal server error
           content:

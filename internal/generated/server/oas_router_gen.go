@@ -475,64 +475,43 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					break
 				}
 				switch elem[0] {
-				case '-': // Prefix: "-schedules"
+				case '-': // Prefix: "-schedules/"
 
-					if l := len("-schedules"); len(elem) >= l && elem[0:l] == "-schedules" {
+					if l := len("-schedules/"); len(elem) >= l && elem[0:l] == "-schedules/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
+					// Param: "schedule_id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
 					if len(elem) == 0 {
+						// Leaf node.
 						switch r.Method {
+						case "DELETE":
+							s.handleDeleteFeatureScheduleRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						case "GET":
-							s.handleListAllFeatureSchedulesRequest([0]string{}, elemIsEscaped, w, r)
+							s.handleGetFeatureScheduleRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
+						case "PUT":
+							s.handleUpdateFeatureScheduleRequest([1]string{
+								args[0],
+							}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET")
+							s.notAllowed(w, r, "DELETE,GET,PUT")
 						}
 
 						return
-					}
-					switch elem[0] {
-					case '/': // Prefix: "/"
-
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						// Param: "schedule_id"
-						// Leaf parameter, slashes are prohibited
-						idx := strings.IndexByte(elem, '/')
-						if idx >= 0 {
-							break
-						}
-						args[0] = elem
-						elem = ""
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "DELETE":
-								s.handleDeleteFeatureScheduleRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							case "GET":
-								s.handleGetFeatureScheduleRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							case "PUT":
-								s.handleUpdateFeatureScheduleRequest([1]string{
-									args[0],
-								}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "DELETE,GET,PUT")
-							}
-
-							return
-						}
-
 					}
 
 				case 's': // Prefix: "s/"
@@ -1598,99 +1577,136 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										break
 									}
 									switch elem[0] {
-									case '/': // Prefix: "/notification-settings"
+									case '/': // Prefix: "/"
 
-										if l := len("/notification-settings"); len(elem) >= l && elem[0:l] == "/notification-settings" {
+										if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 											elem = elem[l:]
 										} else {
 											break
 										}
 
 										if len(elem) == 0 {
-											switch r.Method {
-											case "GET":
-												s.handleListNotificationSettingsRequest([2]string{
-													args[0],
-													args[1],
-												}, elemIsEscaped, w, r)
-											case "POST":
-												s.handleCreateNotificationSettingRequest([2]string{
-													args[0],
-													args[1],
-												}, elemIsEscaped, w, r)
-											default:
-												s.notAllowed(w, r, "GET,POST")
-											}
-
-											return
+											break
 										}
 										switch elem[0] {
-										case '/': // Prefix: "/"
+										case 'f': // Prefix: "feature-schedules"
 
-											if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+											if l := len("feature-schedules"); len(elem) >= l && elem[0:l] == "feature-schedules" {
 												elem = elem[l:]
 											} else {
 												break
 											}
 
-											// Param: "setting_id"
-											// Match until "/"
-											idx := strings.IndexByte(elem, '/')
-											if idx < 0 {
-												idx = len(elem)
+											if len(elem) == 0 {
+												// Leaf node.
+												switch r.Method {
+												case "GET":
+													s.handleListAllFeatureSchedulesRequest([2]string{
+														args[0],
+														args[1],
+													}, elemIsEscaped, w, r)
+												default:
+													s.notAllowed(w, r, "GET")
+												}
+
+												return
 											}
-											args[2] = elem[:idx]
-											elem = elem[idx:]
+
+										case 'n': // Prefix: "notification-settings"
+
+											if l := len("notification-settings"); len(elem) >= l && elem[0:l] == "notification-settings" {
+												elem = elem[l:]
+											} else {
+												break
+											}
 
 											if len(elem) == 0 {
 												switch r.Method {
-												case "DELETE":
-													s.handleDeleteNotificationSettingRequest([3]string{
-														args[0],
-														args[1],
-														args[2],
-													}, elemIsEscaped, w, r)
 												case "GET":
-													s.handleGetNotificationSettingRequest([3]string{
+													s.handleListNotificationSettingsRequest([2]string{
 														args[0],
 														args[1],
-														args[2],
 													}, elemIsEscaped, w, r)
-												case "PUT":
-													s.handleUpdateNotificationSettingRequest([3]string{
+												case "POST":
+													s.handleCreateNotificationSettingRequest([2]string{
 														args[0],
 														args[1],
-														args[2],
 													}, elemIsEscaped, w, r)
 												default:
-													s.notAllowed(w, r, "DELETE,GET,PUT")
+													s.notAllowed(w, r, "GET,POST")
 												}
 
 												return
 											}
 											switch elem[0] {
-											case '/': // Prefix: "/test"
+											case '/': // Prefix: "/"
 
-												if l := len("/test"); len(elem) >= l && elem[0:l] == "/test" {
+												if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 													elem = elem[l:]
 												} else {
 													break
 												}
 
+												// Param: "setting_id"
+												// Match until "/"
+												idx := strings.IndexByte(elem, '/')
+												if idx < 0 {
+													idx = len(elem)
+												}
+												args[2] = elem[:idx]
+												elem = elem[idx:]
+
 												if len(elem) == 0 {
-													// Leaf node.
 													switch r.Method {
-													case "POST":
-														s.handleSendTestNotificationRequest([3]string{
+													case "DELETE":
+														s.handleDeleteNotificationSettingRequest([3]string{
+															args[0],
+															args[1],
+															args[2],
+														}, elemIsEscaped, w, r)
+													case "GET":
+														s.handleGetNotificationSettingRequest([3]string{
+															args[0],
+															args[1],
+															args[2],
+														}, elemIsEscaped, w, r)
+													case "PUT":
+														s.handleUpdateNotificationSettingRequest([3]string{
 															args[0],
 															args[1],
 															args[2],
 														}, elemIsEscaped, w, r)
 													default:
-														s.notAllowed(w, r, "POST")
+														s.notAllowed(w, r, "DELETE,GET,PUT")
 													}
 
 													return
+												}
+												switch elem[0] {
+												case '/': // Prefix: "/test"
+
+													if l := len("/test"); len(elem) >= l && elem[0:l] == "/test" {
+														elem = elem[l:]
+													} else {
+														break
+													}
+
+													if len(elem) == 0 {
+														// Leaf node.
+														switch r.Method {
+														case "POST":
+															s.handleSendTestNotificationRequest([3]string{
+																args[0],
+																args[1],
+																args[2],
+															}, elemIsEscaped, w, r)
+														default:
+															s.notAllowed(w, r, "POST")
+														}
+
+														return
+													}
+
 												}
 
 											}
@@ -3236,78 +3252,53 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					break
 				}
 				switch elem[0] {
-				case '-': // Prefix: "-schedules"
+				case '-': // Prefix: "-schedules/"
 
-					if l := len("-schedules"); len(elem) >= l && elem[0:l] == "-schedules" {
+					if l := len("-schedules/"); len(elem) >= l && elem[0:l] == "-schedules/" {
 						elem = elem[l:]
 					} else {
 						break
 					}
 
+					// Param: "schedule_id"
+					// Leaf parameter, slashes are prohibited
+					idx := strings.IndexByte(elem, '/')
+					if idx >= 0 {
+						break
+					}
+					args[0] = elem
+					elem = ""
+
 					if len(elem) == 0 {
+						// Leaf node.
 						switch method {
-						case "GET":
-							r.name = ListAllFeatureSchedulesOperation
-							r.summary = "List all feature schedules"
-							r.operationID = "ListAllFeatureSchedules"
-							r.pathPattern = "/api/v1/feature-schedules"
+						case "DELETE":
+							r.name = DeleteFeatureScheduleOperation
+							r.summary = "Delete feature schedule by ID"
+							r.operationID = "DeleteFeatureSchedule"
+							r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
 							r.args = args
-							r.count = 0
+							r.count = 1
+							return r, true
+						case "GET":
+							r.name = GetFeatureScheduleOperation
+							r.summary = "Get feature schedule by ID"
+							r.operationID = "GetFeatureSchedule"
+							r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
+							r.args = args
+							r.count = 1
+							return r, true
+						case "PUT":
+							r.name = UpdateFeatureScheduleOperation
+							r.summary = "Update feature schedule by ID"
+							r.operationID = "UpdateFeatureSchedule"
+							r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
+							r.args = args
+							r.count = 1
 							return r, true
 						default:
 							return
 						}
-					}
-					switch elem[0] {
-					case '/': // Prefix: "/"
-
-						if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-							elem = elem[l:]
-						} else {
-							break
-						}
-
-						// Param: "schedule_id"
-						// Leaf parameter, slashes are prohibited
-						idx := strings.IndexByte(elem, '/')
-						if idx >= 0 {
-							break
-						}
-						args[0] = elem
-						elem = ""
-
-						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "DELETE":
-								r.name = DeleteFeatureScheduleOperation
-								r.summary = "Delete feature schedule by ID"
-								r.operationID = "DeleteFeatureSchedule"
-								r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
-								r.args = args
-								r.count = 1
-								return r, true
-							case "GET":
-								r.name = GetFeatureScheduleOperation
-								r.summary = "Get feature schedule by ID"
-								r.operationID = "GetFeatureSchedule"
-								r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
-								r.args = args
-								r.count = 1
-								return r, true
-							case "PUT":
-								r.name = UpdateFeatureScheduleOperation
-								r.summary = "Update feature schedule by ID"
-								r.operationID = "UpdateFeatureSchedule"
-								r.pathPattern = "/api/v1/feature-schedules/{schedule_id}"
-								r.args = args
-								r.count = 1
-								return r, true
-							default:
-								return
-							}
-						}
-
 					}
 
 				case 's': // Prefix: "s/"
@@ -4528,107 +4519,145 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										break
 									}
 									switch elem[0] {
-									case '/': // Prefix: "/notification-settings"
+									case '/': // Prefix: "/"
 
-										if l := len("/notification-settings"); len(elem) >= l && elem[0:l] == "/notification-settings" {
+										if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 											elem = elem[l:]
 										} else {
 											break
 										}
 
 										if len(elem) == 0 {
-											switch method {
-											case "GET":
-												r.name = ListNotificationSettingsOperation
-												r.summary = "List all notification settings for a project"
-												r.operationID = "ListNotificationSettings"
-												r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings"
-												r.args = args
-												r.count = 2
-												return r, true
-											case "POST":
-												r.name = CreateNotificationSettingOperation
-												r.summary = "Create a new notification setting"
-												r.operationID = "CreateNotificationSetting"
-												r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings"
-												r.args = args
-												r.count = 2
-												return r, true
-											default:
-												return
-											}
+											break
 										}
 										switch elem[0] {
-										case '/': // Prefix: "/"
+										case 'f': // Prefix: "feature-schedules"
 
-											if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
+											if l := len("feature-schedules"); len(elem) >= l && elem[0:l] == "feature-schedules" {
 												elem = elem[l:]
 											} else {
 												break
 											}
 
-											// Param: "setting_id"
-											// Match until "/"
-											idx := strings.IndexByte(elem, '/')
-											if idx < 0 {
-												idx = len(elem)
+											if len(elem) == 0 {
+												// Leaf node.
+												switch method {
+												case "GET":
+													r.name = ListAllFeatureSchedulesOperation
+													r.summary = "List all feature schedules for project"
+													r.operationID = "ListAllFeatureSchedules"
+													r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/feature-schedules"
+													r.args = args
+													r.count = 2
+													return r, true
+												default:
+													return
+												}
 											}
-											args[2] = elem[:idx]
-											elem = elem[idx:]
+
+										case 'n': // Prefix: "notification-settings"
+
+											if l := len("notification-settings"); len(elem) >= l && elem[0:l] == "notification-settings" {
+												elem = elem[l:]
+											} else {
+												break
+											}
 
 											if len(elem) == 0 {
 												switch method {
-												case "DELETE":
-													r.name = DeleteNotificationSettingOperation
-													r.summary = "Delete a notification setting"
-													r.operationID = "DeleteNotificationSetting"
-													r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"
-													r.args = args
-													r.count = 3
-													return r, true
 												case "GET":
-													r.name = GetNotificationSettingOperation
-													r.summary = "Get a specific notification setting"
-													r.operationID = "GetNotificationSetting"
-													r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"
+													r.name = ListNotificationSettingsOperation
+													r.summary = "List all notification settings for a project"
+													r.operationID = "ListNotificationSettings"
+													r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings"
 													r.args = args
-													r.count = 3
+													r.count = 2
 													return r, true
-												case "PUT":
-													r.name = UpdateNotificationSettingOperation
-													r.summary = "Update a notification setting"
-													r.operationID = "UpdateNotificationSetting"
-													r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"
+												case "POST":
+													r.name = CreateNotificationSettingOperation
+													r.summary = "Create a new notification setting"
+													r.operationID = "CreateNotificationSetting"
+													r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings"
 													r.args = args
-													r.count = 3
+													r.count = 2
 													return r, true
 												default:
 													return
 												}
 											}
 											switch elem[0] {
-											case '/': // Prefix: "/test"
+											case '/': // Prefix: "/"
 
-												if l := len("/test"); len(elem) >= l && elem[0:l] == "/test" {
+												if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
 													elem = elem[l:]
 												} else {
 													break
 												}
 
+												// Param: "setting_id"
+												// Match until "/"
+												idx := strings.IndexByte(elem, '/')
+												if idx < 0 {
+													idx = len(elem)
+												}
+												args[2] = elem[:idx]
+												elem = elem[idx:]
+
 												if len(elem) == 0 {
-													// Leaf node.
 													switch method {
-													case "POST":
-														r.name = SendTestNotificationOperation
-														r.summary = "Send test notification"
-														r.operationID = "sendTestNotification"
-														r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test"
+													case "DELETE":
+														r.name = DeleteNotificationSettingOperation
+														r.summary = "Delete a notification setting"
+														r.operationID = "DeleteNotificationSetting"
+														r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"
+														r.args = args
+														r.count = 3
+														return r, true
+													case "GET":
+														r.name = GetNotificationSettingOperation
+														r.summary = "Get a specific notification setting"
+														r.operationID = "GetNotificationSetting"
+														r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"
+														r.args = args
+														r.count = 3
+														return r, true
+													case "PUT":
+														r.name = UpdateNotificationSettingOperation
+														r.summary = "Update a notification setting"
+														r.operationID = "UpdateNotificationSetting"
+														r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}"
 														r.args = args
 														r.count = 3
 														return r, true
 													default:
 														return
 													}
+												}
+												switch elem[0] {
+												case '/': // Prefix: "/test"
+
+													if l := len("/test"); len(elem) >= l && elem[0:l] == "/test" {
+														elem = elem[l:]
+													} else {
+														break
+													}
+
+													if len(elem) == 0 {
+														// Leaf node.
+														switch method {
+														case "POST":
+															r.name = SendTestNotificationOperation
+															r.summary = "Send test notification"
+															r.operationID = "sendTestNotification"
+															r.pathPattern = "/api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id}/test"
+															r.args = args
+															r.count = 3
+															return r, true
+														default:
+															return
+														}
+													}
+
 												}
 
 											}

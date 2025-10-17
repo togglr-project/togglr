@@ -437,10 +437,10 @@ type Invoker interface {
 	ListAlgorithms(ctx context.Context) (ListAlgorithmsRes, error)
 	// ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
 	//
-	// List all feature schedules.
+	// List all feature schedules for project.
 	//
-	// GET /api/v1/feature-schedules
-	ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error)
+	// GET /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules
+	ListAllFeatureSchedules(ctx context.Context, params ListAllFeatureSchedulesParams) (ListAllFeatureSchedulesRes, error)
 	// ListCategories invokes ListCategories operation.
 	//
 	// Get categories list.
@@ -9139,19 +9139,19 @@ func (c *Client) sendListAlgorithms(ctx context.Context) (res ListAlgorithmsRes,
 
 // ListAllFeatureSchedules invokes ListAllFeatureSchedules operation.
 //
-// List all feature schedules.
+// List all feature schedules for project.
 //
-// GET /api/v1/feature-schedules
-func (c *Client) ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error) {
-	res, err := c.sendListAllFeatureSchedules(ctx)
+// GET /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules
+func (c *Client) ListAllFeatureSchedules(ctx context.Context, params ListAllFeatureSchedulesParams) (ListAllFeatureSchedulesRes, error) {
+	res, err := c.sendListAllFeatureSchedules(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendListAllFeatureSchedules(ctx context.Context) (res ListAllFeatureSchedulesRes, err error) {
+func (c *Client) sendListAllFeatureSchedules(ctx context.Context, params ListAllFeatureSchedulesParams) (res ListAllFeatureSchedulesRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("ListAllFeatureSchedules"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/feature-schedules"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/feature-schedules"),
 	}
 
 	// Run stopwatch.
@@ -9183,8 +9183,46 @@ func (c *Client) sendListAllFeatureSchedules(ctx context.Context) (res ListAllFe
 
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/api/v1/feature-schedules"
+	var pathParts [5]string
+	pathParts[0] = "/api/v1/projects/"
+	{
+		// Encode "project_id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "project_id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	pathParts[2] = "/env/"
+	{
+		// Encode "environment_key" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "environment_key",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[3] = encoded
+	}
+	pathParts[4] = "/feature-schedules"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeRequest"

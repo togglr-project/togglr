@@ -416,10 +416,10 @@ type Handler interface {
 	ListAlgorithms(ctx context.Context) (ListAlgorithmsRes, error)
 	// ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 	//
-	// List all feature schedules.
+	// List all feature schedules for project.
 	//
-	// GET /api/v1/feature-schedules
-	ListAllFeatureSchedules(ctx context.Context) (ListAllFeatureSchedulesRes, error)
+	// GET /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules
+	ListAllFeatureSchedules(ctx context.Context, params ListAllFeatureSchedulesParams) (ListAllFeatureSchedulesRes, error)
 	// ListCategories implements ListCategories operation.
 	//
 	// Get categories list.

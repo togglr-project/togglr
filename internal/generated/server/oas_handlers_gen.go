@@ -12904,16 +12904,16 @@ func (s *Server) handleListAlgorithmsRequest(args [0]string, argsEscaped bool, w
 
 // handleListAllFeatureSchedulesRequest handles ListAllFeatureSchedules operation.
 //
-// List all feature schedules.
+// List all feature schedules for project.
 //
-// GET /api/v1/feature-schedules
-func (s *Server) handleListAllFeatureSchedulesRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+// GET /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules
+func (s *Server) handleListAllFeatureSchedulesRequest(args [2]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("ListAllFeatureSchedules"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/feature-schedules"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/env/{environment_key}/feature-schedules"),
 	}
 
 	// Start a span for this request.
@@ -13022,22 +13022,41 @@ func (s *Server) handleListAllFeatureSchedulesRequest(args [0]string, argsEscape
 			return
 		}
 	}
+	params, err := decodeListAllFeatureSchedulesParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
 
 	var response ListAllFeatureSchedulesRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    ListAllFeatureSchedulesOperation,
-			OperationSummary: "List all feature schedules",
+			OperationSummary: "List all feature schedules for project",
 			OperationID:      "ListAllFeatureSchedules",
 			Body:             nil,
-			Params:           middleware.Parameters{},
-			Raw:              r,
+			Params: middleware.Parameters{
+				{
+					Name: "project_id",
+					In:   "path",
+				}: params.ProjectID,
+				{
+					Name: "environment_key",
+					In:   "path",
+				}: params.EnvironmentKey,
+			},
+			Raw: r,
 		}
 
 		type (
 			Request  = struct{}
-			Params   = struct{}
+			Params   = ListAllFeatureSchedulesParams
 			Response = ListAllFeatureSchedulesRes
 		)
 		response, err = middleware.HookMiddleware[
@@ -13047,14 +13066,14 @@ func (s *Server) handleListAllFeatureSchedulesRequest(args [0]string, argsEscape
 		](
 			m,
 			mreq,
-			nil,
+			unpackListAllFeatureSchedulesParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.ListAllFeatureSchedules(ctx)
+				response, err = s.h.ListAllFeatureSchedules(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.ListAllFeatureSchedules(ctx)
+		response, err = s.h.ListAllFeatureSchedules(ctx, params)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*ErrorStatusCode](err); ok {

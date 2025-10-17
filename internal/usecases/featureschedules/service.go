@@ -57,6 +57,19 @@ func (s *Service) List(ctx context.Context) ([]domain.FeatureSchedule, error) {
 	return items, nil
 }
 
+func (s *Service) ListByProjectIDEnvID(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envID domain.EnvironmentID,
+) ([]domain.FeatureSchedule, error) {
+	items, err := s.repo.ListByProjectIDEnvID(ctx, projectID, envID)
+	if err != nil {
+		return nil, fmt.Errorf("list feature_schedules: %w", err)
+	}
+
+	return items, nil
+}
+
 func (s *Service) ListByFeatureID(ctx context.Context, featureID domain.FeatureID) ([]domain.FeatureSchedule, error) {
 	items, err := s.repo.ListByFeatureID(ctx, featureID)
 	if err != nil {

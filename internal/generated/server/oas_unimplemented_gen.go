@@ -619,10 +619,10 @@ func (UnimplementedHandler) ListAlgorithms(ctx context.Context) (r ListAlgorithm
 
 // ListAllFeatureSchedules implements ListAllFeatureSchedules operation.
 //
-// List all feature schedules.
+// List all feature schedules for project.
 //
-// GET /api/v1/feature-schedules
-func (UnimplementedHandler) ListAllFeatureSchedules(ctx context.Context) (r ListAllFeatureSchedulesRes, _ error) {
+// GET /api/v1/projects/{project_id}/env/{environment_key}/feature-schedules
+func (UnimplementedHandler) ListAllFeatureSchedules(ctx context.Context, params ListAllFeatureSchedulesParams) (r ListAllFeatureSchedulesRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

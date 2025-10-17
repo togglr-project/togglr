@@ -153,6 +153,34 @@ func (r *Repository) List(ctx context.Context) ([]domain.FeatureSchedule, error)
 	return items, nil
 }
 
+func (r *Repository) ListByProjectIDEnvID(
+	ctx context.Context,
+	projectID domain.ProjectID,
+	envID domain.EnvironmentID,
+) ([]domain.FeatureSchedule, error) {
+	exec := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM feature_schedules WHERE project_id = $1 AND environment_id = $2 ORDER BY created_at`
+
+	rows, err := exec.Query(ctx, query, projectID, envID)
+	if err != nil {
+		return nil, fmt.Errorf("query schedules: %w", err)
+	}
+	defer rows.Close()
+
+	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[scheduleModel])
+	if err != nil {
+		return nil, fmt.Errorf("collect schedule rows: %w", err)
+	}
+
+	items := make([]domain.FeatureSchedule, 0, len(models))
+	for _, m := range models {
+		items = append(items, m.toDomain())
+	}
+
+	return items, nil
+}
+
 func (r *Repository) ListByFeatureID(
 	ctx context.Context,
 	featureID domain.FeatureID,

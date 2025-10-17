@@ -276,13 +276,12 @@ const ProjectSchedulingPage: React.FC = () => {
   };
 
   const { data: allSchedules, isLoading: loadingSchedules } = useQuery<FeatureSchedule[]>({
-    queryKey: ['feature-schedules', projectId],
+    queryKey: ['feature-schedules', projectId, environmentKey],
     queryFn: async () => {
-      const res = await apiClient.listAllFeatureSchedules();
-      // Filter by project just in case API returns global list
-      return (res.data || []).filter((s: FeatureSchedule) => s.project_id === projectId);
+      const res = await apiClient.listAllFeatureSchedules(projectId, environmentKey);
+      return res.data || [];
     },
-    enabled: !!projectId,
+    enabled: !!projectId && !!environmentKey,
   });
 
   // Timeline data for selected features

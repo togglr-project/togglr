@@ -3075,6 +3075,7 @@ func (*ErrorNotFound) getRolePermissionsRes()          {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
 func (*ErrorNotFound) initiateTOTPApprovalRes()        {}
+func (*ErrorNotFound) listAllFeatureSchedulesRes()     {}
 func (*ErrorNotFound) listFeatureAlgorithmsRes()       {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
