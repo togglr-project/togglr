@@ -164,22 +164,6 @@ const ProjectSchedulingPage: React.FC = () => {
   // RBAC checks for current project
   const rbac = useRBAC(projectId);
 
-  // Check project access
-  if (!rbac.canViewProject()) {
-    return (
-      <AuthenticatedLayout showBackButton backTo="/dashboard">
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="error" gutterBottom>
-            Access Denied
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            You don't have permission to view this project.
-          </Typography>
-        </Box>
-      </AuthenticatedLayout>
-    );
-  }
-
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
@@ -689,6 +673,22 @@ const ProjectSchedulingPage: React.FC = () => {
       }
     }
   });
+
+  // Check project access after all hooks
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   const project = projectResp?.project;
 

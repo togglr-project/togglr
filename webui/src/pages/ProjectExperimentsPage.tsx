@@ -59,22 +59,6 @@ const ProjectExperimentsPage: React.FC = () => {
   const rbac = useRBAC(projectId);
   const approveMutation = useApprovePendingChange();
 
-  // Check project access
-  if (!rbac.canManageProject()) {
-    return (
-      <AuthenticatedLayout showBackButton backTo="/dashboard">
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="error" gutterBottom>
-            Access Denied
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            You don't have permission to view this project.
-          </Typography>
-        </Box>
-      </AuthenticatedLayout>
-    );
-  }
-
   const { data: projectResp, isLoading: loadingProject } = useQuery({
     queryKey: ['project', projectId],
     queryFn: async () => {
@@ -108,6 +92,22 @@ const ProjectExperimentsPage: React.FC = () => {
   }, [environments, environmentKey]);
 
   const project = projectResp?.project;
+
+  // Check project access after all hooks
+  if (!rbac.canManageProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   // Handle auto-approve for single-user projects
   const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {

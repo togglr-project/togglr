@@ -138,22 +138,6 @@ const ProjectPage: React.FC = () => {
 
   const approveMutation = useApprovePendingChange();
 
-  // Check project access
-  if (!rbac.canViewProject()) {
-    return (
-      <AuthenticatedLayout showBackButton backTo="/dashboard">
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="h6" color="error" gutterBottom>
-            Access Denied
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            You don't have permission to view this project.
-          </Typography>
-        </Box>
-      </AuthenticatedLayout>
-    );
-  }
-
   // Toggle mutation
   const toggleMutation = useMutation({
     mutationFn: async ({ featureId, enabled }: { featureId: string; enabled: boolean }) => {
@@ -199,6 +183,21 @@ const ProjectPage: React.FC = () => {
     },
   });
 
+  // Check project access after all hooks
+  if (!rbac.canViewProject()) {
+    return (
+      <AuthenticatedLayout showBackButton backTo="/dashboard">
+        <Box sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h6" color="error" gutterBottom>
+            Access Denied
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            You don't have permission to view this project.
+          </Typography>
+        </Box>
+      </AuthenticatedLayout>
+    );
+  }
 
   // Handle auto-approve for single-user projects
   const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
