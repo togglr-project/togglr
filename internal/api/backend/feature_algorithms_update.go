@@ -112,7 +112,7 @@ func (r *RestAPI) UpdateFeatureAlgorithm(
 		return &resp, nil
 	}
 
-	err = r.featureAlgorithmsUseCase.Update(ctx, featAlg)
+	err = r.featureAlgorithmsUseCase.Update(ctx, featAlgNew)
 	if err != nil {
 		slog.Error("failed to update feature algorithm",
 			"featureID", featureID, "envID", envID, "err", err)
@@ -122,7 +122,7 @@ func (r *RestAPI) UpdateFeatureAlgorithm(
 		}}, nil
 	}
 
-	resp := dto.DomainFeatureAlgorithmToAPI(featAlg)
+	resp := dto.DomainFeatureAlgorithmToAPI(featAlgNew)
 
 	return &resp, nil
 }
