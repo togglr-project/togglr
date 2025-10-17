@@ -9,7 +9,7 @@ docker-build-backend: ## Building Docker image for backend (scratch + curl)
 		--build-arg TOOL_VERSION=${TOOL_VERSION} \
 		--build-arg TOOL_BUILD_TIME=${TOOL_BUILD_TIME} \
 		--build-arg DOCKER_REGISTRY=${DOCKER_REGISTRY} \
-		-t togglr-backend:latest -f ./Dockerfile.backend .
+		-t togglr-backend:latest -f ./Dockerfile .
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"FAIL"${NOCOLOR} ; \
 		exit 1 ; \
@@ -49,7 +49,7 @@ docker-push-backend: docker-build-backend ## Tagging and pushing Docker image fo
 .PHONY: docker-build-frontend
 docker-build-frontend: ## Building Docker image for frontend
 	@echo "\nBuilding Docker image frontend..."
-	@cd ui && TOOL_VERSION=${TOOL_VERSION} TOOL_BUILD_TIME=${TOOL_BUILD_TIME} VITE_IS_DEMO=${VITE_IS_DEMO} make docker-build
+	@cd webui && TOOL_VERSION=${TOOL_VERSION} TOOL_BUILD_TIME=${TOOL_BUILD_TIME} VITE_IS_DEMO=${VITE_IS_DEMO} make docker-build
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"FAIL"${NOCOLOR} ; \
 		exit 1 ; \
