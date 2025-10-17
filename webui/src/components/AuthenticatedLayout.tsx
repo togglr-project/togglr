@@ -53,6 +53,7 @@ const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({
   };
 
   if (!isAuthenticated) {
+    console.log('[AuthenticatedLayout] User not authenticated, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
