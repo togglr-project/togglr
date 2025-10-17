@@ -7,9 +7,11 @@ import (
 
 	"github.com/robfig/cron/v3"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/togglr-project/togglr/internal/domain"
+	mockcontract "github.com/togglr-project/togglr/test_mocks/internal_/contract"
 )
 
 func TestService_Evaluate(t *testing.T) {
@@ -22,6 +24,7 @@ func TestService_Evaluate(t *testing.T) {
 		featureKey    string
 		feature       domain.FeatureExtended
 		reqCtx        map[domain.RuleAttribute]any
+		setupMocks    func(algProc *mockcontract.MockAlgorithmsProcessor)
 		expectedValue string
 		expectedEn    bool
 		expectedFound bool
@@ -66,7 +69,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "A",
 			expectedEn:    true,
 			expectedFound: true,
@@ -107,7 +113,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "US"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "US"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true,
 			expectedFound: true,
@@ -149,6 +158,7 @@ func TestService_Evaluate(t *testing.T) {
 				},
 			},
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks:    func(algProc *mockcontract.MockAlgorithmsProcessor) {}, // не вызывается HasAlgorithm для отключенных фич
 			expectedValue: "",
 			expectedEn:    false,
 			expectedFound: true,
@@ -159,6 +169,7 @@ func TestService_Evaluate(t *testing.T) {
 			featureKey:    "my_feature",
 			feature:       domain.FeatureExtended{}, // empty feature
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks:    func(algProc *mockcontract.MockAlgorithmsProcessor) {}, // не вызывается HasAlgorithm для несуществующих фич
 			expectedValue: "",
 			expectedEn:    false,
 			expectedFound: false,
@@ -196,6 +207,7 @@ func TestService_Evaluate(t *testing.T) {
 				},
 			},
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks:    func(algProc *mockcontract.MockAlgorithmsProcessor) {}, // не вызывается HasAlgorithm для exclude правил
 			expectedValue: "",
 			expectedEn:    false,
 			expectedFound: true,
@@ -247,7 +259,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "B",
 			expectedEn:    true,
 			expectedFound: true,
@@ -281,7 +296,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // активна в 12:15 UTC (внутри cron окна)
 			expectedFound: true,
@@ -315,8 +333,9 @@ func TestService_Evaluate(t *testing.T) {
 				},
 			},
 			reqCtx:        map[domain.RuleAttribute]any{},
-			expectedValue: "",    // может быть "default" или "" в зависимости от времени
-			expectedEn:    false, // неактивна в 11:00 UTC (вне cron окна)
+			setupMocks:    func(algProc *mockcontract.MockAlgorithmsProcessor) {}, // не вызывается HasAlgorithm для неактивных расписаний
+			expectedValue: "",                                                     // может быть "default" или "" в зависимости от времени
+			expectedEn:    false,                                                  // неактивна в 11:00 UTC (вне cron окна)
 			expectedFound: true,
 			allowedValues: []string{"", "default"}, // допустимые значения
 		},
@@ -348,7 +367,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // baseline ON для disable расписания
 			expectedFound: true,
@@ -381,7 +403,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // активна в 12:30 UTC (внутри окна)
 			expectedFound: true,
@@ -415,8 +440,9 @@ func TestService_Evaluate(t *testing.T) {
 				},
 			},
 			reqCtx:        map[domain.RuleAttribute]any{},
-			expectedValue: "",    // может быть "default" или "" в зависимости от времени
-			expectedEn:    false, // неактивна в 11:00 UTC (вне окна)
+			setupMocks:    func(algProc *mockcontract.MockAlgorithmsProcessor) {}, // не вызывается HasAlgorithm для неактивных расписаний
+			expectedValue: "",                                                     // может быть "default" или "" в зависимости от времени
+			expectedEn:    false,                                                  // неактивна в 11:00 UTC (вне окна)
 			expectedFound: true,
 			allowedValues: []string{"", "default"}, // допустимые значения
 		},
@@ -456,7 +482,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // baseline ON из-за disable расписания
 			expectedFound: true,
@@ -494,7 +523,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{}, // пустой контекст
+			reqCtx: map[domain.RuleAttribute]any{}, // пустой контекст
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // правило не срабатывает без country
 			expectedFound: true,
@@ -531,7 +563,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        nil, // nil контекст
+			reqCtx: nil, // nil контекст
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // правило не срабатывает без country
 			expectedFound: true,
@@ -555,8 +590,110 @@ func TestService_Evaluate(t *testing.T) {
 				},
 				Rules: []domain.Rule{}, // пустые правила
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:       "feature with algorithm - algorithm returns value",
+			projectID:  "p1",
+			featureKey: "algorithm_feature",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "algorithm_feature",
+						Name:      "Algorithm Feature",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+					DefaultValue: "default",
+					Enabled:      true,
+				},
+				Rules: []domain.Rule{}, // пустые правила
+			},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm("algorithm_feature", "dev").Return(true)
+				algProc.EXPECT().EvaluateFeature("algorithm_feature", "dev").Return("algorithm_value", true)
+			},
+			expectedValue: "algorithm_value",
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:       "feature with algorithm - algorithm returns error, fallback to default",
+			projectID:  "p1",
+			featureKey: "algorithm_feature_error",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "algorithm_feature_error",
+						Name:      "Algorithm Feature Error",
+						Kind:      domain.FeatureKindSimple,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+					DefaultValue: "default",
+					Enabled:      true,
+				},
+				Rules: []domain.Rule{}, // пустые правила
+			},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm("algorithm_feature_error", "dev").Return(true)
+				algProc.EXPECT().EvaluateFeature("algorithm_feature_error", "dev").Return("", false)
+			},
+			expectedValue: "default", // fallback к default при ошибке алгоритма
+			expectedEn:    true,
+			expectedFound: true,
+		},
+		{
+			name:       "feature with algorithm and assign rule - algorithm has priority",
+			projectID:  "p1",
+			featureKey: "algorithm_with_assign",
+			feature: domain.FeatureExtended{
+				Feature: domain.Feature{
+					BasicFeature: domain.BasicFeature{
+						ID:        "f1",
+						ProjectID: "p1",
+						Key:       "algorithm_with_assign",
+						Name:      "Algorithm with Assign",
+						Kind:      domain.FeatureKindMultivariant,
+						CreatedAt: time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC),
+					},
+					DefaultValue: "default",
+					Enabled:      true,
+				},
+				FlagVariants: []domain.FlagVariant{variantA},
+				Rules: []domain.Rule{
+					{
+						ID:            "r1",
+						Action:        domain.RuleActionAssign,
+						FlagVariantID: &variantA.ID,
+						Conditions: domain.BooleanExpression{
+							Condition: &domain.Condition{
+								Attribute: "country",
+								Operator:  domain.OpEq,
+								Value:     "RU",
+							},
+						},
+						Priority: 0,
+					},
+				},
+			},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm("algorithm_with_assign", "dev").Return(true)
+				algProc.EXPECT().EvaluateFeature("algorithm_with_assign", "dev").Return("algorithm_result", true)
+			},
+			expectedValue: "algorithm_result", // алгоритм имеет приоритет над assign правилом
 			expectedEn:    true,
 			expectedFound: true,
 		},
@@ -594,7 +731,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default", // fallback к default
 			expectedEn:    true,
 			expectedFound: true,
@@ -627,7 +767,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // правило не срабатывает с nil условием
 			expectedFound: true,
@@ -658,7 +801,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "default",
 			expectedEn:    true, // правило не срабатывает с пустым выражением
 			expectedFound: true,
@@ -682,7 +828,10 @@ func TestService_Evaluate(t *testing.T) {
 					Enabled:      true,
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{},
+			reqCtx: map[domain.RuleAttribute]any{},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "enabled",
 			expectedEn:    true,
 			expectedFound: true,
@@ -724,7 +873,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:        map[domain.RuleAttribute]any{"user_id": "user123"},
+			reqCtx: map[domain.RuleAttribute]any{"user_id": "user123"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue: "A",
 			expectedEn:    true,
 			expectedFound: true,
@@ -774,7 +926,10 @@ func TestService_Evaluate(t *testing.T) {
 					},
 				},
 			},
-			reqCtx:         map[domain.RuleAttribute]any{"country": "RU"},
+			reqCtx: map[domain.RuleAttribute]any{"country": "RU"},
+			setupMocks: func(algProc *mockcontract.MockAlgorithmsProcessor) {
+				algProc.EXPECT().HasAlgorithm(mock.Anything, mock.Anything).Return(false)
+			},
 			expectedValue:  "",   // может быть "A" или "" в зависимости от времени
 			expectedEn:     true, // может быть true или false в зависимости от времени
 			expectedFound:  true,
@@ -826,15 +981,17 @@ func TestService_Evaluate(t *testing.T) {
 				},
 			},
 			reqCtx:        map[domain.RuleAttribute]any{"country": "RU"},
-			expectedValue: "",    // фича неактивна по расписанию
-			expectedEn:    false, // неактивна вне окна
+			setupMocks:    func(algProc *mockcontract.MockAlgorithmsProcessor) {}, // не вызывается HasAlgorithm для неактивных расписаний
+			expectedValue: "",                                                     // фича неактивна по расписанию
+			expectedEn:    false,                                                  // неактивна вне окна
 			expectedFound: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, nil, 0)
+			algProcMock := mockcontract.NewMockAlgorithmsProcessor(t)
+			svc := New(nil, nil, nil, nil, algProcMock, 0)
 
 			// Set fixed time for schedule tests
 			var testTime time.Time
@@ -847,7 +1004,7 @@ func TestService_Evaluate(t *testing.T) {
 			} else if strings.Contains(tt.name, "inactive outside window") {
 				testTime = time.Date(2025, 9, 21, 11, 0, 0, 0, time.UTC) // 11:00 UTC - outside one-shot window
 			} else if strings.Contains(tt.name, "active schedule allows rules") {
-				testTime = time.Date(2025, 9, 21, 12, 30, 0, 0, time.UTC) // 12:30 UTC - inside one-shot window
+				testTime = time.Date(2025, 9, 20, 10, 0, 0, 0, time.UTC) // 10:00 UTC - inside one-shot window
 			} else if strings.Contains(tt.name, "inactive schedule blocks rules") {
 				testTime = time.Date(2025, 9, 21, 11, 0, 0, 0, time.UTC) // 11:00 UTC - outside one-shot window
 			} else {
@@ -856,6 +1013,9 @@ func TestService_Evaluate(t *testing.T) {
 
 			// Set a mock time function
 			svc.nowFunc = func() time.Time { return testTime }
+
+			// Setup mocks
+			tt.setupMocks(algProcMock)
 
 			// Initialize holder
 			svc.mu.Lock()
@@ -1559,7 +1719,8 @@ func TestService_NextState(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			svc := New(nil, nil, nil, nil, 0)
+			algProcMock := mockcontract.NewMockAlgorithmsProcessor(t)
+			svc := New(nil, nil, nil, nil, algProcMock, 0)
 
 			enabled, timestamp := svc.NextStateAt(tt.feature, now)
 

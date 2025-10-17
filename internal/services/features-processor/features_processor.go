@@ -306,7 +306,18 @@ func (s *Service) Evaluate(
 	}
 
 	if hasAlg {
-		value, _ = s.algProcessor.EvaluateFeature(featureKey, envKey)
+		var success bool
+		value, success = s.algProcessor.EvaluateFeature(featureKey, envKey)
+		if !success {
+			// Если алгоритм вернул ошибку, используем fallback
+			value = rolloutOrDefault(
+				feature.Kind,
+				feature.FlagVariants,
+				feature.RolloutKey,
+				reqCtx,
+				feature.DefaultValue,
+			)
+		}
 	} else {
 		value = rolloutOrDefault(
 			feature.Kind,
