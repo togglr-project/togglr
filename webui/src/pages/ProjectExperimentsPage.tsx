@@ -16,11 +16,14 @@ import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import apiClient from '../api/apiClient';
-import type { Project } from '../generated/api/client';
+import type { Project, AuthCredentialsMethodEnum } from '../generated/api/client';
 import { useRBAC } from '../auth/permissions';
+import { useAuth } from '../auth/AuthContext';
+import GuardResponseHandler from '../components/pending-changes/GuardResponseHandler';
+import { useApprovePendingChange } from '../hooks/usePendingChanges';
 import { 
   ExperimentsList, 
   AlgorithmsList, 
@@ -34,6 +37,7 @@ interface ProjectResponse { project: Project }
 
 const ProjectExperimentsPage: React.FC = () => {
   const { projectId = '' } = useParams();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [environmentKey, setEnvironmentKey] = useState<string>(() => {
     return localStorage.getItem('currentEnvironmentKey') || 'prod';
@@ -45,7 +49,15 @@ const ProjectExperimentsPage: React.FC = () => {
   const [selectedExperiment, setSelectedExperiment] = useState<FeatureAlgorithm | null>(null);
   const [togglingExperimentId, setTogglingExperimentId] = useState<string | null>(null);
   
+  // Guard workflow state
+  const [guardResponse, setGuardResponse] = useState<{
+    pendingChange?: any;
+    conflictError?: string;
+    forbiddenError?: string;
+  }>({});
+  
   const rbac = useRBAC(projectId);
+  const approveMutation = useApprovePendingChange();
 
   // Check project access
   if (!rbac.canManageProject()) {
@@ -97,6 +109,33 @@ const ProjectExperimentsPage: React.FC = () => {
 
   const project = projectResp?.project;
 
+  // Handle auto-approve for single-user projects
+  const handleAutoApprove = (authMethod: AuthCredentialsMethodEnum, credential: string, sessionId?: string) => {
+    if (!guardResponse.pendingChange?.id || !user) return;
+    
+    approveMutation.mutate(
+      {
+        id: guardResponse.pendingChange.id,
+        request: {
+          approver_user_id: user.id,
+          approver_name: user.username,
+          auth: {
+            method: authMethod,
+            credential,
+            ...(sessionId && { session_id: sessionId }),
+          },
+        },
+      },
+      {
+        onSuccess: () => {
+          setGuardResponse({});
+          queryClient.invalidateQueries({ queryKey: ['feature-algorithms', projectId, environmentKey] });
+          queryClient.invalidateQueries({ queryKey: ['pending-changes'] });
+        },
+      }
+    );
+  };
+
   const handleEdit = (experiment: FeatureAlgorithm) => {
     setSelectedExperiment(experiment);
     setEditDialogOpen(true);
@@ -111,10 +150,34 @@ const ProjectExperimentsPage: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this experiment?')) {
       try {
         const environmentId = parseInt(localStorage.getItem('currentEnvId') || '0');
-        await apiClient.deleteFeatureAlgorithm(experiment.feature_id, environmentId);
-        // Invalidate and refetch the experiments list
+        const res = await apiClient.deleteFeatureAlgorithm(experiment.feature_id, environmentId);
+        
+        // Handle guard workflow responses
+        if (res.status === 202) {
+          setGuardResponse({ pendingChange: res.data });
+          return;
+        }
+        if (res.status === 409) {
+          setGuardResponse({ conflictError: 'Feature is already locked by another pending change' });
+          return;
+        }
+        
+        // Normal success - invalidate queries
         queryClient.invalidateQueries({ queryKey: ['feature-algorithms', projectId, environmentKey] });
-      } catch (error) {
+      } catch (error: any) {
+        // Handle guard workflow responses (pending change or conflict)
+        if (error.response?.status === 202) {
+          setGuardResponse({ pendingChange: error.response.data });
+          return;
+        }
+        if (error.response?.status === 409) {
+          setGuardResponse({ conflictError: error.response.data.message || 'Feature is already locked by another pending change' });
+          return;
+        }
+        if (error.response?.status === 403) {
+          setGuardResponse({ forbiddenError: 'You don\'t have permission to modify this guarded feature' });
+          return;
+        }
         console.error('Failed to delete experiment:', error);
       }
     }
@@ -124,13 +187,37 @@ const ProjectExperimentsPage: React.FC = () => {
     setTogglingExperimentId(experiment.id);
     try {
       const environmentId = parseInt(localStorage.getItem('currentEnvId') || '0');
-      await apiClient.updateFeatureAlgorithm(experiment.feature_id, environmentId, {
+      const res = await apiClient.updateFeatureAlgorithm(experiment.feature_id, environmentId, {
         enabled: !experiment.enabled,
         settings: experiment.settings,
       });
-      // Invalidate and refetch the experiments list
+      
+      // Handle guard workflow responses
+      if (res.status === 202) {
+        setGuardResponse({ pendingChange: res.data });
+        return;
+      }
+      if (res.status === 409) {
+        setGuardResponse({ conflictError: 'Feature is already locked by another pending change' });
+        return;
+      }
+      
+      // Normal success - invalidate queries
       queryClient.invalidateQueries({ queryKey: ['feature-algorithms', projectId, environmentKey] });
-    } catch (error) {
+    } catch (error: any) {
+      // Handle guard workflow responses (pending change or conflict)
+      if (error.response?.status === 202) {
+        setGuardResponse({ pendingChange: error.response.data });
+        return;
+      }
+      if (error.response?.status === 409) {
+        setGuardResponse({ conflictError: error.response.data.message || 'Feature is already locked by another pending change' });
+        return;
+      }
+      if (error.response?.status === 403) {
+        setGuardResponse({ forbiddenError: 'You don\'t have permission to modify this guarded feature' });
+        return;
+      }
       console.error('Failed to toggle experiment:', error);
     } finally {
       setTogglingExperimentId(null);
@@ -230,6 +317,16 @@ const ProjectExperimentsPage: React.FC = () => {
         open={detailsDialogOpen}
         onClose={() => setDetailsDialogOpen(false)}
         experiment={selectedExperiment}
+      />
+
+      {/* Guard Response Handler */}
+      <GuardResponseHandler
+        pendingChange={guardResponse.pendingChange}
+        conflictError={guardResponse.conflictError}
+        forbiddenError={guardResponse.forbiddenError}
+        onClose={() => setGuardResponse({})}
+        onApprove={handleAutoApprove}
+        approveLoading={approveMutation.isPending}
       />
     </AuthenticatedLayout>
   );
