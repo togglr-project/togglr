@@ -76,6 +76,7 @@ func (r *RestAPI) UpdateFeatureAlgorithm(
 	}
 
 	featAlgNew := domain.FeatureAlgorithm{
+		ID:            featAlg.ID,
 		ProjectID:     feature.ProjectID,
 		EnvironmentID: feature.EnvironmentID,
 		FeatureID:     featureID,
