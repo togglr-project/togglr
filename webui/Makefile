@@ -1,5 +1,5 @@
 # Docker registry configuration
-DOCKER_REGISTRY ?= chudov.cr.cloud.ru
+DOCKER_REGISTRY ?= docker.io
 
 RED="\033[0;31m"
 GREEN="\033[1;32m"
@@ -66,31 +66,31 @@ docker-build: ## Сборка универсального Docker-образа
 		exit 1 ; \
 	fi
 	@echo ${GREEN}"Universal Docker image 'togglr-frontend' built successfully!"${NOCOLOR}
-	@echo ${YELLOW}"Note: API URL will be configured at runtime via TOGGLR_API_BASE_URL environment variable"${NOCOLOR}
+	@echo ${YELLOW}"Note: API URL will be configured at runtime via togglr_API_BASE_URL environment variable"${NOCOLOR}
 
 .PHONY: docker-push
 docker-push: docker-build ## Тегирование и пуш Docker-образа
 	@echo "\nTagging Docker image..."
-	@docker tag togglr-frontend:latest $(DOCKER_REGISTRY)/togglr-frontend:latest
+	@docker tag togglr-frontend:latest $(DOCKER_REGISTRY)/rom8726/togglr-frontend:latest
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"Tagging FAILED"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
 	@echo "\nPushing Docker image to Docker Registry..."
-	@docker push $(DOCKER_REGISTRY)/togglr-frontend:latest
+	@docker push $(DOCKER_REGISTRY)/rom8726/togglr-frontend:latest
 	@if [ $$? -ne 0 ] ; then \
 		@echo -e ${RED}"Push FAILED"${NOCOLOR} ; \
 		exit 1 ; \
 	fi
 	@if [ -n "$(VITE_VERSION)" ] && [ "$(VITE_VERSION)" != "latest" ]; then \
 		echo "\nTagging Docker image with version $(VITE_VERSION)..."; \
-		docker tag togglr-frontend:latest $(DOCKER_REGISTRY)/togglr-frontend:$(VITE_VERSION); \
+		docker tag togglr-frontend:latest $(DOCKER_REGISTRY)/rom8726/togglr-frontend:$(VITE_VERSION); \
 		                if [ $$? -ne 0 ] ; then \
                         echo -e ${RED}"Version tagging FAILED"${NOCOLOR} ; \
                         exit 1 ; \
                 fi; \
                 echo "\nPushing Docker image with version $(VITE_VERSION) to Docker Registry..."; \
-                docker push $(DOCKER_REGISTRY)/togglr-frontend:$(VITE_VERSION); \
+                docker push $(DOCKER_REGISTRY)/rom8726/togglr-frontend:$(VITE_VERSION); \
                 if [ $$? -ne 0 ] ; then \
                         echo -e ${RED}"Version push FAILED"${NOCOLOR} ; \
 			exit 1 ; \

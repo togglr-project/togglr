@@ -15,6 +15,9 @@ OS=$(shell uname -s)
 
 LD_FLAGS="-w -s -X 'github.com/togglr-project/togglr/internal/version.Version=${TOOL_VERSION}' -X 'github.com/togglr-project/togglr/internal/version.BuildTime=${TOOL_BUILD_TIME}'"
 
+# Docker registry configuration
+DOCKER_REGISTRY ?= docker.io
+
 RED="\033[0;31m"
 GREEN="\033[1;32m"
 YELLOW="\033[0;33m"
@@ -26,6 +29,7 @@ NOCOLOR="\033[0m"
 # Extra targets
 #
 -include dev/dev.mk
+-include docker.mk
 
 #
 # Local targets
