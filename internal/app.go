@@ -78,6 +78,7 @@ import (
 	dashboardusecase "github.com/togglr-project/togglr/internal/usecases/dashboard"
 	environmentsusecase "github.com/togglr-project/togglr/internal/usecases/environments"
 	errorreportsusecase "github.com/togglr-project/togglr/internal/usecases/errorreports"
+	featalgorithmsusecase "github.com/togglr-project/togglr/internal/usecases/feature-algorithms"
 	featurenotificationsuc "github.com/togglr-project/togglr/internal/usecases/feature-notifications"
 	featuretagsusecase "github.com/togglr-project/togglr/internal/usecases/feature-tags"
 	featuresusecase "github.com/togglr-project/togglr/internal/usecases/features"
@@ -364,6 +365,7 @@ func (app *App) registerComponents() {
 	app.registerComponent(rbacusecase.New)
 	app.registerComponent(errorreportsusecase.New)
 	app.registerComponent(usernotifusecase.New)
+	app.registerComponent(featalgorithmsusecase.New)
 	app.registerComponent(featurenotificationsuc.New).Arg([]contract.NotificationChannel{
 		mattermostChannel,
 		webhookChannel,

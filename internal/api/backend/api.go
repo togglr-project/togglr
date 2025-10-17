@@ -45,6 +45,7 @@ type RestAPI struct {
 	userNotificationsUseCase    contract.UserNotificationsUseCase
 	featureNotificationsUseCase contract.FeatureNotificationsUseCase
 	algorithmsRepo              contract.AlgorithmsRepository
+	featureAlgorithmsUseCase    contract.FeatureAlgorithmsUseCase
 }
 
 func New(
@@ -78,6 +79,7 @@ func New(
 	userNotificationsUseCase contract.UserNotificationsUseCase,
 	featureNotificationsUseCase contract.FeatureNotificationsUseCase,
 	algorithmsRepo contract.AlgorithmsRepository,
+	featureAlgorithmsUseCase contract.FeatureAlgorithmsUseCase,
 ) *RestAPI {
 	return &RestAPI{
 		config:                      config,
@@ -110,6 +112,7 @@ func New(
 		userNotificationsUseCase:    userNotificationsUseCase,
 		featureNotificationsUseCase: featureNotificationsUseCase,
 		algorithmsRepo:              algorithmsRepo,
+		featureAlgorithmsUseCase:    featureAlgorithmsUseCase,
 	}
 }
 

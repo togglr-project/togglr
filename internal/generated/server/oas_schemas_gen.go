@@ -1329,6 +1329,74 @@ func (s *CreateEnvironmentRequest) SetName(val string) {
 	s.Name = val
 }
 
+// CreateFeatureAlgorithmCreated is response for CreateFeatureAlgorithm operation.
+type CreateFeatureAlgorithmCreated struct{}
+
+func (*CreateFeatureAlgorithmCreated) createFeatureAlgorithmRes() {}
+
+// Ref: #/components/schemas/CreateFeatureAlgorithmRequest
+type CreateFeatureAlgorithmRequest struct {
+	// Algorithm slug from the /api/v1/algorithms list.
+	AlgorithmSlug string `json:"algorithm_slug"`
+	// Environment ID for which the algorithm applies.
+	EnvironmentID int64 `json:"environment_id"`
+	// Numeric algorithm settings overriding defaults.
+	Settings CreateFeatureAlgorithmRequestSettings `json:"settings"`
+	Enabled  bool                                  `json:"enabled"`
+}
+
+// GetAlgorithmSlug returns the value of AlgorithmSlug.
+func (s *CreateFeatureAlgorithmRequest) GetAlgorithmSlug() string {
+	return s.AlgorithmSlug
+}
+
+// GetEnvironmentID returns the value of EnvironmentID.
+func (s *CreateFeatureAlgorithmRequest) GetEnvironmentID() int64 {
+	return s.EnvironmentID
+}
+
+// GetSettings returns the value of Settings.
+func (s *CreateFeatureAlgorithmRequest) GetSettings() CreateFeatureAlgorithmRequestSettings {
+	return s.Settings
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *CreateFeatureAlgorithmRequest) GetEnabled() bool {
+	return s.Enabled
+}
+
+// SetAlgorithmSlug sets the value of AlgorithmSlug.
+func (s *CreateFeatureAlgorithmRequest) SetAlgorithmSlug(val string) {
+	s.AlgorithmSlug = val
+}
+
+// SetEnvironmentID sets the value of EnvironmentID.
+func (s *CreateFeatureAlgorithmRequest) SetEnvironmentID(val int64) {
+	s.EnvironmentID = val
+}
+
+// SetSettings sets the value of Settings.
+func (s *CreateFeatureAlgorithmRequest) SetSettings(val CreateFeatureAlgorithmRequestSettings) {
+	s.Settings = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *CreateFeatureAlgorithmRequest) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// Numeric algorithm settings overriding defaults.
+type CreateFeatureAlgorithmRequestSettings map[string]float64
+
+func (s *CreateFeatureAlgorithmRequestSettings) init() CreateFeatureAlgorithmRequestSettings {
+	m := *s
+	if m == nil {
+		m = map[string]float64{}
+		*s = m
+	}
+	return m
+}
+
 // Ref: #/components/schemas/CreateFeatureRequest
 type CreateFeatureRequest struct {
 	Key         string       `json:"key"`
@@ -2171,6 +2239,11 @@ type DeleteEnvironmentNoContent struct{}
 
 func (*DeleteEnvironmentNoContent) deleteEnvironmentRes() {}
 
+// DeleteFeatureAlgorithmNoContent is response for DeleteFeatureAlgorithm operation.
+type DeleteFeatureAlgorithmNoContent struct{}
+
+func (*DeleteFeatureAlgorithmNoContent) deleteFeatureAlgorithmRes() {}
+
 // DeleteFeatureNoContent is response for DeleteFeature operation.
 type DeleteFeatureNoContent struct{}
 
@@ -2645,6 +2718,7 @@ func (*ErrorBadRequest) confirm2FARes()                {}
 func (*ErrorBadRequest) consumeSAMLAssertionRes()      {}
 func (*ErrorBadRequest) createCategoryRes()            {}
 func (*ErrorBadRequest) createEnvironmentRes()         {}
+func (*ErrorBadRequest) createFeatureAlgorithmRes()    {}
 func (*ErrorBadRequest) createFeatureFlagVariantRes()  {}
 func (*ErrorBadRequest) createFeatureRuleRes()         {}
 func (*ErrorBadRequest) createFeatureScheduleRes()     {}
@@ -2721,6 +2795,7 @@ func (*ErrorConflict) addFeatureTagRes()            {}
 func (*ErrorConflict) approvePendingChangeRes()     {}
 func (*ErrorConflict) cancelPendingChangeRes()      {}
 func (*ErrorConflict) createEnvironmentRes()        {}
+func (*ErrorConflict) createFeatureAlgorithmRes()   {}
 func (*ErrorConflict) createFeatureFlagVariantRes() {}
 func (*ErrorConflict) createFeatureRuleRes()        {}
 func (*ErrorConflict) createFeatureScheduleRes()    {}
@@ -2797,6 +2872,7 @@ func (*ErrorInternalServerError) cancelPendingChangeRes()         {}
 func (*ErrorInternalServerError) consumeSAMLAssertionRes()        {}
 func (*ErrorInternalServerError) createCategoryRes()              {}
 func (*ErrorInternalServerError) createEnvironmentRes()           {}
+func (*ErrorInternalServerError) createFeatureAlgorithmRes()      {}
 func (*ErrorInternalServerError) createFeatureFlagVariantRes()    {}
 func (*ErrorInternalServerError) createFeatureRuleRes()           {}
 func (*ErrorInternalServerError) createFeatureScheduleRes()       {}
@@ -2810,6 +2886,7 @@ func (*ErrorInternalServerError) createRuleAttributeRes()         {}
 func (*ErrorInternalServerError) createUserRes()                  {}
 func (*ErrorInternalServerError) deleteCategoryRes()              {}
 func (*ErrorInternalServerError) deleteEnvironmentRes()           {}
+func (*ErrorInternalServerError) deleteFeatureAlgorithmRes()      {}
 func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) deleteNotificationSettingRes()   {}
@@ -2825,6 +2902,7 @@ func (*ErrorInternalServerError) getCategoryRes()                 {}
 func (*ErrorInternalServerError) getCurrentUserRes()              {}
 func (*ErrorInternalServerError) getDashboardOverviewRes()        {}
 func (*ErrorInternalServerError) getEnvironmentRes()              {}
+func (*ErrorInternalServerError) getFeatureAlgorithmRes()         {}
 func (*ErrorInternalServerError) getFeatureRes()                  {}
 func (*ErrorInternalServerError) getFeatureScheduleRes()          {}
 func (*ErrorInternalServerError) getFeatureTimelineRes()          {}
@@ -2841,6 +2919,7 @@ func (*ErrorInternalServerError) getSegmentRes()                  {}
 func (*ErrorInternalServerError) listAlgorithmsRes()              {}
 func (*ErrorInternalServerError) listAllFeatureSchedulesRes()     {}
 func (*ErrorInternalServerError) listCategoriesRes()              {}
+func (*ErrorInternalServerError) listFeatureAlgorithmsRes()       {}
 func (*ErrorInternalServerError) listFeatureFlagVariantsRes()     {}
 func (*ErrorInternalServerError) listFeatureRulesRes()            {}
 func (*ErrorInternalServerError) listFeatureSchedulesRes()        {}
@@ -2877,6 +2956,7 @@ func (*ErrorInternalServerError) testFeatureTimelineRes()         {}
 func (*ErrorInternalServerError) toggleFeatureRes()               {}
 func (*ErrorInternalServerError) updateCategoryRes()              {}
 func (*ErrorInternalServerError) updateEnvironmentRes()           {}
+func (*ErrorInternalServerError) updateFeatureAlgorithmRes()      {}
 func (*ErrorInternalServerError) updateFeatureRes()               {}
 func (*ErrorInternalServerError) updateFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) updateLicenseAcceptanceRes()     {}
@@ -2954,6 +3034,7 @@ func (*ErrorNotFound) addFeatureTagRes()               {}
 func (*ErrorNotFound) approvePendingChangeRes()        {}
 func (*ErrorNotFound) archiveProjectRes()              {}
 func (*ErrorNotFound) cancelPendingChangeRes()         {}
+func (*ErrorNotFound) createFeatureAlgorithmRes()      {}
 func (*ErrorNotFound) createFeatureFlagVariantRes()    {}
 func (*ErrorNotFound) createFeatureRuleRes()           {}
 func (*ErrorNotFound) createFeatureScheduleRes()       {}
@@ -2965,6 +3046,7 @@ func (*ErrorNotFound) createProjectSettingRes()        {}
 func (*ErrorNotFound) createProjectTagRes()            {}
 func (*ErrorNotFound) deleteCategoryRes()              {}
 func (*ErrorNotFound) deleteEnvironmentRes()           {}
+func (*ErrorNotFound) deleteFeatureAlgorithmRes()      {}
 func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
 func (*ErrorNotFound) deleteNotificationSettingRes()   {}
@@ -2977,6 +3059,7 @@ func (*ErrorNotFound) deleteUserRes()                  {}
 func (*ErrorNotFound) getAuditLogEntryRes()            {}
 func (*ErrorNotFound) getCategoryRes()                 {}
 func (*ErrorNotFound) getEnvironmentRes()              {}
+func (*ErrorNotFound) getFeatureAlgorithmRes()         {}
 func (*ErrorNotFound) getFeatureRes()                  {}
 func (*ErrorNotFound) getFeatureScheduleRes()          {}
 func (*ErrorNotFound) getFeatureTimelineRes()          {}
@@ -2990,6 +3073,7 @@ func (*ErrorNotFound) getRolePermissionsRes()          {}
 func (*ErrorNotFound) getSAMLMetadataRes()             {}
 func (*ErrorNotFound) getSegmentRes()                  {}
 func (*ErrorNotFound) initiateTOTPApprovalRes()        {}
+func (*ErrorNotFound) listFeatureAlgorithmsRes()       {}
 func (*ErrorNotFound) listFeatureFlagVariantsRes()     {}
 func (*ErrorNotFound) listFeatureRulesRes()            {}
 func (*ErrorNotFound) listFeatureSchedulesRes()        {}
@@ -3014,6 +3098,7 @@ func (*ErrorNotFound) testFeatureTimelineRes()         {}
 func (*ErrorNotFound) toggleFeatureRes()               {}
 func (*ErrorNotFound) updateCategoryRes()              {}
 func (*ErrorNotFound) updateEnvironmentRes()           {}
+func (*ErrorNotFound) updateFeatureAlgorithmRes()      {}
 func (*ErrorNotFound) updateFeatureRes()               {}
 func (*ErrorNotFound) updateFeatureScheduleRes()       {}
 func (*ErrorNotFound) updateNotificationSettingRes()   {}
@@ -3089,6 +3174,7 @@ func (*ErrorPermissionDenied) getAuditLogEntryRes()            {}
 func (*ErrorPermissionDenied) getCategoryRes()                 {}
 func (*ErrorPermissionDenied) getDashboardOverviewRes()        {}
 func (*ErrorPermissionDenied) getEnvironmentRes()              {}
+func (*ErrorPermissionDenied) getFeatureAlgorithmRes()         {}
 func (*ErrorPermissionDenied) getFeatureRes()                  {}
 func (*ErrorPermissionDenied) getFeatureScheduleRes()          {}
 func (*ErrorPermissionDenied) getFeatureTimelineRes()          {}
@@ -3108,6 +3194,7 @@ func (*ErrorPermissionDenied) getSegmentRes()                  {}
 func (*ErrorPermissionDenied) initiateTOTPApprovalRes()        {}
 func (*ErrorPermissionDenied) listAllFeatureSchedulesRes()     {}
 func (*ErrorPermissionDenied) listCategoriesRes()              {}
+func (*ErrorPermissionDenied) listFeatureAlgorithmsRes()       {}
 func (*ErrorPermissionDenied) listFeatureFlagVariantsRes()     {}
 func (*ErrorPermissionDenied) listFeatureRulesRes()            {}
 func (*ErrorPermissionDenied) listFeatureSchedulesRes()        {}
@@ -3245,6 +3332,7 @@ func (*ErrorUnauthorized) confirm2FARes()                  {}
 func (*ErrorUnauthorized) consumeSAMLAssertionRes()        {}
 func (*ErrorUnauthorized) createCategoryRes()              {}
 func (*ErrorUnauthorized) createEnvironmentRes()           {}
+func (*ErrorUnauthorized) createFeatureAlgorithmRes()      {}
 func (*ErrorUnauthorized) createFeatureFlagVariantRes()    {}
 func (*ErrorUnauthorized) createFeatureRuleRes()           {}
 func (*ErrorUnauthorized) createFeatureScheduleRes()       {}
@@ -3258,6 +3346,7 @@ func (*ErrorUnauthorized) createRuleAttributeRes()         {}
 func (*ErrorUnauthorized) createUserRes()                  {}
 func (*ErrorUnauthorized) deleteCategoryRes()              {}
 func (*ErrorUnauthorized) deleteEnvironmentRes()           {}
+func (*ErrorUnauthorized) deleteFeatureAlgorithmRes()      {}
 func (*ErrorUnauthorized) deleteFeatureRes()               {}
 func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
@@ -3274,6 +3363,7 @@ func (*ErrorUnauthorized) getCategoryRes()                 {}
 func (*ErrorUnauthorized) getCurrentUserRes()              {}
 func (*ErrorUnauthorized) getDashboardOverviewRes()        {}
 func (*ErrorUnauthorized) getEnvironmentRes()              {}
+func (*ErrorUnauthorized) getFeatureAlgorithmRes()         {}
 func (*ErrorUnauthorized) getFeatureRes()                  {}
 func (*ErrorUnauthorized) getFeatureScheduleRes()          {}
 func (*ErrorUnauthorized) getFeatureTimelineRes()          {}
@@ -3297,6 +3387,7 @@ func (*ErrorUnauthorized) initiateTOTPApprovalRes()        {}
 func (*ErrorUnauthorized) listAlgorithmsRes()              {}
 func (*ErrorUnauthorized) listAllFeatureSchedulesRes()     {}
 func (*ErrorUnauthorized) listCategoriesRes()              {}
+func (*ErrorUnauthorized) listFeatureAlgorithmsRes()       {}
 func (*ErrorUnauthorized) listFeatureFlagVariantsRes()     {}
 func (*ErrorUnauthorized) listFeatureRulesRes()            {}
 func (*ErrorUnauthorized) listFeatureSchedulesRes()        {}
@@ -3337,6 +3428,7 @@ func (*ErrorUnauthorized) testLDAPConnectionRes()          {}
 func (*ErrorUnauthorized) toggleFeatureRes()               {}
 func (*ErrorUnauthorized) updateCategoryRes()              {}
 func (*ErrorUnauthorized) updateEnvironmentRes()           {}
+func (*ErrorUnauthorized) updateFeatureAlgorithmRes()      {}
 func (*ErrorUnauthorized) updateFeatureRes()               {}
 func (*ErrorUnauthorized) updateFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) updateLDAPConfigRes()            {}
@@ -3493,7 +3585,9 @@ func (s *Feature) SetUpdatedAt(val time.Time) {
 
 // Ref: #/components/schemas/FeatureAlgorithm
 type FeatureAlgorithm struct {
+	ID            string `json:"id"`
 	FeatureID     string `json:"feature_id"`
+	ProjectID     string `json:"project_id"`
 	EnvironmentID int64  `json:"environment_id"`
 	AlgorithmSlug string `json:"algorithm_slug"`
 	Enabled       bool   `json:"enabled"`
@@ -3501,9 +3595,19 @@ type FeatureAlgorithm struct {
 	Settings FeatureAlgorithmSettings `json:"settings"`
 }
 
+// GetID returns the value of ID.
+func (s *FeatureAlgorithm) GetID() string {
+	return s.ID
+}
+
 // GetFeatureID returns the value of FeatureID.
 func (s *FeatureAlgorithm) GetFeatureID() string {
 	return s.FeatureID
+}
+
+// GetProjectID returns the value of ProjectID.
+func (s *FeatureAlgorithm) GetProjectID() string {
+	return s.ProjectID
 }
 
 // GetEnvironmentID returns the value of EnvironmentID.
@@ -3526,9 +3630,19 @@ func (s *FeatureAlgorithm) GetSettings() FeatureAlgorithmSettings {
 	return s.Settings
 }
 
+// SetID sets the value of ID.
+func (s *FeatureAlgorithm) SetID(val string) {
+	s.ID = val
+}
+
 // SetFeatureID sets the value of FeatureID.
 func (s *FeatureAlgorithm) SetFeatureID(val string) {
 	s.FeatureID = val
+}
+
+// SetProjectID sets the value of ProjectID.
+func (s *FeatureAlgorithm) SetProjectID(val string) {
+	s.ProjectID = val
 }
 
 // SetEnvironmentID sets the value of EnvironmentID.
@@ -3550,6 +3664,9 @@ func (s *FeatureAlgorithm) SetEnabled(val bool) {
 func (s *FeatureAlgorithm) SetSettings(val FeatureAlgorithmSettings) {
 	s.Settings = val
 }
+
+func (*FeatureAlgorithm) getFeatureAlgorithmRes()    {}
+func (*FeatureAlgorithm) updateFeatureAlgorithmRes() {}
 
 // Numeric settings for the feature algorithm.
 type FeatureAlgorithmSettings map[string]float64
@@ -5582,6 +5699,23 @@ func (s *ListEnvironmentsResponse) SetPagination(val OptPagination) {
 }
 
 func (*ListEnvironmentsResponse) listProjectEnvironmentsRes() {}
+
+// Ref: #/components/schemas/ListFeatureAlgorithmsResponse
+type ListFeatureAlgorithmsResponse struct {
+	FeatureAlgorithms []FeatureAlgorithm `json:"feature_algorithms"`
+}
+
+// GetFeatureAlgorithms returns the value of FeatureAlgorithms.
+func (s *ListFeatureAlgorithmsResponse) GetFeatureAlgorithms() []FeatureAlgorithm {
+	return s.FeatureAlgorithms
+}
+
+// SetFeatureAlgorithms sets the value of FeatureAlgorithms.
+func (s *ListFeatureAlgorithmsResponse) SetFeatureAlgorithms(val []FeatureAlgorithm) {
+	s.FeatureAlgorithms = val
+}
+
+func (*ListFeatureAlgorithmsResponse) listFeatureAlgorithmsRes() {}
 
 type ListFeatureIDsResponse []string
 
@@ -11207,6 +11341,45 @@ func (s *UpdateEnvironmentRequest) GetName() string {
 // SetName sets the value of Name.
 func (s *UpdateEnvironmentRequest) SetName(val string) {
 	s.Name = val
+}
+
+// Ref: #/components/schemas/UpdateFeatureAlgorithmRequest
+type UpdateFeatureAlgorithmRequest struct {
+	// Updated numeric algorithm settings.
+	Settings UpdateFeatureAlgorithmRequestSettings `json:"settings"`
+	Enabled  bool                                  `json:"enabled"`
+}
+
+// GetSettings returns the value of Settings.
+func (s *UpdateFeatureAlgorithmRequest) GetSettings() UpdateFeatureAlgorithmRequestSettings {
+	return s.Settings
+}
+
+// GetEnabled returns the value of Enabled.
+func (s *UpdateFeatureAlgorithmRequest) GetEnabled() bool {
+	return s.Enabled
+}
+
+// SetSettings sets the value of Settings.
+func (s *UpdateFeatureAlgorithmRequest) SetSettings(val UpdateFeatureAlgorithmRequestSettings) {
+	s.Settings = val
+}
+
+// SetEnabled sets the value of Enabled.
+func (s *UpdateFeatureAlgorithmRequest) SetEnabled(val bool) {
+	s.Enabled = val
+}
+
+// Updated numeric algorithm settings.
+type UpdateFeatureAlgorithmRequestSettings map[string]float64
+
+func (s *UpdateFeatureAlgorithmRequestSettings) init() UpdateFeatureAlgorithmRequestSettings {
+	m := *s
+	if m == nil {
+		m = map[string]float64{}
+		*s = m
+	}
+	return m
 }
 
 // Ref: #/components/schemas/UpdateFeatureScheduleRequest

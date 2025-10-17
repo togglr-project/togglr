@@ -3,6 +3,14 @@
 package api
 
 // setDefaults set default value of fields.
+func (s *CreateFeatureAlgorithmRequest) setDefaults() {
+	{
+		val := bool(false)
+		s.Enabled = val
+	}
+}
+
+// setDefaults set default value of fields.
 func (s *CreateFeatureScheduleRequest) setDefaults() {
 	{
 		val := string("UTC")

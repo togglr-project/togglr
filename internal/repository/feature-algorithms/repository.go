@@ -166,6 +166,67 @@ func (r *Repository) Delete(
 	return nil
 }
 
+func (r *Repository) DeleteByFeatureIDWithEnvID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) error {
+	executor := r.getExecutor(ctx)
+
+	// Read old state for audit within the same transaction.
+	oldFeatAlg, err := r.GetByFeatureIDWithEnvID(ctx, featureID, envID)
+	if err != nil {
+		return fmt.Errorf("get feature_algorithm before update: %w", err)
+	}
+
+	const query = `DELETE FROM feature_algorithms WHERE feature_id = $1 AND environment_id = $2`
+
+	_, err = executor.Exec(ctx, query, featureID, envID)
+	if err != nil {
+		return err
+	}
+
+	if err := auditlog.Write(
+		ctx,
+		executor,
+		oldFeatAlg.ProjectID,
+		oldFeatAlg.FeatureID,
+		domain.EntityFeatureAlgorithm,
+		oldFeatAlg.ID.String(),
+		domain.AuditActionDelete,
+		oldFeatAlg,
+		nil,
+		oldFeatAlg.EnvironmentID,
+	); err != nil {
+		return fmt.Errorf("audit feature_algorithm create: %w", err)
+	}
+
+	return nil
+}
+
+func (r *Repository) GetByFeatureIDWithEnvID(
+	ctx context.Context,
+	featureID domain.FeatureID,
+	envID domain.EnvironmentID,
+) (domain.FeatureAlgorithm, error) {
+	executor := r.getExecutor(ctx)
+
+	const query = `SELECT * FROM feature_algorithms WHERE feature_id = $1 AND environment_id = $2`
+
+	rows, err := executor.Query(ctx, query, featureID, envID)
+	if err != nil {
+		return domain.FeatureAlgorithm{}, err
+	}
+	defer rows.Close()
+
+	model, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[featureAlgorithmModel])
+	if err != nil {
+		return domain.FeatureAlgorithm{}, fmt.Errorf("collect feature_algorithms rows: %w", err)
+	}
+
+	return model.toDomain(), nil
+}
+
 func (r *Repository) ListByFeatureID(
 	ctx context.Context,
 	featureID domain.FeatureID,

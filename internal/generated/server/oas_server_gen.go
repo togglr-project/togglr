@@ -72,6 +72,12 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/environments
 	CreateEnvironment(ctx context.Context, req *CreateEnvironmentRequest, params CreateEnvironmentParams) (CreateEnvironmentRes, error)
+	// CreateFeatureAlgorithm implements CreateFeatureAlgorithm operation.
+	//
+	// Create or attach algorithm to feature in environment.
+	//
+	// POST /api/v1/features/{feature_id}/algorithms/{environment_id}
+	CreateFeatureAlgorithm(ctx context.Context, req *CreateFeatureAlgorithmRequest, params CreateFeatureAlgorithmParams) (CreateFeatureAlgorithmRes, error)
 	// CreateFeatureFlagVariant implements CreateFeatureFlagVariant operation.
 	//
 	// Create flag variant for feature.
@@ -156,6 +162,12 @@ type Handler interface {
 	//
 	// DELETE /api/v1/features/{feature_id}
 	DeleteFeature(ctx context.Context, params DeleteFeatureParams) (DeleteFeatureRes, error)
+	// DeleteFeatureAlgorithm implements DeleteFeatureAlgorithm operation.
+	//
+	// Delete feature algorithm from feature.
+	//
+	// DELETE /api/v1/features/{feature_id}/algorithms/{environment_id}
+	DeleteFeatureAlgorithm(ctx context.Context, params DeleteFeatureAlgorithmParams) (DeleteFeatureAlgorithmRes, error)
 	// DeleteFeatureSchedule implements DeleteFeatureSchedule operation.
 	//
 	// Delete feature schedule by ID.
@@ -264,6 +276,12 @@ type Handler interface {
 	//
 	// GET /api/v1/features/{feature_id}
 	GetFeature(ctx context.Context, params GetFeatureParams) (GetFeatureRes, error)
+	// GetFeatureAlgorithm implements GetFeatureAlgorithm operation.
+	//
+	// Get algorithm configuration for a feature in environment.
+	//
+	// GET /api/v1/features/{feature_id}/algorithms/{environment_id}
+	GetFeatureAlgorithm(ctx context.Context, params GetFeatureAlgorithmParams) (GetFeatureAlgorithmRes, error)
 	// GetFeatureSchedule implements GetFeatureSchedule operation.
 	//
 	// Get feature schedule by ID.
@@ -408,6 +426,12 @@ type Handler interface {
 	//
 	// GET /api/v1/categories
 	ListCategories(ctx context.Context) (ListCategoriesRes, error)
+	// ListFeatureAlgorithms implements ListFeatureAlgorithms operation.
+	//
+	// List feature algorithms for a feature.
+	//
+	// GET /api/v1/features/{feature_id}/algorithms
+	ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (ListFeatureAlgorithmsRes, error)
 	// ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
 	//
 	// List flag variants for feature.
@@ -672,6 +696,12 @@ type Handler interface {
 	//
 	// PUT /api/v1/features/{feature_id}
 	UpdateFeature(ctx context.Context, req *CreateFeatureRequest, params UpdateFeatureParams) (UpdateFeatureRes, error)
+	// UpdateFeatureAlgorithm implements UpdateFeatureAlgorithm operation.
+	//
+	// Update feature algorithm configuration.
+	//
+	// PATCH /api/v1/features/{feature_id}/algorithms/{environment_id}
+	UpdateFeatureAlgorithm(ctx context.Context, req *UpdateFeatureAlgorithmRequest, params UpdateFeatureAlgorithmParams) (UpdateFeatureAlgorithmRes, error)
 	// UpdateFeatureSchedule implements UpdateFeatureSchedule operation.
 	//
 	// Update feature schedule by ID.
