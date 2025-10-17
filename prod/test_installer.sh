@@ -358,8 +358,23 @@ pull: ## Pull images from remote Docker registry
 	${_COMPOSE} pull
 EOF
     
+    # Ensure tabs are used instead of spaces (compatible with both Linux and macOS)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' 's/^    /\t/g' "$makefile"
+    else
+        sed -i 's/^    /\t/g' "$makefile"
+    fi
+    
     if [[ -f "$makefile" ]]; then
         print_success "Makefile generation: OK"
+        
+        # Check if Makefile uses tabs (not spaces) for indentation
+        if grep -q "^	" "$makefile"; then
+            print_success "Makefile uses tabs for indentation: OK"
+        else
+            print_error "Makefile does not use tabs for indentation: FAILED"
+            return 1
+        fi
     else
         print_error "Makefile generation: FAILED"
         return 1

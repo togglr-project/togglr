@@ -370,6 +370,7 @@ copy_nats_config() {
 create_makefile() {
     local makefile="$INSTALL_DIR/Makefile"
     
+    # Create Makefile with proper tabs
     cat > "$makefile" << 'EOF'
 _COMPOSE=docker compose -f docker-compose.yml --project-name togglr --env-file platform.env
 
@@ -391,6 +392,13 @@ down: ## Down the environment in docker compose
 pull: ## Pull images from remote Docker registry
 	${_COMPOSE} pull
 EOF
+    
+    # Ensure tabs are used instead of spaces (compatible with both Linux and macOS)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' 's/^    /\t/g' "$makefile"
+    else
+        sed -i 's/^    /\t/g' "$makefile"
+    fi
     
     print_success "Created $makefile"
 }
