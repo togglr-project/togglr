@@ -265,8 +265,12 @@ func startNATS(t *testing.T) (testcontainers.Container, func()) {
 
 	container, err := testcontainers.GenericContainer(t.Context(), testcontainers.GenericContainerRequest{
 		ContainerRequest: testcontainers.ContainerRequest{
-			Name:         "togglr-nats-test",
-			Image:        "nats:latest",
+			Name:  "togglr-nats-test",
+			Image: "nats:latest",
+			Cmd: []string{
+				"-js", // enable JetStream
+				"--store_dir", "/data/jetstream",
+			},
 			ExposedPorts: []string{"4222/tcp"},
 			WaitingFor:   wait.ForListeningPort("4222"),
 		},

@@ -43,7 +43,8 @@
               "updated_at": "<<PRESENCE>>",
               "is_active": true,
               "health_status": "<<PRESENCE>>",
-              "tags": []
+              "tags": [],
+              "algorithms": []
             },
             "variants": [
               {
@@ -78,7 +79,8 @@
                 "action": "assign"
               }
             ],
-            "tags": []
+            "tags": [],
+            "algorithms": []
           }
 
 - name: success get simple feature
@@ -126,11 +128,13 @@
               "updated_at": "<<PRESENCE>>",
               "is_active": true,
               "health_status": "<<PRESENCE>>",
-              "tags": []
+              "tags": [],
+              "algorithms": []
             },
             "variants": [],
             "rules": [],
-            "tags": []
+            "tags": [],
+            "algorithms": []
           }
 
 - name: get feature without auth

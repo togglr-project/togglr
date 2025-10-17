@@ -177,7 +177,8 @@
                 "updated_at": "<<PRESENCE>>",
                 "is_active": true,
                 "health_status": "<<PRESENCE>>",
-                "tags": []
+                "tags": [],
+                "algorithms": []
               }
             ],
             "pagination": {
@@ -233,7 +234,8 @@
                 "updated_at": "<<PRESENCE>>",
                 "is_active": true,
                 "health_status": "<<PRESENCE>>",
-                "tags": []
+                "tags": [],
+                "algorithms": []
               }
             ],
             "pagination": {
@@ -289,7 +291,8 @@
                 "enabled": false,
                 "default_value": "control",
                 "health_status": "<<PRESENCE>>",
-                "tags": []
+                "tags": [],
+                "algorithms": []
               },
               {
                 "id": "<<PRESENCE>>",
@@ -305,7 +308,8 @@
                 "enabled": true,
                 "default_value": "on",
                 "health_status": "<<PRESENCE>>",
-                "tags": []
+                "tags": [],
+                "algorithms": []
               }
             ],
             "pagination": {
