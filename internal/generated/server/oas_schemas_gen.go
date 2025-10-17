@@ -3146,6 +3146,7 @@ func (*ErrorPermissionDenied) cancelLDAPSyncRes()              {}
 func (*ErrorPermissionDenied) cancelPendingChangeRes()         {}
 func (*ErrorPermissionDenied) createCategoryRes()              {}
 func (*ErrorPermissionDenied) createEnvironmentRes()           {}
+func (*ErrorPermissionDenied) createFeatureAlgorithmRes()      {}
 func (*ErrorPermissionDenied) createFeatureFlagVariantRes()    {}
 func (*ErrorPermissionDenied) createFeatureRuleRes()           {}
 func (*ErrorPermissionDenied) createFeatureScheduleRes()       {}
@@ -3159,6 +3160,7 @@ func (*ErrorPermissionDenied) createRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) createUserRes()                  {}
 func (*ErrorPermissionDenied) deleteCategoryRes()              {}
 func (*ErrorPermissionDenied) deleteEnvironmentRes()           {}
+func (*ErrorPermissionDenied) deleteFeatureAlgorithmRes()      {}
 func (*ErrorPermissionDenied) deleteFeatureRes()               {}
 func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
@@ -3222,6 +3224,7 @@ func (*ErrorPermissionDenied) testLDAPConnectionRes()          {}
 func (*ErrorPermissionDenied) toggleFeatureRes()               {}
 func (*ErrorPermissionDenied) updateCategoryRes()              {}
 func (*ErrorPermissionDenied) updateEnvironmentRes()           {}
+func (*ErrorPermissionDenied) updateFeatureAlgorithmRes()      {}
 func (*ErrorPermissionDenied) updateFeatureRes()               {}
 func (*ErrorPermissionDenied) updateFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) updateLDAPConfigRes()            {}

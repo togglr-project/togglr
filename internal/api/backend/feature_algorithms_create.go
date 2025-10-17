@@ -44,6 +44,15 @@ func (r *RestAPI) CreateFeatureAlgorithm(
 		}, nil
 	}
 
+	// Check if user can manage the project
+	if err := r.permissionsService.CanManageProject(ctx, feature.ProjectID); err != nil {
+		return &generatedapi.ErrorPermissionDenied{
+			Error: generatedapi.ErrorPermissionDeniedError{
+				Message: generatedapi.NewOptString("permission denied"),
+			},
+		}, nil
+	}
+
 	err = r.featureAlgorithmsUseCase.Create(ctx, domain.FeatureAlgorithmDTO{
 		ProjectID:     feature.ProjectID,
 		EnvironmentID: envID,

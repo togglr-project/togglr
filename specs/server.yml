@@ -6641,6 +6641,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
         '404':
           description: Feature not found
           content:
@@ -6707,6 +6713,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
         '500':
           description: Internal server error
           content:
@@ -6751,6 +6763,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorUnauthorized'
+        '403':
+          description: Permission denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorPermissionDenied'
         '500':
           description: Internal server error
           content:

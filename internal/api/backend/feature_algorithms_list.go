@@ -16,6 +16,15 @@ func (r *RestAPI) ListFeatureAlgorithms(
 	projectID := domain.ProjectID(params.ProjectID)
 	envKey := params.EnvironmentKey
 
+	// Check if user can manage the project
+	if err := r.permissionsService.CanManageProject(ctx, projectID); err != nil {
+		return &generatedapi.ErrorPermissionDenied{
+			Error: generatedapi.ErrorPermissionDeniedError{
+				Message: generatedapi.NewOptString("permission denied"),
+			},
+		}, nil
+	}
+
 	env, err := r.environmentsUseCase.GetByProjectIDAndKey(ctx, projectID, envKey)
 	if err != nil {
 		slog.Error("get environment failed", "error", err, "env", envKey, "project_id", projectID)
