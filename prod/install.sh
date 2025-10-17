@@ -58,6 +58,13 @@ read_input() {
     local validation_func="$2"
     local input=""
     
+    # Check if we're in an interactive terminal or using environment variables
+    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
+        print_error "This installer requires an interactive terminal or environment variables."
+        print_info "Please run the installer in an interactive terminal session or set environment variables."
+        exit 1
+    fi
+    
     while true; do
         echo -n "$prompt: "
         read -r input
@@ -83,6 +90,13 @@ read_input() {
 read_yes_no() {
     local prompt="$1"
     local input=""
+    
+    # Check if we're in an interactive terminal or using environment variables
+    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
+        print_error "This installer requires an interactive terminal or environment variables."
+        print_info "Please run the installer in an interactive terminal session or set environment variables."
+        exit 1
+    fi
     
     while true; do
         echo -n "$prompt (y/n): "
@@ -179,18 +193,35 @@ EOF
     rm -f "$temp_file"
 }
 
-# Function to collect user input
+# Function to collect user input from environment or prompt
 collect_user_input() {
     print_info "=== Platform Configuration ==="
     
+    # Check if running in non-interactive mode with environment variables
+    if [[ -n "$TOGGLR_ADMIN_EMAIL" && -n "$TOGGLR_DOMAIN" && -n "$TOGGLR_MAILER_ADDR" ]]; then
+        print_info "Using environment variables for configuration..."
+        ADMIN_EMAIL="$TOGGLR_ADMIN_EMAIL"
+        DOMAIN="$TOGGLR_DOMAIN"
+        FRONTEND_URL="https://$DOMAIN"
+        MAILER_ADDR="$TOGGLR_MAILER_ADDR"
+        MAILER_USER="${TOGGLR_MAILER_USER:-admin@$DOMAIN}"
+        MAILER_PASSWORD="${TOGGLR_MAILER_PASSWORD:-password}"
+        MAILER_FROM="${TOGGLR_MAILER_FROM:-noreply@$DOMAIN}"
+        HAS_EXISTING_SSL_CERT="${TOGGLR_HAS_SSL_CERT:-false}"
+        return
+    fi
+    
     # Get admin email
+    print_info "Requesting administrator email..."
     ADMIN_EMAIL=$(read_input "Enter administrator email" "validate_email")
     
     # Get domain
+    print_info "Requesting domain..."
     DOMAIN=$(read_input "Enter domain for the platform")
     FRONTEND_URL="https://$DOMAIN"
     
     # Ask about SSL certificate
+    print_info "Asking about SSL certificate..."
     if read_yes_no "Do you have an existing SSL certificate for this domain?"; then
         HAS_EXISTING_SSL_CERT=true
         print_info "You will need to place your SSL certificate and key files at:"
@@ -205,9 +236,13 @@ collect_user_input() {
     print_info "=== SMTP Server Configuration ==="
     
     # Get SMTP server details
+    print_info "Requesting SMTP server address..."
     MAILER_ADDR=$(read_input "Enter SMTP server address (including port)")
+    print_info "Requesting SMTP user..."
     MAILER_USER=$(read_input "Enter SMTP user")
+    print_info "Requesting SMTP password..."
     MAILER_PASSWORD=$(read_input "Enter SMTP password")
+    print_info "Requesting SMTP from address..."
     MAILER_FROM=$(read_input "Enter email address for sending emails (from)")
     
 }
@@ -387,6 +422,17 @@ print_final_info() {
 main() {
     # Check if running as root
     check_root
+    
+    # Check if running in interactive terminal or with environment variables
+    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
+        print_error "This installer requires an interactive terminal or environment variables."
+        print_info "Please run the installer in an interactive terminal session or set environment variables:"
+        print_info "  TOGGLR_ADMIN_EMAIL=admin@example.com"
+        print_info "  TOGGLR_DOMAIN=example.com"
+        print_info "  TOGGLR_MAILER_ADDR=smtp.example.com:587"
+        print_info "Example: sudo ./install.sh"
+        exit 1
+    fi
     
     # Print welcome message
     print_welcome
