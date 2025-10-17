@@ -1,3 +1,4 @@
+//nolint:nilerr // false positive
 package apibackend
 
 import (

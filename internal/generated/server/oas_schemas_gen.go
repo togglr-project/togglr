@@ -2800,12 +2800,14 @@ func (*ErrorConflict) createFeatureFlagVariantRes() {}
 func (*ErrorConflict) createFeatureRuleRes()        {}
 func (*ErrorConflict) createFeatureScheduleRes()    {}
 func (*ErrorConflict) createProjectSettingRes()     {}
+func (*ErrorConflict) deleteFeatureAlgorithmRes()   {}
 func (*ErrorConflict) deleteFeatureRes()            {}
 func (*ErrorConflict) deleteFeatureScheduleRes()    {}
 func (*ErrorConflict) initiateTOTPApprovalRes()     {}
 func (*ErrorConflict) rejectPendingChangeRes()      {}
 func (*ErrorConflict) removeFeatureTagRes()         {}
 func (*ErrorConflict) toggleFeatureRes()            {}
+func (*ErrorConflict) updateFeatureAlgorithmRes()   {}
 func (*ErrorConflict) updateFeatureRes()            {}
 func (*ErrorConflict) updateFeatureScheduleRes()    {}
 
@@ -9069,14 +9071,17 @@ func (s *PendingChangeResponse) SetRejectionReason(val OptNilString) {
 }
 
 func (*PendingChangeResponse) addFeatureTagRes()            {}
+func (*PendingChangeResponse) createFeatureAlgorithmRes()   {}
 func (*PendingChangeResponse) createFeatureFlagVariantRes() {}
 func (*PendingChangeResponse) createFeatureRuleRes()        {}
 func (*PendingChangeResponse) createFeatureScheduleRes()    {}
+func (*PendingChangeResponse) deleteFeatureAlgorithmRes()   {}
 func (*PendingChangeResponse) deleteFeatureRes()            {}
 func (*PendingChangeResponse) deleteFeatureScheduleRes()    {}
 func (*PendingChangeResponse) getPendingChangeRes()         {}
 func (*PendingChangeResponse) removeFeatureTagRes()         {}
 func (*PendingChangeResponse) toggleFeatureRes()            {}
+func (*PendingChangeResponse) updateFeatureAlgorithmRes()   {}
 func (*PendingChangeResponse) updateFeatureRes()            {}
 func (*PendingChangeResponse) updateFeatureScheduleRes()    {}
 

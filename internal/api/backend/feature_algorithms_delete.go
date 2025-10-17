@@ -1,3 +1,4 @@
+//nolint:nilerr // false positive
 package apibackend
 
 import (
@@ -5,6 +6,7 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
@@ -45,6 +47,52 @@ func (r *RestAPI) DeleteFeatureAlgorithm(
 				Message: generatedapi.NewOptString("permission denied"),
 			},
 		}, nil
+	}
+
+	featAlg, err := r.featureAlgorithmsUseCase.GetByFeatureIDWithEnvID(ctx, featureID, envID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString("feature algorithm not found"),
+			}}, nil
+		}
+
+		slog.Error("failed to get feature algorithm", "featureID", featureID, "envID", envID)
+
+		return &generatedapi.ErrorInternalServerError{Error: generatedapi.ErrorInternalServerErrorError{
+			Message: generatedapi.NewOptString(err.Error()),
+		}}, nil
+	}
+
+	// Guarded flow: if a feature is guarded, create a pending change and return 202
+	// The guard engine will automatically handle the delete operation
+	pendingChange, conflict, _, err := r.guardEngine.CheckGuardedOperation(
+		ctx,
+		contract.GuardRequest{
+			ProjectID:     feature.ProjectID,
+			EnvironmentID: feature.EnvironmentID,
+			FeatureID:     feature.ID,
+			Reason:        "Delete feature algorithm via API",
+			Origin:        "feature-algorithm-delete",
+			Action:        domain.EntityActionDelete,
+			OldEntity:     featAlg, // For delete, we need the old entity
+			NewEntity:     nil,     // No new entity for delete
+		},
+	)
+	if err != nil {
+		slog.Error("guard check for schedule delete failed", "error", err)
+
+		return nil, err
+	}
+	if conflict {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("Feature is already locked by another pending change"),
+		}}, nil
+	}
+	if pendingChange != nil {
+		resp := convertPendingChangeToResponse(pendingChange)
+
+		return &resp, nil
 	}
 
 	err = r.featureAlgorithmsUseCase.DeleteByFeatureIDWithEnvID(ctx, featureID, envID)
