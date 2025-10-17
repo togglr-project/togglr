@@ -639,7 +639,7 @@ func (UnimplementedHandler) ListCategories(ctx context.Context) (r ListCategorie
 //
 // List feature algorithms for a feature.
 //
-// GET /api/v1/features/{feature_id}/algorithms
+// GET /api/v1/projects/{project_id}/feature-algorithms
 func (UnimplementedHandler) ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (r ListFeatureAlgorithmsRes, _ error) {
 	return r, ht.ErrNotImplemented
 }

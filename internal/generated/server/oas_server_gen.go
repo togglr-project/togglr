@@ -430,7 +430,7 @@ type Handler interface {
 	//
 	// List feature algorithms for a feature.
 	//
-	// GET /api/v1/features/{feature_id}/algorithms
+	// GET /api/v1/projects/{project_id}/feature-algorithms
 	ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (ListFeatureAlgorithmsRes, error)
 	// ListFeatureFlagVariants implements ListFeatureFlagVariants operation.
 	//

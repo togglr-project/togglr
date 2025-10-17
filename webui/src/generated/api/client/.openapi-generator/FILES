@@ -21,6 +21,7 @@ docs/ChangeUserPasswordRequest.md
 docs/ChangeValue.md
 docs/CreateCategoryRequest.md
 docs/CreateEnvironmentRequest.md
+docs/CreateFeatureAlgorithmRequest.md
 docs/CreateFeatureRequest.md
 docs/CreateFeatureScheduleRequest.md
 docs/CreateFlagVariantInline.md
@@ -90,6 +91,7 @@ docs/LDAPSyncStatus.md
 docs/ListAlgorithmsResponse.md
 docs/ListChangesResponse.md
 docs/ListEnvironmentsResponse.md
+docs/ListFeatureAlgorithmsResponse.md
 docs/ListFeaturesResponse.md
 docs/ListNotificationSettingsResponse.md
 docs/ListProjectAuditLogs200Response.md
@@ -155,6 +157,7 @@ docs/TwoFAVerifyResponse.md
 docs/UnreadCountResponse.md
 docs/UpdateCategoryRequest.md
 docs/UpdateEnvironmentRequest.md
+docs/UpdateFeatureAlgorithmRequest.md
 docs/UpdateFeatureScheduleRequest.md
 docs/UpdateLicenseAcceptanceRequest.md
 docs/UpdateMembershipRequest.md

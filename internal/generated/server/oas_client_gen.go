@@ -451,7 +451,7 @@ type Invoker interface {
 	//
 	// List feature algorithms for a feature.
 	//
-	// GET /api/v1/features/{feature_id}/algorithms
+	// GET /api/v1/projects/{project_id}/feature-algorithms
 	ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (ListFeatureAlgorithmsRes, error)
 	// ListFeatureFlagVariants invokes ListFeatureFlagVariants operation.
 	//
@@ -9351,7 +9351,7 @@ func (c *Client) sendListCategories(ctx context.Context) (res ListCategoriesRes,
 //
 // List feature algorithms for a feature.
 //
-// GET /api/v1/features/{feature_id}/algorithms
+// GET /api/v1/projects/{project_id}/feature-algorithms
 func (c *Client) ListFeatureAlgorithms(ctx context.Context, params ListFeatureAlgorithmsParams) (ListFeatureAlgorithmsRes, error) {
 	res, err := c.sendListFeatureAlgorithms(ctx, params)
 	return res, err
@@ -9361,7 +9361,7 @@ func (c *Client) sendListFeatureAlgorithms(ctx context.Context, params ListFeatu
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("ListFeatureAlgorithms"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/algorithms"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/feature-algorithms"),
 	}
 
 	// Run stopwatch.
@@ -9394,16 +9394,16 @@ func (c *Client) sendListFeatureAlgorithms(ctx context.Context, params ListFeatu
 	stage = "BuildURL"
 	u := uri.Clone(c.requestURL(ctx))
 	var pathParts [3]string
-	pathParts[0] = "/api/v1/features/"
+	pathParts[0] = "/api/v1/projects/"
 	{
-		// Encode "feature_id" parameter.
+		// Encode "project_id" parameter.
 		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "feature_id",
+			Param:   "project_id",
 			Style:   uri.PathStyleSimple,
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.StringToString(params.FeatureID))
+			return e.EncodeValue(conv.StringToString(params.ProjectID))
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -9413,7 +9413,7 @@ func (c *Client) sendListFeatureAlgorithms(ctx context.Context, params ListFeatu
 		}
 		pathParts[1] = encoded
 	}
-	pathParts[2] = "/algorithms"
+	pathParts[2] = "/feature-algorithms"
 	uri.AddPathParts(u, pathParts[:]...)
 
 	stage = "EncodeQueryParams"
@@ -9427,10 +9427,7 @@ func (c *Client) sendListFeatureAlgorithms(ctx context.Context, params ListFeatu
 		}
 
 		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.EnvironmentKey.Get(); ok {
-				return e.EncodeValue(conv.StringToString(val))
-			}
-			return nil
+			return e.EncodeValue(conv.StringToString(params.EnvironmentKey))
 		}); err != nil {
 			return res, errors.Wrap(err, "encode query")
 		}

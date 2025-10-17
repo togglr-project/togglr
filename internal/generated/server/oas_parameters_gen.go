@@ -4706,34 +4706,32 @@ func decodeInitiateTOTPApprovalParams(args [1]string, argsEscaped bool, r *http.
 
 // ListFeatureAlgorithmsParams is parameters of ListFeatureAlgorithms operation.
 type ListFeatureAlgorithmsParams struct {
-	FeatureID string
-	// Filter by environment key (optional).
-	EnvironmentKey OptString
+	ProjectID string
+	// Filter by environment key.
+	EnvironmentKey string
 }
 
 func unpackListFeatureAlgorithmsParams(packed middleware.Parameters) (params ListFeatureAlgorithmsParams) {
 	{
 		key := middleware.ParameterKey{
-			Name: "feature_id",
+			Name: "project_id",
 			In:   "path",
 		}
-		params.FeatureID = packed[key].(string)
+		params.ProjectID = packed[key].(string)
 	}
 	{
 		key := middleware.ParameterKey{
 			Name: "environment_key",
 			In:   "query",
 		}
-		if v, ok := packed[key]; ok {
-			params.EnvironmentKey = v.(OptString)
-		}
+		params.EnvironmentKey = packed[key].(string)
 	}
 	return params
 }
 
 func decodeListFeatureAlgorithmsParams(args [1]string, argsEscaped bool, r *http.Request) (params ListFeatureAlgorithmsParams, _ error) {
 	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode path: feature_id.
+	// Decode path: project_id.
 	if err := func() error {
 		param := args[0]
 		if argsEscaped {
@@ -4745,7 +4743,7 @@ func decodeListFeatureAlgorithmsParams(args [1]string, argsEscaped bool, r *http
 		}
 		if len(param) > 0 {
 			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "feature_id",
+				Param:   "project_id",
 				Value:   param,
 				Style:   uri.PathStyleSimple,
 				Explode: false,
@@ -4762,7 +4760,7 @@ func decodeListFeatureAlgorithmsParams(args [1]string, argsEscaped bool, r *http
 					return err
 				}
 
-				params.FeatureID = c
+				params.ProjectID = c
 				return nil
 			}(); err != nil {
 				return err
@@ -4773,7 +4771,7 @@ func decodeListFeatureAlgorithmsParams(args [1]string, argsEscaped bool, r *http
 		return nil
 	}(); err != nil {
 		return params, &ogenerrors.DecodeParamError{
-			Name: "feature_id",
+			Name: "project_id",
 			In:   "path",
 			Err:  err,
 		}
@@ -4788,28 +4786,23 @@ func decodeListFeatureAlgorithmsParams(args [1]string, argsEscaped bool, r *http
 
 		if err := q.HasParam(cfg); err == nil {
 			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotEnvironmentKeyVal string
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToString(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotEnvironmentKeyVal = c
-					return nil
-				}(); err != nil {
+				val, err := d.DecodeValue()
+				if err != nil {
 					return err
 				}
-				params.EnvironmentKey.SetTo(paramsDotEnvironmentKeyVal)
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.EnvironmentKey = c
 				return nil
 			}); err != nil {
 				return err
 			}
+		} else {
+			return err
 		}
 		return nil
 	}(); err != nil {

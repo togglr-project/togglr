@@ -585,74 +585,51 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							break
 						}
 						switch elem[0] {
-						case 'a': // Prefix: "algorithms"
+						case 'a': // Prefix: "algorithms/"
 
-							if l := len("algorithms"); len(elem) >= l && elem[0:l] == "algorithms" {
+							if l := len("algorithms/"); len(elem) >= l && elem[0:l] == "algorithms/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
+							// Param: "environment_id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[1] = elem
+							elem = ""
+
 							if len(elem) == 0 {
+								// Leaf node.
 								switch r.Method {
-								case "GET":
-									s.handleListFeatureAlgorithmsRequest([1]string{
+								case "DELETE":
+									s.handleDeleteFeatureAlgorithmRequest([2]string{
 										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								case "GET":
+									s.handleGetFeatureAlgorithmRequest([2]string{
+										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								case "PATCH":
+									s.handleUpdateFeatureAlgorithmRequest([2]string{
+										args[0],
+										args[1],
+									}, elemIsEscaped, w, r)
+								case "POST":
+									s.handleCreateFeatureAlgorithmRequest([2]string{
+										args[0],
+										args[1],
 									}, elemIsEscaped, w, r)
 								default:
-									s.notAllowed(w, r, "GET")
+									s.notAllowed(w, r, "DELETE,GET,PATCH,POST")
 								}
 
 								return
-							}
-							switch elem[0] {
-							case '/': // Prefix: "/"
-
-								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								// Param: "environment_id"
-								// Leaf parameter, slashes are prohibited
-								idx := strings.IndexByte(elem, '/')
-								if idx >= 0 {
-									break
-								}
-								args[1] = elem
-								elem = ""
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "DELETE":
-										s.handleDeleteFeatureAlgorithmRequest([2]string{
-											args[0],
-											args[1],
-										}, elemIsEscaped, w, r)
-									case "GET":
-										s.handleGetFeatureAlgorithmRequest([2]string{
-											args[0],
-											args[1],
-										}, elemIsEscaped, w, r)
-									case "PATCH":
-										s.handleUpdateFeatureAlgorithmRequest([2]string{
-											args[0],
-											args[1],
-										}, elemIsEscaped, w, r)
-									case "POST":
-										s.handleCreateFeatureAlgorithmRequest([2]string{
-											args[0],
-											args[1],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "DELETE,GET,PATCH,POST")
-									}
-
-									return
-								}
-
 							}
 
 						case 'r': // Prefix: "rules"
@@ -1750,30 +1727,66 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 								}
 
-							case 'f': // Prefix: "features"
+							case 'f': // Prefix: "feature"
 
-								if l := len("features"); len(elem) >= l && elem[0:l] == "features" {
+								if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
 									elem = elem[l:]
 								} else {
 									break
 								}
 
 								if len(elem) == 0 {
-									// Leaf node.
-									switch r.Method {
-									case "GET":
-										s.handleListProjectFeaturesRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
-									case "POST":
-										s.handleCreateProjectFeatureRequest([1]string{
-											args[0],
-										}, elemIsEscaped, w, r)
-									default:
-										s.notAllowed(w, r, "GET,POST")
+									break
+								}
+								switch elem[0] {
+								case '-': // Prefix: "-algorithms"
+
+									if l := len("-algorithms"); len(elem) >= l && elem[0:l] == "-algorithms" {
+										elem = elem[l:]
+									} else {
+										break
 									}
 
-									return
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleListFeatureAlgorithmsRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET")
+										}
+
+										return
+									}
+
+								case 's': // Prefix: "s"
+
+									if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch r.Method {
+										case "GET":
+											s.handleListProjectFeaturesRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										case "POST":
+											s.handleCreateProjectFeatureRequest([1]string{
+												args[0],
+											}, elemIsEscaped, w, r)
+										default:
+											s.notAllowed(w, r, "GET,POST")
+										}
+
+										return
+									}
+
 								}
 
 							case 'm': // Prefix: "memberships"
@@ -3357,86 +3370,61 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							break
 						}
 						switch elem[0] {
-						case 'a': // Prefix: "algorithms"
+						case 'a': // Prefix: "algorithms/"
 
-							if l := len("algorithms"); len(elem) >= l && elem[0:l] == "algorithms" {
+							if l := len("algorithms/"); len(elem) >= l && elem[0:l] == "algorithms/" {
 								elem = elem[l:]
 							} else {
 								break
 							}
 
+							// Param: "environment_id"
+							// Leaf parameter, slashes are prohibited
+							idx := strings.IndexByte(elem, '/')
+							if idx >= 0 {
+								break
+							}
+							args[1] = elem
+							elem = ""
+
 							if len(elem) == 0 {
+								// Leaf node.
 								switch method {
-								case "GET":
-									r.name = ListFeatureAlgorithmsOperation
-									r.summary = "List feature algorithms for a feature"
-									r.operationID = "ListFeatureAlgorithms"
-									r.pathPattern = "/api/v1/features/{feature_id}/algorithms"
+								case "DELETE":
+									r.name = DeleteFeatureAlgorithmOperation
+									r.summary = "Delete feature algorithm from feature"
+									r.operationID = "DeleteFeatureAlgorithm"
+									r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
 									r.args = args
-									r.count = 1
+									r.count = 2
+									return r, true
+								case "GET":
+									r.name = GetFeatureAlgorithmOperation
+									r.summary = "Get algorithm configuration for a feature in environment"
+									r.operationID = "GetFeatureAlgorithm"
+									r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
+									r.args = args
+									r.count = 2
+									return r, true
+								case "PATCH":
+									r.name = UpdateFeatureAlgorithmOperation
+									r.summary = "Update feature algorithm configuration"
+									r.operationID = "UpdateFeatureAlgorithm"
+									r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
+									r.args = args
+									r.count = 2
+									return r, true
+								case "POST":
+									r.name = CreateFeatureAlgorithmOperation
+									r.summary = "Create or attach algorithm to feature in environment"
+									r.operationID = "CreateFeatureAlgorithm"
+									r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
+									r.args = args
+									r.count = 2
 									return r, true
 								default:
 									return
 								}
-							}
-							switch elem[0] {
-							case '/': // Prefix: "/"
-
-								if l := len("/"); len(elem) >= l && elem[0:l] == "/" {
-									elem = elem[l:]
-								} else {
-									break
-								}
-
-								// Param: "environment_id"
-								// Leaf parameter, slashes are prohibited
-								idx := strings.IndexByte(elem, '/')
-								if idx >= 0 {
-									break
-								}
-								args[1] = elem
-								elem = ""
-
-								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "DELETE":
-										r.name = DeleteFeatureAlgorithmOperation
-										r.summary = "Delete feature algorithm from feature"
-										r.operationID = "DeleteFeatureAlgorithm"
-										r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
-										r.args = args
-										r.count = 2
-										return r, true
-									case "GET":
-										r.name = GetFeatureAlgorithmOperation
-										r.summary = "Get algorithm configuration for a feature in environment"
-										r.operationID = "GetFeatureAlgorithm"
-										r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
-										r.args = args
-										r.count = 2
-										return r, true
-									case "PATCH":
-										r.name = UpdateFeatureAlgorithmOperation
-										r.summary = "Update feature algorithm configuration"
-										r.operationID = "UpdateFeatureAlgorithm"
-										r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
-										r.args = args
-										r.count = 2
-										return r, true
-									case "POST":
-										r.name = CreateFeatureAlgorithmOperation
-										r.summary = "Create or attach algorithm to feature in environment"
-										r.operationID = "CreateFeatureAlgorithm"
-										r.pathPattern = "/api/v1/features/{feature_id}/algorithms/{environment_id}"
-										r.args = args
-										r.count = 2
-										return r, true
-									default:
-										return
-									}
-								}
-
 							}
 
 						case 'r': // Prefix: "rules"
@@ -4683,36 +4671,74 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 								}
 
-							case 'f': // Prefix: "features"
+							case 'f': // Prefix: "feature"
 
-								if l := len("features"); len(elem) >= l && elem[0:l] == "features" {
+								if l := len("feature"); len(elem) >= l && elem[0:l] == "feature" {
 									elem = elem[l:]
 								} else {
 									break
 								}
 
 								if len(elem) == 0 {
-									// Leaf node.
-									switch method {
-									case "GET":
-										r.name = ListProjectFeaturesOperation
-										r.summary = "List features for project"
-										r.operationID = "ListProjectFeatures"
-										r.pathPattern = "/api/v1/projects/{project_id}/features"
-										r.args = args
-										r.count = 1
-										return r, true
-									case "POST":
-										r.name = CreateProjectFeatureOperation
-										r.summary = "Create feature for project"
-										r.operationID = "CreateProjectFeature"
-										r.pathPattern = "/api/v1/projects/{project_id}/features"
-										r.args = args
-										r.count = 1
-										return r, true
-									default:
-										return
+									break
+								}
+								switch elem[0] {
+								case '-': // Prefix: "-algorithms"
+
+									if l := len("-algorithms"); len(elem) >= l && elem[0:l] == "-algorithms" {
+										elem = elem[l:]
+									} else {
+										break
 									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = ListFeatureAlgorithmsOperation
+											r.summary = "List feature algorithms for a feature"
+											r.operationID = "ListFeatureAlgorithms"
+											r.pathPattern = "/api/v1/projects/{project_id}/feature-algorithms"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
+								case 's': // Prefix: "s"
+
+									if l := len("s"); len(elem) >= l && elem[0:l] == "s" {
+										elem = elem[l:]
+									} else {
+										break
+									}
+
+									if len(elem) == 0 {
+										// Leaf node.
+										switch method {
+										case "GET":
+											r.name = ListProjectFeaturesOperation
+											r.summary = "List features for project"
+											r.operationID = "ListProjectFeatures"
+											r.pathPattern = "/api/v1/projects/{project_id}/features"
+											r.args = args
+											r.count = 1
+											return r, true
+										case "POST":
+											r.name = CreateProjectFeatureOperation
+											r.summary = "Create feature for project"
+											r.operationID = "CreateProjectFeature"
+											r.pathPattern = "/api/v1/projects/{project_id}/features"
+											r.args = args
+											r.count = 1
+											return r, true
+										default:
+											return
+										}
+									}
+
 								}
 
 							case 'm': // Prefix: "memberships"

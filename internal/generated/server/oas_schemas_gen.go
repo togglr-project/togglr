@@ -3593,6 +3593,7 @@ type FeatureAlgorithm struct {
 	Enabled       bool   `json:"enabled"`
 	// Numeric settings for the feature algorithm.
 	Settings FeatureAlgorithmSettings `json:"settings"`
+	Feature  Feature                  `json:"feature"`
 }
 
 // GetID returns the value of ID.
@@ -3630,6 +3631,11 @@ func (s *FeatureAlgorithm) GetSettings() FeatureAlgorithmSettings {
 	return s.Settings
 }
 
+// GetFeature returns the value of Feature.
+func (s *FeatureAlgorithm) GetFeature() Feature {
+	return s.Feature
+}
+
 // SetID sets the value of ID.
 func (s *FeatureAlgorithm) SetID(val string) {
 	s.ID = val
@@ -3663,6 +3669,11 @@ func (s *FeatureAlgorithm) SetEnabled(val bool) {
 // SetSettings sets the value of Settings.
 func (s *FeatureAlgorithm) SetSettings(val FeatureAlgorithmSettings) {
 	s.Settings = val
+}
+
+// SetFeature sets the value of Feature.
+func (s *FeatureAlgorithm) SetFeature(val Feature) {
+	s.Feature = val
 }
 
 func (*FeatureAlgorithm) getFeatureAlgorithmRes()    {}

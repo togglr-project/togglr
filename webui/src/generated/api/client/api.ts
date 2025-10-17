@@ -228,6 +228,21 @@ export interface CreateEnvironmentRequest {
      */
     'name': string;
 }
+export interface CreateFeatureAlgorithmRequest {
+    /**
+     * Algorithm slug from the /api/v1/algorithms list
+     */
+    'algorithm_slug': string;
+    /**
+     * Environment ID for which the algorithm applies
+     */
+    'environment_id': number;
+    /**
+     * Numeric algorithm settings overriding defaults
+     */
+    'settings': { [key: string]: number; };
+    'enabled': boolean;
+}
 export interface CreateFeatureRequest {
     'key': string;
     'name': string;
@@ -525,7 +540,9 @@ export interface Feature {
 
 
 export interface FeatureAlgorithm {
+    'id': string;
     'feature_id': string;
+    'project_id': string;
     'environment_id': number;
     'algorithm_slug': string;
     'enabled': boolean;
@@ -533,6 +550,7 @@ export interface FeatureAlgorithm {
      * Numeric settings for the feature algorithm
      */
     'settings': { [key: string]: number; };
+    'feature': Feature;
 }
 export interface FeatureDetailsResponse {
     'feature': FeatureExtended;
@@ -876,6 +894,9 @@ export interface ListChangesResponse {
 export interface ListEnvironmentsResponse {
     'items'?: Array<Environment>;
     'pagination'?: Pagination;
+}
+export interface ListFeatureAlgorithmsResponse {
+    'feature_algorithms': Array<FeatureAlgorithm>;
 }
 export interface ListFeaturesResponse {
     'items': Array<FeatureExtended>;
@@ -1388,6 +1409,13 @@ export interface UpdateEnvironmentRequest {
      * Human-readable environment name
      */
     'name': string;
+}
+export interface UpdateFeatureAlgorithmRequest {
+    /**
+     * Updated numeric algorithm settings
+     */
+    'settings': { [key: string]: number; };
+    'enabled': boolean;
 }
 export interface UpdateFeatureScheduleRequest {
     'starts_at'?: string;
@@ -1908,6 +1936,54 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(createEnvironmentRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Create or attach algorithm to feature in environment
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {CreateFeatureAlgorithmRequest} createFeatureAlgorithmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureAlgorithm: async (featureId: string, environmentId: number, createFeatureAlgorithmRequest: CreateFeatureAlgorithmRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('createFeatureAlgorithm', 'featureId', featureId)
+            // verify required parameter 'environmentId' is not null or undefined
+            assertParamExists('createFeatureAlgorithm', 'environmentId', environmentId)
+            // verify required parameter 'createFeatureAlgorithmRequest' is not null or undefined
+            assertParamExists('createFeatureAlgorithm', 'createFeatureAlgorithmRequest', createFeatureAlgorithmRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/algorithms/{environment_id}`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)))
+                .replace(`{${"environment_id"}}`, encodeURIComponent(String(environmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createFeatureAlgorithmRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -2524,6 +2600,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             if (environmentKey !== undefined) {
                 localVarQueryParameter['environment_key'] = environmentKey;
             }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Delete feature algorithm from feature
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteFeatureAlgorithm: async (featureId: string, environmentId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('deleteFeatureAlgorithm', 'featureId', featureId)
+            // verify required parameter 'environmentId' is not null or undefined
+            assertParamExists('deleteFeatureAlgorithm', 'environmentId', environmentId)
+            const localVarPath = `/api/v1/features/{feature_id}/algorithms/{environment_id}`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)))
+                .replace(`{${"environment_id"}}`, encodeURIComponent(String(environmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
@@ -3202,6 +3320,48 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             if (environmentKey !== undefined) {
                 localVarQueryParameter['environment_key'] = environmentKey;
             }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary Get algorithm configuration for a feature in environment
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getFeatureAlgorithm: async (featureId: string, environmentId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('getFeatureAlgorithm', 'featureId', featureId)
+            // verify required parameter 'environmentId' is not null or undefined
+            assertParamExists('getFeatureAlgorithm', 'environmentId', environmentId)
+            const localVarPath = `/api/v1/features/{feature_id}/algorithms/{environment_id}`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)))
+                .replace(`{${"environment_id"}}`, encodeURIComponent(String(environmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
     
@@ -4160,6 +4320,51 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             // authentication bearerAuth required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List feature algorithms for a feature
+         * @param {string} projectId 
+         * @param {string} environmentKey Filter by environment key
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listFeatureAlgorithms: async (projectId: string, environmentKey: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'projectId' is not null or undefined
+            assertParamExists('listFeatureAlgorithms', 'projectId', projectId)
+            // verify required parameter 'environmentKey' is not null or undefined
+            assertParamExists('listFeatureAlgorithms', 'environmentKey', environmentKey)
+            const localVarPath = `/api/v1/projects/{project_id}/feature-algorithms`
+                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (environmentKey !== undefined) {
+                localVarQueryParameter['environment_key'] = environmentKey;
+            }
 
 
     
@@ -6144,6 +6349,54 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
+         * @summary Update feature algorithm configuration
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {UpdateFeatureAlgorithmRequest} updateFeatureAlgorithmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateFeatureAlgorithm: async (featureId: string, environmentId: number, updateFeatureAlgorithmRequest: UpdateFeatureAlgorithmRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'featureId' is not null or undefined
+            assertParamExists('updateFeatureAlgorithm', 'featureId', featureId)
+            // verify required parameter 'environmentId' is not null or undefined
+            assertParamExists('updateFeatureAlgorithm', 'environmentId', environmentId)
+            // verify required parameter 'updateFeatureAlgorithmRequest' is not null or undefined
+            assertParamExists('updateFeatureAlgorithm', 'updateFeatureAlgorithmRequest', updateFeatureAlgorithmRequest)
+            const localVarPath = `/api/v1/features/{feature_id}/algorithms/{environment_id}`
+                .replace(`{${"feature_id"}}`, encodeURIComponent(String(featureId)))
+                .replace(`{${"environment_id"}}`, encodeURIComponent(String(environmentId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateFeatureAlgorithmRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary Update feature schedule by ID
          * @param {string} scheduleId 
          * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
@@ -6771,6 +7024,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Create or attach algorithm to feature in environment
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {CreateFeatureAlgorithmRequest} createFeatureAlgorithmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async createFeatureAlgorithm(featureId: string, environmentId: number, createFeatureAlgorithmRequest: CreateFeatureAlgorithmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createFeatureAlgorithm(featureId, environmentId, createFeatureAlgorithmRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createFeatureAlgorithm']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Create flag variant for feature
          * @param {string} featureId 
          * @param {string} environmentKey 
@@ -6963,6 +7231,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeature(featureId, environmentKey, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Delete feature algorithm from feature
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteFeatureAlgorithm(featureId, environmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteFeatureAlgorithm']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7190,6 +7472,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getFeature(featureId, environmentKey, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeature']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary Get algorithm configuration for a feature in environment
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureAlgorithm>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getFeatureAlgorithm(featureId, environmentId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.getFeatureAlgorithm']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -7508,6 +7804,20 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.listCategories(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.listCategories']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List feature algorithms for a feature
+         * @param {string} projectId 
+         * @param {string} environmentKey Filter by environment key
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listFeatureAlgorithms(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ListFeatureAlgorithmsResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listFeatureAlgorithms(projectId, environmentKey, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.listFeatureAlgorithms']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -8130,6 +8440,21 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary Update feature algorithm configuration
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {UpdateFeatureAlgorithmRequest} updateFeatureAlgorithmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async updateFeatureAlgorithm(featureId: string, environmentId: number, updateFeatureAlgorithmRequest: UpdateFeatureAlgorithmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FeatureAlgorithm>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateFeatureAlgorithm(featureId, environmentId, updateFeatureAlgorithmRequest, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['DefaultApi.updateFeatureAlgorithm']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary Update feature schedule by ID
          * @param {string} scheduleId 
          * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
@@ -8398,6 +8723,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Create or attach algorithm to feature in environment
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {CreateFeatureAlgorithmRequest} createFeatureAlgorithmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        createFeatureAlgorithm(featureId: string, environmentId: number, createFeatureAlgorithmRequest: CreateFeatureAlgorithmRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.createFeatureAlgorithm(featureId, environmentId, createFeatureAlgorithmRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Create flag variant for feature
          * @param {string} featureId 
          * @param {string} environmentKey 
@@ -8549,6 +8886,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteFeature(featureId: string, environmentKey: string, options?: RawAxiosRequestConfig): AxiosPromise<PendingChangeResponse> {
             return localVarFp.deleteFeature(featureId, environmentKey, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Delete feature algorithm from feature
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteFeatureAlgorithm(featureId, environmentId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8725,6 +9073,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         getFeature(featureId: string, environmentKey: string, options?: RawAxiosRequestConfig): AxiosPromise<FeatureDetailsResponse> {
             return localVarFp.getFeature(featureId, environmentKey, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary Get algorithm configuration for a feature in environment
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig): AxiosPromise<FeatureAlgorithm> {
+            return localVarFp.getFeatureAlgorithm(featureId, environmentId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8971,6 +9330,17 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         listCategories(options?: RawAxiosRequestConfig): AxiosPromise<Array<Category>> {
             return localVarFp.listCategories(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List feature algorithms for a feature
+         * @param {string} projectId 
+         * @param {string} environmentKey Filter by environment key
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listFeatureAlgorithms(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig): AxiosPromise<ListFeatureAlgorithmsResponse> {
+            return localVarFp.listFeatureAlgorithms(projectId, environmentKey, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -9463,6 +9833,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @summary Update feature algorithm configuration
+         * @param {string} featureId 
+         * @param {number} environmentId 
+         * @param {UpdateFeatureAlgorithmRequest} updateFeatureAlgorithmRequest 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        updateFeatureAlgorithm(featureId: string, environmentId: number, updateFeatureAlgorithmRequest: UpdateFeatureAlgorithmRequest, options?: RawAxiosRequestConfig): AxiosPromise<FeatureAlgorithm> {
+            return localVarFp.updateFeatureAlgorithm(featureId, environmentId, updateFeatureAlgorithmRequest, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary Update feature schedule by ID
          * @param {string} scheduleId 
          * @param {UpdateFeatureScheduleRequest} updateFeatureScheduleRequest 
@@ -9706,6 +10088,19 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
+     * @summary Create or attach algorithm to feature in environment
+     * @param {string} featureId 
+     * @param {number} environmentId 
+     * @param {CreateFeatureAlgorithmRequest} createFeatureAlgorithmRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public createFeatureAlgorithm(featureId: string, environmentId: number, createFeatureAlgorithmRequest: CreateFeatureAlgorithmRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).createFeatureAlgorithm(featureId, environmentId, createFeatureAlgorithmRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary Create flag variant for feature
      * @param {string} featureId 
      * @param {string} environmentKey 
@@ -9870,6 +10265,18 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteFeature(featureId: string, environmentKey: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteFeature(featureId, environmentKey, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Delete feature algorithm from feature
+     * @param {string} featureId 
+     * @param {number} environmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).deleteFeatureAlgorithm(featureId, environmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10063,6 +10470,18 @@ export class DefaultApi extends BaseAPI {
      */
     public getFeature(featureId: string, environmentKey: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).getFeature(featureId, environmentKey, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Get algorithm configuration for a feature in environment
+     * @param {string} featureId 
+     * @param {number} environmentId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getFeatureAlgorithm(featureId: string, environmentId: number, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).getFeatureAlgorithm(featureId, environmentId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10333,6 +10752,18 @@ export class DefaultApi extends BaseAPI {
      */
     public listCategories(options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).listCategories(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List feature algorithms for a feature
+     * @param {string} projectId 
+     * @param {string} environmentKey Filter by environment key
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public listFeatureAlgorithms(projectId: string, environmentKey: string, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).listFeatureAlgorithms(projectId, environmentKey, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -10865,6 +11296,19 @@ export class DefaultApi extends BaseAPI {
      */
     public updateFeature(featureId: string, environmentKey: string, createFeatureRequest: CreateFeatureRequest, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).updateFeature(featureId, environmentKey, createFeatureRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary Update feature algorithm configuration
+     * @param {string} featureId 
+     * @param {number} environmentId 
+     * @param {UpdateFeatureAlgorithmRequest} updateFeatureAlgorithmRequest 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public updateFeatureAlgorithm(featureId: string, environmentId: number, updateFeatureAlgorithmRequest: UpdateFeatureAlgorithmRequest, options?: RawAxiosRequestConfig) {
+        return DefaultApiFp(this.configuration).updateFeatureAlgorithm(featureId, environmentId, updateFeatureAlgorithmRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

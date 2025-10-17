@@ -14,6 +14,7 @@ All URIs are relative to *http://localhost*
 |[**consumeSAMLAssertion**](#consumesamlassertion) | **POST** /api/v1/saml/acs | Assertion Consumer Service (ACS) endpoint|
 |[**createCategory**](#createcategory) | **POST** /api/v1/categories | Create new category|
 |[**createEnvironment**](#createenvironment) | **POST** /api/v1/projects/{project_id}/environments | Create environment|
+|[**createFeatureAlgorithm**](#createfeaturealgorithm) | **POST** /api/v1/features/{feature_id}/algorithms/{environment_id} | Create or attach algorithm to feature in environment|
 |[**createFeatureFlagVariant**](#createfeatureflagvariant) | **POST** /api/v1/features/{feature_id}/variants | Create flag variant for feature|
 |[**createFeatureRule**](#createfeaturerule) | **POST** /api/v1/features/{feature_id}/rules | Create rule for feature|
 |[**createFeatureSchedule**](#createfeatureschedule) | **POST** /api/v1/features/{feature_id}/schedules | Create schedule for feature|
@@ -28,6 +29,7 @@ All URIs are relative to *http://localhost*
 |[**deleteCategory**](#deletecategory) | **DELETE** /api/v1/categories/{category_id} | Delete category|
 |[**deleteEnvironment**](#deleteenvironment) | **DELETE** /api/v1/environments/{environment_id} | Delete environment|
 |[**deleteFeature**](#deletefeature) | **DELETE** /api/v1/features/{feature_id} | Delete feature|
+|[**deleteFeatureAlgorithm**](#deletefeaturealgorithm) | **DELETE** /api/v1/features/{feature_id}/algorithms/{environment_id} | Delete feature algorithm from feature|
 |[**deleteFeatureSchedule**](#deletefeatureschedule) | **DELETE** /api/v1/feature-schedules/{schedule_id} | Delete feature schedule by ID|
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
 |[**deleteNotificationSetting**](#deletenotificationsetting) | **DELETE** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id} | Delete a notification setting|
@@ -45,6 +47,7 @@ All URIs are relative to *http://localhost*
 |[**getDashboardOverview**](#getdashboardoverview) | **GET** /api/v1/dashboard/overview | Project Dashboard overview|
 |[**getEnvironment**](#getenvironment) | **GET** /api/v1/environments/{environment_id} | Get environment|
 |[**getFeature**](#getfeature) | **GET** /api/v1/features/{feature_id} | Get feature with rules and variants|
+|[**getFeatureAlgorithm**](#getfeaturealgorithm) | **GET** /api/v1/features/{feature_id}/algorithms/{environment_id} | Get algorithm configuration for a feature in environment|
 |[**getFeatureSchedule**](#getfeatureschedule) | **GET** /api/v1/feature-schedules/{schedule_id} | Get feature schedule by ID|
 |[**getFeatureTimeline**](#getfeaturetimeline) | **GET** /api/v1/features/{feature_id}/timeline | Get feature timeline within period|
 |[**getLDAPConfig**](#getldapconfig) | **GET** /api/v1/ldap/config | Get LDAP configuration|
@@ -69,6 +72,7 @@ All URIs are relative to *http://localhost*
 |[**listAlgorithms**](#listalgorithms) | **GET** /api/v1/algorithms | List of algorithms|
 |[**listAllFeatureSchedules**](#listallfeatureschedules) | **GET** /api/v1/feature-schedules | List all feature schedules|
 |[**listCategories**](#listcategories) | **GET** /api/v1/categories | Get categories list|
+|[**listFeatureAlgorithms**](#listfeaturealgorithms) | **GET** /api/v1/projects/{project_id}/feature-algorithms | List feature algorithms for a feature|
 |[**listFeatureFlagVariants**](#listfeatureflagvariants) | **GET** /api/v1/features/{feature_id}/variants | List flag variants for feature|
 |[**listFeatureRules**](#listfeaturerules) | **GET** /api/v1/features/{feature_id}/rules | List rules for feature|
 |[**listFeatureSchedules**](#listfeatureschedules) | **GET** /api/v1/features/{feature_id}/schedules | List schedules for feature|
@@ -112,6 +116,7 @@ All URIs are relative to *http://localhost*
 |[**updateCategory**](#updatecategory) | **PUT** /api/v1/categories/{category_id} | Update category|
 |[**updateEnvironment**](#updateenvironment) | **PUT** /api/v1/environments/{environment_id} | Update environment|
 |[**updateFeature**](#updatefeature) | **PUT** /api/v1/features/{feature_id} | Update feature with rules and variants|
+|[**updateFeatureAlgorithm**](#updatefeaturealgorithm) | **PATCH** /api/v1/features/{feature_id}/algorithms/{environment_id} | Update feature algorithm configuration|
 |[**updateFeatureSchedule**](#updatefeatureschedule) | **PUT** /api/v1/feature-schedules/{schedule_id} | Update feature schedule by ID|
 |[**updateLDAPConfig**](#updateldapconfig) | **POST** /api/v1/ldap/config | Create or update LDAP configuration|
 |[**updateLicenseAcceptance**](#updatelicenseacceptance) | **PUT** /api/v1/users/me/license-acceptance | Update license acceptance status|
@@ -692,6 +697,69 @@ const { status, data } = await apiInstance.createEnvironment(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**409** | Environment already exists |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **createFeatureAlgorithm**
+> createFeatureAlgorithm(createFeatureAlgorithmRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    CreateFeatureAlgorithmRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let environmentId: number; // (default to undefined)
+let createFeatureAlgorithmRequest: CreateFeatureAlgorithmRequest; //
+
+const { status, data } = await apiInstance.createFeatureAlgorithm(
+    featureId,
+    environmentId,
+    createFeatureAlgorithmRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **createFeatureAlgorithmRequest** | **CreateFeatureAlgorithmRequest**|  | |
+| **featureId** | [**string**] |  | defaults to undefined|
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**201** | Feature algorithm created |  -  |
+|**400** | Invalid request data |  -  |
+|**401** | Unauthorized |  -  |
+|**404** | Feature not found |  -  |
+|**409** | Algorithm already exists for this feature/environment |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -1535,6 +1603,63 @@ const { status, data } = await apiInstance.deleteFeature(
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
 |**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteFeatureAlgorithm**
+> deleteFeatureAlgorithm()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let environmentId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.deleteFeatureAlgorithm(
+    featureId,
+    environmentId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | Feature algorithm deleted |  -  |
+|**404** | Not found |  -  |
+|**401** | Unauthorized |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -2480,6 +2605,64 @@ const { status, data } = await apiInstance.getFeature(
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getFeatureAlgorithm**
+> FeatureAlgorithm getFeatureAlgorithm()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let environmentId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.getFeatureAlgorithm(
+    featureId,
+    environmentId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **featureId** | [**string**] |  | defaults to undefined|
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**FeatureAlgorithm**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Feature algorithm configuration |  -  |
+|**404** | Algorithm not found for feature/environment |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -3756,6 +3939,64 @@ This endpoint does not have any parameters.
 |**200** | List of categories |  -  |
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **listFeatureAlgorithms**
+> ListFeatureAlgorithmsResponse listFeatureAlgorithms()
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let projectId: string; // (default to undefined)
+let environmentKey: string; //Filter by environment key (default to undefined)
+
+const { status, data } = await apiInstance.listFeatureAlgorithms(
+    projectId,
+    environmentKey
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **projectId** | [**string**] |  | defaults to undefined|
+| **environmentKey** | [**string**] | Filter by environment key | defaults to undefined|
+
+
+### Return type
+
+**ListFeatureAlgorithmsResponse**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | List of feature algorithms |  -  |
+|**401** | Unauthorized |  -  |
+|**403** | Permission denied |  -  |
+|**404** | Feature not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 
@@ -6258,6 +6499,67 @@ const { status, data } = await apiInstance.updateFeature(
 |**403** | Permission denied |  -  |
 |**404** | Feature not found |  -  |
 |**409** | Conflict - change cannot be applied due to existing pending change or lock |  -  |
+|**500** | Internal server error |  -  |
+|**0** | Unexpected error |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **updateFeatureAlgorithm**
+> FeatureAlgorithm updateFeatureAlgorithm(updateFeatureAlgorithmRequest)
+
+
+### Example
+
+```typescript
+import {
+    DefaultApi,
+    Configuration,
+    UpdateFeatureAlgorithmRequest
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new DefaultApi(configuration);
+
+let featureId: string; // (default to undefined)
+let environmentId: number; // (default to undefined)
+let updateFeatureAlgorithmRequest: UpdateFeatureAlgorithmRequest; //
+
+const { status, data } = await apiInstance.updateFeatureAlgorithm(
+    featureId,
+    environmentId,
+    updateFeatureAlgorithmRequest
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **updateFeatureAlgorithmRequest** | **UpdateFeatureAlgorithmRequest**|  | |
+| **featureId** | [**string**] |  | defaults to undefined|
+| **environmentId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**FeatureAlgorithm**
+
+### Authorization
+
+[bearerAuth](../README.md#bearerAuth)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | Updated feature algorithm |  -  |
+|**404** | Algorithm not found |  -  |
+|**401** | Unauthorized |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

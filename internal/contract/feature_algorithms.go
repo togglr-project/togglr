@@ -47,6 +47,11 @@ type FeatureAlgorithmsRepository interface {
 	ListEnabled(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 	ListAll(ctx context.Context) ([]domain.FeatureAlgorithm, error)
 	ListAllExtended(ctx context.Context) ([]domain.FeatureAlgorithmExtended, error)
+	ListByProjectIDWithEnvID(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		envID domain.EnvironmentID,
+	) ([]domain.FeatureAlgorithm, error)
 }
 
 type FeatureAlgorithmsUseCase interface {
@@ -68,4 +73,9 @@ type FeatureAlgorithmsUseCase interface {
 		featureID domain.FeatureID,
 		envID domain.EnvironmentID,
 	) (domain.FeatureAlgorithm, error)
+	ListByProjectIDWithEnvID(
+		ctx context.Context,
+		projectID domain.ProjectID,
+		envID domain.EnvironmentID,
+	) ([]domain.FeatureAlgorithm, error)
 }

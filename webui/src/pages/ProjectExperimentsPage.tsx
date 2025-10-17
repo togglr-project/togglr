@@ -9,27 +9,42 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import {
   Add as AddIcon,
 } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import apiClient from '../api/apiClient';
 import type { Project } from '../generated/api/client';
 import { useRBAC } from '../auth/permissions';
+import { 
+  ExperimentsList, 
+  AlgorithmsList, 
+  CreateExperimentDialog, 
+  EditExperimentDialog,
+  ExperimentDetailsDialog
+} from '../components/experiments';
+import type { FeatureAlgorithm } from '../generated/api/client';
 
 interface ProjectResponse { project: Project }
 
 const ProjectExperimentsPage: React.FC = () => {
   const { projectId = '' } = useParams();
+  const queryClient = useQueryClient();
   const [environmentKey, setEnvironmentKey] = useState<string>(() => {
-    // Try to get from localStorage first, fallback to 'prod'
     return localStorage.getItem('currentEnvironmentKey') || 'prod';
   });
+  const [activeTab, setActiveTab] = useState(0);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedExperiment, setSelectedExperiment] = useState<FeatureAlgorithm | null>(null);
+  const [togglingExperimentId, setTogglingExperimentId] = useState<string | null>(null);
   
-  // RBAC checks for current project
   const rbac = useRBAC(projectId);
 
   // Check project access
@@ -82,13 +97,52 @@ const ProjectExperimentsPage: React.FC = () => {
 
   const project = projectResp?.project;
 
+  const handleEdit = (experiment: FeatureAlgorithm) => {
+    setSelectedExperiment(experiment);
+    setEditDialogOpen(true);
+  };
+
+  const handleView = (experiment: FeatureAlgorithm) => {
+    setSelectedExperiment(experiment);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleDelete = async (experiment: FeatureAlgorithm) => {
+    if (window.confirm('Are you sure you want to delete this experiment?')) {
+      try {
+        const environmentId = parseInt(localStorage.getItem('currentEnvId') || '0');
+        await apiClient.deleteFeatureAlgorithm(experiment.feature_id, environmentId);
+        // Invalidate and refetch the experiments list
+        queryClient.invalidateQueries({ queryKey: ['feature-algorithms', projectId, environmentKey] });
+      } catch (error) {
+        console.error('Failed to delete experiment:', error);
+      }
+    }
+  };
+
+  const handleToggle = async (experiment: FeatureAlgorithm) => {
+    setTogglingExperimentId(experiment.id);
+    try {
+      const environmentId = parseInt(localStorage.getItem('currentEnvId') || '0');
+      await apiClient.updateFeatureAlgorithm(experiment.feature_id, environmentId, {
+        enabled: !experiment.enabled,
+        settings: experiment.settings,
+      });
+      // Invalidate and refetch the experiments list
+      queryClient.invalidateQueries({ queryKey: ['feature-algorithms', projectId, environmentKey] });
+    } catch (error) {
+      console.error('Failed to toggle experiment:', error);
+    } finally {
+      setTogglingExperimentId(null);
+    }
+  };
+
   return (
     <AuthenticatedLayout showBackButton backTo="/dashboard">
       <Paper sx={{ p: 2 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" sx={{ color: 'primary.light' }}>Experiments</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {/* Environment selector */}
             <FormControl size="small" sx={{ minWidth: 200 }}>
               <InputLabel>Environment</InputLabel>
               <Select
@@ -97,12 +151,10 @@ const ProjectExperimentsPage: React.FC = () => {
                 size="small"
                 onChange={(e) => {
                   setEnvironmentKey(e.target.value);
-                  // Find the environment ID and save it to localStorage
                   const selectedEnv = environments.find(env => env.key === e.target.value);
                   if (selectedEnv) {
                     localStorage.setItem('currentEnvId', selectedEnv.id.toString());
                     localStorage.setItem('currentEnvironmentKey', selectedEnv.key);
-                    console.log('[ProjectExperimentsPage] Saved environment to localStorage:', { id: selectedEnv.id, key: selectedEnv.key });
                   }
                 }}
                 disabled={loadingEnvironments}
@@ -115,7 +167,12 @@ const ProjectExperimentsPage: React.FC = () => {
               </Select>
             </FormControl>
             {rbac.canManageFeature() && (
-              <Button variant="contained" startIcon={<AddIcon />} size="small">
+              <Button 
+                variant="contained" 
+                startIcon={<AddIcon />} 
+                size="small"
+                onClick={() => setCreateDialogOpen(true)}
+              >
                 Add Experiment
               </Button>
             )}
@@ -129,13 +186,51 @@ const ProjectExperimentsPage: React.FC = () => {
         )}
 
         {!loadingProject && !loadingEnvironments && (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography variant="body1" color="text.secondary">
-              No experiments yet. API methods for experiments will be implemented soon.
-            </Typography>
-          </Box>
+          <>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+              <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
+                <Tab label="Experiments" />
+                <Tab label="Algorithms" />
+              </Tabs>
+            </Box>
+            
+            {activeTab === 0 && (
+              <ExperimentsList 
+                projectId={projectId}
+                environmentKey={environmentKey}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggle={handleToggle}
+                onView={handleView}
+                togglingExperimentId={togglingExperimentId}
+              />
+            )}
+            
+            {activeTab === 1 && (
+              <AlgorithmsList />
+            )}
+          </>
         )}
       </Paper>
+
+      <CreateExperimentDialog
+        open={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        projectId={projectId}
+        environmentKey={environmentKey}
+      />
+
+      <EditExperimentDialog
+        open={editDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+        experiment={selectedExperiment}
+      />
+
+      <ExperimentDetailsDialog
+        open={detailsDialogOpen}
+        onClose={() => setDetailsDialogOpen(false)}
+        experiment={selectedExperiment}
+      />
     </AuthenticatedLayout>
   );
 };

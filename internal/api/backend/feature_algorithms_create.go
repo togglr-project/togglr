@@ -27,6 +27,12 @@ func (r *RestAPI) CreateFeatureAlgorithm(
 		}, nil
 	}
 
+	_, err = r.featureAlgorithmsUseCase.GetByFeatureIDWithEnvID(ctx, featureID, envID)
+	if err == nil {
+		return &generatedapi.ErrorConflict{Error: generatedapi.ErrorConflictError{
+			Message: generatedapi.NewOptString("feature algorithm already exists")}}, nil
+	}
+
 	feature, err := r.featuresUseCase.GetByIDWithEnv(ctx, featureID, env.Key)
 	if err != nil {
 		slog.Error("get feature failed", "error", err, "feature_id", featureID)

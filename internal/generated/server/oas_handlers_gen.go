@@ -13266,14 +13266,14 @@ func (s *Server) handleListCategoriesRequest(args [0]string, argsEscaped bool, w
 //
 // List feature algorithms for a feature.
 //
-// GET /api/v1/features/{feature_id}/algorithms
+// GET /api/v1/projects/{project_id}/feature-algorithms
 func (s *Server) handleListFeatureAlgorithmsRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
 	statusWriter := &codeRecorder{ResponseWriter: w}
 	w = statusWriter
 	otelAttrs := []attribute.KeyValue{
 		otelogen.OperationID("ListFeatureAlgorithms"),
 		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/api/v1/features/{feature_id}/algorithms"),
+		semconv.HTTPRouteKey.String("/api/v1/projects/{project_id}/feature-algorithms"),
 	}
 
 	// Start a span for this request.
@@ -13403,9 +13403,9 @@ func (s *Server) handleListFeatureAlgorithmsRequest(args [1]string, argsEscaped 
 			Body:             nil,
 			Params: middleware.Parameters{
 				{
-					Name: "feature_id",
+					Name: "project_id",
 					In:   "path",
-				}: params.FeatureID,
+				}: params.ProjectID,
 				{
 					Name: "environment_key",
 					In:   "query",
