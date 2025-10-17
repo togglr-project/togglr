@@ -9,7 +9,7 @@ import (
 type FeatureAlgorithmID string
 
 type FeatureAlgorithm struct {
-	ID            FeatureAlgorithmID         `db:"id"`
+	ID            FeatureAlgorithmID         `db:"id" pk:"true"`
 	ProjectID     ProjectID                  `db:"project_id"`
 	EnvironmentID EnvironmentID              `db:"environment_id"`
 	FeatureID     FeatureID                  `db:"feature_id"`
