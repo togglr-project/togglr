@@ -88,7 +88,7 @@ Each algorithm can be configured per environment (e.g., `production`, `staging`)
 
 * **Backend** — Go (TimescaleDB, NATS JetStream, REST API, WebSocket broadcaster)
 * **Frontend** — React + TypeScript
-* **SDKs** — Go, Python, Ruby, TypeScript, Elixir
+* **SDKs** — Go, Python, Ruby, TypeScript, Elixir, Rust
 
 Experiment data and feedback (continuous aggregates for dashboards), algorithm configuration and state are stored in TimescaleDB.
 

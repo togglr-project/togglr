@@ -88,7 +88,7 @@ Togglr расширяет классические feature flags до **полн
 
 * **Backend** — Go (TimescaleDB, NATS JetStream, REST API, WebSocket broadcaster)
 * **Frontend** — React + TypeScript
-* **SDK** — Go, Python, Ruby, TypeScript, Elixir
+* **SDK** — Go, Python, Ruby, TypeScript, Elixir, Rust
 
 Данные экспериментов и обратная связь (непрерывные агрегаты для дашбордов), конфигурация алгоритмов и состояние хранятся в TimescaleDB.
 
