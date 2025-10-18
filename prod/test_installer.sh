@@ -301,14 +301,17 @@ EOF
     fi
 }
 
-# Function to test docker-compose.yml validation
-test_docker_compose_validation() {
-    print_info "Testing docker-compose.yml validation..."
+# Function to test docker-compose.yml download
+test_docker_compose_download() {
+    print_info "Testing docker-compose.yml download..."
     
-    local docker_compose="$SCRIPT_DIR/docker-compose.yml"
+    local docker_compose_url="https://raw.githubusercontent.com/togglr-project/togglr/main/prod/docker-compose.yml"
+    local docker_compose="$TEST_DIR/docker-compose.yml"
     
-    if [[ ! -f "$docker_compose" ]]; then
-        print_error "docker-compose.yml not found: FAILED"
+    if curl -fsSL "$docker_compose_url" -o "$docker_compose"; then
+        print_success "docker-compose.yml download: OK"
+    else
+        print_error "docker-compose.yml download: FAILED"
         return 1
     fi
     
@@ -329,6 +332,29 @@ test_docker_compose_validation() {
             return 1
         fi
     done
+}
+
+# Function to test NATS configuration download
+test_nats_config_download() {
+    print_info "Testing NATS configuration download..."
+    
+    local nats_conf_url="https://raw.githubusercontent.com/togglr-project/togglr/main/prod/nats.conf"
+    local nats_conf="$TEST_DIR/nats.conf"
+    
+    if curl -fsSL "$nats_conf_url" -o "$nats_conf"; then
+        print_success "nats.conf download: OK"
+        
+        # Check if file contains required configuration
+        if grep -q "port: 4222" "$nats_conf" && grep -q "jetstream" "$nats_conf"; then
+            print_success "nats.conf content validation: OK"
+        else
+            print_error "nats.conf content validation: FAILED"
+            return 1
+        fi
+    else
+        print_error "nats.conf download: FAILED"
+        return 1
+    fi
 }
 
 # Function to test Makefile generation
@@ -396,7 +422,8 @@ main() {
         "test_directory_creation"
         "test_ssl_generation"
         "test_config_generation"
-        "test_docker_compose_validation"
+        "test_docker_compose_download"
+        "test_nats_config_download"
         "test_makefile_generation"
     )
     

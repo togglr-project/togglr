@@ -42,6 +42,30 @@ check_root() {
     fi
 }
 
+# Function to check required commands
+check_required_commands() {
+    local missing_commands=()
+    
+    # Check for curl
+    if ! command -v curl &> /dev/null; then
+        missing_commands+=("curl")
+    fi
+    
+    # Check for openssl
+    if ! command -v openssl &> /dev/null; then
+        missing_commands+=("openssl")
+    fi
+    
+    if [[ ${#missing_commands[@]} -gt 0 ]]; then
+        print_error "Missing required commands: ${missing_commands[*]}"
+        print_info "Please install the missing commands and try again."
+        print_info "On Ubuntu/Debian: sudo apt-get install curl openssl"
+        print_info "On CentOS/RHEL: sudo yum install curl openssl"
+        print_info "On macOS: brew install curl openssl"
+        exit 1
+    fi
+}
+
 # Function to print welcome message
 print_welcome() {
     echo "================================================="
@@ -328,22 +352,34 @@ EOF
     print_success "Created $config_env_file"
 }
 
-# Function to copy docker-compose.yml
-copy_docker_compose() {
+# Function to download docker-compose.yml
+download_docker_compose() {
     local docker_compose_file="$INSTALL_DIR/docker-compose.yml"
+    local docker_compose_url="https://raw.githubusercontent.com/togglr-project/togglr/main/prod/docker-compose.yml"
     
-    cp "$(dirname "$0")/docker-compose.yml" "$docker_compose_file"
+    print_info "Downloading docker-compose.yml from GitHub..."
     
-    print_success "Created $docker_compose_file"
+    if curl -fsSL "$docker_compose_url" -o "$docker_compose_file"; then
+        print_success "Downloaded $docker_compose_file"
+    else
+        print_error "Failed to download docker-compose.yml from $docker_compose_url"
+        exit 1
+    fi
 }
 
-# Function to copy NATS configuration
-copy_nats_config() {
+# Function to download NATS configuration
+download_nats_config() {
     local nats_conf_file="$INSTALL_DIR/nats/nats.conf"
+    local nats_conf_url="https://raw.githubusercontent.com/togglr-project/togglr/main/prod/nats.conf"
     
-    cp "$(dirname "$0")/nats.conf" "$nats_conf_file"
+    print_info "Downloading nats.conf from GitHub..."
     
-    print_success "Created $nats_conf_file"
+    if curl -fsSL "$nats_conf_url" -o "$nats_conf_file"; then
+        print_success "Downloaded $nats_conf_file"
+    else
+        print_error "Failed to download nats.conf from $nats_conf_url"
+        exit 1
+    fi
 }
 
 # Function to create Makefile
@@ -411,6 +447,9 @@ main() {
     # Check if running as root
     check_root
     
+    # Check required commands
+    check_required_commands
+    
     # Check if running in interactive terminal or with environment variables
     if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
         print_error "This installer requires an interactive terminal or environment variables."
@@ -447,8 +486,8 @@ main() {
     # Create configuration files
     create_platform_env
     create_config_env
-    copy_docker_compose
-    copy_nats_config
+    download_docker_compose
+    download_nats_config
     create_makefile
     
     # Handle SSL certificate based on user's choice
