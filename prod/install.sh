@@ -450,16 +450,16 @@ main() {
     # Check required commands
     check_required_commands
     
-    # Check if running in interactive terminal or with environment variables
-    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
-        print_error "This installer requires an interactive terminal or environment variables."
-        print_info "Please run the installer in an interactive terminal session or set environment variables:"
-        print_info "  TOGGLR_ADMIN_EMAIL=admin@example.com"
-        print_info "  TOGGLR_DOMAIN=example.com"
-        print_info "  TOGGLR_MAILER_ADDR=smtp.example.com:587"
-        print_info "Example: sudo ./install.sh"
-        exit 1
-    fi
+#    # Check if running in interactive terminal or with environment variables
+#    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
+#        print_error "This installer requires an interactive terminal or environment variables."
+#        print_info "Please run the installer in an interactive terminal session or set environment variables:"
+#        print_info "  TOGGLR_ADMIN_EMAIL=admin@example.com"
+#        print_info "  TOGGLR_DOMAIN=example.com"
+#        print_info "  TOGGLR_MAILER_ADDR=smtp.example.com:587"
+#        print_info "Example: sudo ./install.sh"
+#        exit 1
+#    fi
     
     # Print welcome message
     print_welcome
