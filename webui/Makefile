@@ -66,7 +66,7 @@ docker-build: ## Сборка универсального Docker-образа
 		exit 1 ; \
 	fi
 	@echo ${GREEN}"Universal Docker image 'togglr-frontend' built successfully!"${NOCOLOR}
-	@echo ${YELLOW}"Note: API URL will be configured at runtime via togglr_API_BASE_URL environment variable"${NOCOLOR}
+	@echo ${YELLOW}"Note: API URL will be configured at runtime via TOGGLR_API_BASE_URL environment variable"${NOCOLOR}
 
 .PHONY: docker-push
 docker-push: docker-build ## Тегирование и пуш Docker-образа
