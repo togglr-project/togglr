@@ -53,13 +53,30 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 		}}, nil
 	}
 
+	featAlg, err := s.featureAlgorithmsUC.GetByFeatureIDWithEnvID(ctx, feature.ID, feature.EnvironmentID)
+	if err != nil {
+		if errors.Is(err, domain.ErrEntityNotFound) {
+			return &generatedapi.ErrorNotFound{Error: generatedapi.ErrorNotFoundError{
+				Message: generatedapi.NewOptString(err.Error()),
+			}}, nil
+		}
+
+		slog.Error("get feature algorithm failed", "error", err)
+
+		return &generatedapi.ErrorInternalServerError{Error: generatedapi.ErrorInternalServerErrorError{
+			Message: generatedapi.NewOptString(err.Error()),
+		}}, nil
+	}
+
 	event := domain.FeedbackEventDTO{
+		ProjectID:     feature.ProjectID,
+		EnvironmentID: feature.EnvironmentID,
+		FeatureID:     feature.ID,
 		FeatureKey:    featureKey,
 		EnvKey:        envKey,
-		FeatureID:     feature.ID,
-		EnvironmentID: feature.EnvironmentID,
 		VariantKey:    req.VariantKey,
 		EventType:     domain.FeedbackEventType(req.EventType),
+		AlgorithmSlug: featAlg.AlgorithmSlug,
 		Reward:        decimal.NewFromFloat32(req.Reward.Or(0.0)),
 		Context:       reqCtx,
 	}

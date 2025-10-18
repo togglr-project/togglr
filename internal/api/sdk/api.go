@@ -18,6 +18,7 @@ type SDKRestAPI struct {
 	featureUseCase      contract.FeaturesUseCase
 	errorReportsUseCase contract.ErrorReportsUseCase
 	projectSettingsUC   contract.ProjectSettingsUseCase
+	featureAlgorithmsUC contract.FeatureAlgorithmsUseCase
 	bus                 contract.EventsBus
 }
 
@@ -26,6 +27,7 @@ func New(
 	featureUseCase contract.FeaturesUseCase,
 	errorReportsUseCase contract.ErrorReportsUseCase,
 	projectSettingsUC contract.ProjectSettingsUseCase,
+	featureAlgorithmsUC contract.FeatureAlgorithmsUseCase,
 	bus contract.EventsBus,
 ) *SDKRestAPI {
 	return &SDKRestAPI{
@@ -33,6 +35,7 @@ func New(
 		featureUseCase:      featureUseCase,
 		errorReportsUseCase: errorReportsUseCase,
 		projectSettingsUC:   projectSettingsUC,
+		featureAlgorithmsUC: featureAlgorithmsUC,
 		bus:                 bus,
 	}
 }

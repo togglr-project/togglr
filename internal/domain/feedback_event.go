@@ -20,9 +20,13 @@ const (
 
 type FeedbackEvent struct {
 	ID            FeedbackEventID
-	FeatureID     FeatureID
+	ProjectID     ProjectID
 	EnvironmentID EnvironmentID
+	FeatureID     FeatureID
+	FeatureKey    string
+	EnvKey        string
 	VariantKey    string
+	AlgorithmSlug string
 	EventType     FeedbackEventType
 	Reward        decimal.Decimal
 	Context       map[string]any
@@ -30,11 +34,13 @@ type FeedbackEvent struct {
 }
 
 type FeedbackEventDTO struct {
+	ProjectID     ProjectID         `json:"projectID"`
+	EnvironmentID EnvironmentID     `json:"environmentID"`
+	FeatureID     FeatureID         `json:"featureID"`
 	FeatureKey    string            `json:"feature_key"`
 	EnvKey        string            `json:"env_key"`
-	FeatureID     FeatureID         `json:"featureID"`
-	EnvironmentID EnvironmentID     `json:"environmentID"`
 	VariantKey    string            `json:"variantKey"`
+	AlgorithmSlug string            `json:"algorithmSlug"`
 	EventType     FeedbackEventType `json:"eventType"`
 	Reward        decimal.Decimal   `json:"reward"`
 	Context       map[string]any    `json:"context"`
