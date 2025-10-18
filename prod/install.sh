@@ -57,19 +57,12 @@ read_input() {
     local prompt="$1"
     local validation_func="$2"
     local input=""
-    
-    # Check if we're in an interactive terminal or using environment variables
-    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
-        print_error "This installer requires an interactive terminal or environment variables."
-        print_info "Please run the installer in an interactive terminal session or set environment variables."
-        exit 1
-    fi
-    
+
     while true; do
-        echo -n "$prompt: "
+        echo -n "$prompt: " >&2
         read -r input
         input=$(echo "$input" | xargs) # trim whitespace
-        
+
         if [[ -n "$input" ]]; then
             if [[ -n "$validation_func" ]]; then
                 if $validation_func "$input"; then
@@ -82,27 +75,20 @@ read_input() {
             print_error "Input cannot be empty. Please try again."
         fi
     done
-    
-    echo "$input"
+
+    echo "$input" >&2
 }
 
 # Function to read yes/no input
 read_yes_no() {
     local prompt="$1"
     local input=""
-    
-    # Check if we're in an interactive terminal or using environment variables
-    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
-        print_error "This installer requires an interactive terminal or environment variables."
-        print_info "Please run the installer in an interactive terminal session or set environment variables."
-        exit 1
-    fi
-    
+
     while true; do
-        echo -n "$prompt (y/n): "
+        echo -n "$prompt (y/n): " >&2
         read -r input
         input=$(echo "$input" | tr '[:upper:]' '[:lower:]')
-        
+
         if [[ "$input" == "y" || "$input" == "yes" ]]; then
             return 0
         elif [[ "$input" == "n" || "$input" == "no" ]]; then
@@ -212,11 +198,9 @@ collect_user_input() {
     fi
     
     # Get admin email
-    print_info "Requesting administrator email..."
     ADMIN_EMAIL=$(read_input "Enter administrator email" "validate_email")
     
     # Get domain
-    print_info "Requesting domain..."
     DOMAIN=$(read_input "Enter domain for the platform")
     FRONTEND_URL="https://$DOMAIN"
     
@@ -236,13 +220,9 @@ collect_user_input() {
     print_info "=== SMTP Server Configuration ==="
     
     # Get SMTP server details
-    print_info "Requesting SMTP server address..."
     MAILER_ADDR=$(read_input "Enter SMTP server address (including port)")
-    print_info "Requesting SMTP user..."
     MAILER_USER=$(read_input "Enter SMTP user")
-    print_info "Requesting SMTP password..."
     MAILER_PASSWORD=$(read_input "Enter SMTP password")
-    print_info "Requesting SMTP from address..."
     MAILER_FROM=$(read_input "Enter email address for sending emails (from)")
     
 }
