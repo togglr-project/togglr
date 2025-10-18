@@ -110,7 +110,6 @@ show_usage() {
 show_version() {
     echo "Togglr Platform Installer (Bash Version)"
     echo "Version: 1.0.0"
-    echo "Based on Go installer from internal/installer"
 }
 
 # Main function
