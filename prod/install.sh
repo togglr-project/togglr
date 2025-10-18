@@ -14,8 +14,16 @@ NC='\033[0m' # No Color
 
 # Configuration variables
 INSTALL_DIR="/opt/togglr"
-DOCKER_REGISTRY=""
+DOCKER_REGISTRY="docker.io"
 PLATFORM_VERSION="latest"
+DOMAIN=""
+FRONTEND_URL=""
+ADMIN_EMAIL=""
+MAILER_ADDR=""
+MAILER_USER=""
+MAILER_PASSWORD=""
+MAILER_FROM=""
+HAS_EXISTING_SSL_CERT=""
 
 # Function to print colored output
 print_info() {
@@ -100,7 +108,7 @@ read_input() {
         fi
     done
 
-    echo "$input" >&2
+    echo "$input"
 }
 
 # Function to read yes/no input
@@ -218,8 +226,11 @@ collect_user_input() {
         MAILER_PASSWORD="${TOGGLR_MAILER_PASSWORD:-password}"
         MAILER_FROM="${TOGGLR_MAILER_FROM:-noreply@$DOMAIN}"
         HAS_EXISTING_SSL_CERT="${TOGGLR_HAS_SSL_CERT:-false}"
+        print_info "Configuration loaded: DOMAIN=$DOMAIN, ADMIN_EMAIL=$ADMIN_EMAIL"
         return
     fi
+    
+    print_info "Running in interactive mode..."
     
     # Get admin email
     ADMIN_EMAIL=$(read_input "Enter administrator email" "validate_email")
@@ -227,6 +238,7 @@ collect_user_input() {
     # Get domain
     DOMAIN=$(read_input "Enter domain for the platform")
     FRONTEND_URL="https://$DOMAIN"
+    print_info "Domain set to: $DOMAIN"
     
     # Ask about SSL certificate
     print_info "Asking about SSL certificate..."
@@ -249,6 +261,7 @@ collect_user_input() {
     MAILER_PASSWORD=$(read_input "Enter SMTP password")
     MAILER_FROM=$(read_input "Enter email address for sending emails (from)")
     
+    print_info "Configuration collected: DOMAIN=$DOMAIN, ADMIN_EMAIL=$ADMIN_EMAIL"
 }
 
 # Function to generate secrets
@@ -267,6 +280,17 @@ generate_secrets() {
 create_platform_env() {
     local platform_env_file="$INSTALL_DIR/platform.env"
     
+    # Ensure required variables are set
+    if [[ -z "$DOMAIN" ]]; then
+        print_error "DOMAIN is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$PG_PASSWORD" ]]; then
+        print_error "PG_PASSWORD is not set. This should not happen."
+        exit 1
+    fi
+    
     cat > "$platform_env_file" << EOF
 DOCKER_REGISTRY=$DOCKER_REGISTRY
 DOMAIN=$DOMAIN
@@ -282,6 +306,57 @@ EOF
 # Function to create config.env
 create_config_env() {
     local config_env_file="$INSTALL_DIR/config.env"
+    
+    # Ensure required variables are set
+    if [[ -z "$FRONTEND_URL" ]]; then
+        print_error "FRONTEND_URL is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$SECRET_KEY" ]]; then
+        print_error "SECRET_KEY is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$JWT_SECRET_KEY" ]]; then
+        print_error "JWT_SECRET_KEY is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$ADMIN_EMAIL" ]]; then
+        print_error "ADMIN_EMAIL is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$ADMIN_TMP_PASSWORD" ]]; then
+        print_error "ADMIN_TMP_PASSWORD is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$PG_PASSWORD" ]]; then
+        print_error "PG_PASSWORD is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$MAILER_ADDR" ]]; then
+        print_error "MAILER_ADDR is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$MAILER_USER" ]]; then
+        print_error "MAILER_USER is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$MAILER_PASSWORD" ]]; then
+        print_error "MAILER_PASSWORD is not set. This should not happen."
+        exit 1
+    fi
+    
+    if [[ -z "$MAILER_FROM" ]]; then
+        print_error "MAILER_FROM is not set. This should not happen."
+        exit 1
+    fi
     
     cat > "$config_env_file" << EOF
 LOGGER_LEVEL=info
@@ -450,16 +525,16 @@ main() {
     # Check required commands
     check_required_commands
     
-#    # Check if running in interactive terminal or with environment variables
-#    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
-#        print_error "This installer requires an interactive terminal or environment variables."
-#        print_info "Please run the installer in an interactive terminal session or set environment variables:"
-#        print_info "  TOGGLR_ADMIN_EMAIL=admin@example.com"
-#        print_info "  TOGGLR_DOMAIN=example.com"
-#        print_info "  TOGGLR_MAILER_ADDR=smtp.example.com:587"
-#        print_info "Example: sudo ./install.sh"
-#        exit 1
-#    fi
+    # Check if running in interactive terminal or with environment variables
+    if [[ ! -t 0 && -z "$TOGGLR_ADMIN_EMAIL" ]]; then
+        print_error "This installer requires an interactive terminal or environment variables."
+        print_info "Please run the installer in an interactive terminal session or set environment variables:"
+        print_info "  TOGGLR_ADMIN_EMAIL=admin@example.com"
+        print_info "  TOGGLR_DOMAIN=example.com"
+        print_info "  TOGGLR_MAILER_ADDR=smtp.example.com:587"
+        print_info "Example: sudo ./install.sh"
+        exit 1
+    fi
     
     # Print welcome message
     print_welcome
