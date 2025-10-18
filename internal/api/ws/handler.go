@@ -26,13 +26,11 @@ func New(eventsBroadcaster contract.RealtimeBroadcaster) *Handler {
 	}
 }
 
-//nolint:nestif,gocognit // fix it
 func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
-	// Log connection attempt
-	projectID := domain.ProjectID(req.URL.Query().Get("project_id"))
+	connectionType := req.URL.Query().Get("type") // "realtime"
 
 	slog.Debug("WebSocket connection attempt",
-		slog.String("project_id", string(projectID)),
+		slog.String("type", connectionType),
 		slog.String("remote_addr", req.RemoteAddr))
 
 	conn, err := upgrader.Upgrade(writer, req, nil)
@@ -45,13 +43,13 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 
 	slog.Debug("WebSocket connection established")
 
+	h.handleRealtimeConnection(conn, req)
+}
+
+func (h *Handler) handleRealtimeConnection(conn *websocket.Conn, req *http.Request) {
+	projectID := domain.ProjectID(req.URL.Query().Get("project_id"))
 	if projectID == "" {
-		_ = conn.WriteControl(
-			websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "project_id required"),
-			time.Now().Add(time.Second),
-		)
-		_ = conn.Close()
+		h.closeConnection(conn, websocket.ClosePolicyViolation, "project_id required")
 
 		return
 	}
@@ -68,12 +66,7 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 		}
 	}
 	if envID == 0 {
-		_ = conn.WriteControl(
-			websocket.CloseMessage,
-			websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "env_id required"),
-			time.Now().Add(time.Second),
-		)
-		_ = conn.Close()
+		h.closeConnection(conn, websocket.ClosePolicyViolation, "env_id required")
 
 		return
 	}
@@ -89,35 +82,23 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 		wsConnection.Close()
 	}()
 
-	// Set up ping/pong to keep the connection alive
-	conn.SetPingHandler(func(message string) error {
-		slog.Debug("WebSocket ping received", slog.String("message", message))
-		// Respond to ping with pong
-		err := conn.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(time.Second))
-		if err != nil {
-			slog.Error("WebSocket pong failed", slog.String("error", err.Error()))
-		} else {
-			slog.Debug("WebSocket pong sent")
-		}
+	h.setupPingPong(conn, "realtime")
 
-		return err
-	})
+	h.handleRealtimeMessages(conn)
+}
 
-	// Read loop to detect a client close - no deadline to avoid premature disconnections
+func (h *Handler) handleRealtimeMessages(conn *websocket.Conn) {
 	slog.Debug("starting WebSocket read loop")
 	for {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			// Check if it's a normal close or an error
 			if websocket.IsCloseError(err,
 				websocket.CloseNormalClosure, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				// Normal close, no need to log as an error
 				slog.Debug("WebSocket connection closed normally", slog.String("error", err.Error()))
 
 				return
 			}
 
-			// Log other errors
 			if !strings.Contains(err.Error(), "close 1005 (no status)") {
 				slog.Error("ws socket client error", "error", err)
 			}
@@ -125,28 +106,64 @@ func (h *Handler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		// Handle the message
 		slog.Debug("WebSocket message received",
 			slog.Int("message_type", messageType),
 			slog.String("message", string(message)))
 
-		// Handle ping messages from a client
-		if messageType == websocket.TextMessage {
-			var msg map[string]interface{}
-			if err := json.Unmarshal(message, &msg); err == nil {
-				if msgType, ok := msg["type"].(string); ok && msgType == "ping" {
-					slog.Debug("WebSocket ping received, sending pong")
-					// Send pong response
-					pongMsg := map[string]interface{}{"type": "pong", "timestamp": time.Now().Unix()}
-					if pongData, err := json.Marshal(pongMsg); err == nil {
-						if err := conn.WriteMessage(websocket.TextMessage, pongData); err != nil {
-							slog.Error("WebSocket pong send failed", "error", err)
-						} else {
-							slog.Debug("WebSocket pong sent")
-						}
-					}
-				}
+		h.handlePingMessage(conn, message, "realtime")
+	}
+}
+
+func (h *Handler) handlePingMessage(conn *websocket.Conn, message []byte, connectionType string) {
+	if len(message) == 0 {
+		return
+	}
+
+	var msg map[string]any
+	if err := json.Unmarshal(message, &msg); err != nil {
+		return
+	}
+
+	if msgType, ok := msg["type"].(string); ok && msgType == "ping" {
+		slog.Debug("WebSocket ping received, sending pong", slog.String("type", connectionType))
+
+		pongMsg := map[string]any{"type": "pong", "timestamp": time.Now().Unix()}
+		if pongData, err := json.Marshal(pongMsg); err == nil {
+			if err := conn.WriteMessage(websocket.TextMessage, pongData); err != nil {
+				slog.Error("WebSocket pong send failed",
+					slog.String("type", connectionType),
+					slog.String("error", err.Error()))
+			} else {
+				slog.Debug("WebSocket pong sent", slog.String("type", connectionType))
 			}
 		}
 	}
+}
+
+func (h *Handler) setupPingPong(conn *websocket.Conn, connectionType string) {
+	conn.SetPingHandler(func(message string) error {
+		slog.Debug("WebSocket ping received",
+			slog.String("type", connectionType),
+			slog.String("message", message))
+
+		err := conn.WriteControl(websocket.PongMessage, []byte(message), time.Now().Add(time.Second))
+		if err != nil {
+			slog.Error("WebSocket pong failed",
+				slog.String("type", connectionType),
+				slog.String("error", err.Error()))
+		} else {
+			slog.Debug("WebSocket pong sent", slog.String("type", connectionType))
+		}
+
+		return err
+	})
+}
+
+func (h *Handler) closeConnection(conn *websocket.Conn, code int, reason string) {
+	_ = conn.WriteControl(
+		websocket.CloseMessage,
+		websocket.FormatCloseMessage(code, reason),
+		time.Now().Add(time.Second),
+	)
+	_ = conn.Close()
 }
