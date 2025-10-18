@@ -62,11 +62,11 @@ const getNotificationMessage = (notification: UserNotification): string => {
   
   switch (notification.type) {
     case 'project_added':
-      return `You have been added to project '${content.project_name}' as ${content.role}`;
+      return `You have been added to project '${content.projectName || 'Unknown Project'}' as ${content.roleName || 'Unknown Role'}`;
     case 'project_removed':
-      return `You have been removed from project '${content.project_name}'`;
+      return `You have been removed from project '${content.projectName || 'Unknown Project'}'`;
     case 'role_changed':
-      return `Your role in project '${content.project_name}' has been changed from ${content.old_role} to ${content.new_role}`;
+      return `Your role in project '${content.projectName || 'Unknown Project'}' has been changed from ${content.roleNameOld || 'Unknown Role'} to ${content.roleNameNew || 'Unknown Role'}`;
     case 'need_approve':
       return `You need to approve entity change`;
     default:
