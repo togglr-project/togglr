@@ -32,6 +32,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AuthenticatedLayout from '../components/AuthenticatedLayout';
 import PageHeader from '../components/PageHeader';
 import NotificationSettings from '../components/NotificationSettings';
+import ProjectSettingsList from '../components/projects/ProjectSettingsList';
 import apiClient from '../api/apiClient';
 import type { Project } from '../generated/api/client';
 import { useNotification } from '../App';
@@ -319,14 +320,7 @@ const ProjectSettingsPage: React.FC = () => {
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Typography variant="h6" color="text.secondary" gutterBottom>
-                Settings
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                This section will contain additional project settings in the future.
-              </Typography>
-            </Box>
+            <ProjectSettingsList projectId={projectId} />
           </TabPanel>
 
           <TabPanel value={tabValue} index={2}>

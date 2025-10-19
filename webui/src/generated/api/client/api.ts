@@ -321,7 +321,7 @@ export interface CreateNotificationSettingRequest {
 
 export interface CreateProjectSettingRequest {
     'name': string;
-    'value': object;
+    'value': string;
 }
 export interface CreateProjectTagRequest {
     'name': string;
@@ -1095,7 +1095,10 @@ export interface ProjectSetting {
     'id': number;
     'project_id': string;
     'name': string;
-    'value': object;
+    /**
+     * JSONB in database
+     */
+    'value': string;
     'created_at': string;
     'updated_at': string;
 }
@@ -1103,7 +1106,10 @@ export interface ProjectSettingResponse {
     'id': number;
     'project_id': string;
     'name': string;
-    'value': object;
+    /**
+     * JSONB in database
+     */
+    'value': string;
     'created_at': string;
     'updated_at': string;
 }
@@ -1455,7 +1461,7 @@ export interface UpdateProjectRequest {
     'description': string;
 }
 export interface UpdateProjectSettingRequest {
-    'value': object;
+    'value': string;
 }
 export interface UpdateProjectTagRequest {
     'name': string;

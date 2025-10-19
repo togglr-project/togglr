@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **id** | **number** |  | [default to undefined]
 **project_id** | **string** |  | [default to undefined]
 **name** | **string** |  | [default to undefined]
-**value** | **object** |  | [default to undefined]
+**value** | **string** | JSONB in database | [default to undefined]
 **created_at** | **string** |  | [default to undefined]
 **updated_at** | **string** |  | [default to undefined]
 
