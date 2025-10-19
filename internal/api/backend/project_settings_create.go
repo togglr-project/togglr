@@ -2,6 +2,7 @@ package apibackend
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log/slog"
 
@@ -37,8 +38,11 @@ func (r *RestAPI) CreateProjectSetting(
 		return nil, err
 	}
 
+	var value any
+	_ = json.Unmarshal([]byte(req.Value), &value)
+
 	// Create project setting
-	setting, err := r.projectSettingsUseCase.Create(ctx, projectID, req.Name, req.Value)
+	setting, err := r.projectSettingsUseCase.Create(ctx, projectID, req.Name, value)
 	if err != nil {
 		slog.Error("create project setting failed", "error", err)
 

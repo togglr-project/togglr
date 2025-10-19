@@ -2,6 +2,7 @@ package apibackend
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log/slog"
 
@@ -37,8 +38,11 @@ func (r *RestAPI) UpdateProjectSetting(
 		return nil, err
 	}
 
+	var value any
+	_ = json.Unmarshal([]byte(req.Value), &value)
+
 	// Update project setting
-	setting, err := r.projectSettingsUseCase.Update(ctx, projectID, params.SettingName, req.Value)
+	setting, err := r.projectSettingsUseCase.Update(ctx, projectID, params.SettingName, value)
 	if err != nil {
 		slog.Error("update project setting failed", "error", err)
 

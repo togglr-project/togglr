@@ -9,24 +9,17 @@ import (
 
 // DomainProjectSettingToAPI converts domain ProjectSetting to generated API ProjectSetting.
 func DomainProjectSettingToAPI(setting domain.ProjectSetting) generatedapi.ProjectSetting {
-	// Convert value to any type for JSON marshaling
-	var value any
-
+	var value string
 	if setting.Value != nil {
-		// If Value is already json.RawMessage, unmarshal it
-		if rawMsg, ok := setting.Value.(json.RawMessage); ok {
-			_ = json.Unmarshal(rawMsg, &value)
-		} else {
-			// Otherwise, use the value as is
-			value = setting.Value
-		}
+		data, _ := json.Marshal(setting.Value) //nolint:errchkjson // it's ok
+		value = string(data)
 	}
 
 	return generatedapi.ProjectSetting{
 		ID:        setting.ID,
 		ProjectID: setting.ProjectID.String(),
 		Name:      setting.Name,
-		Value:     generatedapi.ProjectSettingValue{},
+		Value:     value,
 		CreatedAt: setting.CreatedAt,
 		UpdatedAt: setting.UpdatedAt,
 	}
@@ -44,9 +37,8 @@ func DomainProjectSettingsToAPI(settings []*domain.ProjectSetting) []generatedap
 
 // APIProjectSettingToDomain converts generated API ProjectSetting to domain ProjectSetting.
 func APIProjectSettingToDomain(setting generatedapi.ProjectSetting) domain.ProjectSetting {
-	// Convert value to any
-	// ProjectSettingValue is empty struct, so we'll just use nil
-	value := any(nil)
+	var value any
+	_ = json.Unmarshal([]byte(setting.Value), &value)
 
 	return domain.ProjectSetting{
 		ID:        setting.ID,

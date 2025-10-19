@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**value** | **object** |  | [default to undefined]
+**value** | **string** |  | [default to undefined]
 
 ## Example
 

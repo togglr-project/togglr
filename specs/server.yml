@@ -9043,8 +9043,8 @@ components:
           type: string
           example: "auto_approve"
         value:
-          type: object
-          example: {"enabled": true, "threshold": 5}
+          type: string
+          description: JSONB in database
         created_at:
           type: string
           format: date-time
@@ -9063,16 +9063,14 @@ components:
           example: "auto_approve"
           maxLength: 100
         value:
-          type: object
-          example: {"enabled": true, "threshold": 5}
+          type: string
       required: [name, value]
 
     UpdateProjectSettingRequest:
       type: object
       properties:
         value:
-          type: object
-          example: {"enabled": false, "threshold": 10}
+          type: string
       required: [value]
 
     ProjectSettingResponse:

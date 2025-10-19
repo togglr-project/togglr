@@ -4231,7 +4231,7 @@ func (s *CreateProjectSettingRequest) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("value")
-		s.Value.Encode(e)
+		e.Str(s.Value)
 	}
 }
 
@@ -4264,7 +4264,9 @@ func (s *CreateProjectSettingRequest) Decode(d *jx.Decoder) error {
 		case "value":
 			requiredBitSet[0] |= 1 << 1
 			if err := func() error {
-				if err := s.Value.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Value = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -4323,50 +4325,6 @@ func (s *CreateProjectSettingRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *CreateProjectSettingRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *CreateProjectSettingRequestValue) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *CreateProjectSettingRequestValue) encodeFields(e *jx.Encoder) {
-}
-
-var jsonFieldsNameOfCreateProjectSettingRequestValue = [0]string{}
-
-// Decode decodes CreateProjectSettingRequestValue from json.
-func (s *CreateProjectSettingRequestValue) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode CreateProjectSettingRequestValue to nil")
-	}
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		default:
-			return d.Skip()
-		}
-	}); err != nil {
-		return errors.Wrap(err, "decode CreateProjectSettingRequestValue")
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *CreateProjectSettingRequestValue) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *CreateProjectSettingRequestValue) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -18354,7 +18312,7 @@ func (s *ProjectSetting) encodeFields(e *jx.Encoder) {
 	}
 	{
 		e.FieldStart("value")
-		s.Value.Encode(e)
+		e.Str(s.Value)
 	}
 	{
 		e.FieldStart("created_at")
@@ -18423,7 +18381,9 @@ func (s *ProjectSetting) Decode(d *jx.Decoder) error {
 		case "value":
 			requiredBitSet[0] |= 1 << 3
 			if err := func() error {
-				if err := s.Value.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Value = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -18506,50 +18466,6 @@ func (s *ProjectSetting) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *ProjectSetting) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *ProjectSettingValue) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *ProjectSettingValue) encodeFields(e *jx.Encoder) {
-}
-
-var jsonFieldsNameOfProjectSettingValue = [0]string{}
-
-// Decode decodes ProjectSettingValue from json.
-func (s *ProjectSettingValue) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode ProjectSettingValue to nil")
-	}
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		default:
-			return d.Skip()
-		}
-	}); err != nil {
-		return errors.Wrap(err, "decode ProjectSettingValue")
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *ProjectSettingValue) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *ProjectSettingValue) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }
@@ -24205,7 +24121,7 @@ func (s *UpdateProjectSettingRequest) Encode(e *jx.Encoder) {
 func (s *UpdateProjectSettingRequest) encodeFields(e *jx.Encoder) {
 	{
 		e.FieldStart("value")
-		s.Value.Encode(e)
+		e.Str(s.Value)
 	}
 }
 
@@ -24225,7 +24141,9 @@ func (s *UpdateProjectSettingRequest) Decode(d *jx.Decoder) error {
 		case "value":
 			requiredBitSet[0] |= 1 << 0
 			if err := func() error {
-				if err := s.Value.Decode(d); err != nil {
+				v, err := d.Str()
+				s.Value = string(v)
+				if err != nil {
 					return err
 				}
 				return nil
@@ -24284,50 +24202,6 @@ func (s *UpdateProjectSettingRequest) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON implements stdjson.Unmarshaler.
 func (s *UpdateProjectSettingRequest) UnmarshalJSON(data []byte) error {
-	d := jx.DecodeBytes(data)
-	return s.Decode(d)
-}
-
-// Encode implements json.Marshaler.
-func (s *UpdateProjectSettingRequestValue) Encode(e *jx.Encoder) {
-	e.ObjStart()
-	s.encodeFields(e)
-	e.ObjEnd()
-}
-
-// encodeFields encodes fields.
-func (s *UpdateProjectSettingRequestValue) encodeFields(e *jx.Encoder) {
-}
-
-var jsonFieldsNameOfUpdateProjectSettingRequestValue = [0]string{}
-
-// Decode decodes UpdateProjectSettingRequestValue from json.
-func (s *UpdateProjectSettingRequestValue) Decode(d *jx.Decoder) error {
-	if s == nil {
-		return errors.New("invalid: unable to decode UpdateProjectSettingRequestValue to nil")
-	}
-
-	if err := d.ObjBytes(func(d *jx.Decoder, k []byte) error {
-		switch string(k) {
-		default:
-			return d.Skip()
-		}
-	}); err != nil {
-		return errors.Wrap(err, "decode UpdateProjectSettingRequestValue")
-	}
-
-	return nil
-}
-
-// MarshalJSON implements stdjson.Marshaler.
-func (s *UpdateProjectSettingRequestValue) MarshalJSON() ([]byte, error) {
-	e := jx.Encoder{}
-	s.Encode(&e)
-	return e.Bytes(), nil
-}
-
-// UnmarshalJSON implements stdjson.Unmarshaler.
-func (s *UpdateProjectSettingRequestValue) UnmarshalJSON(data []byte) error {
 	d := jx.DecodeBytes(data)
 	return s.Decode(d)
 }

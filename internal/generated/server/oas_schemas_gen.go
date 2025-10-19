@@ -1742,8 +1742,8 @@ func (s *CreateNotificationSettingRequest) SetEnabled(val OptBool) {
 
 // Ref: #/components/schemas/CreateProjectSettingRequest
 type CreateProjectSettingRequest struct {
-	Name  string                           `json:"name"`
-	Value CreateProjectSettingRequestValue `json:"value"`
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }
 
 // GetName returns the value of Name.
@@ -1752,7 +1752,7 @@ func (s *CreateProjectSettingRequest) GetName() string {
 }
 
 // GetValue returns the value of Value.
-func (s *CreateProjectSettingRequest) GetValue() CreateProjectSettingRequestValue {
+func (s *CreateProjectSettingRequest) GetValue() string {
 	return s.Value
 }
 
@@ -1762,11 +1762,9 @@ func (s *CreateProjectSettingRequest) SetName(val string) {
 }
 
 // SetValue sets the value of Value.
-func (s *CreateProjectSettingRequest) SetValue(val CreateProjectSettingRequestValue) {
+func (s *CreateProjectSettingRequest) SetValue(val string) {
 	s.Value = val
 }
-
-type CreateProjectSettingRequestValue struct{}
 
 // Ref: #/components/schemas/CreateProjectTagRequest
 type CreateProjectTagRequest struct {
@@ -9561,12 +9559,13 @@ func (*ProjectResponse) updateProjectRes() {}
 
 // Ref: #/components/schemas/ProjectSetting
 type ProjectSetting struct {
-	ID        int                 `json:"id"`
-	ProjectID string              `json:"project_id"`
-	Name      string              `json:"name"`
-	Value     ProjectSettingValue `json:"value"`
-	CreatedAt time.Time           `json:"created_at"`
-	UpdatedAt time.Time           `json:"updated_at"`
+	ID        int    `json:"id"`
+	ProjectID string `json:"project_id"`
+	Name      string `json:"name"`
+	// JSONB in database.
+	Value     string    `json:"value"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // GetID returns the value of ID.
@@ -9585,7 +9584,7 @@ func (s *ProjectSetting) GetName() string {
 }
 
 // GetValue returns the value of Value.
-func (s *ProjectSetting) GetValue() ProjectSettingValue {
+func (s *ProjectSetting) GetValue() string {
 	return s.Value
 }
 
@@ -9615,7 +9614,7 @@ func (s *ProjectSetting) SetName(val string) {
 }
 
 // SetValue sets the value of Value.
-func (s *ProjectSetting) SetValue(val ProjectSettingValue) {
+func (s *ProjectSetting) SetValue(val string) {
 	s.Value = val
 }
 
@@ -9632,8 +9631,6 @@ func (s *ProjectSetting) SetUpdatedAt(val time.Time) {
 func (*ProjectSetting) createProjectSettingRes() {}
 func (*ProjectSetting) getProjectSettingRes()    {}
 func (*ProjectSetting) updateProjectSettingRes() {}
-
-type ProjectSettingValue struct{}
 
 // Ref: #/components/schemas/ProjectTag
 type ProjectTag struct {
@@ -11577,20 +11574,18 @@ func (s *UpdateProjectRequest) SetDescription(val string) {
 
 // Ref: #/components/schemas/UpdateProjectSettingRequest
 type UpdateProjectSettingRequest struct {
-	Value UpdateProjectSettingRequestValue `json:"value"`
+	Value string `json:"value"`
 }
 
 // GetValue returns the value of Value.
-func (s *UpdateProjectSettingRequest) GetValue() UpdateProjectSettingRequestValue {
+func (s *UpdateProjectSettingRequest) GetValue() string {
 	return s.Value
 }
 
 // SetValue sets the value of Value.
-func (s *UpdateProjectSettingRequest) SetValue(val UpdateProjectSettingRequestValue) {
+func (s *UpdateProjectSettingRequest) SetValue(val string) {
 	s.Value = val
 }
-
-type UpdateProjectSettingRequestValue struct{}
 
 // Ref: #/components/schemas/UpdateProjectTagRequest
 type UpdateProjectTagRequest struct {
