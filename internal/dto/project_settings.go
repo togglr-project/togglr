@@ -11,7 +11,7 @@ import (
 func DomainProjectSettingToAPI(setting domain.ProjectSetting) generatedapi.ProjectSetting {
 	var value string
 	if setting.Value != nil {
-		data, _ := json.Marshal(setting.Value)
+		data, _ := json.Marshal(setting.Value) //nolint:errchkjson // it's ok
 		value = string(data)
 	}
 
