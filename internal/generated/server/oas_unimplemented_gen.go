@@ -179,15 +179,6 @@ func (UnimplementedHandler) CreateProjectSegment(ctx context.Context, req *Creat
 	return r, ht.ErrNotImplemented
 }
 
-// CreateProjectSetting implements CreateProjectSetting operation.
-//
-// Create project setting.
-//
-// POST /api/v1/projects/{project_id}/settings
-func (UnimplementedHandler) CreateProjectSetting(ctx context.Context, req *CreateProjectSettingRequest, params CreateProjectSettingParams) (r CreateProjectSettingRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
 // CreateProjectTag implements CreateProjectTag operation.
 //
 // Create new tag for project.
@@ -284,15 +275,6 @@ func (UnimplementedHandler) DeleteNotificationSetting(ctx context.Context, param
 //
 // DELETE /api/v1/projects/{project_id}/memberships/{membership_id}
 func (UnimplementedHandler) DeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (r DeleteProjectMembershipRes, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// DeleteProjectSetting implements DeleteProjectSetting operation.
-//
-// Delete project setting.
-//
-// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
-func (UnimplementedHandler) DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (r DeleteProjectSettingRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

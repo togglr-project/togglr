@@ -120,12 +120,6 @@ type Handler interface {
 	//
 	// POST /api/v1/projects/{project_id}/segments
 	CreateProjectSegment(ctx context.Context, req *CreateSegmentRequest, params CreateProjectSegmentParams) (CreateProjectSegmentRes, error)
-	// CreateProjectSetting implements CreateProjectSetting operation.
-	//
-	// Create project setting.
-	//
-	// POST /api/v1/projects/{project_id}/settings
-	CreateProjectSetting(ctx context.Context, req *CreateProjectSettingRequest, params CreateProjectSettingParams) (CreateProjectSettingRes, error)
 	// CreateProjectTag implements CreateProjectTag operation.
 	//
 	// Create new tag for project.
@@ -192,12 +186,6 @@ type Handler interface {
 	//
 	// DELETE /api/v1/projects/{project_id}/memberships/{membership_id}
 	DeleteProjectMembership(ctx context.Context, params DeleteProjectMembershipParams) (DeleteProjectMembershipRes, error)
-	// DeleteProjectSetting implements DeleteProjectSetting operation.
-	//
-	// Delete project setting.
-	//
-	// DELETE /api/v1/projects/{project_id}/settings/{setting_name}
-	DeleteProjectSetting(ctx context.Context, params DeleteProjectSettingParams) (DeleteProjectSettingRes, error)
 	// DeleteProjectTag implements DeleteProjectTag operation.
 	//
 	// Delete tag.

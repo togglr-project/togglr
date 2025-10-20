@@ -15,8 +15,6 @@ import {
   MenuItem,
   FormHelperText,
   Chip,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
   Code as CodeIcon,
@@ -31,7 +29,7 @@ import { useMutation } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
 import type { ProjectSetting, CreateProjectSettingRequest, UpdateProjectSettingRequest } from '../../generated/api/client';
 import { useNotification } from '../../App';
-import { PREDEFINED_PROJECT_SETTINGS, getSettingDefinition, isPredefinedSetting } from '../../constants/projectSettings';
+import { getSettingDefinition, isPredefinedSetting } from '../../constants/projectSettings';
 
 interface ProjectSettingFormDialogProps {
   open: boolean;
@@ -180,17 +178,17 @@ const ProjectSettingFormDialog: React.FC<ProjectSettingFormDialogProps> = ({
   };
 
   const createMutation = useMutation({
-    mutationFn: async (data: CreateProjectSettingRequest) => {
-      const response = await apiClient.createProjectSetting(projectId, data);
-      return response.data;
-    },
-    onSuccess: () => {
-      showNotification('Setting created successfully', 'success');
-      onSubmit();
-    },
-    onError: (error: any) => {
-      showNotification(`Error creating setting: ${error.message}`, 'error');
-    },
+    // mutationFn: async (data: CreateProjectSettingRequest) => {
+    //   const response = await apiClient.createProjectSetting(projectId, data);
+    //   return response.data;
+    // },
+    // onSuccess: () => {
+    //   showNotification('Setting created successfully', 'success');
+    //   onSubmit();
+    // },
+    // onError: (error: any) => {
+    //   showNotification(`Error creating setting: ${error.message}`, 'error');
+    // },
   });
 
   const updateMutation = useMutation({
@@ -218,10 +216,10 @@ const ProjectSettingFormDialog: React.FC<ProjectSettingFormDialogProps> = ({
     };
 
     if (mode === 'create') {
-      createMutation.mutate({
-        name: formData.name,
-        value: formData.value,
-      });
+      // createMutation.mutate({
+      //   name: formData.name,
+      //   value: formData.value,
+      // });
     } else {
       updateMutation.mutate(submitData);
     }
