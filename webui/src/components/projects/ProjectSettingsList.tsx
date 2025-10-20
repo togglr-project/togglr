@@ -4,14 +4,10 @@ import {
   Button,
   Card,
   CardContent,
-  CardActions,
   Typography,
-  IconButton,
-  Tooltip,
   CircularProgress,
   Alert,
   Grid,
-  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -19,15 +15,12 @@ import {
   DialogContentText,
 } from '@mui/material';
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
+  // Add as AddIcon,
   Settings as SettingsIcon,
-  Code as CodeIcon,
 } from '@mui/icons-material';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { ProjectSetting, CreateProjectSettingRequest, UpdateProjectSettingRequest } from '../../generated/api/client';
+import type { ProjectSetting } from '../../generated/api/client';
 import ProjectSettingFormDialog from './ProjectSettingFormDialog';
 import ProjectSettingCard from './ProjectSettingCard';
 import { useNotification } from '../../App';
@@ -40,7 +33,7 @@ interface ProjectSettingsListProps {
 const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) => {
   const { showNotification } = useNotification();
   const queryClient = useQueryClient();
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  // const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState<ProjectSetting | null>(null);
@@ -54,27 +47,27 @@ const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) 
     enabled: !!projectId,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (settingName: string) => {
-      await apiClient.updateProjectSetting(projectId, settingName, { value: '' });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['project-settings', projectId] });
-      showNotification('Setting deleted', 'success');
-      setDeleteDialogOpen(false);
-      setSelectedSetting(null);
-    },
-    onError: (error: any) => {
-      showNotification(`Error deleting setting: ${error.message}`, 'error');
-    },
-  });
+  // const deleteMutation = useMutation({
+    // mutationFn: async (settingName: string) => {
+    //   await apiClient.updateProjectSetting(projectId, settingName, { value: '' });
+    // },
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ['project-settings', projectId] });
+    //   showNotification('Setting deleted', 'success');
+    //   setDeleteDialogOpen(false);
+    //   setSelectedSetting(null);
+    // },
+    // onError: (error: any) => {
+    //   showNotification(`Error deleting setting: ${error.message}`, 'error');
+    // },
+  // });
 
   const settings = settingsData?.data || [];
 
-  const handleCreateSetting = () => {
-    setSelectedSetting(null);
-    setCreateDialogOpen(true);
-  };
+  // const handleCreateSetting = () => {
+  //   setSelectedSetting(null);
+  //   setCreateDialogOpen(true);
+  // };
 
   const handleEditSetting = (setting: ProjectSetting) => {
     setSelectedSetting(setting);
@@ -90,17 +83,17 @@ const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) 
     setDeleteDialogOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    if (selectedSetting) {
-      deleteMutation.mutate(selectedSetting.name);
-    }
-  };
+  // const handleDeleteConfirm = () => {
+  //   if (selectedSetting) {
+  //     deleteMutation.mutate(selectedSetting.name);
+  //   }
+  // };
 
-  const handleCreateSuccess = () => {
-    setCreateDialogOpen(false);
-    queryClient.invalidateQueries({ queryKey: ['project-settings', projectId] });
-    showNotification('Setting created', 'success');
-  };
+  // const handleCreateSuccess = () => {
+  //   setCreateDialogOpen(false);
+  //   queryClient.invalidateQueries({ queryKey: ['project-settings', projectId] });
+  //   showNotification('Setting created', 'success');
+  // };
 
   const handleEditSuccess = () => {
     setEditDialogOpen(false);
@@ -131,13 +124,13 @@ const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) 
         <Typography variant="h6" component="h2">
           Project Settings
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateSetting}
-        >
-          Add Setting
-        </Button>
+        {/*<Button*/}
+        {/*  variant="contained"*/}
+        {/*  startIcon={<AddIcon />}*/}
+        {/*  onClick={handleCreateSetting}*/}
+        {/*>*/}
+        {/*  Add Setting*/}
+        {/*</Button>*/}
       </Box>
 
       {settings.length === 0 ? (
@@ -147,16 +140,16 @@ const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) 
             <Typography variant="h6" color="text.secondary" gutterBottom>
               No settings found
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Create the first setting for this project
-            </Typography>
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={handleCreateSetting}
-            >
-              Add Setting
-            </Button>
+            {/*<Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>*/}
+            {/*  Create the first setting for this project*/}
+            {/*</Typography>*/}
+            {/*<Button*/}
+            {/*  variant="outlined"*/}
+            {/*  startIcon={<AddIcon />}*/}
+            {/*  onClick={handleCreateSetting}*/}
+            {/*>*/}
+            {/*  Add Setting*/}
+            {/*</Button>*/}
           </CardContent>
         </Card>
       ) : (
@@ -173,13 +166,13 @@ const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) 
         </Grid>
       )}
 
-      <ProjectSettingFormDialog
-        open={createDialogOpen}
-        onClose={() => setCreateDialogOpen(false)}
-        onSubmit={handleCreateSuccess}
-        projectId={projectId}
-        mode="create"
-      />
+      {/*<ProjectSettingFormDialog*/}
+      {/*  open={createDialogOpen}*/}
+      {/*  onClose={() => setCreateDialogOpen(false)}*/}
+      {/*  onSubmit={handleCreateSuccess}*/}
+      {/*  projectId={projectId}*/}
+      {/*  mode="create"*/}
+      {/*/>*/}
 
       <ProjectSettingFormDialog
         open={editDialogOpen}
@@ -202,13 +195,13 @@ const ProjectSettingsList: React.FC<ProjectSettingsListProps> = ({ projectId }) 
           <Button onClick={() => setDeleteDialogOpen(false)}>
             Cancel
           </Button>
-          <Button
-            onClick={handleDeleteConfirm}
-            color="error"
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? <CircularProgress size={20} /> : 'Delete'}
-          </Button>
+          {/*<Button*/}
+          {/*  onClick={handleDeleteConfirm}*/}
+          {/*  color="error"*/}
+          {/*  disabled={deleteMutation.isPending}*/}
+          {/*>*/}
+          {/*  {deleteMutation.isPending ? <CircularProgress size={20} /> : 'Delete'}*/}
+          {/*</Button>*/}
         </DialogActions>
       </Dialog>
     </Box>

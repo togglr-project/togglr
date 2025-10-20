@@ -22,7 +22,6 @@ All URIs are relative to *http://localhost*
 |[**createProjectFeature**](#createprojectfeature) | **POST** /api/v1/projects/{project_id}/features | Create feature for project|
 |[**createProjectMembership**](#createprojectmembership) | **POST** /api/v1/projects/{project_id}/memberships | Add membership to project|
 |[**createProjectSegment**](#createprojectsegment) | **POST** /api/v1/projects/{project_id}/segments | Create segment for project|
-|[**createProjectSetting**](#createprojectsetting) | **POST** /api/v1/projects/{project_id}/settings | Create project setting|
 |[**createProjectTag**](#createprojecttag) | **POST** /api/v1/projects/{project_id}/tags | Create new tag for project|
 |[**createRuleAttribute**](#createruleattribute) | **POST** /api/v1/rule_attributes | Create rule attribute|
 |[**createUser**](#createuser) | **POST** /api/v1/users | Create a new user (superuser only)|
@@ -34,7 +33,6 @@ All URIs are relative to *http://localhost*
 |[**deleteLDAPConfig**](#deleteldapconfig) | **DELETE** /api/v1/ldap/config | Delete LDAP configuration|
 |[**deleteNotificationSetting**](#deletenotificationsetting) | **DELETE** /api/v1/projects/{project_id}/env/{environment_key}/notification-settings/{setting_id} | Delete a notification setting|
 |[**deleteProjectMembership**](#deleteprojectmembership) | **DELETE** /api/v1/projects/{project_id}/memberships/{membership_id} | Delete membership|
-|[**deleteProjectSetting**](#deleteprojectsetting) | **DELETE** /api/v1/projects/{project_id}/settings/{setting_name} | Delete project setting|
 |[**deleteProjectTag**](#deleteprojecttag) | **DELETE** /api/v1/projects/{project_id}/tags/{tag_id} | Delete tag|
 |[**deleteRuleAttribute**](#deleteruleattribute) | **DELETE** /api/v1/rule_attributes/{name} | Delete rule attribute|
 |[**deleteSegment**](#deletesegment) | **DELETE** /api/v1/segments/{segment_id} | Delete segment|
@@ -1205,67 +1203,6 @@ const { status, data } = await apiInstance.createProjectSegment(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **createProjectSetting**
-> ProjectSettingResponse createProjectSetting(createProjectSettingRequest)
-
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration,
-    CreateProjectSettingRequest
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-let projectId: string; // (default to undefined)
-let createProjectSettingRequest: CreateProjectSettingRequest; //
-
-const { status, data } = await apiInstance.createProjectSetting(
-    projectId,
-    createProjectSettingRequest
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **createProjectSettingRequest** | **CreateProjectSettingRequest**|  | |
-| **projectId** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-**ProjectSettingResponse**
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: application/json
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**201** | Project setting created |  -  |
-|**400** | Bad request |  -  |
-|**401** | Unauthorized |  -  |
-|**403** | Permission denied |  -  |
-|**404** | Project not found |  -  |
-|**409** | Setting already exists |  -  |
-|**500** | Internal server error |  -  |
-|**0** | Unexpected error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
 # **createProjectTag**
 > ProjectTagResponse createProjectTag(createProjectTagRequest)
 
@@ -1887,64 +1824,6 @@ void (empty response body)
 |**401** | Unauthorized |  -  |
 |**403** | Permission denied |  -  |
 |**404** | Membership not found |  -  |
-|**500** | Internal server error |  -  |
-|**0** | Unexpected error |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **deleteProjectSetting**
-> deleteProjectSetting()
-
-
-### Example
-
-```typescript
-import {
-    DefaultApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new DefaultApi(configuration);
-
-let projectId: string; // (default to undefined)
-let settingName: string; // (default to undefined)
-
-const { status, data } = await apiInstance.deleteProjectSetting(
-    projectId,
-    settingName
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **projectId** | [**string**] |  | defaults to undefined|
-| **settingName** | [**string**] |  | defaults to undefined|
-
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearerAuth](../README.md#bearerAuth)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**204** | Project setting deleted |  -  |
-|**401** | Unauthorized |  -  |
-|**403** | Permission denied |  -  |
-|**404** | Setting not found |  -  |
 |**500** | Internal server error |  -  |
 |**0** | Unexpected error |  -  |
 

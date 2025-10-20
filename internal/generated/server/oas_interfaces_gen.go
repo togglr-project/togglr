@@ -73,10 +73,6 @@ type CreateProjectSegmentRes interface {
 	createProjectSegmentRes()
 }
 
-type CreateProjectSettingRes interface {
-	createProjectSettingRes()
-}
-
 type CreateProjectTagRes interface {
 	createProjectTagRes()
 }
@@ -119,10 +115,6 @@ type DeleteNotificationSettingRes interface {
 
 type DeleteProjectMembershipRes interface {
 	deleteProjectMembershipRes()
-}
-
-type DeleteProjectSettingRes interface {
-	deleteProjectSettingRes()
 }
 
 type DeleteProjectTagRes interface {

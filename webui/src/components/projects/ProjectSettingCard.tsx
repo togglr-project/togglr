@@ -7,22 +7,22 @@ import {
   IconButton,
   Tooltip,
   Box,
-  Chip,
+  // Chip,
   Collapse,
   Button,
 } from '@mui/material';
 import {
   Edit as EditIcon,
-  Delete as DeleteIcon,
+  // Delete as DeleteIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-  Code as CodeIcon,
+  // Code as CodeIcon,
   Settings as SettingsIcon,
-  ToggleOn as ToggleOnIcon,
-  Numbers as NumbersIcon,
+  // ToggleOn as ToggleOnIcon,
+  // Numbers as NumbersIcon,
 } from '@mui/icons-material';
 import type { ProjectSetting } from '../../generated/api/client';
-import { getSettingDefinition, isPredefinedSetting } from '../../constants/projectSettings';
+import { getSettingDefinition } from '../../constants/projectSettings';
 
 interface ProjectSettingCardProps {
   setting: ProjectSetting;
@@ -33,7 +33,7 @@ interface ProjectSettingCardProps {
 const ProjectSettingCard: React.FC<ProjectSettingCardProps> = ({
   setting,
   onEdit,
-  onDelete,
+  // onDelete,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -94,37 +94,8 @@ const ProjectSettingCard: React.FC<ProjectSettingCardProps> = ({
     }
   };
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'json':
-        return <CodeIcon />;
-      case 'boolean':
-        return <ToggleOnIcon />;
-      case 'integer':
-      case 'double':
-        return <NumbersIcon />;
-      default:
-        return null;
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'json':
-        return 'JSON';
-      case 'boolean':
-        return 'Boolean';
-      case 'integer':
-        return 'Integer';
-      case 'double':
-        return 'Double';
-      default:
-        return 'Text';
-    }
-  };
-
   const valueType = getValueType();
-  const isPredefined = isPredefinedSetting(setting.name);
+  // const isPredefined = isPredefinedSetting(setting.name);
 
   return (
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -135,15 +106,6 @@ const ProjectSettingCard: React.FC<ProjectSettingCardProps> = ({
             <Typography variant="subtitle1" component="h3" sx={{ fontWeight: 500 }}>
               {setting.name}
             </Typography>
-            {isPredefined && (
-              <Chip
-                label="Predefined"
-                size="small"
-                color="info"
-                variant="outlined"
-                sx={{ fontSize: '0.7rem', height: 20 }}
-              />
-            )}
           </Box>
           <IconButton
             size="small"
@@ -215,19 +177,19 @@ const ProjectSettingCard: React.FC<ProjectSettingCardProps> = ({
               <EditIcon fontSize="small" />
             </IconButton>
           </Tooltip>
-          <Tooltip title={isPredefined ? "Cannot delete predefined settings" : "Delete"}>
-            <span>
-              <IconButton
-                size="small"
-                onClick={onDelete}
-                color="error"
-                disabled={isPredefined}
-                sx={{ p: 0.5 }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
+          {/*<Tooltip title={isPredefined ? "Cannot delete predefined settings" : "Delete"}>*/}
+          {/*  <span>*/}
+          {/*    <IconButton*/}
+          {/*      size="small"*/}
+          {/*      onClick={onDelete}*/}
+          {/*      color="error"*/}
+          {/*      disabled={isPredefined}*/}
+          {/*      sx={{ p: 0.5 }}*/}
+          {/*    >*/}
+          {/*      <DeleteIcon fontSize="small" />*/}
+          {/*    </IconButton>*/}
+          {/*  </span>*/}
+          {/*</Tooltip>*/}
         </Box>
         <Button
           size="small"

@@ -1740,32 +1740,6 @@ func (s *CreateNotificationSettingRequest) SetEnabled(val OptBool) {
 	s.Enabled = val
 }
 
-// Ref: #/components/schemas/CreateProjectSettingRequest
-type CreateProjectSettingRequest struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-// GetName returns the value of Name.
-func (s *CreateProjectSettingRequest) GetName() string {
-	return s.Name
-}
-
-// GetValue returns the value of Value.
-func (s *CreateProjectSettingRequest) GetValue() string {
-	return s.Value
-}
-
-// SetName sets the value of Name.
-func (s *CreateProjectSettingRequest) SetName(val string) {
-	s.Name = val
-}
-
-// SetValue sets the value of Value.
-func (s *CreateProjectSettingRequest) SetValue(val string) {
-	s.Value = val
-}
-
 // Ref: #/components/schemas/CreateProjectTagRequest
 type CreateProjectTagRequest struct {
 	Name        string    `json:"name"`
@@ -2262,11 +2236,6 @@ type DeleteProjectMembershipNoContent struct{}
 
 func (*DeleteProjectMembershipNoContent) deleteProjectMembershipRes() {}
 
-// DeleteProjectSettingNoContent is response for DeleteProjectSetting operation.
-type DeleteProjectSettingNoContent struct{}
-
-func (*DeleteProjectSettingNoContent) deleteProjectSettingRes() {}
-
 // DeleteProjectTagNoContent is response for DeleteProjectTag operation.
 type DeleteProjectTagNoContent struct{}
 
@@ -2724,7 +2693,6 @@ func (*ErrorBadRequest) createNotificationSettingRes() {}
 func (*ErrorBadRequest) createProjectFeatureRes()      {}
 func (*ErrorBadRequest) createProjectMembershipRes()   {}
 func (*ErrorBadRequest) createProjectSegmentRes()      {}
-func (*ErrorBadRequest) createProjectSettingRes()      {}
 func (*ErrorBadRequest) createProjectTagRes()          {}
 func (*ErrorBadRequest) createRuleAttributeRes()       {}
 func (*ErrorBadRequest) createUserRes()                {}
@@ -2797,7 +2765,6 @@ func (*ErrorConflict) createFeatureAlgorithmRes()   {}
 func (*ErrorConflict) createFeatureFlagVariantRes() {}
 func (*ErrorConflict) createFeatureRuleRes()        {}
 func (*ErrorConflict) createFeatureScheduleRes()    {}
-func (*ErrorConflict) createProjectSettingRes()     {}
 func (*ErrorConflict) deleteFeatureAlgorithmRes()   {}
 func (*ErrorConflict) deleteFeatureRes()            {}
 func (*ErrorConflict) deleteFeatureScheduleRes()    {}
@@ -2880,7 +2847,6 @@ func (*ErrorInternalServerError) createNotificationSettingRes()   {}
 func (*ErrorInternalServerError) createProjectFeatureRes()        {}
 func (*ErrorInternalServerError) createProjectMembershipRes()     {}
 func (*ErrorInternalServerError) createProjectSegmentRes()        {}
-func (*ErrorInternalServerError) createProjectSettingRes()        {}
 func (*ErrorInternalServerError) createProjectTagRes()            {}
 func (*ErrorInternalServerError) createRuleAttributeRes()         {}
 func (*ErrorInternalServerError) createUserRes()                  {}
@@ -2891,7 +2857,6 @@ func (*ErrorInternalServerError) deleteFeatureRes()               {}
 func (*ErrorInternalServerError) deleteFeatureScheduleRes()       {}
 func (*ErrorInternalServerError) deleteNotificationSettingRes()   {}
 func (*ErrorInternalServerError) deleteProjectMembershipRes()     {}
-func (*ErrorInternalServerError) deleteProjectSettingRes()        {}
 func (*ErrorInternalServerError) deleteProjectTagRes()            {}
 func (*ErrorInternalServerError) deleteRuleAttributeRes()         {}
 func (*ErrorInternalServerError) deleteSegmentRes()               {}
@@ -3042,7 +3007,6 @@ func (*ErrorNotFound) createNotificationSettingRes()   {}
 func (*ErrorNotFound) createProjectFeatureRes()        {}
 func (*ErrorNotFound) createProjectMembershipRes()     {}
 func (*ErrorNotFound) createProjectSegmentRes()        {}
-func (*ErrorNotFound) createProjectSettingRes()        {}
 func (*ErrorNotFound) createProjectTagRes()            {}
 func (*ErrorNotFound) deleteCategoryRes()              {}
 func (*ErrorNotFound) deleteEnvironmentRes()           {}
@@ -3051,7 +3015,6 @@ func (*ErrorNotFound) deleteFeatureRes()               {}
 func (*ErrorNotFound) deleteFeatureScheduleRes()       {}
 func (*ErrorNotFound) deleteNotificationSettingRes()   {}
 func (*ErrorNotFound) deleteProjectMembershipRes()     {}
-func (*ErrorNotFound) deleteProjectSettingRes()        {}
 func (*ErrorNotFound) deleteProjectTagRes()            {}
 func (*ErrorNotFound) deleteRuleAttributeRes()         {}
 func (*ErrorNotFound) deleteSegmentRes()               {}
@@ -3155,7 +3118,6 @@ func (*ErrorPermissionDenied) createNotificationSettingRes()   {}
 func (*ErrorPermissionDenied) createProjectFeatureRes()        {}
 func (*ErrorPermissionDenied) createProjectMembershipRes()     {}
 func (*ErrorPermissionDenied) createProjectSegmentRes()        {}
-func (*ErrorPermissionDenied) createProjectSettingRes()        {}
 func (*ErrorPermissionDenied) createProjectTagRes()            {}
 func (*ErrorPermissionDenied) createRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) createUserRes()                  {}
@@ -3167,7 +3129,6 @@ func (*ErrorPermissionDenied) deleteFeatureScheduleRes()       {}
 func (*ErrorPermissionDenied) deleteLDAPConfigRes()            {}
 func (*ErrorPermissionDenied) deleteNotificationSettingRes()   {}
 func (*ErrorPermissionDenied) deleteProjectMembershipRes()     {}
-func (*ErrorPermissionDenied) deleteProjectSettingRes()        {}
 func (*ErrorPermissionDenied) deleteProjectTagRes()            {}
 func (*ErrorPermissionDenied) deleteRuleAttributeRes()         {}
 func (*ErrorPermissionDenied) deleteSegmentRes()               {}
@@ -3344,7 +3305,6 @@ func (*ErrorUnauthorized) createNotificationSettingRes()   {}
 func (*ErrorUnauthorized) createProjectFeatureRes()        {}
 func (*ErrorUnauthorized) createProjectMembershipRes()     {}
 func (*ErrorUnauthorized) createProjectSegmentRes()        {}
-func (*ErrorUnauthorized) createProjectSettingRes()        {}
 func (*ErrorUnauthorized) createProjectTagRes()            {}
 func (*ErrorUnauthorized) createRuleAttributeRes()         {}
 func (*ErrorUnauthorized) createUserRes()                  {}
@@ -3356,7 +3316,6 @@ func (*ErrorUnauthorized) deleteFeatureScheduleRes()       {}
 func (*ErrorUnauthorized) deleteLDAPConfigRes()            {}
 func (*ErrorUnauthorized) deleteNotificationSettingRes()   {}
 func (*ErrorUnauthorized) deleteProjectMembershipRes()     {}
-func (*ErrorUnauthorized) deleteProjectSettingRes()        {}
 func (*ErrorUnauthorized) deleteProjectTagRes()            {}
 func (*ErrorUnauthorized) deleteRuleAttributeRes()         {}
 func (*ErrorUnauthorized) deleteSegmentRes()               {}
@@ -9628,7 +9587,6 @@ func (s *ProjectSetting) SetUpdatedAt(val time.Time) {
 	s.UpdatedAt = val
 }
 
-func (*ProjectSetting) createProjectSettingRes() {}
 func (*ProjectSetting) getProjectSettingRes()    {}
 func (*ProjectSetting) updateProjectSettingRes() {}
 

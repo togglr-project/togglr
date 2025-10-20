@@ -3191,72 +3191,72 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - bearerAuth: []
-    post:
-      summary: Create project setting
-      operationId: CreateProjectSetting
-      parameters:
-        - name: project_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateProjectSettingRequest'
-      responses:
-        '201':
-          description: Project setting created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectSettingResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorBadRequest'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
-        '403':
-          description: Permission denied
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorPermissionDenied'
-        '404':
-          description: Project not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorNotFound'
-        '409':
-          description: Setting already exists
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorConflict'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorInternalServerError'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-        - bearerAuth: []
+#    post:
+#      summary: Create project setting
+#      operationId: CreateProjectSetting
+#      parameters:
+#        - name: project_id
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#      requestBody:
+#        required: true
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/CreateProjectSettingRequest'
+#      responses:
+#        '201':
+#          description: Project setting created
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ProjectSettingResponse'
+#        '400':
+#          description: Bad request
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorBadRequest'
+#        '401':
+#          description: Unauthorized
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorUnauthorized'
+#        '403':
+#          description: Permission denied
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorPermissionDenied'
+#        '404':
+#          description: Project not found
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorNotFound'
+#        '409':
+#          description: Setting already exists
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorConflict'
+#        '500':
+#          description: Internal server error
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorInternalServerError'
+#        default:
+#          description: Unexpected error
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'
+#      security:
+#        - bearerAuth: []
 
   /api/v1/projects/{project_id}/settings/{setting_name}:
     get:
@@ -3377,55 +3377,55 @@ paths:
                 $ref: '#/components/schemas/Error'
       security:
         - bearerAuth: []
-    delete:
-      summary: Delete project setting
-      operationId: DeleteProjectSetting
-      parameters:
-        - name: project_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: setting_name
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '204':
-          description: Project setting deleted
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorUnauthorized'
-        '403':
-          description: Permission denied
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorPermissionDenied'
-        '404':
-          description: Setting not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorNotFound'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorInternalServerError'
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-      security:
-        - bearerAuth: []
+#    delete:
+#      summary: Delete project setting
+#      operationId: DeleteProjectSetting
+#      parameters:
+#        - name: project_id
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#        - name: setting_name
+#          in: path
+#          required: true
+#          schema:
+#            type: string
+#      responses:
+#        '204':
+#          description: Project setting deleted
+#        '401':
+#          description: Unauthorized
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorUnauthorized'
+#        '403':
+#          description: Permission denied
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorPermissionDenied'
+#        '404':
+#          description: Setting not found
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorNotFound'
+#        '500':
+#          description: Internal server error
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/ErrorInternalServerError'
+#        default:
+#          description: Unexpected error
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'
+#      security:
+#        - bearerAuth: []
 
   /api/v1/projects/{project_id}/segments:
     get:

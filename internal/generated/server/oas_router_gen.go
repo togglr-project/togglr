@@ -1926,12 +1926,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 											s.handleListProjectSettingsRequest([1]string{
 												args[0],
 											}, elemIsEscaped, w, r)
-										case "POST":
-											s.handleCreateProjectSettingRequest([1]string{
-												args[0],
-											}, elemIsEscaped, w, r)
 										default:
-											s.notAllowed(w, r, "GET,POST")
+											s.notAllowed(w, r, "GET")
 										}
 
 										return
@@ -1957,11 +1953,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										if len(elem) == 0 {
 											// Leaf node.
 											switch r.Method {
-											case "DELETE":
-												s.handleDeleteProjectSettingRequest([2]string{
-													args[0],
-													args[1],
-												}, elemIsEscaped, w, r)
 											case "GET":
 												s.handleGetProjectSettingRequest([2]string{
 													args[0],
@@ -1973,7 +1964,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 													args[1],
 												}, elemIsEscaped, w, r)
 											default:
-												s.notAllowed(w, r, "DELETE,GET,PUT")
+												s.notAllowed(w, r, "GET,PUT")
 											}
 
 											return
@@ -4914,14 +4905,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 											r.args = args
 											r.count = 1
 											return r, true
-										case "POST":
-											r.name = CreateProjectSettingOperation
-											r.summary = "Create project setting"
-											r.operationID = "CreateProjectSetting"
-											r.pathPattern = "/api/v1/projects/{project_id}/settings"
-											r.args = args
-											r.count = 1
-											return r, true
 										default:
 											return
 										}
@@ -4947,14 +4930,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 										if len(elem) == 0 {
 											// Leaf node.
 											switch method {
-											case "DELETE":
-												r.name = DeleteProjectSettingOperation
-												r.summary = "Delete project setting"
-												r.operationID = "DeleteProjectSetting"
-												r.pathPattern = "/api/v1/projects/{project_id}/settings/{setting_name}"
-												r.args = args
-												r.count = 2
-												return r, true
 											case "GET":
 												r.name = GetProjectSettingOperation
 												r.summary = "Get project setting by name"

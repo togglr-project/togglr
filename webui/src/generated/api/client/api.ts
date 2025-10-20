@@ -2331,50 +2331,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
         },
         /**
          * 
-         * @summary Create project setting
-         * @param {string} projectId 
-         * @param {CreateProjectSettingRequest} createProjectSettingRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createProjectSetting: async (projectId: string, createProjectSettingRequest: CreateProjectSettingRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'projectId' is not null or undefined
-            assertParamExists('createProjectSetting', 'projectId', projectId)
-            // verify required parameter 'createProjectSettingRequest' is not null or undefined
-            assertParamExists('createProjectSetting', 'createProjectSettingRequest', createProjectSettingRequest)
-            const localVarPath = `/api/v1/projects/{project_id}/settings`
-                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            localVarHeaderParameter['Content-Type'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createProjectSettingRequest, localVarRequestOptions, configuration)
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
          * @summary Create new tag for project
          * @param {string} projectId 
          * @param {CreateProjectTagRequest} createProjectTagRequest 
@@ -2794,48 +2750,6 @@ export const DefaultApiAxiosParamCreator = function (configuration?: Configurati
             const localVarPath = `/api/v1/projects/{project_id}/memberships/{membership_id}`
                 .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
                 .replace(`{${"membership_id"}}`, encodeURIComponent(String(membershipId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearerAuth required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
-         * @summary Delete project setting
-         * @param {string} projectId 
-         * @param {string} settingName 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteProjectSetting: async (projectId: string, settingName: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'projectId' is not null or undefined
-            assertParamExists('deleteProjectSetting', 'projectId', projectId)
-            // verify required parameter 'settingName' is not null or undefined
-            assertParamExists('deleteProjectSetting', 'settingName', settingName)
-            const localVarPath = `/api/v1/projects/{project_id}/settings/{setting_name}`
-                .replace(`{${"project_id"}}`, encodeURIComponent(String(projectId)))
-                .replace(`{${"setting_name"}}`, encodeURIComponent(String(settingName)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7155,20 +7069,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Create project setting
-         * @param {string} projectId 
-         * @param {CreateProjectSettingRequest} createProjectSettingRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async createProjectSetting(projectId: string, createProjectSettingRequest: CreateProjectSettingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProjectSettingResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createProjectSetting(projectId, createProjectSettingRequest, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.createProjectSetting']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
          * @summary Create new tag for project
          * @param {string} projectId 
          * @param {CreateProjectTagRequest} createProjectTagRequest 
@@ -7313,20 +7213,6 @@ export const DefaultApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteProjectMembership(projectId, membershipId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteProjectMembership']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Delete project setting
-         * @param {string} projectId 
-         * @param {string} settingName 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async deleteProjectSetting(projectId: string, settingName: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteProjectSetting(projectId, settingName, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['DefaultApi.deleteProjectSetting']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -8832,17 +8718,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
-         * @summary Create project setting
-         * @param {string} projectId 
-         * @param {CreateProjectSettingRequest} createProjectSettingRequest 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        createProjectSetting(projectId: string, createProjectSettingRequest: CreateProjectSettingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProjectSettingResponse> {
-            return localVarFp.createProjectSetting(projectId, createProjectSettingRequest, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
          * @summary Create new tag for project
          * @param {string} projectId 
          * @param {CreateProjectTagRequest} createProjectTagRequest 
@@ -8955,17 +8830,6 @@ export const DefaultApiFactory = function (configuration?: Configuration, basePa
          */
         deleteProjectMembership(projectId: string, membershipId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.deleteProjectMembership(projectId, membershipId, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Delete project setting
-         * @param {string} projectId 
-         * @param {string} settingName 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        deleteProjectSetting(projectId: string, settingName: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteProjectSetting(projectId, settingName, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -10207,18 +10071,6 @@ export class DefaultApi extends BaseAPI {
 
     /**
      * 
-     * @summary Create project setting
-     * @param {string} projectId 
-     * @param {CreateProjectSettingRequest} createProjectSettingRequest 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public createProjectSetting(projectId: string, createProjectSettingRequest: CreateProjectSettingRequest, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).createProjectSetting(projectId, createProjectSettingRequest, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
      * @summary Create new tag for project
      * @param {string} projectId 
      * @param {CreateProjectTagRequest} createProjectTagRequest 
@@ -10341,18 +10193,6 @@ export class DefaultApi extends BaseAPI {
      */
     public deleteProjectMembership(projectId: string, membershipId: string, options?: RawAxiosRequestConfig) {
         return DefaultApiFp(this.configuration).deleteProjectMembership(projectId, membershipId, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Delete project setting
-     * @param {string} projectId 
-     * @param {string} settingName 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public deleteProjectSetting(projectId: string, settingName: string, options?: RawAxiosRequestConfig) {
-        return DefaultApiFp(this.configuration).deleteProjectSetting(projectId, settingName, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
