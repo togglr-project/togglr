@@ -31,9 +31,17 @@ type VariantStats struct {
 type AlgorithmState struct {
 	AlgorithmType domain.AlgorithmType
 	Enabled       bool
-	Variants      map[string]*VariantStats // variant_key -> stats
-	VariantsArr   []string
-	Settings      map[string]decimal.Decimal
+
+	// multivariant state
+	Variants    map[string]*VariantStats // variant_key -> stats
+	VariantsArr []string
+	Settings    map[string]decimal.Decimal
+
+	// simple state
+	IsOptimizer  bool
+	Iteration    uint64
+	CurrentValue decimal.Decimal
+	MetricSum    decimal.Decimal
 
 	mu sync.RWMutex
 }
@@ -549,4 +557,22 @@ func (m *BanditManager) flushAllToDB() error {
 	slog.Debug("bandit: flushed all features", "elapsed", time.Since(start))
 
 	return nil
+}
+
+func getSettingAsFloat64(settings map[string]decimal.Decimal, key string, defaultValue float64) float64 {
+	value, ok := settings[key]
+	if !ok {
+		return defaultValue
+	}
+
+	return value.InexactFloat64()
+}
+
+func getSettingAsDecimal(settings map[string]decimal.Decimal, key string, defaultValue float64) decimal.Decimal {
+	value, ok := settings[key]
+	if !ok {
+		return decimal.NewFromFloat(defaultValue)
+	}
+
+	return value
 }

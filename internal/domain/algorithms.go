@@ -13,12 +13,18 @@ const (
 	AlgorithmTypeEpsilonGreedy    AlgorithmType = "epsilon-greedy"
 	AlgorithmTypeThompsonSampling AlgorithmType = "thompson-sampling"
 	AlgorithmTypeUCB              AlgorithmType = "ucb"
+	AlgorithmTypeHillClimb        AlgorithmType = "hill_climb"
+	AlgorithmTypePIDController    AlgorithmType = "pid_controller"
+	AlgorithmTypeBayesOpt         AlgorithmType = "bayes_opt"
+	AlgorithmTypeCEM              AlgorithmType = "cem"
+	AlgorithmTypeSimAnnealing     AlgorithmType = "simulated_annealing"
 )
 
 type AlgorithmKind string
 
 const (
-	AlgorithmKindBandit AlgorithmKind = "bandit"
+	AlgorithmKindBandit    AlgorithmKind = "bandit"
+	AlgorithmKindOptimizer AlgorithmKind = "optimizer"
 )
 
 type Algorithm struct {
