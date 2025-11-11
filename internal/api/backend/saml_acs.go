@@ -22,7 +22,7 @@ func (r *RestAPI) ConsumeSAMLAssertion(
 	rawReq.PostForm.Set("RelayState", req.RelayState)
 
 	accessToken, refreshToken, _, err := r.usersUseCase.SSOCallback(
-		ctx, domain.SSOProviderNameADSaml, appcontext.RawRequest(ctx), req.SAMLResponse, req.RelayState)
+		ctx, domain.SSOProviderNameADSaml, rawReq, req.SAMLResponse, req.RelayState)
 	if err != nil {
 		slog.Error("SSO assert failed", "error", err)
 
