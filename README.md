@@ -6,6 +6,8 @@ Togglr is a **feature flag and experimentation platform** for developers and pro
 
 It allows you to **toggle features on/off**, run **A/B and multi-variant experiments**, and gradually roll out features based on user segments, time, or adaptive learning algorithms.
 
+> Disclaimer: This app has not been tested in production yet. By using it, you are acting at your own risk.
+
 ## Table of Contents
 
 - [🚀 Experimentation and Algorithms](#-experimentation-and-algorithms)
