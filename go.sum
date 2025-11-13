@@ -231,8 +231,8 @@ github.com/rom8726/pgfixtures v1.3.0 h1:DPtS7VbPTb30vzoUiLuiOnWSI9+60FSTzoFPk5vE
 github.com/rom8726/pgfixtures v1.3.0/go.mod h1:aEbnlpmFgv9OnWXOQSWpe7DpiC5v6WzlAZU9OAcXK2Y=
 github.com/rom8726/resilience v1.0.0 h1:TbVRmPMcSil/i2NGXTpqyezRCSbIJPpgFCakNq0pUKU=
 github.com/rom8726/resilience v1.0.0/go.mod h1:rBsNb+XrKN9Kn0i//pnTWqm3YjCMYeX/I+wY6aRLk/c=
-github.com/rom8726/testy v1.6.5 h1:K2dtfH7c7EPD09COu+qV2BtGZw28Myj7hQNXZlSXmT0=
-github.com/rom8726/testy v1.6.5/go.mod h1:4nR7bumBBcwHmGqYhX+x5w4RO1e72/WAFgIYeKu6dKc=
+github.com/rom8726/testy/v2 v2.0.0 h1:Gu2VFMFX6jMBWUhZOFGZYF1g6f19QtQm0eFg+sxh55g=
+github.com/rom8726/testy/v2 v2.0.0/go.mod h1:TdszMMDoUaizLkmrRGlPaVpklFtGyuGifPmLQE0JuzU=
 github.com/russellhaering/goxmldsig v1.5.0 h1:AU2UkkYIUOTyZRbe08XMThaOCelArgvNfYapcmSjBNw=
 github.com/russellhaering/goxmldsig v1.5.0/go.mod h1:x98CjQNFJcWfMxeOrMnMKg70lvDP6tE0nTaeUnjXDmk=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=

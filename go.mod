@@ -28,7 +28,7 @@ require (
 	github.com/rom8726/di v1.1.1
 	github.com/rom8726/pgfixtures v1.3.0
 	github.com/rom8726/resilience v1.0.0
-	github.com/rom8726/testy v1.6.5
+	github.com/rom8726/testy/v2 v2.0.0
 	github.com/shopspring/decimal v1.4.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.10.1
@@ -40,6 +40,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0
 	golang.org/x/crypto v0.42.0
 	golang.org/x/sync v0.17.0
+	gonum.org/v1/gonum v0.16.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -130,7 +131,6 @@ require (
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
-	gonum.org/v1/gonum v0.16.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1 // indirect
