@@ -103,6 +103,138 @@ func (_c *MockAlgorithmsProcessor_EvaluateFeature_Call) RunAndReturn(run func(fe
 	return _c
 }
 
+// EvaluateOptimizer provides a mock function for the type MockAlgorithmsProcessor
+func (_mock *MockAlgorithmsProcessor) EvaluateOptimizer(featureKey string, envKey string) (decimal.Decimal, bool) {
+	ret := _mock.Called(featureKey, envKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EvaluateOptimizer")
+	}
+
+	var r0 decimal.Decimal
+	var r1 bool
+	if returnFunc, ok := ret.Get(0).(func(string, string) (decimal.Decimal, bool)); ok {
+		return returnFunc(featureKey, envKey)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) decimal.Decimal); ok {
+		r0 = returnFunc(featureKey, envKey)
+	} else {
+		r0 = ret.Get(0).(decimal.Decimal)
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) bool); ok {
+		r1 = returnFunc(featureKey, envKey)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+	return r0, r1
+}
+
+// MockAlgorithmsProcessor_EvaluateOptimizer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EvaluateOptimizer'
+type MockAlgorithmsProcessor_EvaluateOptimizer_Call struct {
+	*mock.Call
+}
+
+// EvaluateOptimizer is a helper method to define mock.On call
+//   - featureKey string
+//   - envKey string
+func (_e *MockAlgorithmsProcessor_Expecter) EvaluateOptimizer(featureKey interface{}, envKey interface{}) *MockAlgorithmsProcessor_EvaluateOptimizer_Call {
+	return &MockAlgorithmsProcessor_EvaluateOptimizer_Call{Call: _e.mock.On("EvaluateOptimizer", featureKey, envKey)}
+}
+
+func (_c *MockAlgorithmsProcessor_EvaluateOptimizer_Call) Run(run func(featureKey string, envKey string)) *MockAlgorithmsProcessor_EvaluateOptimizer_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAlgorithmsProcessor_EvaluateOptimizer_Call) Return(decimal1 decimal.Decimal, b bool) *MockAlgorithmsProcessor_EvaluateOptimizer_Call {
+	_c.Call.Return(decimal1, b)
+	return _c
+}
+
+func (_c *MockAlgorithmsProcessor_EvaluateOptimizer_Call) RunAndReturn(run func(featureKey string, envKey string) (decimal.Decimal, bool)) *MockAlgorithmsProcessor_EvaluateOptimizer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetAlgorithmKind provides a mock function for the type MockAlgorithmsProcessor
+func (_mock *MockAlgorithmsProcessor) GetAlgorithmKind(featureKey string, envKey string) (domain.AlgorithmKind, bool) {
+	ret := _mock.Called(featureKey, envKey)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAlgorithmKind")
+	}
+
+	var r0 domain.AlgorithmKind
+	var r1 bool
+	if returnFunc, ok := ret.Get(0).(func(string, string) (domain.AlgorithmKind, bool)); ok {
+		return returnFunc(featureKey, envKey)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) domain.AlgorithmKind); ok {
+		r0 = returnFunc(featureKey, envKey)
+	} else {
+		r0 = ret.Get(0).(domain.AlgorithmKind)
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) bool); ok {
+		r1 = returnFunc(featureKey, envKey)
+	} else {
+		r1 = ret.Get(1).(bool)
+	}
+	return r0, r1
+}
+
+// MockAlgorithmsProcessor_GetAlgorithmKind_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAlgorithmKind'
+type MockAlgorithmsProcessor_GetAlgorithmKind_Call struct {
+	*mock.Call
+}
+
+// GetAlgorithmKind is a helper method to define mock.On call
+//   - featureKey string
+//   - envKey string
+func (_e *MockAlgorithmsProcessor_Expecter) GetAlgorithmKind(featureKey interface{}, envKey interface{}) *MockAlgorithmsProcessor_GetAlgorithmKind_Call {
+	return &MockAlgorithmsProcessor_GetAlgorithmKind_Call{Call: _e.mock.On("GetAlgorithmKind", featureKey, envKey)}
+}
+
+func (_c *MockAlgorithmsProcessor_GetAlgorithmKind_Call) Run(run func(featureKey string, envKey string)) *MockAlgorithmsProcessor_GetAlgorithmKind_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockAlgorithmsProcessor_GetAlgorithmKind_Call) Return(algorithmKind domain.AlgorithmKind, b bool) *MockAlgorithmsProcessor_GetAlgorithmKind_Call {
+	_c.Call.Return(algorithmKind, b)
+	return _c
+}
+
+func (_c *MockAlgorithmsProcessor_GetAlgorithmKind_Call) RunAndReturn(run func(featureKey string, envKey string) (domain.AlgorithmKind, bool)) *MockAlgorithmsProcessor_GetAlgorithmKind_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // HandleTrackEvent provides a mock function for the type MockAlgorithmsProcessor
 func (_mock *MockAlgorithmsProcessor) HandleTrackEvent(featureKey string, envKey string, variantKey string, eventType domain.FeedbackEventType, metric decimal.Decimal) {
 	_mock.Called(featureKey, envKey, variantKey, eventType, metric)

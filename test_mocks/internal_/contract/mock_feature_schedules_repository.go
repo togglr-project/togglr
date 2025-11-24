@@ -431,6 +431,80 @@ func (_c *MockFeatureSchedulesRepository_ListByFeatureIDWithEnvID_Call) RunAndRe
 	return _c
 }
 
+// ListByProjectIDEnvID provides a mock function for the type MockFeatureSchedulesRepository
+func (_mock *MockFeatureSchedulesRepository) ListByProjectIDEnvID(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID) ([]domain.FeatureSchedule, error) {
+	ret := _mock.Called(ctx, projectID, envID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListByProjectIDEnvID")
+	}
+
+	var r0 []domain.FeatureSchedule
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID) ([]domain.FeatureSchedule, error)); ok {
+		return returnFunc(ctx, projectID, envID)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, domain.ProjectID, domain.EnvironmentID) []domain.FeatureSchedule); ok {
+		r0 = returnFunc(ctx, projectID, envID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]domain.FeatureSchedule)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, domain.ProjectID, domain.EnvironmentID) error); ok {
+		r1 = returnFunc(ctx, projectID, envID)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ListByProjectIDEnvID'
+type MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call struct {
+	*mock.Call
+}
+
+// ListByProjectIDEnvID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - projectID domain.ProjectID
+//   - envID domain.EnvironmentID
+func (_e *MockFeatureSchedulesRepository_Expecter) ListByProjectIDEnvID(ctx interface{}, projectID interface{}, envID interface{}) *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call {
+	return &MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call{Call: _e.mock.On("ListByProjectIDEnvID", ctx, projectID, envID)}
+}
+
+func (_c *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call) Run(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID)) *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 domain.ProjectID
+		if args[1] != nil {
+			arg1 = args[1].(domain.ProjectID)
+		}
+		var arg2 domain.EnvironmentID
+		if args[2] != nil {
+			arg2 = args[2].(domain.EnvironmentID)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call) Return(featureSchedules []domain.FeatureSchedule, err error) *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call {
+	_c.Call.Return(featureSchedules, err)
+	return _c
+}
+
+func (_c *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call) RunAndReturn(run func(ctx context.Context, projectID domain.ProjectID, envID domain.EnvironmentID) ([]domain.FeatureSchedule, error)) *MockFeatureSchedulesRepository_ListByProjectIDEnvID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function for the type MockFeatureSchedulesRepository
 func (_mock *MockFeatureSchedulesRepository) Update(ctx context.Context, s domain.FeatureSchedule) (domain.FeatureSchedule, error) {
 	ret := _mock.Called(ctx, s)
