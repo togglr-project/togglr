@@ -23,6 +23,7 @@ const (
 type AlgorithmKind string
 
 const (
+	AlgorithmKindUnknown   AlgorithmKind = "unknown"
 	AlgorithmKindBandit    AlgorithmKind = "bandit"
 	AlgorithmKindOptimizer AlgorithmKind = "optimizer"
 )
@@ -49,6 +50,16 @@ func AlgorithmSlugToType(slug string) AlgorithmType {
 		return AlgorithmTypeThompsonSampling
 	case "ucb":
 		return AlgorithmTypeUCB
+	case "hill_climb":
+		return AlgorithmTypeHillClimb
+	case "pid_controller":
+		return AlgorithmTypePIDController
+	case "bayes_opt":
+		return AlgorithmTypeBayesOpt
+	case "cem":
+		return AlgorithmTypeCEM
+	case "simulated_annealing":
+		return AlgorithmTypeSimAnnealing
 	default:
 		return AlgorithmTypeUnknown
 	}
@@ -56,4 +67,16 @@ func AlgorithmSlugToType(slug string) AlgorithmType {
 
 func (algType AlgorithmType) Slug() string {
 	return string(algType)
+}
+
+func (algType AlgorithmType) Kind() AlgorithmKind {
+	switch algType {
+	case AlgorithmTypeEpsilonGreedy, AlgorithmTypeThompsonSampling, AlgorithmTypeUCB:
+		return AlgorithmKindBandit
+	case AlgorithmTypeHillClimb, AlgorithmTypePIDController, AlgorithmTypeBayesOpt,
+		AlgorithmTypeCEM, AlgorithmTypeSimAnnealing:
+		return AlgorithmKindOptimizer
+	default:
+		return AlgorithmKindUnknown
+	}
 }

@@ -68,13 +68,19 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 		}}, nil
 	}
 
+	// For optimizer algorithms, variant_key is optional
+	variantKey := ""
+	if req.VariantKey.IsSet() {
+		variantKey = req.VariantKey.Value
+	}
+
 	event := domain.FeedbackEventDTO{
 		ProjectID:     feature.ProjectID,
 		EnvironmentID: feature.EnvironmentID,
 		FeatureID:     feature.ID,
 		FeatureKey:    featureKey,
 		EnvKey:        envKey,
-		VariantKey:    req.VariantKey,
+		VariantKey:    variantKey,
 		EventType:     domain.FeedbackEventType(req.EventType),
 		AlgorithmSlug: featAlg.AlgorithmSlug,
 		Reward:        decimal.NewFromFloat32(req.Reward.Or(0.0)),

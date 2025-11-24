@@ -282,7 +282,9 @@ func (s *EvaluateRequest) init() EvaluateRequest {
 type EvaluateResponse struct {
 	FeatureKey string `json:"feature_key"`
 	Enabled    bool   `json:"enabled"`
-	Value      string `json:"value"`
+	// For multi-variant features (bandits): variant key (e.g. "A", "B").
+	// For single-variant features (optimizers): optimized numeric value as string (e.g. "1.234").
+	Value string `json:"value"`
 }
 
 // GetFeatureKey returns the value of FeatureKey.
@@ -769,10 +771,12 @@ func (*TrackFeatureEventAccepted) trackFeatureEventRes() {}
 
 // Event sent from SDK. SDK SHOULD send an impression event for each evaluation (recommended).
 // Conversions / errors / custom events are used to update algorithm statistics.
+// For optimizer algorithms (single-variant), variant_key is optional.
 // Ref: #/components/schemas/TrackRequest
 type TrackRequest struct {
 	// Variant key returned by evaluate (e.g. "A", "v2").
-	VariantKey string `json:"variant_key"`
+	// Optional for optimizer algorithms (single-variant features).
+	VariantKey OptString `json:"variant_key"`
 	// Type of event (e.g. "success", "failure", "error").
 	EventType TrackRequestEventType `json:"event_type"`
 	// Numeric reward associated with event (e.g. 1.0 for conversion). Default 0.
@@ -786,7 +790,7 @@ type TrackRequest struct {
 }
 
 // GetVariantKey returns the value of VariantKey.
-func (s *TrackRequest) GetVariantKey() string {
+func (s *TrackRequest) GetVariantKey() OptString {
 	return s.VariantKey
 }
 
@@ -816,7 +820,7 @@ func (s *TrackRequest) GetDedupKey() OptString {
 }
 
 // SetVariantKey sets the value of VariantKey.
-func (s *TrackRequest) SetVariantKey(val string) {
+func (s *TrackRequest) SetVariantKey(val OptString) {
 	s.VariantKey = val
 }
 

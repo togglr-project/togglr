@@ -349,6 +349,9 @@ components:
           type: boolean
         value:
           type: string
+          description: |
+            For multi-variant features (bandits): variant key (e.g. "A", "B").
+            For single-variant features (optimizers): optimized numeric value as string (e.g. "1.234").
       required: [ feature_key, enabled, value ]
 
     HealthResponse:
@@ -405,10 +408,13 @@ components:
       description: |
         Event sent from SDK. SDK SHOULD send an impression event for each evaluation (recommended).
         Conversions / errors / custom events are used to update algorithm statistics.
+        For optimizer algorithms (single-variant), variant_key is optional.
       properties:
         variant_key:
           type: string
-          description: Variant key returned by evaluate (e.g. "A", "v2").
+          description: |
+            Variant key returned by evaluate (e.g. "A", "v2").
+            Optional for optimizer algorithms (single-variant features).
         event_type:
           type: string
           enum: [success, failure, error]
@@ -430,4 +436,3 @@ components:
           description: Optional idempotency key to deduplicate duplicate events from SDK retries.
       required:
         - event_type
-        - variant_key

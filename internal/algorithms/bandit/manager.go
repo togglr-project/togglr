@@ -141,7 +141,20 @@ func (m *BanditManager) HasAlgorithm(featureKey, envKey string) bool {
 	return state.Enabled
 }
 
-// EvaluateFeature chooses a variant according to the algorithm.
+func (m *BanditManager) GetAlgorithmKind(featureKey, envKey string) (domain.AlgorithmKind, bool) {
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
+	if !ok {
+		return domain.AlgorithmKindUnknown, false
+	}
+
+	if !state.Enabled {
+		return domain.AlgorithmKindUnknown, false
+	}
+
+	return state.AlgorithmType.Kind(), true
+}
+
+// EvaluateFeature chooses a variant according to the bandit algorithm (multi-variant).
 func (m *BanditManager) EvaluateFeature(featureKey, envKey string) (string, bool) {
 	state, ok := m.GetAlgorithmState(featureKey, envKey)
 	if !ok {
@@ -152,9 +165,14 @@ func (m *BanditManager) EvaluateFeature(featureKey, envKey string) (string, bool
 		return "", false
 	}
 
+	if state.IsOptimizer {
+		return "", false
+	}
+
 	var variant string
 
-	// choose algorithm
+	// choose bandit algorithm
+	//nolint:exhaustive // false positive
 	switch state.AlgorithmType {
 	case domain.AlgorithmTypeEpsilonGreedy:
 		variant = m.evalEpsilonGreedy(state)
@@ -169,6 +187,29 @@ func (m *BanditManager) EvaluateFeature(featureKey, envKey string) (string, bool
 	}
 
 	return variant, true
+}
+
+// EvaluateOptimizer returns optimized value for single-variant feature (optimizer algorithms).
+func (m *BanditManager) EvaluateOptimizer(featureKey, envKey string) (decimal.Decimal, bool) {
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
+	if !ok {
+		return decimal.Zero, false
+	}
+
+	if !state.Enabled {
+		return decimal.Zero, false
+	}
+
+	if !state.IsOptimizer {
+		return decimal.Zero, false
+	}
+
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
+	// For optimizers, we return the current value
+	// The value will be updated on next track event with reward
+	return state.CurrentValue, true
 }
 
 // HandleTrackEvent called by track consumer to update in-memory counters.
@@ -187,6 +228,38 @@ func (m *BanditManager) HandleTrackEvent(
 	state.mu.Lock()
 	defer state.mu.Unlock()
 
+	// Handle optimizer algorithms
+	if state.IsOptimizer {
+		if eventType == domain.FeedbackEventTypeSuccess || eventType == domain.FeedbackEventTypeFailure {
+			reward := metric
+			if eventType == domain.FeedbackEventTypeFailure {
+				reward = metric.Neg() // negative reward for failures
+			}
+
+			switch state.AlgorithmType {
+			case domain.AlgorithmTypeHillClimb:
+				m.evalHillClimb(state, reward)
+			case domain.AlgorithmTypeSimAnnealing:
+				m.evalSimulatedAnnealing(state, reward)
+			case domain.AlgorithmTypePIDController:
+				// PID needs target value from settings
+				// TODO: get target from feature-flag settings
+				target := getSettingAsDecimal(state.Settings, "target", 1.0)
+				m.evalPID(state, reward, target)
+			// BayesOpt and CEM need batch processing, skip for now
+			case domain.AlgorithmTypeBayesOpt, domain.AlgorithmTypeCEM:
+				// TODO: implement BayesOpt and CEM
+				// These require batch evaluation, not suitable for online learning
+				// Store metric for potential batch update later
+				state.MetricSum = state.MetricSum.Add(reward)
+			default:
+			}
+		}
+
+		return
+	}
+
+	// Handle bandit algorithms (multi-variant)
 	vs, ok := state.Variants[variantKey]
 	if !ok {
 		vs = &VariantStats{}
@@ -371,6 +444,27 @@ func (m *BanditManager) loadState() error {
 			EnvKey:     record.EnvKey,
 		}
 
+		algType := domain.AlgorithmSlugToType(record.AlgorithmSlug)
+		algKind := algType.Kind()
+
+		if algKind == domain.AlgorithmKindOptimizer {
+			// Optimizers don't need variants
+			state[key] = &AlgorithmState{
+				AlgorithmType: algType,
+				Enabled:       record.Enabled,
+				Settings:      record.Settings,
+				IsOptimizer:   true,
+				Iteration:     0,
+				CurrentValue:  getSettingAsDecimal(record.Settings, "initial_value", 0.0),
+				MetricSum:     decimal.Zero,
+				Variants:      make(map[string]*VariantStats),
+				VariantsArr:   []string{},
+			}
+
+			continue
+		}
+
+		// Load variants for bandit algorithms
 		variantsArr, ok := allVariantsMap[key]
 		if !ok {
 			slog.Warn("variants not found for feature",
@@ -391,11 +485,12 @@ func (m *BanditManager) loadState() error {
 		}
 
 		state[key] = &AlgorithmState{
-			AlgorithmType: domain.AlgorithmSlugToType(record.AlgorithmSlug),
+			AlgorithmType: algType,
 			Enabled:       record.Enabled,
 			Variants:      variants,
 			VariantsArr:   slices.Clone(variantsArr),
 			Settings:      record.Settings,
+			IsOptimizer:   false,
 		}
 	}
 
@@ -429,6 +524,7 @@ func (m *BanditManager) removeFeatureFromState(
 	return nil
 }
 
+//nolint:nestif // This is a complex function.
 func (m *BanditManager) refreshFeature(
 	ctx context.Context,
 	featureID domain.FeatureID,
@@ -458,16 +554,38 @@ func (m *BanditManager) refreshFeature(
 			EnvKey:     envKey,
 		}
 
+		algType := domain.AlgorithmSlugToType(record.AlgorithmSlug)
+		algKind := algType.Kind()
+
 		state, ok := m.GetAlgorithmState(record.FeatureKey, envKey)
 		if !ok {
 			// add new
-			state = &AlgorithmState{
-				AlgorithmType: domain.AlgorithmSlugToType(record.AlgorithmSlug),
-				Enabled:       record.Enabled,
-				Variants:      actualVariantsMap,
-				VariantsArr:   slices.Clone(actualVariantsArr),
-				Settings:      record.Settings,
+			switch algKind {
+			case domain.AlgorithmKindBandit:
+				state = &AlgorithmState{
+					AlgorithmType: algType,
+					Enabled:       record.Enabled,
+					Variants:      actualVariantsMap,
+					VariantsArr:   slices.Clone(actualVariantsArr),
+					Settings:      record.Settings,
+					IsOptimizer:   false,
+				}
+			case domain.AlgorithmKindOptimizer:
+				state = &AlgorithmState{
+					AlgorithmType: algType,
+					Enabled:       record.Enabled,
+					Settings:      record.Settings,
+					IsOptimizer:   true,
+					Iteration:     0,
+					CurrentValue:  getSettingAsDecimal(record.Settings, "initial_value", 0.0),
+					MetricSum:     decimal.Zero,
+					Variants:      make(map[string]*VariantStats),
+					VariantsArr:   []string{},
+				}
+			default:
+				continue
 			}
+
 			m.mu.Lock()
 			m.state[key] = state
 			m.mu.Unlock()
@@ -476,17 +594,21 @@ func (m *BanditManager) refreshFeature(
 			state.mu.Lock()
 			state.Enabled = record.Enabled
 			state.Settings = record.Settings
-			for _, variantKey := range state.VariantsArr {
-				if _, ok := actualVariantsMap[variantKey]; !ok {
-					delete(state.Variants, variantKey)
+
+			if algKind == domain.AlgorithmKindBandit {
+				// Update variants only for bandits
+				for _, variantKey := range state.VariantsArr {
+					if _, ok := actualVariantsMap[variantKey]; !ok {
+						delete(state.Variants, variantKey)
+					}
 				}
-			}
-			for _, variantKey := range actualVariantsArr {
-				if _, ok := state.Variants[variantKey]; !ok {
-					state.Variants[variantKey] = &VariantStats{}
+				for _, variantKey := range actualVariantsArr {
+					if _, ok := state.Variants[variantKey]; !ok {
+						state.Variants[variantKey] = &VariantStats{}
+					}
 				}
+				state.VariantsArr = slices.Clone(actualVariantsArr)
 			}
-			state.VariantsArr = slices.Clone(actualVariantsArr)
 			state.mu.Unlock()
 		}
 	}
@@ -529,6 +651,8 @@ func (m *BanditManager) flushAllToDB() error {
 		}
 
 		algState.mu.RLock()
+		// For bandit algorithms, save variant stats
+		// For optimizer algorithms, variants map is empty, so this loop won't execute
 		for variant, variantStats := range algState.Variants {
 			records = append(records, domain.FeatureAlgorithmStats{
 				ProjectID:      feature.ProjectID,

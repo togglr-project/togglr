@@ -4,6 +4,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+//nolint:unused // will be implemented later
 func (m *BanditManager) evalBayesOpt(
 	state *AlgorithmState,
 	samples, rewards []decimal.Decimal,

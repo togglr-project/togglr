@@ -6,6 +6,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+//nolint:unused // will be implemented later
 func (m *BanditManager) evalCEM(
 	state *AlgorithmState,
 	samples, rewards []decimal.Decimal,
