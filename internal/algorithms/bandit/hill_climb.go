@@ -5,17 +5,22 @@ import (
 )
 
 func (m *BanditManager) evalHillClimb(state *AlgorithmState, lastReward decimal.Decimal) decimal.Decimal {
-	step := getSettingAsFloat64(state.Settings, "step", 0.05)
-	direction := getSettingAsFloat64(state.Settings, "direction", 1)
-	prev := state.CurrentValue
-	candidate := prev.Add(decimal.NewFromFloat(step).Mul(decimal.NewFromFloat(direction)))
-
-	if lastReward.GreaterThan(state.MetricSum) {
-		state.CurrentValue = candidate
-	} else {
-		state.Settings["direction"] = state.Settings["direction"].Mul(decimal.NewFromFloat(-1))
+	if state.StepSize.IsZero() {
+		state.StepSize = getSettingAsDecimal(state.Settings, "step", 0.05)
 	}
 
+	step := state.StepSize
+	candidate := state.CurrentValue.Add(step)
+
+	if lastReward.GreaterThan(state.BestReward) {
+		state.BestReward = lastReward
+		state.BestValue = state.CurrentValue
+		state.CurrentValue = candidate
+	} else {
+		state.StepSize = step.Neg()
+	}
+
+	state.MetricSum = state.MetricSum.Add(lastReward)
 	state.Iteration++
 
 	return state.CurrentValue

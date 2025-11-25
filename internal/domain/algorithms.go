@@ -18,14 +18,19 @@ const (
 	AlgorithmTypeBayesOpt         AlgorithmType = "bayes_opt"
 	AlgorithmTypeCEM              AlgorithmType = "cem"
 	AlgorithmTypeSimAnnealing     AlgorithmType = "simulated_annealing"
+	// Contextual bandits
+	AlgorithmTypeLinUCB             AlgorithmType = "lin_ucb"
+	AlgorithmTypeContextualThompson AlgorithmType = "contextual_thompson"
+	AlgorithmTypeContextualEpsilon  AlgorithmType = "contextual_epsilon"
 )
 
 type AlgorithmKind string
 
 const (
-	AlgorithmKindUnknown   AlgorithmKind = "unknown"
-	AlgorithmKindBandit    AlgorithmKind = "bandit"
-	AlgorithmKindOptimizer AlgorithmKind = "optimizer"
+	AlgorithmKindUnknown          AlgorithmKind = "unknown"
+	AlgorithmKindBandit           AlgorithmKind = "bandit"
+	AlgorithmKindOptimizer        AlgorithmKind = "optimizer"
+	AlgorithmKindContextualBandit AlgorithmKind = "contextual_bandit"
 )
 
 type Algorithm struct {
@@ -60,6 +65,12 @@ func AlgorithmSlugToType(slug string) AlgorithmType {
 		return AlgorithmTypeCEM
 	case "simulated_annealing":
 		return AlgorithmTypeSimAnnealing
+	case "lin_ucb":
+		return AlgorithmTypeLinUCB
+	case "contextual_thompson":
+		return AlgorithmTypeContextualThompson
+	case "contextual_epsilon":
+		return AlgorithmTypeContextualEpsilon
 	default:
 		return AlgorithmTypeUnknown
 	}
@@ -76,6 +87,8 @@ func (algType AlgorithmType) Kind() AlgorithmKind {
 	case AlgorithmTypeHillClimb, AlgorithmTypePIDController, AlgorithmTypeBayesOpt,
 		AlgorithmTypeCEM, AlgorithmTypeSimAnnealing:
 		return AlgorithmKindOptimizer
+	case AlgorithmTypeLinUCB, AlgorithmTypeContextualThompson, AlgorithmTypeContextualEpsilon:
+		return AlgorithmKindContextualBandit
 	default:
 		return AlgorithmKindUnknown
 	}

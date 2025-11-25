@@ -32,16 +32,26 @@ type AlgorithmState struct {
 	AlgorithmType domain.AlgorithmType
 	Enabled       bool
 
-	// multivariant state
+	// multivariant state (for regular bandits)
 	Variants    map[string]*VariantStats // variant_key -> stats
 	VariantsArr []string
 	Settings    map[string]decimal.Decimal
 
-	// simple state
+	// optimizer state
 	IsOptimizer  bool
 	Iteration    uint64
 	CurrentValue decimal.Decimal
 	MetricSum    decimal.Decimal
+	BestValue    decimal.Decimal
+	BestReward   decimal.Decimal
+	LastError    decimal.Decimal
+	Integral     decimal.Decimal
+	StepSize     decimal.Decimal
+	Temperature  decimal.Decimal
+
+	// contextual bandit state
+	IsContextual    bool
+	ContextualState *ContextualAlgorithmState
 
 	mu sync.RWMutex
 }
@@ -63,6 +73,8 @@ type BanditManager struct {
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository
 	featureVariantsRepo   contract.FlagVariantsRepository
 	statsRepo             contract.FeatureAlgorithmStatsRepository
+	optimizerStatsRepo    contract.FeatureOptimizerStatsRepository
+	contextualStatsRepo   contract.FeatureContextualStatsRepository
 	auditRepo             contract.AuditLogRepository
 	featuresUseCase       contract.FeaturesUseCase
 	envsUseCase           contract.EnvironmentsUseCase
@@ -74,6 +86,8 @@ func New(
 	featureAlgorithmsRepo contract.FeatureAlgorithmsRepository,
 	featureVariantsRepo contract.FlagVariantsRepository,
 	statsRepo contract.FeatureAlgorithmStatsRepository,
+	optimizerStatsRepo contract.FeatureOptimizerStatsRepository,
+	contextualStatsRepo contract.FeatureContextualStatsRepository,
 	auditRepo contract.AuditLogRepository,
 	featuresUseCase contract.FeaturesUseCase,
 	envsUseCase contract.EnvironmentsUseCase,
@@ -86,6 +100,8 @@ func New(
 		featureAlgorithmsRepo: featureAlgorithmsRepo,
 		featureVariantsRepo:   featureVariantsRepo,
 		statsRepo:             statsRepo,
+		optimizerStatsRepo:    optimizerStatsRepo,
+		contextualStatsRepo:   contextualStatsRepo,
 		auditRepo:             auditRepo,
 		featuresUseCase:       featuresUseCase,
 		envsUseCase:           envsUseCase,
@@ -210,6 +226,77 @@ func (m *BanditManager) EvaluateOptimizer(featureKey, envKey string) (decimal.De
 	// For optimizers, we return the current value
 	// The value will be updated on next track event with reward
 	return state.CurrentValue, true
+}
+
+// EvaluateContextual chooses a variant according to contextual bandit algorithm.
+func (m *BanditManager) EvaluateContextual(featureKey, envKey string, ctx map[string]any) (string, bool) {
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
+	if !ok {
+		return "", false
+	}
+
+	if !state.Enabled {
+		return "", false
+	}
+
+	if !state.IsContextual {
+		return "", false
+	}
+
+	var variant string
+
+	//nolint:exhaustive // only contextual algorithms
+	switch state.AlgorithmType {
+	case domain.AlgorithmTypeLinUCB:
+		variant = m.evalLinUCB(state, ctx)
+	case domain.AlgorithmTypeContextualThompson:
+		variant = m.evalContextualThompson(state, ctx)
+	case domain.AlgorithmTypeContextualEpsilon:
+		variant = m.evalContextualEpsilon(state, ctx)
+	default:
+		return "", false
+	}
+
+	return variant, variant != ""
+}
+
+// HandleContextualTrackEvent updates contextual bandit model with observed reward.
+func (m *BanditManager) HandleContextualTrackEvent(
+	featureKey string,
+	envKey string,
+	variantKey string,
+	eventType domain.FeedbackEventType,
+	metric decimal.Decimal,
+	ctx map[string]any,
+) {
+	state, ok := m.GetAlgorithmState(featureKey, envKey)
+	if !ok {
+		return
+	}
+
+	if !state.IsContextual {
+		return
+	}
+
+	// Only process success/failure events
+	if eventType != domain.FeedbackEventTypeSuccess && eventType != domain.FeedbackEventTypeFailure {
+		return
+	}
+
+	reward := metric.InexactFloat64()
+	if eventType == domain.FeedbackEventTypeFailure {
+		reward = -reward
+	}
+
+	//nolint:exhaustive // only contextual algorithms
+	switch state.AlgorithmType {
+	case domain.AlgorithmTypeLinUCB:
+		m.updateLinUCB(state, variantKey, reward, ctx)
+	case domain.AlgorithmTypeContextualThompson:
+		m.updateContextualThompson(state, variantKey, reward, ctx)
+	case domain.AlgorithmTypeContextualEpsilon:
+		m.updateContextualEpsilon(state, variantKey, reward, ctx)
+	}
 }
 
 // HandleTrackEvent called by track consumer to update in-memory counters.
@@ -389,9 +476,19 @@ func (m *BanditManager) loadState() error {
 		return fmt.Errorf("list feature algorithms: %w", err)
 	}
 
-	stats, err := m.statsRepo.LoadAll(ctx)
+	banditStats, err := m.statsRepo.LoadAll(ctx)
 	if err != nil {
-		return fmt.Errorf("load all stats: %w", err)
+		return fmt.Errorf("load bandit stats: %w", err)
+	}
+
+	optimizerStats, err := m.optimizerStatsRepo.LoadAll(ctx)
+	if err != nil {
+		return fmt.Errorf("load optimizer stats: %w", err)
+	}
+
+	contextualStats, err := m.contextualStatsRepo.LoadAll(ctx)
+	if err != nil {
+		return fmt.Errorf("load contextual stats: %w", err)
 	}
 
 	allVariants, err := m.featureVariantsRepo.ListExtended(ctx)
@@ -421,20 +518,47 @@ func (m *BanditManager) loadState() error {
 		Variant   string
 	}
 
-	statsMap := make(map[statsKey]VariantStats)
-	for _, stat := range stats {
+	banditStatsMap := make(map[statsKey]VariantStats)
+	for _, stat := range banditStats {
 		key := statsKey{
 			FeatureID: stat.FeatureID,
 			EnvID:     stat.EnvironmentID,
 			AlgSlug:   stat.AlgorithmSlug,
 			Variant:   stat.VariantKey,
 		}
-		statsMap[key] = VariantStats{
+		banditStatsMap[key] = VariantStats{
 			Evaluations: stat.Evaluations,
 			Successes:   stat.Successes,
 			Failures:    stat.Failures,
 			MetricSum:   stat.MetricSum,
 		}
+	}
+
+	type optimizerKey struct {
+		FeatureID domain.FeatureID
+		EnvID     domain.EnvironmentID
+		AlgSlug   string
+	}
+
+	optimizerStatsMap := make(map[optimizerKey]domain.FeatureOptimizerStats)
+	for _, stat := range optimizerStats {
+		key := optimizerKey{
+			FeatureID: stat.FeatureID,
+			EnvID:     stat.EnvironmentID,
+			AlgSlug:   stat.AlgorithmSlug,
+		}
+		optimizerStatsMap[key] = stat
+	}
+
+	contextualStatsMap := make(map[statsKey]domain.FeatureContextualStats)
+	for _, stat := range contextualStats {
+		key := statsKey{
+			FeatureID: stat.FeatureID,
+			EnvID:     stat.EnvironmentID,
+			AlgSlug:   stat.AlgorithmSlug,
+			Variant:   stat.VariantKey,
+		}
+		contextualStatsMap[key] = stat
 	}
 
 	state := make(map[StateKey]*AlgorithmState, len(records))
@@ -448,8 +572,13 @@ func (m *BanditManager) loadState() error {
 		algKind := algType.Kind()
 
 		if algKind == domain.AlgorithmKindOptimizer {
-			// Optimizers don't need variants
-			state[key] = &AlgorithmState{
+			optStats, hasStats := optimizerStatsMap[optimizerKey{
+				FeatureID: record.FeatureID,
+				EnvID:     record.EnvironmentID,
+				AlgSlug:   record.AlgorithmSlug,
+			}]
+
+			algState := &AlgorithmState{
 				AlgorithmType: algType,
 				Enabled:       record.Enabled,
 				Settings:      record.Settings,
@@ -461,27 +590,77 @@ func (m *BanditManager) loadState() error {
 				VariantsArr:   []string{},
 			}
 
+			if hasStats {
+				algState.Iteration = optStats.Iteration
+				algState.CurrentValue = optStats.CurrentValue
+				algState.MetricSum = optStats.MetricSum
+				algState.BestValue = optStats.BestValue
+				algState.BestReward = optStats.BestReward
+				algState.LastError = optStats.LastError
+				algState.Integral = optStats.Integral
+				algState.StepSize = optStats.StepSize
+				algState.Temperature = optStats.Temperature
+			}
+
+			state[key] = algState
 			continue
 		}
 
-		// Load variants for bandit algorithms
 		variantsArr, ok := allVariantsMap[key]
 		if !ok {
 			slog.Warn("variants not found for feature",
 				"feature", record.FeatureID, "env", record.EnvironmentID)
-
 			continue
 		}
 
 		variants := make(map[string]*VariantStats, len(variantsArr))
 		for _, variantKey := range variantsArr {
-			stat := statsMap[statsKey{
+			stat := banditStatsMap[statsKey{
 				FeatureID: record.FeatureID,
 				EnvID:     record.EnvironmentID,
 				AlgSlug:   record.AlgorithmSlug,
 				Variant:   variantKey,
 			}]
 			variants[variantKey] = &stat
+		}
+
+		if algKind == domain.AlgorithmKindContextualBandit {
+			featureDim := int(getSettingAsFloat64(record.Settings, "feature_dim", DefaultFeatureDim))
+			ctxState := NewContextualAlgorithmState(featureDim, variantsArr, record.Settings)
+
+			for _, variantKey := range variantsArr {
+				ctxStat, hasCtxStats := contextualStatsMap[statsKey{
+					FeatureID: record.FeatureID,
+					EnvID:     record.EnvironmentID,
+					AlgSlug:   record.AlgorithmSlug,
+					Variant:   variantKey,
+				}]
+				if hasCtxStats && ctxState.Variants[variantKey] != nil {
+					vs := ctxState.Variants[variantKey]
+					if len(ctxStat.MatrixA) == featureDim*featureDim {
+						vs.A = ctxStat.MatrixA
+					}
+					if len(ctxStat.VectorB) == featureDim {
+						vs.B = ctxStat.VectorB
+					}
+					vs.Pulls = ctxStat.Pulls
+					vs.TotalRew = ctxStat.TotalReward.InexactFloat64()
+					vs.Successes = ctxStat.Successes
+					vs.Failures = ctxStat.Failures
+				}
+			}
+
+			state[key] = &AlgorithmState{
+				AlgorithmType:   algType,
+				Enabled:         record.Enabled,
+				Variants:        variants,
+				VariantsArr:     slices.Clone(variantsArr),
+				Settings:        record.Settings,
+				IsOptimizer:     false,
+				IsContextual:    true,
+				ContextualState: ctxState,
+			}
+			continue
 		}
 
 		state[key] = &AlgorithmState{
@@ -491,6 +670,7 @@ func (m *BanditManager) loadState() error {
 			VariantsArr:   slices.Clone(variantsArr),
 			Settings:      record.Settings,
 			IsOptimizer:   false,
+			IsContextual:  false,
 		}
 	}
 
@@ -569,6 +749,19 @@ func (m *BanditManager) refreshFeature(
 					VariantsArr:   slices.Clone(actualVariantsArr),
 					Settings:      record.Settings,
 					IsOptimizer:   false,
+					IsContextual:  false,
+				}
+			case domain.AlgorithmKindContextualBandit:
+				featureDim := int(getSettingAsFloat64(record.Settings, "feature_dim", DefaultFeatureDim))
+				state = &AlgorithmState{
+					AlgorithmType:   algType,
+					Enabled:         record.Enabled,
+					Variants:        actualVariantsMap,
+					VariantsArr:     slices.Clone(actualVariantsArr),
+					Settings:        record.Settings,
+					IsOptimizer:     false,
+					IsContextual:    true,
+					ContextualState: NewContextualAlgorithmState(featureDim, actualVariantsArr, record.Settings),
 				}
 			case domain.AlgorithmKindOptimizer:
 				state = &AlgorithmState{
@@ -595,8 +788,8 @@ func (m *BanditManager) refreshFeature(
 			state.Enabled = record.Enabled
 			state.Settings = record.Settings
 
-			if algKind == domain.AlgorithmKindBandit {
-				// Update variants only for bandits
+			if algKind == domain.AlgorithmKindBandit || algKind == domain.AlgorithmKindContextualBandit {
+				// Update variants for bandits
 				for _, variantKey := range state.VariantsArr {
 					if _, ok := actualVariantsMap[variantKey]; !ok {
 						delete(state.Variants, variantKey)
@@ -636,46 +829,97 @@ func (m *BanditManager) flushAllToDB() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	var records []domain.FeatureAlgorithmStats
+	var banditRecords []domain.FeatureAlgorithmStats
+	var optimizerRecords []domain.FeatureOptimizerStats
+	var contextualRecords []domain.FeatureContextualStats
 
 	m.mu.RLock()
 	for feat, algState := range m.state {
 		feature, err := m.featuresUseCase.GetByKeyWithEnvCached(ctx, feat.FeatureKey, feat.EnvKey)
 		if err != nil {
+			m.mu.RUnlock()
 			return fmt.Errorf("get feature: %w", err)
 		}
 
 		env, err := m.envsUseCase.GetByIDCached(ctx, feature.EnvironmentID)
 		if err != nil {
+			m.mu.RUnlock()
 			return fmt.Errorf("get env: %w", err)
 		}
 
 		algState.mu.RLock()
-		// For bandit algorithms, save variant stats
-		// For optimizer algorithms, variants map is empty, so this loop won't execute
-		for variant, variantStats := range algState.Variants {
-			records = append(records, domain.FeatureAlgorithmStats{
+
+		if algState.IsOptimizer {
+			optimizerRecords = append(optimizerRecords, domain.FeatureOptimizerStats{
 				ProjectID:      feature.ProjectID,
 				EnvironmentID:  feature.EnvironmentID,
 				FeatureID:      feature.ID,
 				AlgorithmSlug:  algState.AlgorithmType.Slug(),
-				VariantKey:     variant,
 				FeatureKey:     feature.Key,
 				EnvironmentKey: env.Key,
-				Evaluations:    variantStats.Evaluations,
-				Successes:      variantStats.Successes,
-				Failures:       variantStats.Failures,
-				MetricSum:      variantStats.MetricSum,
-				UpdatedAt:      time.Time{},
+				Iteration:      algState.Iteration,
+				CurrentValue:   algState.CurrentValue,
+				BestValue:      algState.BestValue,
+				BestReward:     algState.BestReward,
+				MetricSum:      algState.MetricSum,
+				LastError:      algState.LastError,
+				Integral:       algState.Integral,
+				StepSize:       algState.StepSize,
+				Temperature:    algState.Temperature,
 			})
+		} else if algState.IsContextual && algState.ContextualState != nil {
+			algState.ContextualState.mu.RLock()
+			for variant, vs := range algState.ContextualState.Variants {
+				contextualRecords = append(contextualRecords, domain.FeatureContextualStats{
+					ProjectID:      feature.ProjectID,
+					EnvironmentID:  feature.EnvironmentID,
+					FeatureID:      feature.ID,
+					AlgorithmSlug:  algState.AlgorithmType.Slug(),
+					VariantKey:     variant,
+					FeatureKey:     feature.Key,
+					EnvironmentKey: env.Key,
+					FeatureDim:     algState.ContextualState.FeatureDim,
+					MatrixA:        vs.A,
+					VectorB:        vs.B,
+					Pulls:          vs.Pulls,
+					TotalReward:    decimal.NewFromFloat(vs.TotalRew),
+					Successes:      vs.Successes,
+					Failures:       vs.Failures,
+				})
+			}
+			algState.ContextualState.mu.RUnlock()
+		} else {
+			for variant, variantStats := range algState.Variants {
+				banditRecords = append(banditRecords, domain.FeatureAlgorithmStats{
+					ProjectID:      feature.ProjectID,
+					EnvironmentID:  feature.EnvironmentID,
+					FeatureID:      feature.ID,
+					AlgorithmSlug:  algState.AlgorithmType.Slug(),
+					VariantKey:     variant,
+					FeatureKey:     feature.Key,
+					EnvironmentKey: env.Key,
+					Evaluations:    variantStats.Evaluations,
+					Successes:      variantStats.Successes,
+					Failures:       variantStats.Failures,
+					MetricSum:      variantStats.MetricSum,
+				})
+			}
 		}
+
 		algState.mu.RUnlock()
 	}
 	m.mu.RUnlock()
 
-	err := m.statsRepo.InsertBatch(ctx, records)
-	if err != nil {
-		return fmt.Errorf("insert batch: %w", err)
+	if err := m.statsRepo.InsertBatch(ctx, banditRecords); err != nil {
+		return fmt.Errorf("insert bandit batch: %w", err)
+	}
+
+	if err := m.optimizerStatsRepo.InsertBatch(ctx, optimizerRecords); err != nil {
+		return fmt.Errorf("insert optimizer batch: %w", err)
+	}
+
+	if err := m.contextualStatsRepo.InsertBatch(ctx, contextualRecords); err != nil {
+		return fmt.Errorf("insert contextual batch: %w", err)
 	}
 
 	slog.Debug("bandit: flushed all features", "elapsed", time.Since(start))

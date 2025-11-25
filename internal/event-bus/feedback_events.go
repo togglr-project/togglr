@@ -29,13 +29,28 @@ func (s *Service) processSDKFeedbackEvents(ctx context.Context, messages [][]byt
 			continue
 		}
 
-		s.algProcessor.HandleTrackEvent(
-			event.FeatureKey,
-			event.EnvKey,
-			event.VariantKey,
-			event.EventType,
-			event.Reward,
-		)
+		// Check algorithm kind and call appropriate handler
+		algKind, ok := s.algProcessor.GetAlgorithmKind(event.FeatureKey, event.EnvKey)
+		if ok && algKind == domain.AlgorithmKindContextualBandit {
+			// For contextual bandits, include context in update
+			s.algProcessor.HandleContextualTrackEvent(
+				event.FeatureKey,
+				event.EnvKey,
+				event.VariantKey,
+				event.EventType,
+				event.Reward,
+				event.Context,
+			)
+		} else {
+			// For regular bandits and optimizers
+			s.algProcessor.HandleTrackEvent(
+				event.FeatureKey,
+				event.EnvKey,
+				event.VariantKey,
+				event.EventType,
+				event.Reward,
+			)
+		}
 
 		batch = append(batch, event)
 	}

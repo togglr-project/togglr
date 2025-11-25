@@ -10,15 +10,17 @@ func (m *BanditManager) evalPID(state *AlgorithmState, measured, target decimal.
 	kd := getSettingAsDecimal(state.Settings, "kd", 0.01)
 
 	errorValue := target.Sub(measured)
-	state.Settings["integral"] = state.Settings["integral"].Add(errorValue)
-	derivative := errorValue.Sub(state.Settings["prev_error"])
-	state.Settings["prev_error"] = errorValue
+	state.Integral = state.Integral.Add(errorValue)
+	derivative := errorValue.Sub(state.LastError)
+	state.LastError = errorValue
 
 	output := kp.Mul(errorValue).
-		Add(ki.Mul(state.Settings["integral"])).
+		Add(ki.Mul(state.Integral)).
 		Add(kd.Mul(derivative))
 
 	state.CurrentValue = state.CurrentValue.Add(output)
+	state.MetricSum = state.MetricSum.Add(measured)
+	state.Iteration++
 
 	return state.CurrentValue
 }

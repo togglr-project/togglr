@@ -325,8 +325,26 @@ func (s *Service) Evaluate(
 			} else {
 				value = feature.DefaultValue
 			}
+		} else if algKind == domain.AlgorithmKindContextualBandit {
+			// For contextual bandit algorithms
+			ctx := make(map[string]any, len(reqCtx))
+			for k, v := range reqCtx {
+				ctx[k.String()] = v
+			}
+			var success bool
+			value, success = s.algProcessor.EvaluateContextual(featureKey, envKey, ctx)
+			if !success {
+				// If algorithm failed, use fallback
+				value = rolloutOrDefault(
+					feature.Kind,
+					feature.FlagVariants,
+					feature.RolloutKey,
+					reqCtx,
+					feature.DefaultValue,
+				)
+			}
 		} else {
-			// For bandit algorithms (multi-variant)
+			// For regular bandit algorithms (multi-variant)
 			var success bool
 			value, success = s.algProcessor.EvaluateFeature(featureKey, envKey)
 			if !success {
