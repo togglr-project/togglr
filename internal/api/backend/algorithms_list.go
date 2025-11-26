@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/togglr-project/togglr/internal/domain"
 	generatedapi "github.com/togglr-project/togglr/internal/generated/server"
 )
 
@@ -17,6 +18,11 @@ func (r *RestAPI) ListAlgorithms(ctx context.Context) (generatedapi.ListAlgorith
 
 	result := make([]generatedapi.Algorithm, 0, len(list))
 	for _, alg := range list {
+		if alg.AlgorithmType() == domain.AlgorithmTypeBayesOpt ||
+			alg.AlgorithmType() == domain.AlgorithmTypeCEM {
+			continue
+		}
+
 		settings := make(generatedapi.AlgorithmDefaultSettings, len(alg.DefaultSettings))
 		for key, value := range alg.DefaultSettings {
 			settings[key] = value.InexactFloat64()
