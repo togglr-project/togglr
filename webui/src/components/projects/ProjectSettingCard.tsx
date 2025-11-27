@@ -146,9 +146,9 @@ const ProjectSettingCard: React.FC<ProjectSettingCardProps> = ({
             </Typography>
             <Box
               sx={{
-                bgcolor: 'grey.50',
+                bgcolor: 'background.paper',
                 border: '1px solid',
-                borderColor: 'grey.200',
+                borderColor: 'divider',
                 borderRadius: 1,
                 p: 1.5,
                 fontFamily: valueType === 'json' ? 'monospace' : 'inherit',
@@ -157,6 +157,7 @@ const ProjectSettingCard: React.FC<ProjectSettingCardProps> = ({
                 maxHeight: 150,
                 whiteSpace: valueType === 'json' ? 'pre-wrap' : 'normal',
                 wordBreak: 'break-word',
+                color: 'text.primary',
               }}
             >
               {formatValue(setting.value, valueType)}

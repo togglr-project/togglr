@@ -8,12 +8,32 @@ import (
 
 type AlgorithmsProcessor interface {
 	HasAlgorithm(featureKey, envKey string) bool
-	EvaluateFeature(featureKy, envKey string) (string, bool)
+	GetAlgorithmKind(featureKey, envKey string) (domain.AlgorithmKind, bool)
+
+	// EvaluateFeature for multi-variant bandits (non-contextual)
+	EvaluateFeature(featureKey, envKey string) (string, bool)
+
+	// EvaluateContextual for contextual bandits (uses user context)
+	EvaluateContextual(featureKey, envKey string, ctx map[string]any) (string, bool)
+
+	// EvaluateOptimizer for single-variant optimizers
+	EvaluateOptimizer(featureKey, envKey string) (decimal.Decimal, bool)
+
 	HandleTrackEvent(
 		featureKey string,
 		envKey string,
 		variantKey string,
 		eventType domain.FeedbackEventType,
 		metric decimal.Decimal,
+	)
+
+	// HandleContextualTrackEvent for contextual bandits with context
+	HandleContextualTrackEvent(
+		featureKey string,
+		envKey string,
+		variantKey string,
+		eventType domain.FeedbackEventType,
+		metric decimal.Decimal,
+		ctx map[string]any,
 	)
 }

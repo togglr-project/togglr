@@ -96,7 +96,7 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Invalid code';
       setError(msg);
-      if (msg.includes('Слишком много попыток')) {
+      if (msg.includes('Too many attempts')) {
         setIs2FABlocked(true);
         setTimeout(() => setIs2FABlocked(false), 60000);
       }
@@ -254,8 +254,8 @@ const TwoFactorAuthSection: React.FC<TwoFactorAuthSectionProps> = ({ userData, u
                     </Box>
                   )}
                   <Typography variant="body2" align="center">
-                    Scan this QR code in Google Authenticator, 1Password или другом приложении.<br/>
-                    Или введите секрет вручную:
+                    Scan this QR code in Google Authenticator, 1Password or another app.<br/>
+                    Or input secret manually:
                   </Typography>
                   <TextField
                     label="Secret"

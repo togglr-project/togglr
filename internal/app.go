@@ -31,7 +31,9 @@ import (
 	"github.com/togglr-project/togglr/internal/repository/errorreports"
 	featurealgorithmstatsrepo "github.com/togglr-project/togglr/internal/repository/feature-algorithm-stats"
 	featurealgorithmsrepo "github.com/togglr-project/togglr/internal/repository/feature-algorithms"
+	featurecontextualstatsrepo "github.com/togglr-project/togglr/internal/repository/feature-contextual-stats"
 	featurenotifsrepo "github.com/togglr-project/togglr/internal/repository/feature-notifications"
+	featureoptimizerstatsrepo "github.com/togglr-project/togglr/internal/repository/feature-optimizer-stats"
 	featureparamsrepo "github.com/togglr-project/togglr/internal/repository/feature_params"
 	featuretagsrepo "github.com/togglr-project/togglr/internal/repository/feature_tags"
 	"github.com/togglr-project/togglr/internal/repository/features"
@@ -235,6 +237,7 @@ func (app *App) registerComponent(constructor any) *di.Provider {
 	return app.container.Provide(constructor)
 }
 
+//nolint:maintidx
 func (app *App) registerComponents() {
 	app.registerComponent(db.NewTxManager).Arg(app.PostgresPool)
 	app.registerComponent(func() *natsmq.NATSMq {
@@ -275,6 +278,8 @@ func (app *App) registerComponents() {
 	app.registerComponent(algorithms.New).Arg(app.PostgresPool)
 	app.registerComponent(featurealgorithmsrepo.New).Arg(app.PostgresPool)
 	app.registerComponent(featurealgorithmstatsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(featureoptimizerstatsrepo.New).Arg(app.PostgresPool)
+	app.registerComponent(featurecontextualstatsrepo.New).Arg(app.PostgresPool)
 	// Register RBAC repositories
 	app.registerComponent(rbac.NewRoles).Arg(app.PostgresPool)
 	app.registerComponent(rbac.NewPermissions).Arg(app.PostgresPool)

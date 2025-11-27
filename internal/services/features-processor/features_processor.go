@@ -242,6 +242,7 @@ func (s *Service) Watch(ctx context.Context) error {
 	}
 }
 
+//nolint:gocognit // fixme
 func (s *Service) Evaluate(
 	projectID domain.ProjectID,
 	featureKey string,
@@ -306,10 +307,10 @@ func (s *Service) Evaluate(
 	}
 
 	if hasAlg {
-		var success bool
-		value, success = s.algProcessor.EvaluateFeature(featureKey, envKey)
-		if !success {
-			// Если алгоритм вернул ошибку, используем fallback
+		algKind, kindOk := s.algProcessor.GetAlgorithmKind(featureKey, envKey)
+		switch {
+		case !kindOk:
+			// Algorithm not found, use fallback
 			value = rolloutOrDefault(
 				feature.Kind,
 				feature.FlagVariants,
@@ -317,6 +318,46 @@ func (s *Service) Evaluate(
 				reqCtx,
 				feature.DefaultValue,
 			)
+		case algKind == domain.AlgorithmKindOptimizer:
+			// For optimizer algorithms, get optimized value
+			optimizedValue, success := s.algProcessor.EvaluateOptimizer(featureKey, envKey)
+			if success {
+				value = optimizedValue.String()
+			} else {
+				value = feature.DefaultValue
+			}
+		case algKind == domain.AlgorithmKindContextualBandit:
+			// For contextual bandit algorithms
+			ctx := make(map[string]any, len(reqCtx))
+			for k, v := range reqCtx {
+				ctx[k.String()] = v
+			}
+			var success bool
+			value, success = s.algProcessor.EvaluateContextual(featureKey, envKey, ctx)
+			if !success {
+				// If algorithm failed, use fallback
+				value = rolloutOrDefault(
+					feature.Kind,
+					feature.FlagVariants,
+					feature.RolloutKey,
+					reqCtx,
+					feature.DefaultValue,
+				)
+			}
+		default:
+			// For regular bandit algorithms (multi-variant)
+			var success bool
+			value, success = s.algProcessor.EvaluateFeature(featureKey, envKey)
+			if !success {
+				// If algorithm failed, use fallback
+				value = rolloutOrDefault(
+					feature.Kind,
+					feature.FlagVariants,
+					feature.RolloutKey,
+					reqCtx,
+					feature.DefaultValue,
+				)
+			}
 		}
 	} else {
 		value = rolloutOrDefault(
