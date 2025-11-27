@@ -11,15 +11,16 @@ import (
 )
 
 type featureAlgorithmModel struct {
-	ID            string          `db:"id"`
-	ProjectID     string          `db:"project_id"`
-	EnvironmentID int64           `db:"environment_id"`
-	FeatureID     string          `db:"feature_id"`
-	AlgorithmSlug string          `db:"algorithm_slug"`
-	Settings      json.RawMessage `db:"settings"`
-	Enabled       bool            `db:"enabled"`
-	CreatedAt     time.Time       `db:"created_at"`
-	UpdatedAt     time.Time       `db:"updated_at"`
+	ID                string          `db:"id"`
+	ProjectID         string          `db:"project_id"`
+	EnvironmentID     int64           `db:"environment_id"`
+	FeatureID         string          `db:"feature_id"`
+	AlgorithmSlug     *string         `db:"algorithm_slug"`
+	CustomAlgorithmID *string         `db:"custom_algorithm_id"`
+	Settings          json.RawMessage `db:"settings"`
+	Enabled           bool            `db:"enabled"`
+	CreatedAt         time.Time       `db:"created_at"`
+	UpdatedAt         time.Time       `db:"updated_at"`
 }
 
 func (m *featureAlgorithmModel) toDomain() domain.FeatureAlgorithm {
@@ -30,31 +31,39 @@ func (m *featureAlgorithmModel) toDomain() domain.FeatureAlgorithm {
 		}
 	}
 
+	var customAlgID *domain.CustomAlgorithmID
+	if m.CustomAlgorithmID != nil {
+		id := domain.CustomAlgorithmID(*m.CustomAlgorithmID)
+		customAlgID = &id
+	}
+
 	return domain.FeatureAlgorithm{
-		ID:            domain.FeatureAlgorithmID(m.ID),
-		ProjectID:     domain.ProjectID(m.ProjectID),
-		EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
-		FeatureID:     domain.FeatureID(m.FeatureID),
-		AlgorithmSlug: m.AlgorithmSlug,
-		Settings:      settings,
-		Enabled:       m.Enabled,
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
+		ID:                domain.FeatureAlgorithmID(m.ID),
+		ProjectID:         domain.ProjectID(m.ProjectID),
+		EnvironmentID:     domain.EnvironmentID(m.EnvironmentID),
+		FeatureID:         domain.FeatureID(m.FeatureID),
+		AlgorithmSlug:     m.AlgorithmSlug,
+		CustomAlgorithmID: customAlgID,
+		Settings:          settings,
+		Enabled:           m.Enabled,
+		CreatedAt:         m.CreatedAt,
+		UpdatedAt:         m.UpdatedAt,
 	}
 }
 
 type featureAlgorithmExtModel struct {
-	ID            string          `db:"id"`
-	ProjectID     string          `db:"project_id"`
-	EnvironmentID int64           `db:"environment_id"`
-	FeatureID     string          `db:"feature_id"`
-	AlgorithmSlug string          `db:"algorithm_slug"`
-	Settings      json.RawMessage `db:"settings"`
-	Enabled       bool            `db:"enabled"`
-	CreatedAt     time.Time       `db:"created_at"`
-	UpdatedAt     time.Time       `db:"updated_at"`
-	FeatureKey    string          `db:"feature_key"`
-	EnvKey        string          `db:"env_key"`
+	ID                string          `db:"id"`
+	ProjectID         string          `db:"project_id"`
+	EnvironmentID     int64           `db:"environment_id"`
+	FeatureID         string          `db:"feature_id"`
+	AlgorithmSlug     *string         `db:"algorithm_slug"`
+	CustomAlgorithmID *string         `db:"custom_algorithm_id"`
+	Settings          json.RawMessage `db:"settings"`
+	Enabled           bool            `db:"enabled"`
+	CreatedAt         time.Time       `db:"created_at"`
+	UpdatedAt         time.Time       `db:"updated_at"`
+	FeatureKey        string          `db:"feature_key"`
+	EnvKey            string          `db:"env_key"`
 }
 
 func (m *featureAlgorithmExtModel) toDomain() domain.FeatureAlgorithmExtended {
@@ -65,17 +74,24 @@ func (m *featureAlgorithmExtModel) toDomain() domain.FeatureAlgorithmExtended {
 		}
 	}
 
+	var customAlgID *domain.CustomAlgorithmID
+	if m.CustomAlgorithmID != nil {
+		id := domain.CustomAlgorithmID(*m.CustomAlgorithmID)
+		customAlgID = &id
+	}
+
 	return domain.FeatureAlgorithmExtended{
 		FeatureAlgorithm: domain.FeatureAlgorithm{
-			ID:            domain.FeatureAlgorithmID(m.ID),
-			ProjectID:     domain.ProjectID(m.ProjectID),
-			EnvironmentID: domain.EnvironmentID(m.EnvironmentID),
-			FeatureID:     domain.FeatureID(m.FeatureID),
-			AlgorithmSlug: m.AlgorithmSlug,
-			Settings:      settings,
-			Enabled:       m.Enabled,
-			CreatedAt:     m.CreatedAt,
-			UpdatedAt:     m.UpdatedAt,
+			ID:                domain.FeatureAlgorithmID(m.ID),
+			ProjectID:         domain.ProjectID(m.ProjectID),
+			EnvironmentID:     domain.EnvironmentID(m.EnvironmentID),
+			FeatureID:         domain.FeatureID(m.FeatureID),
+			AlgorithmSlug:     m.AlgorithmSlug,
+			CustomAlgorithmID: customAlgID,
+			Settings:          settings,
+			Enabled:           m.Enabled,
+			CreatedAt:         m.CreatedAt,
+			UpdatedAt:         m.UpdatedAt,
 		},
 		FeatureKey: m.FeatureKey,
 		EnvKey:     m.EnvKey,

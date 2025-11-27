@@ -11,6 +11,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
+	"github.com/togglr-project/togglr/internal/algorithms/wasm"
 	"github.com/togglr-project/togglr/internal/contract"
 	"github.com/togglr-project/togglr/internal/domain"
 )
@@ -79,6 +80,11 @@ type BanditManager struct {
 	featuresUseCase       contract.FeaturesUseCase
 	envsUseCase           contract.EnvironmentsUseCase
 
+	// Custom WASM algorithms support
+	wasmManager *wasm.Manager
+	customState map[StateKey]*customState
+	customMu    sync.RWMutex
+
 	nowFunc func() time.Time
 }
 
@@ -94,6 +100,7 @@ func New(
 ) (*BanditManager, error) {
 	mngr := &BanditManager{
 		state:                 make(map[StateKey]*AlgorithmState),
+		customState:           make(map[StateKey]*customState),
 		randSrc:               rand.New(rand.NewSource(time.Now().UnixNano())),
 		syncStatsInterval:     defaultSyncStatsInterval,
 		pollInterval:          defaultPollInterval,
@@ -563,19 +570,26 @@ func (m *BanditManager) loadState() error {
 
 	state := make(map[StateKey]*AlgorithmState, len(records))
 	for _, record := range records {
+		// Skip custom algorithms (handled by WASM manager)
+		if record.AlgorithmSlug == nil {
+			continue
+		}
+
+		algSlug := *record.AlgorithmSlug
+
 		key := StateKey{
 			FeatureKey: record.FeatureKey,
 			EnvKey:     record.EnvKey,
 		}
 
-		algType := domain.AlgorithmSlugToType(record.AlgorithmSlug)
+		algType := domain.AlgorithmSlugToType(algSlug)
 		algKind := algType.Kind()
 
 		if algKind == domain.AlgorithmKindOptimizer {
 			optStats, hasStats := optimizerStatsMap[optimizerKey{
 				FeatureID: record.FeatureID,
 				EnvID:     record.EnvironmentID,
-				AlgSlug:   record.AlgorithmSlug,
+				AlgSlug:   algSlug,
 			}]
 
 			algState := &AlgorithmState{
@@ -618,7 +632,7 @@ func (m *BanditManager) loadState() error {
 			stat := banditStatsMap[statsKey{
 				FeatureID: record.FeatureID,
 				EnvID:     record.EnvironmentID,
-				AlgSlug:   record.AlgorithmSlug,
+				AlgSlug:   algSlug,
 				Variant:   variantKey,
 			}]
 			variants[variantKey] = &stat
@@ -632,7 +646,7 @@ func (m *BanditManager) loadState() error {
 				ctxStat, hasCtxStats := contextualStatsMap[statsKey{
 					FeatureID: record.FeatureID,
 					EnvID:     record.EnvironmentID,
-					AlgSlug:   record.AlgorithmSlug,
+					AlgSlug:   algSlug,
 					Variant:   variantKey,
 				}]
 				if hasCtxStats && ctxState.Variants[variantKey] != nil {
@@ -729,12 +743,19 @@ func (m *BanditManager) refreshFeature(
 	}
 
 	for _, record := range records {
+		// Skip custom algorithms (handled by WASM manager)
+		if record.AlgorithmSlug == nil {
+			continue
+		}
+
+		algSlug := *record.AlgorithmSlug
+
 		key := StateKey{
 			FeatureKey: record.FeatureKey,
 			EnvKey:     envKey,
 		}
 
-		algType := domain.AlgorithmSlugToType(record.AlgorithmSlug)
+		algType := domain.AlgorithmSlugToType(algSlug)
 		algKind := algType.Kind()
 
 		state, ok := m.GetAlgorithmState(record.FeatureKey, envKey)
@@ -920,6 +941,11 @@ func (m *BanditManager) flushAllToDB() error {
 
 	if err := m.contextualStatsRepo.InsertBatch(ctx, contextualRecords); err != nil {
 		return fmt.Errorf("insert contextual batch: %w", err)
+	}
+
+	// Flush custom WASM algorithm stats
+	if err := m.flushCustomStats(); err != nil {
+		return fmt.Errorf("insert custom algorithm batch: %w", err)
 	}
 
 	slog.Debug("bandit: flushed all features", "elapsed", time.Since(start))

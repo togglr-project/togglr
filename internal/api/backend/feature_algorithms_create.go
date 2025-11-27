@@ -69,7 +69,7 @@ func (r *RestAPI) CreateFeatureAlgorithm(
 		ProjectID:     feature.ProjectID,
 		EnvironmentID: feature.EnvironmentID,
 		FeatureID:     featureID,
-		AlgorithmSlug: req.AlgorithmSlug,
+		AlgorithmSlug: &req.AlgorithmSlug,
 		Enabled:       req.Enabled,
 		Settings:      settings,
 		CreatedAt:     time.Time{},
@@ -107,7 +107,7 @@ func (r *RestAPI) CreateFeatureAlgorithm(
 		ProjectID:     feature.ProjectID,
 		EnvironmentID: envID,
 		FeatureID:     featureID,
-		AlgorithmSlug: req.AlgorithmSlug,
+		AlgorithmSlug: &req.AlgorithmSlug,
 		Enabled:       req.Enabled,
 		Settings:      settings,
 	})

@@ -11,13 +11,18 @@ func DomainFeatureAlgorithmToAPI(alg domain.FeatureAlgorithm) generatedapi.Featu
 		settings[key] = value.InexactFloat64()
 	}
 
-	return generatedapi.FeatureAlgorithm{
+	result := generatedapi.FeatureAlgorithm{
 		FeatureID:     alg.FeatureID.String(),
 		EnvironmentID: int64(alg.EnvironmentID),
-		AlgorithmSlug: alg.AlgorithmSlug,
 		Enabled:       alg.Enabled,
 		Settings:      settings,
 	}
+
+	if alg.AlgorithmSlug != nil {
+		result.AlgorithmSlug = *alg.AlgorithmSlug
+	}
+
+	return result
 }
 
 func DomainFeatureAlgorithmsToAPI(algs []domain.FeatureAlgorithm) []generatedapi.FeatureAlgorithm {

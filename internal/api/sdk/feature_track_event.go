@@ -74,6 +74,11 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 		variantKey = req.VariantKey.Value
 	}
 
+	var algSlug string
+	if featAlg.AlgorithmSlug != nil {
+		algSlug = *featAlg.AlgorithmSlug
+	}
+
 	event := domain.FeedbackEventDTO{
 		ProjectID:     feature.ProjectID,
 		EnvironmentID: feature.EnvironmentID,
@@ -82,7 +87,7 @@ func (s *SDKRestAPI) TrackFeatureEvent(
 		EnvKey:        envKey,
 		VariantKey:    variantKey,
 		EventType:     domain.FeedbackEventType(req.EventType),
-		AlgorithmSlug: featAlg.AlgorithmSlug,
+		AlgorithmSlug: algSlug,
 		Reward:        decimal.NewFromFloat32(req.Reward.Or(0.0)),
 		Context:       reqCtx,
 	}

@@ -34,12 +34,13 @@ INSERT INTO feature_algorithms (
 	feature_id,
 	environment_id,
 	algorithm_slug,
+	custom_algorithm_id,
 	settings,
 	enabled,
 	created_at,
 	updated_at
 )
-VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
 RETURNING id`
 
 	var id string
@@ -50,6 +51,7 @@ RETURNING id`
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
 		featureAlgorithm.AlgorithmSlug,
+		featureAlgorithm.CustomAlgorithmID,
 		featureAlgorithm.Settings,
 		featureAlgorithm.Enabled,
 	).Scan(&id)
@@ -92,17 +94,19 @@ UPDATE feature_algorithms
 SET
 	settings = $1,
 	algorithm_slug = $2,
-	enabled = $3,
+	custom_algorithm_id = $3,
+	enabled = $4,
 	updated_at = NOW()
 WHERE
-	feature_id = $4 AND
-	environment_id = $5`
+	feature_id = $5 AND
+	environment_id = $6`
 
 	_, err = executor.Exec(
 		ctx,
 		query,
 		featureAlgorithm.Settings,
 		featureAlgorithm.AlgorithmSlug,
+		featureAlgorithm.CustomAlgorithmID,
 		featureAlgorithm.Enabled,
 		featureAlgorithm.FeatureID,
 		featureAlgorithm.EnvironmentID,
@@ -315,6 +319,7 @@ SELECT fa.id,
        fa.feature_id,
        fa.project_id,
        fa.algorithm_slug,
+       fa.custom_algorithm_id,
        fa.settings,
        fa.environment_id, 
        fa.enabled,
@@ -430,6 +435,7 @@ SELECT fa.id,
        fa.project_id,
        fa.feature_id,
        fa.algorithm_slug,
+       fa.custom_algorithm_id,
        fa.settings,
        fa.environment_id, 
        fa.enabled,
