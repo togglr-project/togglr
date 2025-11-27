@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../../api/apiClient';
-import type { FeatureExtended, Algorithm, CreateFeatureAlgorithmRequest } from '../../generated/api/client';
+import type { FeatureExtended, CreateFeatureAlgorithmRequest } from '../../generated/api/client';
 import SearchPanel from '../SearchPanel';
 
 interface CreateExperimentDialogProps {
@@ -29,19 +29,6 @@ interface CreateExperimentDialogProps {
   projectId: string;
   environmentKey: string;
 }
-
-const getDefaultSettings = (algorithmSlug: string): { [key: string]: number } => {
-  switch (algorithmSlug) {
-    case 'epsilon-greedy':
-      return { epsilon: 0.1 };
-    case 'thompson-sampling':
-      return { prior_beta: 1, prior_alpha: 1 };
-    case 'ucb':
-      return { confidence: 2.0 };
-    default:
-      return {};
-  }
-};
 
 const CreateExperimentDialog: React.FC<CreateExperimentDialogProps> = ({
   open,
@@ -86,11 +73,12 @@ const CreateExperimentDialog: React.FC<CreateExperimentDialogProps> = ({
   const selectedAlgorithmData = algorithms.find(alg => alg.slug === selectedAlgorithm);
 
   useEffect(() => {
-    if (selectedAlgorithm) {
-      const defaultSettings = getDefaultSettings(selectedAlgorithm);
-      setSettings(defaultSettings);
+    if (selectedAlgorithmData) {
+      setSettings({ ...selectedAlgorithmData.default_settings });
+    } else {
+      setSettings({});
     }
-  }, [selectedAlgorithm]);
+  }, [selectedAlgorithmData]);
 
   const createMutation = useMutation({
     mutationFn: async (data: CreateFeatureAlgorithmRequest) => {
@@ -140,7 +128,7 @@ const CreateExperimentDialog: React.FC<CreateExperimentDialogProps> = ({
   const handleSettingsChange = (key: string, value: number) => {
     setSettings(prev => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
@@ -260,7 +248,7 @@ const CreateExperimentDialog: React.FC<CreateExperimentDialogProps> = ({
                     key={key}
                     label={key}
                     type="number"
-                    value={settings[key] || defaultValue}
+                    value={settings[key] ?? defaultValue}
                     onChange={(e) => handleSettingsChange(key, parseFloat(e.target.value) || 0)}
                     size="small"
                     fullWidth

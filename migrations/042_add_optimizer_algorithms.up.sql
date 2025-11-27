@@ -58,6 +58,7 @@ VALUES (
     'Regulates a numeric feature to maintain a target metric using proportional-integral-derivative feedback.',
     'optimizer',
     '{
+        "target": 1.0,
         "kp": 0.2,
         "ki": 0.05,
         "kd": 0.01
