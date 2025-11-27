@@ -2,8 +2,6 @@ package bandit
 
 import (
 	"math"
-
-	"github.com/shopspring/decimal"
 )
 
 // evalContextualEpsilon implements Epsilon-Greedy with context features.
@@ -73,8 +71,13 @@ func (m *BanditManager) evalContextualEpsilon(state *AlgorithmState, ctx map[str
 	return bestVariant
 }
 
-// updateContextualEpsilon updates the model with observed reward
-func (m *BanditManager) updateContextualEpsilon(state *AlgorithmState, variantKey string, reward float64, ctx map[string]any) {
+// updateContextualEpsilon updates the model with observed reward.
+func (m *BanditManager) updateContextualEpsilon(
+	state *AlgorithmState,
+	variantKey string,
+	reward float64,
+	ctx map[string]any,
+) {
 	cState := state.ContextualState
 	if cState == nil {
 		return
@@ -92,14 +95,14 @@ func (m *BanditManager) updateContextualEpsilon(state *AlgorithmState, variantKe
 	dim := cState.FeatureDim
 
 	// Update A = A + x * x^T
-	for i := 0; i < dim; i++ {
-		for j := 0; j < dim; j++ {
+	for i := range dim {
+		for j := range dim {
 			vs.A[i*dim+j] += features[i] * features[j]
 		}
 	}
 
 	// Update b = b + reward * x
-	for i := 0; i < dim; i++ {
+	for i := range dim {
 		vs.B[i] += reward * features[i]
 	}
 
@@ -108,13 +111,5 @@ func (m *BanditManager) updateContextualEpsilon(state *AlgorithmState, variantKe
 		vs.Successes++
 	} else {
 		vs.Failures++
-	}
-}
-
-// getContextualEpsilonSettings returns default settings for Contextual Epsilon-Greedy
-func getContextualEpsilonSettings() map[string]decimal.Decimal {
-	return map[string]decimal.Decimal{
-		"epsilon":     decimal.NewFromFloat(0.1),  // Exploration probability
-		"feature_dim": decimal.NewFromFloat(32.0), // Feature dimension
 	}
 }

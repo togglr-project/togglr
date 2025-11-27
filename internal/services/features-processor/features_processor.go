@@ -308,7 +308,8 @@ func (s *Service) Evaluate(
 
 	if hasAlg {
 		algKind, kindOk := s.algProcessor.GetAlgorithmKind(featureKey, envKey)
-		if !kindOk {
+		switch {
+		case !kindOk:
 			// Algorithm not found, use fallback
 			value = rolloutOrDefault(
 				feature.Kind,
@@ -317,7 +318,7 @@ func (s *Service) Evaluate(
 				reqCtx,
 				feature.DefaultValue,
 			)
-		} else if algKind == domain.AlgorithmKindOptimizer {
+		case algKind == domain.AlgorithmKindOptimizer:
 			// For optimizer algorithms, get optimized value
 			optimizedValue, success := s.algProcessor.EvaluateOptimizer(featureKey, envKey)
 			if success {
@@ -325,7 +326,7 @@ func (s *Service) Evaluate(
 			} else {
 				value = feature.DefaultValue
 			}
-		} else if algKind == domain.AlgorithmKindContextualBandit {
+		case algKind == domain.AlgorithmKindContextualBandit:
 			// For contextual bandit algorithms
 			ctx := make(map[string]any, len(reqCtx))
 			for k, v := range reqCtx {
@@ -343,7 +344,7 @@ func (s *Service) Evaluate(
 					feature.DefaultValue,
 				)
 			}
-		} else {
+		default:
 			// For regular bandit algorithms (multi-variant)
 			var success bool
 			value, success = s.algProcessor.EvaluateFeature(featureKey, envKey)

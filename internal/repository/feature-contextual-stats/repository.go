@@ -7,7 +7,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/shopspring/decimal"
 
 	"github.com/togglr-project/togglr/internal/domain"
 	"github.com/togglr-project/togglr/pkg/db"
@@ -21,23 +20,6 @@ func New(pool *pgxpool.Pool) *Repository {
 	return &Repository{
 		db: pool,
 	}
-}
-
-type rawModel struct {
-	ProjectID      string          `db:"project_id"`
-	EnvironmentID  int64           `db:"environment_id"`
-	FeatureID      string          `db:"feature_id"`
-	AlgorithmSlug  string          `db:"algorithm_slug"`
-	VariantKey     string          `db:"variant_key"`
-	FeatureKey     string          `db:"feature_key"`
-	EnvironmentKey string          `db:"environment_key"`
-	FeatureDim     int             `db:"feature_dim"`
-	MatrixA        []byte          `db:"matrix_a"`
-	VectorB        []byte          `db:"vector_b"`
-	Pulls          uint64          `db:"pulls"`
-	TotalReward    decimal.Decimal `db:"total_reward"`
-	Successes      uint64          `db:"successes"`
-	Failures       uint64          `db:"failures"`
 }
 
 func (r *Repository) LoadAll(ctx context.Context) ([]domain.FeatureContextualStats, error) {
@@ -60,37 +42,7 @@ func (r *Repository) LoadAll(ctx context.Context) ([]domain.FeatureContextualSta
 
 	result := make([]domain.FeatureContextualStats, 0, len(models))
 	for _, m := range models {
-		var matrixA []float64
-		var vectorB []float64
-
-		if len(m.MatrixA) > 0 {
-			if err := json.Unmarshal(m.MatrixA, &matrixA); err != nil {
-				return nil, fmt.Errorf("unmarshal matrix_a: %w", err)
-			}
-		}
-
-		if len(m.VectorB) > 0 {
-			if err := json.Unmarshal(m.VectorB, &vectorB); err != nil {
-				return nil, fmt.Errorf("unmarshal vector_b: %w", err)
-			}
-		}
-
-		result = append(result, domain.FeatureContextualStats{
-			ProjectID:      domain.ProjectID(m.ProjectID),
-			EnvironmentID:  domain.EnvironmentID(m.EnvironmentID),
-			FeatureID:      domain.FeatureID(m.FeatureID),
-			AlgorithmSlug:  m.AlgorithmSlug,
-			VariantKey:     m.VariantKey,
-			FeatureKey:     m.FeatureKey,
-			EnvironmentKey: m.EnvironmentKey,
-			FeatureDim:     m.FeatureDim,
-			MatrixA:        matrixA,
-			VectorB:        vectorB,
-			Pulls:          m.Pulls,
-			TotalReward:    m.TotalReward,
-			Successes:      m.Successes,
-			Failures:       m.Failures,
-		})
+		result = append(result, m.toDomain())
 	}
 
 	return result, nil

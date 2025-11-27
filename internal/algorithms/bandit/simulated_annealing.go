@@ -15,7 +15,8 @@ func (m *BanditManager) evalSimulatedAnnealing(state *AlgorithmState, reward dec
 	}
 
 	cooling := getSettingAsDecimal(state.Settings, "cooling", 0.95)
-	candidate := state.CurrentValue.Add(decimal.NewFromFloat((m.randSrc.Float64()*2 - 1) * state.StepSize.InexactFloat64()))
+	candidate := state.CurrentValue.Add(decimal.NewFromFloat((m.randSrc.Float64()*2 - 1) *
+		state.StepSize.InexactFloat64()))
 
 	delta := reward.Sub(state.BestReward)
 	if delta.GreaterThan(decimal.Zero) ||

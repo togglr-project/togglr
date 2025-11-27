@@ -2,8 +2,6 @@ package bandit
 
 import (
 	"math"
-
-	"github.com/shopspring/decimal"
 )
 
 // evalContextualThompson implements Thompson Sampling with context features.
@@ -33,7 +31,7 @@ func (m *BanditManager) evalContextualThompson(state *AlgorithmState, ctx map[st
 		// Sample from posterior: theta_sample ~ N(theta, A^-1 * prior_var)
 		// Simplified: add noise proportional to uncertainty
 		thetaSample := make([]float64, dim)
-		for i := 0; i < dim; i++ {
+		for i := range dim {
 			// Approximate posterior variance from diagonal of A^-1
 			variance := priorVar / (vs.A[i*dim+i] + 1e-6)
 			stdDev := math.Sqrt(variance)
@@ -56,8 +54,13 @@ func (m *BanditManager) evalContextualThompson(state *AlgorithmState, ctx map[st
 	return bestVariant
 }
 
-// updateContextualThompson updates the Thompson Sampling model with observed reward
-func (m *BanditManager) updateContextualThompson(state *AlgorithmState, variantKey string, reward float64, ctx map[string]any) {
+// updateContextualThompson updates the Thompson Sampling model with observed reward.
+func (m *BanditManager) updateContextualThompson(
+	state *AlgorithmState,
+	variantKey string,
+	reward float64,
+	ctx map[string]any,
+) {
 	cState := state.ContextualState
 	if cState == nil {
 		return
@@ -75,14 +78,14 @@ func (m *BanditManager) updateContextualThompson(state *AlgorithmState, variantK
 	dim := cState.FeatureDim
 
 	// Update A = A + x * x^T (same as LinUCB)
-	for i := 0; i < dim; i++ {
-		for j := 0; j < dim; j++ {
+	for i := range dim {
+		for j := range dim {
 			vs.A[i*dim+j] += features[i] * features[j]
 		}
 	}
 
 	// Update b = b + reward * x
-	for i := 0; i < dim; i++ {
+	for i := range dim {
 		vs.B[i] += reward * features[i]
 	}
 
@@ -91,13 +94,5 @@ func (m *BanditManager) updateContextualThompson(state *AlgorithmState, variantK
 		vs.Successes++
 	} else {
 		vs.Failures++
-	}
-}
-
-// getContextualThompsonSettings returns default settings for Contextual Thompson Sampling
-func getContextualThompsonSettings() map[string]decimal.Decimal {
-	return map[string]decimal.Decimal{
-		"prior_variance": decimal.NewFromFloat(1.0),  // Prior variance for sampling
-		"feature_dim":    decimal.NewFromFloat(32.0), // Feature dimension
 	}
 }

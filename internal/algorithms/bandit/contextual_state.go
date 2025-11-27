@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	// DefaultFeatureDim is the default dimension for feature hashing
+	// DefaultFeatureDim is the default dimension for feature hashing.
 	DefaultFeatureDim = 32
 )
 
-// ContextualVariantState holds the model state for one variant in contextual bandits
+// ContextualVariantState holds the model state for one variant in contextual bandits.
 type ContextualVariantState struct {
 	// For LinUCB: A matrix (d x d) stored as flat array, b vector (d)
 	A []float64 // d*d matrix stored row-major
@@ -29,7 +29,7 @@ type ContextualVariantState struct {
 	Failures  uint64
 }
 
-// ContextualAlgorithmState holds state for contextual bandit algorithms
+// ContextualAlgorithmState holds state for contextual bandit algorithms.
 type ContextualAlgorithmState struct {
 	FeatureDim int
 	Variants   map[string]*ContextualVariantState
@@ -37,8 +37,12 @@ type ContextualAlgorithmState struct {
 	mu         sync.RWMutex
 }
 
-// NewContextualAlgorithmState creates a new contextual state with given dimension
-func NewContextualAlgorithmState(dim int, variants []string, settings map[string]decimal.Decimal) *ContextualAlgorithmState {
+// NewContextualAlgorithmState creates a new contextual state with given dimension.
+func NewContextualAlgorithmState(
+	dim int,
+	variants []string,
+	settings map[string]decimal.Decimal,
+) *ContextualAlgorithmState {
 	if dim <= 0 {
 		dim = DefaultFeatureDim
 	}
@@ -59,7 +63,7 @@ func NewContextualAlgorithmState(dim int, variants []string, settings map[string
 func newContextualVariantState(dim int) *ContextualVariantState {
 	// Initialize A as identity matrix
 	a := make([]float64, dim*dim)
-	for i := 0; i < dim; i++ {
+	for i := range dim {
 		a[i*dim+i] = 1.0
 	}
 
@@ -71,7 +75,7 @@ func newContextualVariantState(dim int) *ContextualVariantState {
 	}
 }
 
-// ContextToFeatures converts context map to feature vector using feature hashing
+// ContextToFeatures converts context map to feature vector using feature hashing.
 func ContextToFeatures(ctx map[string]any, dim int) []float64 {
 	features := make([]float64, dim)
 
@@ -128,7 +132,7 @@ func sqrt(x float64) float64 {
 		return 0
 	}
 	z := x
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		z -= (z*z - x) / (2 * z)
 	}
 
