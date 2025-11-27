@@ -19,7 +19,7 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/rom8726/pgfixtures"
-	"github.com/rom8726/testy"
+	"github.com/rom8726/testy/v2"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"

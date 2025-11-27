@@ -18,7 +18,7 @@ const (
 	AlgorithmTypeBayesOpt         AlgorithmType = "bayes_opt"
 	AlgorithmTypeCEM              AlgorithmType = "cem"
 	AlgorithmTypeSimAnnealing     AlgorithmType = "simulated_annealing"
-	// Contextual bandits
+	// Contextual bandits.
 	AlgorithmTypeLinUCB             AlgorithmType = "lin_ucb"
 	AlgorithmTypeContextualThompson AlgorithmType = "contextual_thompson"
 	AlgorithmTypeContextualEpsilon  AlgorithmType = "contextual_epsilon"
@@ -89,6 +89,8 @@ func (algType AlgorithmType) Kind() AlgorithmKind {
 		return AlgorithmKindOptimizer
 	case AlgorithmTypeLinUCB, AlgorithmTypeContextualThompson, AlgorithmTypeContextualEpsilon:
 		return AlgorithmKindContextualBandit
+	case AlgorithmTypeUnknown:
+		return AlgorithmKindUnknown
 	default:
 		return AlgorithmKindUnknown
 	}

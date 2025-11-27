@@ -2,8 +2,6 @@ package bandit
 
 import (
 	"math"
-
-	"github.com/shopspring/decimal"
 )
 
 // evalLinUCB implements the Linear Upper Confidence Bound algorithm.
@@ -54,7 +52,7 @@ func (m *BanditManager) evalLinUCB(state *AlgorithmState, ctx map[string]any) st
 	return bestVariant
 }
 
-// updateLinUCB updates the LinUCB model with observed reward
+// updateLinUCB updates the LinUCB model with observed reward.
 func (m *BanditManager) updateLinUCB(state *AlgorithmState, variantKey string, reward float64, ctx map[string]any) {
 	cState := state.ContextualState
 	if cState == nil {
@@ -73,14 +71,14 @@ func (m *BanditManager) updateLinUCB(state *AlgorithmState, variantKey string, r
 	dim := cState.FeatureDim
 
 	// Update A = A + x * x^T
-	for i := 0; i < dim; i++ {
-		for j := 0; j < dim; j++ {
+	for i := range dim {
+		for j := range dim {
 			vs.A[i*dim+j] += features[i] * features[j]
 		}
 	}
 
 	// Update b = b + reward * x
-	for i := 0; i < dim; i++ {
+	for i := range dim {
 		vs.B[i] += reward * features[i]
 	}
 
@@ -92,7 +90,9 @@ func (m *BanditManager) updateLinUCB(state *AlgorithmState, variantKey string, r
 	}
 }
 
-// solveLinear solves Ax = b using Gaussian elimination (simplified)
+// solveLinear solves Ax = b using Gaussian elimination (simplified).
+//
+//nolint:gocritic
 func solveLinear(A, b []float64, dim int) []float64 {
 	// Create working copies
 	a := make([]float64, dim*dim)
@@ -101,7 +101,7 @@ func solveLinear(A, b []float64, dim int) []float64 {
 	copy(x, b)
 
 	// Forward elimination with partial pivoting
-	for k := 0; k < dim; k++ {
+	for k := range dim {
 		// Find pivot
 		maxVal := math.Abs(a[k*dim+k])
 		maxRow := k
@@ -139,6 +139,7 @@ func solveLinear(A, b []float64, dim int) []float64 {
 	for i := dim - 1; i >= 0; i-- {
 		if math.Abs(a[i*dim+i]) < 1e-10 {
 			x[i] = 0
+
 			continue
 		}
 		for j := i + 1; j < dim; j++ {
@@ -155,13 +156,6 @@ func dotProduct(a, b []float64) float64 {
 	for i := range a {
 		sum += a[i] * b[i]
 	}
-	return sum
-}
 
-// getLinUCBSettings returns default settings for LinUCB
-func getLinUCBSettings() map[string]decimal.Decimal {
-	return map[string]decimal.Decimal{
-		"alpha":       decimal.NewFromFloat(1.0),  // Exploration parameter
-		"feature_dim": decimal.NewFromFloat(32.0), // Feature dimension
-	}
+	return sum
 }

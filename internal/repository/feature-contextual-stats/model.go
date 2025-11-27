@@ -1,14 +1,14 @@
 package feature_contextual_stats
 
 import (
-	"time"
+	"encoding/json"
 
 	"github.com/shopspring/decimal"
 
 	"github.com/togglr-project/togglr/internal/domain"
 )
 
-type featureContextualStatsModel struct {
+type rawModel struct {
 	ProjectID      string          `db:"project_id"`
 	EnvironmentID  int64           `db:"environment_id"`
 	FeatureID      string          `db:"feature_id"`
@@ -17,16 +17,26 @@ type featureContextualStatsModel struct {
 	FeatureKey     string          `db:"feature_key"`
 	EnvironmentKey string          `db:"environment_key"`
 	FeatureDim     int             `db:"feature_dim"`
-	MatrixA        []float64       `db:"matrix_a"`
-	VectorB        []float64       `db:"vector_b"`
+	MatrixA        []byte          `db:"matrix_a"`
+	VectorB        []byte          `db:"vector_b"`
 	Pulls          uint64          `db:"pulls"`
 	TotalReward    decimal.Decimal `db:"total_reward"`
 	Successes      uint64          `db:"successes"`
 	Failures       uint64          `db:"failures"`
-	UpdatedAt      time.Time       `db:"updated_at"`
 }
 
-func (m *featureContextualStatsModel) toDomain() domain.FeatureContextualStats {
+func (m *rawModel) toDomain() domain.FeatureContextualStats {
+	var matrixA []float64
+	var vectorB []float64
+
+	if len(m.MatrixA) > 0 {
+		_ = json.Unmarshal(m.MatrixA, &matrixA)
+	}
+
+	if len(m.VectorB) > 0 {
+		_ = json.Unmarshal(m.VectorB, &vectorB)
+	}
+
 	return domain.FeatureContextualStats{
 		ProjectID:      domain.ProjectID(m.ProjectID),
 		EnvironmentID:  domain.EnvironmentID(m.EnvironmentID),
@@ -36,12 +46,11 @@ func (m *featureContextualStatsModel) toDomain() domain.FeatureContextualStats {
 		FeatureKey:     m.FeatureKey,
 		EnvironmentKey: m.EnvironmentKey,
 		FeatureDim:     m.FeatureDim,
-		MatrixA:        m.MatrixA,
-		VectorB:        m.VectorB,
+		MatrixA:        matrixA,
+		VectorB:        vectorB,
 		Pulls:          m.Pulls,
 		TotalReward:    m.TotalReward,
 		Successes:      m.Successes,
 		Failures:       m.Failures,
-		UpdatedAt:      m.UpdatedAt,
 	}
 }

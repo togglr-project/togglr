@@ -237,6 +237,7 @@ func (app *App) registerComponent(constructor any) *di.Provider {
 	return app.container.Provide(constructor)
 }
 
+//nolint:maintidx
 func (app *App) registerComponents() {
 	app.registerComponent(db.NewTxManager).Arg(app.PostgresPool)
 	app.registerComponent(func() *natsmq.NATSMq {
